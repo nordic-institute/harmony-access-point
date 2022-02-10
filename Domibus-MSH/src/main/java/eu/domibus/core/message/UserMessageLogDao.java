@@ -133,14 +133,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
      */
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId) {
-        try {
-            final UserMessageLog userMessageLog = findByMessageId(messageId);
-            initializeChildren(userMessageLog);
-            return userMessageLog;
-        } catch (NoResultException nrEx) {
+        final UserMessageLog userMessageLog = findByMessageId(messageId);
+        if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
         }
+        initializeChildren(userMessageLog);
+        return userMessageLog;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -204,10 +203,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public UserMessageLog findByMessageId(String messageId) {
 
-        //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        return query.getSingleResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
+            LOG.debug("Query UserMessageLog.findMessageToDeleteNotInFinalStatus did not find any result for message with id [" + messageId + "]");
+            return null;
+        }
 
     }
 

@@ -2,12 +2,14 @@ package eu.domibus.core.message.attempt;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -42,6 +44,9 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
     @Override
     public List<MessageAttempt> getAttemptsHistory(String messageId) {
         final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId(messageId);
+        if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId) == null) {
+            throw new MessageNotFoundException(messageId);
+        }
         return messageCoreConverter.messageAttemptEntityListToMessageAttemptList(entities);
     }
 

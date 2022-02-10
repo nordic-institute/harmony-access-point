@@ -3,12 +3,14 @@ package eu.domibus.core.message.acknowledge;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.SignalMessageResult;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -24,7 +26,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -47,9 +48,6 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     @Autowired
     private SignalMessageLogDao signalMessageLogDao;
-
-    @Autowired
-    private UserMessageDao userMessageDao;
 
     @Autowired
     Ebms3MessagingDocumentParser ebms3MessagingDocumentParser;
@@ -76,9 +74,6 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         Timestamp acknowledgetTimestamp = new Timestamp(System.currentTimeMillis());
         String from = "C3";
         String to = "C4";
-        Map<String, String> properties = new HashMap<>();
-        properties.put("prop1", "value1");
-        properties.put("prop1", "value1");
 
         UserMessageLog msg1 = messageDaoTestUtil.createUserMessageLog(messageId, new Date(), MSHRole.RECEIVING, MessageStatus.RECEIVED);
 
@@ -107,6 +102,16 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     @Test
     @Transactional
+    public void testSaveMessageAcknowledge_notFound() {
+        final List<MessageAcknowledgementEntity> retrievedEntityList = this.messageAcknowledgementDao.findByMessageId("notFound");
+
+        assertNotNull(retrievedEntityList);
+        assertEquals(0, retrievedEntityList.size());
+
+    }
+
+    @Test
+    @Transactional
     public void testMessaging() throws Exception {
         Ebms3SignalMessage signalMessage = getSignalMessage();
 
@@ -127,7 +132,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         // Saves an entry of the signal message log
         signalMessageLogDao.create(smlBuilder.build());
 
-        List<MessageLogInfo> allInfoPaged = signalMessageLogDao.findAllInfoPaged(1, 100, null, false, new HashMap<String, Object>());
+        List<MessageLogInfo> allInfoPaged = signalMessageLogDao.findAllInfoPaged(1, 100, null, false, new HashMap<>());
         System.out.println("results:" + allInfoPaged);
     }
 

@@ -1,6 +1,7 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -102,7 +103,7 @@ public class PullMessageServiceImpl implements PullMessageService {
 
         final MessagingLock lock = getLock(messageId);
         if (lock == null || MessageState.PROCESS != lock.getMessageState()) {
-            LOG.warn("Message[] could not acquire lock when updating status, it has been handled by another process.", messageId);
+            LOG.warn("Message [{}] could not acquire lock when updating status, it has been handled by another process.", messageId);
             return;
         }
 
@@ -409,6 +410,9 @@ public class PullMessageServiceImpl implements PullMessageService {
         }
         LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] checking if can be retry, attempts[{}], max attempts[{}], expiration date[{}]", lock.getMessageId(), lock.getSendAttempts(), lock.getSendAttemptsMax(), lock.getStaled());
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId());
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
+        }
         if (lock.getSendAttempts() < lock.getSendAttemptsMax() && lock.getStaled().getTime() > System.currentTimeMillis()) {
             LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] set ready for pulling", lock.getMessageId());
             pullMessageStateService.reset(userMessageLog, messageId);
@@ -434,7 +438,11 @@ public class PullMessageServiceImpl implements PullMessageService {
         MessagingLock lock = messagingLockDao.getLock(messageId);
         if (lock != null && MessageState.ACK != lock.getMessageState()) {
             LOG.debug("[bulkExpirePullMessages]:Message:[{}] expired.", lock.getMessageId());
-            pullMessageStateService.sendFailed(userMessageLogDao.findByMessageId(lock.getMessageId()), messageId);
+            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId());
+            if (userMessageLog == null) {
+                throw new MessageNotFoundException(messageId);
+            }
+            pullMessageStateService.sendFailed(userMessageLog, messageId);
             delete(lock);
         }
     }

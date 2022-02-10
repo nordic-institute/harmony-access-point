@@ -11,6 +11,7 @@ import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,13 +40,13 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     }
 
     @Override
-    public UserMessageDTO getMessage(String messageId) throws UserMessageExtException {
+    public UserMessageDTO getMessage(String messageId) throws MessageNotFoundException {
         LOG.debug("Getting message with messageId[{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
         final UserMessage userMessage = userMessageCoreService.getMessage(messageId);
         if (userMessage == null) {
-            return null;
+            throw new MessageNotFoundException(String.format("Message [%s] was not found", messageId));
         }
         return domibusExtMapper.userMessageToUserMessageDTO(userMessage);
     }
