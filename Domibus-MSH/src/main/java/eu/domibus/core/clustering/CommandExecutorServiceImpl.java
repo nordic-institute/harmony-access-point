@@ -108,12 +108,12 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
     protected boolean skipCommandSameServer(final String command, Map<String, String> commandProperties) {
         if (commandProperties == null) {
             LOG.trace("Skipping command [{}]: no command properties found", command);
-            return false;
+            return true;
         }
         String originServerName = commandProperties.get(CommandProperty.ORIGIN_SERVER);
         if (StringUtils.isBlank(originServerName)) {
             LOG.trace("Skipping command [{}]: no origin server found", command);
-            return false;
+            return true;
         }
         final String serverName = serverInfoService.getServerName();
         if (serverName.equalsIgnoreCase(originServerName)) {

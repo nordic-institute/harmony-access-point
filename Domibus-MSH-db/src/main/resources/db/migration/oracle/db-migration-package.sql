@@ -6,6 +6,7 @@
 -- Parameters to be adjusted:
 -- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
 --              default value is 10000
+-- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 10000
 -- VERBOSE_LOGS - more information into the logs; default to false
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
@@ -15,6 +16,9 @@
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
     BATCH_SIZE CONSTANT NUMBER := 10000;
+
+    -- limit loading a high number of records into memory
+    BULK_COLLECT_LIMIT CONSTANT NUMBER := 10000;
 
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
@@ -104,8 +108,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     FUNCTION generate_scalable_seq(incr IN NUMBER, creation_time IN DATE) RETURN NUMBER IS
         seq_id NUMBER;
+        date_format CONSTANT VARCHAR2(255) := 'YYMMDDHH24';
         len CONSTANT VARCHAR2(255) := 'FM0000000000';
-        date_format CONSTANT VARCHAR2(255) := 'YYMMDDHH';
     BEGIN
         SELECT to_number(to_char(creation_time, date_format) || to_char(incr, len))
         INTO seq_id
@@ -541,7 +545,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_message;
         LOOP
-            FETCH c_user_message BULK COLLECT INTO user_message;
+            FETCH c_user_message BULK COLLECT INTO user_message LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_message.COUNT = 0;
 
             FOR i IN user_message.FIRST .. user_message.LAST
@@ -594,7 +598,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_message.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_message.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -640,7 +644,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_fragment;
         LOOP
-            FETCH c_message_fragment BULK COLLECT INTO message_fragment;
+            FETCH c_message_fragment BULK COLLECT INTO message_fragment LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_fragment.COUNT = 0;
 
             FOR i IN message_fragment.FIRST .. message_fragment.LAST
@@ -669,7 +673,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records in total');
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records');
         END LOOP;
 
         COMMIT;
@@ -723,7 +727,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_group;
         LOOP
-            FETCH c_message_group BULK COLLECT INTO message_group;
+            FETCH c_message_group BULK COLLECT INTO message_group LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_group.COUNT = 0;
 
             FOR i IN message_group.FIRST .. message_group.LAST
@@ -769,7 +773,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_group.COUNT || ' records in total');
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_group.COUNT || ' records');
         END LOOP;
 
         COMMIT;
@@ -812,7 +816,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_header;
         LOOP
-            FETCH c_message_header BULK COLLECT INTO message_header;
+            FETCH c_message_header BULK COLLECT INTO message_header LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_header.COUNT = 0;
 
             FOR i IN message_header.FIRST .. message_header.LAST
@@ -842,7 +846,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_header.COUNT || ' records in total');
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_header.COUNT || ' records');
         END LOOP;
 
         COMMIT;
@@ -912,7 +916,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     v_tab_signal || ' ,' || v_tab_receipt || ' and' || v_tab_receipt_data || ' migration started...');
         OPEN c_signal_message_receipt;
         LOOP
-            FETCH c_signal_message_receipt BULK COLLECT INTO signal_message_receipt;
+            FETCH c_signal_message_receipt BULK COLLECT INTO signal_message_receipt LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN signal_message_receipt.COUNT = 0;
 
             FOR i IN signal_message_receipt.FIRST .. signal_message_receipt.LAST
@@ -959,7 +963,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || signal_message_receipt.COUNT || ' records in total into ' || v_tab_signal_new ||
+                        'Migrated ' || signal_message_receipt.COUNT || ' records into ' || v_tab_signal_new ||
                         ' and ' || v_tab_receipt_new);
         END LOOP;
 
@@ -1033,7 +1037,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     v_tab || ' migration started...');
         OPEN c_raw_envelope;
         LOOP
-            FETCH c_raw_envelope BULK COLLECT INTO raw_envelope;
+            FETCH c_raw_envelope BULK COLLECT INTO raw_envelope LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN raw_envelope.COUNT = 0;
 
             FOR i IN raw_envelope.FIRST .. raw_envelope.LAST
@@ -1095,7 +1099,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || raw_envelope.COUNT || ' records in total into ' || v_tab_migrated);
+                        'Migrated ' || raw_envelope.COUNT || ' records into ' || v_tab_migrated);
         END LOOP;
 
         COMMIT;
@@ -1151,7 +1155,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_log;
         LOOP
-            FETCH c_message_log BULK COLLECT INTO message_log;
+            FETCH c_message_log BULK COLLECT INTO message_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_log.COUNT = 0;
 
             FOR i IN message_log.FIRST .. message_log.LAST
@@ -1236,8 +1240,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     v_count := i;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || message_log.COUNT || ' records in total. ' || v_count_user || ' into ' ||
-                        v_tab_user_new ||
+                        'Migrated ' || message_log.COUNT || ' records: ' || v_count_user || ' into ' || v_tab_user_new ||
                         ' and ' || v_count_signal || ' into ' || v_tab_signal_new);
         END LOOP;
 
@@ -1280,7 +1283,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_property;
         LOOP
-            FETCH c_property BULK COLLECT INTO property;
+            FETCH c_property BULK COLLECT INTO property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN property.COUNT = 0;
 
             FOR i IN property.FIRST .. property.LAST
@@ -1312,7 +1315,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || property.COUNT || ' records in total into ' ||
+                        'Migrated ' || property.COUNT || ' records into ' ||
                         v_tab_message_new);
         END LOOP;
 
@@ -1355,7 +1358,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_part_info;
         LOOP
-            FETCH c_part_info BULK COLLECT INTO part_info;
+            FETCH c_part_info BULK COLLECT INTO part_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN part_info.COUNT = 0;
 
             FOR i IN part_info.FIRST .. part_info.LAST
@@ -1398,7 +1401,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || part_info.COUNT || ' records in total into ' ||
+                        'Migrated ' || part_info.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1440,7 +1443,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab_info || ' and ' || v_tab_property || ' migration started...');
         OPEN c_part_prop;
         LOOP
-            FETCH c_part_prop BULK COLLECT INTO part_prop;
+            FETCH c_part_prop BULK COLLECT INTO part_prop LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN part_prop.COUNT = 0;
 
             FOR i IN part_prop.FIRST .. part_prop.LAST
@@ -1472,7 +1475,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || part_prop.COUNT || ' records in total into ' ||
+                        'Migrated ' || part_prop.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1518,7 +1521,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_error_log;
         LOOP
-            FETCH c_error_log BULK COLLECT INTO error_log;
+            FETCH c_error_log BULK COLLECT INTO error_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN error_log.COUNT = 0;
 
             FOR i IN error_log.FIRST .. error_log.LAST
@@ -1561,7 +1564,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || error_log.COUNT || ' records in total into ' ||
+                        'Migrated ' || error_log.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1605,7 +1608,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_acknw;
         LOOP
-            FETCH c_message_acknw BULK COLLECT INTO message_acknw;
+            FETCH c_message_acknw BULK COLLECT INTO message_acknw LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_acknw.COUNT = 0;
 
             FOR i IN message_acknw.FIRST .. message_acknw.LAST
@@ -1641,7 +1644,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || message_acknw.COUNT || ' records in total into ' ||
+                        'Migrated ' || message_acknw.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1685,7 +1688,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_send_attempt;
         LOOP
-            FETCH c_send_attempt BULK COLLECT INTO send_attempt;
+            FETCH c_send_attempt BULK COLLECT INTO send_attempt LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN send_attempt.COUNT = 0;
 
             FOR i IN send_attempt.FIRST .. send_attempt.LAST
@@ -1721,7 +1724,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 END;
             END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || send_attempt.COUNT || ' records in total into ' ||
+                        'Migrated ' || send_attempt.COUNT || ' records into ' ||
                         v_tab_new);
         END LOOP;
 
@@ -1760,7 +1763,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_action_audit;
         LOOP
-            FETCH c_action_audit BULK COLLECT INTO action_audit;
+            FETCH c_action_audit BULK COLLECT INTO action_audit LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN action_audit.COUNT = 0;
 
             FOR i IN action_audit.FIRST .. action_audit.LAST
@@ -1797,7 +1800,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || action_audit.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || action_audit.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1839,7 +1842,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_alert;
         LOOP
-            FETCH c_alert BULK COLLECT INTO alert;
+            FETCH c_alert BULK COLLECT INTO alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN alert.COUNT = 0;
 
             FOR i IN alert.FIRST .. alert.LAST
@@ -1882,7 +1885,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || alert.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || alert.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1916,7 +1919,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event;
         LOOP
-            FETCH c_event BULK COLLECT INTO event;
+            FETCH c_event BULK COLLECT INTO event LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event.COUNT = 0;
 
             FOR i IN event.FIRST .. event.LAST
@@ -1947,7 +1950,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             DBMS_OUTPUT.PUT_LINE('migrate_event -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -1980,7 +1983,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event_alert;
         LOOP
-            FETCH c_event_alert BULK COLLECT INTO event_alert;
+            FETCH c_event_alert BULK COLLECT INTO event_alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_alert.COUNT = 0;
 
             FOR i IN event_alert.FIRST .. event_alert.LAST
@@ -2010,7 +2013,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_alert.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_alert.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2047,7 +2050,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_event_property;
         LOOP
-            FETCH c_event_property BULK COLLECT INTO event_property;
+            FETCH c_event_property BULK COLLECT INTO event_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_property.COUNT = 0;
 
             FOR i IN event_property.FIRST .. event_property.LAST
@@ -2082,7 +2085,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || event_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2124,7 +2127,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_authentication_entry;
         LOOP
-            FETCH c_authentication_entry BULK COLLECT INTO authentication_entry;
+            FETCH c_authentication_entry BULK COLLECT INTO authentication_entry LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN authentication_entry.COUNT = 0;
 
             FOR i IN authentication_entry.FIRST .. authentication_entry.LAST
@@ -2167,7 +2170,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2203,7 +2206,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_plugin_user_passwd_history;
         LOOP
-            FETCH c_plugin_user_passwd_history BULK COLLECT INTO plugin_user_passwd_history;
+            FETCH c_plugin_user_passwd_history BULK COLLECT INTO plugin_user_passwd_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN plugin_user_passwd_history.COUNT = 0;
 
             FOR i IN plugin_user_passwd_history.FIRST .. plugin_user_passwd_history.LAST
@@ -2237,7 +2240,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || plugin_user_passwd_history.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || plugin_user_passwd_history.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2270,7 +2273,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_backend_filter;
         LOOP
-            FETCH c_backend_filter BULK COLLECT INTO backend_filter;
+            FETCH c_backend_filter BULK COLLECT INTO backend_filter LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN backend_filter.COUNT = 0;
 
             FOR i IN backend_filter.FIRST .. backend_filter.LAST
@@ -2301,7 +2304,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2337,7 +2340,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_routing_criteria;
         LOOP
-            FETCH c_routing_criteria BULK COLLECT INTO routing_criteria;
+            FETCH c_routing_criteria BULK COLLECT INTO routing_criteria LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN routing_criteria.COUNT = 0;
 
             FOR i IN routing_criteria.FIRST .. routing_criteria.LAST
@@ -2372,7 +2375,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2411,7 +2414,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_certificate;
         LOOP
-            FETCH c_certificate BULK COLLECT INTO certificate;
+            FETCH c_certificate BULK COLLECT INTO certificate LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN certificate.COUNT = 0;
 
             FOR i IN certificate.FIRST .. certificate.LAST
@@ -2451,7 +2454,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2484,7 +2487,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_command;
         LOOP
-            FETCH c_command BULK COLLECT INTO command;
+            FETCH c_command BULK COLLECT INTO command LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command.COUNT = 0;
 
             FOR i IN command.FIRST .. command.LAST
@@ -2515,7 +2518,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || command.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || command.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2548,7 +2551,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_command_property;
         LOOP
-            FETCH c_command_property BULK COLLECT INTO command_property;
+            FETCH c_command_property BULK COLLECT INTO command_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command_property.COUNT = 0;
 
             FOR i IN command_property.FIRST .. command_property.LAST
@@ -2578,7 +2581,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || command_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || command_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2612,7 +2615,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_encryption_key;
         LOOP
-            FETCH c_encryption_key BULK COLLECT INTO encryption_key;
+            FETCH c_encryption_key BULK COLLECT INTO encryption_key LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN encryption_key.COUNT = 0;
 
             FOR i IN encryption_key.FIRST .. encryption_key.LAST
@@ -2643,7 +2646,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || encryption_key.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || encryption_key.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2678,7 +2681,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_message_acknw_prop;
         LOOP
-            FETCH c_message_acknw_prop BULK COLLECT INTO message_acknw_prop;
+            FETCH c_message_acknw_prop BULK COLLECT INTO message_acknw_prop LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_acknw_prop.COUNT = 0;
 
             FOR i IN message_acknw_prop.FIRST .. message_acknw_prop.LAST
@@ -2711,7 +2714,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || message_acknw_prop.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || message_acknw_prop.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2753,7 +2756,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_messaging_lock;
         LOOP
-            FETCH c_messaging_lock BULK COLLECT INTO messaging_lock;
+            FETCH c_messaging_lock BULK COLLECT INTO messaging_lock LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN messaging_lock.COUNT = 0;
 
             FOR i IN messaging_lock.FIRST .. messaging_lock.LAST
@@ -2796,7 +2799,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || messaging_lock.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || messaging_lock.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2827,7 +2830,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_business_process;
         LOOP
-            FETCH c_pm_business_process BULK COLLECT INTO pm_business_process;
+            FETCH c_pm_business_process BULK COLLECT INTO pm_business_process LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_business_process.COUNT = 0;
 
             FOR i IN pm_business_process.FIRST .. pm_business_process.LAST
@@ -2856,7 +2859,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_business_process.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_business_process.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2891,7 +2894,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_action;
         LOOP
-            FETCH c_pm_action BULK COLLECT INTO pm_action;
+            FETCH c_pm_action BULK COLLECT INTO pm_action LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_action.COUNT = 0;
 
             FOR i IN pm_action.FIRST .. pm_action.LAST
@@ -2924,7 +2927,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_action.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_action.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -2960,7 +2963,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_agreement;
         LOOP
-            FETCH c_pm_agreement BULK COLLECT INTO pm_agreement;
+            FETCH c_pm_agreement BULK COLLECT INTO pm_agreement LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_agreement.COUNT = 0;
 
             FOR i IN pm_agreement.FIRST .. pm_agreement.LAST
@@ -2994,7 +2997,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_agreement.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_agreement.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3032,7 +3035,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_error_handling;
         LOOP
-            FETCH c_pm_error_handling BULK COLLECT INTO pm_error_handling;
+            FETCH c_pm_error_handling BULK COLLECT INTO pm_error_handling LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_error_handling.COUNT = 0;
 
             FOR i IN pm_error_handling.FIRST .. pm_error_handling.LAST
@@ -3071,7 +3074,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_error_handling.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_error_handling.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3107,7 +3110,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_mep;
         LOOP
-            FETCH c_pm_mep BULK COLLECT INTO pm_mep;
+            FETCH c_pm_mep BULK COLLECT INTO pm_mep LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mep.COUNT = 0;
 
             FOR i IN pm_mep.FIRST .. pm_mep.LAST
@@ -3141,7 +3144,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3176,7 +3179,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_mep_binding;
         LOOP
-            FETCH c_pm_mep_binding BULK COLLECT INTO pm_mep_binding;
+            FETCH c_pm_mep_binding BULK COLLECT INTO pm_mep_binding LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mep_binding.COUNT = 0;
 
             FOR i IN pm_mep_binding.FIRST .. pm_mep_binding.LAST
@@ -3209,7 +3212,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep_binding.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mep_binding.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3246,7 +3249,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_message_property;
         LOOP
-            FETCH c_pm_message_property BULK COLLECT INTO pm_message_property;
+            FETCH c_pm_message_property BULK COLLECT INTO pm_message_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_message_property.COUNT = 0;
 
             FOR i IN pm_message_property.FIRST .. pm_message_property.LAST
@@ -3282,7 +3285,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3316,7 +3319,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_message_property_set;
         LOOP
-            FETCH c_pm_message_property_set BULK COLLECT INTO pm_message_property_set;
+            FETCH c_pm_message_property_set BULK COLLECT INTO pm_message_property_set LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_message_property_set.COUNT = 0;
 
             FOR i IN pm_message_property_set.FIRST .. pm_message_property_set.LAST
@@ -3348,7 +3351,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property_set.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_message_property_set.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3381,7 +3384,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_property_set;
         LOOP
-            FETCH c_pm_join_property_set BULK COLLECT INTO pm_join_property_set;
+            FETCH c_pm_join_property_set BULK COLLECT INTO pm_join_property_set LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_property_set.COUNT = 0;
 
             FOR i IN pm_join_property_set.FIRST .. pm_join_property_set.LAST
@@ -3411,7 +3414,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_property_set.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_property_set.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3448,7 +3451,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party;
         LOOP
-            FETCH c_pm_party BULK COLLECT INTO pm_party;
+            FETCH c_pm_party BULK COLLECT INTO pm_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party.COUNT = 0;
 
             FOR i IN pm_party.FIRST .. pm_party.LAST
@@ -3483,7 +3486,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3518,7 +3521,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration;
         LOOP
-            FETCH c_pm_configuration BULK COLLECT INTO pm_configuration;
+            FETCH c_pm_configuration BULK COLLECT INTO pm_configuration LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration.COUNT = 0;
 
             FOR i IN pm_configuration.FIRST .. pm_configuration.LAST
@@ -3551,7 +3554,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3593,7 +3596,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_mpc;
         LOOP
-            FETCH c_pm_mpc BULK COLLECT INTO pm_mpc;
+            FETCH c_pm_mpc BULK COLLECT INTO pm_mpc LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mpc.COUNT = 0;
 
             FOR i IN pm_mpc.FIRST .. pm_mpc.LAST
@@ -3634,7 +3637,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             DBMS_OUTPUT.PUT_LINE('migrate_pm_mpc -> insert error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mpc.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_mpc.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3669,7 +3672,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_id_type;
         LOOP
-            FETCH c_pm_party_id_type BULK COLLECT INTO pm_party_id_type;
+            FETCH c_pm_party_id_type BULK COLLECT INTO pm_party_id_type LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_id_type.COUNT = 0;
 
             FOR i IN pm_party_id_type.FIRST .. pm_party_id_type.LAST
@@ -3702,7 +3705,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3738,7 +3741,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_identifier;
         LOOP
-            FETCH c_pm_party_identifier BULK COLLECT INTO pm_party_identifier;
+            FETCH c_pm_party_identifier BULK COLLECT INTO pm_party_identifier LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_identifier.COUNT = 0;
 
             FOR i IN pm_party_identifier.FIRST .. pm_party_identifier.LAST
@@ -3773,7 +3776,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3813,7 +3816,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_payload;
         LOOP
-            FETCH c_pm_payload BULK COLLECT INTO pm_payload;
+            FETCH c_pm_payload BULK COLLECT INTO pm_payload LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_payload.COUNT = 0;
 
             FOR i IN pm_payload.FIRST .. pm_payload.LAST
@@ -3852,7 +3855,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -3887,7 +3890,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_payload_profile;
         LOOP
-            FETCH c_pm_payload_profile BULK COLLECT INTO pm_payload_profile;
+            FETCH c_pm_payload_profile BULK COLLECT INTO pm_payload_profile LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_payload_profile.COUNT = 0;
 
             FOR i IN pm_payload_profile.FIRST .. pm_payload_profile.LAST
@@ -3921,7 +3924,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload_profile.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_payload_profile.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_payload_profile;
 
@@ -3947,14 +3950,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_payload_profile;
         LOOP
-            FETCH c_pm_join_payload_profile BULK COLLECT INTO pm_join_payload_profile;
+            FETCH c_pm_join_payload_profile BULK COLLECT INTO pm_join_payload_profile LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_payload_profile.COUNT = 0;
 
             FOR i IN pm_join_payload_profile.FIRST .. pm_join_payload_profile.LAST
                 LOOP
                     BEGIN
-                        lookup_migration_pk('pm_payload', migration_pks, pm_join_payload_profile(i).FK_PAYLOAD, v_fk_payload);
-                        lookup_migration_pk('pm_payload_profile', migration_pks, pm_join_payload_profile(i).FK_PROFILE, v_fk_profile);
+                        lookup_migration_pk('pm_payload_profile', migration_pks, pm_join_payload_profile(i).FK_PAYLOAD, v_fk_payload);
+                        lookup_migration_pk('pm_payload', migration_pks, pm_join_payload_profile(i).FK_PROFILE, v_fk_profile);
 
                         INSERT INTO MIGR_TB_PM_JOIN_PAYLD_PROFILE (FK_PAYLOAD, FK_PROFILE, CREATION_TIME, CREATED_BY,
                                                                    MODIFICATION_TIME, MODIFIED_BY)
@@ -3977,7 +3980,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_payload_profile.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_payload_profile.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_join_payload_profile;
 
@@ -4008,7 +4011,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_reception_awareness;
         LOOP
-            FETCH c_pm_reception_awareness BULK COLLECT INTO pm_reception_awareness;
+            FETCH c_pm_reception_awareness BULK COLLECT INTO pm_reception_awareness LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_reception_awareness.COUNT = 0;
 
             FOR i IN pm_reception_awareness.FIRST .. pm_reception_awareness.LAST
@@ -4046,7 +4049,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reception_awareness.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reception_awareness.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_reception_awareness;
 
@@ -4075,7 +4078,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_reliability;
         LOOP
-            FETCH c_pm_reliability BULK COLLECT INTO pm_reliability;
+            FETCH c_pm_reliability BULK COLLECT INTO pm_reliability LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_reliability.COUNT = 0;
 
             FOR i IN pm_reliability.FIRST .. pm_reliability.LAST
@@ -4110,7 +4113,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reliability.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_reliability.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_reliability;
 
@@ -4138,7 +4141,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_role;
         LOOP
-            FETCH c_pm_role BULK COLLECT INTO pm_role;
+            FETCH c_pm_role BULK COLLECT INTO pm_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_role.COUNT = 0;
 
             FOR i IN pm_role.FIRST .. pm_role.LAST
@@ -4171,7 +4174,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_role.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_role.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_role;
 
@@ -4200,7 +4203,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_security;
         LOOP
-            FETCH c_pm_security BULK COLLECT INTO pm_security;
+            FETCH c_pm_security BULK COLLECT INTO pm_security LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_security.COUNT = 0;
 
             FOR i IN pm_security.FIRST .. pm_security.LAST
@@ -4234,7 +4237,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_security.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_security.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_security;
 
@@ -4263,7 +4266,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_service;
         LOOP
-            FETCH c_pm_service BULK COLLECT INTO pm_service;
+            FETCH c_pm_service BULK COLLECT INTO pm_service LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_service.COUNT = 0;
 
             FOR i IN pm_service.FIRST .. pm_service.LAST
@@ -4297,7 +4300,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_service.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_service.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_service;
 
@@ -4328,7 +4331,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_splitting;
         LOOP
-            FETCH c_pm_splitting BULK COLLECT INTO pm_splitting;
+            FETCH c_pm_splitting BULK COLLECT INTO pm_splitting LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_splitting.COUNT = 0;
 
             FOR i IN pm_splitting.FIRST .. pm_splitting.LAST
@@ -4365,7 +4368,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_splitting.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_splitting.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_splitting;
 
@@ -4413,7 +4416,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_leg;
         LOOP
-            FETCH c_pm_leg BULK COLLECT INTO pm_leg;
+            FETCH c_pm_leg BULK COLLECT INTO pm_leg LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_leg.COUNT = 0;
 
             FOR i IN pm_leg.FIRST .. pm_leg.LAST
@@ -4469,7 +4472,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_leg;
 
@@ -4497,7 +4500,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_leg_mpc;
         LOOP
-            FETCH c_pm_leg_mpc BULK COLLECT INTO pm_leg_mpc;
+            FETCH c_pm_leg_mpc BULK COLLECT INTO pm_leg_mpc LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_leg_mpc.COUNT = 0;
 
             FOR i IN pm_leg_mpc.FIRST .. pm_leg_mpc.LAST
@@ -4529,7 +4532,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg_mpc.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_leg_mpc.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_leg_mpc;
 
@@ -4568,7 +4571,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_process;
         LOOP
-            FETCH c_pm_process BULK COLLECT INTO pm_process;
+            FETCH c_pm_process BULK COLLECT INTO pm_process LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_process.COUNT = 0;
 
             FOR i IN pm_process.FIRST .. pm_process.LAST
@@ -4614,7 +4617,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_process.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_process.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
     END migrate_pm_process;
@@ -4641,7 +4644,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_process_init_party;
         LOOP
-            FETCH c_pm_join_process_init_party BULK COLLECT INTO pm_join_process_init_party;
+            FETCH c_pm_join_process_init_party BULK COLLECT INTO pm_join_process_init_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_init_party.COUNT = 0;
 
             FOR i IN pm_join_process_init_party.FIRST .. pm_join_process_init_party.LAST
@@ -4671,7 +4674,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_init_party.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_init_party.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_join_process_init_party;
 
@@ -4697,7 +4700,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_process_leg;
         LOOP
-            FETCH c_pm_join_process_leg BULK COLLECT INTO pm_join_process_leg;
+            FETCH c_pm_join_process_leg BULK COLLECT INTO pm_join_process_leg LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_leg.COUNT = 0;
 
             FOR i IN pm_join_process_leg.FIRST .. pm_join_process_leg.LAST
@@ -4727,7 +4730,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_leg.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_leg.COUNT || ' records into ' || v_tab_new);
         END LOOP;
     END migrate_pm_join_process_leg;
 
@@ -4753,7 +4756,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_join_process_resp_party;
         LOOP
-            FETCH c_pm_join_process_resp_party BULK COLLECT INTO pm_join_process_resp_party;
+            FETCH c_pm_join_process_resp_party BULK COLLECT INTO pm_join_process_resp_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_resp_party.COUNT = 0;
 
             FOR i IN pm_join_process_resp_party.FIRST .. pm_join_process_resp_party.LAST
@@ -4783,7 +4786,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_resp_party.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_join_process_resp_party.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -4817,7 +4820,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration_raw;
         LOOP
-            FETCH c_pm_configuration_raw BULK COLLECT INTO pm_configuration_raw;
+            FETCH c_pm_configuration_raw BULK COLLECT INTO pm_configuration_raw LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_raw.COUNT = 0;
 
             FOR i IN pm_configuration_raw.FIRST .. pm_configuration_raw.LAST
@@ -4850,7 +4853,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -4891,7 +4894,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user;
         LOOP
-            FETCH c_user BULK COLLECT INTO v_user;
+            FETCH c_user BULK COLLECT INTO v_user LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN v_user.COUNT = 0;
 
             FOR i IN v_user.FIRST .. v_user.LAST
@@ -4932,7 +4935,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || v_user.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || v_user.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -4970,7 +4973,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_msg_deletion_job;
         LOOP
-            FETCH c_user_msg_deletion_job BULK COLLECT INTO user_msg_deletion_job;
+            FETCH c_user_msg_deletion_job BULK COLLECT INTO user_msg_deletion_job LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_msg_deletion_job.COUNT = 0;
 
             FOR i IN user_msg_deletion_job.FIRST .. user_msg_deletion_job.LAST
@@ -5007,7 +5010,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_msg_deletion_job.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_msg_deletion_job.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5042,7 +5045,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_password_history;
         LOOP
-            FETCH c_user_password_history BULK COLLECT INTO user_password_history;
+            FETCH c_user_password_history BULK COLLECT INTO user_password_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_password_history.COUNT = 0;
 
             FOR i IN user_password_history.FIRST .. user_password_history.LAST
@@ -5075,7 +5078,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_password_history.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_password_history.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5107,7 +5110,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_role;
         LOOP
-            FETCH c_user_role BULK COLLECT INTO user_role;
+            FETCH c_user_role BULK COLLECT INTO user_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role.COUNT = 0;
 
             FOR i IN user_role.FIRST .. user_role.LAST
@@ -5137,7 +5140,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5170,7 +5173,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_roles;
         LOOP
-            FETCH c_user_roles BULK COLLECT INTO user_roles;
+            FETCH c_user_roles BULK COLLECT INTO user_roles LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles.COUNT = 0;
 
             FOR i IN user_roles.FIRST .. user_roles.LAST
@@ -5200,7 +5203,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5234,7 +5237,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_ws_plugin_message_log;
         LOOP
-            FETCH c_ws_plugin_message_log BULK COLLECT INTO ws_plugin_message_log;
+            FETCH c_ws_plugin_message_log BULK COLLECT INTO ws_plugin_message_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN ws_plugin_message_log.COUNT = 0;
 
             FOR i IN ws_plugin_message_log.FIRST .. ws_plugin_message_log.LAST
@@ -5266,7 +5269,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || ws_plugin_message_log.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || ws_plugin_message_log.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5296,7 +5299,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_rev_info;
         LOOP
-            FETCH c_rev_info BULK COLLECT INTO rev_info;
+            FETCH c_rev_info BULK COLLECT INTO rev_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_info.COUNT = 0;
 
             FOR i IN rev_info.FIRST .. rev_info.LAST
@@ -5323,7 +5326,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_info.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_info.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5362,7 +5365,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_rev_changes;
         LOOP
-            FETCH c_rev_changes BULK COLLECT INTO rev_changes;
+            FETCH c_rev_changes BULK COLLECT INTO rev_changes LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_changes.COUNT = 0;
 
             FOR i IN rev_changes.FIRST .. rev_changes.LAST
@@ -5422,7 +5425,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_changes.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || rev_changes.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5470,7 +5473,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_authentication_entry_aud;
         LOOP
-            FETCH c_authentication_entry_aud BULK COLLECT INTO authentication_entry_aud;
+            FETCH c_authentication_entry_aud BULK COLLECT INTO authentication_entry_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN authentication_entry_aud.COUNT = 0;
 
             FOR i IN authentication_entry_aud.FIRST .. authentication_entry_aud.LAST
@@ -5519,7 +5522,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || authentication_entry_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5552,7 +5555,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_back_rcriteria_aud;
         LOOP
-            FETCH c_back_rcriteria_aud BULK COLLECT INTO back_rcriteria_aud;
+            FETCH c_back_rcriteria_aud BULK COLLECT INTO back_rcriteria_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN back_rcriteria_aud.COUNT = 0;
 
             FOR i IN back_rcriteria_aud.FIRST .. back_rcriteria_aud.LAST
@@ -5581,7 +5584,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || back_rcriteria_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || back_rcriteria_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5616,7 +5619,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_backend_filter_aud;
         LOOP
-            FETCH c_backend_filter_aud BULK COLLECT INTO backend_filter_aud;
+            FETCH c_backend_filter_aud BULK COLLECT INTO backend_filter_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN backend_filter_aud.COUNT = 0;
 
             FOR i IN backend_filter_aud.FIRST .. backend_filter_aud.LAST
@@ -5648,7 +5651,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || backend_filter_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5687,7 +5690,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_certificate_aud;
         LOOP
-            FETCH c_certificate_aud BULK COLLECT INTO certificate_aud;
+            FETCH c_certificate_aud BULK COLLECT INTO certificate_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN certificate_aud.COUNT = 0;
 
             FOR i IN certificate_aud.FIRST .. certificate_aud.LAST
@@ -5725,7 +5728,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || certificate_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5759,7 +5762,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration_aud;
         LOOP
-            FETCH c_pm_configuration_aud BULK COLLECT INTO pm_configuration_aud;
+            FETCH c_pm_configuration_aud BULK COLLECT INTO pm_configuration_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_aud.COUNT = 0;
 
             FOR i IN pm_configuration_aud.FIRST .. pm_configuration_aud.LAST
@@ -5790,7 +5793,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5826,7 +5829,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_configuration_raw_aud;
         LOOP
-            FETCH c_pm_configuration_raw_aud BULK COLLECT INTO pm_configuration_raw_aud;
+            FETCH c_pm_configuration_raw_aud BULK COLLECT INTO pm_configuration_raw_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_raw_aud.COUNT = 0;
 
             FOR i IN pm_configuration_raw_aud.FIRST .. pm_configuration_raw_aud.LAST
@@ -5860,7 +5863,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_configuration_raw_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5898,7 +5901,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_aud;
         LOOP
-            FETCH c_pm_party_aud BULK COLLECT INTO pm_party_aud;
+            FETCH c_pm_party_aud BULK COLLECT INTO pm_party_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_aud.COUNT = 0;
 
             FOR i IN pm_party_aud.FIRST .. pm_party_aud.LAST
@@ -5933,7 +5936,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -5967,7 +5970,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_id_type_aud;
         LOOP
-            FETCH c_pm_party_id_type_aud BULK COLLECT INTO pm_party_id_type_aud;
+            FETCH c_pm_party_id_type_aud BULK COLLECT INTO pm_party_id_type_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_id_type_aud.COUNT = 0;
 
             FOR i IN pm_party_id_type_aud.FIRST .. pm_party_id_type_aud.LAST
@@ -5998,7 +6001,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_id_type_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6030,7 +6033,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_pm_party_identifier_aud;
         LOOP
-            FETCH c_pm_party_identifier_aud BULK COLLECT INTO pm_party_identifier_aud;
+            FETCH c_pm_party_identifier_aud BULK COLLECT INTO pm_party_identifier_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_identifier_aud.COUNT = 0;
 
             FOR i IN pm_party_identifier_aud.FIRST .. pm_party_identifier_aud.LAST
@@ -6058,7 +6061,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || pm_party_identifier_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6092,7 +6095,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_routing_criteria_aud;
         LOOP
-            FETCH c_routing_criteria_aud BULK COLLECT INTO routing_criteria_aud;
+            FETCH c_routing_criteria_aud BULK COLLECT INTO routing_criteria_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN routing_criteria_aud.COUNT = 0;
 
             FOR i IN routing_criteria_aud.FIRST .. routing_criteria_aud.LAST
@@ -6123,7 +6126,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || routing_criteria_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6170,7 +6173,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_aud;
         LOOP
-            FETCH c_user_aud BULK COLLECT INTO user_aud;
+            FETCH c_user_aud BULK COLLECT INTO user_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_aud.COUNT = 0;
 
             FOR i IN user_aud.FIRST .. user_aud.LAST
@@ -6217,7 +6220,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6250,7 +6253,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_role_aud;
         LOOP
-            FETCH c_user_role_aud BULK COLLECT INTO user_role_aud;
+            FETCH c_user_role_aud BULK COLLECT INTO user_role_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role_aud.COUNT = 0;
 
             FOR i IN user_role_aud.FIRST .. user_role_aud.LAST
@@ -6279,7 +6282,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_role_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;
@@ -6311,7 +6314,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_roles_aud;
         LOOP
-            FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud;
+            FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles_aud.COUNT = 0;
 
             FOR i IN user_roles_aud.FIRST .. user_roles_aud.LAST
@@ -6339,7 +6342,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                                  DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles_aud.COUNT || ' records in total into ' || v_tab_new);
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || user_roles_aud.COUNT || ' records into ' || v_tab_new);
         END LOOP;
 
         COMMIT;

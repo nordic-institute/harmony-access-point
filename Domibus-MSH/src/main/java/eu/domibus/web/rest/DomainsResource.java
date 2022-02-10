@@ -2,18 +2,22 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -27,17 +31,27 @@ public class DomainsResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomainsResource.class);
 
-    @Autowired
-    DynamicDomainManagementService dynamicDomainManagementService;
+    private final DynamicDomainManagementService dynamicDomainManagementService;
 
-    @Autowired
-    protected DomainService domainService;
+    private final DomainService domainService;
 
-    @Autowired
-    DomainDao domainDao;
+    private final DomainDao domainDao;
 
-    @Autowired
-    protected DomibusCoreMapper coreMapper;
+    private final DomibusCoreMapper coreMapper;
+
+    private final AuthUtils authUtils;
+
+    private final DomibusConfigurationService domibusConfigurationService;
+
+    public DomainsResource(DynamicDomainManagementService dynamicDomainManagementService, DomainService domainService,
+                           DomainDao domainDao, DomibusCoreMapper coreMapper, AuthUtils authUtils, DomibusConfigurationService domibusConfigurationService) {
+        this.dynamicDomainManagementService = dynamicDomainManagementService;
+        this.domainService = domainService;
+        this.domainDao = domainDao;
+        this.coreMapper = coreMapper;
+        this.authUtils = authUtils;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     /**
      * Retrieve domains in multi-tenancy mode ( active or potential)
@@ -46,13 +60,19 @@ public class DomainsResource {
      */
     @GetMapping(value = "")
     public List<DomainRO> getDomains(@Valid Boolean active) {
-        List<Domain> domains = Arrays.asList();
+        List<Domain> domains = new ArrayList<>();
         if (active == null) {
-            LOG.debug("Getting all domains.");
+            LOG.debug("Getting all domains");
             domains = domainDao.findAll();
         } else if (active) {
-            LOG.debug("Getting active domains.");
-            domains = domainService.getDomains();
+            LOG.debug("Getting active domains");
+            UserDetails userDetails = authUtils.getUserDetails();
+            if (userDetails instanceof DomibusUserDetails) {
+                List<Domain> availableDomains = ((DomibusUserDetails) userDetails).getAvailableDomainCodes().stream()
+                        .map(domainService::getDomain)
+                        .collect(Collectors.toList());
+                domains.addAll(availableDomains);
+            }
         }
         return coreMapper.domainListToDomainROList(domains);
     }
@@ -61,6 +81,4 @@ public class DomainsResource {
     public void addDomain(@RequestBody @Valid String domainCode){
         dynamicDomainManagementService.addDomain(domainCode);
     }
-
-
 }

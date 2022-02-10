@@ -842,7 +842,7 @@ public class CachingPModeProviderTest {
             result = pushProcessPartyExtractor;
 
         }};
-        String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null);
+        String legName = cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null, null);
         assertEquals(expectedLegName, legName);
     }
 
@@ -867,7 +867,7 @@ public class CachingPModeProviderTest {
         }};
 
         try {
-            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, notMyInitiatorRole, responderRole, null);
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, notMyInitiatorRole, responderRole, null, null);
             fail("Expected EbMS3Exception to be thrown with InitiatorRole mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
@@ -895,7 +895,7 @@ public class CachingPModeProviderTest {
             result = true;
         }};
         try {
-            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, notMyResponderRole, null);
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, notMyResponderRole, null, null);
             fail("Expected EbMS3Exception to be thrown with ResponderRole mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
@@ -924,7 +924,7 @@ public class CachingPModeProviderTest {
             result = true;
         }};
         try {
-            cachingPModeProvider.findLegName(agreement, incorrectSender, incorrectReceiver, service, action, initiatorRole, responderRole, null);
+            cachingPModeProvider.findLegName(agreement, incorrectSender, incorrectReceiver, service, action, initiatorRole, responderRole, null, null);
             fail("Expected EbMS3Exception to be thrown with Initiator and Responder mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
@@ -958,7 +958,7 @@ public class CachingPModeProviderTest {
             result = true;
         }};
         try {
-            cachingPModeProvider.findLegName(incorrectAgreement, incorrectSender, incorrectReceiver, service, action, incorrectInitiatorRole, incorrectResponderRole, null);
+            cachingPModeProvider.findLegName(incorrectAgreement, incorrectSender, incorrectReceiver, service, action, incorrectInitiatorRole, incorrectResponderRole, null, null);
             fail("Expected EbMS3Exception to be thrown with all mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
@@ -990,7 +990,7 @@ public class CachingPModeProviderTest {
         };
 
         try {
-            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null);
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null, null);
             fail("Expected EbMS3Exception to be thrown with Leg mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to begin with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
@@ -1016,7 +1016,7 @@ public class CachingPModeProviderTest {
 
         }};
         try {
-            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null);
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null, null);
             fail("Expected EbMS3Exception to be thrown with Service and Action mismatch details!");
         } catch (EbMS3Exception ex) {
             assertTrue("Expected error message to start with:" + expectedErrorMsgStart, StringUtils.startsWith(ex.getErrorDetail(), expectedErrorMsgStart));
@@ -1415,7 +1415,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findActionName(action);
             result = action;
 
-            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null);
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole, null, null);
             result = legName;
         }};
 

@@ -172,4 +172,8 @@ public class UserMessageLogDefaultService {
     public void updateStatusToArchived(List<Long> entityIds) {
         userMessageLogDao.updateArchived(entityIds);
     }
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateStatusToExported(List<Long> entityIds) {
+        userMessageLogDao.updateExported(entityIds);
+    }
 }

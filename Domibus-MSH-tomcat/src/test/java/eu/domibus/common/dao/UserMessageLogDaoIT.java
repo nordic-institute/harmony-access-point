@@ -27,8 +27,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Ion Perpegel
@@ -39,7 +38,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
     public static final String MPC = "UserMessageLogDaoITMpc";
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
-    private String NUMBER_FORMAT_DEFAULT = "%010d";
+
+    private final static String NUMBER_FORMAT_DEFAULT = "%010d";
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
@@ -71,6 +71,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private final String testDate = randomUUID().toString();
     private long maxEntityId;
     private UserMessageLog msg1;
+    private UserMessageLog msg2;
+    private UserMessageLog msg3;
 
     @Before
     @Transactional
@@ -80,23 +82,23 @@ public class UserMessageLogDaoIT extends AbstractIT {
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        msg1 = messageDaoTestUtil.createUserMessageLog("msg1", timeT);
-        messageDaoTestUtil.createUserMessageLog("msg2", timeT);
-        messageDaoTestUtil.createUserMessageLog("msg3", old);
+        msg1 = messageDaoTestUtil.createUserMessageLog("msg1-" + UUID.randomUUID(), timeT);
+        msg2 = messageDaoTestUtil.createUserMessageLog("msg2-" + randomUUID(), timeT);
+        msg3 = messageDaoTestUtil.createUserMessageLog("msg3-" + UUID.randomUUID(), old);
 
-        messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC);
+        messageDaoTestUtil.createUserMessageLog(testDate, Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant()), MSHRole.RECEIVING, MessageStatus.NOT_FOUND, true, MPC, new Date());
 
-        messageDaoTestUtil.createUserMessageLog(deletedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, false, MPC);
-        messageDaoTestUtil.createUserMessageLog(receivedNoProperties, timeT, MSHRole.SENDING, RECEIVED, false, MPC);
-        messageDaoTestUtil.createUserMessageLog(downloadedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, false, MPC);
-        messageDaoTestUtil.createUserMessageLog(waitingForRetryNoProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, false, MPC);
-        messageDaoTestUtil.createUserMessageLog(sendFailureNoProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC);
+        messageDaoTestUtil.createUserMessageLog(deletedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, false, MPC, new Date());
+        messageDaoTestUtil.createUserMessageLog(receivedNoProperties, timeT, MSHRole.SENDING, RECEIVED, false, MPC, new Date());
+        messageDaoTestUtil.createUserMessageLog(downloadedNoProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, false, MPC, new Date());
+        messageDaoTestUtil.createUserMessageLog(waitingForRetryNoProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, false, MPC, new Date());
+        messageDaoTestUtil.createUserMessageLog(sendFailureNoProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC, new Date());
 
-        messageDaoTestUtil.createUserMessageLog(deletedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, true, MPC);
-        messageDaoTestUtil.createUserMessageLog(receivedWithProperties, timeT, MSHRole.SENDING, RECEIVED, true, MPC);
-        messageDaoTestUtil.createUserMessageLog(downloadedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, true, MPC);
-        messageDaoTestUtil.createUserMessageLog(waitingForRetryWithProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, true, MPC);
-        messageDaoTestUtil.createUserMessageLog(sendFailureWithProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, true, MPC);
+        messageDaoTestUtil.createUserMessageLog(deletedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DELETED, true, MPC, null);
+        messageDaoTestUtil.createUserMessageLog(receivedWithProperties, timeT, MSHRole.SENDING, RECEIVED, true, MPC, null);
+        messageDaoTestUtil.createUserMessageLog(downloadedWithProperties, timeT, MSHRole.SENDING, MessageStatus.DOWNLOADED, true, MPC, null);
+        messageDaoTestUtil.createUserMessageLog(waitingForRetryWithProperties, timeT, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY, true, MPC, null);
+        messageDaoTestUtil.createUserMessageLog(sendFailureWithProperties, timeT, MSHRole.SENDING, MessageStatus.SEND_FAILURE, true, MPC, null);
 
         maxEntityId = Long.parseLong(ZonedDateTime
                 .now(ZoneOffset.UTC)
@@ -119,7 +121,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     public void getSentUserMessagesWithPayloadNotClearedOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
-                userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, false);
+                userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, false, false);
         assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
@@ -130,16 +132,23 @@ public class UserMessageLogDaoIT extends AbstractIT {
     }
 
     @Test
+    public void getSentUserMessagesWithPayloadNotClearedOlderThan_found_eArchive() {
+        List<UserMessageLogDto> downloadedUserMessagesOlderThan =
+                userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, false, true);
+        assertEquals(1, downloadedUserMessagesOlderThan.size());
+    }
+
+    @Test
     public void getSentUserMessagesWithPayloadNotClearedOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
-                userMessageLogDao.getSentUserMessagesOlderThan(before, MPC, 10, false);
+                userMessageLogDao.getSentUserMessagesOlderThan(before, MPC, 10, false, false);
         assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getSentUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
-                userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, true);
+                userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, true, false);
         assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
@@ -152,14 +161,14 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     public void getSentUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
-                userMessageLogDao.getSentUserMessagesOlderThan(before, MPC, 10, true);
+                userMessageLogDao.getSentUserMessagesOlderThan(before, MPC, 10, true, false);
         assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getDownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
-                userMessageLogDao.getDownloadedUserMessagesOlderThan(after, MPC, 10);
+                userMessageLogDao.getDownloadedUserMessagesOlderThan(after, MPC, 10, false);
         assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
@@ -168,18 +177,24 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(0, getProperties(downloadedUserMessagesOlderThan, downloadedNoProperties).size());
         assertEquals(2, getProperties(downloadedUserMessagesOlderThan, downloadedWithProperties).size());
     }
+    @Test
+    public void getDownloadedUserMessagesOlderThan_found_eArchive() {
+        List<UserMessageLogDto> downloadedUserMessagesOlderThan =
+                userMessageLogDao.getDownloadedUserMessagesOlderThan(after, MPC, 10, true);
+        assertEquals(1, downloadedUserMessagesOlderThan.size());
+    }
 
     @Test
     public void getDownloadedUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
-                userMessageLogDao.getDownloadedUserMessagesOlderThan(before, MPC, 10);
+                userMessageLogDao.getDownloadedUserMessagesOlderThan(before, MPC, 10, false);
         assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getUndownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> undownloadedUserMessagesOlderThan =
-                userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10);
+                userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10, false);
         assertEquals(2, undownloadedUserMessagesOlderThan.size());
         Assert.assertThat(undownloadedUserMessagesOlderThan
                 .stream()
@@ -190,16 +205,23 @@ public class UserMessageLogDaoIT extends AbstractIT {
     }
 
     @Test
+    public void getUndownloadedUserMessagesOlderThan_found_eArchive() {
+        List<UserMessageLogDto> undownloadedUserMessagesOlderThan =
+                userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10, true);
+        assertEquals(1, undownloadedUserMessagesOlderThan.size());
+    }
+
+    @Test
     public void getUndownloadedUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
-                userMessageLogDao.getUndownloadedUserMessagesOlderThan(before, MPC, 10);
+                userMessageLogDao.getUndownloadedUserMessagesOlderThan(before, MPC, 10, false);
         assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
     @Test
     public void getDeletedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
-                userMessageLogDao.getDeletedUserMessagesOlderThan(after, MPC, 10);
+                userMessageLogDao.getDeletedUserMessagesOlderThan(after, MPC, 10, false);
         assertEquals(2, deletedUserMessagesOlderThan.size());
         Assert.assertThat(deletedUserMessagesOlderThan
                 .stream()
@@ -207,6 +229,13 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .collect(Collectors.toList()), hasItems(deletedNoProperties, deletedWithProperties));
         assertEquals(0, getProperties(deletedUserMessagesOlderThan, deletedNoProperties).size());
         assertEquals(2, getProperties(deletedUserMessagesOlderThan, deletedWithProperties).size());
+    }
+
+    @Test
+    public void getDeletedUserMessagesOlderThan_found_eArchive() {
+        List<UserMessageLogDto> deletedUserMessagesOlderThan =
+                userMessageLogDao.getDeletedUserMessagesOlderThan(after, MPC, 10, true);
+        assertEquals(1, deletedUserMessagesOlderThan.size());
     }
 
     @Test
@@ -231,7 +260,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     public void getDeletedUserMessagesOlderThan_notFound() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
-                userMessageLogDao.getDeletedUserMessagesOlderThan(before, MPC, 10);
+                userMessageLogDao.getDeletedUserMessagesOlderThan(before, MPC, 10, false);
         assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
@@ -332,17 +361,23 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
-        assertEquals(7, messagesForArchiving.size());
-        assertEquals(Long.valueOf(msg.getEntityId()), messagesForArchiving.get(messagesForArchiving.size() - 1).getUserMessageEntityId());
+        assertThat(messagesForArchiving.stream()
+                        .map(EArchiveBatchUserMessage::getMessageId)
+                        .collect(Collectors.toList()),
+                hasItems(msg1.getUserMessage().getMessageId(),
+                msg2.getUserMessage().getMessageId(),
+                msg3.getUserMessage().getMessageId(),
+                receivedWithProperties,
+                downloadedWithProperties));
     }
 
     @Test
     @Transactional
     public void testFindMessagesForArchiving_rest() {
-        UserMessageLog msg1 = userMessageLogDao.findByMessageId("msg1");
+        UserMessageLog msg1 = userMessageLogDao.findByMessageId(this.msg1.getUserMessage().getMessageId());
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
-        assertEquals(6, messagesForArchiving.size());
+        assertEquals(4, messagesForArchiving.size());
     }
 
     @Test
@@ -351,13 +386,30 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLog> allUserMessageLogs = messageDaoTestUtil.getAllUserMessageLogs();
         List<Long> resultList = allUserMessageLogs.stream().map(AbstractNoGeneratedPkEntity::getEntityId).collect(Collectors.toList());
 
-        userMessageLogDao.updateArchived(resultList);
+        userMessageLogDao.update(resultList, userMessageLogDao::updateArchivedBatched);
 
         List<UserMessageLog> result = messageDaoTestUtil.getAllUserMessageLogs();
 
         for (UserMessageLog uml : result) {
             em.refresh(uml);
             Assert.assertNotNull(uml.getArchived());
+        }
+    }
+
+
+    @Test
+    @Transactional
+    public void updateStatusToExported() {
+        List<UserMessageLog> allUserMessageLogs = messageDaoTestUtil.getAllUserMessageLogs();
+        List<Long> resultList = allUserMessageLogs.stream().map(AbstractNoGeneratedPkEntity::getEntityId).collect(Collectors.toList());
+
+        userMessageLogDao.update(resultList, userMessageLogDao::updateExportedBatched);
+
+        List<UserMessageLog> result = messageDaoTestUtil.getAllUserMessageLogs();
+
+        for (UserMessageLog uml : result) {
+            em.refresh(uml);
+            Assert.assertNotNull(uml.getExported());
         }
     }
 
@@ -374,7 +426,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findMessagesNotFinalAsc() {
         List<EArchiveBatchUserMessage> retryMessages = userMessageLogDao.findMessagesNotFinalAsc(0, 999999999999999999L);
 
-        assertEquals(5, retryMessages.size());
+        assertEquals(2, retryMessages.size());
     }
 
     @Test

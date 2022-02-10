@@ -9,14 +9,13 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -25,10 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.security.auth.Subject;
 import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,14 +68,14 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
-    public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken preAuthenticatedAuthenticationToken) throws UsernameNotFoundException {
-        UserDetails userDetails = loadUserByUsername((String) preAuthenticatedAuthenticationToken.getPrincipal());
-        LOG.debug("UserDetails username={}", userDetails.getUsername());
+    public DomibusUserDetails loadUserDetails(PreAuthenticatedAuthenticationToken preAuthenticatedAuthenticationToken) throws UsernameNotFoundException {
+        DomibusUserDetails userDetails = loadUserByUsername((String) preAuthenticatedAuthenticationToken.getPrincipal());
+        LOG.debug("DomibusUserDetails username={}", userDetails.getUsername());
         return userDetails;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public DomibusUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         LOG.debug("loadUserByUsername - start");
         if (isWeblogicSecurity()) {
             try {
@@ -97,22 +93,22 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
      * It reads the principals (LDAP groups) returned by ECAS and create UserDetails
      *
      * @param username
-     * @return UserDetails object
+     * @return DomibusUserDetails object
      * @throws InvocationTargetException
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      * @throws IllegalAccessException
      */
-    protected UserDetails createUserDetails(final String username) throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
+    protected DomibusUserDetails createUserDetails(final String username) throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
         LOG.debug("createUserDetails - start");
-        List<GrantedAuthority> userGroups = new LinkedList<>();
-        List<AuthRole> userGroupsStr = new LinkedList<>();
-        String domainCodeFromLDAP = null;
+        List<AuthRole> authRoles = new LinkedList<>();
+        Set<String> domainCodesFromLDAP = new HashSet<>();
+
         final String ldapGroupPrefix = domibusPropertyProvider.getProperty(ECAS_DOMIBUS_LDAP_GROUP_PREFIX_KEY);
         LOG.debug("createUserDetails - LDAP group prefix is: {}", ldapGroupPrefix);
 
-        Map<String, AuthRole> userRoleMappings = retrieveUserRoleMappings();
-        Map<String, String> domainMappings = retrieveDomainMappings();
+        final Map<String, AuthRole> userRoleMappings = retrieveUserRoleMappings();
+        final Map<String, String> domainMappings = retrieveDomainMappings();
 
         //extract user role and domain
         for (Principal principal : getPrincipals()) {
@@ -123,14 +119,13 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
 
                 //only Domibus mapped ldap groups
                 if (principalName.startsWith(ldapGroupPrefix)) {
-
                     //search for user roles
                     if (userRoleMappings.get(principalName) != null) {
-                        userGroupsStr.add(userRoleMappings.get(principalName));
+                        authRoles.add(userRoleMappings.get(principalName));
                         LOG.debug("createUserDetails - userGroup added: {}", userRoleMappings.get(principalName));
                     } else if (domainMappings.get(principalName) != null) {
-                        domainCodeFromLDAP = domainMappings.get(principalName);
-                        LOG.debug("createUserDetails - domain added: {}", domainCodeFromLDAP);
+                        domainCodesFromLDAP.add(domainMappings.get(principalName));
+                        LOG.debug("createUserDetails - domain added: {}", domainCodesFromLDAP);
                     }
                 }
             } else {
@@ -143,37 +138,24 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
             }
         }
 
+        final GrantedAuthority highestAuthority = chooseHighestUserGroup(authRoles);
+        final Domain domain = getFirstDomain(domainCodesFromLDAP);
+        final Set<String> availableDomainCodes = getAvailableDomainCodes(domainCodesFromLDAP, highestAuthority);
+        final List<GrantedAuthority> authorities = validateHighestAuthority(highestAuthority, domain);
+        final String domainCode = getDomainCode(domain);
 
-        //chose highest privilege among LDAP user groups
-        final GrantedAuthority grantedAuthority = chooseHighestUserGroup(userGroupsStr);
-        LOG.debug("highest role is [{}]", grantedAuthority != null ? grantedAuthority.getAuthority() : StringUtils.EMPTY);
-
-        Domain domain = domibusConfigurationService.isMultiTenantAware() ? domainService.getDomain(domainCodeFromLDAP)
-                : DomainService.DEFAULT_DOMAIN;
-        LOG.debug("assigned domain is [{}]", domain);
-
-        if (null != grantedAuthority && null != domain) {
-            //we set the groups only if LDAP groups are mapping on both privileges and domain code
-            LOG.debug("granted role is [{}]", grantedAuthority.getAuthority());
-            userGroups.add(grantedAuthority);
-        }
-        LOG.debug("userDetail  userGroups={}", userGroups);
-
-        UserDetail userDetail = new UserDetail(username, StringUtils.EMPTY, userGroups);
-        userDetail.setDefaultPasswordUsed(false);
-        userDetail.setExternalAuthProvider(true);
-        userDetail.setDaysTillExpiration(Integer.MAX_VALUE);
+        DomibusUserDetails domibusUserDetails = new DomibusUserDetails(username, StringUtils.EMPTY, authorities);
+        domibusUserDetails.setAvailableDomainCodes(availableDomainCodes);
+        domibusUserDetails.setDefaultPasswordUsed(false);
+        domibusUserDetails.setExternalAuthProvider(true);
+        domibusUserDetails.setDaysTillExpiration(Integer.MAX_VALUE);
+        domibusUserDetails.setDomain(domainCode);
 
         domainContextProvider.clearCurrentDomain();
-        //for multitenancy we still set domain to DEFAULT even if there is no matching LDAP group
-        final String domainCode = domain != null ? domain.getCode() : DomainService.DEFAULT_DOMAIN.getCode();
-        LOG.debug("Domain  set to: {}", domainCode);
-        userDetail.setDomain(domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
 
-        LOG.debug("createUserDetails  - end");
-        return userDetail;
-
+        LOG.debug("createUserDetails - end");
+        return domibusUserDetails;
     }
 
     protected GrantedAuthority chooseHighestUserGroup(final List<AuthRole> userGroups) {
@@ -185,7 +167,74 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         } else if (userGroups.contains(AuthRole.ROLE_USER)) {
             simpleGrantedAuthority = new SimpleGrantedAuthority(AuthRole.ROLE_USER.name());
         }
+        LOG.info("highest role is [{}]", simpleGrantedAuthority != null ? simpleGrantedAuthority : StringUtils.EMPTY);
         return simpleGrantedAuthority;
+    }
+
+    protected Domain getFirstDomain(Set<String> domainCodesFromLDAP) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            LOG.info("assigned single tenancy default domain");
+            return DomainService.DEFAULT_DOMAIN;
+        }
+
+        final String[] domainCodesFromLDAPArray = domainCodesFromLDAP.toArray(new String[0]);
+        Domain defaultDomain = domainService.getDomains().stream()
+                .filter(domain -> StringUtils.equalsAny(domain.getCode(), domainCodesFromLDAPArray))
+                .findFirst()
+                .orElse(null);
+        LOG.info("assigned multitenancy default domain is [{}]", defaultDomain);
+        return defaultDomain;
+    }
+
+    protected Set<String> getAvailableDomainCodes(Set<String> domainCodesFromLDAP, GrantedAuthority highestAuthority) {
+        if (domibusConfigurationService.isMultiTenantAware() && hasSuperAdminUserPrivilege(highestAuthority)) {
+            LOG.info("Adding all available domain codes to the super admin user in multitenancy");
+            return domainService.getDomains()
+                    .stream()
+                    .map(Domain::getCode)
+                    .collect(Collectors.toSet());
+        }
+
+        final String[] domainCodesFromLDAPArray = domainCodesFromLDAP.toArray(new String[0]);
+        Set<String> availableDomainCodes = domainService.getDomains().stream()
+                    .map(Domain::getCode)
+                    .filter(code -> StringUtils.equalsAny(code, domainCodesFromLDAPArray))
+                    .collect(Collectors.toSet());
+
+        LOG.info("userDetail availableDomainCodes={}", availableDomainCodes);
+        return availableDomainCodes;
+    }
+
+    protected List<GrantedAuthority> validateHighestAuthority(GrantedAuthority applicableAuthority, Domain domain) {
+        List<GrantedAuthority> authorities = Collections.emptyList();
+        if (applicableAuthority != null) {
+            if (hasSuperAdminUserPrivilege(applicableAuthority)) {
+                if(domibusConfigurationService.isMultiTenantAware()) {
+                    //we set the groups only if the privilege is that of a super admin user in a multitenancy scenario
+                    LOG.debug("granted role is [{}]", applicableAuthority.getAuthority());
+                    authorities = Collections.singletonList(applicableAuthority);
+                } else {
+                    LOG.warn("User has the super admin role but Domibus is not currently running in multitenancy mode");
+                }
+            }else if (domain != null) {
+                //we set the groups only if the LDAP groups are mapping on both privileges and domain code
+                LOG.debug("granted role is [{}]", applicableAuthority.getAuthority());
+                authorities = Collections.singletonList(applicableAuthority);
+            }
+        }
+        LOG.info("userDetail authorities={}", authorities);
+        return authorities;
+    }
+
+    private String getDomainCode(Domain domain) {
+        //for multitenancy we still set domain to DEFAULT even if there is no matching LDAP group
+        final String domainCode = domain != null ? domain.getCode() : DomainService.DEFAULT_DOMAIN.getCode();
+        LOG.info("createUserDetails - domain code set to [{}]", domainCode);
+        return domainCode;
+    }
+
+    private boolean hasSuperAdminUserPrivilege(GrantedAuthority grantedAuthority) {
+        return StringUtils.equals(grantedAuthority.getAuthority(), AuthRole.ROLE_AP_ADMIN.name());
     }
 
     protected boolean isWeblogicSecurity() {

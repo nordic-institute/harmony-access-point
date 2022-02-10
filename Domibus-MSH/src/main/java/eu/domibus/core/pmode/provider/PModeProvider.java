@@ -284,7 +284,7 @@ public abstract class PModeProvider {
                 leg = findPullLegName(agreementName, senderParty, receiverParty, service, action, mpc, initiatorRole, responderRole);
             } else {
                 mpc = userMessage.getMpcValue();
-                leg = findLegName(agreementName, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType);
+                leg = findLegName(agreementName, senderParty, receiverParty, service, action, initiatorRole, responderRole, processingType, mpc);
             }
             LOG.businessInfo(DomibusMessageCode.BUS_LEG_NAME_FOUND, leg, agreementName, senderParty, receiverParty, service, action, mpc);
 
@@ -423,7 +423,7 @@ public abstract class PModeProvider {
 
     public abstract String findMpcUri(final String mpcName) throws EbMS3Exception;
 
-    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType) throws EbMS3Exception;
+    public abstract String findLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, Role initiatorRole, Role responderRole, ProcessingType processingType, String mpc) throws EbMS3Exception;
 
     public abstract String findPullLegName(String agreementRef, String senderParty, String receiverParty, String service, String action, String mpc, Role initiatorRole, Role responderRole) throws EbMS3Exception;
 

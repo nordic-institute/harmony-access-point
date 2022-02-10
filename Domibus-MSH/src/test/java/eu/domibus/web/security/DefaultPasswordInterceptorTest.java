@@ -1,82 +1,131 @@
 package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthUtils;
 import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.net.HttpURLConnection;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("EDELIVERY-8892")
+@RunWith(JMockit.class)
 public class DefaultPasswordInterceptorTest {
 
     @Tested
-    DefaultPasswordInterceptor defaultPasswordInterceptor;
-    @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
-    @Mocked
-    SecurityContextHolder securityContextHolder;
-    @Mocked
-    Authentication authentication;
-    @Mocked
-    UserDetail userDetail;
+    private DefaultPasswordInterceptor defaultPasswordInterceptor;
 
-    @Before
-    public void setup() {
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private AuthUtils authUtils;
+
+    @Injectable
+    private DomibusUserDetails domibusUserDetails;
+
+    @Injectable
+    private HttpServletRequest request;
+
+    @Injectable
+    private HttpServletResponse response;
+
+    @Test
+    public void preHandle_DefaultPassword() throws Exception {
+        // GIVEN
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD);
             result = "true";
-            SecurityContextHolder.getContext().getAuthentication();
-            result = authentication;
-            authentication.isAuthenticated();
+
+            request.getRequestURI();
+            result = "domibus/rest/authentication";
+
+            authUtils.getUserDetails();
+            result = domibusUserDetails;
+
+            domibusUserDetails.isDefaultPasswordUsed();
             result = true;
-            authentication.getPrincipal();
-            result = userDetail;
+        }};
+
+        // WHEN
+        boolean proceed = defaultPasswordInterceptor.preHandle(request, response, null);
+
+        // THEN
+        assertFalse(proceed);
+        new FullVerifications() {{
+            response.setStatus(HttpURLConnection.HTTP_FORBIDDEN);
         }};
     }
 
     @Test
-    public void testPreHandleWithDefaultPassword(@Injectable final HttpServletRequest httpRequest,
-                                                 @Injectable final HttpServletResponse httpServletResponse,
-                                                 @Injectable final Object handler) throws Exception {
+    public void preHandle_ChangedPassword() throws Exception {
+        // GIVEN
         new Expectations() {{
-            userDetail.isDefaultPasswordUsed();
-            result = true;
-        }};
+            domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD);
+            result = "true";
 
-        assertFalse(defaultPasswordInterceptor.preHandle(httpRequest, httpServletResponse, handler));
-    }
+            request.getRequestURI();
+            result = "domibus/rest/authentication";
 
-    @Test
-    public void testPreHandleWithChangedPassword(@Injectable final HttpServletRequest httpRequest,
-                                                 @Injectable final HttpServletResponse httpServletResponse,
-                                                 @Injectable final Object handler ) throws Exception {
-        new Expectations() {{
-            userDetail.isDefaultPasswordUsed();
+            authUtils.getUserDetails();
+            result = domibusUserDetails;
+
+            domibusUserDetails.isDefaultPasswordUsed();
             result = false;
         }};
 
-        assertTrue(defaultPasswordInterceptor.preHandle(httpRequest, httpServletResponse, handler));
+        // WHEN
+        boolean proceed = defaultPasswordInterceptor.preHandle(request, response, null);
+
+        // THEN
+        assertTrue(proceed);
+        new FullVerifications() { /* no unexpected interactions */ };
     }
 
     @Test
-    public void testPreHandleWhenCheckIsDisabled(@Injectable final HttpServletRequest httpRequest,
-                                                 @Injectable final HttpServletResponse httpServletResponse,
-                                                 @Injectable final Object handler) throws Exception {
+    public void preHandle_NoUserDetails() throws Exception {
+        // GIVEN
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD);
+            result = "true";
+
+            request.getRequestURI();
+            result = "domibus/rest/authentication";
+
+            authUtils.getUserDetails();
+            result = null;
+        }};
+
+        // WHEN
+        boolean proceed = defaultPasswordInterceptor.preHandle(request, response, null);
+
+        // THEN
+        assertTrue(proceed);
+        new FullVerifications() { /* no unexpected interactions */ };
+    }
+
+    @Test
+    public void preHandle_CheckIsDisabled() throws Exception {
+        // GIVEN
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD);
             result = "false";
         }};
 
-        assertTrue(defaultPasswordInterceptor.preHandle(httpRequest, httpServletResponse, handler));
-    }
+        // WHEN
+        boolean proceed = defaultPasswordInterceptor.preHandle(request, response, null);
 
+        // THEN
+        assertTrue(proceed);
+        new FullVerifications() { /* no unexpected interactions */ };
+    }
 }

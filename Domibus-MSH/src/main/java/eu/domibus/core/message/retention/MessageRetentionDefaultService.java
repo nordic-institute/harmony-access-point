@@ -17,6 +17,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -92,21 +93,23 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final Integer expiredSentMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
         final Integer expiredPayloadDeletedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE);
 
+        final boolean eArchiveIsActive = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE));
+
         for (final String mpc : mpcs) {
-            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
+            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit, eArchiveIsActive);
         }
     }
 
-    public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit) {
+    public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit, boolean eArchiveIsActive) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
-        deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit);
-        deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit);
-        deleteExpiredSentMessages(mpc, expiredSentMessagesLimit);
-        deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit);
+        deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit,eArchiveIsActive);
+        deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit,eArchiveIsActive);
+        deleteExpiredSentMessages(mpc, expiredSentMessagesLimit,eArchiveIsActive);
+        deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit,eArchiveIsActive);
     }
 
-    protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
+    protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
         final int messageRetentionDownloaded = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
         // If messageRetentionDownloaded is equal to -1, the messages will be kept indefinitely and, if 0 and no file system storage was used, they have already been deleted during download operation.
         if (messageRetentionDownloaded < 0) {
@@ -116,7 +119,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         LOG.debug("Deleting expired downloaded messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit);
         List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
-                mpc, expiredDownloadedMessagesLimit);
+                mpc, expiredDownloadedMessagesLimit,eArchiveIsActive);
         if (CollectionUtils.isEmpty(downloadedMessages)) {
             LOG.debug("There are no expired downloaded messages.");
             return;
@@ -127,7 +130,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Deleted [{}] downloaded messages", deleted);
     }
 
-    protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit) {
+    protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
         final int messageRetentionNotDownloaded = pModeProvider.getRetentionUndownloadedByMpcURI(mpc);
         if (messageRetentionNotDownloaded < 0) {// if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
             LOG.trace("Retention of not downloaded messages is not active.");
@@ -137,7 +140,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         LOG.debug("Deleting expired not-downloaded messages for MPC [{}] using expiredNotDownloadedMessagesLimit [{}]", mpc, expiredNotDownloadedMessagesLimit);
         final List<UserMessageLogDto> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
-                mpc, expiredNotDownloadedMessagesLimit);
+                mpc, expiredNotDownloadedMessagesLimit, eArchiveIsActive);
         if (CollectionUtils.isEmpty(notDownloadedMessages)) {
             LOG.debug("There are no expired not-downloaded messages.");
             return;
@@ -148,7 +151,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Deleted [{}] not-downloaded messages", deleted);
     }
 
-    protected void deleteExpiredSentMessages(String mpc, Integer expiredSentMessagesLimit) {
+    protected void deleteExpiredSentMessages(String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
         final int messageRetentionSent = pModeProvider.getRetentionSentByMpcURI(mpc);
 
         if (messageRetentionSent < 0) { // if -1 the messages will be kept indefinitely
@@ -159,7 +162,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Deleting expired sent messages for MPC [{}] using expiredSentMessagesLimit [{}]", mpc, expiredSentMessagesLimit);
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
-                mpc, expiredSentMessagesLimit, isDeleteMessageMetadata);
+                mpc, expiredSentMessagesLimit, isDeleteMessageMetadata, eArchiveIsActive);
 
         if (CollectionUtils.isEmpty(sentMessages)) {
             LOG.debug("There are no expired sent messages.");
@@ -171,7 +174,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Deleted [{}] sent messages", deleted);
     }
 
-    protected void deleteExpiredPayloadDeletedMessages(String mpc, Integer expiredPayloadDeletedMessagesLimit) {
+    protected void deleteExpiredPayloadDeletedMessages(String mpc, Integer expiredPayloadDeletedMessagesLimit, boolean eArchiveIsActive) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         if (!isDeleteMessageMetadata || expiredPayloadDeletedMessagesLimit < 0) { // only delete of entire messages if delete metadata is true
             LOG.trace("Retention of payload deleted messages is not active.");
@@ -180,7 +183,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         LOG.debug("Deleting expired payload deleted messages for MPC [{}] using expiredPayloadDeletedMessagesLimit [{}]", mpc, expiredPayloadDeletedMessagesLimit);
         final List<UserMessageLogDto> deletedMessages = userMessageLogDao.getDeletedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), 1), // give 1 minute for the previous state
-                mpc, expiredPayloadDeletedMessagesLimit);
+                mpc, expiredPayloadDeletedMessagesLimit, eArchiveIsActive);
         if (CollectionUtils.isEmpty(deletedMessages)) {
             LOG.debug("There are no expired payload deleted messages.");
             return;

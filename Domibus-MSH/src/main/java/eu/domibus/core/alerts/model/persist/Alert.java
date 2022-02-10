@@ -1,11 +1,11 @@
 package eu.domibus.core.alerts.model.persist;
 
 import eu.domibus.api.alerts.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertStatus;
-import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.TimezoneOffset;
 import eu.domibus.api.scheduler.Reprogrammable;
+import eu.domibus.core.alerts.model.common.AlertStatus;
+import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -25,8 +25,8 @@ import java.util.Set;
 @Table(name = "TB_ALERT")
 @NamedQueries({
         @NamedQuery(name = "Alert.findRetry", query = "SELECT a FROM Alert a where a.alertStatus='RETRY' and a.nextAttempt < :CURRENT_TIMESTAMP"),
-        @NamedQuery(name = "Alert.findAlertToClean", query = "SELECT a FROM Alert a where a.creationTime<:ALERT_LIMIT_DATE"),
-        @NamedQuery(name = "Alert.updateProcess", query = "UPDATE Alert a set a.processed=:PROCESSED where a.entityId=:ALERT_ID")
+        @NamedQuery(name = "Alert.updateProcess", query = "UPDATE Alert a set a.processed=:PROCESSED where a.entityId=:ALERT_ID"),
+        @NamedQuery(name = "Alert.deleteAlerts", query = "DELETE FROM Alert a where  a.creationTime<:ALERT_LIMIT_DATE")
 })
 public class Alert extends AbstractBaseEntity implements Reprogrammable {
 
@@ -65,8 +65,8 @@ public class Alert extends AbstractBaseEntity implements Reprogrammable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date reportingTimeFailure;
 
-    @Size(min=1)
-    @ManyToMany(mappedBy = "alerts",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE})
+    @Size(min = 1)
+    @ManyToMany(mappedBy = "alerts", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<Event> events = new HashSet<>();
 
     @Column(name = "ALERT_STATUS")

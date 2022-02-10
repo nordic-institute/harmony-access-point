@@ -91,7 +91,7 @@ public enum DomibusMessageCode implements MessageCode {
     VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN("BUS-080", "Value of [{}] does not conform to the required MessageIdPattern: [{}]. Value provided: [{}]"),
     DUPLICATE_MESSAGEID("BUS-081", "Message with id [{}] already exists. Message identifiers must be unique."),
     VALUE_LONGER_THAN_STRING_LENGTH_1024("BUS-082", "Value of [{}] is too long (over 1024 characters). Value provided: [{}]"),
-    BUS_ARCHIVE_BATCH_CREATE("BUS-083", "Enqueue continuous batch [{}]."),
+    BUS_ARCHIVE_BATCH_CREATE("BUS-083", "Enqueue [{}] archive batch [{}]."),
     BUS_ARCHIVE_BATCH_REEXPORT("BUS-084", "Archiving client requests a manual (re-)export for batch [{}]."),
     BUS_ARCHIVE_BATCH_EXPORTED("BUS-085", "A batch [{}] is exported to file path: {}!"),
     BUS_ARCHIVE_BATCH_NOTIFICATION_SENT("BUS-086", "Export Notification for batch [{}] is sent from Domibus to the archiving client!"),

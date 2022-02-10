@@ -76,7 +76,7 @@ public class JmsResourceTest {
 
         new Expectations() {{
             requestRO.getSource();
-            times = 1;
+            times = 2;
             requestRO.getJmsType();
             times = 1;
             requestRO.getFromDate();

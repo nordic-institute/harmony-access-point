@@ -273,8 +273,14 @@
                                                               use="required"/>
                                                 <xs:attribute
                                                         name="signatureMethod"
-                                                        use="required"
-                                                        type="max255-non-empty-string"/>
+                                                        use="required">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:enumeration value="RSA_SHA1" />
+                                                                <xs:enumeration value="RSA_SHA256" />
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                </xs:attribute>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>

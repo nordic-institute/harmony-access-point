@@ -110,7 +110,7 @@ public class MessageDaoTestUtil {
         signalMessageLogDao.create(signalMessageLog);
     }
 
-    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc) {
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archivedAndExported) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
@@ -156,6 +156,8 @@ public class MessageDaoTestUtil {
                 userMessageLog.setScheduled(false);
                 break;
         }
+        userMessageLog.setExported(archivedAndExported);
+        userMessageLog.setArchived(archivedAndExported);
         userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
 
         userMessageLog.setUserMessage(userMessage);
@@ -165,23 +167,23 @@ public class MessageDaoTestUtil {
     }
 
     @Transactional
-    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean properties, String mpc) {
-        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, properties, mpc);
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean properties, String mpc, Date archived) {
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, properties, mpc, archived);
     }
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
-        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, MPC);
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, MPC, new Date());
     }
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received) {
-        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false, true, MPC);
+        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false, true, MPC, null);
     }
 
     @Transactional
     public UserMessageLog createTestMessage(String msgId) {
-        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true, true, MPC);
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true, true, MPC, new Date());
 
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessageLog.getUserMessage());
@@ -200,7 +202,7 @@ public class MessageDaoTestUtil {
     }
 
     public UserMessageLog createTestMessageInSend_Failure(String msgId) {
-        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC);
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.SEND_FAILURE, false, MPC, new Date());
 
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessageLog.getUserMessage());

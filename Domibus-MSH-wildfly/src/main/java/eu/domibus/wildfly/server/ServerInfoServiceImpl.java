@@ -23,7 +23,7 @@ public class ServerInfoServiceImpl implements ServerInfoService {
 
     @Override
     public String getServerName() {
-        final String serverName = System.getenv(domibusConfigurationService.isClusterDeployment() ? NODE_NAME : SERVER_NAME);
+        final String serverName = System.getProperty(domibusConfigurationService.isClusterDeployment() ? NODE_NAME : SERVER_NAME);
         LOG.debug("serverName={}", serverName);
 
         return serverName;

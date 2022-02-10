@@ -89,13 +89,13 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     }
 
     @Override
-    public Long getBatchMessageCount(String batchId) {
-        return domibusEArchiveService.getBatchUserMessageListCount(batchId);
+    public Long getExportedBatchMessageCount(String batchId) {
+        return domibusEArchiveService.getExportedBatchUserMessageListCount(batchId);
     }
 
     @Override
-    public List<String> getBatchMessageIds(String batchId, Integer pageStart, Integer pageSize) {
-        List<String> batchMessageList = domibusEArchiveService.getBatchUserMessageList(batchId, pageStart, pageSize);
+    public List<String> getExportedBatchMessageIds(String batchId, Integer pageStart, Integer pageSize) {
+        List<String> batchMessageList = domibusEArchiveService.getExportedBatchUserMessageList(batchId, pageStart, pageSize);
         if (CollectionUtils.isEmpty(batchMessageList)) {
             return Collections.emptyList();
         }

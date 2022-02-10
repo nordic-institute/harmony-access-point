@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
+import eu.domibus.web.security.DomibusUserDetails;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,7 +45,7 @@ public class AuthUtilsImplTest {
     @Test
     public void getOriginalUserFromSecurityContext_user(
             @Mocked SecurityContextHolder securityContextHolder,
-            @Mocked Authentication authentication) {
+            @Injectable Authentication authentication) {
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
@@ -68,7 +70,7 @@ public class AuthUtilsImplTest {
     @Test
     public void getOriginalUserFromSecurityContext_superAdmin(
             @Mocked SecurityContextHolder securityContextHolder,
-            @Mocked Authentication authentication) {
+            @Injectable Authentication authentication) {
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
@@ -90,7 +92,7 @@ public class AuthUtilsImplTest {
     @Test
     public void getOriginalUserFromSecurityContext_admin(
             @Mocked SecurityContextHolder securityContextHolder,
-            @Mocked Authentication authentication) {
+            @Injectable Authentication authentication) {
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
@@ -151,17 +153,67 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void getAuthenticatedUser_noAuth(
+    public void getUserDetails_noAuth(@Mocked SecurityContextHolder securityContextHolder) {
+        new Expectations() {{
+            SecurityContextHolder.getContext().getAuthentication();
+            result = null;
+        }};
+        assertNull(authUtilsImpl.getUserDetails());
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getUserDetails_noContext(@Mocked SecurityContextHolder securityContextHolder) {
+        new Expectations() {{
+            SecurityContextHolder.getContext();
+            result = null;
+        }};
+        assertNull(authUtilsImpl.getUserDetails());
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getUserDetails_noUserDetails(
             @Mocked SecurityContextHolder securityContextHolder,
-            @Mocked Authentication authentication) {
+            @Injectable Authentication authentication) {
         new Expectations() {{
             SecurityContextHolder.getContext().getAuthentication();
             result = authentication;
 
-            authentication.getName();
-            result = STRING;
+            authentication.getPrincipal();
+            result = null;
         }};
-        assertEquals(STRING, authUtilsImpl.getAuthenticatedUser());
+        assertNull(authUtilsImpl.getUserDetails());
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getUserDetails(
+            @Mocked SecurityContextHolder securityContextHolder,
+            @Injectable Authentication authentication,
+            @Injectable DomibusUserDetails userDetails) {
+        new Expectations() {{
+            SecurityContextHolder.getContext().getAuthentication();
+            result = authentication;
+
+            authentication.getPrincipal();
+            result = userDetails;
+        }};
+        assertEquals(userDetails, authUtilsImpl.getUserDetails());
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getAuthenticatedUser_noAuth(@Mocked SecurityContextHolder securityContextHolder) {
+        new Expectations() {{
+            SecurityContextHolder.getContext().getAuthentication();
+            result = null;
+        }};
+        assertNull(authUtilsImpl.getAuthenticatedUser());
         new FullVerifications() {
         };
     }
@@ -347,7 +399,7 @@ public class AuthUtilsImplTest {
     @Test
     public void checkAdminRights_noAuthorities(
             @Mocked SecurityContextHolder securityContextHolder,
-            @Mocked Authentication authentication) {
+            @Injectable Authentication authentication) {
 
         new Expectations() {{
             securityContextHolder.getContext().getAuthentication();
@@ -366,7 +418,7 @@ public class AuthUtilsImplTest {
     @Test
     public void checkAdminRights_found(
             @Mocked SecurityContextHolder securityContextHolder,
-            @Mocked Authentication authentication) {
+            @Injectable Authentication authentication) {
 
         new Expectations() {{
             securityContextHolder.getContext().getAuthentication();
@@ -390,8 +442,8 @@ public class AuthUtilsImplTest {
     @Test
     public void checkAdminRights_notFound(
             @Mocked SecurityContextHolder securityContextHolder,
-            @Mocked AuthRole authRole,
-            @Mocked Authentication authentication) {
+            @Injectable AuthRole authRole,
+            @Injectable Authentication authentication) {
 
         new Expectations() {{
             securityContextHolder.getContext().getAuthentication();
@@ -409,7 +461,6 @@ public class AuthUtilsImplTest {
 
     @Test
     public void isAdminMultiAware_multiTenant() {
-
         new Expectations(authUtilsImpl) {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
@@ -426,7 +477,6 @@ public class AuthUtilsImplTest {
 
     @Test
     public void isAdminMultiAware_MonoTenant() {
-
         new Expectations(authUtilsImpl) {{
             domibusConfigurationService.isMultiTenantAware();
             result = false;
@@ -442,7 +492,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void runWithSecurityContext_AddSecurityContext(@Mocked AuthenticatedProcedure expectedFunction) {
+    public void runWithSecurityContext_AddSecurityContext(@Injectable AuthenticatedProcedure expectedFunction) {
         String expectedUsername = UUID.randomUUID().toString();
         String expectedPassword = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{
@@ -471,7 +521,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void runWithSecurityContext_NoSecurityContext(@Mocked AuthenticatedProcedure expectedFunction) {
+    public void runWithSecurityContext_NoSecurityContext(@Injectable AuthenticatedProcedure expectedFunction) {
         String expectedUsername = UUID.randomUUID().toString();
         String expectedPassword = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{
@@ -496,7 +546,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void runWithSecurityContext_NoSecurityContext_Force(@Mocked AuthenticatedProcedure expectedFunction) {
+    public void runWithSecurityContext_NoSecurityContext_Force(@Injectable AuthenticatedProcedure expectedFunction) {
         // same tests as runWithSecurityContext_NoSecurityContext but force the security context
         String expectedUsername = UUID.randomUUID().toString();
         String expectedPassword = UUID.randomUUID().toString();
@@ -522,7 +572,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void runWithSecurityContext_ClearSecurityContextOnThrowException(@Mocked AuthenticatedProcedure runnable) {
+    public void runWithSecurityContext_ClearSecurityContextOnThrowException(@Injectable AuthenticatedProcedure runnable) {
         String username = UUID.randomUUID().toString();
         String password = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{

@@ -23,6 +23,7 @@ import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -81,7 +82,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         query.setMaxResults(batchMaxSize);
 
         return query.getResultList();
@@ -116,7 +117,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("START_DATE", dateUtil.getZoneDateTime(startDate));
 
@@ -212,7 +213,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
+        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter(STR_MESSAGE_ID, messageId);
         try {
             return query.getSingleResult();
@@ -235,24 +236,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
+    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
-            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
+            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesOlderThan");
         }
         // return only messages with payload not already cleared
-        return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
+        return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
     }
 
     public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
@@ -294,20 +295,21 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
+    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
 
     /**
      * EDELIVERY-7772 Hibernate setResultTransformer deprecated
      */
-    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, boolean eArchiveIsActive, String queryName) {
         Query query = em.createNamedQuery(queryName);
 
         query.unwrap(org.hibernate.query.Query.class)
                 .setResultTransformer(new UserMessageLogDtoResultTransformer());
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
+        query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
         query.setMaxResults(expiredMessagesLimit);
 
         try {
@@ -529,6 +531,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public void updateArchived(List<Long> entityIds) {
+        update(entityIds, this::updateArchivedBatched);
+    }
+
+    public void updateExported(List<Long> entityIds) {
+        update(entityIds, this::updateExportedBatched);
+    }
+
+    public void update(List<Long> entityIds, Consumer<List<Long>> updateArchivedBatched) {
         if (CollectionUtils.isEmpty(entityIds)) {
             return;
         }
@@ -539,7 +549,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         IntStream.range(0, maxBatchesToCreate + 1)
                 .mapToObj(createList(entityIds, totalSize, maxBatchesToCreate))
-                .forEach(this::updateArchivedBatched);
+                .forEach(updateArchivedBatched);
 
     }
 
@@ -567,7 +577,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
         int i = namedQuery.executeUpdate();
         if (LOG.isTraceEnabled()) {
-            LOG.trace("UserMessageLogs [{}] updated(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+            LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+        }
+    }
+
+    public void updateExportedBatched(List<Long> entityIds) {
+        Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateExported");
+
+        namedQuery.setParameter("ENTITY_IDS", entityIds);
+        namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        int i = namedQuery.executeUpdate();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
         }
     }
 }

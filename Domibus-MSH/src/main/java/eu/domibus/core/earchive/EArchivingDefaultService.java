@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -141,16 +141,31 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
-    public List<String> getBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize) {
-        return eArchiveBatchUtils.getMessageIds(eArchiveBatchUserMessageDao.getBatchMessageList(batchId, pageStart, pageSize));
-    }
-
-    @Override
-    public Long getBatchUserMessageListCount(String batchId) {
+    public List<String> getExportedBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize) {
         EArchiveBatchEntity batch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (batch == null) {
             throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]");
         }
+        if (batch.getEArchiveBatchStatus() == EArchiveBatchStatus.FAILED
+                || batch.getEArchiveBatchStatus() == EArchiveBatchStatus.QUEUED
+                || batch.getEArchiveBatchStatus() == EArchiveBatchStatus.STARTED) {
+            return Collections.emptyList();
+        }
+        return eArchiveBatchUtils.getMessageIds(eArchiveBatchUserMessageDao.getBatchMessageList(batchId, pageStart, pageSize));
+    }
+
+    @Override
+    public Long getExportedBatchUserMessageListCount(String batchId) {
+        EArchiveBatchEntity batch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
+        if (batch == null) {
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "EArchive batch not found batchId: [" + batchId + "]");
+        }
+        if (batch.getEArchiveBatchStatus() == EArchiveBatchStatus.FAILED
+                || batch.getEArchiveBatchStatus() == EArchiveBatchStatus.QUEUED
+                || batch.getEArchiveBatchStatus() == EArchiveBatchStatus.STARTED) {
+            return 0L;
+        }
+
         return batch.getBatchSize() != null ? batch.getBatchSize().longValue() : 0L;
     }
 
@@ -233,9 +248,10 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Transactional
-    public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId) {
+    public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORTED, eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation());
+        userMessageLogDefaultService.updateStatusToExported(eArchiveBatchUtils.getEntityIds(userMessageDtos));
         sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
     }
 

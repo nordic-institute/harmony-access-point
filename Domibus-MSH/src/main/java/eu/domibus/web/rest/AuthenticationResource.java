@@ -16,7 +16,7 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -116,7 +116,7 @@ public class AuthenticationResource {
         }
 
         LOG.debug("Authenticating user [{}]", loginRO.getUsername());
-        final UserDetail principal = authenticationService.authenticate(loginRO.getUsername(), loginRO.getPassword(), domainCode);
+        final DomibusUserDetails principal = authenticationService.authenticate(loginRO.getUsername(), loginRO.getPassword(), domainCode);
         if (principal.isDefaultPasswordUsed()) {
             LOG.warn(WarningUtil.warnOutput(principal.getUsername() + " is using default password."));
         }
@@ -155,9 +155,9 @@ public class AuthenticationResource {
     @GetMapping(value = "user")
     public UserRO getUser() {
         LOG.debug("get user - start");
-        UserDetail userDetail = authenticationService.getLoggedUser();
+        DomibusUserDetails domibusUserDetails = authenticationService.getLoggedUser();
 
-        return userDetail != null ? createUserRO(userDetail, userDetail.getUsername()) : null;
+        return domibusUserDetails != null ? createUserRO(domibusUserDetails, domibusUserDetails.getUsername()) : null;
     }
 
     /**
@@ -193,7 +193,7 @@ public class AuthenticationResource {
     @PutMapping(value = "user/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
-        UserDetail loggedUser = authenticationService.getLoggedUser();
+        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
         loggedUser.setDefaultPasswordUsed(false);
@@ -208,7 +208,7 @@ public class AuthenticationResource {
     }
 
 
-    private UserRO createUserRO(UserDetail principal, String username) {
+    private UserRO createUserRO(DomibusUserDetails principal, String username) {
         //Parse Granted authorities to a list of string authorities
         List<String> authorities = new ArrayList<>();
         for (GrantedAuthority grantedAuthority : principal.getAuthorities()) {

@@ -486,21 +486,16 @@ public class AlertServiceImplTest {
         ZonedDateTime dateTime = ZonedDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).withHour(0).withMinute(0).withSecond(0).withNano(0);
         Date alertLimitDate = Date.from(dateTime.toInstant());
 
-        final List<eu.domibus.core.alerts.model.persist.Alert> alerts = new ArrayList<>();
-        alerts.add(alert);
         new Expectations() {{
             commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
-
-            alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
-            result = alerts;
 
         }};
 
         alertService.cleanAlerts();
 
         new Verifications() {{
-            alertDao.deleteAll(alerts);
+            alertDao.deleteAlerts(alertLimitDate);
             times = 1;
         }};
     }
