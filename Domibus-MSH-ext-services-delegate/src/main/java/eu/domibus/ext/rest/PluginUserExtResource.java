@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,11 +34,6 @@ public class PluginUserExtResource {
 
     @ExceptionHandler(PluginUserExtServiceException.class)
     public ResponseEntity<ErrorDTO> handlePluginUserExtServiceException(PluginUserExtServiceException e) {
-        return extExceptionHelper.handleExtException(e);
-    }
-
-    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<ErrorDTO> handleAccessDeniedException(AccessDeniedException e) {
         return extExceptionHelper.handleExtException(e);
     }
 

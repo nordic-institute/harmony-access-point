@@ -8,7 +8,6 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.api.user.UserState;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
@@ -17,7 +16,6 @@ import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.PluginUserRO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,8 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static eu.domibus.core.property.DomibusGeneralConstants.*;
 
 /**
  * @author Ion Perpegel, Catalin Enache
@@ -176,11 +178,10 @@ public class PluginUserServiceImpl implements PluginUserService {
     protected void validatePluginUserName(String userName) {
         String lclPluginUserName = StringUtils.trim(userName);
         int lclPluginUserNameLength = StringUtils.length(lclPluginUserName);
-        if (lclPluginUserNameLength < 4 || lclPluginUserNameLength > 255) {
+        if (lclPluginUserNameLength < PLUGIN_USERNAME_MIN_LENGTH || lclPluginUserNameLength > PLUGIN_USERNAME_MAX_LENGTH) {
             throw new UserManagementException("Plugin User Username should be between 4 and 255 characters long.");
         }
-        String pluginUserNameRegExp = "^[a-zA-Z0-9\\.@_]*$";
-        if (!lclPluginUserName.matches(pluginUserNameRegExp)) {
+        if (!lclPluginUserName.matches(PLUGIN_USERNAME_PATTERN)) {
             throw new UserManagementException("Plugin User should be alphanumeric with allowed special characters .@_");
         }
     }
