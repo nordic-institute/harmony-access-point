@@ -150,13 +150,14 @@ public interface MessageCoreMapper {
     default PartyId partyInfoToPartyInfoApi(Set<eu.domibus.api.usermessage.domain.PartyId> partyIds) {
         if (partyIds == null || CollectionUtils.isEmpty(partyIds) || !partyIds.stream().findFirst().isPresent()) {
             return null;
-        } else {
-            eu.domibus.api.usermessage.domain.PartyId party = partyIds.stream().findFirst().orElse(null);
-            PartyId partyId = new PartyId();
+        }
+        eu.domibus.api.usermessage.domain.PartyId party = partyIds.stream().findFirst().orElse(null);
+        PartyId partyId = new PartyId();
+        if (party != null) {
             partyId.setType(party.getType());
             partyId.setValue(party.getValue());
-            return partyId;
         }
+        return partyId;
     }
 
     @WithoutAuditAndEntityId
