@@ -34,7 +34,7 @@ public class PropertyOverrideContextInitializer implements ApplicationContextIni
             domibusPropertiesPropertySource = new DomibusApplicationInitializer().createDomibusPropertiesPropertySource(domibusConfigLocation);
             updatedPropertiesPropertySource = new DomibusApplicationInitializer().createUpdatedDomibusPropertiesSource();
         } catch (IOException e) {
-            LOG.info("Error occurred while initializing property source", e);
+            LOG.error("Error occurred while initializing property source", e);
         }
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
         propertySources.addLast(domibusPropertiesPropertySource);
