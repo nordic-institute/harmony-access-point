@@ -1060,7 +1060,7 @@ public class DatabaseMessageHandlerTest {
             result = false;
 
             userMessageLogService.getMessageStatus(MESS_ID);
-            result = eu.domibus.common.MessageStatus.ACKNOWLEDGED;
+            result = MessageStatus.ACKNOWLEDGED;
         }};
 
         // When
