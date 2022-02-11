@@ -113,7 +113,7 @@ public class UserMessagePayloadExtResource {
             response.flushBuffer();
             IOUtils.close(payloadInputStream);
         } catch (IOException e) {
-            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Could not write payload with cid [" + cid + "]");
+            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Could not write payload with cid [" + cid + "]", e);
         }
     }
 
@@ -127,7 +127,7 @@ public class UserMessagePayloadExtResource {
         try {
             result = MediaType.parseMediaType(mime);
         } catch (IllegalArgumentException e) {
-            LOG.warn("Could not parse media type [" + mime + "] for payload with cid [" + payload.getHref() + "]");
+            LOG.warn("Could not parse media type [" + mime + "] for payload with cid [" + payload.getHref() + "]", e);
         }
         return result;
     }
