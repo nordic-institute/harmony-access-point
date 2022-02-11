@@ -567,8 +567,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        MpcEntity mpcObject = mpcDictionaryService.findOrCreateMpc(mpc);
-        userMessage.setMpc(mpcObject);
+        MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
+        userMessage.setMpc(mpcEntity);
     }
 
     protected Party createNewParty(String mpc) {

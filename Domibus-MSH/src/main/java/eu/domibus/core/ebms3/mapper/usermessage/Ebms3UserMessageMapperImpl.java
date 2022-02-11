@@ -90,10 +90,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         }
 
         String mpc = ebms3UserMessage.getMpc();
-        if (StringUtils.isBlank(mpc)) {
-            mpc = Ebms3Constants.DEFAULT_MPC;
-        }
-        final MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(mpc);
+        final MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
         userMessage.setMpc(mpcEntity);
 
         final Ebms3MessageProperties userMessageMessageProperties = ebms3UserMessage.getMessageProperties();
