@@ -1,6 +1,5 @@
 package eu.domibus.plugin.jms.property;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
@@ -8,6 +7,7 @@ import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.jms.JMSMessageConstants;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -69,7 +69,10 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE_TYPE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + ACTION, Module.JMS_PLUGIN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + PUT_ATTACHMENTS_IN_QUEUE, Type.BOOLEAN, Module.JMS_PLUGIN, Usage.DOMAIN, true)
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + PUT_ATTACHMENTS_IN_QUEUE, Type.BOOLEAN, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_TYPE, Type.STRING, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_CONTEXT, Type.STRING, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + JMSMessageConstants.ATTACHMENTS_REFERENCE_URL, Type.STRING, Module.JMS_PLUGIN, Usage.DOMAIN, true)
     );
 
     @Override
@@ -87,5 +90,4 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
     protected String getPropertiesFileName() {
         return "jms-plugin.properties";
     }
-
 }
