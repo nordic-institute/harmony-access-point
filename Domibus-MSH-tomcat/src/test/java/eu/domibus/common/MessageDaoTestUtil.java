@@ -110,7 +110,7 @@ public class MessageDaoTestUtil {
         signalMessageLogDao.create(signalMessageLog);
     }
 
-    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archived) {
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archivedAndExported) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
@@ -156,7 +156,8 @@ public class MessageDaoTestUtil {
                 userMessageLog.setScheduled(false);
                 break;
         }
-        userMessageLog.setArchived(archived);
+        userMessageLog.setExported(archivedAndExported);
+        userMessageLog.setArchived(archivedAndExported);
         userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
 
         userMessageLog.setUserMessage(userMessage);
@@ -177,7 +178,7 @@ public class MessageDaoTestUtil {
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received) {
-        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false, true, MPC, new Date());
+        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false, true, MPC, null);
     }
 
     @Transactional

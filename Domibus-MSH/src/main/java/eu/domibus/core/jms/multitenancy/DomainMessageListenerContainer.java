@@ -1,7 +1,6 @@
 package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 

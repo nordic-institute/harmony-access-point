@@ -31,17 +31,17 @@ public class UserSessionsServiceImplTest {
     @Test
     public void invalidateSessions() {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        final UserDetail userDetail = new UserDetail("userName", "password", authorities);
+        final DomibusUserDetails domibusUserDetails = new DomibusUserDetails("userName", "password", authorities);
 
         User user = new User("userName", "email", false, new ArrayList<String>(), UserState.UPDATED, null, false);
 
-        SessionInformation sinfo = new SessionInformation(userDetail, "id", new Date());
+        SessionInformation sinfo = new SessionInformation(domibusUserDetails, "id", new Date());
 
         new Expectations(sinfo) {{
             sessionRegistry.getAllPrincipals();
-            result = Arrays.asList(userDetail);
+            result = Arrays.asList(domibusUserDetails);
 
-            sessionRegistry.getAllSessions(userDetail, false);
+            sessionRegistry.getAllSessions(domibusUserDetails, false);
             result = sinfo;
         }};
 

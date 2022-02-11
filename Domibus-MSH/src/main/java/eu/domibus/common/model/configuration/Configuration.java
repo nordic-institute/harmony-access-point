@@ -1,6 +1,6 @@
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.core.audit.envers.RevisionLogicalName;
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.api.model.AbstractBaseEntity;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;

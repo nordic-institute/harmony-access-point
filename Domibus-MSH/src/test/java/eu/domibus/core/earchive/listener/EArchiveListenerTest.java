@@ -164,7 +164,7 @@ public class EArchiveListenerTest {
             eArchiveBatch.setManifestChecksum("sha256:test");
             times = 1;
 
-            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any));
+            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
         }};
     }
@@ -215,7 +215,7 @@ public class EArchiveListenerTest {
             jmsUtil.setDomain(message);
             times = 1;
 
-            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any));
+            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
 
             eArchiveBatchUtils.getMessageIds((List<EArchiveBatchUserMessage>) any);

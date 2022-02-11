@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.ebms3.MessageExchangePattern.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -297,9 +298,9 @@ public class CachingPModeProvider extends PModeProvider {
      */
     @Override
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
-                              final String service, final String action, final Role initiatorRole, final Role responderRole, ProcessingType processingType) throws EbMS3Exception {
+                              final String service, final String action, final Role initiatorRole, final Role responderRole, ProcessingType processingType, String mpc) throws EbMS3Exception {
 
-        LegFilterCriteria legFilterCriteria = new LegFilterCriteria(agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action, processingType);
+        LegFilterCriteria legFilterCriteria = new LegFilterCriteria(agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action, processingType, mpc);
 
         final List<Process> matchingProcesses = filterMatchingProcesses(legFilterCriteria);
         if (matchingProcesses.isEmpty()) {
@@ -360,7 +361,7 @@ public class CachingPModeProvider extends PModeProvider {
             checkInitiatorRoleMismatch(process, legFilterCriteria);
             checkResponderRoleMismatch(process, legFilterCriteria);
         }
-        candidateProcesses.removeAll(legFilterCriteria.listProcessesWitMismatchErrors());
+        candidateProcesses.removeAll(legFilterCriteria.listProcessesWithMismatchErrors());
         if (LOG.isDebugEnabled()) {
             LOG.debug("Names of matched processes:[{}]", listProcessNames(candidateProcesses));
         }
@@ -428,6 +429,7 @@ public class CachingPModeProvider extends PModeProvider {
         for (LegConfiguration candidateLeg : candidateLegs) {
             checkServiceMismatch(candidateLeg, legFilterCriteria);
             checkActionMismatch(candidateLeg, legFilterCriteria);
+            checkMpcMismatch(candidateLeg, legFilterCriteria);
         }
         candidateLegs.removeAll(legFilterCriteria.listLegConfigurationsWitMismatchErrors());
         if (LOG.isDebugEnabled()) {
@@ -455,6 +457,22 @@ public class CachingPModeProvider extends PModeProvider {
         }
         legFilterCriteria.appendLegMismatchErrors(candidateLeg, "Action:[" + legFilterCriteria.getAction() + DOES_NOT_MATCH_END_STRING);
     }
+
+    protected void checkMpcMismatch(LegConfiguration candidateLeg, LegFilterCriteria legFilterCriteria) {
+        boolean mpcEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED);
+        if (!mpcEnabled) {
+            LOG.debug("Mpc validation disabled");
+            return;
+        }
+
+        if (equalsIgnoreCase(candidateLeg.getDefaultMpc().getQualifiedName(), legFilterCriteria.getMpc())) {
+            LOG.debug("Mpc:[{}] matched for Leg:[{}]", legFilterCriteria.getMpc(), candidateLeg.getName());
+            return;
+        }
+
+        legFilterCriteria.appendLegMismatchErrors(candidateLeg, "Mpc:[" + legFilterCriteria.getMpc() + DOES_NOT_MATCH_END_STRING);
+    }
+
 
     protected boolean matchMepBinding(final String processMepBiding, final String messageProcessingType) {
         if (Objects.equals(processMepBiding, messageProcessingType)) {

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,6 +52,10 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
         return extExceptionHelper.createResponse(e);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDTO> handleAccessDeniedException(AccessDeniedException e) {
+        return extExceptionHelper.handleExtException(e);
+    }
 
     /**
      * Handles the exception behavior for @Valid annotated input methods

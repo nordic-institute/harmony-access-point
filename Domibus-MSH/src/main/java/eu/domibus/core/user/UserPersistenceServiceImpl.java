@@ -18,7 +18,7 @@ import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -138,7 +138,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void checkCanUpdateIfCurrentUser(eu.domibus.api.user.User user, User existing) {
-        UserDetail loggedUser = authenticationService.getLoggedUser();
+        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
         if (loggedUser == null || !StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
             LOG.debug("No need to validate the permission to update a user if it is different than the logged-in user [{}]; exiting.", user.getUserName());
             return;

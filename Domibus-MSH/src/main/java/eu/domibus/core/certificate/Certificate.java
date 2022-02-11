@@ -1,7 +1,7 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.api.model.AbstractBaseEntity;
-import eu.domibus.core.audit.envers.RevisionLogicalName;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;

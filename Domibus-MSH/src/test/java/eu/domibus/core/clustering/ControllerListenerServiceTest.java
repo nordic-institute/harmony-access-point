@@ -19,19 +19,19 @@ import javax.jms.Message;
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class ControllerListenerEbms3ServiceTest {
+public class ControllerListenerServiceTest {
 
     @Tested
-    ControllerListenerService controllerListenerService;
+    private ControllerListenerService controllerListenerService;
 
     @Injectable
-    protected CommandExecutorService commandExecutorService;
+    private CommandExecutorService commandExecutorService;
 
     @Injectable
-    protected DomainService domainService;
+    private DomainService domainService;
 
     @Injectable
-    protected DomainContextProvider domainContextProvider;
+    private DomainContextProvider domainContextProvider;
 
     @Test
     public void testHandleMessageDomainWhenNoDomainWasProvided(@Mocked Message message) {

@@ -108,8 +108,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     FUNCTION generate_scalable_seq(incr IN NUMBER, creation_time IN DATE) RETURN NUMBER IS
         seq_id NUMBER;
+        date_format CONSTANT VARCHAR2(255) := 'YYMMDDHH24';
         len CONSTANT VARCHAR2(255) := 'FM0000000000';
-        date_format CONSTANT VARCHAR2(255) := 'YYMMDDHH';
     BEGIN
         SELECT to_number(to_char(creation_time, date_format) || to_char(incr, len))
         INTO seq_id
@@ -5375,7 +5375,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_id_pk := generate_scalable_seq(rev_changes(i).ID_PK, rev_changes(i).CREATION_TIME);
 
                         CASE rev_changes(i).ENTIY_NAME
-                            WHEN 'eu.domibus.core.user.plugin.AuthenticationEntity' THEN lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, CAST(rev_changes(i).ENTITY_ID AS NUMBER), v_entity_id);
+                            WHEN 'eu.domibus.api.user.plugin.AuthenticationEntity' THEN lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, CAST(rev_changes(i).ENTITY_ID AS NUMBER), v_entity_id);
                             WHEN 'eu.domibus.core.plugin.routing.BackendFilterEntity' THEN lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, CAST(rev_changes(i).ENTITY_ID AS NUMBER), v_entity_id);
                             WHEN 'eu.domibus.core.plugin.routing.RoutingCriteriaEntity' THEN lookup_audit_migration_pk('routing_criteria', migration_pks, missing_entity_date_prefix, CAST(rev_changes(i).ENTITY_ID AS NUMBER), v_entity_id);
                             WHEN 'eu.domibus.core.user.ui.User' THEN lookup_audit_migration_pk('user', migration_pks, missing_entity_date_prefix, CAST(rev_changes(i).ENTITY_ID AS NUMBER), v_entity_id);

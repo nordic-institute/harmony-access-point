@@ -1,6 +1,6 @@
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.core.audit.envers.RevisionLogicalName;
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.api.model.AbstractBaseEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;

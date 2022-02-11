@@ -1,6 +1,7 @@
 package eu.domibus.core.user;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.user.UserEntityBase;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

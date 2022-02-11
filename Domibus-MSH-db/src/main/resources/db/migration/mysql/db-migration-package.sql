@@ -7508,7 +7508,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
 
                 CASE entiy_name
-                    WHEN 'eu.domibus.core.user.plugin.AuthenticationEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
+                    WHEN 'eu.domibus.api.user.plugin.AuthenticationEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
                     WHEN 'eu.domibus.core.plugin.routing.BackendFilterEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
                     WHEN 'eu.domibus.core.plugin.routing.RoutingCriteriaEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('routing_criteria', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
                     WHEN 'eu.domibus.core.user.ui.User' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('user', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);

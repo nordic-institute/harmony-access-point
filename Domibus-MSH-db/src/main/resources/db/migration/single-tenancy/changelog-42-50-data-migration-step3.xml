@@ -614,6 +614,9 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         <createIndex indexName="IDX_MSG_ARCHIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ARCHIVED"/>
         </createIndex>
+        <createIndex indexName="IDX_MSG_EXPORTED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="EXPORTED"/>
+        </createIndex>
         <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ACKNOWLEDGED"/>
         </createIndex>

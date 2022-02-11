@@ -1,5 +1,7 @@
 package eu.domibus.jms.wildfly;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.jms.JMSDestinationHelper;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -178,17 +180,22 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(),
                 domibusPropertyProvider.getProperty(ACTIVE_MQ_ARTEMIS_BROKER), true);
 
-        String[] addressNames = activeMQServerControl.getAddressNames();
-        LOG.debug("Address names: [{}]", Arrays.toString(addressNames));
+        String[] nodeIds = parseNetworkTopology();
+        LOG.debug("Node IDs: {}", Arrays.toString(nodeIds));
 
-        Arrays.stream(addressNames).forEach(addressName -> {
+        String[] addressNames = activeMQServerControl.getAddressNames();
+        LOG.debug("Address names: {}", Arrays.toString(addressNames));
+
+        Arrays.stream(addressNames)
+                .filter(addressName -> !StringUtils.startsWith(addressName, "$.artemis.internal"))
+                .forEach(addressName -> {
             try {
                 ObjectName addressObjectName = objectNameBuilder.getAddressObjectName(toSimpleString(addressName));
 
                 String[] queueNames = getAddressControl(addressObjectName).getQueueNames();
-                LOG.debug("Address to queue names mapping: [{} -> {}]", addressName, Arrays.toString(queueNames));
+                LOG.debug("Address to queue names mapping: [{}] -> {}", addressName, Arrays.toString(queueNames));
 
-                queues.putAll(getAddressQueueMap(addressName, queueNames, routingType, objectNameBuilder));
+                queues.putAll(getAddressQueueMap(addressName, queueNames, nodeIds, routingType, objectNameBuilder));
             } catch (Exception e) {
                 // Just log the error and continue with the next address name
                 LOG.error("Error creating object name for address [" + addressName + "]", e);
@@ -198,8 +205,51 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         return queues;
     }
 
-    protected Map<String, ObjectName> getAddressQueueMap(String addressName, String[] queueNames, RoutingType routingType, ObjectNameBuilder objectNameBuilder) {
-        Map<String, ObjectName> queueMap = Arrays.stream(queueNames).collect(Collectors.toMap(
+    /**
+     * A server instance node in a Wildfly clustered environment.
+     *
+     * @author Sebastian-Ion TINCU
+     * @see 5.0
+     */
+    private static class ServerInstance {
+        /**
+         * The node ID uniquely identifying this server instance inside the Wildfly cluster
+         */
+        private String nodeID;
+
+        public String getNodeID() {
+            return nodeID;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("ServerInstance{");
+            sb.append("nodeID='").append(nodeID).append('\'');
+            sb.append('}');
+            return sb.toString();
+        }
+    }
+
+    private String[] parseNetworkTopology() {
+        LOG.info("Retrieve node IDs to filter out the queue names coming from other nodes");
+
+        List<String> nodeIds = new ArrayList<>();
+        try {
+            String networkTopology = activeMQServerControl.listNetworkTopology();
+            final ServerInstance[] instances = new ObjectMapper().readValue(networkTopology, ServerInstance[].class);
+            Arrays.stream(instances)
+                    .peek(serverInstance -> LOG.info("Registering node for server instance: [{}]", serverInstance))
+                    .forEach(serverInstance -> nodeIds.add(serverInstance.getNodeID()));
+        } catch (Exception e) {
+            LOG.error("Could not retrieve node IDs", e);
+        }
+        return nodeIds.toArray(new String[0]);
+    }
+
+    protected Map<String, ObjectName> getAddressQueueMap(String addressName, String[] queueNames, String[] nodeIds, RoutingType routingType, ObjectNameBuilder objectNameBuilder) {
+        Map<String, ObjectName> queueMap = Arrays.stream(queueNames)
+                .filter(queueName -> ! StringUtils.containsAny(queueName, nodeIds))
+                .collect(Collectors.toMap(
                 Function.identity(),
                 queueName -> {
                     try {
@@ -215,7 +265,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         // Add corresponding entries for the non-qualified names so lookups without the Artemis 1.x JMS prefix will work
         // (using the ActiveMQJMSClient.enable1xPrefixes Artemis 2.x parameter doesn't seem to work)
         Map<String, ObjectName> nonFQNObjectMap = new HashMap<>();
-        queueMap.entrySet().stream().forEach(queueEntry -> {
+        queueMap.entrySet().stream()
+                .forEach(queueEntry -> {
             String keyNonFQN = StringUtils.removeStart(queueEntry.getKey(), JMS_QUEUE_PREFIX);
             nonFQNObjectMap.put(keyNonFQN, queueEntry.getValue());
         });
@@ -452,10 +503,8 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         InternalJmsMessage result = new InternalJmsMessage();
 
         result.setType(mapMessage.getJMSType());
-        Long jmsTimestamp = mapMessage.getJMSTimestamp();
-        if (jmsTimestamp != null) {
-            result.setTimestamp(new Date(jmsTimestamp));
-        }
+        long jmsTimestamp = mapMessage.getJMSTimestamp();
+        result.setTimestamp(new Date(jmsTimestamp));
         result.setPriority(mapMessage.getJMSPriority());
         result.setId(mapMessage.getJMSMessageID());
 

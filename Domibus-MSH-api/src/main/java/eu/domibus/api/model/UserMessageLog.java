@@ -4,7 +4,6 @@ import eu.domibus.api.scheduler.Reprogrammable;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Federico Martini
@@ -143,14 +142,14 @@ import java.util.List;
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findMessagesForArchivingAsc",
-                query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId) " +
-                        "from UserMessageLog uml " +
-                        "where uml.entityId > :LAST_ENTITY_ID " +
-                        "  and uml.entityId < :MAX_ENTITY_ID " +
-                        "  and uml.messageStatus.messageStatus in :STATUSES " +
-                        "  and uml.deleted IS NULL " +
-                        "  and uml.archived IS NULL " +
-                        "order by uml.entityId asc"),
+                query = "select new EArchiveBatchUserMessage(uml.entityId, uml.userMessage.messageId)                " +
+                        "from UserMessageLog uml                                                                     " +
+                        "where uml.entityId > :LAST_ENTITY_ID                                                        " +
+                        "  and uml.entityId < :MAX_ENTITY_ID                                                         " +
+                        "  and uml.messageStatus.messageStatus in :STATUSES                                          " +
+                        "  and uml.deleted IS NULL                                                                   " +
+                        "  and uml.exported IS NULL                                                                  " +
+                        "order by uml.entityId asc                                                                   "),
         @NamedQuery(name = "UserMessageLog.countMessagesForArchiving",
                 query = "select new java.lang.Long(count(uml.entityId)) " +
                         "from UserMessageLog uml " +
@@ -158,16 +157,19 @@ import java.util.List;
                         "  and uml.entityId < :MAX_ENTITY_ID " +
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "  and uml.deleted IS NULL " +
-                        "  and uml.archived IS NULL "),
-        @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.entityId in :IDS"),
+                        "  and uml.exported IS NULL "),
+        @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query =
+                "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
-                "UPDATE UserMessageLog uml " +
-                        "SET uml.archived = :CURRENT_TIMESTAMP " +
-                        "WHERE uml.entityId IN( :ENTITY_IDS )"),
+                "UPDATE UserMessageLog uml                                          " +
+                        "SET uml.archived = :CURRENT_TIMESTAMP                      " +
+                        "WHERE uml.entityId IN( :ENTITY_IDS )                       "),
+        @NamedQuery(name = "UserMessageLog.updateExported", query =
+                "UPDATE UserMessageLog uml                                          " +
+                        "SET uml.exported = :CURRENT_TIMESTAMP                      " +
+                        "WHERE uml.entityId IN( :ENTITY_IDS )                       "),
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {
-
-    public static final List<MessageStatus> FINAL_STATUSES_FOR_MESSAGE = MessageStatus.getFinalStates();
 
     @Column(name = "BACKEND")
     private String backend;
@@ -195,6 +197,10 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
     @Column(name = "ARCHIVED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date archived;
+
+    @Column(name = "EXPORTED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date exported;
 
     /**
      * The Date when this message was deleted, A message shall be deleted when one of the following conditions apply:
@@ -313,6 +319,14 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Repro
 
     public void setDeleted(Date deleted) {
         this.deleted = deleted;
+    }
+
+    public Date getExported() {
+        return exported;
+    }
+
+    public void setExported(Date archived) {
+        this.exported = archived;
     }
 
     public Date getArchived() {
