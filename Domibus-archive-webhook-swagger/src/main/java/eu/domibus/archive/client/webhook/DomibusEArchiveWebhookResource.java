@@ -45,8 +45,6 @@ import javax.ws.rs.PathParam;
         tags = {
                 @Tag(name = "archive-webhook", description = "The REST endpoint URLs that Domibus will use to notify the archiving client each time it will export a batch.")
         },
-//        security = @SecurityRequirement(name = "basicAuth")
-//        ,
         externalDocs = @ExternalDocumentation(description = "Domibus page", url = "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus")
 )
 @SecurityScheme(
