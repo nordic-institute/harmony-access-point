@@ -6,14 +6,15 @@ import eu.domibus.core.message.dictionary.*;
 import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
 
+@Transactional
 public class UserMessageDaoTestIT extends AbstractIT {
 
     private static final String STRING_TYPE = "string";

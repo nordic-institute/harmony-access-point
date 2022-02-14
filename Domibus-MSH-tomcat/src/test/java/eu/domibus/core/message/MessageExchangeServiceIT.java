@@ -20,6 +20,7 @@ import java.util.Date;
  * @author Ion Perpegel
  * @since 5.0
  */
+@Transactional
 public class MessageExchangeServiceIT extends AbstractIT {
 
     @Autowired

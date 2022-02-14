@@ -42,7 +42,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-
 public class MshWebServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MshWebServiceTestIT.class);

@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
-//TODO move it in the core module when Domibus will reference the configuration files via the classpath instead of file disk
+@Transactional
 public class MessageAttemptDaoTestIT extends AbstractIT {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);

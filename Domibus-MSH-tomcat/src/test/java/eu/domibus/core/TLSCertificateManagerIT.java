@@ -23,6 +23,7 @@ import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NA
  * @author Ion Perpegel
  * @since 5.0
  */
+@Transactional
 public class TLSCertificateManagerIT extends AbstractIT {
 
     @Autowired

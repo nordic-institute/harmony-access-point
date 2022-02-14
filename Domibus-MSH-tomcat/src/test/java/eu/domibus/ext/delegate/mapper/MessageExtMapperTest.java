@@ -8,6 +8,7 @@ import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author François Gautier
  * @since 5.0
  */
+@Transactional
 public class MessageExtMapperTest extends AbstractIT {
 
     @Autowired

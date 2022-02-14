@@ -28,6 +28,7 @@ import static junit.framework.TestCase.assertNotNull;
  * @author Thomas Dussart
  * @since 4.0
  */
+@Transactional
 public class PartyDaoIT extends AbstractIT {
 
     @PersistenceContext

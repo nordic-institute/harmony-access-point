@@ -22,6 +22,7 @@ import javax.persistence.PersistenceContext;
  * @author Ion Perpegel
  * @since 4.1
  */
+@Transactional
 public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Autowired

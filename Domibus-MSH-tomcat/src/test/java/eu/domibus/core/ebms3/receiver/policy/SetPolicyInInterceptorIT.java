@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLInputFactory;
@@ -39,8 +40,7 @@ import java.util.UUID;
  * @author draguio
  * @since 3.3
  */
-@DirtiesContext
-@Rollback
+@Transactional
 public class SetPolicyInInterceptorIT extends AbstractIT {
 
     @Autowired

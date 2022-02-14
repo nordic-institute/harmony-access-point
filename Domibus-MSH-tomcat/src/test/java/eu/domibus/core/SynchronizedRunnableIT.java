@@ -20,6 +20,7 @@ import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_K
  * @since 5.0
  */
 @Ignore("[EDELIVERY-8739] Improve code coverage")
+@Transactional
 public class SynchronizedRunnableIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);

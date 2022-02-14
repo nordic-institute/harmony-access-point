@@ -43,7 +43,7 @@ import static java.util.Collections.singletonList;
  * @author Ion Perpegel
  * @since 5.0
  */
-
+@Transactional
 public class EArchivingRetentionServiceIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingRetentionServiceIT.class);

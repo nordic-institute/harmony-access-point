@@ -224,8 +224,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
-
         assertEquals(backendConnector.getDeliverMessageEvent().getMessageId(), messageId);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);

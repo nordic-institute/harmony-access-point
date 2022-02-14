@@ -6,11 +6,13 @@ import eu.domibus.ext.domain.monitoring.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
+@Transactional
 public class MonitoringExtMapperTest extends AbstractIT {
 
     @Autowired

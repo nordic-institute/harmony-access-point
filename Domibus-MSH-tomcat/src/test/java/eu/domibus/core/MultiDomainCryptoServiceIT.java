@@ -42,6 +42,7 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  * @since 5.0
  */
 @Ignore("EDELIVERY-8892")
+@Transactional
 public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @Autowired
