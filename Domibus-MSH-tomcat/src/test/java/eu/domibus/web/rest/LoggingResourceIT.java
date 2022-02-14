@@ -3,25 +3,28 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.domibus.AbstractIT;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
 import eu.domibus.core.security.AuthUtilsImpl;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Mock;
+import mockit.MockUp;
 import org.apache.commons.lang3.BooleanUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -39,14 +42,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author François Gautier
  * @since 4.2
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
-public class LoggingResourceIT {
+@DirtiesContext
+public class LoggingResourceIT extends AbstractIT {
 
-    @Mocked
+    @Autowired
     private DomibusCoreMapper coreMapper;
 
-    @Mocked
+    @Autowired
     private LoggingService loggingService;
 
     @Autowired
@@ -55,26 +57,29 @@ public class LoggingResourceIT {
     private MockMvc mockMvc;
 
     @Configuration
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
     static class ContextConfiguration {
+        @Primary
         @Bean
-        public LoggingResource loggingResource() {
-            return new LoggingResource(null,
-                    null,
-                    null);
+        public AuthUtils authUtils() {
+            return Mockito.mock(AuthUtils.class);
         }
 
+        @Primary
         @Bean
-        public AuthUtilsImpl authUtils() {
-            return new AuthUtilsImpl(null, null);
+        public LoggingService loggingService() {
+            return Mockito.mock(LoggingService.class);
+        }
+
+        @Primary
+        @Bean
+        public DomibusCoreMapper coreMapper() {
+            return Mockito.mock(DomibusCoreMapper.class);
         }
     }
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
-        ReflectionTestUtils.setField(loggingResource, "coreMapper", coreMapper);
-        ReflectionTestUtils.setField(loggingResource, "loggingService", loggingService);
     }
 
     @Test(expected = NestedServletException.class)

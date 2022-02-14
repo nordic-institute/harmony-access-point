@@ -26,7 +26,7 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+//@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
 @Transactional
 public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
 

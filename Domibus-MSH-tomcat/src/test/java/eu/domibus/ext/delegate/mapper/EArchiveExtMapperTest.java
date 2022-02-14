@@ -1,14 +1,12 @@
 package eu.domibus.ext.delegate.mapper;
 
+import eu.domibus.AbstractIT;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.domain.archive.BatchRequestType;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -21,9 +19,7 @@ import static org.junit.Assert.assertEquals;
  * @author Joze Rihtarsic
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestMapperContextConfiguration.class)
-public class EArchiveExtMapperTest {
+public class EArchiveExtMapperTest extends AbstractIT {
 
     @Autowired
     private EArchiveExtMapper archiveExtMapper;

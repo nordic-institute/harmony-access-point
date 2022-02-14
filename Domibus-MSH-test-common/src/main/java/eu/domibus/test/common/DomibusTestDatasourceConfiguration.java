@@ -54,9 +54,9 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setUsername(h2DataSource.getUser());
         dataSource.setPassword(h2DataSource.getPassword());
 
-        final int maxPoolSize = 20;
+        final int maxPoolSize = 30;
         dataSource.setMaximumPoolSize(maxPoolSize);
-        final int maxLifetimeInSecs = 10;
+        final int maxLifetimeInSecs = 60;
         dataSource.setMaxLifetime(maxLifetimeInSecs * 1000L);
         return dataSource;
     }

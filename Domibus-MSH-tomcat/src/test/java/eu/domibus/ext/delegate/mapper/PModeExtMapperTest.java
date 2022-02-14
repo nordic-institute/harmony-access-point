@@ -1,15 +1,13 @@
 package eu.domibus.ext.delegate.mapper;
 
+import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,9 +16,7 @@ import java.util.List;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestMapperContextConfiguration.class)
-public class PModeExtMapperTest {
+public class PModeExtMapperTest extends AbstractIT {
 
     @Autowired
     private PModeExtMapper pModeExtMapper;

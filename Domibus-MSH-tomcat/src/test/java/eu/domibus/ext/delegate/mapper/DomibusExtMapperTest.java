@@ -1,5 +1,6 @@
 package eu.domibus.ext.delegate.mapper;
 
+import eu.domibus.AbstractIT;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
@@ -9,10 +10,7 @@ import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.domain.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +19,7 @@ import java.util.List;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestMapperContextConfiguration.class)
-public class DomibusExtMapperTest {
+public class DomibusExtMapperTest extends AbstractIT {
 
     @Autowired
     private DomibusExtMapper domibusExtMapper;

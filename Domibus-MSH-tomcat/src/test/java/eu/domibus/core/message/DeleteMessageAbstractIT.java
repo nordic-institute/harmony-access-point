@@ -58,8 +58,6 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
-
-        waitUntilMessageIsReceived(messageId);
     }
 
     protected void deleteMessages() {

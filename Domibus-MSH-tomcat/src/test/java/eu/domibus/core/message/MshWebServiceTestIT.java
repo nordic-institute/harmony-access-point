@@ -22,6 +22,7 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.h2.tools.Server;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -29,13 +30,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
+
 
 public class MshWebServiceTestIT extends AbstractIT {
 
@@ -98,6 +104,9 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Autowired
     protected SoapUtil soapUtil;
 
+    @Autowired
+    protected UserMessageLogDao userMessageLogDao;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
@@ -116,10 +125,8 @@ public class MshWebServiceTestIT extends AbstractIT {
         assertNotNull(ebms3Messaging);
         final Ebms3SignalMessage firstSignalMessage = ebms3Messaging.getSignalMessage();
 
-        waitUntilMessageIsReceived(messageId);
-
         //receive the same message again
-        soapResponse = mshWebserviceTest.invoke(soapMessage);
+        soapResponse = mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage(filename, messageId));
         final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(secondEbms3Messaging);
         final Ebms3SignalMessage secondSignalMessage = secondEbms3Messaging.getSignalMessage();
@@ -133,6 +140,7 @@ public class MshWebServiceTestIT extends AbstractIT {
         assertEquals(firstReceipt, secondReceipt);
     }
 
+    @Transactional
     @Test
     public void testGetStatusReceived() throws Exception {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
@@ -142,8 +150,6 @@ public class MshWebServiceTestIT extends AbstractIT {
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
-
-        waitUntilMessageIsReceived(messageId);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);

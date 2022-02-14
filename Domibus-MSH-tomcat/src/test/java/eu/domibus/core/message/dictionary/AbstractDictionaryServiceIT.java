@@ -6,11 +6,13 @@ import eu.domibus.api.model.PartProperty;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+@Transactional
 public class AbstractDictionaryServiceIT extends AbstractIT {
 
     @Autowired

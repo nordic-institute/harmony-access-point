@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -58,7 +59,9 @@ import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+//@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+@DirtiesContext
+@Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Configuration

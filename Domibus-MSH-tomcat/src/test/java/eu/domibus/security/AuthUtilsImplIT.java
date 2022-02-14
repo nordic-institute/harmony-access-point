@@ -1,6 +1,7 @@
-package eu.domibus.core.security;
+package eu.domibus.security;
 
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.security.AuthUtilsImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

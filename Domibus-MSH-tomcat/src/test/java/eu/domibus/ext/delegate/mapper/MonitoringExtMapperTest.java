@@ -1,21 +1,17 @@
 package eu.domibus.ext.delegate.mapper;
 
+import eu.domibus.AbstractIT;
 import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.ext.domain.monitoring.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestMapperContextConfiguration.class)
-public class MonitoringExtMapperTest {
+public class MonitoringExtMapperTest extends AbstractIT {
 
     @Autowired
     private MonitoringExtMapper monitoringExtMapper;

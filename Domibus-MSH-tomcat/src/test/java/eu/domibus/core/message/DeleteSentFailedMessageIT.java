@@ -11,10 +11,10 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.io.IOException;
@@ -25,7 +25,8 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+//@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+@Transactional
 public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentFailedMessageIT.class);
 
