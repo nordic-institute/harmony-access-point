@@ -35,6 +35,7 @@ public class Submission {
     private String service;
     private String serviceType;
     private String conversationId;
+    private Long messageEntityId;
     private String messageId;
     private String refToMessageId;
     private String agreementRef;
@@ -227,6 +228,14 @@ public class Submission {
      */
     public void setFromRole(final String fromRole) {
         this.fromRole = trim(fromRole);
+    }
+
+    public Long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(Long messageEntityId) {
+        this.messageEntityId = messageEntityId;
     }
 
     /**

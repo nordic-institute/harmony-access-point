@@ -193,6 +193,7 @@ public class SubmissionAS4Transformer {
         }
         result.setConversationId(userMessage.getConversationId());
 
+        result.setMessageEntityId(userMessage.getEntityId());
         result.setMessageId(userMessage.getMessageId());
         result.setRefToMessageId(userMessage.getRefToMessageId());
 

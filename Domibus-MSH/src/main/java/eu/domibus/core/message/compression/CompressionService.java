@@ -10,6 +10,7 @@ import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.MessageConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +29,7 @@ import java.util.List;
  */
 @Service
 public class CompressionService {
-    public static final String COMPRESSION_PROPERTY_KEY = "CompressionType";
-    public static final String COMPRESSION_PROPERTY_VALUE = "application/gzip";
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CompressionService.class);
 
     @Autowired
@@ -105,7 +105,7 @@ public class CompressionService {
             return false;
         }
 
-        final PartProperty compressionProperty = partPropertyDictionaryService.findOrCreatePartProperty(CompressionService.COMPRESSION_PROPERTY_KEY, CompressionService.COMPRESSION_PROPERTY_VALUE, null);
+        final PartProperty compressionProperty = partPropertyDictionaryService.findOrCreatePartProperty(MessageConstants .COMPRESSION_PROPERTY_KEY, MessageConstants .COMPRESSION_PROPERTY_VALUE, null);
         partInfo.getPartProperties().add(compressionProperty);
         final CompressedDataSource compressedDataSource = new CompressedDataSource(partInfo.getPayloadDatahandler().getDataSource());
         DataHandler gZipDataHandler = new DataHandler(compressedDataSource);
@@ -143,7 +143,7 @@ public class CompressionService {
                 if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
                     mimeType = property.getValue();
                 }
-                if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
+                if (MessageConstants .COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && MessageConstants .COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
                     payloadCompressed = true;
                 }
             }
@@ -155,8 +155,8 @@ public class CompressionService {
         }
 
         final PartProperty compressionProperty = new PartProperty();
-        compressionProperty.setName(CompressionService.COMPRESSION_PROPERTY_KEY);
-        compressionProperty.setValue(CompressionService.COMPRESSION_PROPERTY_VALUE);
+        compressionProperty.setName(MessageConstants .COMPRESSION_PROPERTY_KEY);
+        compressionProperty.setValue(MessageConstants .COMPRESSION_PROPERTY_VALUE);
         partInfo.getPartProperties().remove(compressionProperty);
 
         if (mimeType == null) {
@@ -192,7 +192,7 @@ public class CompressionService {
 
         @Override
         public String getContentType() {
-            return CompressionService.COMPRESSION_PROPERTY_VALUE;
+            return MessageConstants .COMPRESSION_PROPERTY_VALUE;
         }
 
         @Override

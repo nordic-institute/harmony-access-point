@@ -1,9 +1,7 @@
-package eu.domibus.core.message;
+package eu.domibus.api.payload;
 
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.ebms3.EbMS3Exception;
 
 import java.util.List;
 
@@ -19,6 +17,10 @@ public interface PartInfoService {
 
     List<PartInfo> findPartInfo(long entityId);
 
+    PartInfo findPartInfo(String messageId, String cid);
+
+    PartInfo findPartInfo(Long messageEntityId, String cid);
+
     void clearPayloadData(long entityId);
 
     void clearFileSystemPayloads(List<PartInfo> partInfos);
@@ -28,8 +30,4 @@ public interface PartInfoService {
     List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds);
 
     boolean scheduleSourceMessagePayloads(List<PartInfo> partInfos);
-
-    void validatePayloadSizeBeforeSchedulingSave(LegConfiguration legConfiguration, List<PartInfo> partInfos);
-
-    void checkPartInfoCharset(UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception;
 }

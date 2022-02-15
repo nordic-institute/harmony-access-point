@@ -11,6 +11,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -475,8 +476,18 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
-        final UserMessage userMessageByMessageId = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessageByMessageId = getMessageEntity(messageId);
         return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
+    }
+
+    @Override
+    public UserMessage getMessageEntity(String messageId) {
+        return userMessageDao.findByMessageId(messageId);
+    }
+
+    @Override
+    public UserMessage getMessageEntity(Long messageEntityId) {
+        return userMessageDao.findByEntityId(messageEntityId);
     }
 
     @Transactional

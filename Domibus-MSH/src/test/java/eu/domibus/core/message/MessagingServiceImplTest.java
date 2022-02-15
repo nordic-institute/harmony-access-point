@@ -5,6 +5,7 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -82,6 +83,9 @@ public class MessagingServiceImplTest {
 
     @Injectable
     SubmissionAS4Transformer transformer;
+
+    @Injectable
+    PartInfoHelper partInfoHelper;
 
     @Test
     public void testStoreOutgoingPayload(@Injectable UserMessage userMessage,

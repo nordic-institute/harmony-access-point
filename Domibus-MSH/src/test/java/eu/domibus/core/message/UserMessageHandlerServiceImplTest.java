@@ -8,6 +8,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
@@ -49,7 +50,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.w3c.dom.Node;
 
 import javax.activation.DataHandler;
@@ -183,6 +183,9 @@ public class UserMessageHandlerServiceImplTest {
 
     @Injectable
     PartInfoService partInfoService;
+
+    @Injectable
+    PartInfoHelper partInfoHelper;
 
     @Injectable
     PartPropertyDictionaryService partPropertyDictionaryService;
@@ -342,7 +345,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "1234";
 
-            partInfoService.checkPartInfoCharset(userMessage, null);
+            partInfoHelper.checkPartInfoCharset(userMessage, null);
             times = 1;
 
         }};
@@ -386,7 +389,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessage.getMessageId();
             result = "TestMessage123";
 
-            partInfoService.checkPartInfoCharset(userMessage, null);
+            partInfoHelper.checkPartInfoCharset(userMessage, null);
             times = 1;
 
             pModeProvider.checkSelfSending(pmodeKey);
@@ -961,7 +964,7 @@ public class UserMessageHandlerServiceImplTest {
         new Verifications() {{
 //            userMessage.setSourceMessage(true);
 //
-            partInfoService.checkPartInfoCharset(userMessage, null);
+            partInfoHelper.checkPartInfoCharset(userMessage, null);
 //            backendNotificationService.notifyMessageReceived(backendFilter, userMessage, null);
             soapUtil.logMessage(request);
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
@@ -1457,7 +1460,7 @@ public class UserMessageHandlerServiceImplTest {
         userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, userMessage, null, testMessage);
 
         new FullVerifications() {{
-            partInfoService.checkPartInfoCharset(userMessage, null);
+            partInfoHelper.checkPartInfoCharset(userMessage, null);
             times = 1;
 
             userMessageHandlerService.handleIncomingSourceMessage(legConfiguration, pmodeKey, request, userMessage, null, messageExists, testMessage);

@@ -7,7 +7,7 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.api.earchive.DomibusEArchiveException;
-import eu.domibus.core.message.PartInfoService;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

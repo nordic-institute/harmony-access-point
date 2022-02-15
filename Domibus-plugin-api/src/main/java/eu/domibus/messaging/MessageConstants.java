@@ -32,6 +32,9 @@ public final class MessageConstants {
     public static final String REF_TO_MESSAGE_ID = "refToMessageId";
     public static final String FROM_PARTY_ID = "fromPartyId";
 
+    public static final String COMPRESSION_PROPERTY_KEY = "CompressionType";
+    public static final String COMPRESSION_PROPERTY_VALUE = "application/gzip";
+
 
     /**
      * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer

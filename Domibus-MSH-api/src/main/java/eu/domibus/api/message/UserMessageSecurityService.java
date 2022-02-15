@@ -1,5 +1,6 @@
 package eu.domibus.api.message;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthenticationException;
 
 /**
@@ -18,6 +19,8 @@ public interface UserMessageSecurityService {
      */
     void checkMessageAuthorization(String messageId) throws AuthenticationException;
 
+    void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException;
+
     /**
      * Checks it the current user has the permission to access data for the provided finalRecipient
      *
@@ -25,6 +28,8 @@ public interface UserMessageSecurityService {
      * @throws AuthenticationException in case the user doesn't have the permission
      */
     void checkAuthorization(String finalRecipient) throws AuthenticationException;
+
+
 
     /** Returns the original user passed via the security context OR
      * null when the user has the role ROLE_ADMIN or unsecured authorizations is allowed
@@ -40,6 +45,4 @@ public interface UserMessageSecurityService {
      * @throws AuthenticationException in case the user doesn't have the permission
      */
     String getOriginalUserFromSecurityContext() throws AuthenticationException;
-
-
 }
