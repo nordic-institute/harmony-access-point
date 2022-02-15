@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,14 +134,13 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
      */
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId) {
-        try {
-            final UserMessageLog userMessageLog = findByMessageId(messageId);
-            initializeChildren(userMessageLog);
-            return userMessageLog;
-        } catch (NoResultException nrEx) {
+        final UserMessageLog userMessageLog = findByMessageId(messageId);
+        if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
         }
+        initializeChildren(userMessageLog);
+        return userMessageLog;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -204,23 +204,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public UserMessageLog findByMessageId(String messageId) {
 
-        //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        return query.getSingleResult();
-
+        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        if (userMessageLog == null) {
+            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+        }
+        return userMessageLog;
     }
 
     public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter(STR_MESSAGE_ID, messageId);
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Query UserMessageLog.findMessageToDeleteNotInFinalStatus did not find any result for message with id [" + messageId + "]");
-            return null;
+        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        if (userMessageLog == null) {
+            LOG.debug("Query UserMessageLog.findMessageToDeleteNotInFinalStatus did not find any result for message with id [{}]", messageId);
         }
+        return userMessageLog;
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
@@ -228,12 +229,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter("MSH_ROLE", mshRole);
 
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [" + messageId + "] and MSH role [" + mshRole + "]");
-            return null;
+        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        if (userMessageLog == null) {
+            LOG.debug("Query UserMessageLog.findByMessageIdAndRole did not find any result for message with id [{}] and MSH role [{}]", messageId, mshRole);
         }
+        return userMessageLog;
     }
 
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {

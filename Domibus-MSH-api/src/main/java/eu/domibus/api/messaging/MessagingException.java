@@ -12,4 +12,8 @@ public class MessagingException extends DomibusCoreException {
     public MessagingException(String message, Throwable cause) {
         super(DomibusCoreErrorCode.DOM_001, message, cause);
     }
+
+    public MessagingException(DomibusCoreErrorCode dce, String message, Throwable cause) {
+        super(dce, message, cause);
+    }
 }
