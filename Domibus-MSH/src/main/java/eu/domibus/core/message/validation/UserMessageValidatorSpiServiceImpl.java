@@ -11,6 +11,7 @@ import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
@@ -77,7 +78,7 @@ public class UserMessageValidatorSpiServiceImpl implements UserMessageValidatorS
         }
 
         for (final Property property : partInfo.getPartProperties().getProperty()) {
-            if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
+            if (MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
                 return true;
             }
         }

@@ -10,6 +10,7 @@ import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -54,7 +55,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.attachment.AttachmentUtil;
-import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -186,6 +186,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
 
+    @Autowired
+    protected PartInfoHelper partInfoHelper;
+
     @Transactional
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
@@ -296,7 +299,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         soapUtil.logMessage(request);
 
         String messageId = userMessage.getMessageId();
-        partInfoService.checkPartInfoCharset(userMessage, partInfoList);
+        partInfoHelper.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
@@ -356,7 +359,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         String messageId = userMessage.getMessageId();
-        partInfoService.checkPartInfoCharset(userMessage, partInfoList);
+        partInfoHelper.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);

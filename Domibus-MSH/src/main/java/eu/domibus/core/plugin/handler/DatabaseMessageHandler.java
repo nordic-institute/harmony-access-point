@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
@@ -266,13 +267,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        return userMessageLogService.getMessageStatus(messageId);
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
         validateAccessToStatusAndErrors(messageEntityId);
-        return userMessageLogService.getMessageStatus(messageEntityId);
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
 
@@ -567,8 +570,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        MpcEntity mpcObject = mpcDictionaryService.findOrCreateMpc(mpc);
-        userMessage.setMpc(mpcObject);
+        MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
+        userMessage.setMpc(mpcEntity);
     }
 
     protected Party createNewParty(String mpc) {

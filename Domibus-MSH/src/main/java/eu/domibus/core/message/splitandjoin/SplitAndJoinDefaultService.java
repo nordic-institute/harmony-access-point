@@ -37,6 +37,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -180,7 +181,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             LOG.debug("Using [{}] as source message file ", compressSourceMessage);
             sourceMessageFile = compressSourceMessage;
             messageGroupEntity.setCompressedMessageSize(BigInteger.valueOf(compressSourceMessage.length()));
-            messageGroupEntity.setCompressionAlgorithm(CompressionService.COMPRESSION_PROPERTY_VALUE);
+            messageGroupEntity.setCompressionAlgorithm(MessageConstants.COMPRESSION_PROPERTY_VALUE);
         }
 
         messageGroupEntity.setSoapAction(StringUtils.EMPTY);

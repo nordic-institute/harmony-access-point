@@ -409,7 +409,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public int countUnarchivedMessagesOnPartition(String partitionName) {
-        final Query countQuery = em.createNativeQuery("SELECT COUNT(*) FROM tb_user_message_log PARTITION (" + partitionName + ") WHERE archived IS NULL");
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) WHERE archived IS NULL";
+        sqlString = sqlString.replace("$PARTITION", partitionName);
+        final Query countQuery = em.createNativeQuery(sqlString);
         try {
             int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count unarchived messages result [{}]", result);
@@ -422,7 +424,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public int countByMessageStatusOnPartition(List<String> messageStatuses, String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName + ") INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+        sqlString = sqlString.replace("$PARTITION", partitionName);
         try {
             final Query countQuery = em.createNativeQuery(sqlString);
             countQuery.setParameter("MESSAGE_STATUSES", messageStatuses);

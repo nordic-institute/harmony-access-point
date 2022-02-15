@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.transformer;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.dictionary.*;
@@ -8,6 +9,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -49,8 +51,9 @@ public class SubmissionAS4Transformer {
 
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
-        final MpcEntity mpc = mpcDictionaryService.findOrCreateMpc(submission.getMpc());
-        result.setMpc(mpc);
+        String mpc = submission.getMpc();
+        final MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
+        result.setMpc(mpcEntity);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);
         this.generateCollaborationInfo(submission, result);
@@ -190,6 +193,7 @@ public class SubmissionAS4Transformer {
         }
         result.setConversationId(userMessage.getConversationId());
 
+        result.setMessageEntityId(userMessage.getEntityId());
         result.setMessageId(userMessage.getMessageId());
         result.setRefToMessageId(userMessage.getRefToMessageId());
 

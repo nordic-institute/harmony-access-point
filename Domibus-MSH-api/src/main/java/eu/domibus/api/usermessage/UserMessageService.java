@@ -180,6 +180,10 @@ public interface UserMessageService {
      */
     UserMessage getMessage(String messageId);
 
+    eu.domibus.api.model.UserMessage getMessageEntity(String messageId);
+
+    eu.domibus.api.model.UserMessage getMessageEntity(Long messageEntityId);
+
     /**
      * Retrieves a message by id as a byte array
      *

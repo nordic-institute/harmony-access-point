@@ -6,7 +6,7 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.core.message.PartInfoService;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import mockit.Expectations;
 import mockit.Injectable;

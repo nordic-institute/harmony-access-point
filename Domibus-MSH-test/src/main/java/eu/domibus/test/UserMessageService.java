@@ -1,11 +1,13 @@
 package eu.domibus.test;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +56,7 @@ public class UserMessageService {
         userMessage.setAction(actionDictionaryService.findOrCreateAction(userMessage.getActionValue()));
         userMessage.setService(serviceDictionaryService.findOrCreateService(userMessage.getService().getValue(), userMessage.getService().getType()));
         userMessage.setAgreementRef(agreementDictionaryService.findOrCreateAgreement(userMessage.getAgreementRef().getValue(), userMessage.getAgreementRef().getType()));
-        userMessage.setMpc(mpcDictionaryService.findOrCreateMpc(userMessage.getMpcValue()));
+        userMessage.setMpc(mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(userMessage.getMpcValue()) ? Ebms3Constants.DEFAULT_MPC : userMessage.getMpcValue()));
         userMessage.getPartyInfo().getTo().setToPartyId(partyIdDictionaryService.findOrCreateParty("toPartyValue", "toPartyType"));
         userMessage.getPartyInfo().getTo().setToRole(partyRoleDictionaryService.findOrCreateRole("toRole"));
         userMessage.getPartyInfo().getFrom().setFromPartyId(partyIdDictionaryService.findOrCreateParty("fromPartyValue", "fromPartyType"));

@@ -8,6 +8,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -24,6 +25,7 @@ import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +50,9 @@ public class MessagingServiceImpl implements MessagingService {
 
     @Autowired
     private PartInfoService partInfoService;
+
+    @Autowired
+    protected PartInfoHelper partInfoHelper;
 
     @Autowired
     private SubmissionAS4Transformer transformer;
@@ -94,7 +99,7 @@ public class MessagingServiceImpl implements MessagingService {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
             if (partInfoService.scheduleSourceMessagePayloads(partInfoList)) {
-               partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
+               partInfoHelper.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
 
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(
@@ -215,8 +220,8 @@ public class MessagingServiceImpl implements MessagingService {
         }
 
         for (final Property property : partInfo.getPartProperties()) {
-            if (property.getName().equalsIgnoreCase(CompressionService.COMPRESSION_PROPERTY_KEY)
-                    && property.getValue().equalsIgnoreCase(CompressionService.COMPRESSION_PROPERTY_VALUE)) {
+            if (property.getName().equalsIgnoreCase(MessageConstants.COMPRESSION_PROPERTY_KEY)
+                    && property.getValue().equalsIgnoreCase(MessageConstants.COMPRESSION_PROPERTY_VALUE)) {
                 return true;
             }
         }
