@@ -47,7 +47,7 @@ public class SeleniumTest extends BaseTest {
 		log.info("-------- Starting -------");
 
 		deleteAllPluginUsers();
-//		generateTestData();
+		generateTestData();
 	}
 
 	public void deleteAllPluginUsers() throws Exception {
