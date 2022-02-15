@@ -149,4 +149,9 @@ public class OpenApiConfig {
     public PayloadExtService payloadExtService() {
         return Mockito.mock(PayloadExtService.class);
     }
+
+    @Bean
+    public DateExtService dateExtService() {
+        return Mockito.mock(DateExtService.class);
+    }
 }

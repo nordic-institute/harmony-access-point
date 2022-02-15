@@ -4,7 +4,6 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +84,7 @@ public interface UserMessageService {
      */
     void resendFailedOrSendEnqueuedMessage(final String messageId);
 
-    List<String> restoreFailedMessagesDuringPeriod(Date begin, Date end, String finalRecipient);
+    List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
 
     void deleteFailedMessage(String messageId);
 
@@ -93,7 +92,7 @@ public interface UserMessageService {
 
     void deleteMessageNotInFinalStatus(String messageId);
 
-    List<String> deleteMessagesDuringPeriod(Date begin, Date end, String finalRecipient);
+    List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
 
 
     /**

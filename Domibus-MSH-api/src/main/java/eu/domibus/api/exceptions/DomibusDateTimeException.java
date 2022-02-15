@@ -9,7 +9,6 @@ package eu.domibus.api.exceptions;
 public class DomibusDateTimeException extends DomibusCoreException {
 
     /**
-     *
      * @param dateString the text failed to parse
      */
     public DomibusDateTimeException(String dateString) {
@@ -17,11 +16,17 @@ public class DomibusDateTimeException extends DomibusCoreException {
     }
 
     /**
-     *
-     * @param dateString the text to parse, not null
-     * @param cause exception to encapsulate
+     * @param dateString the text failed to parse
      */
-    public DomibusDateTimeException(String dateString, Throwable cause) {
-        super(DomibusCoreErrorCode.DOM_007, "Invalid xsd:datetime format:[" + dateString + "].", cause);
+    public DomibusDateTimeException(String dateString, String formatter) {
+        super(DomibusCoreErrorCode.DOM_007, "Invalid xsd:datetime format:[" + dateString + "] with [" + formatter + "].");
+    }
+
+    /**
+     * @param dateString the text to parse, not null
+     * @param cause      exception to encapsulate
+     */
+    public DomibusDateTimeException(String dateString, String formatter, Throwable cause) {
+        super(DomibusCoreErrorCode.DOM_007, "Invalid xsd:datetime format:[" + dateString + "] with [" + formatter + "]. Caused by: [" + cause.getMessage() + "]");
     }
 }

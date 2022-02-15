@@ -1,5 +1,6 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -132,4 +133,47 @@ public class DateUtilImplTest {
                 LocalDateTime.now(ZoneOffset.UTC).toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant(), actual.toInstant());
     }
 
+    @Test
+    public void getIdPkDateHour() {
+        long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
+
+        Assert.assertEquals(220101100000000000L, idPkDateHour);
+    }
+
+    @Test
+    public void getIdPkDateHour_nok() {
+        try {
+            dateUtilImpl.getIdPkDateHour("2022-01-01T");
+            Assert.fail();
+        } catch (DomibusDateTimeException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void getIdPkDateHour_onlyDate() {
+        long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
+
+        Assert.assertEquals(220101000000000000L, idPkDateHour);
+    }
+
+    @Test
+    public void getIdPkDateHour_notACorrectDate() {
+        try {
+            dateUtilImpl.getIdPkDateHour("2022-99-99T10H");
+            Assert.fail();
+        } catch (DomibusDateTimeException e) {
+            //OK
+        }
+    }
+
+    @Test
+    public void getIdPkDateHour_empty() {
+        try {
+            dateUtilImpl.getIdPkDateHour("");
+            Assert.fail();
+        } catch (DomibusDateTimeException e) {
+            //OK
+        }
+    }
 }

@@ -14,7 +14,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -81,7 +80,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     }
 
     @Override
-    public List<String> restoreFailedMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException {
+    public List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
         String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
         return userMessageService.restoreFailedMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
     }
@@ -106,7 +105,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     }
 
     @Override
-    public List<String> deleteMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException {
+    public List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
         String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
         return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
     }
