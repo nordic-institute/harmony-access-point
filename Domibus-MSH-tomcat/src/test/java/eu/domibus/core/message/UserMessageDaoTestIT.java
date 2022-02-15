@@ -107,10 +107,10 @@ public class UserMessageDaoTestIT extends AbstractIT {
         assertNotNull( userMessage.getPartyInfo().getFrom().getFromRole().getValue());
     }
 
-
     @Test
     @Transactional
     public void testFindLastTestMessageId() {
+        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage("msg-test-0");
         UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
 
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
