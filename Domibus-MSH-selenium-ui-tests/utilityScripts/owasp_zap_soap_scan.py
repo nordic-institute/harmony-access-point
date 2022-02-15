@@ -114,6 +114,7 @@ params = {"apikey": apiKey,
           "title": "SOAP Zap Scan Report",
           "template": "traditional-pdf",
           "contexts": "Default Context",
+          "sections": "alertcount|instancecount|alertdetails",
           "reportFileName": "soap_zap_scan_report",
           "reportDir" : os.getcwd()}
 
