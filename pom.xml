@@ -30,10 +30,10 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.5</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
-        <spring.version>5.3.14</spring.version>
-        <spring.security.version>5.6.0</spring.security.version>
-        <spring.session.core.version>2.6.0</spring.session.core.version>
-        <spring.session.jdbc.version>2.6.0</spring.session.jdbc.version>
+        <spring.version>5.3.15</spring.version>
+        <spring.security.version>5.6.1</spring.security.version>
+        <spring.session.core.version>2.6.1</spring.session.core.version>
+        <spring.session.jdbc.version>2.6.1</spring.session.jdbc.version>
         <springdoc.version>1.5.12</springdoc.version>
         <io.swagger.core.v3.version>2.1.10</io.swagger.core.v3.version>
         <swagger-ui.version>3.52.3</swagger-ui.version>
