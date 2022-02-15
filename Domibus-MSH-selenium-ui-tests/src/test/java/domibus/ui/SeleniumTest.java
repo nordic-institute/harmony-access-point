@@ -45,8 +45,9 @@ public class SeleniumTest extends BaseTest {
 
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
-		generateTestData();
+
 		deleteAllPluginUsers();
+		generateTestData();
 	}
 
 	public void deleteAllPluginUsers() throws Exception {
@@ -126,7 +127,7 @@ public class SeleniumTest extends BaseTest {
 				String currentLoggedInUser = loginPage.getCurrentLoggedInUser();
 				if (StringUtils.equalsIgnoreCase(currentLoggedInUser, user.get("username"))) {
 					loginPage.refreshPage();
-					loginPage.getDomainSelector().selectOptionByIndex(0);
+					loginPage.getDomainSelector().selectOptionByText("default");
 					return new DomibusPage(driver);
 				}
 				logout();
