@@ -398,6 +398,10 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         LOG.debug("Setting the SourceMessage [{}] as failed", messageId);
 
         final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        if (messageLog == null) {
+            LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
+            return;
+        }
         updateRetryLoggingService.messageFailed(userMessage, messageLog);
     }
 
