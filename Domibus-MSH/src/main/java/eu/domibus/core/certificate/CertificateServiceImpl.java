@@ -466,8 +466,12 @@ public class CertificateServiceImpl implements CertificateService {
                 final String alias = aliases.nextElement();
                 final X509Certificate certificate = (X509Certificate) trustStore.getCertificate(alias);
                 TrustStoreEntry trustStoreEntry = createTrustStoreEntry(alias, certificate);
-                trustStoreEntry.setCertificateExpiryAlertDays(certificateExpiryAlertDays);
-                trustStoreEntries.add(trustStoreEntry);
+                if (trustStoreEntry != null) {
+                    trustStoreEntry.setCertificateExpiryAlertDays(certificateExpiryAlertDays);
+                    trustStoreEntries.add(trustStoreEntry);
+                } else {
+                    LOG.debug("The given alias:[{}] does not exist or does not contain a certificate.", alias);
+                }
             }
             return trustStoreEntries;
         } catch (KeyStoreException e) {
