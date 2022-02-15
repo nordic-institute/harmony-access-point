@@ -9,7 +9,10 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.*;
-import eu.domibus.ext.domain.archive.*;
+import eu.domibus.ext.domain.archive.BatchDTO;
+import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
+import eu.domibus.ext.domain.archive.ExportedBatchStatusType;
+import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +29,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -71,9 +73,6 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
-
-    @Autowired
-    protected PlatformTransactionManager transactionManager;
 
     private MockMvc mockMvc;
 

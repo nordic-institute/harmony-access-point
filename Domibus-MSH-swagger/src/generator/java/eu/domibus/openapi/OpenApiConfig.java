@@ -59,7 +59,7 @@ public class OpenApiConfig {
 
         Server serverDemo = new Server();
         serverDemo.setUrl("/domibus");
-        serverDemo.description("Domibus services!");
+        serverDemo.description("Domibus services");
         Server serverLocalhost = new Server();
         return new OpenAPI()
                 .info(new Info().title("Domibus API API")

@@ -3,6 +3,8 @@ package eu.domibus.ext.rest;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
+import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DateExtService;
@@ -84,10 +86,13 @@ public class MessageMonitoringExtResource {
     @Operation(summary = "Resend all messages with SEND_FAILURE status within a certain time interval", description = "Resend all messages with SEND_FAILURE status within a certain time interval",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(path = "/failed/restore")
-    public List<String> restoreFailedMessages(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "For the win!", required = true,
-            content = @Content(
-                    schema = @Schema(implementation = FailedMessagesCriteriaRO.class))) FailedMessagesCriteriaRO failedMessagesCriteriaRO) {
-        return messageMonitorExtService.restoreFailedMessagesDuringPeriod(dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getFromDate()), dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate()));
+    public List<String> restoreFailedMessages(@RequestBody FailedMessagesCriteriaRO failedMessagesCriteriaRO) {
+        Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
+        if (fromDateHour >= toDateHour) {
+            throw new DomibusDateTimeExtException(DomibusErrorCode.DOM_007, "Starting date hour is after Ending date hour");
+        }
+        return messageMonitorExtService.restoreFailedMessagesDuringPeriod(fromDateHour, toDateHour);
     }
 
     @Operation(summary = "Delete failed message payload", description = "Delete the payload of a message which has a SEND_FAILURE status",
@@ -124,6 +129,13 @@ public class MessageMonitoringExtResource {
     @ResponseBody
     @DeleteMapping(path = "/delete")
     public List<String> deleteMessages(@RequestBody FailedMessagesCriteriaRO deleteMessagesCriteriaRO) {
-        return messageMonitorExtService.deleteMessagesDuringPeriod(dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getFromDate()), dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getToDate()));
+        LOG.debug("Delete messages from date-hour [{}] to date-hour [{}]", deleteMessagesCriteriaRO.getFromDate(),
+                deleteMessagesCriteriaRO.getToDate());
+        Long fromDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getToDate());
+        if (fromDateHour >= toDateHour) {
+            throw new DomibusDateTimeExtException(DomibusErrorCode.DOM_007, "Starting date hour is after Ending date hour");
+        }
+        return messageMonitorExtService.deleteMessagesDuringPeriod(fromDateHour, toDateHour);
     }
 }
