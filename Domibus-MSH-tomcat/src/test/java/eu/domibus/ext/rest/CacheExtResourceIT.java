@@ -1,25 +1,17 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.ext.services.CacheExtService;
 import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -29,9 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
-@Ignore("EDELIVERY-8892")
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class CacheExtResourceIT extends AbstractIT {
 
     @Rule
@@ -41,30 +31,16 @@ public class CacheExtResourceIT extends AbstractIT {
     private CacheExtResource cacheExtResource;
 
     @Autowired
-    private CacheExtService cacheExtService;
+    private CacheServiceWithCounters cacheExtService;
 
     private MockMvc mockMvc;
-
-    @Configuration
-    @EnableGlobalMethodSecurity(prePostEnabled = true)
-    static class ContextConfiguration {
-
-        @Bean
-        @Primary
-        public CacheExtResource cacheExtResource(CacheExtService cacheExtService) {
-            return new CacheExtResource(cacheExtService, null);
-        }
-
-        @Bean
-        @Primary
-        public CacheExtService cacheExtService() {
-            return Mockito.mock(CacheExtService.class);
-        }
-    }
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(cacheExtResource).build();
+
+        cacheExtService.resetEvictCachesCounter();
+        cacheExtService.resetEvict2LCachesCounter();
     }
 
     @Test
@@ -73,7 +49,7 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/cache"));
 
-        Mockito.verify(cacheExtService, Mockito.times(0)).evictCaches();
+        Assert.assertEquals(0, cacheExtService.getEvictCachesCounter());
     }
 
     @Test
@@ -83,7 +59,7 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/cache"));
 
-        Mockito.verify(cacheExtService, Mockito.times(0)).evictCaches();
+        Assert.assertEquals(0, cacheExtService.getEvictCachesCounter());
     }
 
     @Test
@@ -91,7 +67,7 @@ public class CacheExtResourceIT extends AbstractIT {
     public void deleteCache_admin() throws Exception {
         mockMvc.perform(delete("/ext/cache"));
 
-        Mockito.verify(cacheExtService, Mockito.times(1)).evictCaches();
+        Assert.assertEquals(1, cacheExtService.getEvictCachesCounter());
     }
 
     @Test
@@ -100,8 +76,7 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/2LCache"));
 
-        Mockito.verify(cacheExtService, Mockito.times(0)).evict2LCaches();
-
+        Assert.assertEquals(0, cacheExtService.getEvict2LCachesCounter());
     }
 
     @Test
@@ -111,16 +86,15 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/2LCache"));
 
-        Mockito.verify(cacheExtService, Mockito.times(0)).evict2LCaches();
+        Assert.assertEquals(0, cacheExtService.getEvict2LCachesCounter());
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void delete2LCache_admin() throws Exception {
-
         mockMvc.perform(delete("/ext/2LCache"));
 
-        Mockito.verify(cacheExtService, Mockito.times(1)).evict2LCaches();
+        Assert.assertEquals(1, cacheExtService.getEvict2LCachesCounter());
     }
 
 }
