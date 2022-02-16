@@ -1,13 +1,20 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.MpcEntity;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.message.dictionary.MpcDao;
+import eu.domibus.ext.services.CacheExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.hibernate.SessionFactory;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -24,6 +31,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class CacheExtResourceIT extends AbstractIT {
 
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
+    public static final String NOT_FOUND = "not_found";
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -31,17 +41,59 @@ public class CacheExtResourceIT extends AbstractIT {
     private CacheExtResource cacheExtResource;
 
     @Autowired
-    private CacheServiceWithCounters cacheExtService;
+    private CacheExtService cacheExtService;
+    @Autowired
+    private CacheManager cacheManager;
+    @Autowired
+    private DomainService domainService;
+    @Autowired
+    private MpcDao mpcDao;
+    @Autowired
+    protected LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean;
 
     private MockMvc mockMvc;
+    private org.hibernate.Cache secondLevelCache;
+    private MpcEntity dummyMpc;
 
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(cacheExtResource).build();
 
-        cacheExtService.resetEvictCachesCounter();
-        cacheExtService.resetEvict2LCachesCounter();
+        secondLevelCache = localContainerEntityManagerFactoryBean
+                .getNativeEntityManagerFactory()
+                .unwrap(SessionFactory.class)
+                .getCache();
+
+        //set one value in cache
+        domainService.getDomain(NOT_FOUND);
+        //check value is present in cache
+        checkStillInCache();
+
+        //set one value in 2L cache
+        dummyMpc = mpcDao.findOrCreateMpc("DUMMY_MPC");
+        //check value is present in 2L Cache
+        checkStillIn2LCache();
     }
+
+    @After
+    public void tearDown() throws Exception {
+        cacheExtService.evict2LCaches();
+        cacheExtService.evictCaches();
+    }
+
+    private boolean specificMpc2LIsCached(long mpc) {
+        return secondLevelCache.contains(MpcEntity.class, mpc);
+    }
+
+    private Cache.ValueWrapper getSpecificDomainCached(String domainName) {
+        Cache domainByCode = cacheManager.getCache("domainByCode");
+        if (domainByCode == null) {
+            return null;
+        }
+        return domainByCode.get(domainName);
+    }
+
+
 
     @Test
     public void deleteCache_noUser() throws Exception {
@@ -49,7 +101,15 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/cache"));
 
-        Assert.assertEquals(0, cacheExtService.getEvictCachesCounter());
+        checkStillInCache();
+    }
+
+    private void checkStillInCache() {
+        Assert.assertNotNull(getSpecificDomainCached(NOT_FOUND));
+    }
+
+    private void checkNothingInCache() {
+        Assert.assertNull(getSpecificDomainCached(NOT_FOUND));
     }
 
     @Test
@@ -59,7 +119,7 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/cache"));
 
-        Assert.assertEquals(0, cacheExtService.getEvictCachesCounter());
+        checkStillInCache();
     }
 
     @Test
@@ -67,7 +127,7 @@ public class CacheExtResourceIT extends AbstractIT {
     public void deleteCache_admin() throws Exception {
         mockMvc.perform(delete("/ext/cache"));
 
-        Assert.assertEquals(1, cacheExtService.getEvictCachesCounter());
+        checkNothingInCache();
     }
 
     @Test
@@ -76,7 +136,15 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/2LCache"));
 
-        Assert.assertEquals(0, cacheExtService.getEvict2LCachesCounter());
+        checkStillIn2LCache();
+    }
+
+    private void checkStillIn2LCache() {
+        Assert.assertTrue(specificMpc2LIsCached(dummyMpc.getEntityId()));
+    }
+
+    private void checkNothingIn2LCache() {
+        Assert.assertFalse(specificMpc2LIsCached(dummyMpc.getEntityId()));
     }
 
     @Test
@@ -86,7 +154,7 @@ public class CacheExtResourceIT extends AbstractIT {
 
         mockMvc.perform(delete("/ext/2LCache"));
 
-        Assert.assertEquals(0, cacheExtService.getEvict2LCachesCounter());
+        checkStillIn2LCache();
     }
 
     @Test
@@ -94,7 +162,7 @@ public class CacheExtResourceIT extends AbstractIT {
     public void delete2LCache_admin() throws Exception {
         mockMvc.perform(delete("/ext/2LCache"));
 
-        Assert.assertEquals(1, cacheExtService.getEvict2LCachesCounter());
+        checkNothingIn2LCache();
     }
 
 }
