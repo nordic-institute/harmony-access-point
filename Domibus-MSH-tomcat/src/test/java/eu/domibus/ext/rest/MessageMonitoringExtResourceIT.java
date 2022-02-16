@@ -206,7 +206,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         String year = "20" + StringUtils.substring("" + entityId, 0, 2);
         String month = StringUtils.substring("" + entityId, 2, 4);
         String day = StringUtils.substring("" + entityId, 4, 6);
-        return year + "-" + month + "-" + day + "T" + hour + "H";
+        return String.format("%s-%s-%sT%02dH", year, month, day, hour);
     }
 
     private Long getHour(long entityId) {
