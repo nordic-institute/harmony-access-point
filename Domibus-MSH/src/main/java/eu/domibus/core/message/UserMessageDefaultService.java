@@ -18,6 +18,7 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -739,7 +740,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
+                result.put(DomibusStringUtil.escapeSpecialChars(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
