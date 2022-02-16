@@ -395,6 +395,13 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private isRowDownloadButtonEnabled(row): boolean {
+    let canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(row.messageId));
+    this.http.get(canDownloadUrl).subscribe(res => {
+    }, err => {
+      if (err.error.message.includes('The message size exceeds maximum download size limit')) {
+        row.deleted = true;
+      }
+    })
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
       && !this.isSplitAndJoinMessage(row);
   }
