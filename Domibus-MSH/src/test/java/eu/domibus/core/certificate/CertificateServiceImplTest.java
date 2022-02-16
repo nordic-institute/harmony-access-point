@@ -10,6 +10,7 @@ import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
@@ -17,6 +18,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
@@ -28,6 +30,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.DateTime;
@@ -38,10 +41,10 @@ import org.mockito.internal.matchers.GreaterThan;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.*;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -62,7 +65,7 @@ import static org.junit.Assert.*;
  * Created by Cosmin Baciu on 07-Jul-16.
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Ignore("EDELIVERY-8892")
+//@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
 
@@ -84,6 +87,12 @@ public class CertificateServiceImplTest {
 
     @Injectable
     CRLService crlService;
+
+    @Injectable
+    PasswordEncryptionService passwordEncryptionService;
+
+    @Injectable
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -1600,4 +1609,25 @@ public class CertificateServiceImplTest {
 
         assertFalse(result);
     }
+
+    @Test
+    public void testGetCertificatePolicyIdentifiers() throws Exception {
+        String id1 = "1.3.6.1.4.1.7879.13.25";
+        String id2 = "0.4.0.2042.1.1";
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null, Arrays.asList(id1, id2));
+        List<String> list = certificateService.getCertificatePolicyIdentifiers(certificate);
+
+        assertEquals(2, list.size());
+        assertEquals(id1, list.get(0));
+        assertEquals(id2, list.get(1));
+    }
+
+    @Test
+    public void testGetCertificatePolicyIdentifiersWithNoPolicyExtension() throws Exception {
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null, null);
+        List<String> list = certificateService.getCertificatePolicyIdentifiers(certificate);
+
+        assertEquals(0, list.size());
+    }
+
 }

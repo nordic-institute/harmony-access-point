@@ -1,24 +1,34 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import mockit.internal.expectations.argumentMatching.StringPrefixMatcher;
 import no.difi.vefa.peppol.common.code.Service;
 import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.hamcrest.CoreMatchers;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
@@ -35,6 +45,8 @@ public class DomibusCertificateValidatorIT {
 
     private static final String RESOURCE_PATH = "/eu/domibus/common/services/cert-validator/";
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Injectable
     private CertificateService certificateService;
@@ -45,8 +57,13 @@ public class DomibusCertificateValidatorIT {
     @Injectable
     private String subjectRegularExpression=".*";
 
+    @Injectable
+    private String allowedCertificatePolicyId="";
+
     @Tested
     private DomibusCertificateValidator domibusCertificateValidator;
+
+    PKIUtil pkiUtil = new PKIUtil();
 
 
     @Test
@@ -267,8 +284,70 @@ public class DomibusCertificateValidatorIT {
         domibusCertificateValidator.verifyTrust(certificate);
     }
 
+    @Test
+    public void testVerifyCertificatePolicyNotTrustedWrongPolicy() throws Exception {
+        // given certificate policy
+        String allowedCertificatePolicyId = "1.3.6.1.4.1.7879.13.25";
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, Collections.singletonList(allowedCertificatePolicyId));
+        KeyStore trustStore = buildTruststore(certificate);
+        domibusCertificateValidator.setTrustStore(trustStore);
+        new Expectations() {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
 
+        }};
+        expectedException.expect(CertificateException.class);
+        expectedException.expectMessage(startsWith("Missing expected certificate policy! Certificate is not trusted:"));
+       // certificate must have Certificate policy 1.3.6.1
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyId", "1.3.6.1");
+        // when-then
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+    }
 
+    @Test
+    public void testVerifyCertificatePolicyNotTrustedMissingPolicy() throws Exception {
+        // given certificate policy
+
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, null);
+        KeyStore trustStore = buildTruststore(certificate);
+        domibusCertificateValidator.setTrustStore(trustStore);
+        new Expectations() {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
+
+        }};
+        expectedException.expect(CertificateException.class);
+        expectedException.expectMessage(startsWith("Missing expected certificate policy! Certificate is not trusted:"));
+        // certificate must have Certificate policy 1.3.6.1
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyId", "1.3.6.1");
+        // when-then
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+    }
+
+    @Test
+    public void testVerifyCertificatePolicyOK() throws Exception {
+        // given certificate policy
+        String allowedCertificatePolicyId = "1.3.6.1.4.1.7879.13.25";
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, Collections.singletonList(allowedCertificatePolicyId));
+        KeyStore trustStore = buildTruststore(certificate);
+        domibusCertificateValidator.setTrustStore(trustStore);
+        new Expectations(domibusCertificateValidator) {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
+
+            certificateService.getCertificatePolicyIdentifiers(certificate);
+            result =  Collections.singletonList(allowedCertificatePolicyId);
+
+            domibusCertificateValidator.verifyCertificateChain(certificate);
+            result = true;
+
+        }};
+        // certificate must have Certificate policy 1.3.6.1
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyId", allowedCertificatePolicyId);
+        // when-then
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+        // no error
+    }
 
     private X509Certificate getCertificate(String filename) throws CertificateException {
 
@@ -286,6 +365,16 @@ public class DomibusCertificateValidatorIT {
         for (String filename: filenames) {
             X509Certificate certificate = getCertificate(filename);
             truststore.setCertificateEntry(filename, certificate);
+        }
+        return truststore;
+    }
+    private KeyStore buildTruststore(X509Certificate ... certificates) throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
+
+        KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+        char[] password = "123456".toCharArray();
+        truststore.load(null, password);
+        for (X509Certificate certificate: certificates) {
+            truststore.setCertificateEntry(UUID.randomUUID().toString(), certificate);
         }
         return truststore;
     }

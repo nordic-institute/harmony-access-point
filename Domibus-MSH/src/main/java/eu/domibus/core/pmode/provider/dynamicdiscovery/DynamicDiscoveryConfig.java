@@ -42,8 +42,8 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusCertificateValidator domibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String certRegex) {
-        return new DomibusCertificateValidator(certificateService, trustStore, certRegex);
+    public DomibusCertificateValidator domibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String certRegex, String allowedCertificatePolicyId) {
+        return new DomibusCertificateValidator(certificateService, trustStore, certRegex, allowedCertificatePolicyId);
     }
 
     @Bean

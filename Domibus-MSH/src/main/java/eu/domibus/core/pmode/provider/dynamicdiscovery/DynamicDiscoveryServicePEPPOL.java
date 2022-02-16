@@ -109,12 +109,17 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
             LOG.warn("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_PEPPOL_REGEX);
         }
 
+        final String allowedCertificatePolicyId = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_POLICY);
+        if (StringUtils.isBlank(allowedCertificatePolicyId)) {
+            LOG.debug("The value for property [{}] is empty.",DYNAMIC_DISCOVERY_CERT_POLICY );
+        }
+
         LOG.debug("Load truststore for the smpClient");
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
 
         try {
             // create certificate validator
-            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex);
+            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex,  allowedCertificatePolicyId);
 
             final LookupClientBuilder lookupClientBuilder = LookupClientBuilder.forMode(mode);
             lookupClientBuilder.locator(busdoxLocators.getObject(smlInfo));

@@ -179,11 +179,16 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
         }
 
+        final String allowedCertificatePolicyId = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_POLICY);
+        if (StringUtils.isBlank(allowedCertificatePolicyId)) {
+            LOG.debug("The value for property [{}] is empty.",DYNAMIC_DISCOVERY_CERT_POLICY );
+        }
+
         LOG.debug("Load truststore for the smpClient");
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         try {
             DefaultProxy defaultProxy = getConfiguredProxy();
-            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex);
+            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex,allowedCertificatePolicyId);
 
             LOG.debug("Creating SMP client [{}] proxy.", (defaultProxy != null ? "with" : "without"));
             return DynamicDiscoveryBuilder.newInstance()
