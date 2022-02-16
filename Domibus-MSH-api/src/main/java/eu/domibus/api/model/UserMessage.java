@@ -20,6 +20,10 @@ import java.util.Set;
                 query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
         @NamedQuery(name = "UserMessage.find",
                 query = "select userMessage from UserMessage userMessage where userMessage.messageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "UserMessage.findTestMessageDesc",
+                query = "select um from UserMessage um " +
+                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
+                        "order by um.entityId desc"),
 })
 @NamedNativeQueries({
         @NamedNativeQuery(
