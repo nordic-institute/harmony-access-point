@@ -1,12 +1,13 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
+
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.api.pki.CertificateService;
 import no.difi.vefa.peppol.common.lang.EndpointNotFoundException;
 import no.difi.vefa.peppol.common.lang.PeppolLoadingException;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
@@ -111,7 +112,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
         final String allowedCertificatePolicyId = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_POLICY);
         if (StringUtils.isBlank(allowedCertificatePolicyId)) {
-            LOG.debug("The value for property [{}] is empty.",DYNAMIC_DISCOVERY_CERT_POLICY );
+            LOG.debug("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_POLICY);
         }
 
         LOG.debug("Load truststore for the smpClient");
@@ -119,7 +120,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
         try {
             // create certificate validator
-            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex,  allowedCertificatePolicyId);
+            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex, allowedCertificatePolicyId);
 
             final LookupClientBuilder lookupClientBuilder = LookupClientBuilder.forMode(mode);
             lookupClientBuilder.locator(busdoxLocators.getObject(smlInfo));
@@ -179,7 +180,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
         // if is null - this means property is commented-out and default value must be set.
         // else if is empty - property is set in domibus.properties as empty string and the right value for the
         // ebMS 3.0  PartyId/@type is null value!
-        if (propVal==null) {
+        if (propVal == null) {
             propVal = PARTY_ID_TYPE;
         } else if (StringUtils.isEmpty(propVal)) {
             propVal = null;

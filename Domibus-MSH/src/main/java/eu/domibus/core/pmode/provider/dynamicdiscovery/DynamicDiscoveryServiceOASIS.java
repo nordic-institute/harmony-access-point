@@ -181,14 +181,14 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
         final String allowedCertificatePolicyId = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_POLICY);
         if (StringUtils.isBlank(allowedCertificatePolicyId)) {
-            LOG.debug("The value for property [{}] is empty.",DYNAMIC_DISCOVERY_CERT_POLICY );
+            LOG.debug("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_POLICY);
         }
 
         LOG.debug("Load truststore for the smpClient");
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         try {
             DefaultProxy defaultProxy = getConfiguredProxy();
-            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex,allowedCertificatePolicyId);
+            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex, allowedCertificatePolicyId);
 
             LOG.debug("Creating SMP client [{}] proxy.", (defaultProxy != null ? "with" : "without"));
             return DynamicDiscoveryBuilder.newInstance()
@@ -237,7 +237,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         // if is null - this means property is commented-out and default value must be set.
         // else if is empty - property is set in domibus.properties as empty string and the right value for the
         // ebMS 3.0  PartyId/@type is null value!
-        if (propVal==null) {
+        if (propVal == null) {
             propVal = URN_TYPE_VALUE;
         } else if (StringUtils.isEmpty(propVal)) {
             propVal = null;
