@@ -223,7 +223,7 @@
 			<legConfiguration name="pushTestcase20tc20Action" service="testService20" action="tc20Action" defaultMpc="defaultMpcSeven" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
 			<legConfiguration name="pushTestcase21tc21Action" service="testService21" action="tc21Action" defaultMpc="defaultMpcSeven" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
 			<legConfiguration name="pullTestcase22tc22Action" service="testService22" action="tc22Action" defaultMpc="defaultMpcEight" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
-			<legConfiguration name="pushTestcase23tc23Action" service="testService23" action="tc23Action" defaultMpc="defaultMpcSeven" reliability="AS4Reliability" security="eDeliveryAS4Policy_IS" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pushTestcase23tc23Action" service="testService23" action="tc23Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_IS" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
 			<legConfiguration name="pushTestcase24tc24Action" service="testService24" action="tc24Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBody" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase25tc25Action" service="testService25" action="tc25Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBodyTwo" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase26tc26Action" service="testService26" action="tc26Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBody" errorHandling="demoErrorHandling" compressPayloads="true"/>
@@ -395,6 +395,7 @@
 				<leg name="pullTestcase17tc17Action"/>
 			</legs>
 		</process>
+
 		<process name="tc20Process" agreement="agreementDummy" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>

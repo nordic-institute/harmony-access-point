@@ -307,16 +307,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void testFindLastTestMessageId() {
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
-        String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
-
-        String messageId = userMessageLogDao.findLastTestMessageId(testParty);
-        assertEquals("msg-test-1", messageId);
-    }
-
-    @Test
-    @Transactional
     public void getMessageInFinalStatus() {
         UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-2");
 

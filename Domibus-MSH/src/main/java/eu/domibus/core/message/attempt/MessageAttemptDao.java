@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
@@ -27,14 +26,9 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
     }
 
     public List<MessageAttemptEntity> findByMessageId(String messageId) {
-        try {
-            final TypedQuery<MessageAttemptEntity> query = em.createNamedQuery("MessageAttemptEntity.findAttemptsByMessageId", MessageAttemptEntity.class);
-            query.setParameter("MESSAGE_ID", messageId);
-            return query.getResultList();
-        } catch (NoResultException e) {
-            LOG.debug("Could not find any message attempts for message id[" + messageId + "]");
-            return null;
-        }
+        final TypedQuery<MessageAttemptEntity> query = em.createNamedQuery("MessageAttemptEntity.findAttemptsByMessageId", MessageAttemptEntity.class);
+        query.setParameter("MESSAGE_ID", messageId);
+        return query.getResultList();
     }
 
     @Override
@@ -43,12 +37,12 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
         super.create(entity);
     }
 
-    @Timer(clazz = MessageAttemptDao.class,value = "deleteMessages.deleteAttemptsByMessageIds")
-    @Counter(clazz = MessageAttemptDao.class,value = "deleteMessages.deleteAttemptsByMessageIds")
+    @Timer(clazz = MessageAttemptDao.class, value = "deleteMessages.deleteAttemptsByMessageIds")
+    @Counter(clazz = MessageAttemptDao.class, value = "deleteMessages.deleteAttemptsByMessageIds")
     public int deleteAttemptsByMessageIds(List<Long> ids) {
         final Query deleteQuery = em.createNamedQuery("MessageAttemptEntity.deleteAttemptsByMessageIds");
         deleteQuery.setParameter("IDS", ids);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteAttemptsByMessageIds result [{}]", result);
         return result;
     }

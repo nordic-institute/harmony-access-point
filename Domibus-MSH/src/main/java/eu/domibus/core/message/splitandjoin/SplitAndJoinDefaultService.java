@@ -3,6 +3,7 @@ package eu.domibus.core.message.splitandjoin;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
@@ -246,7 +247,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             throw new SplitAndJoinException("Error getting the pmodeKey", e);
         }
 
-        List<PartInfo> partInfos = null;
+        List<PartInfo> partInfos;
         try {
             partInfos = userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging, null);
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
@@ -432,7 +433,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void handleSourceMessageSignalError(String messageId) {
-        LOG.debug("SplitAndJoin handleSourceMessageSignalError for message [{}] and error [{}]", messageId);
+        LOG.debug("SplitAndJoin handleSourceMessageSignalError for message [{}]", messageId);
 
         sendSplitAndJoinFailed(messageId);
     }
@@ -523,6 +524,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
+        }
         final boolean messageExpired = isMessageExpired(messageId, userMessageLog.getReceived(), joinInterval);
         if (messageExpired) {
             LOG.debug("Message group [{}] is expired", groupId);
@@ -551,7 +555,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return false;
         }
 
-        fragments.sort(Comparator.comparing(object -> object.getTimestamp()));
+        fragments.sort(Comparator.comparing(UserMessage::getTimestamp));
         final UserMessage firstFragment = fragments.get(0);
         return isGroupExpired(firstFragment, groupId);
     }

@@ -131,6 +131,7 @@ public class MessageDaoTestUtil {
         userMessage.setService(serviceDao.findOrCreateService(serviceValue, serviceType));
         userMessage.setAction(actionDao.findOrCreateAction(actionValue));
 
+        userMessage.setSourceMessage(false);
         userMessage.setTestMessage(isTestMessage);
         userMessage.setMpc(mpcDao.findOrCreateMpc(mpc));
         userMessageDao.create(userMessage);
@@ -188,6 +189,7 @@ public class MessageDaoTestUtil {
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessageLog.getUserMessage());
         signal.setSignalMessageId("signal-" + msgId);
+        signal.setRefToMessageId(msgId);
         signalMessageDao.create(signal);
 
         SignalMessageLog signalMessageLog = new SignalMessageLog();

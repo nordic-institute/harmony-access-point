@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
@@ -144,5 +145,13 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         int result = deleteQuery.executeUpdate();
         LOG.debug("deleteMessages result [{}]", result);
         return result;
+    }
+    
+    public UserMessage findLastTestMessage(String partyId, ActionEntity actionEntity) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
+        query.setParameter("PARTY_ID", partyId);
+        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        query.setMaxResults(1);
+        return DataAccessUtils.singleResult(query.getResultList());
     }
 }

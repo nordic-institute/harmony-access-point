@@ -77,11 +77,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
     static final String MESSAGE = "Message [";
-    static final String DOES_NOT_EXIST = "] does not exist";
-
-    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
-    private static final String MESSAGE_WITH_ENTITY_ID_STR = "Message with entity id [";
-    private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
 
@@ -264,7 +259,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+            throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
@@ -292,7 +287,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+            throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
             sendEnqueuedMessage(messageId);
@@ -531,7 +526,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+            throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
@@ -542,7 +537,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
         final UserMessageLog messageToDelete = userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
         if (messageToDelete == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+            throw new MessageNotFoundException(messageId);
         }
         return messageToDelete;
     }
@@ -696,7 +691,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public UserMessage getByMessageId(String messageId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+            throw new MessageNotFoundException(messageId);
         }
         return userMessage;
     }
@@ -705,7 +700,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ENTITY_ID_STR + messageEntityId + WAS_NOT_FOUND_STR);
+            throw new MessageNotFoundException(messageEntityId);
         }
         return userMessage;
     }
@@ -741,7 +736,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 } catch (IOException e) {
                     LOG.debug("Error encountered while trying to close the message input stream.", e);
                 }
-                throw new MessageNotFoundException("Could not find attachment for [" + pInfo.getHref() + "]");
+                throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
                 result.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
@@ -758,7 +753,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
-            throw new MessageNotFoundException("Could not find message metadata for id " + messageId);
+            throw new MessageNotFoundException(messageId);
         }
 
         return userMessage;

@@ -1,8 +1,11 @@
 package eu.domibus.core.message;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
+import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.dictionary.*;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.test.common.MessageTestUtility;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class UserMessageDaoTestIT extends AbstractIT {
@@ -20,6 +24,9 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
     @Autowired
     UserMessageDao userMessageDao;
+
+    @Autowired
+    SignalMessageDao signalMessageDao;
 
     @Autowired
     protected MpcDao mpcDao;
@@ -44,6 +51,9 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
     @Autowired
     MessagePropertyDao propertyDao;
+
+    @Autowired
+    MessageDaoTestUtil messageDaoTestUtil;
 
     @Test
     @Transactional
@@ -96,4 +106,24 @@ public class UserMessageDaoTestIT extends AbstractIT {
 
         assertNotNull( userMessage.getPartyInfo().getFrom().getFromRole().getValue());
     }
+
+    @Test
+    @Transactional
+    public void testFindLastTestMessageId() {
+        UserMessageLog testMessageOlder = messageDaoTestUtil.createTestMessage("msg-test-0");
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
+
+        String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
+        ActionEntity actionEntity = actionDao.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+
+        UserMessage userMessage = userMessageDao.findLastTestMessage(testParty, actionEntity);
+        assertNotNull(userMessage);
+        assertEquals("msg-test-1", userMessage.getMessageId());
+
+        SignalMessage signalMessage = signalMessageDao.findLastTestMessage(testParty, actionEntity);
+        assertNotNull(signalMessage);
+        assertEquals("msg-test-1", signalMessage.getRefToMessageId());
+        assertEquals("msg-test-1", signalMessage.getUserMessage().getMessageId());
+    }
+
 }

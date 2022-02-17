@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest.error;
 
-import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -10,6 +9,7 @@ import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -46,11 +46,14 @@ public class ExtExceptionHelper {
         if (cause instanceof PModeValidationException) {
             return createResponseFromPModeValidationException((PModeValidationException) cause);
         }
-        if (cause instanceof DomibusEArchiveException) {
-            return createResponse(cause, ((DomibusEArchiveException) cause).getError() == DomibusCoreErrorCode.DOM_009 ?
-                    HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR, true);
+        if (cause instanceof MessageNotFoundException) {
+            return createResponse(cause, HttpStatus.NOT_FOUND, true);
         }
+
         if (cause instanceof DomibusCoreException) {
+            if (((DomibusCoreException) cause).getError() == DomibusCoreErrorCode.DOM_009) {
+                return createResponse(cause, HttpStatus.NOT_FOUND, true);
+            }
             return createResponseFromCoreException(cause, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -118,14 +121,11 @@ public class ExtExceptionHelper {
     }
 
     /**
-     * Uses the enum name of the {@Link DomibusCoreErrorCode} to identify the DomibusExtErrorCode.
+     * Uses the enum name of the {@link DomibusCoreErrorCode} to identify the DomibusExtErrorCode.
      * Assumption is that the error codes for Core and Ext will be maintained as a 1-1 match.
      * If no match found, generic error code will be returned.
-     *
-     * @param coreErrorCode
-     * @return
      */
-    public DomibusErrorCode identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode coreErrorCode){
+    public DomibusErrorCode identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode coreErrorCode) {
         try {
             return DomibusErrorCode.valueOf(coreErrorCode.name());
         } catch (IllegalArgumentException e) {

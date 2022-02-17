@@ -55,7 +55,12 @@ public class PModeFileExtResource {
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<ByteArrayResource> downloadPMode(@PathVariable(value = "id") long id) {
         LOG.debug("downloadPMode -> start");
-        final byte[] rawConfiguration = pModeExtService.getPModeFile(id);
+        final byte[] rawConfiguration;
+        try {
+            rawConfiguration = pModeExtService.getPModeFile(id);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
         if (rawConfiguration != null) {
             resource = new ByteArrayResource(rawConfiguration);
