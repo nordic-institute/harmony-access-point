@@ -1,10 +1,11 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DateExtService;
@@ -90,7 +91,7 @@ public class MessageMonitoringExtResource {
         Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getFromDate());
         Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
         if (fromDateHour >= toDateHour) {
-            throw new DomibusDateTimeExtException(DomibusErrorCode.DOM_007, "Starting date hour is after Ending date hour");
+            throw getDatesValidationError();
         }
         return messageMonitorExtService.restoreFailedMessagesDuringPeriod(fromDateHour, toDateHour);
     }
@@ -134,8 +135,12 @@ public class MessageMonitoringExtResource {
         Long fromDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getFromDate());
         Long toDateHour = dateExtService.getIdPkDateHour(deleteMessagesCriteriaRO.getToDate());
         if (fromDateHour >= toDateHour) {
-            throw new DomibusDateTimeExtException(DomibusErrorCode.DOM_007, "Starting date hour is after Ending date hour");
+            throw getDatesValidationError();
         }
         return messageMonitorExtService.deleteMessagesDuringPeriod(fromDateHour, toDateHour);
+    }
+
+    private DomibusDateTimeExtException getDatesValidationError() {
+        return new DomibusDateTimeExtException("starting date-hour and ending date-hour validation error", new DomibusDateTimeException(DomibusCoreErrorCode.DOM_007, "Starting date hour is after Ending date hour"));
     }
 }

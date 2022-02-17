@@ -8,6 +8,10 @@ package eu.domibus.api.exceptions;
  */
 public class DomibusDateTimeException extends DomibusCoreException {
 
+
+    public DomibusDateTimeException(DomibusCoreErrorCode coreErrorCode, String msg) {
+        super(coreErrorCode, msg);
+    }
     /**
      * @param dateString the text failed to parse
      */
