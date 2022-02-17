@@ -1,6 +1,8 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
@@ -15,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * @author Federico Martini
@@ -37,6 +41,13 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Autowired
     private MessagesLogServiceHelper messagesLogServiceHelper;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    UserMessageService userMessageService;
+
+
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
@@ -52,7 +63,6 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
         MessageLogDao dao = getMessageLogDao(messageType);
         List<MessageLogInfo> resultList = countAndFilter(dao, from, max, column, asc, filters, result);
-
         List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
                 .collect(Collectors.toList());
@@ -92,6 +102,20 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         long number = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, result);
         if (number > 0) {
             resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
+        }
+        setCanDownload(resultList);
+        return resultList;
+    }
+
+    private List<MessageLogInfo> setCanDownload( List<MessageLogInfo> resultList) {
+        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+        for (MessageLogInfo messageLogInfo : resultList) {
+            byte[] content = userMessageService.getMessageAsBytes(messageLogInfo.getMessageId());
+            if (content.length > maxDownLoadSize) {
+                LOG.debug("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
+                messageLogInfo.setCanDownload(false);
+            }
+            messageLogInfo.setCanDownload(true);
         }
         return resultList;
     }

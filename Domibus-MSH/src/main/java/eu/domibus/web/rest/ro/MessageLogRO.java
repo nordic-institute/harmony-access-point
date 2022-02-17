@@ -68,6 +68,8 @@ public class MessageLogRO implements Serializable {
 
     private String pluginType;
 
+    private boolean canDownload;
+
     public String getMessageId() {
         return messageId;
     }
@@ -284,5 +286,12 @@ public class MessageLogRO implements Serializable {
         this.pluginType = pluginType;
     }
 
+    public boolean isCanDownload() {
+        return canDownload;
+    }
+
+    public void setCanDownload(boolean canDownload) {
+        this.canDownload = canDownload;
+    }
 
 }
