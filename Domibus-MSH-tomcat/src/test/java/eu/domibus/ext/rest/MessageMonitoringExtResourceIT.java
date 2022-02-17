@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * The complete rest endpoint integration tests
  */
+@Transactional
 public class MessageMonitoringExtResourceIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResourceIT.class);
@@ -78,7 +79,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
 
 
     @Test
-    @Transactional
     public void getAttempt_notFound() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ATTEMPTS, uml1.getUserMessage().getMessageId())
@@ -93,7 +93,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void delete_ok() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId())));
@@ -114,7 +113,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void delete_toDateTooEarly() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId())));
@@ -130,7 +128,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void delete_sameDate() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId())));
@@ -148,7 +145,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
 
 
     @Test
-    @Transactional
     public void restoreFailedMessages_ok() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId())));
@@ -169,7 +165,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void restoreFailedMessages_toDateTooEarly() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId())));
@@ -185,7 +180,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void restoreFailedMessages_sameDate() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId())));
