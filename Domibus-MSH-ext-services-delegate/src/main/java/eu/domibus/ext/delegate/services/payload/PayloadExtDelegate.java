@@ -58,19 +58,22 @@ public class PayloadExtDelegate implements PayloadExtService {
     @Override
     public PartInfoDTO getPayload(Long messageEntityId, String cid) throws PayloadExtException {
         final UserMessage userMessage = userMessageService.getMessageEntity(messageEntityId);
+        if (userMessage == null) {
+            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Could not find message with entity id [" + messageEntityId + "]");
+        }
         return getPartInfoDTO(userMessage, cid);
     }
 
     @Override
     public PartInfoDTO getPayload(String messageId, String cid) throws PayloadExtException {
         final UserMessage userMessage = userMessageService.getMessageEntity(messageId);
+        if (userMessage == null) {
+            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Could not find message with message id [" + messageId + "]");
+        }
         return getPartInfoDTO(userMessage, cid);
     }
 
     protected PartInfoDTO getPartInfoDTO(UserMessage userMessage, String cid) {
-        if (userMessage == null) {
-            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Could not find message [" + userMessage.getMessageId() + "]");
-        }
         MessageStatus messageStatus = userMessageLogService.getMessageStatus(userMessage.getEntityId());
         if(MessageStatus.DELETED == messageStatus) {
             throw new PayloadExtException(DomibusErrorCode.DOM_005, "The payloads for message [" + userMessage.getMessageId() + "] have been deleted");
