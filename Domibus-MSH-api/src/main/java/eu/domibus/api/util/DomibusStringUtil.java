@@ -31,11 +31,11 @@ public final class DomibusStringUtil {
     /**
      * replacing all special characters except [a-zA-Z0-9] and [@.-] with _ from any string
      *
-     * @param name string to be sanitized by removing special characters
-     * @return sanitized name
+     * @param fileName string to be sanitized by removing special characters
+     * @return sanitized fileName
      */
-    public static String escapeSpecialChars(String name) {
-        return name.replaceAll(STRING_SANITIZE_REGEX, "_");
+    public static String sanitizeFileName(String fileName) {
+        return fileName.replaceAll(STRING_SANITIZE_REGEX, "_");
     }
 
 }
