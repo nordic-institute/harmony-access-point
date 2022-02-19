@@ -283,9 +283,6 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_domain
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user
 //
 
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_msg_deletion_job
-//
-
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_password_history
 //
 
@@ -6926,104 +6923,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_msg_deletion_job()
-    BEGIN
-        DECLARE id_pk BIGINT;
-        DECLARE procedure_name VARCHAR(255);
-        DECLARE mpc VARCHAR(255);
-        DECLARE start_retention_date TIMESTAMP;
-        DECLARE end_retention_date TIMESTAMP;
-        DECLARE max_count INT;
-        DECLARE state VARCHAR(255);
-        DECLARE actual_start_date TIMESTAMP;
-        DECLARE creation_time TIMESTAMP;
-        DECLARE created_by VARCHAR(255);
-        DECLARE modification_time TIMESTAMP;
-        DECLARE modified_by VARCHAR(255);
-
-        DECLARE calculated_id_pk BIGINT;
-
-        DECLARE done INT DEFAULT FALSE;
-        DECLARE migration_status BOOLEAN;
-
-        DECLARE c_user_msg_deletion_job CURSOR FOR
-            SELECT UMDJ.ID_PK,
-                    UMDJ.PROCEDURE_NAME,
-                    UMDJ.MPC,
-                    UMDJ.START_RETENTION_DATE,
-                    UMDJ.END_RETENTION_DATE,
-                    UMDJ.MAX_COUNT,
-                    UMDJ.STATE,
-                    UMDJ.ACTUAL_START_DATE,
-                    UMDJ.CREATION_TIME,
-                    UMDJ.CREATED_BY,
-                    UMDJ.MODIFICATION_TIME,
-                    UMDJ.MODIFIED_BY
-            FROM TB_USER_MSG_DELETION_JOB UMDJ;
-
-        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
-
-        SET @i := 0;
-        SET @v_batch_no := 1;
-        SET @v_tab := 'TB_USER_MSG_DELETION_JOB';
-        SET @v_tab_new := 'MIGR_TB_USER_MSG_DELETION_JOB';
-
-        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
-
-        OPEN c_user_msg_deletion_job;
-        read_loop:
-		LOOP
-            BEGIN
-                DECLARE EXIT HANDLER FOR SQLEXCEPTION
-                BEGIN
-                    GET DIAGNOSTICS CONDITION 1
-                            @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_msg_deletion_job -> execute immediate error: ', @p2));
-                END;
-
-                FETCH c_user_msg_deletion_job INTO id_pk, procedure_name, mpc, start_retention_date, end_retention_date, max_count, state, actual_start_date, creation_time, created_by, modification_time, modified_by;
-
-                IF done THEN
-                    LEAVE read_loop;
-                END IF;
-
-                SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-
-                INSERT INTO MIGR_TB_USER_MSG_DELETION_JOB (ID_PK, PROCEDURE_NAME, MPC, START_RETENTION_DATE, END_RETENTION_DATE, MAX_COUNT, STATE, ACTUAL_START_DATE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_id_pk,
-                        procedure_name,
-                        mpc,
-                        start_retention_date,
-                        end_retention_date,
-                        max_count,
-                        state,
-                        actual_start_date,
-                        creation_time,
-                        created_by,
-                        modification_time,
-                        modified_by);
-
-                SET @i = @i + 1;
-                IF @i MOD @BATCH_SIZE = 0 THEN
-                    COMMIT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT(
-                            @v_tab_new, ': Commit after ', @BATCH_SIZE * @v_batch_no, ' records'));
-                    SET @v_batch_no := @v_batch_no + 1;
-                END IF;
-            END;
-        END LOOP read_loop;
-        COMMIT;
-
-        CALL MIGRATE_42_TO_50_trace(CONCAT('Migrated ', @i, ' records in total into ', @v_tab_new));
-        CLOSE c_user_msg_deletion_job;
-
-        CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_new, migration_status);
-        IF migration_status THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));
-        END IF;
-    END
-//
-
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_password_history(INOUT migration_pks JSON)
     BEGIN
         DECLARE id_pk BIGINT;
@@ -8884,8 +8783,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
         CALL MIGRATE_42_TO_50_migrate_user_password_history(@migration_pks);
         CALL MIGRATE_42_TO_50_migrate_user_role(@migration_pks);
         CALL MIGRATE_42_TO_50_migrate_user_roles(@migration_pks);
-        --
-        CALL MIGRATE_42_TO_50_migrate_user_msg_deletion_job;
         --
         CALL MIGRATE_42_TO_50_migrate_ws_plugin_tb_message_log;
         --

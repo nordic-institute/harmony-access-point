@@ -8,6 +8,5 @@ package eu.domibus.core.message.retention;
  */
 public enum DeletionStrategy {
     DEFAULT,
-    STORED_PROCEDURE,
     PARTITIONS,
 }
