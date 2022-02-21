@@ -331,7 +331,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                         .mshRole(MSHRole.SENDING)
                         .build();
             }
-            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
+            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
                     backendName);

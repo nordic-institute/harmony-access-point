@@ -14,7 +14,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,8 +83,6 @@ public class MessageMonitoringServiceDelegateTest {
 
     @Test
     public void testRestoreFailedMessagesDuringPeriod()  {
-        final Date begin = new Date();
-        final Date end = new Date();
 
         final String originalUserFromSecurityContext = "C4";
 
@@ -94,10 +91,10 @@ public class MessageMonitoringServiceDelegateTest {
             result = originalUserFromSecurityContext;
         }};
 
-        messageMonitoringServiceDelegate.restoreFailedMessagesDuringPeriod(begin, end);
+        messageMonitoringServiceDelegate.restoreFailedMessagesDuringPeriod(1L, 2L);
 
         new Verifications() {{
-            userMessageService.restoreFailedMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+            userMessageService.restoreFailedMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
         }};
     }
 
@@ -144,8 +141,6 @@ public class MessageMonitoringServiceDelegateTest {
 
     @Test
     public void deleteMessagesDuringPeriod() {
-        final Date startDate = new Date();
-        final Date endDate = new Date();
 
         final String originalUserFromSecurityContext = "C4";
 
@@ -154,10 +149,10 @@ public class MessageMonitoringServiceDelegateTest {
             result = originalUserFromSecurityContext;
         }};
 
-        messageMonitoringServiceDelegate.deleteMessagesDuringPeriod(startDate, endDate);
+        messageMonitoringServiceDelegate.deleteMessagesDuringPeriod(1L, 2L);
 
         new Verifications() {{
-            userMessageService.deleteMessagesDuringPeriod(startDate, endDate, originalUserFromSecurityContext);
+            userMessageService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
         }};
     }
 

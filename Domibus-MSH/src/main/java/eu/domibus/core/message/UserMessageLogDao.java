@@ -106,23 +106,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return findFailedMessages(finalRecipient, null, null);
     }
 
-    public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
+    public List<String> findFailedMessages(String finalRecipient, Long failedStartDate, Long failedEndDate) {
+
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", dateUtil.getZoneDateTime(failedStartDate));
-        query.setParameter("END_DATE", dateUtil.getZoneDateTime(failedEndDate));
+        query.setParameter("START_DATE", failedStartDate);
+        query.setParameter("END_DATE", failedEndDate);
         return query.getResultList();
     }
 
 
-    public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
+    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
+
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", dateUtil.getZoneDateTime(startDate));
-
-        query.setParameter("END_DATE", dateUtil.getZoneDateTime(endDate));
+        query.setParameter("START_DATE", startDate);
+        query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
 

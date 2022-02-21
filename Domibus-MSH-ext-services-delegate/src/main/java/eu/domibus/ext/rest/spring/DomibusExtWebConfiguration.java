@@ -26,7 +26,7 @@ import java.util.List;
  */
 @DomibusWebContext
 @Configuration("domibusExtWebConfiguration")
-@ComponentScan(basePackages = "eu.domibus.ext.rest")
+@ComponentScan(basePackages = {"eu.domibus.ext.rest", "eu.domibus.ext.domain"})
 public class DomibusExtWebConfiguration implements WebMvcConfigurer {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtWebConfiguration.class);

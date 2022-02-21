@@ -1166,7 +1166,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
 
-            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
+            messageExchangeService.getMessageStatusForPush();
             result = messageStatus;
 
             messageStatus.getMessageStatus();
