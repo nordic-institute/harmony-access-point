@@ -2,15 +2,19 @@ package eu.domibus.core.earchive.eark;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.compression.DecompressionDataSource;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.PartProperty;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -25,6 +29,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
+import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
 
 /**
  * @author François Gautier
@@ -64,11 +71,45 @@ public class EArchivingFileService {
         final List<PartInfo> partInfos = partInfoService.findPartInfo(entityId);
 
         for (PartInfo partInfo : partInfos) {
-            files.put(
-                    getBaseName(partInfo) + ".attachment" + getExtension(partInfo),
-                    getInputStream(entityId, partInfo));
+            Map<String, String> props = getProps(partInfo);
+            String mimeType = props.get(Property.MIME_TYPE);
+            // TODO: François Gautier 22-02-22  [EDELIVERY-9001] Unify Compressed flag on PartInfo
+            if (BooleanUtils.isNotTrue(partInfo.getCompressed()) && messageIsCompressed(props, mimeType)) {
+                files.put(
+                        getBaseName(partInfo) + ".attachment" + getExtension(mimeType),
+                        getDecompressdInputStream(entityId, partInfo, mimeType));
+            } else {
+                files.put(
+                        getBaseName(partInfo) + ".attachment" + getExtension(partInfo.getMime()),
+                        getInputStream(entityId, partInfo));
+            }
         }
         return files;
+    }
+
+    private InputStream getDecompressdInputStream(Long entityId, PartInfo partInfo, String mimeType) {
+        if (partInfo.getPayloadDatahandler() == null) {
+            throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
+        }
+        try {
+            return new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream();
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]", e);
+        }
+    }
+
+    private boolean messageIsCompressed(Map<String, String> props, String mimeType) {
+        return StringUtils.isNotBlank(mimeType) && StringUtils.equalsIgnoreCase(props.get(COMPRESSION_PROPERTY_KEY), COMPRESSION_PROPERTY_VALUE);
+    }
+
+    private Map<String, String> getProps(PartInfo partInfo) {
+        Map<String, String> props = new HashMap<>();
+        if (partInfo != null) {
+            for (PartProperty partProperty : partInfo.getPartProperties()) {
+                props.put(partProperty.getName(), partProperty.getValue());
+            }
+        }
+        return props;
     }
 
     protected InputStream getInputStream(Long entityId, PartInfo partInfo) {
@@ -86,11 +127,11 @@ public class EArchivingFileService {
         return getBaseName(info) + ".attachment" + extension;
     }
 
-    private String getExtension(PartInfo partInfo) {
+    private String getExtension(String mime) {
         try {
-            return MimeTypes.getDefaultMimeTypes().forName(partInfo.getMime()).getExtension();
+            return MimeTypes.getDefaultMimeTypes().forName(mime).getExtension();
         } catch (MimeTypeException e) {
-            LOG.warn("Mimetype [{}] not found", partInfo);
+            LOG.warn("Mimetype [{}] not found", mime);
             return "";
         }
     }
