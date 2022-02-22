@@ -961,10 +961,9 @@ public class CertificateServiceImpl implements CertificateService {
             return new ArrayList<>();
         }
 
-        byte[] extensionValue = cert.getExtensionValue(Extension.certificatePolicies.getId());
         CertificatePolicies policies;
         try {
-            policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extensionValue));
+            policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(certPolicyExt));
         } catch (IOException e) {
             throw new DomibusCRLException("Error occurred while reading certificate policy object!", e);
         }
