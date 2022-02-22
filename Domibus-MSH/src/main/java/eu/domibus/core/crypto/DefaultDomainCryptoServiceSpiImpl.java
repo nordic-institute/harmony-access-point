@@ -5,7 +5,10 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.pki.*;
+import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
@@ -18,7 +21,6 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -31,8 +33,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
@@ -80,18 +81,18 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
-    public void init(KeyStoreTypeSpi typeSpi) {
-        if (typeSpi == null) {
-            LOG.debug("No initializing value found for the certificate provider");
-            return;
-        }
-        KeyStoreType type = typeSpi == KeyStoreTypeSpi.KEYSTORE ? KeyStoreType.KEYSTORE : KeyStoreType.TRUSTSTORE;
-        if (type == KeyStoreType.TRUSTSTORE) {
-            initTrustStore();
-        } else if (type == KeyStoreType.KEYSTORE) {
-            initKeyStore();
-        }
-    }
+//    public void init(KeyStoreTypeSpi typeSpi) {
+//        if (typeSpi == null) {
+//            LOG.debug("No initializing value found for the certificate provider");
+//            return;
+//        }
+//        KeyStoreType type = typeSpi == KeyStoreTypeSpi.KEYSTORE ? KeyStoreType.KEYSTORE : KeyStoreType.TRUSTSTORE;
+//        if (type == KeyStoreType.TRUSTSTORE) {
+//            initTrustStore();
+//        } else if (type == KeyStoreType.KEYSTORE) {
+//            initKeyStore();
+//        }
+//    }
 
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
@@ -114,7 +115,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
         KeyStore old = getTrustStore();
         final KeyStore current = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
-        setTrustStore(current);
+        super.setTrustStore(current);
 
         if (areKeystoresIdentical(old, current)) {
             LOG.debug("New truststore and previous truststore are identical");
@@ -129,13 +130,20 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
         KeyStore old = getKeyStore();
         final KeyStore current = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
-        setKeyStore(current);
+        super.setKeyStore(current);
 
         if (areKeystoresIdentical(old, current)) {
             LOG.debug("New keystore and previous keystore are identical");
         } else {
             signalService.signalKeyStoreUpdate(domain);
         }
+    }
+
+    @Override
+    public void resetKeyStore() {
+        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION);
+        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
+        replaceKeyStore(location, password);
     }
 
     @Override

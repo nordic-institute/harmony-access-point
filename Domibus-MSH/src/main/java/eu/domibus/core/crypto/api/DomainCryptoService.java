@@ -2,7 +2,6 @@ package eu.domibus.core.crypto.api;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.KeyStoreType;
 import eu.domibus.api.pki.DomibusCertificateException;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -47,7 +46,7 @@ public interface DomainCryptoService {
 
     void refreshTrustStore();
 
-    void replaceTrustStore(byte[] storeContent,String storeFileName, String storePassword) throws CryptoException;
+    void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException;
 
     void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException;
 
@@ -71,13 +70,15 @@ public interface DomainCryptoService {
 
     String getTrustStoreType();
 
-    void reset(KeyStoreType type);
+//    void reset(KeyStoreType type);
 
-    void reset();
+    void refresh();
 
     byte[] getTruststoreContent();
 
     void replaceKeyStore(String storeFileLocation, String storePassword);
 
     void refreshKeyStore();
+
+    void resetKeyStore();
 }

@@ -34,6 +34,6 @@ public class IAMExtensionChangeListener implements DomibusPropertyChangeListener
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         final Domain domain = domainService.getDomain(domainCode);
 
-        multiDomainCryptoService.reset(domain);
+        multiDomainCryptoService.refresh(domain);
     }
 }

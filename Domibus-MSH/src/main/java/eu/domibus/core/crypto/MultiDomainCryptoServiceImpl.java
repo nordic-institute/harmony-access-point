@@ -211,15 +211,15 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void reset(Domain domain) {
+    public void refresh(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
-        domainCertificateProvider.reset();
+        domainCertificateProvider.refresh();
     }
 
     @Override
-    public void reset(Domain domain, KeyStoreType type) {
+    public void resetKeyStore(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
-        domainCertificateProvider.reset(type);
+        domainCertificateProvider.resetKeyStore();
     }
 
     @Override

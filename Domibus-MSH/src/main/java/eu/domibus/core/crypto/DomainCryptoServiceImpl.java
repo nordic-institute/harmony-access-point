@@ -5,7 +5,6 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.KeyStoreType;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
@@ -13,7 +12,6 @@ import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
-import eu.domibus.core.crypto.spi.KeyStoreTypeSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -74,12 +72,12 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.init();
     }
 
-    public void init(KeyStoreType type) {
-        getIAMProvider();
-
-        KeyStoreTypeSpi typeSpi = type == KeyStoreType.KEYSTORE ? KeyStoreTypeSpi.KEYSTORE : KeyStoreTypeSpi.TRUSTSTORE;
-        iamProvider.init(typeSpi);
-    }
+//    public void init(KeyStoreType type) {
+//        getIAMProvider();
+//
+//        KeyStoreTypeSpi typeSpi = type == KeyStoreType.KEYSTORE ? KeyStoreTypeSpi.KEYSTORE : KeyStoreTypeSpi.TRUSTSTORE;
+//        iamProvider.init(typeSpi);
+//    }
 
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
@@ -234,13 +232,16 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public void reset(KeyStoreType type) {
-        this.init(type);
+    public void resetKeyStore() {
+        getIAMProvider();
+        iamProvider.resetKeyStore();
     }
 
     @Override
-    public void reset() {
-        this.init();
+    public void refresh() {
+        getIAMProvider();
+        iamProvider.refreshKeyStore();
+        iamProvider.refreshTrustStore();
     }
 
     @Override
