@@ -114,7 +114,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Before
     public void setup() {
         new Expectations() {{
-            domibusCertificateValidators.getObject(any, any, anyString);
+            domibusCertificateValidators.getObject(any, any, anyString, anyString);
             result = domibusCertificateValidator;
 
             busdoxLocators.getObject(anyString);

@@ -121,7 +121,7 @@
                                         <containerId>tomcat9x</containerId>
                                         <zipUrlInstaller>
                                             <url>
-                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
+                                                https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
                                             </url>
                                             <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
                                             <extractDir>${project.basedir}/cargo/installs</extractDir>
