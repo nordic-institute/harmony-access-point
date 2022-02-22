@@ -13,7 +13,7 @@
       <span class="text-select">{{value | domibusDate}}</span>
     </ng-template>
 
-    <div class="group-action-button">
+    <div class="group-action-button" style="width: 100%;">
       <button mat-raised-button color="primary" (click)="uploadTrustStore()" id="uploadbutton_id"
               [disabled]="!canUpload()" button-click-behaviour>
         <mat-icon>file_upload</mat-icon>
@@ -38,6 +38,12 @@
           <span>Remove Certificate</span>
         </button>
       </span>
+
+      <button *ngIf="showResetOperation" mat-raised-button color="primary" (click)="reloadKeyStore()" [disabled]="isBusy()"
+              id="reloadKeyStorebutton_id" button-click-behaviour style="float: right;">
+        <mat-icon>refresh</mat-icon>
+        <span>Reload KeyStore</span>
+      </button>
     </div>
   </div>
 </div>
