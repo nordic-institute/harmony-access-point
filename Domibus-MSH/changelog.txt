@@ -1,6 +1,6 @@
 Domibus 5.0
 - Remove deletion strategy STORED_PROCEDURE
-- change domibus.passwordPolicy.pattern and domibus.passwordPolicy.validationMessage properties to enforce 16 chars as a minimum length of passwords for users
+- change domibus.passwordPolicy.pattern, domibus.passwordPolicy.validationMessage, domibus.plugin.passwordPolicy.pattern and domibus.plugin.passwordPolicy.validationMessage properties to enforce 16 chars as a minimum length of passwords for users
 - Add HSTS header to admin console REST calls and the property domibus.httpSecurity.httpStrictTransportSecurity.maxAge to configure how much it is kept(default one year)
 - Remove overlapping indexes.
 - On the Domibus Admin Console, the Messages page displays by default only messages exchanged in the past hour
