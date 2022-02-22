@@ -8,7 +8,10 @@ import eu.europa.ec.dynamicdiscovery.core.reader.impl.DefaultBDXRReader;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultProxy;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultSignatureValidator;
 import eu.europa.ec.dynamicdiscovery.exception.ConnectionException;
-import eu.europa.ec.dynamicdiscovery.model.*;
+import eu.europa.ec.dynamicdiscovery.model.DocumentIdentifier;
+import eu.europa.ec.dynamicdiscovery.model.ParticipantIdentifier;
+import eu.europa.ec.dynamicdiscovery.model.ProcessIdentifier;
+import eu.europa.ec.dynamicdiscovery.model.TransportProfile;
 import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
 import no.difi.vefa.peppol.mode.Mode;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -42,8 +45,8 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusCertificateValidator domibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String certRegex) {
-        return new DomibusCertificateValidator(certificateService, trustStore, certRegex);
+    public DomibusCertificateValidator domibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String certRegex, String allowedCertificatePolicyId) {
+        return new DomibusCertificateValidator(certificateService, trustStore, certRegex, allowedCertificatePolicyId);
     }
 
     @Bean
