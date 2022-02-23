@@ -419,3 +419,8 @@ html, body, app-root, ng-component {
   cursor: pointer;
   background-color: #2196f3;
 }
+
+.mat-card {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
