@@ -21,7 +21,7 @@ public class CacheDefaultService implements CacheService {
      */
     @Override
     public void evictCaches() {
-        domibusCacheService.clearAllCaches();
+        domibusCacheService.clearAllCaches(true);
     }
 
     /**
@@ -29,6 +29,6 @@ public class CacheDefaultService implements CacheService {
      */
     @Override
     public void evict2LCaches() {
-        domibusCacheService.clear2LCCaches();
+        domibusCacheService.clear2LCCaches(true);
     }
 }
