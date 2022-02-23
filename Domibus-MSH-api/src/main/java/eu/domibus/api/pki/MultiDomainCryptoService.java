@@ -66,7 +66,7 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void removeCertificate(Domain domain, List<String> aliases);
 
-    void refresh(Domain domain);
+    void reset(Domain domain);
 
     void resetKeyStore(Domain domain);
 
@@ -75,4 +75,6 @@ public interface MultiDomainCryptoService extends DomainsAware {
     void persistTruststoresIfApplicable();
 
     void refreshKeyStore(Domain currentDomain);
+
+    void resetTrustStore(Domain domain);
 }

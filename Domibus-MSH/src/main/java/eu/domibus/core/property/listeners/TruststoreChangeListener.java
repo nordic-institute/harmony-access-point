@@ -53,8 +53,11 @@ public class TruststoreChangeListener implements DomibusPropertyChangeListener {
         LOG.debug("[{}] property has changed for domain [{}].", propertyName, domainCode);
 
         Domain domain = domainService.getDomain(domainCode);
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-        multiDomainCryptoService.replaceTrustStore(domain, propertyValue, password);
+
+        multiDomainCryptoService.resetTrustStore(domain);
+
+//        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+//        multiDomainCryptoService.replaceTrustStore(domain, propertyValue, password);
 
         gatewayConfigurationValidator.validateCertificates();
 

@@ -78,4 +78,6 @@ public interface DomainCryptoServiceSpi {
     void refreshKeyStore();
 
     void resetKeyStore();
+
+    void resetTrustStore();
 }

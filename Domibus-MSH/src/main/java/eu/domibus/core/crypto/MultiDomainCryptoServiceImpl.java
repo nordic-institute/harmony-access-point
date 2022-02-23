@@ -137,6 +137,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
+    public void resetTrustStore(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
+        domainCertificateProvider.resetTrustStore();
+    }
+
+    @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
         doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);
     }
@@ -211,9 +217,9 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void refresh(Domain domain) {
+    public void reset(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
-        domainCertificateProvider.refresh();
+        domainCertificateProvider.reset();
     }
 
     @Override

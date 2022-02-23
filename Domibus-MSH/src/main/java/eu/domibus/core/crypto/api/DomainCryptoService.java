@@ -72,7 +72,7 @@ public interface DomainCryptoService {
 
 //    void reset(KeyStoreType type);
 
-    void refresh();
+    void reset();
 
     byte[] getTruststoreContent();
 
@@ -81,4 +81,6 @@ public interface DomainCryptoService {
     void refreshKeyStore();
 
     void resetKeyStore();
+
+    void resetTrustStore();
 }
