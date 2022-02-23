@@ -423,40 +423,40 @@ public class CertificateServiceImpl implements CertificateService {
             KeyStore truststore = loadTrustStore(entity.getContent(), entity.getPassword(), entity.getType());
             try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
                 truststore.store(oldTrustStoreBytes, entity.getPassword().toCharArray());
-                try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
-                    validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
-                    truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-                    LOG.debug("Truststore successfully loaded");
 
-                    persistTrustStore(truststore, filePassword, storeType, trustName);
-                    LOG.debug("Truststore successfully persisted");
-                } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-                    try {
-                        truststore.load(oldTrustStoreBytes.toInputStream(), entity.getPassword().toCharArray());
-                    } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                        throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
-                    }
-                    throw new CryptoException("Could not persist the truststore named " + trustName, e);
-                }
+                doReplace(fileContent, filePassword, storeType, trustName, truststore, entity.getPassword(), oldTrustStoreBytes);
             } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
                 throw new CryptoException("Could not replace truststore " + trustName, exc);
             }
         } else {
             try {
                 KeyStore truststore = KeyStore.getInstance(storeType);
-                try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
-                    validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
-                    truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-                    LOG.debug("Truststore successfully loaded");
 
-                    persistTrustStore(truststore, filePassword, storeType, trustName);
-                    LOG.debug("Truststore successfully persisted");
-                } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-                    throw new CryptoException("Could not persist the stores named " + trustName, e);
-                }
+                doReplace(fileContent, filePassword, storeType, trustName, truststore, null, null);
             } catch (KeyStoreException exc) {
-                throw new CryptoException("Could not create a store named" + trustName, exc);
+                throw new CryptoException("Could not create a store named " + trustName, exc);
             }
+        }
+    }
+
+    private void doReplace(byte[] fileContent, String filePassword, String storeType, String trustName, KeyStore truststore,
+                           String oldPassword, ByteArrayOutputStream oldTrustStoreBytes) {
+        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
+            validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
+            truststore.load(newTrustStoreBytes, filePassword.toCharArray());
+            LOG.debug("Truststore successfully loaded");
+
+            persistTrustStore(truststore, filePassword, storeType, trustName);
+            LOG.debug("Truststore successfully persisted");
+        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+            if (oldTrustStoreBytes != null) {
+                try {
+                    truststore.load(oldTrustStoreBytes.toInputStream(), oldPassword.toCharArray());
+                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+                }
+            }
+            throw new CryptoException("Could not persist the truststore named " + trustName, e);
         }
     }
 
