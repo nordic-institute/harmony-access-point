@@ -106,23 +106,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return findFailedMessages(finalRecipient, null, null);
     }
 
-    public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
+    public List<String> findFailedMessages(String finalRecipient, Long failedStartDate, Long failedEndDate) {
+
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", dateUtil.getZoneDateTime(failedStartDate));
-        query.setParameter("END_DATE", dateUtil.getZoneDateTime(failedEndDate));
+        query.setParameter("START_DATE", failedStartDate);
+        query.setParameter("END_DATE", failedEndDate);
         return query.getResultList();
     }
 
 
-    public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
+    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
+
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", dateUtil.getZoneDateTime(startDate));
-
-        query.setParameter("END_DATE", dateUtil.getZoneDateTime(endDate));
+        query.setParameter("START_DATE", startDate);
+        query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
 
@@ -440,28 +441,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return userMessageLogInfoFilter;
-    }
-
-    public String findLastTestMessageId(String party) {
-        Map<String, Object> filters = new HashMap<>();
-        filters.put("testMessage", true);
-        filters.put("mshRole", MSHRole.SENDING);
-        filters.put("toPartyId", party);
-        String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(0);
-        queryParameterized.setMaxResults(1);
-        long startTime = 0;
-        if (LOG.isDebugEnabled()) {
-            startTime = System.currentTimeMillis();
-        }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
-        if (LOG.isDebugEnabled()) {
-            final long endTime = System.currentTimeMillis();
-            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
-        }
-        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})

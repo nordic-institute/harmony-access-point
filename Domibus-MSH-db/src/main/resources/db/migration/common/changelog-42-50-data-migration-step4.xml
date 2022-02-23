@@ -429,9 +429,6 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_domain
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user
 //
 
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_msg_deletion_job
-//
-
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_password_history
 //
 

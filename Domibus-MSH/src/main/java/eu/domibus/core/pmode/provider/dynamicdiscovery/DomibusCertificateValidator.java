@@ -19,6 +19,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -33,8 +34,9 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
     protected CertificateService certificateService;
 
     private Pattern subjectRegularExpressionPattern;
+    private String allowedCertificatePolicyId;
 
-    public DomibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String subjectRegularExpression) {
+    public DomibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String subjectRegularExpression, String allowedCertificatePolicyId) {
         this.certificateService = certificateService;
 
         if (!StringUtils.isEmpty(subjectRegularExpression)) {
@@ -42,6 +44,7 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         } else {
             this.subjectRegularExpressionPattern = Pattern.compile(".*");
         }
+        this.allowedCertificatePolicyId = allowedCertificatePolicyId;
         // init merlin just with truststore.
         setTrustStore(trustStore);
     }
@@ -87,9 +90,18 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         } catch (WSSecurityException ex) {
             throw new CertificateException("Certificate is not trusted: " + subjectName, ex);
         }
+
+        if (StringUtils.isNotBlank(allowedCertificatePolicyId)) {
+            List<String> certificatePolicyIdentifiers = certificateService.getCertificatePolicyIdentifiers(certificate);
+            if (!certificatePolicyIdentifiers.contains(allowedCertificatePolicyId)) {
+                LOG.error("Certificate policies [{}] do not contain expected policy [{}]", certificatePolicyIdentifiers, allowedCertificatePolicyId);
+                throw new CertificateException("Missing expected certificate policy! Certificate is not trusted: " + subjectName);
+            }
+        }
+
         // verify the chain CRL
-        if (!verifyCertificateChain(certificate)){
-            throw new CertificateException("Lookup certificate validator failed for " + subjectName+". The certificate chain is not valid");
+        if (!verifyCertificateChain(certificate)) {
+            throw new CertificateException("Lookup certificate validator failed for " + subjectName + ". The certificate chain is not valid");
         }
 
         LOG.debug("The Certificate is valid and trusted: [{}]", subjectName);

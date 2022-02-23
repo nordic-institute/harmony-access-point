@@ -63,7 +63,7 @@ import java.util.Date;
                         "AND uml.deleted IS NULL                                                                      " +
                         "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
                         "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE)                         " +
-                        "AND (:END_DATE is null or uml.userMessage.entityId <= :END_DATE)                             "),
+                        "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
 
         @NamedQuery(name = "UserMessageLog.findFailedMessagesDuringPeriod",
                 query = "SELECT DISTINCT um.messageId                                                                 " +
@@ -74,7 +74,7 @@ import java.util.Date;
                         "AND uml.deleted IS NULL                                                                      " +
                         "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
                         "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE)                         " +
-                        "AND (:END_DATE is null or uml.userMessage.entityId <= :END_DATE)                             "),
+                        "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
 
         @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,          " +

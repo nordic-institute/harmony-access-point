@@ -28,6 +28,11 @@ public interface MessageExchangeService {
     MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration, ProcessingType processingType);
 
     /**
+     * @return SEND_ENQUEUED.
+     */
+    MessageStatusEntity getMessageStatusForPush();
+
+    /**
      * Failed messages have the same final status (SEND_FAILED) being for a pushed or a pulled message.
      * So when we do restore and resend a message there is the need to know which kind of message it was
      * originally, in order to restore it properly.

@@ -18,7 +18,6 @@ import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
@@ -138,18 +137,21 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * {@inheritDoc}
      */
     @Override
+    public MessageStatusEntity getMessageStatusForPush() {
+        return messageStatusDao.findOrCreate(MessageStatus.SEND_ENQUEUED);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @Transactional(readOnly = true)
     public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        try {
-            if (forcePullOnMpc(userMessage)) {
-                return messageStatusDao.findMessageStatus(MessageStatus.READY_TO_PULL);
-            }
-            MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            return getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
-        } catch (EbMS3Exception e) {
-            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]", e);
+        if (forcePullOnMpc(userMessage)) {
+            return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
         }
+        return getMessageStatusForPush();
     }
 
 
@@ -230,11 +232,11 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             Integer pullRequestNumberForResponder = pullFrequencyHelper.getPullRequestNumberForMpc(mpcName);
             LOG.debug("Sending:[{}] pull request for mpcFQN:[{}] to mpc:[{}]", pullRequestNumberForResponder, mpcQualifiedName, mpcName);
             for (int i = 0; i < pullRequestNumberForResponder; i++) {
-                PullRequest pullRequest=new PullRequest();
+                PullRequest pullRequest = new PullRequest();
                 String uuid = messageIdGenerator.generatePullRequestId();
                 pullRequest.setUuid(uuid);
                 pullRequest.setMpc(mpcQualifiedName);
-                LOG.trace("Sending pull request with UUID:[{}], MPC:[{}]",pullRequest.getUuid(),pullRequest.getMpc());
+                LOG.trace("Sending pull request with UUID:[{}], MPC:[{}]", pullRequest.getUuid(), pullRequest.getMpc());
                 pullRequestDao.savePullRequest(pullRequest);
                 jmsManager.sendMapMessageToQueue(JMSMessageBuilder.create()
                         .property(MPC, mpcQualifiedName)

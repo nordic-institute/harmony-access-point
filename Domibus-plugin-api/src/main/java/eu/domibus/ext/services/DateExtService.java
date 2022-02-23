@@ -15,4 +15,12 @@ public interface DateExtService {
      */
     Date getUtcDate();
 
+    /**
+     * Parse a string date to an ID_PK
+     *
+     * @param date of format YYYY-MM-dd'T'HH'H' or YYYY-MM-dd
+     * @return date of format YYMMDDHH0000000000
+     */
+    Long getIdPkDateHour(String date);
+
 }

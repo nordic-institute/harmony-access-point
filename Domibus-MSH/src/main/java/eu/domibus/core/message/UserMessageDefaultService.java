@@ -18,6 +18,7 @@ import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -487,12 +488,12 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public List<String> restoreFailedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
+    public List<String> restoreFailedMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
         if (failedMessages == null) {
             return null;
         }
-        LOG.debug("Found failed messages [{}] using start date [{}], end date [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
+        LOG.debug("Found failed messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
 
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
@@ -504,7 +505,7 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
+        LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
 
         return restoredMessages;
     }
@@ -545,13 +546,13 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public List<String> deleteMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
+    public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
         final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
-            LOG.debug("Cannot find messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            LOG.debug("Cannot find messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
             return Collections.emptyList();
         }
-        LOG.debug("Found messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+        LOG.debug("Found messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
 
         final List<String> deletedMessages = new ArrayList<>();
         for (String messageId : messagesToDelete) {
@@ -563,7 +564,7 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Deleted messages [{}] using start date [{}], end date [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+        LOG.debug("Deleted messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
 
         return deletedMessages;
     }
@@ -739,7 +740,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
+                result.put(DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
