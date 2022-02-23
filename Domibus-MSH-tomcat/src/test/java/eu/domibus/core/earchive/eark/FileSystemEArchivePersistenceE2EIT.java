@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.xml.soap.SOAPMessage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,7 +37,6 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_XML;
-import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 
 /**
@@ -78,6 +76,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     private BatchEArchiveDTO batchEArchiveDTO;
 
     private String messageId;
+    private String messageId2;
     private String batchId;
 
     @Before
@@ -85,21 +84,21 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         // because we must not use DirtyContext do not use common identifiers!
         //messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         messageId = UUID.randomUUID() + "@domibus.eu";
+        messageId2 = UUID.randomUUID() + "@domibus.eu";
 
         batchId = UUID.randomUUID().toString();
         batchEArchiveDTO = new BatchEArchiveDTOBuilder()
                 .batchId(batchId)
                 .messageEndId("")
-                .messages(singletonList(messageId))
+                .messages(Arrays.asList(messageId, messageId2))
                 .createBatchEArchiveDTO();
         temp = Files.createTempDirectory(Paths.get("target"), "tmpDirPrefix").toFile();
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
         uploadPmode(SERVICE_PORT);
 
-        String filename = "SOAPMessage4.xml";
-        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-        mshWebserviceTest.invoke(soapMessage);
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4.xml", messageId, false));
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4_compressed.xml", messageId2, true));
 
         domibusPropertyProvider.setProperty(DomainService.DEFAULT_DOMAIN, DOMIBUS_EARCHIVE_ACTIVE, "true");
         domibusPropertyProvider.setProperty(DOMIBUS_EARCHIVE_ACTIVE, "true");
@@ -119,8 +118,10 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     @Test
     public void createEArkSipStructure() throws IOException {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
+        UserMessage byMessageId2 = userMessageDao.findByMessageId(messageId2);
 
-        DomibusEARKSIPResult fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, singletonList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId)));
+        DomibusEARKSIPResult fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, Arrays.asList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId),
+                new EArchiveBatchUserMessage(byMessageId2.getEntityId(), messageId2)));
         try (FileObject batchDirectory = VFS.getManager().resolveFile(fileObject.getDirectory().toUri())) {
 
             // must have more that one subfolder item
