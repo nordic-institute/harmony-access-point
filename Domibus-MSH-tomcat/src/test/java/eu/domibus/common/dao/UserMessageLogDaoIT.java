@@ -308,15 +308,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void getMessageInFinalStatus() {
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-2");
-
-        UserMessageLog message = userMessageLogDao.findMessageToDeleteNotInFinalStatus("msg-test-2");
-        assertEquals("msg-test-2", message.getUserMessage().getMessageId());
-    }
-
-    @Test
-    @Transactional
     public void findMessagesToDelete() {
         final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
