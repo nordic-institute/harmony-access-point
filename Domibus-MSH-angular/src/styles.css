@@ -424,3 +424,21 @@ html, body, app-root, ng-component {
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
+
+.domibus-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-left: 16px;
+}
+
+.domibus-grid-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.selectionCriteria {
+  flex-grow: 1;
+  margin-left: -10px;
+}

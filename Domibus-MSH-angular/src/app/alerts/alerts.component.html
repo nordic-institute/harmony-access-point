@@ -1,7 +1,7 @@
-<div style="height: 100%; display: flex; flex-direction: column; padding-left: 16px">
+<div class="domibus-page">
   <page-header id="alertsheader_id" >Alerts</page-header>
 
-  <div class="selectionCriteria" style="flex-grow: 1; margin-left: -10px;">
+  <div class="selectionCriteria">
     <mat-card>
       <mat-card-content>
         <div class="panel">
@@ -141,7 +141,7 @@
 
   <grid-header [parent]="this"></grid-header>
 
-  <div style="flex-grow: 1; overflow-y: auto; overflow-x: hidden;">
+  <div class="domibus-grid-container">
     <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
   </div>
 
