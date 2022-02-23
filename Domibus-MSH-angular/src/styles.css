@@ -430,6 +430,7 @@ html, body, app-root, ng-component {
   display: flex;
   flex-direction: column;
   padding-left: 16px;
+  margin-right: 10px;
 }
 
 .domibus-grid-container {
