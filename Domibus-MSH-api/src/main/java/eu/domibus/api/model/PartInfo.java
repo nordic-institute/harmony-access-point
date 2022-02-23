@@ -170,6 +170,9 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.partProperties = partProperties;
     }
 
+    /**
+     * WARNING: for message sent, the compress flag is NOT set and the {@link #getPayloadDatahandler} will provide the zipped data
+     */
     @PostLoad
     public void loadBinary() {
         if (fileName != null) { /* Create payload data handler from File */
