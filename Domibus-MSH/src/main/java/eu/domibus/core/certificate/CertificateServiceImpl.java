@@ -718,14 +718,14 @@ public class CertificateServiceImpl implements CertificateService {
                                                             Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier) {
         try {
             if (truststoreDao.existsWithName(name)) {
-                LOG.debug("The truststore [{}] is already persisted; exiting", name);
+                LOG.debug("The store [{}] is already persisted; exiting", name);
                 return;
             }
 
             Optional<String> filePath = filePathSupplier.get();
             if (!filePath.isPresent()) {
                 if (optional) {
-                    LOG.info("Truststore with type [{}] is missing and optional so exiting.", name);
+                    LOG.info("The store location of [{}] is missing (and optional) so exiting.", name);
                     return;
                 }
                 throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", name));

@@ -145,7 +145,10 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             KeyStoreType result = k.getTrustManagers().getKeyStore();
             LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
             return Optional.of(result);
-        }).orElse(Optional.empty());
+        }).orElseGet(() -> {
+            LOG.info("TLS parameters for domain [{}] could not be read.", domainCode);
+            return Optional.empty();
+        });
     }
 
     protected void resetTLSTruststore() {
