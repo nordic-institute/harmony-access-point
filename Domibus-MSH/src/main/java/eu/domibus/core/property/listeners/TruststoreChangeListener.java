@@ -56,9 +56,6 @@ public class TruststoreChangeListener implements DomibusPropertyChangeListener {
 
         multiDomainCryptoService.resetTrustStore(domain);
 
-//        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-//        multiDomainCryptoService.replaceTrustStore(domain, propertyValue, password);
-
         gatewayConfigurationValidator.validateCertificates();
 
     }

@@ -70,10 +70,6 @@ public interface DomainCryptoService {
 
     String getTrustStoreType();
 
-//    void reset(KeyStoreType type);
-
-    void reset();
-
     byte[] getTruststoreContent();
 
     void replaceKeyStore(String storeFileLocation, String storePassword);
@@ -83,4 +79,6 @@ public interface DomainCryptoService {
     void resetKeyStore();
 
     void resetTrustStore();
+
+    void reset();
 }

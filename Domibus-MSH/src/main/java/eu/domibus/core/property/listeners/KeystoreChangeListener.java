@@ -58,9 +58,6 @@ public class KeystoreChangeListener implements DomibusPropertyChangeListener {
         if (StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEYSTORE_LOCATION)) {
             multiDomainCryptoService.resetKeyStore(domain);
 
-//            String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
-//            multiDomainCryptoService.replaceKeyStore(domain, propertyValue, password);
-
             gatewayConfigurationValidator.validateCertificates();
         } else {
             multiDomainCryptoService.refreshKeyStore(domain);

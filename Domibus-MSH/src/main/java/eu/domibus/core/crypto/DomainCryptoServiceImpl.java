@@ -72,13 +72,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         iamProvider.init();
     }
 
-//    public void init(KeyStoreType type) {
-//        getIAMProvider();
-//
-//        KeyStoreTypeSpi typeSpi = type == KeyStoreType.KEYSTORE ? KeyStoreTypeSpi.KEYSTORE : KeyStoreTypeSpi.TRUSTSTORE;
-//        iamProvider.init(typeSpi);
-//    }
-
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
         return iamProvider.getCertificateFromKeyStore(alias);

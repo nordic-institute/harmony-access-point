@@ -152,11 +152,6 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
         return domain;
     }
 
-//    @Override
-//    public void init(KeyStoreTypeSpi type) {
-//        defaultDomainCryptoService.init(type);
-//    }
-
     @Override
     public void init() {
         defaultDomainCryptoService.init();

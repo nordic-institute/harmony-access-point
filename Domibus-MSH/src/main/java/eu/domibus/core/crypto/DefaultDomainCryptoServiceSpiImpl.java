@@ -81,19 +81,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
 
-//    public void init(KeyStoreTypeSpi typeSpi) {
-//        if (typeSpi == null) {
-//            LOG.debug("No initializing value found for the certificate provider");
-//            return;
-//        }
-//        KeyStoreType type = typeSpi == KeyStoreTypeSpi.KEYSTORE ? KeyStoreType.KEYSTORE : KeyStoreType.TRUSTSTORE;
-//        if (type == KeyStoreType.TRUSTSTORE) {
-//            initTrustStore();
-//        } else if (type == KeyStoreType.KEYSTORE) {
-//            initKeyStore();
-//        }
-//    }
-
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
         return (X509Certificate) getKeyStore().getCertificate(alias);

@@ -149,11 +149,6 @@ public class FakeDefaultDssCrypto implements DomainCryptoServiceSpi {
 
     }
 
-//    @Override
-//    public void init(KeyStoreTypeSpi type) {
-//
-//    }
-
     @Override
     public void init() {
 
