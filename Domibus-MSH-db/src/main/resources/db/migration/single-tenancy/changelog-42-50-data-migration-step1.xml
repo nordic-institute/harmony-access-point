@@ -1308,6 +1308,10 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <!-- This index is required in step 2, so we eagerly create it -->
+        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="MIGR_TB_USER_MESSAGE">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
 
         <!-- TB_SJ_MESSAGE_FRAGMENT -->
         <createTable tableName="MIGR_TB_SJ_MESSAGE_FRAGMENT">
@@ -1397,6 +1401,10 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+        <!-- This index is required in step 2, so we eagerly create it -->
+        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="MIGR_TB_SIGNAL_MESSAGE">
+            <column name="SIGNAL_MESSAGE_ID"/>
+        </createIndex>
 
         <!-- TB_RECEIPT -->
         <createTable tableName="MIGR_TB_RECEIPT">
