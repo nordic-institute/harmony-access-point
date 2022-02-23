@@ -68,9 +68,7 @@ public interface DomainCryptoServiceSpi {
     String getIdentifier();
 
     void setDomain(DomainSpi domain);
-
-//    void init(KeyStoreTypeSpi type);
-
+    
     void init();
 
     void replaceKeyStore(String storeFileLocation, String storePassword);
