@@ -7,6 +7,7 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -982,8 +983,6 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void deleteMessagesDuringPeriod() {
-        final Date startDate = new Date();
-        final Date endDate = new Date();
         final String messageId = "1";
         final List<String> messagesToDelete = new ArrayList<>();
         messagesToDelete.add(messageId);
@@ -991,19 +990,15 @@ public class UserMessageDefaultServiceTest {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
+            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
             userMessageDefaultService.deleteMessage(messageId);
             times = 1;
         }};
 
-        userMessageDefaultService.deleteMessagesDuringPeriod(startDate, endDate, originalUserFromSecurityContext);
+        userMessageDefaultService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
-        new FullVerificationsInOrder(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
-            userMessageDefaultService.deleteMessage(messageId);
-            times = 1;
-        }};
+        new FullVerifications() {};
     }
 
 

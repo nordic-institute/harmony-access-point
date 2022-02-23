@@ -93,8 +93,10 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         TestServiceMessageInfoRO lastSent = testService.getLastTestSent(partyId);
         result.setLastSent(lastSent);
 
-        TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
-        result.setLastReceived(lastReceived);
+        if (lastSent != null) {
+            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
+            result.setLastReceived(lastReceived);
+        }
 
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
         if (testableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {

@@ -124,6 +124,9 @@ public class JMSMessageTransformerTest {
         new Expectations() {{
             domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + PUT_ATTACHMENTS_IN_QUEUE);
             result = "false";
+
+            domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + ATTACHMENTS_REFERENCE_TYPE);
+            result = "FILE";
         }};
 
         MapMessage messageMap = new ActiveMQMapMessage();

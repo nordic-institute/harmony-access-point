@@ -3,7 +3,7 @@
 <configuration>
     <property name="USER_HOME" value="target/logs" />
     <!-- pattern definition -->
-    <property name="encoderPattern" value="%d{ISO8601} [%thread] %5p %c{2}:%L - %m%n" scope="global"/>
+    <property name="encoderPattern" value="%d{ISO8601} [%thread] %5p %ex{full} %M %c{1}:%L - %m%n" scope="global"/>
 
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>target/logs/selenium_ui.log</file>

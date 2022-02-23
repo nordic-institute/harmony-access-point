@@ -8413,120 +8413,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END IF;
     END migrate_user;
 
-    PROCEDURE migrate_user_msg_deletion_job IS
-        v_tab VARCHAR2(30) := 'TB_USER_MSG_DELETION_JOB';
-        v_tab_new VARCHAR2(30) := 'MIGR_TB_USER_MSG_DELETION_JOB';
-
-        CURSOR c_user_msg_deletion_job IS
-            SELECT UMDJ.ID_PK,
-                   UMDJ.PROCEDURE_NAME,
-                   UMDJ.MPC,
-                   UMDJ.START_RETENTION_DATE,
-                   UMDJ.END_RETENTION_DATE,
-                   UMDJ.MAX_COUNT,
-                   UMDJ.STATE,
-                   UMDJ.ACTUAL_START_DATE,
-                   UMDJ.CREATION_TIME,
-                   UMDJ.CREATED_BY,
-                   UMDJ.MODIFICATION_TIME,
-                   UMDJ.MODIFIED_BY
-            FROM TB_USER_MSG_DELETION_JOB UMDJ;
-
-        TYPE T_USER_MSG_DELETION_JOB IS TABLE OF c_user_msg_deletion_job%rowtype;
-        user_msg_deletion_job T_USER_MSG_DELETION_JOB;
-
-        TYPE T_MIGR_USER_MSG_DELETION_JOB IS TABLE OF MIGR_TB_USER_MSG_DELETION_JOB%ROWTYPE INDEX BY PLS_INTEGER;
-        migr_user_msg_deletion_job T_MIGR_USER_MSG_DELETION_JOB;
-
-        v_last PLS_INTEGER;
-        v_start PLS_INTEGER;
-        v_end PLS_INTEGER;
-    BEGIN
-        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
-        OPEN c_user_msg_deletion_job;
-        LOOP
-            FETCH c_user_msg_deletion_job BULK COLLECT INTO user_msg_deletion_job LIMIT BULK_COLLECT_LIMIT;
-            EXIT WHEN user_msg_deletion_job.COUNT = 0;
-
-            migr_user_msg_deletion_job := T_MIGR_USER_MSG_DELETION_JOB();
-
-            FOR i IN user_msg_deletion_job.FIRST .. user_msg_deletion_job.LAST
-                LOOP
-                    migr_user_msg_deletion_job(i).ID_PK := generate_scalable_seq(user_msg_deletion_job(i).ID_PK, user_msg_deletion_job(i).CREATION_TIME);
-                    migr_user_msg_deletion_job(i).PROCEDURE_NAME := user_msg_deletion_job(i).PROCEDURE_NAME;
-                    migr_user_msg_deletion_job(i).MPC := user_msg_deletion_job(i).MPC;
-                    migr_user_msg_deletion_job(i).START_RETENTION_DATE := user_msg_deletion_job(i).START_RETENTION_DATE;
-                    migr_user_msg_deletion_job(i).END_RETENTION_DATE := user_msg_deletion_job(i).END_RETENTION_DATE;
-                    migr_user_msg_deletion_job(i).MAX_COUNT := user_msg_deletion_job(i).MAX_COUNT;
-                    migr_user_msg_deletion_job(i).STATE := user_msg_deletion_job(i).STATE;
-                    migr_user_msg_deletion_job(i).ACTUAL_START_DATE := user_msg_deletion_job(i).ACTUAL_START_DATE;
-                    migr_user_msg_deletion_job(i).CREATION_TIME := user_msg_deletion_job(i).CREATION_TIME;
-                    migr_user_msg_deletion_job(i).CREATED_BY := user_msg_deletion_job(i).CREATED_BY;
-                    migr_user_msg_deletion_job(i).MODIFICATION_TIME := user_msg_deletion_job(i).MODIFICATION_TIME;
-                    migr_user_msg_deletion_job(i).MODIFIED_BY := user_msg_deletion_job(i).MODIFIED_BY;
-                END LOOP;
-
-            v_start := 1;
-            v_last := migr_user_msg_deletion_job.COUNT;
-
-            LOOP
-                EXIT WHEN v_start > v_last;
-
-                v_end := LEAST(v_start + BATCH_SIZE - 1, v_last);
-
-                BEGIN
-                    log_verbose('migrate_user_msg_deletion_job -> start-end: ' || v_start || '-' || v_end);
-                    FORALL i IN v_start .. v_end SAVE EXCEPTIONS
-                        INSERT INTO MIGR_TB_USER_MSG_DELETION_JOB (ID_PK, PROCEDURE_NAME, MPC, START_RETENTION_DATE,
-                                                                   END_RETENTION_DATE, MAX_COUNT, STATE,
-                                                                   ACTUAL_START_DATE, CREATION_TIME, CREATED_BY,
-                                                                   MODIFICATION_TIME, MODIFIED_BY)
-                        VALUES (migr_user_msg_deletion_job(i).ID_PK,
-                                migr_user_msg_deletion_job(i).PROCEDURE_NAME,
-                                migr_user_msg_deletion_job(i).MPC,
-                                migr_user_msg_deletion_job(i).START_RETENTION_DATE,
-                                migr_user_msg_deletion_job(i).END_RETENTION_DATE,
-                                migr_user_msg_deletion_job(i).MAX_COUNT,
-                                migr_user_msg_deletion_job(i).STATE,
-                                migr_user_msg_deletion_job(i).ACTUAL_START_DATE,
-                                migr_user_msg_deletion_job(i).CREATION_TIME,
-                                migr_user_msg_deletion_job(i).CREATED_BY,
-                                migr_user_msg_deletion_job(i).MODIFICATION_TIME,
-                                migr_user_msg_deletion_job(i).MODIFIED_BY);
-                EXCEPTION
-                    WHEN failure_in_forall
-                        THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_user_msg_deletion_job -> insert error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
-                            DBMS_OUTPUT.PUT_LINE('Updated ' || SQL%ROWCOUNT || ' rows.');
-
-                            FOR i IN 1 .. SQL%BULK_EXCEPTIONS.COUNT
-                                LOOP
-                                    DBMS_OUTPUT.PUT_LINE('Error ' || i || ' occurred on index '
-                                        || SQL%BULK_EXCEPTIONS(i).ERROR_INDEX
-                                        || '  with error code '
-                                        || SQL%BULK_EXCEPTIONS(i).ERROR_CODE
-                                        || '  for migration entry having ID_PK '
-                                        || migr_user_msg_deletion_job(SQL%BULK_EXCEPTIONS(i).ERROR_INDEX).ID_PK);
-                                END LOOP;
-                END;
-
-                log_verbose(v_tab_new || ': Committing...');
-                COMMIT;
-
-                v_start := v_end + 1;
-            END LOOP;
-            log_verbose('Migrated ' || user_msg_deletion_job.COUNT || ' records into ' || v_tab_new);
-        END LOOP;
-
-        COMMIT;
-        CLOSE c_user_msg_deletion_job;
-
-        IF check_counts(v_tab, v_tab_new) THEN
-            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
-        END IF;
-    END migrate_user_msg_deletion_job;
-
     PROCEDURE migrate_user_password_history IS
         v_tab VARCHAR2(30) := 'TB_USER_PASSWORD_HISTORY';
         v_tab_new VARCHAR2(30) := 'MIGR_TB_USER_PASSWORD_HISTORY';
@@ -9062,7 +8948,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    RC.AUDIT_ORDER,
                    CASE -- entity names have changed over time from 4.x to 5.0 so adapt to the new fully qualified names
                        WHEN RC.ENTITY_NAME = 'eu.domibus.core.security.AuthenticationEntity'
-                           THEN 'eu.domibus.core.user.plugin.AuthenticationEntity'
+                           THEN 'eu.domibus.api.user.plugin.AuthenticationEntity'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.user.plugin.AuthenticationEntity'
+                           THEN 'eu.domibus.api.user.plugin.AuthenticationEntity'
                        WHEN RC.ENTITY_NAME = 'eu.domibus.plugin.routing.BackendFilterEntity'
                            THEN 'eu.domibus.core.plugin.routing.BackendFilterEntity'
                        WHEN RC.ENTITY_NAME = 'eu.domibus.plugin.routing.RoutingCriteriaEntity'
@@ -9086,7 +8974,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    RC.GROUP_NAME,
                    CASE
                        WHEN RC.ENTITY_NAME IN ('eu.domibus.core.user.plugin.AuthenticationEntity',
-                                              'eu.domibus.core.user.plugin.AuthenticationEntity')
+                                              'eu.domibus.core.user.plugin.AuthenticationEntity',
+                                              'eu.domibus.api.user.plugin.AuthenticationEntity')
                            THEN (SELECT MPKSAE.NEW_ID
                                  FROM MIGR_TB_PKS_AUTH_ENTRY MPKSAE
                                  WHERE MPKSAE.OLD_ID = RC.ENTITY_ID) -- authentication_entry
@@ -9184,7 +9073,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
             FOR i IN rev_changes.FIRST .. rev_changes.LAST
                 LOOP
-                    IF rev_changes(i).ENTITY_NAME NOT IN ('eu.domibus.core.user.plugin.AuthenticationEntity',
+                    IF rev_changes(i).ENTITY_NAME NOT IN ('eu.domibus.api.user.plugin.AuthenticationEntity',
                                                          'eu.domibus.core.plugin.routing.BackendFilterEntity',
                                                          'eu.domibus.core.plugin.routing.RoutingCriteriaEntity',
                                                          'eu.domibus.core.user.ui.User',
@@ -10823,8 +10712,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_user_password_history;
         migrate_user_role;
         migrate_user_roles;
-        --
-        migrate_user_msg_deletion_job;
         --
         migrate_ws_plugin_tb_message_log;
         --

@@ -54,9 +54,18 @@ public final class JMSMessageConstants {
     public static final String PAYLOAD_MIME_TYPE_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_MIME_TYPE_SUFFIX;
     private static final String PAYLOAD_FILE_NAME_SUFFIX = "_fileName";
     public static final String PAYLOAD_FILE_NAME_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_FILE_NAME_SUFFIX;
+    private static final String PAYLOAD_FILE_URL_SUFFIX = "_fileURL";
+    public static final String PAYLOAD_FILE_URL_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_FILE_URL_SUFFIX;
     private static final String PAYLOAD_MIME_CONTENT_ID_SUFFIX = "_mimeContentId";
     public static final String PAYLOAD_MIME_CONTENT_ID_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_MIME_CONTENT_ID_SUFFIX;
     public static final String PUT_ATTACHMENTS_IN_QUEUE = "putAttachmentInQueue";
+    public static final String ATTACHMENTS_REFERENCE_TYPE = "attachment.reference.type";
+    public static final String ATTACHMENTS_REFERENCE_CONTEXT = "attachment.reference.context";
+    public static final String ATTACHMENTS_REFERENCE_URL = "attachment.reference.url";
+    public static final String ATTACHMENTS_REFERENCE_URL_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
+    public static final String ATTACHMENTS_REFERENCE_URL_PAYLOAD_CID = "CID";
+
+
     public static final String PAYLOAD_FILENAME = "FileName";
     public static final String JMS_PAYLOAD_NAME_FORMAT = PAYLOAD_NAME_FORMAT + "_" + MessageConstants.PAYLOAD_PROPERTY_FILE_NAME;
 

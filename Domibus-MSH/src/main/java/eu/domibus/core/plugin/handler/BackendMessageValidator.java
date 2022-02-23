@@ -16,6 +16,7 @@ import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -264,8 +265,8 @@ public class BackendMessageValidator {
         }
 
         for (Property property : properties) {
-            if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
-                throw new SubmissionValidationException("The occurrence of the property " + CompressionService.COMPRESSION_PROPERTY_KEY + " and its value are fully controlled by the AS4 compression feature");
+            if (MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
+                throw new SubmissionValidationException("The occurrence of the property " + MessageConstants.COMPRESSION_PROPERTY_KEY + " and its value are fully controlled by the AS4 compression feature");
             }
         }
     }

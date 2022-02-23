@@ -1,16 +1,22 @@
 package eu.domibus.api.messaging;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+
 /**
  * @author Ion Perpegel
  * @since 4.2
  */
 public class MessageNotFoundException extends MessagingException {
 
-    public MessageNotFoundException(String message) {
-        super(message, null);
+    public MessageNotFoundException(String messageId) {
+        super(DomibusCoreErrorCode.DOM_009, "Message [" + messageId + "] does not exist", null);
     }
 
-    public MessageNotFoundException(String message, Throwable cause) {
-        super(message, cause);
+    public MessageNotFoundException(Long entityId) {
+        super(DomibusCoreErrorCode.DOM_009, "Message entity Id [" + entityId + "] does not exist", null);
+    }
+
+    public MessageNotFoundException(String messageId, String context) {
+        super(DomibusCoreErrorCode.DOM_009, "Message [" + messageId + "] does not exist for " + context, null);
     }
 }

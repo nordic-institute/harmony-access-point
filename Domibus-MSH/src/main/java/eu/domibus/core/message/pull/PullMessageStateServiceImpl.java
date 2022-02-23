@@ -1,5 +1,6 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.api.model.UserMessage;
@@ -60,6 +61,9 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     public void expirePullMessage(final String messageId) {
         LOG.debug("Message:[{}] expired.", messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
+        }
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessageLog.getEntityId());
         sendFailed(userMessageLog, messageId);
     }

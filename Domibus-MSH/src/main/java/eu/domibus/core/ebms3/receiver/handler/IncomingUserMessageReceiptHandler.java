@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -88,14 +89,16 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         LOG.debug("Processing UserMessage receipt");
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        final SOAPMessage soapMessage = handleUserMessageReceipt(request, signalMessageResult.getSignalMessage());
-        return soapMessage;
+        return handleUserMessageReceipt(request, signalMessageResult.getSignalMessage());
     }
 
     protected SOAPMessage handleUserMessageReceipt(SOAPMessage request, SignalMessage signalMessage) {
         String messageId = signalMessage.getRefToMessageId();
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
+        }
         if (MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
             LOG.error("Received a UserMessage receipt for an already acknowledged message with status [{}]", userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()

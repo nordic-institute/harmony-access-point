@@ -118,7 +118,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE));
             for (final Submission.Payload p : submission.getPayloads()) {
                 // counter is increased for payloads (not for bodyload which is always set to payload_1)
-                counter = transformFromSubmissionHandlePayload(messageOut, putAttachmentsInQueue, counter, p);
+                counter = transformFromSubmissionHandlePayload(messageOut, putAttachmentsInQueue, counter, submission.getMessageEntityId(), p);
             }
             messageOut.setIntProperty(TOTAL_NUMBER_OF_PAYLOADS, submission.getPayloads().size());
         } catch (final JMSException | IOException ex) {
@@ -129,11 +129,16 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         return messageOut;
     }
 
+    protected JMSPluginAttachmentReferenceType getAttachmentReferenceType() {
+        final String referenceTypeValue = StringUtils.trim(getProperty(ATTACHMENTS_REFERENCE_TYPE));
+        return JMSPluginAttachmentReferenceType.fromValue(referenceTypeValue);
+    }
+
     protected String getProperty(String propertyName) {
         return domibusPropertyExtService.getProperty(JMS_PLUGIN_PROPERTY_PREFIX + "." + propertyName);
     }
 
-    private int transformFromSubmissionHandlePayload(MapMessage messageOut, boolean putAttachmentsInQueue, int counter, Submission.Payload p) throws JMSException, IOException {
+    private int transformFromSubmissionHandlePayload(MapMessage messageOut, boolean putAttachmentsInQueue, int counter, Long userMessageEntityId, Submission.Payload p) throws JMSException, IOException {
         if (p.isInBody()) {
             if (p.getPayloadDatahandler() != null) {
                 messageOut.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), IOUtils.toByteArray(p.getPayloadDatahandler().getInputStream()));
@@ -146,21 +151,68 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, counter);
             final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, counter);
             final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter);
-            final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, counter);
-            if (p.getPayloadDatahandler() != null) {
-                if (putAttachmentsInQueue) {
-                    LOG.debug("putAttachmentsInQueue is true");
-                    messageOut.setBytes(propPayload, IOUtils.toByteArray(p.getPayloadDatahandler().getInputStream()));
-                } else {
-                    LOG.debug("putAttachmentsInQueue is false");
-                    messageOut.setStringProperty(payFileNameProp, findFilename(p.getPayloadProperties()));
-                }
-            }
+
+            setPayloadDetailsInJMSMessage(messageOut, putAttachmentsInQueue, counter, userMessageEntityId, p, propPayload);
             messageOut.setStringProperty(payMimeTypeProp, findMime(p.getPayloadProperties()));
             messageOut.setStringProperty(payContID, p.getContentId());
             counter++;
         }
         return counter;
+    }
+
+    private void setPayloadDetailsInJMSMessage(MapMessage messageOut, boolean putAttachmentsInQueue, int counter, Long userMessageEntityId, Submission.Payload p, String propPayload) throws JMSException, IOException {
+        if (p.getPayloadDatahandler() == null) {
+            LOG.debug("Payload data handler is null: no payloads details set in the JMS message");
+            return;
+        }
+        if (putAttachmentsInQueue) {
+            LOG.debug("Putting the attachment in the JMS message");
+            messageOut.setBytes(propPayload, IOUtils.toByteArray(p.getPayloadDatahandler().getInputStream()));
+            return;
+        }
+        final JMSPluginAttachmentReferenceType attachmentReferenceType = getAttachmentReferenceType();
+        LOG.debug("The attachment reference type is [{}]", attachmentReferenceType);
+
+        if(JMSPluginAttachmentReferenceType.FILE == attachmentReferenceType) {
+            setPayloadInJMSMessageUsingFileReference(messageOut, counter, p);
+            return;
+        }
+        if(JMSPluginAttachmentReferenceType.URL == attachmentReferenceType) {
+            setPayloadInJMSMessageUsingURLReference(messageOut, counter, userMessageEntityId, p);
+            return;
+        }
+    }
+
+    private void setPayloadInJMSMessageUsingURLReference(MapMessage messageOut, int counter, Long userMessageEntityId, Submission.Payload p) throws JMSException {
+        final String payloadFileNameProp = MessageFormat.format(PAYLOAD_FILE_URL_FORMAT, counter);
+        messageOut.setStringProperty(payloadFileNameProp, getPayloadURLReference(userMessageEntityId, p.getContentId()));
+    }
+
+    private String getPayloadURLReference(Long userMessageEntityId, String cid) {
+        final String attachmentContext = getProperty(ATTACHMENTS_REFERENCE_CONTEXT);
+        final String attachmentURL = getProperty(ATTACHMENTS_REFERENCE_URL);
+        String payloadUrl = attachmentContext + attachmentURL;
+
+        String urlCid = getCid(cid);
+
+        LOG.debug("Replacing user message entity id [{}] and payload cid [{}] in payload template URL [{}]", userMessageEntityId, urlCid, payloadUrl);
+        payloadUrl = StringUtils.replace(payloadUrl, ATTACHMENTS_REFERENCE_URL_MESSAGE_ENTITY_ID, String.valueOf(userMessageEntityId));
+        payloadUrl = StringUtils.replace(payloadUrl, ATTACHMENTS_REFERENCE_URL_PAYLOAD_CID, urlCid);
+
+        LOG.debug("Using payload URL [{}] for user message entity id [{}] and payload cid [{}]", payloadUrl, userMessageEntityId, urlCid);
+        return payloadUrl;
+    }
+
+    protected String getCid(String cid) {
+        if(StringUtils.startsWith(cid, "cid:")) {
+            return StringUtils.substringAfter(cid, "cid:");
+        }
+        return cid;
+    }
+
+    private void setPayloadInJMSMessageUsingFileReference(MapMessage messageOut, int counter, Submission.Payload p) throws JMSException {
+        final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, counter);
+        messageOut.setStringProperty(payFileNameProp, findFilename(p.getPayloadProperties()));
     }
 
     private String findElement(String element, Collection<Submission.TypedProperty> props) {

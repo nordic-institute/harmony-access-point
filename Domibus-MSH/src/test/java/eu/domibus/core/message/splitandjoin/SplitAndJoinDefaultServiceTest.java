@@ -465,6 +465,23 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
+    public void setSourceMessageAsFailed_null(@Injectable UserMessage userMessage) {
+        String messageId = "123";
+
+        new Expectations() {{
+            userMessage.getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = null;
+        }};
+
+        splitAndJoinDefaultService.setSourceMessageAsFailed(userMessage);
+
+        new FullVerifications() {};
+    }
+
+    @Test
     public void setUserMessageFragmentAsFailedSendEnqueued(@Injectable UserMessage userMessage,
                                                            @Injectable UserMessageLog messageLog) {
         setUserMessageFragmentAsFailed(userMessage, messageLog, MessageStatus.SEND_ENQUEUED);

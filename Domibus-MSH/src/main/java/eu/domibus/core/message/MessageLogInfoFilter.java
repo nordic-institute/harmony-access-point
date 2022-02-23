@@ -192,10 +192,7 @@ public abstract class MessageLogInfoFilter {
         return domibusPropertyProvider.getBooleanProperty(DomibusConfigurationService.FOURCORNERMODEL_ENABLED_KEY);
     }
 
-    public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
-        return null;
-    }
-
+    public abstract String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters);
 
     public abstract String getQueryBody(Map<String, Object> filters);
 

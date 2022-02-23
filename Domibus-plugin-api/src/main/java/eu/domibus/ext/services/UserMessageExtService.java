@@ -2,6 +2,7 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
+import eu.domibus.messaging.MessageNotFoundException;
 
 /**
  * Responsible for operations related with user messages.
@@ -18,7 +19,7 @@ public interface UserMessageExtService {
      * @return The user message {@link UserMessageDTO}
      * @throws UserMessageExtException Raised in case an exception occurs while trying to get the user message {@link UserMessageExtException}
      */
-    UserMessageDTO getMessage(String messageId) throws UserMessageExtException;
+    UserMessageDTO getMessage(String messageId) throws MessageNotFoundException;
 
     String getUserMessageEnvelope(String messageId);
 

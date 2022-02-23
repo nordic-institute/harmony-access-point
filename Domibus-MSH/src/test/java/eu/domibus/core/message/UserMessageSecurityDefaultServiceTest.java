@@ -25,6 +25,9 @@ public class UserMessageSecurityDefaultServiceTest {
     @Injectable
     AuthUtils authUtils;
 
+    @Injectable
+    UserMessageServiceHelper userMessageServiceHelper;
+
 
     @Test(expected = AuthenticationException.class)
     public void testCheckMessageAuthorizationWithNonExistingMessage() throws Exception {

@@ -22,7 +22,7 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EnabledChangeListener.class);
 
-    public static final String[] FSPLUGIN_JOB_NAMES = TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.values().toArray(new String[]{});
+    public static final String[] FSPLUGIN_JOB_NAMES = TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.values().toArray(new String[]{}); //NOSONAR
 
     final protected DomibusSchedulerExtService domibusSchedulerExt;
     final protected FSPluginProperties fsPluginProperties;

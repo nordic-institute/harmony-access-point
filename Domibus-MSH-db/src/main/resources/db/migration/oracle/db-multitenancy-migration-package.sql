@@ -1721,7 +1721,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    RC.AUDIT_ORDER,
                    CASE -- entity names have changed over time from 4.x to 5.0 so adapt to the new fully qualified names
                        WHEN RC.ENTITY_NAME = 'eu.domibus.core.security.AuthenticationEntity'
-                           THEN 'eu.domibus.core.user.plugin.AuthenticationEntity'
+                           THEN 'eu.domibus.api.user.plugin.AuthenticationEntity'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.user.plugin.AuthenticationEntity'
+                           THEN 'eu.domibus.api.user.plugin.AuthenticationEntity'
                        WHEN RC.ENTITY_NAME = 'eu.domibus.plugin.routing.BackendFilterEntity'
                            THEN 'eu.domibus.core.plugin.routing.BackendFilterEntity'
                        WHEN RC.ENTITY_NAME = 'eu.domibus.plugin.routing.RoutingCriteriaEntity'
@@ -1745,7 +1747,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    RC.GROUP_NAME,
                    CASE
                        WHEN RC.ENTITY_NAME IN ('eu.domibus.core.user.plugin.AuthenticationEntity',
-                                              'eu.domibus.core.user.plugin.AuthenticationEntity')
+                                              'eu.domibus.core.user.plugin.AuthenticationEntity',
+                                              'eu.domibus.api.user.plugin.AuthenticationEntity')
                            THEN (SELECT MPKSAE.NEW_ID
                                  FROM MIGR_TB_PKS_AUTH_ENTRY MPKSAE
                                  WHERE MPKSAE.OLD_ID = RC.ENTITY_ID) -- authentication_entry
@@ -1843,7 +1846,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
             FOR i IN rev_changes.FIRST .. rev_changes.LAST
                 LOOP
-                    IF rev_changes(i).ENTITY_NAME NOT IN ('eu.domibus.core.user.plugin.AuthenticationEntity',
+                    IF rev_changes(i).ENTITY_NAME NOT IN ('eu.domibus.api.user.plugin.AuthenticationEntity',
                                                          'eu.domibus.core.plugin.routing.BackendFilterEntity',
                                                          'eu.domibus.core.plugin.routing.RoutingCriteriaEntity',
                                                          'eu.domibus.core.user.ui.User',

@@ -480,13 +480,6 @@ BEGIN
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_MSG_DELETION_JOB';
-    EXCEPTION
-        WHEN table_does_not_exist THEN
-            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_MSG_DELETION_JOB: table does not exist');
-    END;
-
-    BEGIN
         EXECUTE IMMEDIATE 'DROP TABLE MIGR_WS_PLUGIN_TB_MESSAGE_LOG';
     EXCEPTION
         WHEN table_does_not_exist THEN
@@ -765,9 +758,6 @@ DROP TABLE IF EXISTS MIGR_TB_PM_JOIN_PROC_RSP_PARTY
 DROP TABLE IF EXISTS MIGR_TB_PM_CONFIGURATION_RAW
 //
 
-DROP TABLE IF EXISTS MIGR_TB_USER_MSG_DELETION_JOB
-//
-
 DROP TABLE IF EXISTS MIGR_WS_PLUGIN_TB_MESSAGE_LOG
 //
 
@@ -819,11 +809,6 @@ ALTER INDEX PK_MESSAGE_ACKNW_PROP RENAME TO OLD_PK_MESSAGE_ACKNW_PROP
 ALTER TABLE TB_MESSAGING_LOCK RENAME CONSTRAINT PK_MESSAGING_LOCK TO OLD_PK_MESSAGING_LOCK
 /
 ALTER INDEX PK_MESSAGING_LOCK RENAME TO OLD_PK_MESSAGING_LOCK
-/
-
-ALTER TABLE TB_USER_MSG_DELETION_JOB RENAME CONSTRAINT PK_TB_USER_MSG_DELETION_JOB TO OLD_PK_TB_USER_MSG_DEL_JOB
-/
-ALTER INDEX PK_TB_USER_MSG_DELETION_JOB RENAME TO OLD_PK_TB_USER_MSG_DEL_JOB
 /
 
 ALTER TABLE TB_CERTIFICATE RENAME CONSTRAINT PK_CERTIFICATE TO OLD_PK_CERTIFICATE
@@ -1738,29 +1723,6 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
             <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
             <column name="MESSAGE_STALED" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-
-        <!-- TB_USER_MSG_DELETION_JOB -->
-        <createTable tableName="MIGR_TB_USER_MSG_DELETION_JOB">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MSG_DELETION_JOB"/>
-            </column>
-            <column name="PROCEDURE_NAME" type="VARCHAR(255)" remarks="Name of the stored procedure in the database."/>
-            <column name="MPC" type="VARCHAR(255)"/>
-            <column name="START_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages newer than this date will be deleted by this job"/>
-            <column name="END_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages older than this date will be deleted by this job"/>
-            <column name="MAX_COUNT" type="INT" remarks="Maximum number of expired messages to be deleted by one call of the stored procedure"/>
-            <column name="STATE" type="VARCHAR(255)" remarks="User message deletion job state: NEW, RUNNING or STOPPED"/>
-            <column name="ACTUAL_START_DATE" type="TIMESTAMP" remarks="The actual date when this job was started."/>
-
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>

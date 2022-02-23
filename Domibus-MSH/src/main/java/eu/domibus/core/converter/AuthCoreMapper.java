@@ -1,7 +1,7 @@
 package eu.domibus.core.converter;
 
 import eu.domibus.api.user.User;
-import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.UserResponseRO;

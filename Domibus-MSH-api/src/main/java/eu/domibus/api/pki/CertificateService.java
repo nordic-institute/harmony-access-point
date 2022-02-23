@@ -197,4 +197,13 @@ public interface CertificateService {
      */
     void persistTruststoresIfApplicable(final String name, boolean optional,
                                         Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+
+    /**
+     * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.
+     * If the certificate policy extension is unavailable, returns an empty list.
+     *
+     * @param cert a X509 certificate
+     * @return the list of certificate policy identifiers
+     */
+    List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 }

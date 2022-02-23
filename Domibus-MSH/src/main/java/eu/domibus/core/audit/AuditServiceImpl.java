@@ -1,6 +1,7 @@
 package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -9,7 +10,6 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.core.audit.model.*;
 import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.core.user.ui.User;

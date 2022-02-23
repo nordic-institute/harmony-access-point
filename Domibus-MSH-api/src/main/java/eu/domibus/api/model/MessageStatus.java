@@ -109,7 +109,7 @@ public enum MessageStatus {
 
         public static List<String> getFinalStatesAsString(){
                 List<String> messageStatusNames = new ArrayList<>();
-                getSuccessfulStates().stream().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
+                getSuccessfulStates().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
                 return messageStatusNames;
         }
 }

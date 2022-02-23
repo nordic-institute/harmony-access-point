@@ -9,16 +9,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.api.user.UserState;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
-import eu.domibus.web.rest.ro.PluginUserRO;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -28,12 +24,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Ion Perpegel
@@ -60,9 +51,6 @@ public class PluginUserEbms3ServiceImplTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
-    PluginUserSecurityPolicyManager pluginUserSecurityPolicyManager;
 
     @Injectable
     PluginUserAlertsServiceImpl userAlertsService;
@@ -113,14 +101,17 @@ public class PluginUserEbms3ServiceImplTest {
 
         AuthenticationEntity added_user = new AuthenticationEntity();
         added_user.setCertificateId("added_user");
+        added_user.setAuthRoles("ROLE_ADMIN");
         List<AuthenticationEntity> addedUsers = Arrays.asList(new AuthenticationEntity[]{added_user});
 
         AuthenticationEntity updated_user = new AuthenticationEntity();
         updated_user.setCertificateId("updated_user");
+        updated_user.setAuthRoles("ROLE_ADMIN");
         List<AuthenticationEntity> updatedUsers = Arrays.asList(new AuthenticationEntity[]{updated_user});
 
         AuthenticationEntity deleted_user = new AuthenticationEntity();
         updated_user.setCertificateId("deleted_user");
+        updated_user.setAuthRoles("ROLE_ADMIN");
         List<AuthenticationEntity> removedUsers = Arrays.asList(new AuthenticationEntity[]{deleted_user});
 
         new Expectations() {{
@@ -250,59 +241,6 @@ public class PluginUserEbms3ServiceImplTest {
     }
 
     @Test
-    public void convertAndPrepareUsers() {
-        AuthenticationEntity user = new AuthenticationEntity();
-        user.setUserName("user1");
-        final List<AuthenticationEntity> userList = Arrays.asList(user);
-
-        PluginUserRO userRO = new PluginUserRO();
-        userRO.setUserName("user1");
-        userRO.setExpirationDate(LocalDateTime.now(ZoneOffset.UTC).plusDays(30));
-
-        LocalDateTime expDate = LocalDateTime.now(ZoneOffset.UTC).plusDays(30);
-
-        new Expectations(pluginUserService) {{
-            pluginUserService.convertAndPrepareUser(user);
-            result = userRO;
-        }};
-
-        List<PluginUserRO> result = pluginUserService.convertAndPrepareUsers(userList);
-
-        Assert.assertEquals(userList.size(), result.size());
-        Assert.assertEquals(userRO, result.get(0));
-    }
-
-    @Test
-    public void convertAndPrepareUser() {
-        AuthenticationEntity user = new AuthenticationEntity();
-        user.setUserName("user1");
-
-        PluginUserRO userRO = new PluginUserRO();
-        userRO.setUserName("user1");
-        userRO.setExpirationDate(LocalDateTime.now(ZoneOffset.UTC).plusDays(30));
-
-        LocalDateTime expDate = LocalDateTime.now(ZoneOffset.UTC).plusDays(30);
-
-        new Expectations() {{
-            authCoreMapper.authenticationEntityToPluginUserRO(user);
-            result = userRO;
-            userSecurityPolicyManager.getExpirationDate(user);
-            result = expDate;
-            userDomainService.getDomainForUser(user.getUniqueIdentifier());
-            result="domain1";
-        }};
-
-        PluginUserRO result = pluginUserService.convertAndPrepareUser(user);
-
-        Assert.assertEquals(userRO, result);
-        Assert.assertEquals(UserState.PERSISTED.name(), result.getStatus());
-        Assert.assertEquals(AuthType.BASIC.name(), result.getAuthenticationType());
-        Assert.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.isSuspended());
-        Assert.assertEquals("domain1", result.getDomain());
-        Assert.assertEquals(expDate, result.getExpirationDate());
-    }
-
-    @Test
     public void checkUsers_duplicateUserNames(@Injectable AuthenticationEntity user,
                                               @Injectable AuthenticationEntity nonDuplicate,
                                               @Injectable AuthenticationEntity duplicate) {
@@ -383,5 +321,54 @@ public class PluginUserEbms3ServiceImplTest {
         // WHEN
         pluginUserService.checkUsers(new ArrayList<>(), Arrays.asList(adminUser, validUser, nonValidUser));
     }
+
+    @Test
+    public void checkUsers_InvalidUserName_SplChar(@Mocked AuthenticationEntity addedUser){
+        new Expectations(){{
+            addedUser.getUserName();
+            result = "AdminUser!1234";
+        }};
+
+        thrown.expect(UserManagementException.class);
+        thrown.expectMessage("Plugin User should be alphanumeric with allowed special characters .@_");
+
+        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+    }
+
+    @Test
+    public void checkUsers_InvalidUserName_length(@Mocked AuthenticationEntity addedUser){
+        new Expectations(){{
+            addedUser.getUserName();
+            result = "Ad1";
+        }};
+
+        thrown.expect(UserManagementException.class);
+        thrown.expectMessage("Plugin User Username should be between 4 and 255 characters long.");
+
+        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+    }
+
+    @Test
+    public void checkUsers_InvalidOriginalUserPattern(@Mocked AuthenticationEntity addedUser){
+        String testOriginalUser = "urn:oasis:names:tc:ebcore:partyid-type:test1";
+        new Expectations(){{
+            addedUser.getUserName();
+            result = "User_1234";
+            addedUser.getPassword();
+            result = "UserPasswd#1234";
+            addedUser.getAuthRoles();
+            result = AuthRole.ROLE_USER.name();
+            addedUser.getOriginalUser();
+            result = testOriginalUser;
+
+        }};
+
+        thrown.expect(UserManagementException.class);
+        thrown.expectMessage("Original User :" + testOriginalUser + " does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner].");
+
+        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+    }
+
+
 
 }

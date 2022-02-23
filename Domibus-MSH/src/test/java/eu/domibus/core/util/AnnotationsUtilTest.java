@@ -1,16 +1,15 @@
 package eu.domibus.core.util;
 
-import eu.domibus.core.audit.model.JmsMessageAudit;
-import eu.domibus.core.audit.model.MessageAudit;
-import eu.domibus.core.audit.model.PModeAudit;
-import eu.domibus.core.audit.envers.RevisionLogicalName;
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.common.model.configuration.BusinessProcesses;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.audit.model.JmsMessageAudit;
+import eu.domibus.core.audit.model.MessageAudit;
+import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.core.certificate.Certificate;
-import eu.domibus.core.user.ui.User;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
-import eu.domibus.core.util.AnnotationsUtil;
+import eu.domibus.core.user.ui.User;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
