@@ -626,7 +626,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    // used for add/remove certificates; could be merged with the one below
+    // used for add/remove certificates ( the persisted store is the same as the one modified)
     protected void persistTrustStore(KeyStore truststore, String trustName) throws CryptoException {
         backupTrustStore(trustName);
 
