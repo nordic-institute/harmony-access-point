@@ -90,8 +90,8 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "Maximum number of returned records/page size") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
 
     ) {
+        QueuedBatchFilterDTO filter = getQueuedBatchFilterDTO(lastCountRequests, requestTypes, startDate, endDate);
 
-        QueuedBatchFilterDTO filter = new QueuedBatchFilterDTO(lastCountRequests, requestTypes, startDate, endDate);
         QueuedBatchResultDTO resultDTO = new QueuedBatchResultDTO(filter, pageStart, pageSize);
         LOG.info("Return queued batches with filters: [{}] for page: [{}] and page size: [{}].", filter, pageStart, pageSize);
         Long total = domibusEArchiveExtService.getQueuedBatchRequestsCount(filter);
@@ -106,6 +106,16 @@ public class DomibusEArchiveExtResource {
         resultDTO.getBatches().addAll(batches);
         LOG.trace(RETURN_RESULTS_OF_TOTAL, batches.size(), total);
         return resultDTO;
+    }
+
+    private QueuedBatchFilterDTO getQueuedBatchFilterDTO(Integer lastCountRequests, List<BatchRequestType> requestTypes, Date startDate, Date endDate) {
+        QueuedBatchFilterDTO filter;
+        if (lastCountRequests != null && lastCountRequests > 0) {
+            filter = new QueuedBatchFilterDTO(lastCountRequests);
+        } else {
+            filter = new QueuedBatchFilterDTO(requestTypes, startDate, endDate);
+        }
+        return filter;
     }
 
     /**
