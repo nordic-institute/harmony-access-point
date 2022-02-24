@@ -12,13 +12,12 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  * <p>
- * Handles the change of DOMIBUS_SECURITY_KEYSTORE_LOCATION property
+ * Handles the change of DOMIBUS_SECURITY_TRUSTSTORE_LOCATION property
  */
 @Service
 public class TruststoreChangeListener implements DomibusPropertyChangeListener {
