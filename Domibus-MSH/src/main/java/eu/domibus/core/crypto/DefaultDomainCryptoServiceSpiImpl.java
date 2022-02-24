@@ -226,9 +226,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     protected void initTrustStore() {
         LOG.debug("Initializing the truststore certificate provider for domain [{}]", domain);
 
-        loadTrustStoreProperties();
-
         domainTaskExecutor.submit(() -> {
+            loadTrustStoreProperties();
+
             KeyStore trustStore = certificateService.getTrustStore(DOMIBUS_TRUSTSTORE_NAME);
             super.setTrustStore(trustStore);
         }, domain);
@@ -247,9 +247,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     protected void initKeyStore() {
         LOG.debug("Initializing the keystore certificate provider for domain [{}]", domain);
 
-        loadKeyStoreProperties();
-
         domainTaskExecutor.submit(() -> {
+            loadKeyStoreProperties();
+
             KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
             super.setKeyStore(keyStore);
         }, domain);
