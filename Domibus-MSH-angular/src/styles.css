@@ -440,6 +440,6 @@ html, body, app-root, ng-component {
 }
 
 .selectionCriteria {
-  flex-grow: 1;
+  /*flex-grow: 1;*/
   margin-left: -10px;
 }
