@@ -2,6 +2,7 @@ package eu.domibus.core.crypto.spi;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
@@ -61,6 +62,9 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
     @Injectable
     MultiDomainCryptoService multiDomainCryptoService;
+
+    @Injectable
+    CertificateService certificateService;
 
     @Test
     public void testGetIdentifier() {

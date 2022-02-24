@@ -21,16 +21,22 @@ import eu.europa.ec.dynamicdiscovery.exception.ConnectionException;
 import eu.europa.ec.dynamicdiscovery.exception.TechnicalException;
 import eu.europa.ec.dynamicdiscovery.model.*;
 import org.apache.commons.lang3.StringUtils;
+import org.oasis_open.docs.bdxr.ns.smp._2016._05.EndpointType;
+import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
  * Service to query a compliant eDelivery SMP profile based on the OASIS BDX Service Metadata Publishers
@@ -45,13 +51,13 @@ import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOI
  */
 @Service
 @Qualifier("dynamicDiscoveryServiceOASIS")
-public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
+public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^(?<scheme>.+?)::(?<value>.+)$");
 
-    protected static final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
+    protected static final String DEFAULT_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
 
     protected static final String DEFAULT_RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
 
@@ -125,6 +131,27 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         this.endpointInfos = endpointInfos;
     }
 
+
+    @Override
+    DomibusLogger getLogger() {
+        return LOG;
+    }
+
+    @Override
+    String getTrimmedDomibusProperty(String propertyName) {
+        return trim(domibusPropertyProvider.getProperty(propertyName));
+    }
+
+    @Override
+    String getDefaultDiscoveryPartyIdType() {
+        return DEFAULT_PARTY_TYPE;
+    }
+
+    @Override
+    String getDefaultResponderRole() {
+        return DEFAULT_RESPONDER_ROLE;
+    }
+
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain,
                                           final String participantId,
@@ -145,20 +172,28 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             LOG.debug("Getting Request details for ServiceMetadata");
             final ParticipantIdentifier participantIdentifier = participantIdentifiers.getObject(participantId, participantIdScheme);
             final DocumentIdentifier documentIdentifier = createDocumentIdentifier(documentId);
-            final ProcessIdentifier processIdentifier = processIdentifiers.getObject(processId, processIdScheme);
-            LOG.debug("ServiceMetadata request contains Participant Identifier [{}] and scheme [{}], Document Identifier [{}] and scheme [{}], Process Identifier [{}] and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme(), documentIdentifier.getIdentifier(), documentIdentifier.getScheme(), processIdentifier.getIdentifier(), processIdentifier.getScheme());
+            LOG.debug("ServiceMetadata request contains Participant Identifier [{}] and scheme [{}], Document Identifier [{}] and scheme [{}], Process Identifier [{}] and scheme [{}]",
+                    participantIdentifier.getIdentifier(),
+                    participantIdentifier.getScheme(),
+                    documentIdentifier.getIdentifier(),
+                    documentIdentifier.getScheme(),
+                    processId,
+                    processIdScheme);
             ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
+
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Get the endpoint for [{}]", transportProfileAS4);
-            final Endpoint endpoint = serviceMetadata.getEndpoint(processIdentifier, transportProfiles.getObject(transportProfileAS4));
-            LOG.debug("Endpoint for transport profile -  [{}]", endpoint);
-            if (endpoint == null || endpoint.getAddress() == null || endpoint.getProcessIdentifier() == null) {
+            List<ProcessType> processes = serviceMetadata.getOriginalServiceMetadata().getServiceMetadata().getServiceInformation().getProcessList().getProcess();
+
+            final EndpointType endpoint = getEndpoint(processes, processId, processIdScheme, transportProfileAS4);
+            LOG.debug("Endpoint for transport profile [{}] -  [{}]", transportProfileAS4, endpoint);
+            if (endpoint == null || endpoint.getEndpointURI() == null) {
                 throw new ConfigurationException("Could not fetch metadata for: " + participantId + " " + participantIdScheme + " " + documentId +
                         " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProfileAS4);
             }
 
-            return endpointInfos.getObject(endpoint.getAddress(), endpoint.getCertificate());
+            return endpointInfos.getObject(endpoint.getEndpointURI(), endpoint.getCertificate());
 
         } catch (TechnicalException exc) {
             String msg = "Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId;
@@ -171,24 +206,22 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     protected DynamicDiscovery createDynamicDiscoveryClient() {
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
         if (StringUtils.isBlank(smlInfo)) {
-            throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
+            throw new ConfigurationException("SML Zone missing. Configure propertu [" + SMLZONE_KEY + "] in  domibus configuration");
         }
 
         final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
         if (StringUtils.isBlank(certRegex)) {
-            LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
+            LOG.debug("The value for property [" + DYNAMIC_DISCOVERY_CERT_REGEX + "] is empty.");
         }
 
-        final String allowedCertificatePolicyId = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_POLICY);
-        if (StringUtils.isBlank(allowedCertificatePolicyId)) {
-            LOG.debug("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_POLICY);
-        }
+        final List<String> allowedCertificatePolicyIDs = getAllowedSMPCertificatePolicyOIDs();
+
 
         LOG.debug("Load truststore for the smpClient");
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         try {
             DefaultProxy defaultProxy = getConfiguredProxy();
-            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex, allowedCertificatePolicyId);
+            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex, allowedCertificatePolicyIDs);
 
             LOG.debug("Creating SMP client [{}] proxy.", (defaultProxy != null ? "with" : "without"));
             return DynamicDiscoveryBuilder.newInstance()
@@ -231,26 +264,100 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         return proxies.getObject(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), domibusProxy.getHttpProxyUser(), domibusProxy.getHttpProxyPassword(), domibusProxy.getNonProxyHosts());
     }
 
-    @Override
-    public String getPartyIdType() {
-        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
-        // if is null - this means property is commented-out and default value must be set.
-        // else if is empty - property is set in domibus.properties as empty string and the right value for the
-        // ebMS 3.0  PartyId/@type is null value!
-        if (propVal == null) {
-            propVal = URN_TYPE_VALUE;
-        } else if (StringUtils.isEmpty(propVal)) {
-            propVal = null;
+    /**
+     * Return valid endpoint from processes for process identifier and  transport profiles
+     *
+     * @param processes        - list of processes
+     * @param processId        target process identifier
+     * @param processIdScheme  target process identifier scheme
+     * @param transportProfile list of targeted transport profiles
+     * @return valid endpoint
+     * @throws ConfigurationException
+     */
+    public EndpointType getEndpoint(List<ProcessType> processes, String processId, String processIdScheme, String transportProfile) {
+
+        if (StringUtils.isBlank(transportProfile)) {
+            throw new ConfigurationException("Unable to find endpoint information for null transport profile. Please check if property [" + DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4 + "] is set!");
         }
-        return propVal;
+
+        if (StringUtils.isBlank(processId)) {
+            throw new ConfigurationException("Unable to find endpoint information for null process identifier!");
+        }
+
+        LOG.debug("Search for a valid Endpoint for process  id: [{}], process scheme [{}] and TransportProfile: [{}]]!", processId, processIdScheme, transportProfile);
+        List<ProcessType> filteredProcesses = processes.stream()
+                .filter(this::isValidProcess)
+                .filter(processType -> isValidProcessIdentifier(processType, processId, processIdScheme))
+                .collect(Collectors.toList());
+        LOG.debug("Got [{}] processes for processes with  id: [{}] and scheme [{}] !", filteredProcesses.size(), processId, processIdScheme);
+
+        return filteredProcesses.stream().map(process -> process.getServiceEndpointList().getEndpoint().stream()
+                .filter(endpointType -> isValidEndpointTransport(endpointType, transportProfile))
+                .filter(this::isValidEndpoint)
+                .findFirst()).filter(Optional::isPresent).findFirst().map(Optional::get).orElse(null);
     }
 
-    @Override
-    public String getResponderRole() {
-        String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_RESPONDER_ROLE);
-        if (StringUtils.isEmpty(propVal)) {
-            propVal = DEFAULT_RESPONDER_ROLE;
+    /**
+     * This method exists to be used to filter invalid ProcessTypes from list of ProcessType. Methods validates if process
+     * has defined endpoints.
+     *
+     * @param processType
+     * @return true if endpoint's is valid
+     */
+    protected boolean isValidProcess(ProcessType processType) {
+        boolean emptyList = processType.getServiceEndpointList() == null || processType.getServiceEndpointList().getEndpoint().isEmpty();
+        if (emptyList) {
+            LOG.warn("Found process id: [{}] and scheme [{}] with empty endpoint list!", processType.getProcessIdentifier().getValue(), processType.getProcessIdentifier().getScheme());
         }
-        return propVal;
+        return !emptyList;
+
+    }
+
+    /**
+     * This method exists to be used to filter out ProcessTypes which do not match searched criteria
+     *
+     * @param processType
+     * @param filterProcessId
+     * @param filterProcessIdScheme
+     * @return true if endpoint's is valid
+     */
+    protected boolean isValidProcessIdentifier(ProcessType processType, String filterProcessId, String filterProcessIdScheme) {
+        boolean match = StringUtils.equals(processType.getProcessIdentifier().getValue(), filterProcessId)
+                && StringUtils.equals(processType.getProcessIdentifier().getScheme(), filterProcessIdScheme);
+        if (!match) {
+            LOG.debug("Search for process id [{}] with scheme [{}], found: [{}] with scheme  [{}] !",
+                    filterProcessId,
+                    filterProcessIdScheme,
+                    processType.getProcessIdentifier().getValue(),
+                    processType.getProcessIdentifier().getScheme());
+        }
+        return match;
+    }
+
+    /**
+     * This method exists to be used to filter invalid EndpointTypes from list of endpointType.
+     *
+     * @param endpointType
+     * @return true if endpoint's is valid
+     */
+    protected boolean isValidEndpoint(EndpointType endpointType) {
+        return isValidEndpoint(endpointType.getServiceActivationDate() == null ? null : endpointType.getServiceActivationDate().getTime(),
+                endpointType.getServiceExpirationDate() == null ? null : endpointType.getServiceExpirationDate().getTime());
+
+    }
+
+    /**
+     * This method exists to be used to filter list of endpointType for particular transportProfile.
+     *
+     * @param endpointType
+     * @param transportProfile
+     * @return true if endpoint's transport equals to search transport identifier
+     */
+    protected boolean isValidEndpointTransport(EndpointType endpointType, String transportProfile) {
+        boolean isValidTransport = StringUtils.equals(trim(endpointType.getTransportProfile()), trim(transportProfile));
+        if (!isValidTransport) {
+            LOG.debug("Search for endpoint with transport [{}], but found [{}]", transportProfile, endpointType.getTransportProfile());
+        }
+        return isValidTransport;
     }
 }
