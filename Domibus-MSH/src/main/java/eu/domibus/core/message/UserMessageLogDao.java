@@ -214,17 +214,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLog;
     }
 
-    public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
-        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
-        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
-        query.setParameter(STR_MESSAGE_ID, messageId);
-        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
-        if (userMessageLog == null) {
-            LOG.debug("Query UserMessageLog.findMessageToDeleteNotInFinalStatus did not find any result for message with id [{}]", messageId);
-        }
-        return userMessageLog;
-    }
-
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);

@@ -310,18 +310,21 @@ public class UserMessageDefaultService implements UserMessageService {
 
 
     public void scheduleSending(UserMessage userMessage, UserMessageLog userMessageLog) {
-        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage());
+        scheduleSending(userMessage, userMessageLog, getDispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage());
+    }
+
+    protected DispatchMessageCreator getDispatchMessageCreator(String userMessageId, long userMessageEntityId) {
+        return new DispatchMessageCreator(userMessageId, userMessageEntityId);
     }
 
     @Transactional
     public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
         UserMessage userMessage = userMessageDao.read(userMessageLog.getEntityId());
-        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage(retryCount));
+        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, getDispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage(retryCount));
     }
 
     /**
      * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
-     *
      */
     protected void scheduleSending(final UserMessage userMessage, final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, jmsMessage);
@@ -348,7 +351,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public void scheduleSourceMessageSending(String messageId, Long messageEntityId) {
         LOG.debug("Sending message to sendLargeMessageQueue");
-        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId, messageEntityId).createMessage();
+        final JmsMessage jmsMessage = getDispatchMessageCreator(messageId, messageEntityId).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 
@@ -536,11 +539,20 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
-        final UserMessageLog messageToDelete = userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
-        if (messageToDelete == null) {
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
-        return messageToDelete;
+
+        if (userMessageLog.getDeleted() != null) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
+        }
+
+        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
+        }
+
+        return userMessageLog;
     }
 
 
@@ -806,7 +818,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public Map<String,String> getProperties(Long messageEntityId) {
+    public Map<String, String> getProperties(Long messageEntityId) {
         HashMap<String, String> properties = new HashMap<>();
         final UserMessage userMessage = userMessageDao.read(messageEntityId);
         final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();
