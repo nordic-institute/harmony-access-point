@@ -6,6 +6,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -44,6 +45,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/monitoring/messages";
     public static final String TEST_ENDPOINT_DELETE = TEST_ENDPOINT_RESOURCE + "/delete";
+    public static final String TEST_ENDPOINT_DELETE_ID = TEST_ENDPOINT_RESOURCE + "/delete/{messageId}";
     public static final String TEST_ENDPOINT_RESTORE = TEST_ENDPOINT_RESOURCE + "/failed/restore";
     public static final String TEST_ENDPOINT_ATTEMPTS = TEST_ENDPOINT_RESOURCE + "/{messageId}/attempts";
     public static final String TEST_PLUGIN_USERNAME = "admin";
@@ -61,6 +63,9 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected UserMessageLogDao userMessageLogDao;
 
     UserMessageLog uml1;
 
@@ -193,6 +198,34 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
                 .andExpect(status().is5xxServerError())
                 .andReturn();
 
+    }
+
+    @Test
+    public void delete_id_ok() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(delete(TEST_ENDPOINT_DELETE_ID, uml1.getUserMessage().getMessageId())
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(uml1.getUserMessage().getMessageId());
+        Assert.assertNotNull(byMessageId.getDeleted());
+    }
+
+    @Test
+    public void delete_id_notFound() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(delete(TEST_ENDPOINT_DELETE_ID, "notFound")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is4xxClientError())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        Assert.assertEquals("[DOM_009]:Message [notFound] does not exist", objectMapper.readValue(content, Exception.class).getMessage());
     }
 
     private String getDateFrom(long entityId, Long hour) {
