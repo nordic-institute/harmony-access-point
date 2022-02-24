@@ -7,7 +7,7 @@ from requests.auth import HTTPBasicAuth
 import sys
 import xml.etree.ElementTree as ET
 
-log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)-10s %(processName)s  %(name)s %(message)s', datefmt="%Y-%m-%d-%H-%M-%S")
+log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)-10s  %(funcName)s %(lineno)d --- %(message)s', datefmt="%Y-%m-%d-%H-%M-%S")
 
 STATUSES = {'PASS': 1, 'FAIL': 2, 'WIP': 3, 'BLOCKED': 4, 'UNEXECUTED': -1}
 headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
@@ -21,7 +21,7 @@ buildNoSource = "http://localhost:9088/domibus/rest/application/info"
 environment_config = "Wildfly-Mysql-Multitenancy"
 cycle_description = ''
 
-baseUrl = "https://ec.europa.eu/cefdigital/tracker"
+baseUrl = "https://ec.europa.eu/digital-building-blocks/tracker"
 projPath = "/rest/api/2/project/"
 sprintPath = "/rest/agile/1.0/board/{}/sprint"
 versionPath = "/rest/api/2/project/{}/version"
@@ -75,29 +75,16 @@ def get_version_name():
 
 
 #  -------------- Info from Jira
-cookiesJar = ''
-
-
-def login():
-    log.info("login")
-    global cookiesJar
-    tmp_resp = requests.get(baseUrl, auth=HTTPBasicAuth(username, password))
-    if tmp_resp.status_code != 200:
-        log.info("Login responded with status code " + tmp_resp.status_code)
-        exit(1)
-
-    log.info("Login success")
-    cookiesJar = tmp_resp.cookies
 
 
 def get_proj_id():
     log.info("Getting project ID")
     global projID
     global projectKey
-    if not cookiesJar:
-        log.info("don't have login cookies, exiting")
-        exit(2)
-    tmp_resp = requests.get(baseUrl + projPath + projectKey, cookies=cookiesJar)
+    # if not cookiesJar:
+    #     log.info("don't have login cookies, exiting")
+    #     exit(2)
+    tmp_resp = requests.get(baseUrl + projPath + projectKey, auth=HTTPBasicAuth(username, password))
     projID = tmp_resp.json()['id']
     log.info('projID = ' + projID)
 
@@ -123,7 +110,7 @@ def get_version_id():
         log.info("Searching verisons...")
 
         params['startAt'] = start
-        resp = requests.get(baseUrl + versionPath.format(projectKey), params=params, cookies=cookiesJar).json()
+        resp = requests.get(baseUrl + versionPath.format(projectKey), params=params, auth=HTTPBasicAuth(username, password)).json()
         last = resp['isLast']
         start += maxResults
         for value in resp['values']:
@@ -144,7 +131,7 @@ def get_sprint_id():
     log.info("Getting current sprint")
     params = {}
     params['state'] = 'active'
-    resp = requests.get(baseUrl + sprintPath.format(boardID), params=params, cookies=cookiesJar)
+    resp = requests.get(baseUrl + sprintPath.format(boardID), params=params, auth=HTTPBasicAuth(username, password))
     if resp.status_code != 200:
         log.info('Getting active sprint failed with status - ' + str(resp.status_code))
         exit(6)
@@ -163,7 +150,7 @@ def get_cycle_executions(cycle_id):
     params = {}
     params['action'] = 'expand'
     params['cycleId'] = cycle_id
-    resp = requests.get(baseUrl + executionPath, params=params, cookies=cookiesJar)
+    resp = requests.get(baseUrl + executionPath, params=params, auth=HTTPBasicAuth(username, password))
     if resp.status_code != 200:
         log.info("Getting executions failed with status - " + resp.status_code)
         exit(7)
@@ -207,7 +194,7 @@ def execute_execution(test_result):
         return
 
     resp = requests.put(baseUrl + executionPath + str(execution_id) + '/execute/', data=json.dumps(params),
-                        cookies=cookiesJar, headers=headers)
+                        auth=HTTPBasicAuth(username, password), headers=headers)
 
     if resp.status_code != 200:
         log.debug(resp.text)
@@ -222,7 +209,7 @@ def wait_job_finish(token):
     for tries in range(0, 100):
         log.info("waiting for job progress")
         time.sleep(30)
-        resp = requests.get(baseUrl + jobProgress + token, cookies=cookiesJar, headers=headers)
+        resp = requests.get(baseUrl + jobProgress + token, auth=HTTPBasicAuth(username, password), headers=headers)
         if resp.status_code != 200:
             log.info("Checking status failed with status " + resp.status_code)
             continue
@@ -244,14 +231,14 @@ def create_test_cycle():
     global parentCycleId
     global cycleNameStub
     cycleName = cycleNameStub + datetime.now().strftime("%d_%m_%Y-%H_%M")
-    params = {'name': cycleName, 'clonedCycleId': parentCycleId, 'build': buildNo, 'environment': environment_config,
-              'description': cycle_description, 'projectId': projID, 'versionId': versionID, 'sprintId': sprintID}
+    params = {'name': cycleName, 'clonedCycleId': str(parentCycleId), 'build': buildNo, 'environment': environment_config, 'description': cycle_description, 'projectId': str(projID), 'versionId': str(versionID), 'sprintId': sprintID, "startDate": "", "endDate": ""}
     log.info("Creating cycle with data - " + str(params))
 
-    resp = requests.post(baseUrl + cyclePath, cookies=cookiesJar, headers=headers, data=json.dumps(params))
+    resp = requests.post(baseUrl + cyclePath, headers=headers, auth=HTTPBasicAuth(username, password), data=json.dumps(params))
 
     if resp.status_code != 200:
         log.info('creating cycle failed with status ' + str(resp.status_code));
+        log.info('creating cycle failed with status ' + resp.text);
         exit(8)
 
     token = (resp.json())['jobProgressToken']
@@ -305,7 +292,7 @@ def parse_rest_testng_results():
 
 def parse_selenium_testng_results():
     global results
-    toIgnore = ["logSeparator", "logout", "afterClass", "beforeClass"]
+    toIgnore = ["logSeparator", "logout", "afterClass", "beforeClass", "beforeMethod", "afterMethod", "beforeTest", "afterTest", "beforeSuite", "afterSuite"]
 
     for tc in root.iter('test-method'):
 
@@ -347,8 +334,8 @@ else:
 
 log.debug("Raw test results: " + str(results))
 
-log.info("Login in Jira")
-login()
+# log.info("Login in Jira")
+# login()
 get_proj_id()
 log.info("Got project ID " + str(projID))
 
