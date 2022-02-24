@@ -26,24 +26,19 @@ public class TruststoreResourceIT extends AbstractIT {
     private TruststoreDao truststoreDao;
 
     @Before
-    public void clean() {
-        if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME)) {
-            TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_NAME);
-            truststoreDao.delete(trust);
-        }
+    public void before() {
+        removeTrustStore();
+    }
+
+    @After
+    public void after() {
+        removeTrustStore();
     }
 
     @Test
     public void testTruststoreEntries_ok() throws IOException {
 
-        eu.domibus.core.crypto.TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
-        domibusTruststoreEntity.setName(DOMIBUS_TRUSTSTORE_NAME);
-        domibusTruststoreEntity.setType("JKS");
-        domibusTruststoreEntity.setPassword("test123");
-        byte[] trustStoreBytes = IOUtils.toByteArray(this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks"));
-        domibusTruststoreEntity.setContent(trustStoreBytes);
-
-        truststoreDao.create(domibusTruststoreEntity);
+        createTrustStore();
 
         List<TrustStoreRO> trustStoreROS = truststoreResource.trustStoreEntries();
         for (TrustStoreRO trustStoreRO : trustStoreROS) {
@@ -56,5 +51,23 @@ public class TruststoreResourceIT extends AbstractIT {
             Assert.assertNotNull("Certificate imminent expiry alert days should be populated in TrustStoreRO:", trustStoreRO.getCertificateExpiryAlertDays());
             Assert.assertEquals("Certificate imminent expiry alert days should be populated in TrustStoreRO:", 60, trustStoreRO.getCertificateExpiryAlertDays());
         }
+    }
+
+    private void removeTrustStore() {
+        if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME)) {
+            TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_NAME);
+            truststoreDao.delete(trust);
+        }
+    }
+
+    private void createTrustStore() throws IOException {
+        TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
+        domibusTruststoreEntity.setName(DOMIBUS_TRUSTSTORE_NAME);
+        domibusTruststoreEntity.setType("JKS");
+        domibusTruststoreEntity.setPassword("test123");
+        byte[] trustStoreBytes = IOUtils.toByteArray(this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks"));
+        domibusTruststoreEntity.setContent(trustStoreBytes);
+
+        truststoreDao.create(domibusTruststoreEntity);
     }
 }

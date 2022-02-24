@@ -40,7 +40,7 @@ public class KeystoreResource extends BaseResource {
     }
 
     @PostMapping(value = "/resets")
-    public void uploadTruststoreFile() {
+    public void reset() {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.resetKeyStore(currentDomain);
     }
