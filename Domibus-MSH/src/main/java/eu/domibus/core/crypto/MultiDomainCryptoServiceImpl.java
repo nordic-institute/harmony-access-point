@@ -138,7 +138,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void resetTrustStore(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.resetTrustStore();
     }
 
@@ -218,13 +218,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void reset(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.reset();
     }
 
     @Override
     public void resetKeyStore(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.resetKeyStore();
     }
 
@@ -292,18 +292,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
             }
         }
         return domainCertificateProviderMap.get(domain);
-    }
-
-    private DomainCryptoService getDomainCryptoService(Domain domain) {
-        if (domain == null) {
-            throw new InvalidParameterException("Domain is null.");
-        }
-
-        final DomainCryptoService domainCertificateProvider = domainCertificateProviderMap.get(domain);
-        if (domainCertificateProvider == null) {
-            throw new DomibusCertificateException("Domain certificate provider for domain [" + domain.getName() + "] not found.");
-        }
-        return domainCertificateProvider;
     }
 
     private void saveCertificateAndLogRevocation(Domain domain) {
