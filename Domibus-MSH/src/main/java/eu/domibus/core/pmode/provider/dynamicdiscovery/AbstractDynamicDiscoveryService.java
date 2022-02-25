@@ -86,7 +86,7 @@ public abstract class AbstractDynamicDiscoveryService {
      *
      * @param serviceActivationDate activate date from element Endpoint/ServiceActivationDate
      * @param serviceExpirationDate expiration date from element Endpoint/ServiceExpirationDate
-     * @return
+     * @return true if the endpoint is valid for the current date. Else return false.
      */
     public boolean isValidEndpoint(Date serviceActivationDate, Date serviceExpirationDate) {
         Date currentDate = Calendar.getInstance().getTime();

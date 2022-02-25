@@ -206,16 +206,15 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     protected DynamicDiscovery createDynamicDiscoveryClient() {
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
         if (StringUtils.isBlank(smlInfo)) {
-            throw new ConfigurationException("SML Zone missing. Configure propertu [" + SMLZONE_KEY + "] in  domibus configuration");
+            throw new ConfigurationException("SML Zone missing. Configure property [" + SMLZONE_KEY + "] in domibus configuration!");
         }
 
         final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
         if (StringUtils.isBlank(certRegex)) {
-            LOG.debug("The value for property [" + DYNAMIC_DISCOVERY_CERT_REGEX + "] is empty.");
+            LOG.debug("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_REGEX);
         }
 
         final List<String> allowedCertificatePolicyIDs = getAllowedSMPCertificatePolicyOIDs();
-
 
         LOG.debug("Load truststore for the smpClient");
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
@@ -324,13 +323,14 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     protected boolean isValidProcessIdentifier(ProcessType processType, String filterProcessId, String filterProcessIdScheme) {
         boolean match = StringUtils.equals(processType.getProcessIdentifier().getValue(), filterProcessId)
                 && StringUtils.equals(processType.getProcessIdentifier().getScheme(), filterProcessIdScheme);
-        if (!match) {
-            LOG.debug("Search for process id [{}] with scheme [{}], found: [{}] with scheme  [{}] !",
-                    filterProcessId,
-                    filterProcessIdScheme,
-                    processType.getProcessIdentifier().getValue(),
-                    processType.getProcessIdentifier().getScheme());
-        }
+
+        LOG.debug("Search for process id [{}] with scheme [{}], found: [{}] with scheme [{}] which match [{}] to the search parameters!",
+                filterProcessId,
+                filterProcessIdScheme,
+                processType.getProcessIdentifier().getValue(),
+                processType.getProcessIdentifier().getScheme(),
+                match);
+
         return match;
     }
 

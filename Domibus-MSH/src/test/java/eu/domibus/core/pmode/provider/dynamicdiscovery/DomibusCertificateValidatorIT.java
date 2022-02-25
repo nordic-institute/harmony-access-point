@@ -288,8 +288,8 @@ public class DomibusCertificateValidatorIT {
     @Test
     public void testVerifyCertificatePolicyNotTrustedWrongPolicy() throws Exception {
         // given certificate policy
-        String allowedCertificatePolicyId = "1.3.6.1.4.1.7879.13.25";
-        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, Collections.singletonList(allowedCertificatePolicyId));
+        List<String> allowedCertificatePolicyId = Collections.singletonList("1.3.6.1.4.1.7879.13.25");
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, allowedCertificatePolicyId);
         KeyStore trustStore = buildTruststore(certificate);
         domibusCertificateValidator.setTrustStore(trustStore);
         new Expectations() {{
@@ -298,9 +298,9 @@ public class DomibusCertificateValidatorIT {
 
         }};
         expectedException.expect(CertificateException.class);
-        expectedException.expectMessage(startsWith("Missing expected certificate policy! Certificate is not trusted:"));
+        expectedException.expectMessage(startsWith("Lookup certificate validator failed for C=EU, O=eDelivery, OU=Domibus, CN=test. The certificate chain is not valid"));
        // certificate must have Certificate policy 1.3.6.1
-        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyId", "1.3.6.1");
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", allowedCertificatePolicyId);
         // when-then
         domibusCertificateValidator.validateSMPCertificate(certificate);
     }
@@ -318,9 +318,9 @@ public class DomibusCertificateValidatorIT {
 
         }};
         expectedException.expect(CertificateException.class);
-        expectedException.expectMessage(startsWith("Missing expected certificate policy! Certificate is not trusted:"));
+        expectedException.expectMessage(startsWith("Lookup certificate validator failed for C=EU, O=eDelivery, OU=Domibus, CN=test. The certificate chain is not valid"));
         // certificate must have Certificate policy 1.3.6.1
-        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyId", "1.3.6.1");
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", Collections.singletonList("1.3.6.1"));
         // when-then
         domibusCertificateValidator.validateSMPCertificate(certificate);
     }
@@ -328,23 +328,20 @@ public class DomibusCertificateValidatorIT {
     @Test
     public void testVerifyCertificatePolicyOK() throws Exception {
         // given certificate policy
-        String allowedCertificatePolicyId = "1.3.6.1.4.1.7879.13.25";
-        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, Collections.singletonList(allowedCertificatePolicyId));
+        List<String> allowedCertificatePolicyId = Collections.singletonList("1.3.6.1.4.1.7879.13.25");
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, allowedCertificatePolicyId);
         KeyStore trustStore = buildTruststore(certificate);
         domibusCertificateValidator.setTrustStore(trustStore);
         new Expectations(domibusCertificateValidator) {{
             certificateService.isCertificateValid(certificate);
             result = true;
 
-            certificateService.getCertificatePolicyIdentifiers(certificate);
-            result =  Collections.singletonList(allowedCertificatePolicyId);
-
             domibusCertificateValidator.verifyCertificateChain(certificate);
             result = true;
 
         }};
         // certificate must have Certificate policy 1.3.6.1
-        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyId", allowedCertificatePolicyId);
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", allowedCertificatePolicyId);
         // when-then
         domibusCertificateValidator.validateSMPCertificate(certificate);
         // no error
