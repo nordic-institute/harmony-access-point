@@ -43,10 +43,11 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected REMOVE_CERTIFICATE_URL: string;
 
   protected canHandleCertificates: boolean;
+  showResetOperation: boolean;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
-  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private trustStoreService: TrustStoreService,
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, protected trustStoreService: TrustStoreService,
               public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef,
               private fileUploadValidatorService: FileUploadValidatorService, protected truststoreService: TrustStoreService) {
     super();
@@ -107,8 +108,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
       var certificateExpiryAlertDaysInMillis = (el.certificateExpiryAlertDays * 24 * 60 * 60 * 1000);
       if ((dateDiffToExpiry > 0) && (dateDiffToExpiry < certificateExpiryAlertDaysInMillis)) {
         el.isAboutToExpire = true;
-      }
-      else if(dateDiffToExpiry <= 0){
+      } else if (dateDiffToExpiry <= 0) {
         el.isExpired = true;
       }
     }
@@ -145,7 +145,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   getRowClass(row) {
-    if(row.isAboutToExpire){
+    if (row.isAboutToExpire) {
       return {
         'warnNearExpiry': true
       }
@@ -186,4 +186,6 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     }
   }
 
+  reloadKeyStore() {
+  }
 }
