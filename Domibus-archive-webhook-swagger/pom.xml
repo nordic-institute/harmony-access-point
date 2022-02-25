@@ -43,37 +43,6 @@
 
     <build>
         <plugins>
-            <!-- Purpose of the ANT plugin is to download and extract swagger-ui pages to folder ${project.basedir}/src/main/webapp-->
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <echo message="download archive"/>
-                                <get src="${upstream.url}"
-                                     dest="${project.build.directory}/${project.artifactId}.zip"/>
-                                <echo message="unzip archive"/>
-                                <unzip src="${project.build.directory}/${project.artifactId}.zip"
-                                       dest="${project.build.directory}"/>
-                                <echo message="moving resources"/>
-                                <move todir="${openapi.webapp.folder}">
-                                    <fileset
-                                            dir="${project.build.directory}/swagger-ui-${swagger-ui.version}/dist"/>
-                                </move>
-                                <echo message="replace swagger openapi name"/>
-                                <replace file="${openapi.webapp.folder}/index.html"
-                                         token="https://petstore.swagger.io/v2/swagger.json"
-                                         value="domibus-archive-webhook-openapi.json"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -125,14 +94,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- build war artefacts with swagger-ui -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <webappDirectory>${openapi.webapp.folder}</webappDirectory>
-                </configuration>
-            </plugin>
+
             <!-- to make sure opeapi document is generated -->
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -158,6 +120,52 @@
             </plugin>
         </plugins>
     </build>
-
-
+    <profiles>
+        <profile>
+            <id>swagger</id>
+            <build>
+                <plugins>
+                <!-- Purpose of the ANT plugin is to download and extract swagger-ui pages to folder ${project.basedir}/src/main/webapp-->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="download archive"/>
+                                <get src="${upstream.url}"
+                                     dest="${project.build.directory}/${project.artifactId}.zip"/>
+                                <echo message="unzip archive"/>
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip"
+                                       dest="${project.build.directory}"/>
+                                <echo message="moving resources"/>
+                                <move todir="${openapi.webapp.folder}">
+                                    <fileset
+                                            dir="${project.build.directory}/swagger-ui-${swagger-ui.version}/dist"/>
+                                </move>
+                                <echo message="replace swagger openapi name"/>
+                                <replace file="${openapi.webapp.folder}/index.html"
+                                         token="https://petstore.swagger.io/v2/swagger.json"
+                                         value="domibus-archive-webhook-openapi.json"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+                    <!-- build war artefacts with swagger-ui -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webappDirectory>${openapi.webapp.folder}</webappDirectory>
+                </configuration>
+            </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
