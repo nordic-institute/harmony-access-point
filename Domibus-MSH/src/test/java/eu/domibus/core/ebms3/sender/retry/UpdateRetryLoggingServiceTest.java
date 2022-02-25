@@ -413,6 +413,7 @@ public class UpdateRetryLoggingServiceTest {
         assertTrue(result);
     }
 
+    @Deprecated // TODO: François Gautier 23-02-22 to be removed, might bring instability
     private static class SystemMockFirstOfJanuary2016 extends MockUp<System> {
         @Mock
         public static long currentTimeMillis() {

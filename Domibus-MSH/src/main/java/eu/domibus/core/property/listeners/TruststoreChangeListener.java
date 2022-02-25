@@ -2,7 +2,6 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.pki.KeyStoreType;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -12,13 +11,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  * <p>
- * Handles the change of DOMIBUS_SECURITY_KEYSTORE_LOCATION property
+ * Handles the change of DOMIBUS_SECURITY_TRUSTSTORE_LOCATION property
  */
 @Service
 public class TruststoreChangeListener implements DomibusPropertyChangeListener {
@@ -53,10 +52,9 @@ public class TruststoreChangeListener implements DomibusPropertyChangeListener {
         LOG.debug("[{}] property has changed for domain [{}].", propertyName, domainCode);
 
         Domain domain = domainService.getDomain(domainCode);
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-        multiDomainCryptoService.replaceTrustStore(domain, propertyValue, password);
 
-        multiDomainCryptoService.reset(domain, KeyStoreType.TRUSTSTORE);
+        multiDomainCryptoService.resetTrustStore(domain);
+
         gatewayConfigurationValidator.validateCertificates();
 
     }

@@ -171,7 +171,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         BatchDTO batchDTO = objectMapper.readValue(content, BatchDTO.class);
 
-        Assert.assertNotNull(batchDTO);
+        assertNotNull(batchDTO);
         Assert.assertEquals(ExportedBatchStatusType.QUEUED, batchDTO.getStatus());
     }
 
@@ -346,6 +346,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
                         .param("lastCountRequests", lastCountRequests + "")
+                        .param("requestType", "CONTINUOUS")
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
@@ -354,8 +355,9 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
         QueuedBatchResultDTO response = objectMapper.readValue(content, QueuedBatchResultDTO.class);
 
-        Assert.assertNotNull(response.getFilter());
-        Assert.assertNotNull(response.getPagination());
+        assertTrue(response.getFilter().getRequestTypes().isEmpty());
+        assertNotNull(response.getFilter());
+        assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
         assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
         //
@@ -388,8 +390,8 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         ExportedBatchResultDTO response = objectMapper.readValue(content, ExportedBatchResultDTO.class);
         // test filters
-        Assert.assertNotNull(response.getFilter());
-        Assert.assertNotNull(response.getPagination());
+        assertNotNull(response.getFilter());
+        assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
         assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
         assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
@@ -422,7 +424,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     @Test
     @Transactional
     public void testGetQueuedBatchRequestsForResults() throws Exception {
-// given
+        // given
         Integer lastCountRequests = 5;
 
         // when
