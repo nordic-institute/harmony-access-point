@@ -1,3 +1,15 @@
+-- ********************************************************************************************************
+-- Domibus 4.2.3 to 5.0 data migration package
+--
+-- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
+--
+-- Parameters to be adjusted:
+-- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
+--              default value is 100
+-- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
+-- VERBOSE_LOGS - more information into the logs; default to false
+-- ********************************************************************************************************
+
 DECLARE
     table_does_not_exist exception;
     PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
@@ -418,27 +430,12 @@ CREATE GLOBAL TEMPORARY TABLE MIGR_TB_PKS_PM_CONF_RAW (OLD_ID NUMBER NOT NULL, N
 CREATE GLOBAL TEMPORARY TABLE MIGR_TB_PKS_USER (OLD_ID NUMBER NOT NULL, NEW_ID NUMBER NOT NULL, CONSTRAINT PK_MIGR_PKS_USER PRIMARY KEY (OLD_ID)) ON COMMIT PRESERVE ROWS;
 /
 
-CREATE GLOBAL TEMPORARY TABLE MIGR_TB_PKS_USER_ROLE (OLD_ID NUMBER NOT NULL, NEW_ID NUMBER NOT NULL, CONSTRAINT PK_MIGR_PKS_USER_ROLE PRIMARY KEY (OLD_ID)) ON COMMIT PRESERVE ROWS
+CREATE GLOBAL TEMPORARY TABLE MIGR_TB_PKS_USER_ROLE (OLD_ID NUMBER NOT NULL, NEW_ID NUMBER NOT NULL, CONSTRAINT PK_MIGR_PKS_USER_ROLE PRIMARY KEY (OLD_ID)) ON COMMIT PRESERVE ROWS;
 /
 
 CREATE GLOBAL TEMPORARY TABLE MIGR_TB_PKS_REV_INFO (OLD_ID NUMBER NOT NULL, NEW_ID NUMBER NOT NULL, CONSTRAINT PK_MIGR_PKS_REV_INFO PRIMARY KEY (OLD_ID)) ON COMMIT PRESERVE ROWS;
 /
 
--- ********************************************************************************************************
--- Domibus 4.2.3 to 5.0 data migration package
---
--- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
---
--- Parameters to be adjusted:
--- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
---              default value is 100
--- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
--- VERBOSE_LOGS - more information into the logs; default to false
---
--- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
--- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO,
--- TB_ERROR_LOG, TB_MESSAGE_ACKNW, TB_SEND_ATTEMPT
--- ********************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
     BATCH_SIZE CONSTANT NUMBER := 100;
@@ -2967,6 +2964,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_end PLS_INTEGER;
     BEGIN
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+
+        v_fk_timezone_offset := lookup_migration_pk_tz_offset();
+
         OPEN c_alert;
         LOOP
             FETCH c_alert BULK COLLECT INTO alert LIMIT BULK_COLLECT_LIMIT;
@@ -2974,7 +2974,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
             migr_alert := T_MIGR_ALERT();
             migr_pks_alert := T_MIGR_PKS_ALERT();
-            v_fk_timezone_offset := lookup_migration_pk_tz_offset();
 
             FOR i IN alert.FIRST .. alert.LAST
                 LOOP
@@ -4487,13 +4486,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_end PLS_INTEGER;
     BEGIN
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+
+        v_fk_timezone_offset := lookup_migration_pk_tz_offset();
+
         OPEN c_messaging_lock;
         LOOP
             FETCH c_messaging_lock BULK COLLECT INTO messaging_lock LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN messaging_lock.COUNT = 0;
 
             migr_messaging_lock := T_MIGR_MESSAGING_LOCK();
-            v_fk_timezone_offset := lookup_migration_pk_tz_offset();
 
             FOR i IN messaging_lock.FIRST .. messaging_lock.LAST
                 LOOP
