@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -29,6 +30,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -148,7 +150,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     }
 
     @Override
-    protected  String getDefaultResponderRole() {
+    protected String getDefaultResponderRole() {
         return DEFAULT_RESPONDER_ROLE;
     }
 
@@ -193,10 +195,22 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
                         " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProfileAS4);
             }
 
-            return endpointInfos.getObject(endpoint.getEndpointURI(), endpoint.getCertificate());
+            X509Certificate certificate = getCertificateFromEndpoint(endpoint, documentId, processId);
+            return endpointInfos.getObject(endpoint.getEndpointURI(), certificate);
 
         } catch (TechnicalException exc) {
             String msg = "Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId;
+            // log error, because cause in ConfigurationException is consumed..
+            LOG.error(msg, exc);
+            throw new ConfigurationException(msg, exc);
+        }
+    }
+
+    protected X509Certificate getCertificateFromEndpoint(EndpointType endpoint, String documentId, String processId) {
+        try {
+            return certificateService.loadCertificateFromByteArray(endpoint.getCertificate());
+        } catch (DomibusCertificateException exc) {
+            String msg = "Invalid endpoint metadata for documentId " + documentId + " processId " + processId;
             // log error, because cause in ConfigurationException is consumed..
             LOG.error(msg, exc);
             throw new ConfigurationException(msg, exc);
