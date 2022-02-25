@@ -19,7 +19,7 @@ public abstract class AbstractDynamicDiscoveryService {
      *
      * @return Domibus logger.
      */
-    abstract DomibusLogger getLogger();
+    protected abstract DomibusLogger getLogger();
 
     /**
      * Return trimmed domibus property value
@@ -27,21 +27,21 @@ public abstract class AbstractDynamicDiscoveryService {
      * @param propertyName
      * @return value for given domibus property name
      */
-    abstract String getTrimmedDomibusProperty(String propertyName);
+    protected abstract String getTrimmedDomibusProperty(String propertyName);
 
     /**
      * Get Default Discovery partyId type specific to implementation of the dynamic discovery service
      *
      * @return discovery party type
      */
-    abstract String getDefaultDiscoveryPartyIdType();
+    protected abstract String getDefaultDiscoveryPartyIdType();
 
     /**
      * Get responder role specific to implementation of the dynamic discovery service
      *
      * @return responder role
      */
-    abstract String getDefaultResponderRole();
+    protected abstract String getDefaultResponderRole();
 
     /**
      * get allowed SMP certificate policy OIDs

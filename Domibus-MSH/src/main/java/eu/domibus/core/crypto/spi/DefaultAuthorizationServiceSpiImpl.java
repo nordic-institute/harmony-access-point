@@ -218,7 +218,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             LOG.info("Sender [{}] is trusted with certificate policy [{}]", alias, result.get());
             return;
         }
-        String excMessage = String.format("Sender certificate policy verification failed. Signing certificate [%s] does not contain any of the policy: [%s]", alias, signingCertificate);
+        String excMessage = String.format("Sender certificate policy verification failed. Signing certificate [%s] does not contain any of the required certificate policies: [%s]", alias, signingCertificate);
         throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
     }
 

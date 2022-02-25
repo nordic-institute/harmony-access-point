@@ -7,6 +7,7 @@ import mockit.integration.junit4.JMockit;
 import mockit.internal.expectations.argumentMatching.StringPrefixMatcher;
 import no.difi.vefa.peppol.common.code.Service;
 import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
@@ -24,13 +25,15 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
+import static eu.domibus.core.pki.PKIUtil.*;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.verify;
 
 @RunWith(JMockit.class)
 public class DomibusCertificateValidatorIT {
@@ -56,10 +59,10 @@ public class DomibusCertificateValidatorIT {
     private KeyStore trustStore;
 
     @Injectable
-    private String subjectRegularExpression=".*";
+    private String subjectRegularExpression = ".*";
 
     @Injectable
-    private List<String> allowedCertificatePolicyOIDs= Collections.emptyList();
+    private List<String> allowedCertificatePolicyOIDs = Collections.emptyList();
 
     @Tested
     private DomibusCertificateValidator domibusCertificateValidator;
@@ -78,7 +81,7 @@ public class DomibusCertificateValidatorIT {
 
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
 
-        domibusCertificateValidator.validate(Service.SMP,certificate);
+        domibusCertificateValidator.validate(Service.SMP, certificate);
 
         new Verifications() {{
             domibusCertificateValidator.validateSMPCertificate(certificate);
@@ -89,11 +92,15 @@ public class DomibusCertificateValidatorIT {
     public void testValidateSMPCertificate() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
-         new MockUp<DomibusCertificateValidator>() {
+        new MockUp<DomibusCertificateValidator>() {
             @Mock
-            void verifyTrust(X509Certificate certs)  throws WSSecurityException  {}
+            void verifyTrust(X509Certificate certs) throws WSSecurityException {
+            }
+
             @Mock
-            boolean verifyCertificateChain(X509Certificate cert) throws CertificateException {return true;}
+            boolean verifyCertificateChain(X509Certificate cert) throws CertificateException {
+                return true;
+            }
         };
 
         new Expectations() {{
@@ -121,9 +128,13 @@ public class DomibusCertificateValidatorIT {
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         new MockUp<DomibusCertificateValidator>() {
             @Mock
-            private void verifyTrust(X509Certificate certs)  throws WSSecurityException  {}
+            private void verifyTrust(X509Certificate certs) throws WSSecurityException {
+            }
+
             @Mock
-            private boolean verifyCertificateChain(X509Certificate certs){ return false;}
+            private boolean verifyCertificateChain(X509Certificate certs) {
+                return false;
+            }
         };
 
         new Expectations() {{
@@ -140,7 +151,7 @@ public class DomibusCertificateValidatorIT {
     public void testValidateSMPCertificateNotValid() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
-         new Expectations() {{
+        new Expectations() {{
             certificateService.isCertificateValid(certificate);
             result = false;
 
@@ -157,7 +168,9 @@ public class DomibusCertificateValidatorIT {
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         new MockUp<DomibusCertificateValidator>() {
             @Mock
-            private void verifyTrust(X509Certificate certs) throws WSSecurityException { throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR);}
+            private void verifyTrust(X509Certificate certs) throws WSSecurityException {
+                throw new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR);
+            }
         };
 
         new Expectations() {{
@@ -171,21 +184,21 @@ public class DomibusCertificateValidatorIT {
     }
 
     @Test
-    public void testGetParentAliasFromTruststoreOK() throws  Exception{
+    public void testGetParentAliasFromTruststoreOK() throws Exception {
         // given - when -
-        KeyStore trustStore = buildTruststore( CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
+        KeyStore trustStore = buildTruststore(CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
         domibusCertificateValidator.setTrustStore(trustStore);
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
 
         String alias = domibusCertificateValidator.getParentAliasFromTruststore(certificate);
 
-        assertEquals(CERT_FILENAME_INTERMEDIATE.toLowerCase(),alias);
+        assertEquals(CERT_FILENAME_INTERMEDIATE.toLowerCase(), alias);
     }
 
     @Test
-    public void testGetParentAliasFromTruststoreFails() throws  Exception{
+    public void testGetParentAliasFromTruststoreFails() throws Exception {
         // given - when -
-        KeyStore trustStore = buildTruststore(  CERT_FILENAME_ROOT_CA);
+        KeyStore trustStore = buildTruststore(CERT_FILENAME_ROOT_CA);
         domibusCertificateValidator.setTrustStore(trustStore);
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
 
@@ -195,7 +208,7 @@ public class DomibusCertificateValidatorIT {
     }
 
     @Test
-    public void testIsSignedByOK() throws Exception  {
+    public void testIsSignedByOK() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         X509Certificate issuer = getCertificate(CERT_FILENAME_INTERMEDIATE);
@@ -206,7 +219,7 @@ public class DomibusCertificateValidatorIT {
     }
 
     @Test
-    public void testIsSignedByNotSigned() throws Exception  {
+    public void testIsSignedByNotSigned() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         X509Certificate issuer = getCertificate(CERT_FILENAME_ROOT_CA);
@@ -227,11 +240,10 @@ public class DomibusCertificateValidatorIT {
     }
 
 
-
     @Test
     public void testVerifyTrustIssuerChainCertsInKeyStoreTRUSTED() throws Exception {
         // given
-        KeyStore trustStore = buildTruststore( CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
+        KeyStore trustStore = buildTruststore(CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
         domibusCertificateValidator.setTrustStore(trustStore);
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         // when-then
@@ -242,7 +254,7 @@ public class DomibusCertificateValidatorIT {
     @Test(expected = WSSecurityException.class)
     public void testVerifyTrustIssuerChainCertsInKeyStoreRegExpNOTTRUSTED() throws Exception {
         // given
-        KeyStore trustStore = buildTruststore( CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
+        KeyStore trustStore = buildTruststore(CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
         domibusCertificateValidator.setTrustStore(trustStore);
         ReflectionTestUtils.setField(domibusCertificateValidator, "subjectRegularExpressionPattern", Pattern.compile("SMP-Not-Exists.*"));
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
@@ -290,7 +302,7 @@ public class DomibusCertificateValidatorIT {
         // given certificate policy
         List<String> allowedCertificatePolicyId = Collections.singletonList("1.3.6.1.4.1.7879.13.25");
         X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, allowedCertificatePolicyId);
-        KeyStore trustStore = buildTruststore(certificate);
+        KeyStore trustStore = createTruststore(certificate);
         domibusCertificateValidator.setTrustStore(trustStore);
         new Expectations() {{
             certificateService.isCertificateValid(certificate);
@@ -299,7 +311,7 @@ public class DomibusCertificateValidatorIT {
         }};
         expectedException.expect(CertificateException.class);
         expectedException.expectMessage(startsWith("Lookup certificate validator failed for C=EU, O=eDelivery, OU=Domibus, CN=test. The certificate chain is not valid"));
-       // certificate must have Certificate policy 1.3.6.1
+        // certificate must have Certificate policy 1.3.6.1
         ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", allowedCertificatePolicyId);
         // when-then
         domibusCertificateValidator.validateSMPCertificate(certificate);
@@ -308,9 +320,8 @@ public class DomibusCertificateValidatorIT {
     @Test
     public void testVerifyCertificatePolicyNotTrustedMissingPolicy() throws Exception {
         // given certificate policy
-
         X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, null);
-        KeyStore trustStore = buildTruststore(certificate);
+        KeyStore trustStore = createTruststore(certificate);
         domibusCertificateValidator.setTrustStore(trustStore);
         new Expectations() {{
             certificateService.isCertificateValid(certificate);
@@ -326,11 +337,11 @@ public class DomibusCertificateValidatorIT {
     }
 
     @Test
-    public void testVerifyCertificatePolicyOK() throws Exception {
+    public void testVerifyCertificatePolicyOKLeaf() throws Exception {
         // given certificate policy
         List<String> allowedCertificatePolicyId = Collections.singletonList("1.3.6.1.4.1.7879.13.25");
         X509Certificate certificate = pkiUtil.createCertificate(BigInteger.TEN, null, allowedCertificatePolicyId);
-        KeyStore trustStore = buildTruststore(certificate);
+        KeyStore trustStore = createTruststore(certificate);
         domibusCertificateValidator.setTrustStore(trustStore);
         new Expectations(domibusCertificateValidator) {{
             certificateService.isCertificateValid(certificate);
@@ -347,6 +358,131 @@ public class DomibusCertificateValidatorIT {
         // no error
     }
 
+    @Test
+    public void testValidateOKWholeCertificateChainWithPolicy() throws Exception {
+        // given
+        Date date = Calendar.getInstance().getTime();
+        // crate certificate change
+        X509Certificate[] certificates = createCertificateChain(
+                new String[]{"CN=CA,O=digit,C=EU", "CN=Issuer,O=digit,C=EU", "CN=Leaf,O=digit,C=EU"},
+                asList(asList(CERTIFICATE_POLICY_ANY),
+                        asList(CERTIFICATE_POLICY_QCP_NATURAL, CERTIFICATE_POLICY_QCP_LEGAL, CERTIFICATE_POLICY_QCP_NATURAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL_QSCD),
+                        asList(CERTIFICATE_POLICY_QCP_NATURAL)),
+                DateUtils.addDays(date, -1), DateUtils.addDays(date, 1));
+        // create truststore with issues and CA
+        KeyStore truststore = createTruststore(new X509Certificate[]{certificates[1], certificates[2]});
+        domibusCertificateValidator.setTrustStore(truststore);
+        // set allowed
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", asList(CERTIFICATE_POLICY_QCP_NATURAL));
+        // leaf certificate
+        X509Certificate certificate = certificates[0];
+
+        new Expectations(domibusCertificateValidator) {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
+            domibusCertificateValidator.verifyCertificateChain(certificate);
+            result = true;
+        }};
+
+        //when
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+        // then
+        new FullVerifications(domibusCertificateValidator) {{
+            domibusCertificateValidator.verifyTrust((X509Certificate) any);
+            times = 1;
+        }};
+
+    }
+
+    @Test
+    public void testValidateOKWholeCertificateChainWithMultiplePolicies() throws Exception {
+        // given
+        Date date = Calendar.getInstance().getTime();
+        // crate certificate change
+        X509Certificate[] certificates = createCertificateChain(
+                new String[]{"CN=CA,O=digit,C=EU", "CN=Issuer,O=digit,C=EU", "CN=Leaf,O=digit,C=EU"},
+                asList(asList(CERTIFICATE_POLICY_ANY),
+                        asList(CERTIFICATE_POLICY_QCP_NATURAL, CERTIFICATE_POLICY_QCP_LEGAL, CERTIFICATE_POLICY_QCP_NATURAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL_QSCD),
+                        asList(CERTIFICATE_POLICY_QCP_NATURAL)),
+                DateUtils.addDays(date, -1), DateUtils.addDays(date, 1));
+        // create truststore with issues and CA
+        KeyStore truststore = createTruststore(new X509Certificate[]{certificates[1], certificates[2]});
+        domibusCertificateValidator.setTrustStore(truststore);
+        // set allowed
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", asList(CERTIFICATE_POLICY_QCP_NATURAL, CERTIFICATE_POLICY_QCP_LEGAL));
+        // leaf certificate
+        X509Certificate certificate = certificates[0];
+        new Expectations(domibusCertificateValidator) {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
+            domibusCertificateValidator.verifyCertificateChain(certificate);
+            result = true;
+        }};
+
+        //when
+        domibusCertificateValidator.validateSMPCertificate(certificate);
+        // then
+        new FullVerifications(domibusCertificateValidator) {{
+            domibusCertificateValidator.verifyTrust((X509Certificate) any);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testValidateWholeCertificateChainFailedWithWrongPolicy() throws Exception {
+        // given
+        Date date = Calendar.getInstance().getTime();
+        // crate certificate change
+        X509Certificate[] certificates = createCertificateChain(
+                new String[]{"CN=CA,O=digit,C=EU", "CN=Issuer,O=digit,C=EU", "CN=Leaf,O=digit,C=EU"},
+                asList(asList(CERTIFICATE_POLICY_ANY),
+                        asList(CERTIFICATE_POLICY_QCP_NATURAL, CERTIFICATE_POLICY_QCP_LEGAL, CERTIFICATE_POLICY_QCP_NATURAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL_QSCD),
+                        asList(CERTIFICATE_POLICY_QCP_NATURAL)),
+                DateUtils.addDays(date, -1), DateUtils.addDays(date, 1));
+        // create truststore with issues and CA
+        KeyStore truststore = createTruststore(new X509Certificate[]{certificates[1], certificates[2]});
+        domibusCertificateValidator.setTrustStore(truststore);
+        // set Not allowed policy
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", asList(CERTIFICATE_POLICY_QCP_LEGAL));
+        // leaf certificate
+        X509Certificate certificate = certificates[0];
+        new Expectations(domibusCertificateValidator) {{
+            certificateService.isCertificateValid(certificate);
+            result = true;
+        }};
+
+        //when
+        CertificateException exception = assertThrows(CertificateException.class, () -> domibusCertificateValidator.validateSMPCertificate(certificate));
+        // then
+        assertEquals("Certificate is not trusted: C=EU, O=digit, CN=Leaf", exception.getMessage());
+    }
+
+
+    @Test
+    public void testValidateWholeCertificateChainFailedWithInvalidPolicyPath() throws Exception {
+        // given
+        Date date = Calendar.getInstance().getTime();
+        // crate certificate change
+        X509Certificate[] certificates = createCertificateChain(
+                new String[]{"CN=CA,O=digit,C=EU", "CN=Issuer,O=digit,C=EU", "CN=Leaf,O=digit,C=EU"},
+                asList(asList(CERTIFICATE_POLICY_ANY),
+                        asList(CERTIFICATE_POLICY_QCP_LEGAL, CERTIFICATE_POLICY_QCP_NATURAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL_QSCD), // missing CERTIFICATE_POLICY_QCP_NATURAL,in issuer
+                        asList(CERTIFICATE_POLICY_QCP_NATURAL)),
+                DateUtils.addDays(date, -1), DateUtils.addDays(date, 1));
+        // create truststore with issues and CA
+        KeyStore truststore = createTruststore(new X509Certificate[]{certificates[1], certificates[2]});
+        domibusCertificateValidator.setTrustStore(truststore);
+        // set Not allowed policy
+        ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", asList(CERTIFICATE_POLICY_QCP_LEGAL));
+        // leaf certificate
+        X509Certificate certificate = certificates[0];
+
+        //when
+        CertificateException exception = assertThrows(CertificateException.class, () -> domibusCertificateValidator.validateSMPCertificate(certificate));
+        // then
+        assertEquals("Lookup certificate validator failed for C=EU, O=digit, CN=Leaf", exception.getMessage());
+    }
+
     private X509Certificate getCertificate(String filename) throws CertificateException {
 
         CertificateFactory fact = CertificateFactory.getInstance("X.509");
@@ -355,24 +491,14 @@ public class DomibusCertificateValidatorIT {
 
     }
 
-    private KeyStore buildTruststore(String ... filenames) throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
+    private KeyStore buildTruststore(String... filenames) throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
 
         KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
         char[] password = "123456".toCharArray();
         truststore.load(null, password);
-        for (String filename: filenames) {
+        for (String filename : filenames) {
             X509Certificate certificate = getCertificate(filename);
             truststore.setCertificateEntry(filename, certificate);
-        }
-        return truststore;
-    }
-    private KeyStore buildTruststore(X509Certificate ... certificates) throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
-
-        KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
-        char[] password = "123456".toCharArray();
-        truststore.load(null, password);
-        for (X509Certificate certificate: certificates) {
-            truststore.setCertificateEntry(UUID.randomUUID().toString(), certificate);
         }
         return truststore;
     }
