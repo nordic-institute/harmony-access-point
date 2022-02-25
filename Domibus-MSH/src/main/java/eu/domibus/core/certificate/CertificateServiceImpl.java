@@ -476,7 +476,7 @@ public class CertificateServiceImpl implements CertificateService {
             tempTrustStore.load(newTrustStoreBytes, password.toCharArray());
             newTrustStoreBytes.reset();
         } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
-            throw new DomibusCertificateException("Could not load key store: " + e.getMessage(), e);
+            throw new DomibusCertificateException("Could not load store: " + e.getMessage(), e);
         }
     }
 

@@ -15,7 +15,6 @@ import eu.domibus.web.rest.TLSTruststoreResource;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -75,21 +74,20 @@ public class TLSTruststoreResourceIT extends AbstractIT {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "");
             Assert.fail();
         } catch (RequestValidationException ex) {
-
             Assert.assertEquals(ex.getMessage(), "[DOM_001]:Failed to upload the truststoreFile file since its password was empty.");
         }
     }
 
     @Test
-    public void replaceTrust_WithPass() {
+    public void replaceTrust_NotValid() {
         byte[] content = {1, 0, 1};
         String filename = "file.jks";
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "test123");
             Assert.fail();
-        } catch (ConfigurationException ex) {
-            Assert.assertEquals(ex.getMessage(), "Exception loading truststore.");
+        } catch (DomibusCertificateException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Could not load store"));
         }
     }
 
@@ -106,7 +104,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         tlsTruststoreResource.addTLSCertificate(truststoreFile, "tlscert");
     }
 
-    @Test(expected = DomibusCertificateException.class)
+    @Test(expected = ConfigurationException.class)
     public void removeTLSCertificate() {
         tlsTruststoreResource.removeTLSCertificate("tlscert");
     }
