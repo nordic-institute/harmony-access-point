@@ -1,7 +1,7 @@
-<div style="height: calc(100% - 15px);">
+<div class="domibus-page">
   <page-header id="usersheader_id">Users</page-header>
 
-  <div *ngIf="true" class="selectionCriteria">
+  <div class="selectionCriteria">
     <mat-card>
       <mat-card-content>
         <div class="panel">
@@ -30,11 +30,9 @@
     </mat-card>
   </div>
 
-  <div class="panel" style="height: calc(100% - 130px);">
-
     <grid-header [parent]="this"></grid-header>
 
-    <div style="height: calc(100% - 150px); overflow-y: auto; overflow-x: hidden;">
+    <div class="domibus-grid-container">
       <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
     </div>
 
@@ -75,5 +73,4 @@
 
     <page-footer [parent]="this"></page-footer>
 
-  </div>
 </div>
