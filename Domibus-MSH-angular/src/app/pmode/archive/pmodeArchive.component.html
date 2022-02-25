@@ -1,10 +1,9 @@
-﻿<div style="height: calc(100% - 15px);">
-  <page-header id="pmodeheader_id" style="margin: 0px;">PMode - Archive</page-header>
+﻿<div class="domibus-page">
+    <page-header id="pmodeheader_id" style="margin: 0px;">PMode - Archive</page-header>
 
-  <div class="panel full-height">
     <grid-header [parent]="this"></grid-header>
 
-    <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden;">
+    <div class="domibus-grid-container">
       <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
     </div>
 
@@ -31,6 +30,7 @@
       </button>
     </ng-template>
 
+  <div>
     <page-footer [parent]="this" [isAddVisible]="false" [isEditVisible]="false"></page-footer>
 
     <div class="group-action-button">
@@ -47,6 +47,5 @@
         <span>Restore</span>
       </button>
     </div>
-
   </div>
 </div>

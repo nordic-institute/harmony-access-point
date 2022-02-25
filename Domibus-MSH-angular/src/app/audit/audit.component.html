@@ -1,4 +1,4 @@
-<div style="height: calc(100% - 15px);">
+<div class="domibus-page">
   <page-header id="auditHeader_id">Audit</page-header>
 
   <div class="selectionCriteria">
@@ -40,11 +40,9 @@
     </mat-card>
   </div>
 
-  <div class="panel">
     <grid-header [parent]="this"></grid-header>
-  </div>
 
-  <div style="height: calc(100% - 190px); overflow-y: auto; overflow-x: hidden;">
+  <div class="domibus-grid-container">
     <page-grid [parent]="this"></page-grid>
   </div>
 

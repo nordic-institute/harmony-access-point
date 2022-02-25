@@ -1,4 +1,4 @@
-﻿<div style="height: calc(100% - 15px);">
+﻿<div class="domibus-page">
   <page-header id="errorlogheader_id">Error Log</page-header>
 
   <div class="selectionCriteria">
@@ -84,19 +84,18 @@
     </mat-card>
   </div>
 
-  <div class="panel" style="height: calc(100% - 150px);">
-    <grid-header [parent]="this"></grid-header>
+  <grid-header [parent]="this"></grid-header>
 
-    <div style="height: calc(100% - 100px); overflow-y: auto; overflow-x: hidden;">
-      <page-grid [parent]="this" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
-    </div>
+  <div class="domibus-grid-container">
+    <page-grid [parent]="this" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
+  </div>
 
-    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <span class="text-select">{{value | domibusDate}}</span>
-    </ng-template>
+  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value | domibusDate}}</span>
+  </ng-template>
 
   <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="text-select">{{value}}</span>
   </ng-template>
-  </div>
+
 </div>
