@@ -16,11 +16,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NAME;
@@ -53,10 +52,10 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
     @Test
     public void testTruststoreEntries_ok() throws IOException {
-
         createTrustStore();
 
         List<TrustStoreRO> trustStoreROS = tlsTruststoreResource.getTLSTruststoreEntries();
+
         for (TrustStoreRO trustStoreRO : trustStoreROS) {
             Assert.assertNotNull("Certificate name should be populated in TrustStoreRO:", trustStoreRO.getName());
             Assert.assertNotNull("Certificate subject should be populated in TrustStoreRO:", trustStoreRO.getSubject());
@@ -94,6 +93,41 @@ public class TLSTruststoreResourceIT extends AbstractIT {
             Assert.assertTrue(ex.getMessage().contains("Could not load store"));
         }
     }
+
+    @Test
+    public void replaceExisting() throws IOException {
+        createTrustStore();
+
+        List<TrustStoreRO> entries = tlsTruststoreResource.getTLSTruststoreEntries();
+
+        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks");
+        MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
+                "octetstream", IOUtils.toByteArray(resourceAsStream));
+        tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
+
+        List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
+
+        Assert.assertTrue(entries.size() != newEntries.size());
+    }
+
+    @Test
+    public void setAnew() throws IOException {
+        try {
+            List<TrustStoreRO> entries = tlsTruststoreResource.getTLSTruststoreEntries();
+            Assert.fail();
+        } catch (Exception ex) {
+        }
+
+        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks");
+        MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore.jks", "gateway_truststore.jks",
+                "octetstream", IOUtils.toByteArray(resourceAsStream));
+        tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
+
+        List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
+
+        Assert.assertTrue(newEntries.size() == 2);
+    }
+
 
     @Test(expected = ConfigurationException.class)
     public void downloadTrust() {
