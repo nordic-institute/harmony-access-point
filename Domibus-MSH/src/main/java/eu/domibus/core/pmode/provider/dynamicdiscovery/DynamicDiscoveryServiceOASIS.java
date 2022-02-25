@@ -133,22 +133,22 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
 
     @Override
-    DomibusLogger getLogger() {
+    protected DomibusLogger getLogger() {
         return LOG;
     }
 
     @Override
-    String getTrimmedDomibusProperty(String propertyName) {
+    protected String getTrimmedDomibusProperty(String propertyName) {
         return trim(domibusPropertyProvider.getProperty(propertyName));
     }
 
     @Override
-    String getDefaultDiscoveryPartyIdType() {
+    protected String getDefaultDiscoveryPartyIdType() {
         return DEFAULT_PARTY_TYPE;
     }
 
     @Override
-    String getDefaultResponderRole() {
+    protected  String getDefaultResponderRole() {
         return DEFAULT_RESPONDER_ROLE;
     }
 
