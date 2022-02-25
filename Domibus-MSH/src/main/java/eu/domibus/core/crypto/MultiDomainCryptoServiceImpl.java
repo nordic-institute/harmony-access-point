@@ -249,6 +249,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     public void onDomainRemoved(Domain domain) {
     }
 
+
     private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
         certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileNameOrLocation);
 
