@@ -1,4 +1,4 @@
-<div style="height: calc(100% - 15px);">
+<div class="domibus-page">
   <page-header id="pluginusersheader_id">Plugin Users</page-header>
 
   <div class="selectionCriteria">
@@ -36,10 +36,9 @@
     </mat-card>
   </div>
 
-  <div class="panel" style="height: calc(100% - 130px);">
     <grid-header [parent]="this"></grid-header>
 
-    <div style="height: calc(100% - 150px); overflow-y: auto; overflow-x: hidden;">
+    <div class="domibus-grid-container">
       <ngx-datatable
         id="pageGridId"
         class="material striped"
@@ -88,5 +87,4 @@
 
     <page-footer [parent]="this"></page-footer>
 
-  </div>
 </div>

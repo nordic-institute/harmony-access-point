@@ -2,6 +2,7 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -9,17 +10,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
+import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
 /**
@@ -103,10 +101,16 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
-    public Long getZoneDateTime(Date date) {
-        if (date != null) {
-            return Long.parseLong(ZonedDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT)) + MAX);
+    public Long getIdPkDateHour(String date) {
+        if (StringUtils.isBlank(date)) {
+            throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE);
         }
-        return null;
+        try {
+            ZonedDateTime parse = LocalDateTime.parse(date, REST_FORMATTER).atZone(ZoneOffset.UTC);
+            String format = parse.format(ofPattern(DATETIME_FORMAT_DEFAULT));
+            return Long.parseLong(format + MIN);
+        } catch (Exception e) {
+            throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE, e);
+        }
     }
 }

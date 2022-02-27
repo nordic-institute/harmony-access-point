@@ -30,7 +30,7 @@ public class CacheDefaultServiceTest {
         cacheDefaultService.evictCaches();
 
         new FullVerifications() {{
-            domibusCacheService.clearAllCaches();
+            domibusCacheService.clearAllCaches(true);
         }};
     }
 
@@ -38,7 +38,7 @@ public class CacheDefaultServiceTest {
     public void evictCachesWithException() {
 
         new Expectations() {{
-            domibusCacheService.clearAllCaches();
+            domibusCacheService.clearAllCaches(true);
             result = new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "exception");
 
         }};

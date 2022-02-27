@@ -1,7 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
 import {TrustStoreEntry} from './trustore.model';
 import * as FileSaver from 'file-saver';
 
@@ -39,5 +38,9 @@ export class TrustStoreService {
   removeCertificate(url: string, cert: any): Promise<string> {
     const deleteUrl = url.replace('alias', cert.name);
     return this.http.delete<string>(deleteUrl).toPromise();
+  }
+
+  reloadKeyStore() {
+    return this.http.post<any>('rest/keystore/resets', null).toPromise();
   }
 }

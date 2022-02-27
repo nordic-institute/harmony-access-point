@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 public class Evict2LCachesCommandTask implements CommandTask {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(Evict2LCachesCommandTask.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(Evict2LCachesCommandTask.class);
 
     protected DomibusCacheService domibusCacheService;
 
@@ -31,8 +31,8 @@ public class Evict2LCachesCommandTask implements CommandTask {
 
     @Override
     public void execute(Map<String, String> properties) {
-        LOGGER.debug("Evicting 2nd level caches command task");
+        LOG.info("Evicting 2nd level caches command task");
 
-        domibusCacheService.clear2LCCaches();
+        domibusCacheService.clear2LCCaches(false);
     }
 }

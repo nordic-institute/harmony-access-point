@@ -862,6 +862,9 @@
         <createIndex indexName="IDX_SIG_MESS_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="REF_TO_MESSAGE_ID"/>
         </createIndex>
+        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="SIGNAL_MESSAGE_ID"/>
+        </createIndex>
 
         <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT">
@@ -981,28 +984,6 @@
         <createIndex indexName="IDX_MESSAGE_ID_FK" tableName="TB_SEND_ATTEMPT">
             <column name="USER_MESSAGE_ID_FK"/>
         </createIndex>
-
-        <createTable tableName="TB_USER_MSG_DELETION_JOB">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MSG_DELETION_JOB"/>
-            </column>
-            <column name="PROCEDURE_NAME" type="VARCHAR(255)" remarks="Name of the stored procedure in the database."/>
-            <column name="MPC" type="VARCHAR(255)"/>
-            <column name="START_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages newer than this date will be deleted by this job"/>
-            <column name="END_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages older than this date will be deleted by this job"/>
-            <column name="MAX_COUNT" type="INT" remarks="Maximum number of expired messages to be deleted by one call of the stored procedure"/>
-            <column name="STATE" type="VARCHAR(255)" remarks="User message deletion job state: NEW, RUNNING or STOPPED"/>
-            <column name="ACTUAL_START_DATE" type="TIMESTAMP" remarks="The actual date when this job was started."/>
-
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
     </changeSet>
     <!--End UserMessage Tables -->
 
@@ -1052,7 +1033,7 @@
             </column>
             <column name="REV" type="BIGINT"/>
             <column name="AUDIT_ORDER" type="INT"/>
-            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
+            <column name="ENTITY_NAME" type="VARCHAR(255)"/>
             <column name="GROUP_NAME" type="VARCHAR(255)"/>
             <column name="ENTITY_ID" type="VARCHAR(255)"/>
             <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>

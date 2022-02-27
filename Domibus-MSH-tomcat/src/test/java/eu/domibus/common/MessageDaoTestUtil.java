@@ -30,6 +30,7 @@ import java.util.List;
 @Component
 public class MessageDaoTestUtil {
     public static final String MPC = "mpc";
+    public static final String DEFAULT_MPC = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
 
     @Autowired
     UserMessageLogDao userMessageLogDao;
@@ -179,7 +180,12 @@ public class MessageDaoTestUtil {
 
     @Transactional
     public UserMessageLog createUserMessageLog(String msgId, Date received) {
-        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, MessageStatus.RECEIVED, false, true, MPC, null);
+        return createUserMessageLog(msgId, received, MessageStatus.RECEIVED, MPC);
+    }
+
+    @Transactional
+    public UserMessageLog createUserMessageLog(String msgId, Date received, MessageStatus messageStatus, String mpc) {
+        return createUserMessageLog(msgId, received, MSHRole.RECEIVING, messageStatus, false, true, mpc, null);
     }
 
     @Transactional

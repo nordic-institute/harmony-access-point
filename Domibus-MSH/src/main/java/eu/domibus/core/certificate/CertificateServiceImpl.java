@@ -22,6 +22,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.certificate.crl.DomibusCRLException;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
@@ -32,6 +33,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
@@ -64,6 +68,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE;
@@ -244,6 +249,28 @@ public class CertificateServiceImpl implements CertificateService {
                 resultStream = Base64.getMimeDecoder().wrap(resultStream);
             }
             cert = (X509Certificate) certFactory.generateCertificate(resultStream);
+        } catch (IOException | CertificateException e) {
+            throw new DomibusCertificateException("Could not generate certificate", e);
+        }
+        return cert;
+    }
+
+    @Override
+    public X509Certificate loadCertificateFromByteArray(byte[] content) {
+        if (content == null) {
+            throw new DomibusCertificateException("Certificate content cannot be null.");
+        }
+
+        CertificateFactory certFactory;
+        X509Certificate cert;
+        try {
+            certFactory = CertificateFactory.getInstance("X.509");
+        } catch (CertificateException e) {
+            throw new DomibusCertificateException("Could not initialize certificate factory", e);
+        }
+
+        try (InputStream contentStream = new ByteArrayInputStream(content)) {
+            cert = (X509Certificate) certFactory.generateCertificate(contentStream);
         } catch (IOException | CertificateException e) {
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
@@ -940,6 +967,34 @@ public class CertificateServiceImpl implements CertificateService {
         byte[] digest = md.digest();
         String digestHex = DatatypeConverter.printHexBinary(digest);
         return digestHex.toLowerCase();
+    }
+
+    /**
+     * Extracts all Certificate Policy identifiers the "Certificate policy" extension of X.509.
+     * If the certificate policy extension is unavailable, returns an empty list.
+     *
+     * @param cert a X509 certificate
+     * @return the list of CRL urls of certificate policy identifiers
+     */
+    public List<String> getCertificatePolicyIdentifiers(X509Certificate cert) {
+
+        byte[] certPolicyExt = cert.getExtensionValue(Extension.certificatePolicies.getId());
+        if (certPolicyExt == null) {
+            return new ArrayList<>();
+        }
+
+        CertificatePolicies policies;
+        try {
+            policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(certPolicyExt));
+        } catch (IOException e) {
+            throw new DomibusCRLException("Error occurred while reading certificate policy object!", e);
+        }
+
+        return Arrays.stream(policies.getPolicyInformation())
+                .map(PolicyInformation::getPolicyIdentifier)
+                .map(ASN1ObjectIdentifier::getId)
+                .map(StringUtils::trim)
+                .collect(Collectors.toList());
     }
 }
 

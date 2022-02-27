@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
@@ -25,9 +26,12 @@ import org.springframework.util.CollectionUtils;
 
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * @author Thomas Dussart, Ioana Dragusanu
@@ -59,6 +63,9 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     @Autowired
     DomainContextProvider domainProvider;
+
+    @Autowired
+    CertificateService certificateService;
 
     /**
      * {@inheritDoc}
@@ -107,6 +114,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         authorizeAgainstTruststoreAlias(signingCertificate, initiatorName);
         authorizeAgainstCertificateSubjectExpression(signingCertificate);
         authorizeAgainstCertificateCNMatch(signingCertificate, initiatorName);
+        authorizeAgainstCertificatePolicyMatch(signingCertificate, initiatorName);
     }
 
 
@@ -180,6 +188,37 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             return;
         }
         String excMessage = String.format("Sender alias verification failed. Signing certificate CN does not contain the alias [%s]: %s ", alias, signingCertificate);
+        throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
+    }
+
+    protected void authorizeAgainstCertificatePolicyMatch(X509Certificate signingCertificate, String alias) {
+
+        LOG.debug("Authorize against certificate Policy");
+        if (signingCertificate == null) {
+            LOG.debug("Signing certificate is not provided.");
+            return;
+        }
+
+        String propertyValue = trimToEmpty(domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS));
+        if (StringUtils.isBlank(propertyValue)) {
+            LOG.debug("[{}] is empty, certificate policy verification is disabled.", DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
+            return;
+        }
+        // allowed list
+        List<String> allowedCertificatePolicyOIDList = Arrays.asList(propertyValue.split("\\s*,\\s*"));
+        // certificate list
+        List<String> certPolicyList = certificateService.getCertificatePolicyIdentifiers(signingCertificate);
+        if (certPolicyList.isEmpty()) {
+            String excMessage = String.format("Sender alias verification failed. Signing certificate for the alias [%s] has empty CertificatePolicy extension. Certificate: %s ", alias, signingCertificate);
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
+        }
+
+        Optional<String> result = certPolicyList.stream().filter(certPolicyOID -> allowedCertificatePolicyOIDList.contains(certPolicyOID)).findFirst();
+        if (result.isPresent()) {
+            LOG.info("Sender [{}] is trusted with certificate policy [{}]", alias, result.get());
+            return;
+        }
+        String excMessage = String.format("Sender certificate policy verification failed. Signing certificate [%s] does not contain any of the required certificate policies: [%s]", alias, signingCertificate);
         throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, excMessage);
     }
 

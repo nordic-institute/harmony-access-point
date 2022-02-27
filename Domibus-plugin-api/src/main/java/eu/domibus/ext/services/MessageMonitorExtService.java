@@ -4,7 +4,6 @@ import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -104,13 +103,13 @@ public interface MessageMonitorExtService {
      * <li>It restores the messages matching the finalRecipient value in case the user has ROLE_USER</li>
      * </ul>
      *
-     * @param begin specific instant time starting period
-     * @param end   specific instant time ending period
+     * @param begin ID_PK date-hour starting period
+     * @param end   ID_PK date-hour ending period
      * @return List the messages ids's list of successfully restored messages.
      * @throws MessageMonitorExtException Raised in case a blocking event occurs. It is not raised when the operation is successful for at least one message
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
      */
-    List<String> restoreFailedMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException;
+    List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException;
 
     /**
      * Operation to delete a message which is in SEND_FAILURE status in the access point.
@@ -154,13 +153,13 @@ public interface MessageMonitorExtService {
      * <li>It delete all the messages matching the finalRecipient value in case the user has ROLE_USER</li>
      * </ul>
      *
-     * @param begin specific instant time starting period
-     * @param end   specific instant time ending period
+     * @param begin ID_PK date-hour starting period
+     * @param end   ID_PK date-hour ending period (excluded)
      * @return List the messages ids's list of successfully deleted messages.
      * @throws MessageMonitorExtException Raised in case a blocking event occurs. It is not raised when the operation is successful for at least one message
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
      */
-    List<String> deleteMessagesDuringPeriod(Date begin, Date end) throws AuthenticationExtException, MessageMonitorExtException;
+    List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException;
 
 
 }

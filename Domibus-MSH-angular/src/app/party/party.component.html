@@ -1,4 +1,4 @@
-<div style="height: calc(100% - 15px);">
+<div class="domibus-page">
   <page-header id="partyHeader_id">PMode - Parties</page-header>
 
   <div class="selectionCriteria">
@@ -34,12 +34,9 @@
     </mat-card>
   </div>
 
-  <div style="height: calc(100% - 180px);">
-    <div class="panel">
-      <grid-header [parent]="this"></grid-header>
-    </div>
+    <grid-header [parent]="this"></grid-header>
 
-    <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden;">
+    <div class="domibus-grid-container">
       <page-grid [parent]="this" [selectionType]="'single'"></page-grid>
     </div>
 
@@ -55,5 +52,4 @@
     </ng-template>
 
     <page-footer [parent]="this"></page-footer>
-  </div>
 </div>

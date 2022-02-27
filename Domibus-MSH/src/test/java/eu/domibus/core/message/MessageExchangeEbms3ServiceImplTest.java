@@ -398,7 +398,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         userMessage.setMpc(mpc);
         when(userMessageDao.findByMessageId("123")).thenReturn(userMessage);
         when(mpcService.forcePullOnMpc(userMessage)).thenReturn(true);
-        when(messageStatusDao.findMessageStatus(MessageStatus.READY_TO_PULL)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
+        when(messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
         final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123").getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }

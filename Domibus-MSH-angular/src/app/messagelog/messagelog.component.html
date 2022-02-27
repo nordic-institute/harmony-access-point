@@ -1,4 +1,4 @@
-<div style="height: calc(100% - 15px);">
+<div class="domibus-page">
   <page-header id="messagesheader_id">Messages</page-header>
 
   <div class="selectionCriteria">
@@ -125,60 +125,58 @@
     </mat-card>
   </div>
 
-  <div class="panel" style="height: calc(100% - 140px);">
+  <grid-header [parent]="this"></grid-header>
 
-    <grid-header [parent]="this"></grid-header>
-
-    <div style="height: calc(100% - 130px); overflow-y: auto; overflow-x: hidden;">
-      <page-grid [parent]="this" [selectionType]="'single'" [totalMessage]="totalRowsMessage"
-                 [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
-    </div>
-
-    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <span class="text-select">{{value| domibusDate}}</span>
-    </ng-template>
-
-    <ng-template #nextAttemptInfoTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <span class="text-select">{{showNextAttemptInfo(row) ? value : ''}}</span>
-    </ng-template>
-
-    <ng-template #nextAttemptInfoWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <span class="text-select">{{showNextAttemptInfo(row) ? (row | domibusFutureDate) : ''}}</span>
-    </ng-template>
-
-    <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <span class="text-select">{{value}}</span>
-    </ng-template>
-
-    <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-      <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)" button-click-behaviour
-              (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
-        <mat-icon>file_download</mat-icon>
-      </button>
-      <button mat-icon-button color="primary" button-click-behaviour
-              (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id"
-              tooltip="Download Envelopes">
-        <mat-icon>local_post_office</mat-icon>
-      </button>
-      <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()"
-              [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
-              id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend" button-click-behaviour>
-        <mat-icon>send</mat-icon>
-      </button>
-    </ng-template>
-
-    <div class="group-action-button">
-      <button mat-raised-button color="primary" [disabled]="!isDownloadButtonEnabled()" (click)="download()"
-              id="downloadbutton_id" button-click-behaviour>
-        <mat-icon>file_download</mat-icon>
-        <span>Download</span>
-      </button>
-      <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
-              (click)="resendDialog()"
-              id="resendbutton_id" button-click-behaviour>
-        <mat-icon>send</mat-icon>
-        <span>Resend</span>
-      </button>
-    </div>
+  <div class="domibus-grid-container">
+    <page-grid [parent]="this" [selectionType]="'single'" [totalMessage]="totalRowsMessage"
+               [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
   </div>
+
+  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value| domibusDate}}</span>
+  </ng-template>
+
+  <ng-template #nextAttemptInfoTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{showNextAttemptInfo(row) ? value : ''}}</span>
+  </ng-template>
+
+  <ng-template #nextAttemptInfoWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{showNextAttemptInfo(row) ? (row | domibusFutureDate) : ''}}</span>
+  </ng-template>
+
+  <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="text-select">{{value}}</span>
+  </ng-template>
+
+  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+    <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)" button-click-behaviour
+            (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <button mat-icon-button color="primary" button-click-behaviour
+            (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id"
+            tooltip="Download Envelopes">
+      <mat-icon>local_post_office</mat-icon>
+    </button>
+    <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()"
+            [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
+            id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend" button-click-behaviour>
+      <mat-icon>send</mat-icon>
+    </button>
+  </ng-template>
+
+  <div class="group-action-button">
+    <button mat-raised-button color="primary" [disabled]="!isDownloadButtonEnabled()" (click)="download()"
+            id="downloadbutton_id" button-click-behaviour>
+      <mat-icon>file_download</mat-icon>
+      <span>Download</span>
+    </button>
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
+            (click)="resendDialog()"
+            id="resendbutton_id" button-click-behaviour>
+      <mat-icon>send</mat-icon>
+      <span>Resend</span>
+    </button>
+  </div>
+
 </div>

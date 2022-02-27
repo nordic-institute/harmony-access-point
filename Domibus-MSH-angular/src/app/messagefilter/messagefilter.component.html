@@ -1,4 +1,4 @@
-<div style="height: calc(100% - 15px);">
+<div class="domibus-page">
   <page-header id="messagefilterheader_id">Message Filter</page-header>
 
   <button mat-icon-button color="primary" (click)="saveAsCSV()" style="margin-bottom: 20px;"
@@ -6,7 +6,7 @@
     <img src="assets/images/exportCSV.svg" width="30" height="30">
   </button>
 
-  <div style="height: calc(100% - 180px); overflow-y: auto; overflow-x: hidden;">
+  <div class="domibus-grid-container">
     <ngx-datatable
       class="material striped"
       [columnMode]="'force'"
@@ -84,20 +84,20 @@
     </ngx-datatable>
   </div>
 
-  <div class="group-action-button">
-    <button mat-raised-button color="primary" type="button" [disabled]="!canMoveUp()"
-            (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
-      <mat-icon>arrow_drop_up</mat-icon>
-      <span>Move Up</span>
-    </button>
-    <button mat-raised-button color="primary" type="button" [disabled]="!canMoveDown()"
-            (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
-      <mat-icon>arrow_drop_down</mat-icon>
-      <span>Move Down</span>
-    </button>
-  </div>
-
   <div>
+    <div class="group-action-button">
+      <button mat-raised-button color="primary" type="button" [disabled]="!canMoveUp()"
+              (click)="buttonMoveUp()" id="moveupbutton_id" button-click-behaviour>
+        <mat-icon>arrow_drop_up</mat-icon>
+        <span>Move Up</span>
+      </button>
+      <button mat-raised-button color="primary" type="button" [disabled]="!canMoveDown()"
+              (click)="buttonMoveDown()" id="movedownbutton_id" button-click-behaviour>
+        <mat-icon>arrow_drop_down</mat-icon>
+        <span>Move Down</span>
+      </button>
+    </div>
+
     <page-footer [parent]="this"></page-footer>
   </div>
 </div>

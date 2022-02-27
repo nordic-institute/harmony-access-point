@@ -37,7 +37,9 @@ public class DomainPropertiesTest {
         LOGGER.info("Properties after replacement: {}", domainNamePropertiesString);
         properties.load(new ByteArrayInputStream(domainNamePropertiesString.getBytes()));
         final List<String> propertiesNotStartingWith_domain_name = properties.keySet().stream().map(property -> (String) property).filter(property -> !property.startsWith("domain_name")).collect(Collectors.toList());
-        Assert.assertTrue(propertiesNotStartingWith_domain_name.isEmpty());
+        Assert.assertTrue("Properties not starting with the domain name: ["+ String.join(",",propertiesNotStartingWith_domain_name)+"]",propertiesNotStartingWith_domain_name.isEmpty());
+
+
 
     }
 }
