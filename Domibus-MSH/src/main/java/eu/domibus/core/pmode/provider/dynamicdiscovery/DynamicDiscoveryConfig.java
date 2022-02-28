@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Scope;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * A configuration containing definitions for dynamic discovery services.
@@ -45,8 +46,8 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusCertificateValidator domibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String certRegex, String allowedCertificatePolicyId) {
-        return new DomibusCertificateValidator(certificateService, trustStore, certRegex, allowedCertificatePolicyId);
+    public DomibusCertificateValidator domibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String certRegex, List<String> allowedCertificatePolicyOIDs) {
+        return new DomibusCertificateValidator(certificateService, trustStore, certRegex, allowedCertificatePolicyOIDs);
     }
 
     @Bean

@@ -257,6 +257,28 @@ public class CertificateServiceImpl implements CertificateService {
         return cert;
     }
 
+    @Override
+    public X509Certificate loadCertificateFromByteArray(byte[] content) {
+        if (content == null) {
+            throw new DomibusCertificateException("Certificate content cannot be null.");
+        }
+
+        CertificateFactory certFactory;
+        X509Certificate cert;
+        try {
+            certFactory = CertificateFactory.getInstance("X.509");
+        } catch (CertificateException e) {
+            throw new DomibusCertificateException("Could not initialize certificate factory", e);
+        }
+
+        try (InputStream contentStream = new ByteArrayInputStream(content)) {
+            cert = (X509Certificate) certFactory.generateCertificate(contentStream);
+        } catch (IOException | CertificateException e) {
+            throw new DomibusCertificateException("Could not generate certificate", e);
+        }
+        return cert;
+    }
+
     /**
      * {@inheritDoc}
      */
