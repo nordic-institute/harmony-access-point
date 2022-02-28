@@ -12,6 +12,7 @@ import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.operator.ContentSigner;
@@ -19,6 +20,7 @@ import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.x509.X509V2CRLGenerator;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
@@ -29,16 +31,19 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by Cosmin Baciu on 08-Jul-16.
  */
 public class PKIUtil {
+
+    public static final String CERTIFICATE_POLICY_ANY="2.5.29.32.0";
+    public static final String CERTIFICATE_POLICY_QCP_NATURAL = "0.4.0.194112.1.0";
+    public static final String CERTIFICATE_POLICY_QCP_LEGAL = "0.4.0.194112.1.1";
+    public static final String CERTIFICATE_POLICY_QCP_NATURAL_QSCD = "0.4.0.194112.1.2";
+    public static final String CERTIFICATE_POLICY_QCP_LEGAL_QSCD = "0.4.0.194112.1.3";
 
     public X509CRL createCRL(List<BigInteger> revokedSerialNumbers) throws NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException {
         KeyPair caKeyPair = generateKeyPair();
@@ -145,6 +150,38 @@ public class PKIUtil {
                                                String signatureAlgorithm,
                                                List<String> certificatePolicies
     ) throws IllegalStateException, IOException, NoSuchAlgorithmException, OperatorCreationException, CertificateException {
+        return generateCertificate(subjectDn, serial, notBefore, notAfter, issuerCertificate, issuerPrivateKeyForSigning, crlUris, ocspUri, keyUsage, signatureAlgorithm, certificatePolicies, false);
+    }
+
+    /**
+     * Generic method for generating test certificatese
+     *
+     * @param subjectDn                  - subject certificate
+     * @param serial                     - serial number
+     * @param notBefore                  - start valid period for certificate
+     * @param notAfter-                  end valid period for certificate
+     * @param issuerCertificate          - issuer certificate
+     * @param issuerPrivateKeyForSigning - certificate signing key
+     * @param crlUris                    - list of CRLs
+     * @param ocspUri                    - OCSP URO
+     * @param keyUsage                   - key usage
+     * @param signatureAlgorithm         - signature algorithms
+     * @param certificatePolicies        - certificate policy
+     * @param isRootCA                   - Add Extension.basicConstraints
+     *
+     * @return
+     * @throws IllegalStateException
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     * @throws OperatorCreationException
+     * @throws CertificateException
+     */
+    public X509Certificate generateCertificate(String subjectDn, BigInteger serial,
+                                               Date notBefore, Date notAfter, X509Certificate issuerCertificate, PrivateKey issuerPrivateKeyForSigning,
+                                               List<String> crlUris, String ocspUri, KeyUsage keyUsage,
+                                               String signatureAlgorithm,
+                                               List<String> certificatePolicies, boolean isRootCA
+    ) throws IllegalStateException, IOException, NoSuchAlgorithmException, OperatorCreationException, CertificateException {
 
 
         KeyPair certificateKey = generateKeyPair();
@@ -159,6 +196,10 @@ public class PKIUtil {
         SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(certificateKey.getPublic().getEncoded());
         X509v3CertificateBuilder x509v3CertificateBuilder = new X509v3CertificateBuilder(issuerName, serial,
                 notBefore, notAfter, subjectName, publicKeyInfo);
+
+        if (isRootCA) {
+            x509v3CertificateBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+        }
 
         // add CRL DistributionPoints
         if (crlUris != null && !crlUris.isEmpty()) {
@@ -218,4 +259,69 @@ public class PKIUtil {
         return certificate;
     }
 
+    /**
+     *  Method generates certificate chain
+     * @param subjects in order from CA to leaf
+     * @param certificatePoliciesOids Policy oids fromCA to leaf
+     * @param startDate valid certificates from
+     * @param expiryDate valid certificates to
+     * @return
+     * @throws Exception
+     */
+    public static X509Certificate[] createCertificateChain(String[] subjects, List<List<String>> certificatePoliciesOids, Date startDate, Date expiryDate) throws Exception {
+
+        String issuer = null;
+        PrivateKey issuerKey = null;
+        long iSerial = 10000;
+        X509Certificate[] certs = new X509Certificate[subjects.length];
+
+        for (int i=0;i<subjects.length;i++){
+            String subject = subjects[i];
+
+            List<String> certificatePolicies =certificatePoliciesOids.size()>i?certificatePoliciesOids.get(i): Collections.emptyList();
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(1024);
+            KeyPair key = keyGen.generateKeyPair();
+
+            X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(new X500Name(issuer ==null? subject:issuer),
+                    BigInteger.valueOf(iSerial++), startDate, expiryDate, new X500Name(subject),
+                    SubjectPublicKeyInfo.getInstance(key.getPublic().getEncoded()));
+
+            // set basic basicConstraint  for all except the last leaf certificate
+            if (i!=subjects.length-1) {
+                certBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+            }
+
+            // add certificate policies
+            if (!certificatePolicies.isEmpty()) {
+                List<PolicyInformation> policyInformationList = certificatePolicies.stream().map(certificatePolicy -> {
+                    ASN1ObjectIdentifier policyObjectIdentifier = new ASN1ObjectIdentifier(certificatePolicy);
+                    return new PolicyInformation(policyObjectIdentifier);
+                }).collect(Collectors.toList());
+
+                certBuilder.addExtension(Extension.certificatePolicies, false,
+                        new DERSequence(policyInformationList.toArray(new PolicyInformation[]{})));
+
+            }
+            ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WITHRSA")
+                    .build(issuerKey ==null?key.getPrivate():issuerKey);
+
+            // add certs in reverse order
+            certs[subjects.length-1-i] = new JcaX509CertificateConverter().getCertificate(certBuilder.build(sigGen));
+            issuer= subject;
+            issuerKey = key.getPrivate();
+
+        }
+        return certs;
+    }
+
+    public static KeyStore createTruststore(X509Certificate... certificates) throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
+        KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+        //initi keystore
+        truststore.load(null, null);
+        for (X509Certificate certificate : certificates) {
+            truststore.setCertificateEntry(UUID.randomUUID().toString(), certificate);
+        }
+        return truststore;
+    }
 }
