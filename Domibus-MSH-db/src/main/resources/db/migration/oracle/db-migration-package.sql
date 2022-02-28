@@ -559,10 +559,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     FUNCTION lookup_migration_pk_tz_offset RETURN NUMBER IS
         new_id NUMBER;
     BEGIN
-        SELECT MPKSUM.NEW_ID
+        SELECT MPKSTO.NEW_ID
             INTO new_id
-            FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSUM
-            WHERE MPKSUM.OLD_ID = 1;
+            FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSTO
+            WHERE MPKSTO.OLD_ID = 1;
         RETURN new_id;
     END lookup_migration_pk_tz_offset;
 

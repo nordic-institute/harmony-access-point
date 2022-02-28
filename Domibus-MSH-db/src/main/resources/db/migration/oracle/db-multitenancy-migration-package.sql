@@ -388,10 +388,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             migr_alert := T_MIGR_ALERT();
             migr_pks_alert := T_MIGR_PKS_ALERT();
 
-            SELECT MPKSUM.NEW_ID
+            SELECT MPKSTO.NEW_ID
             INTO v_fk_timezone_offset
-            FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSUM
-            WHERE MPKSUM.OLD_ID = 1;
+            FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSTO
+            WHERE MPKSTO.OLD_ID = 1;
 
             FOR i IN alert.FIRST .. alert.LAST
                 LOOP
