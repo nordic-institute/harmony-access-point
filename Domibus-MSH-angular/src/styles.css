@@ -426,11 +426,11 @@ html, body, app-root, ng-component {
 }
 
 .domibus-page {
-  height: 100%;
+  height: calc(100% - 10px);
+  width: calc(100% - 20px);
   display: flex;
   flex-direction: column;
   padding-left: 16px;
-  margin-right: 10px;
 }
 
 .domibus-grid-container {
