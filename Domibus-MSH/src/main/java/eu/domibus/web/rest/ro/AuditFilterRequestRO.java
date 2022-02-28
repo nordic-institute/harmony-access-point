@@ -127,6 +127,7 @@ public class AuditFilterRequestRO {
                 ", to=" + to +
                 ", start=" + start +
                 ", max=" + max +
+                ", domain=" + domain +
                 '}';
     }
 }
