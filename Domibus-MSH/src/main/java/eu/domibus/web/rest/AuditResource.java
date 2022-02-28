@@ -58,10 +58,8 @@ public class AuditResource extends BaseResource {
      */
     @GetMapping(value = {"/list"})
     public List<AuditResponseRo> listAudits(@Valid AuditFilterRequestRO auditCriteria) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Audit criteria received:");
-            LOG.debug(auditCriteria.toString());
-        }
+        LOG.debug("Audit criteria received:");
+        LOG.debug(auditCriteria.toString());
 
         List<AuditLog> sourceList = auditService.listAudit(
                 auditCriteria.getAuditTargetName(),
@@ -70,7 +68,8 @@ public class AuditResource extends BaseResource {
                 auditCriteria.getFrom(),
                 auditCriteria.getTo(),
                 auditCriteria.getStart(),
-                auditCriteria.getMax());
+                auditCriteria.getMax(),
+                auditCriteria.isDomain());
 
         List<AuditResponseRo> list = auditLogCoreMapper.auditLogListToAuditResponseRoList(sourceList);
         list.forEach(entry -> entry.setAction(getActionTypeLabelFromCode(entry.getAction())));
@@ -84,7 +83,8 @@ public class AuditResource extends BaseResource {
                 changeActionType(auditCriteria.getAction()),
                 auditCriteria.getUser(),
                 auditCriteria.getFrom(),
-                auditCriteria.getTo());
+                auditCriteria.getTo(),
+                auditCriteria.isDomain());
     }
 
     @GetMapping(value = {"/targets"})

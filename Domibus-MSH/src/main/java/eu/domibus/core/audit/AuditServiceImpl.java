@@ -68,23 +68,15 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<AuditLog> listAudit(
-            final Set<String> auditTargets,
-            final Set<String> actions,
-            final Set<String> users,
-            final Date from,
-            final Date to,
-            final int start,
-            final int max) {
-        return auditLogCoreMapper.auditLogListToAuditList(
-                auditDao.listAudit(
-                        auditTargets,
-                        actions,
-                        users,
-                        from,
-                        to,
-                        start,
-                        max));
+    public List<AuditLog> listAudit(final Set<String> auditTargets, final Set<String> actions, final Set<String> users,
+                                    final Date from, final Date to, final int start, final int max, boolean domain) {
+        List<Audit> auditList;
+        if (domain) {
+            auditList = auditDao.listAudit(auditTargets, actions, users, from, to, start, max);
+        } else {
+            auditList = domainTaskExecutor.submit(() -> auditDao.listAudit(auditTargets, actions, users, from, to, start, max));
+        }
+        return auditLogCoreMapper.auditLogListToAuditList(auditList);
     }
 
     /**
@@ -96,8 +88,12 @@ public class AuditServiceImpl implements AuditService {
                            final Set<String> action,
                            final Set<String> user,
                            final Date from,
-                           final Date to) {
-        return auditDao.countAudit(auditTargetName, action, user, from, to);
+                           final Date to, boolean domain) {
+        if (domain) {
+            return auditDao.countAudit(auditTargetName, action, user, from, to);
+        } else {
+            return domainTaskExecutor.submit(() -> auditDao.countAudit(auditTargetName, action, user, from, to));
+        }
     }
 
     /**
@@ -112,10 +108,10 @@ public class AuditServiceImpl implements AuditService {
                 map(aClass -> annotationsUtil.getValue(aClass, RevisionLogicalName.class)).
                 //check if present is needed because the set contains subclasses that do not contain the annotation.
                         filter(Optional::isPresent).
-                        map(Optional::get).
-                        distinct().
-                        sorted().
-                        collect(Collectors.toList());
+                map(Optional::get).
+                distinct().
+                sorted().
+                collect(Collectors.toList());
     }
 
     protected Set<Class<?>> getFiltereAuditTargets() {
