@@ -46,7 +46,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginSendMessagesWorkerJob")){
+        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginSendMessagesWorkerJob")) {
             return null;
         }
 
@@ -69,7 +69,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeSentWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeSentWorkerJob")){
+        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeSentWorkerJob")) {
             return null;
         }
 
@@ -92,7 +92,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeFailedWorkerJob")){
+        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeFailedWorkerJob")) {
             return null;
         }
 
@@ -115,7 +115,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeReceivedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeReceivedWorkerJob")){
+        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeReceivedWorkerJob")) {
             return null;
         }
 
@@ -138,7 +138,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeLocksWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeLocksWorkerJob")){
+        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeLocksWorkerJob")) {
             return null;
         }
 
