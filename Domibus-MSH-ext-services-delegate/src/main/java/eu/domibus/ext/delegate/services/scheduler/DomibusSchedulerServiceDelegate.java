@@ -5,7 +5,8 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,11 +16,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtService {
 
-    @Autowired
-    protected DomibusScheduler domibusScheduler;
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSchedulerServiceDelegate.class);
 
-    @Autowired
-    protected DomainService domainService;
+    protected final DomibusScheduler domibusScheduler;
+
+    protected final DomainService domainService;
+
+    DomibusSchedulerServiceDelegate(DomibusScheduler domibusScheduler, DomainService domainService) {
+        LOG.info("creating DomibusSchedulerServiceDelegate");
+        this.domibusScheduler = domibusScheduler;
+        this.domainService = domainService;
+    }
 
     @Override
     public void rescheduleJob(String domainCode, String jobNameToReschedule, String newCronExpression) throws DomibusSchedulerException {
@@ -41,6 +48,8 @@ public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtServi
 
     @Override
     public void markJobForPausing(String domainCode, String jobNameToPause) {
+        LOG.debug("markJobForPausing called with domainCode=[{}] and jobNameToPause=[{}] and domainService=[{}] and domibusScheduler=[{}].",
+                domainCode, jobNameToPause, domainService, domibusScheduler);
         Domain domain = domainService.getDomain(domainCode);
         domibusScheduler.markJobForPausingByDomain(domain, jobNameToPause);
     }

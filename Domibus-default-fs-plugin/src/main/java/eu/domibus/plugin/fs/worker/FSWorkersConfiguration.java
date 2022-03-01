@@ -45,8 +45,10 @@ public class FSWorkersConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        LOG.debug("fsPluginSendMessagesWorkerTrigger entering");
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginSendMessagesWorkerJob")) {
+            LOG.debug("checkTriggerCreation returned null for domain [{}] so the fsPluginSendMessagesWorkerTrigger returns null", domain);
             return null;
         }
 
@@ -156,8 +158,9 @@ public class FSWorkersConfiguration {
             return false; // this job only works for a domain
         }
         if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-            LOG.debug("Domain [{}] is disabled, job [{}] will be created but paused", jobName, domain);
+            LOG.debug("Domain [{}] is disabled, job [{}] will be created but paused", domain, jobName);
 
+            LOG.debug("calling markJobForPausing on service [{}]", domibusSchedulerExtService);
             domibusSchedulerExtService.markJobForPausing(domain.getCode(), jobName);
             LOG.debug("Quartz job [{}] marked for pausing", jobName);
         }
