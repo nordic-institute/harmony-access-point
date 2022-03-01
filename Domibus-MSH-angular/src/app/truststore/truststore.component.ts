@@ -38,6 +38,11 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
   }
 
   async reloadKeyStore() {
-    await this.trustStoreService.reloadKeyStore();
+    try {
+      await this.trustStoreService.reloadKeyStore();
+      this.alertService.success('Keystore was successfully reset.')
+    } catch (ex) {
+      this.alertService.exception('Error reseting the keystore:', ex);
+    }
   }
 }
