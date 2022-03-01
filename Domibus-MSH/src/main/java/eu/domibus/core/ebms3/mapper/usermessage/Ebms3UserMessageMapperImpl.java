@@ -1,9 +1,11 @@
 package eu.domibus.core.ebms3.mapper.usermessage;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.dictionary.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -87,7 +89,8 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
             userMessage.setAgreementRef(agreement);
         }
 
-        final MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(ebms3UserMessage.getMpc());
+        String mpc = ebms3UserMessage.getMpc();
+        final MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
         userMessage.setMpc(mpcEntity);
 
         final Ebms3MessageProperties userMessageMessageProperties = ebms3UserMessage.getMessageProperties();

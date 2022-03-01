@@ -1,5 +1,6 @@
 package domibus.ui.ux;
 
+import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -20,7 +21,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORES_DOMIBUS);
 
-    /* EDELIVERY-5157 - TRST-1 - Login as super admin and open Truststore page */
+	/* EDELIVERY-5157 - TRST-1 - Login as super admin and open Truststore page */
 	@Test(description = "TRST-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openTrustorePage() throws Exception {
 
@@ -28,6 +29,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		TruststorePage page = new TruststorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 
+		Reporter.log("checking page default state");
 		log.info("checking page default state");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
 
@@ -43,7 +45,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5158 - TRST-2 - User doubleclicks on one entry */
+	/* EDELIVERY-5158 - TRST-2 - User doubleclicks on one entry */
 	@Test(description = "TRST-2", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickTruststoreEntry() throws Exception {
 
@@ -52,11 +54,14 @@ public class TruststorePgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 
 		HashMap<String, String> entryInfo = page.grid().getRowInfo(0);
+		Reporter.log("gathering grid data - " + entryInfo);
 		log.info("gathering grid data - " + entryInfo);
 
+		Reporter.log("double click row 0");
 		log.info("double click row 0");
 		page.grid().doubleClickRow(0);
 		HashMap<String, String> modalInfo = new TruststoreModal(driver).getInfo();
+		Reporter.log("gathering modal data - " + modalInfo);
 		log.info("gathering modal data - " + modalInfo);
 
 		boolean eq = TestUtils.areMapsEqual(entryInfo, modalInfo);
@@ -65,7 +70,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5159 - TRST-3 - Download list of truststore entries */
+	/* EDELIVERY-5159 - TRST-3 - Download list of truststore entries */
 	@Test(description = "TRST-3", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownload() throws Exception {
 
@@ -74,6 +79,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 
 		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		Reporter.log("downloaded rows to file " + fileName);
 		log.info("downloaded rows to file " + fileName);
 		page.grid().checkCSVvsGridInfo(fileName, soft);
 
@@ -81,7 +87,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5162 - TRST-6 - Click Show columns link */
+	/* EDELIVERY-5162 - TRST-6 - Click Show columns link */
 	@Test(description = "TRST-6", groups = {"multiTenancy", "singleTenancy"})
 	public void checkShowColumnsLink() throws Exception {
 
@@ -94,6 +100,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 
 		testColumnControlsAvailableOptions(soft, grid, descriptorObj.getJSONObject("grid").getJSONArray("columns"));
 
+		Reporter.log("Checking visibility of All/None links");
 		log.info("Checking visibility of All/None links");
 		soft.assertTrue(grid.getGridCtrl().getAllLnk().isVisible(), "All link is visible");
 		soft.assertTrue(grid.getGridCtrl().getNoneLnk().isVisible(), "None link is visible");
@@ -102,7 +109,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5163 - TRST-7 - CheckUncheck of fields on Show links */
+	/* EDELIVERY-5163 - TRST-7 - CheckUncheck of fields on Show links */
 	@Test(description = "TRST-7", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyVisibleColumns() throws Exception {
 
@@ -117,7 +124,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5164 - TRST-8 - Click Hide link without any new selection */
+	/* EDELIVERY-5164 - TRST-8 - Click Hide link without any new selection */
 	@Test(description = "TRST-8", groups = {"multiTenancy", "singleTenancy"})
 	public void hideNoNewSelection() throws Exception {
 
@@ -142,7 +149,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5165 - TRST-9 - Click Hide link after selecting some new fields */
+	/* EDELIVERY-5165 - TRST-9 - Click Hide link after selecting some new fields */
 	@Test(description = "TRST-9", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyColumnsAndHideLnk() throws Exception {
 		String colName = "Issuer";
@@ -152,6 +159,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
+		Reporter.log("getting list of columns: " + columnsPre);
 		log.info("getting list of columns: " + columnsPre);
 
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "Before Show link is clicked the checkboxes are not visible");
@@ -159,6 +167,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		grid.getGridCtrl().showCtrls();
 		soft.assertTrue(grid.getGridCtrl().areCheckboxesVisible(), "After Show link is clicked the checkboxes are visible");
 
+		Reporter.log("disable column with name " + colName);
 		log.info("disable column with name " + colName);
 		grid.getGridCtrl().uncheckBoxWithLabel(colName);
 
@@ -166,6 +175,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertTrue(!grid.getGridCtrl().areCheckboxesVisible(), "After Hide link is clicked the checkboxes are not visible");
 
 		List<String> columnsPost = grid.getColumnNames();
+		Reporter.log("getting list of columns " + columnsPost);
 		log.info("getting list of columns " + columnsPost);
 
 		soft.assertTrue(!ListUtils.isEqualList(columnsPre, columnsPost), "List of columns before and after hiding the controls is the same");
@@ -177,7 +187,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5166 - TRST-10 - Click All None link */
+	/* EDELIVERY-5166 - TRST-10 - Click All None link */
 	@Test(description = "TRST-10", groups = {"multiTenancy", "singleTenancy"})
 	public void checkAllNoneLnk() throws Exception {
 
@@ -194,7 +204,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5167 - TRST-11 - Change Rows field data */
+	/* EDELIVERY-5167 - TRST-11 - Change Rows field data */
 	@Test(description = "TRST-11", groups = {"multiTenancy", "singleTenancy"})
 	public void modifyRows() throws Exception {
 
@@ -208,7 +218,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 	}
 
 
-    /* EDELIVERY-5172 - TRST-16 - Check sorting on the basis of Headers of Grid  */
+	/* EDELIVERY-5172 - TRST-16 - Check sorting on the basis of Headers of Grid  */
 	@Test(description = "TRST-16", groups = {"multiTenancy", "singleTenancy"})
 	public void checkSorting() throws Exception {
 
@@ -230,7 +240,7 @@ public class TruststorePgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-5173 - TRST-17 - Verify headers in downloaded CSV sheet  */
+	/* EDELIVERY-5173 - TRST-17 - Verify headers in downloaded CSV sheet  */
 	@Test(description = "TRST-17", groups = {"multiTenancy", "singleTenancy"})
 	public void csvFileDownloadHeaders() throws Exception {
 
@@ -239,11 +249,13 @@ public class TruststorePgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 
 		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
+		Reporter.log("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
 
+		Reporter.log("checking info in grid against the file");
 		log.info("checking info in grid against the file");
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 

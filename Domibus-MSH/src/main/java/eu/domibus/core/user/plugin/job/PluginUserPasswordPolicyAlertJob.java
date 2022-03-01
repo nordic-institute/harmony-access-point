@@ -1,8 +1,8 @@
 package eu.domibus.core.user.plugin.job;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;

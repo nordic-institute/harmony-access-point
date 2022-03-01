@@ -11,7 +11,7 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.plugin.ws.webservice.configuration.WebServiceConfiguration.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * Handles the change of

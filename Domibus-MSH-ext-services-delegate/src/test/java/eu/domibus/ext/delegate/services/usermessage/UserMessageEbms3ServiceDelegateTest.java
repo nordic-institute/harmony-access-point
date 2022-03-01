@@ -3,10 +3,10 @@ package eu.domibus.ext.delegate.services.usermessage;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.*;
+import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.UserMessageDTO;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
-import eu.domibus.ext.exceptions.UserMessageExtException;
+import eu.domibus.messaging.MessageNotFoundException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -30,10 +30,14 @@ public class UserMessageEbms3ServiceDelegateTest {
 
     @Injectable
     UserMessageSecurityService userMessageSecurityService;
+
+    @Injectable
+    UserMessageValidatorSpi userMessageValidatorSpi;
+
     public static final String MESSAGE_ID = "messageId";
 
     @Test
-    public void testGetMessageSuccess() {
+    public void testGetMessageSuccess() throws MessageNotFoundException {
         // Given
         final String messageId = "messageId";
 
@@ -76,33 +80,39 @@ public class UserMessageEbms3ServiceDelegateTest {
     @Test
     public void testGetMessageException() {
         // Given
-        final UserMessageExtException userMessageExtException = new UserMessageExtException(DomibusErrorCode.DOM_001, "test");
+        final MessageNotFoundException notFoundException = new MessageNotFoundException(MESSAGE_ID);
 
         new Expectations() {{
             userMessageService.getMessage(MESSAGE_ID);
-            result = userMessageExtException;
+            result = notFoundException;
         }};
 
         // When
         try {
             userMessageServiceDelegate.getMessage(MESSAGE_ID);
             Assert.fail();
-        } catch (UserMessageExtException e) {
+        } catch (MessageNotFoundException e) {
             // Then
-            Assert.assertSame(userMessageExtException, e);
+            Assert.assertSame(notFoundException, e);
         }
 
     }
 
     @Test
-    public void testGetMessage_null() {
+    public void testGetMessage_null() throws MessageNotFoundException {
         // Given
         new Expectations() {{
             userMessageService.getMessage(MESSAGE_ID);
             result = null;
         }};
 
-        UserMessageDTO message = userMessageServiceDelegate.getMessage(MESSAGE_ID);
+        UserMessageDTO message = null;
+        try {
+            message = userMessageServiceDelegate.getMessage(MESSAGE_ID);
+            Assert.fail();
+        } catch (MessageNotFoundException e) {
+            //OK
+        }
         Assert.assertNull(message);
 
         new FullVerifications(){{

@@ -63,6 +63,11 @@
             <artifactId>domibus-iam-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-MSH-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- End Domibus modules -->
 
         <dependency>
@@ -126,6 +131,11 @@
         </dependency>
         <!-- End jackson json mapper -->
         <!-- Start Apache -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

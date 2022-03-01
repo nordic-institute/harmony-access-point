@@ -12,7 +12,6 @@ import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -56,7 +55,8 @@ public class PartitionExpirationListener {
     private void saveEventAndTriggerAlert(Event event, @Header(name = "DOMAIN") String domain) {
         domainContextProvider.setCurrentDomain(domain);
         PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
-        eu.domibus.core.alerts.model.persist.Event persistedEvent = eventDao.findWithTypeAndPropertyValue(event.getType(), PartitionExpirationEvent.PARTITION_NAME.name(), event.findStringProperty(PartitionExpirationEvent.PARTITION_NAME.name()).get());
+        final String name = PartitionExpirationEvent.PARTITION_NAME.name();
+        eu.domibus.core.alerts.model.persist.Event persistedEvent = eventDao.findWithTypeAndPropertyValue(event.getType(), name, event.findStringProperty(name).orElse(null));
 
         if (!eventService.shouldCreateAlert(persistedEvent, partitionsModuleConfiguration.getEventFrequency())) {
             return;

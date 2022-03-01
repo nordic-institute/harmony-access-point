@@ -7,12 +7,10 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -21,7 +19,8 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -39,7 +38,7 @@ public class DomibusContextRefreshedListenerTest {
     protected EncryptionService encryptionService;
 
     @Injectable
-    protected StaticDictionaryService messageDictionaryService;
+    protected StaticDictionaryService staticDictionaryService;
 
     @Injectable
     protected DomainTaskExecutor domainTaskExecutor;
@@ -59,6 +58,9 @@ public class DomibusContextRefreshedListenerTest {
     @Injectable
     UserManagementServiceImpl userManagementService;
 
+    @Injectable
+    DomibusPropertyValidatorService domibusPropertyValidatorService;
+
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,
                                                         @Injectable ApplicationContext applicationContext) {
@@ -72,7 +74,7 @@ public class DomibusContextRefreshedListenerTest {
 
         domibusContextRefreshedListener.onApplicationEvent(event);
 
-        new Verifications() {{
+        new FullVerifications() {{
             encryptionService.handleEncryption();
             times = 0;
 
@@ -95,11 +97,29 @@ public class DomibusContextRefreshedListenerTest {
 
         domibusContextRefreshedListener.onApplicationEvent(event);
 
-        new Verifications() {{
+        new FullVerifications() {{
+            tlsCertificateManager.persistTruststoresIfApplicable();
+            times = 1;
+
+            multiDomainCryptoService.persistTruststoresIfApplicable();
+            times = 1;
+
+            staticDictionaryService.createStaticDictionaryEntries();
+            times = 1;
+
+            domibusConfigurationService.isClusterDeployment();
+            times = 1;
+
             encryptionService.handleEncryption();
             times = 1;
 
             backendFilterInitializerService.updateMessageFilters();
+            times = 1;
+
+            domibusPropertyValidatorService.enforceValidation();
+            times = 1;
+
+            gatewayConfigurationValidator.validateConfiguration();
             times = 1;
         }};
     }

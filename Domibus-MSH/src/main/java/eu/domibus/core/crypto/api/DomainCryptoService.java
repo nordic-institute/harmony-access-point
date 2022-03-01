@@ -46,7 +46,9 @@ public interface DomainCryptoService {
 
     void refreshTrustStore();
 
-    void replaceTrustStore(byte[] store, String password) throws CryptoException;
+    void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoException;
+
+    void replaceTrustStore(String storeLocation, String storePassword) throws CryptoException;
 
     KeyStore getKeyStore();
 
@@ -68,9 +70,15 @@ public interface DomainCryptoService {
 
     String getTrustStoreType();
 
-    void reset();
-
-    void reset(List<Enum> initValue);
-
     byte[] getTruststoreContent();
+
+    void replaceKeyStore(String storeFileLocation, String storePassword);
+
+    void refreshKeyStore();
+
+    void resetKeyStore();
+
+    void resetTrustStore();
+
+    void reset();
 }

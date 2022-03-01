@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.EventType;
@@ -19,7 +20,6 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.ui.User;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -195,14 +195,14 @@ public class EventServiceImplTest {
             result = persistedEvent;
         }};
         eventService.persistEvent(event);
+
         new Verifications() {{
             eu.domibus.core.alerts.model.persist.Event capture;
             eventDao.create(capture = withCapture());
             final AbstractEventProperty stringEventProperty1 = capture.getProperties().get(key);
             Assert.assertEquals(key, stringEventProperty1.getKey());
-            Assert.assertEquals(persistedEvent, stringEventProperty1.getEvent());
+            Assert.assertEquals(persistedEvent.getType(), stringEventProperty1.getEvent().getType());
             Assert.assertEquals(1, event.getEntityId());
-
         }};
     }
 

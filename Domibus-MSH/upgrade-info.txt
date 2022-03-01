@@ -1,5 +1,6 @@
-Domibus 5.0 (from 4.2.3)
+Domibus 5.0 (from 4.2.6)
                 [Multitenancy only]
+                    - domibus.security.keystore.* and domibus.security.truststore.* properties are used only the first time domibus starts and persisted in the DB to be used from there on
                     - Create a folder named "domains" in "conf/domibus" and, inside it, create a new folder for every domain (e.g. conf/domibus/domains/domain1)
                     - Move the super-domibus.properties file into "conf/domibus/domains"
                     - For each domain, move its properties file into the domain folder (e.g. move domain1-domibus.properties into conf/domibus/domains/domain1/)
@@ -75,11 +76,12 @@ Domibus 5.0 (from 4.2.3)
                                           <address-settings>
                                               .............................
                                               <address-setting name="jms.queue.DomibusEArchiveQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="0"/>
-                                              <address-setting name="jms.queue.DomibusEArchiveNotificationQueue" expiry-address="jms.queue.DomibusEArchiveNotificationDLQ" max-delivery-attempts="3"/>
+                                              <address-setting name="jms.queue.DomibusEArchiveNotificationQueue" expiry-address="jms.queue.DomibusEArchiveNotificationDLQ" max-delivery-attempts="6"/>
                                               <address-setting name="jms.queue.DomibusEArchiveNotificationDLQ" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="0"/>
                                               .............................
                                           </address-settings>
                                           .............................
+                - The minimum password length for users has increased to 16 and it is recomended to change them for the existing users
                 - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
                 to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war
@@ -96,9 +98,6 @@ Domibus 5.0 (from 4.2.3)
                         - multitenancy:
                             - general database: mysql-4.2.3-to-5.0-multi-tenancy-migration.ddl
                             - domain databases: mysql-4.2.3-to-5.0-migration.ddl
-                - UTC time is used to save timestamp values in Domibus5.0. So execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) to migrate all the existing data to UTC.
-                - To execute the procedure MIGRATE_42_TO_50_DATE_TIME_TO_UTC(IN TIMEZONE VARCHAR(255)) use the current 'TIMEZONE' value as IN parameter for mysql and oracle DB.
-                  The current 'TIMEZONE' value should be the timezone in which the date time values have been previously saved (e.g. 'Europe/Brussels').
                 - Data migration scripts should be run in order to migrate data from old tables to the new tables:
                     o [Oracle only]
                         Domibus application (.war) should be stopped while running these:
@@ -108,6 +107,7 @@ Domibus 5.0 (from 4.2.3)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                 - step 3: oracle-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                 - step 4: oracle-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
@@ -117,6 +117,7 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: execute the migrate_multitenancy procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain schemas:
@@ -125,6 +126,7 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: oracle-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: oracle-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - grant privileges to the general schema using oracle10g-5.0-multi-tenancy-rights.sql, updating the schema names before execution
@@ -136,6 +138,7 @@ Domibus 5.0 (from 4.2.3)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                 - step 3: mysql-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                 - step 4: mysql-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
@@ -145,6 +148,7 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain databases:
@@ -153,22 +157,24 @@ Domibus 5.0 (from 4.2.3)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
+                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 4: mysql-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
-                - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
+                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
-                        Replace:     <cache name="policyCache"
-                                            maxBytesLocalHeap="5m"
-                                            timeToLiveSeconds="3600"
-                                            overflowToDisk="false" >
+                        Replace:     <cache alias="policyCache">
+                                         <expiry>
+                                             <ttl>3600</ttl>
+                                         </expiry>
+                                         <heap unit="MB">5</heap>
                                      </cache>
                         With:
                                      <cache alias="policyCache">
-                                            <expiry>
-                                                <ttl>3600</ttl>
-                                            </expiry>
-                                            <heap unit="entries">5000</heap>
-                                        </cache>
+                                        <expiry>
+                                            <ttl>3600</ttl>
+                                        </expiry>
+                                        <heap unit="entries">5000</heap>
+                                     </cache>
                         Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5000"/> if you want to reuse cache-template "ttl-3600-heap-5000" already defined by Domibus
                     - If you don't use custom caches just replace the old file with the new file version
                     - [WebLogic only]
@@ -251,6 +257,40 @@ Domibus 5.0 (from 4.2.3)
                                eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
                                eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
                                eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
+Domibus 4.2.6 (from 4.2.5):
+                - Please remove the following properties from the file /conf/domibus/extensions/config/authentication-dss-extension.properties:
+                        - domibus.authentication.dss.custom.trusted.lists.list1.code
+                        - domibus.authentication.dss.lotl.country.code=EU
+                        - domibus.dss.data.loader.connection.request.timeout
+                - Ehcache has been upgraded to version 3.8.1 affecting "/conf/domibus/internal/ehcache.xml" cache definitions file:
+                    - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
+                        Replace:     <cache name="policyCache"
+                                            maxBytesLocalHeap="5m"
+                                            timeToLiveSeconds="3600"
+                                            overflowToDisk="false" >
+                                     </cache>
+                        With:
+                                     <cache alias="policyCache">
+                                        <expiry>
+                                            <ttl>3600</ttl>
+                                        </expiry>
+                                        <heap unit="MB">5</heap>
+                                     </cache>
+                        Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/> if you want to reuse cache-template "ttl-3600-heap-5mb" already defined by Domibus
+                        Replace:
+                                Configured dss-cache
+                        with:
+                                <cache alias="dss-cache"><expiry><ttl>3600</ttl></expiry><heap unit="MB">50</heap></cache>
+
+                    - If you don't use custom caches just replace the old file with the new file version
+                - Run the appropriate DB migration script(mysql-4.2.5-to-4.2.6-migration.ddl for MySQL or oracle-4.2.5-to-4.2.6-migration.ddl for Oracle)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+Domibus 4.2.5 (from 4.2.4):
+                - Replace the Domibus war
+                - Replace the default dss extension jar into "/conf/domibus/extensions/lib"
+                - Remove all revoked certificates from /conf/domibus/keystores/dss-tls-truststore.p12
+Domibus 4.2.4 (from 4.2.3):
+                - Replace the Domibus war
 Domibus 4.2.3 (from 4.2.2):
                 - Run the appropriate DB migration script(mysql-4.2.2-to-4.2.3-migration.ddl for MySQL or oracle-4.2.2-to-4.2.3-migration.ddl for Oracle)
                 - Replace the Domibus war

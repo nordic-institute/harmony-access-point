@@ -10,6 +10,7 @@ import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
@@ -17,6 +18,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
@@ -26,16 +28,13 @@ import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.GreaterThan;
@@ -43,11 +42,9 @@ import org.mockito.internal.matchers.GreaterThan;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.nio.file.Paths;
+import java.security.*;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -58,6 +55,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static eu.domibus.core.certificate.CertificateHelper.JKS;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
@@ -67,6 +65,7 @@ import static org.junit.Assert.*;
  * Created by Cosmin Baciu on 07-Jul-16.
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
 
@@ -88,6 +87,12 @@ public class CertificateServiceImplTest {
 
     @Injectable
     CRLService crlService;
+
+    @Injectable
+    PasswordEncryptionService passwordEncryptionService;
+
+    @Injectable
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -644,10 +649,13 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                                      @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) {
+    public void sendCertificateImminentExpirationAlertsModuleInactive(final @Injectable ExpiredCertificateModuleConfiguration expiredCertificateConfiguration, @Injectable ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateModuleConfiguration,
+                                                                      @Injectable LocalDateTime dateTime, @Injectable final Certificate certificate) {
         new Expectations() {{
-            imminentExpirationCertificateConfigurationManager.getConfiguration().isActive();
+            imminentExpirationCertificateConfigurationManager.getConfiguration();
+            result = imminentExpirationCertificateModuleConfiguration;
+
+            imminentExpirationCertificateModuleConfiguration.isActive();
             result = false;
         }};
         certificateService.sendCertificateImminentExpirationAlerts();
@@ -661,7 +669,7 @@ public class CertificateServiceImplTest {
     public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes)
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final String password = "test123";
-        final String type = "jks";
+        final String type = JKS;
 
         new Expectations() {{
             KeyStore.getInstance(type);
@@ -748,7 +756,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass", JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -860,7 +868,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -887,7 +895,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -919,7 +927,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -946,7 +954,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -973,7 +981,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1002,7 +1010,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1036,7 +1044,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1070,7 +1078,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1104,7 +1112,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test(expected = CryptoException.class) // ignore the CryptoException being initially thrown
@@ -1134,7 +1142,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         // Then
         new Verifications() {{
@@ -1421,7 +1429,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -1466,7 +1474,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void replaceTrustStore(@Mocked String fileName, @Mocked byte[] fileContent, @Mocked TruststoreEntity entity) {
+    public void replaceTrustStore(@Mocked byte[] fileContent, @Mocked TruststoreEntity entity) {
+        String fileName = "";
 
         new Expectations(certificateService) {{
             certificateService.getTruststoreEntity(anyString);
@@ -1474,14 +1483,14 @@ public class CertificateServiceImplTest {
             entity.getType();
             result = TRUST_STORE_TYPE;
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
         }};
 
-        certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(fileName, fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 
@@ -1514,9 +1523,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doAddCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+    public void doAddCertificates(@Mocked KeyStore trustStore,
                                   @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
-
+        String trustStoreLocation = "";
+        String trustStorePassword = "";
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
         boolean overwrite = true;
 
@@ -1537,8 +1547,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+    public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore,
                                           @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+        String trustStorePassword = "";
+        String trustStoreLocation = "";
 
         List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
         boolean overwrite = true;
@@ -1597,4 +1609,25 @@ public class CertificateServiceImplTest {
 
         assertFalse(result);
     }
+
+    @Test
+    public void testGetCertificatePolicyIdentifiers() throws Exception {
+        String id1 = "1.3.6.1.4.1.7879.13.25";
+        String id2 = "0.4.0.2042.1.1";
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null, Arrays.asList(id1, id2));
+        List<String> list = certificateService.getCertificatePolicyIdentifiers(certificate);
+
+        assertEquals(2, list.size());
+        assertEquals(id1, list.get(0));
+        assertEquals(id2, list.get(1));
+    }
+
+    @Test
+    public void testGetCertificatePolicyIdentifiersWithNoPolicyExtension() throws Exception {
+        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, null, null);
+        List<String> list = certificateService.getCertificatePolicyIdentifiers(certificate);
+
+        assertEquals(0, list.size());
+    }
+
 }

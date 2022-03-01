@@ -4,16 +4,16 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateInitValueType;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.core.certificate.Certificate;
+import eu.domibus.core.certificate.CertificateDaoImpl;
+import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.*;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +26,22 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  */
+@Ignore("EDELIVERY-8892")
 public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @Autowired
@@ -51,13 +57,26 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     DefaultDomainCryptoServiceSpiImpl defaultDomainCryptoServiceSpi;
 
     @Autowired
-    CertificateService certificateService;
+    CertificateServiceImpl certificateService;
 
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    CertificateDaoImpl certificateDao;
+
+    private Date getDate(LocalDateTime localDateTime1) {
+        return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
+    }
+
     @After
     public void clean() {
+        final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
+        final LocalDateTime offset = localDateTime.minusDays(15);
+        final LocalDateTime notification = localDateTime.minusDays(7);
+        List<Certificate> certs2 = certificateDao.findExpiredToNotifyAsAlert(getDate(notification), getDate(offset));
+        certificateDao.deleteAll(certs2);
+
         if (truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME)) {
             TruststoreEntity trust = truststoreDao.findByName(DOMIBUS_TRUSTSTORE_NAME);
             truststoreDao.delete(trust);
@@ -67,8 +86,6 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     @Test
     @Transactional
     public void persistTruststoresIfApplicable() {
-//        boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
-//        Assert.assertFalse(isPersisted);
         multiDomainCryptoService.persistTruststoresIfApplicable();
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
@@ -82,7 +99,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.persistTruststoresIfApplicable();
         byte[] store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
 
-        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store, password, Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store, password);
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
@@ -98,7 +115,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
         byte[] content = Files.readAllBytes(path);
         String file_name = "cefsupportgwtruststore.jks";
-        multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, file_name, content, "test123", Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+        multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, file_name, content, "test123");
 
         trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(trustStoreEntries.size() == 9);
@@ -149,7 +166,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void getTrustStore() throws KeyStoreException, CertificateParsingException, IOException {
+    public void getTrustStore() throws KeyStoreException, IOException {
         multiDomainCryptoService.persistTruststoresIfApplicable();
 
         KeyStore trustStore = multiDomainCryptoService.getTrustStore(domainContextProvider.getCurrentDomain());
@@ -158,7 +175,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
         byte[] content = Files.readAllBytes(path);
         String file_name = "cefsupportgwtruststore.jks";
-        multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, file_name, content, "test123", Arrays.asList(CertificateInitValueType.TRUSTSTORE));
+        multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, file_name, content, "test123");
 
         trustStore = multiDomainCryptoService.getTrustStore(domainContextProvider.getCurrentDomain());
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);

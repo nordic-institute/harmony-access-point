@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -21,11 +22,12 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     protected AuthUtils authUtils;
     protected UserMessageService userMessageService;
+    protected UserMessageServiceHelper userMessageServiceHelper;
 
-    public UserMessageSecurityDefaultService(AuthUtils authUtils,
-                                             UserMessageService userMessageService) {
+    public UserMessageSecurityDefaultService(AuthUtils authUtils, UserMessageService userMessageService, UserMessageServiceHelper userMessageServiceHelper) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
+        this.userMessageServiceHelper = userMessageServiceHelper;
     }
 
     @Override
@@ -39,6 +41,15 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         final String finalRecipient = userMessageService.getFinalRecipient(messageId);
         if (StringUtils.isEmpty(finalRecipient)) {
             throw new AuthenticationException("Couldn't get the finalRecipient for message with ID [" + messageId + "]");
+        }
+        checkAuthorization(finalRecipient);
+    }
+
+    @Override
+    public void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException {
+        final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
+        if (StringUtils.isEmpty(finalRecipient)) {
+            throw new AuthenticationException("Couldn't get the finalRecipient for message with ID [" + userMessage.getMessageId() + "]");
         }
         checkAuthorization(finalRecipient);
     }

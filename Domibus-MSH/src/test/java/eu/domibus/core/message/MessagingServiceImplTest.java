@@ -5,6 +5,7 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -21,7 +22,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,6 +35,7 @@ import java.util.List;
  * @since 3.3
  */
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class MessagingServiceImplTest {
 
@@ -82,6 +83,9 @@ public class MessagingServiceImplTest {
 
     @Injectable
     SubmissionAS4Transformer transformer;
+
+    @Injectable
+    PartInfoHelper partInfoHelper;
 
     @Test
     public void testStoreOutgoingPayload(@Injectable UserMessage userMessage,
@@ -150,27 +154,22 @@ public class MessagingServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testStoreOutgoingMessage(@Injectable UserMessage userMessage,
-                                         @Injectable PartInfo partInfo,
-                                         @Injectable PayloadPersistence payloadPersistence) throws Exception {
-
+    public void testStoreOutgoingMessage(@Injectable PayloadPersistence payloadPersistence) throws Exception {
+        UserMessage userMessage = new UserMessage();
         List<PartInfo> partInfos = new ArrayList<>();
+        PartInfo partInfo = new PartInfo();
         partInfos.add(partInfo);
 
         new Expectations() {{
-            payloadPersistenceProvider.getPayloadPersistence((PartInfo) any, userMessage);
+            payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
             result = payloadPersistence;
 
             userMessage.getPartyInfo();
             result = partInfos;
-
-            partInfo.toString();
-            result = "partInfo";
         }};
 
         final String backend = "backend";
-        messagingService.storeMessagePayloads(userMessage, null, MSHRole.SENDING, legConfiguration, backend);
+        messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backend);
 
         new Verifications() {{
             payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backend);

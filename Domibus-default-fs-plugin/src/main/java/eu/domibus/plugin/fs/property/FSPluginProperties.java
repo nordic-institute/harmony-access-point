@@ -14,7 +14,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.Map;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
@@ -55,7 +54,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     /**
      *
      * @param domain The domain property qualifier
-     * @return
      */
     public boolean getDomainEnabled(String domain) {
         String value = getDomainProperty(domain, DOMAIN_ENABLED);
@@ -67,8 +65,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The location of the directory that the plugin will use to manage the messages to be sent and received
      */
     public String getLocation(String domain) {
-        String value = getDomainProperty(domain, LOCATION);
-        return value;
+        return getDomainProperty(domain, LOCATION);
     }
 
     /**

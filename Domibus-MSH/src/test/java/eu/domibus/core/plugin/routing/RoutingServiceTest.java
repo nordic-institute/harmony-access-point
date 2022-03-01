@@ -10,6 +10,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -38,7 +39,9 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 4.1
  */
+@SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "ConstantConditions", "rawtypes"})
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class RoutingServiceTest {
 
     public static final int MAX_INDEX = 10;
@@ -46,6 +49,9 @@ public class RoutingServiceTest {
 
     @Injectable
     protected BackendConnectorProvider backendConnectorProvider;
+
+    @Injectable
+    protected BackendFilterCoreMapper backendFilterCoreMapper;
 
     @Injectable
     private BackendFilterDao backendFilterDao;
@@ -184,11 +190,10 @@ public class RoutingServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getBackendFilters_backendFilterNotEmptyInDao() {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
-//        routingService.coreMapper = coreMapper;
+        routingService.backendFilterCoreMapper = backendFilterCoreMapper;
 
         ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
         backendFilterEntityList.add(new BackendFilterEntity());
@@ -199,8 +204,8 @@ public class RoutingServiceTest {
             backendFilterDao.findAll();
             result = backendFilterEntityList;
 
-//            coreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
-//            result = backendFilters;
+            backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
+            result = backendFilters;
         }};
         List<BackendFilter> actual = routingService.getBackendFiltersUncached();
 
@@ -211,11 +216,10 @@ public class RoutingServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getBackendFilters_return1(@Injectable BackendFilterEntity backendFilterEntity) {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
-//        routingService.coreMapper = coreMapper;
+        routingService.backendFilterCoreMapper = backendFilterCoreMapper;
 
         ArrayList<BackendFilterEntity> backendFilterEntityList = new ArrayList<>();
         backendFilterEntityList.add(backendFilterEntity);
@@ -228,7 +232,7 @@ public class RoutingServiceTest {
         routingService.getBackendFiltersUncached();
 
         new FullVerifications() {{
-//            coreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
+            backendFilterCoreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntityList);
         }};
     }
 
@@ -255,10 +259,6 @@ public class RoutingServiceTest {
         new Expectations() {{
             filter.getRoutingCriterias();
             result = criteriaList;
-
-            // TODO: Criteria Operator is not used.
-            /*filter.getCriteriaOperator();
-            result = LogicalOperator.AND;*/
 
             fromRoutingCriteria.getName();
             result = fromCriteriaName;
@@ -311,9 +311,6 @@ public class RoutingServiceTest {
         new Expectations() {{
             filter.getRoutingCriterias();
             result = criteriaList;
-
-            //filter.getCriteriaOperator();
-            //result = LogicalOperator.AND;
 
             fromRoutingCriteria.getName();
             result = fromCriteriaName;
@@ -368,9 +365,6 @@ public class RoutingServiceTest {
             filter.getRoutingCriterias();
             result = criteriaList;
 
-            //filter.getCriteriaOperator();
-            //result = LogicalOperator.AND;
-
             fromRoutingCriteria.getName();
             result = fromCriteriaName;
 
@@ -418,9 +412,6 @@ public class RoutingServiceTest {
         new Expectations() {{
             filter.getRoutingCriterias();
             result = criteriaList;
-
-            //filter.getCriteriaOperator();
-            //result = LogicalOperator.OR;
 
             fromRoutingCriteria.getName();
             result = fromCriteriaName;
@@ -540,8 +531,6 @@ public class RoutingServiceTest {
     public void testCreateBackendFiltersBasedOnExistingUserPriority(@Injectable BackendFilterEntity backendFilterEntity,
                                                                     @Injectable AsyncNotificationConfiguration notificationListener,
                                                                     @Injectable BackendConnector backendConnector) {
-        List<AsyncNotificationConfiguration> notificationListenerServices = new ArrayList<>();
-        notificationListenerServices.add(notificationListener);
 
         List<String> notificationListenerPluginsList = new ArrayList<>();
         notificationListenerPluginsList.add(WS_PLUGIN.getPluginName());
@@ -552,7 +541,7 @@ public class RoutingServiceTest {
 
 
         List<BackendFilterEntity> backendFilterEntities = routingService.buildBackendFilterEntities(notificationListenerPluginsList, 1);
-        assertEquals(backendFilterEntities.size(), 2);
+        assertEquals(2, backendFilterEntities.size());
 
         new FullVerifications() {
         };
@@ -794,7 +783,7 @@ public class RoutingServiceTest {
             result = "jmsPlugin";
         }};
 
-        routingService.ensureAtLeastOneFilterForEachPlugin(Arrays.asList(bf1));
+        routingService.ensureAtLeastOneFilterForEachPlugin(Collections.singletonList(bf1));
     }
 
     @Test
@@ -844,14 +833,6 @@ public class RoutingServiceTest {
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
 
-        List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
-        entitiesInDb.add(dbBackendFilterEntity);
-
-        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = new ArrayList<>();
-        dbFiltersNotInBackendConnectors.add(dbBackendFilterEntity1);
-
-        List<List<String>> pluginsToAdd = new ArrayList<>();
-
         new Expectations(routingService) {{
             backendFilterDao.findAll();
             result = backendFilterEntities;
@@ -882,7 +863,6 @@ public class RoutingServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void updateBackendFilters(@Injectable BackendFilter filter1,
                                      @Injectable BackendFilter filter2,
                                      @Injectable List<BackendFilterEntity> allBackendFilterEntities) {
@@ -890,7 +870,7 @@ public class RoutingServiceTest {
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
         routingService.signalService = signalService;
-//        routingService.coreMapper = coreMapper;
+        routingService.backendFilterCoreMapper = backendFilterCoreMapper;
 
         List<BackendFilter> filters = new ArrayList<>();
         filters.add(filter1);
@@ -900,19 +880,19 @@ public class RoutingServiceTest {
             backendFilterDao.findAll();
             result = allBackendFilterEntities;
 
-//            coreMapper.backendFilterListToBackendFilterEntityList(filters);
-//            result = allBackendFilterEntities;
+            backendFilterCoreMapper.backendFilterListToBackendFilterEntityList(filters);
+            result = allBackendFilterEntities;
 
             routingService.validateFilters((List<BackendFilter>) any);
             routingService.invalidateBackendFiltersCache();
-            routingService.updateFilterIndices((List<BackendFilterEntity>) any);;
+            routingService.updateFilterIndices((List<BackendFilterEntity>) any);
         }};
 
         routingService.updateBackendFilters(filters);
 
         new FullVerifications() {{
             backendFilterDao.delete(allBackendFilterEntities);
-            routingService.updateFilterIndices(allBackendFilterEntities);;
+            routingService.updateFilterIndices(allBackendFilterEntities);
             backendFilterDao.update(allBackendFilterEntities);
             routingService.invalidateBackendFiltersCache();
             signalService.signalMessageFiltersUpdated();

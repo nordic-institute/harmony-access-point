@@ -1,17 +1,20 @@
 package eu.domibus.core.message.testservice;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -61,13 +64,16 @@ public class TestService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     private SignalMessageDao signalMessageDao;
 
     @Autowired
     private ErrorLogService errorLogService;
+
+    @Autowired
+    private ActionDictionaryService actionDictionaryService;
 
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
@@ -103,9 +109,8 @@ public class TestService {
     protected Submission createSubmission(String sender) throws IOException {
         Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
         String jsonStr = new String(IOUtils.toByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
-
-        // TODO: François Gautier 29-10-21 GSon to be removed EDELIVERY-8617
-        Submission submission = new Gson().fromJson(jsonStr, Submission.class);
+        ObjectMapper mapper = new ObjectMapper();
+        Submission submission = mapper.readValue(jsonStr, Submission.class);
 
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
         Submission.TypedProperty objTypedProperty = new Submission.TypedProperty("MimeType", "text/xml");
@@ -129,7 +134,7 @@ public class TestService {
 
         // Set Agreement Ref
         Agreement agreementRef = pModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
-        if(agreementRef != null) {
+        if (agreementRef != null) {
             submission.setAgreementRef(agreementRef.getValue());
             submission.setAgreementRefType(agreementRef.getType());
         }
@@ -175,28 +180,15 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSent(String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        String userMessageId = userMessageLogDao.findLastTestMessageId(partyId);
-        if (StringUtils.isBlank(userMessageId)) {
-            LOG.debug("Could not find last user message id for party [{}]", partyId);
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        UserMessage userMessage = userMessageDao.findLastTestMessage(partyId, actionEntity);
+        if (userMessage == null) {
+            LOG.debug("Could not find last user message for party [{}]", partyId);
             return null;
         }
 
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(userMessageId);
-
-        return getTestServiceMessageInfoRO(partyId, userMessageId, userMessageLog);
-    }
-
-    protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
-        TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-        testServiceMessageInfoRO.setMessageId(userMessageId);
-        testServiceMessageInfoRO.setPartyId(partyId);
-        Party party = pModeProvider.getPartyByIdentifier(partyId);
-        testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-        if (userMessageLog != null) {
-            testServiceMessageInfoRO.setMessageStatus(userMessageLog.getMessageStatus());
-            testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
-        }
-        return testServiceMessageInfoRO;
+        UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessage.getEntityId());
+        return getTestServiceMessageInfoRO(partyId, userMessage.getMessageId(), userMessageLog);
     }
 
     /**
@@ -211,7 +203,7 @@ public class TestService {
         TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
         if (result == null) {
             String errorDetails = getErrorsDetails(userMessageId);
-            throw new TestServiceException("No Signal Message found." + errorDetails);
+            throw new TestServiceException("No Signal Message found. " + errorDetails);
         }
 
         return result;
@@ -237,17 +229,12 @@ public class TestService {
             }
         } else {
             // if userMessageId is not provided, find the most recent signal message received for a test message
-            String signalMessageId = signalMessageLogDao.findLastTestMessageId(partyId);
-            if (signalMessageId == null) {
+            ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+            signalMessage = signalMessageDao.findLastTestMessage(partyId, actionEntity);
+            if (signalMessage == null) {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;
             }
-            signalMessage = signalMessageDao.findBySignalMessageId(signalMessageId);
-        }
-
-        if (signalMessage == null) {
-            LOG.debug("Could not find signal message from partyId [{}] with userMessageId [{}]", partyId, userMessageId);
-            return null;
         }
 
         return getTestServiceMessageInfoRO(partyId, signalMessage);
@@ -259,7 +246,7 @@ public class TestService {
         if (StringUtils.isEmpty(errorDetails)) {
             result = "Please call the method again to see the details.";
         } else {
-            result = "Error details are: " + errorDetails;
+            result = "Error details: " + errorDetails;
         }
         return result;
     }
@@ -277,11 +264,28 @@ public class TestService {
             testServiceMessageInfoRO.setMessageId(signalMessage.getSignalMessageId());
             testServiceMessageInfoRO.setTimeReceived(signalMessage.getTimestamp());
         }
-        Party party = pModeProvider.getPartyByIdentifier(partyId);
-        testServiceMessageInfoRO.setPartyId(partyId);
-        testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
 
+        testServiceMessageInfoRO.setPartyId(partyId);
+        Party party = pModeProvider.getPartyByIdentifier(partyId);
+        if (party != null) {
+            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
+        }
         return testServiceMessageInfoRO;
     }
 
+    protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
+        TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
+        testServiceMessageInfoRO.setMessageId(userMessageId);
+        if (userMessageLog != null) {
+            testServiceMessageInfoRO.setMessageStatus(userMessageLog.getMessageStatus());
+            testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
+        }
+
+        testServiceMessageInfoRO.setPartyId(partyId);
+        Party party = pModeProvider.getPartyByIdentifier(partyId);
+        if (party != null) {
+            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
+        }
+        return testServiceMessageInfoRO;
+    }
 }

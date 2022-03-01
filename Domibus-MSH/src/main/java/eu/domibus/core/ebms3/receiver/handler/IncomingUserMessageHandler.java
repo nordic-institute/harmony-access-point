@@ -2,13 +2,13 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
+import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.core.security.AuthorizationServiceImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
+import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,6 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.List;
-
-import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * Handles the incoming AS4 UserMessages
@@ -41,7 +39,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     protected AuthorizationServiceImpl authorizationService;
 
     @Autowired
-    protected Ebms3Converter ebms3Converter;
+    protected UserMessageValidatorSpiService userMessageValidatorSpiService;
 
     @Override
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging ebms3Messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
@@ -52,6 +50,8 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
         partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));
 
+        userMessageValidatorSpiService.validate(userMessage, partInfoList);
+
         if (ebms3MessageFragmentType != null) {
             userMessage.setMessageFragment(true);
         }
@@ -61,6 +61,4 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }
-
-
 }

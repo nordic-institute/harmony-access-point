@@ -44,7 +44,7 @@ public class DomibusConnectionProvider implements ConnectionProvider {
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
 
-        Connection connection = dataSource.getConnection();
+        Connection connection = dataSource.getConnection(); //NOSONAR: For live connection of the datasource
         connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
         connection.setAutoCommit(false);
         if (LOG.isTraceEnabled()) {

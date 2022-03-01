@@ -1,7 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
@@ -11,18 +11,13 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.xml.soap.SOAPMessage;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Ion Perpegel
@@ -59,22 +54,16 @@ public class NonRepudiationDefaultServiceTest {
     private UserMessageDao userMessageDao;
 
 
-    @Test
+    @Test(expected = MessageNotFoundException.class)
     public void getUserMessageEnvelope_noMessage() {
         String messageId = "msgid";
         new Expectations(nonRepudiationService) {{
             nonRepudiationService.getUserMessageById(messageId);
-            result = null;
+            result = new MessageNotFoundException(messageId);
         }};
 
-        String result = nonRepudiationService.getUserMessageEnvelope(messageId);
+        nonRepudiationService.getUserMessageEnvelope(messageId);
 
-        assertEquals(null, result);
-
-        new Verifications() {{
-            rawEnvelopeLogDao.findUserMessageEnvelopeById(anyLong);
-            times = 0;
-        }};
     }
 
     @Test
@@ -90,7 +79,7 @@ public class NonRepudiationDefaultServiceTest {
 
         String result = nonRepudiationService.getUserMessageEnvelope(messageId);
 
-        assertEquals(null, result);
+        assertNull(result);
 
         new Verifications() {{
             auditService.addMessageEnvelopesDownloadedAudit(messageId, ModificationType.USER_MESSAGE_ENVELOPE_DOWNLOADED);
@@ -99,7 +88,7 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
-    public void getUserMessageEnvelope_ok(@Mocked UserMessage userMessage, @Mocked RawEnvelopeDto rawEnvelopeDto) {
+    public void getUserMessageEnvelope_ok(@Injectable UserMessage userMessage, @Injectable RawEnvelopeDto rawEnvelopeDto) {
         String messageId = "msgid", envelopContent = "content";
 
         new Expectations(nonRepudiationService) {{
@@ -124,13 +113,16 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void getSignalMessageEnvelope_noMessage() {
         String userMessageId = "msgid";
 
+        new Expectations() {{
+            signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId);
+            result = null;
+        }};
         String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
 
-        assertEquals(null, result);
+        assertNull(result);
 
         new Verifications() {{
             auditService.addMessageEnvelopesDownloadedAudit(userMessageId, ModificationType.SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED);
@@ -139,25 +131,17 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void getSignalMessageEnvelope_noMessageEnvelope(@Mocked SignalMessage signalMessage) {
+    public void getSignalMessageEnvelope_ok(@Injectable RawEnvelopeDto rawEnvelopeDto) {
         String userMessageId = "msgid";
+        String rawXml = "rawXml";
 
-        String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+        new Expectations() {{
+            signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId);
+            result = rawEnvelopeDto;
 
-        assertEquals(null, result);
-
-        new Verifications() {{
-            auditService.addMessageEnvelopesDownloadedAudit(userMessageId, ModificationType.SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED);
-            times = 0;
+            rawEnvelopeDto.getRawXmlMessage();
+            result = rawXml;
         }};
-    }
-
-    @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void getSignalMessageEnvelope_ok(@Mocked SignalMessage signalMessage) {
-        String userMessageId = "msgid", rawXml = "rawXml";
-
         String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
 
         assertEquals(rawXml, result);

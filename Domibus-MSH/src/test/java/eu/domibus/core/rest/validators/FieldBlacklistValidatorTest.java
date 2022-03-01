@@ -23,7 +23,7 @@ public class FieldBlacklistValidatorTest {
     public void shouldValidateWhenBlacklistIsDefined() {
         new Expectations(fieldBlacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
-            returns("%'\\/");
+            result = "%'\\/";
         }};
 
         fieldBlacklistValidator.initialize(null);
@@ -45,7 +45,7 @@ public class FieldBlacklistValidatorTest {
     public void shouldValidateWhenBlacklistIsEmpty() {
         new Expectations(fieldBlacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
-            returns("");
+            result = "";
         }};
 
         fieldBlacklistValidator.initialize(null);
@@ -60,7 +60,7 @@ public class FieldBlacklistValidatorTest {
     public void shouldThrowWhenInvalid() {
         new Expectations(fieldBlacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.BLACKLIST_PROPERTY);
-            returns("%'\\/");
+            result = "%'\\/";
         }};
 
         fieldBlacklistValidator.init();
@@ -84,7 +84,7 @@ public class FieldBlacklistValidatorTest {
     public void isWhiteListValid() {
         new Expectations(fieldBlacklistValidator) {{
             domibusPropertyProvider.getProperty(FieldBlacklistValidator.WHITELIST_PROPERTY);
-            returns("^[\\w\\-\\.: @]*$");
+            result = "^[\\w\\-\\.: @]*$";
         }};
 
         CustomWhiteListed customChars = new CustomWhiteListed() {

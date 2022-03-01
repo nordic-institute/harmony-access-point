@@ -1,8 +1,8 @@
-package eu.domibus.plugin;
+package eu.domibus.core.message;
 
 
-import eu.domibus.core.message.DeleteMessageIT;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -19,8 +19,8 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO)")
-public class DeleteReceivedMessageIT extends DeleteMessageIT {
+@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+public class DeleteReceivedMessageIT extends DeleteMessageAbstractIT {
 
     /**
      * Test to delete a received message

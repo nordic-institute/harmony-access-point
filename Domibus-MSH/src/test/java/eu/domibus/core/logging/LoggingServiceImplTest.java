@@ -16,6 +16,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import static eu.domibus.core.logging.LoggingServiceImpl.PREFIX_CLASS_;
  * @author Catalin Enache
  * @since 4.1
  */
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class LoggingServiceImplTest {
 
@@ -206,35 +208,6 @@ public class LoggingServiceImplTest {
             signalService.signalLoggingReset();
         }};
     }
-
-//    @Test
-//    public void testSignalLoggingReset_ExceptionThrown_MessageNotSent(final @Mocked JmsMessage jmsMessage, final @Mocked JMSMessageBuilder messageBuilder) {
-//        final String name = "eu.domibus";
-//        final String level = "INFO";
-//
-//        new Expectations(loggingService) {{
-//            JMSMessageBuilder.create();
-//            result = messageBuilder;
-//
-//            messageBuilder.property(Command.COMMAND, Command.LOGGING_RESET);
-//            result = messageBuilder;
-//
-//            messageBuilder.build();
-//            result = jmsMessage;
-//
-//            jmsManager.sendMessageToTopic(jmsMessage, clusterCommandTopic);
-//            result = new DestinationResolutionException("error while sending JMS message");
-//        }};
-//
-//        try {
-//            //tested method
-//            loggingService.signalResetLogging();
-//            Assert.fail("LoggingException expected");
-//        } catch (LoggingException le) {
-//            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
-//            Assert.assertTrue(le.getMessage().contains("Error while sending topic message for logging reset"));
-//        }
-//    }
 
     @Test
     public void testSignalLoggingReset_ExceptionThrown_MessageNotSent(final @Mocked JmsMessage jmsMessage, final @Mocked JMSMessageBuilder messageBuilder) {

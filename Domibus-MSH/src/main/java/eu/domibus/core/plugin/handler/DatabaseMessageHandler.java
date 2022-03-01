@@ -1,8 +1,10 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
@@ -21,10 +23,10 @@ import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
@@ -93,9 +95,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private MessagingService messagingService;
 
     @Autowired
-    private SignalMessageDao signalMessageDao;
-
-    @Autowired
     private UserMessageLogDefaultService userMessageLogService;
 
     @Autowired
@@ -106,6 +105,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     private PModeProvider pModeProvider;
+
+    @Autowired
+    private PartyEndpointProvider partyEndpointProvider;
 
     @Autowired
     private MessageIdGenerator messageIdGenerator;
@@ -133,6 +135,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected UserMessageHandlerServiceImpl userMessageHandlerService;
+
+    @Autowired
+    protected UserMessageValidatorSpiService userMessageValidatorSpiService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -262,13 +267,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        return userMessageLogService.getMessageStatus(messageId);
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
         validateAccessToStatusAndErrors(messageEntityId);
-        return userMessageLogService.getMessageStatus(messageEntityId);
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
 
@@ -280,7 +287,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     //TODO refactor this method in order to reuse existing code from the method submit
     @Transactional
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
         if (userMessage == null) {
             LOG.warn(USER_MESSAGE_IS_NULL);
@@ -324,7 +331,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                         .mshRole(MSHRole.SENDING)
                         .build();
             }
-            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
+            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
                     backendName);
@@ -357,12 +364,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
     @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(submission.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
+            LOG.debug("Add message ID to LOG MDC [{}]", submission.getMessageId());
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
@@ -384,6 +392,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
             }
             List<PartInfo> partInfos = transformer.generatePartInfoList(submission);
+
+            userMessageValidatorSpiService.validate(userMessage, partInfos);
 
             populateMessageIdIfNotPresent(userMessage);
             messageId = userMessage.getMessageId();
@@ -560,8 +570,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        MpcEntity mpcObject = mpcDictionaryService.findOrCreateMpc(mpc);
-        userMessage.setMpc(mpcObject);
+        MpcEntity mpcEntity = mpcDictionaryService.findOrCreateMpc(StringUtils.isBlank(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
+        userMessage.setMpc(mpcEntity);
     }
 
     protected Party createNewParty(String mpc) {

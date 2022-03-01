@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -33,7 +33,7 @@ public class SetDomainFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        UserDetail loggedUser = getAuthenticatedUser();
+        DomibusUserDetails loggedUser = getAuthenticatedUser();
         if (loggedUser != null) {
             String domain = getDomain(loggedUser);
             LOG.debug("Found authenticated user [{}]; setting its domain [{}] on the context.", loggedUser.getUsername(), domain);
@@ -46,15 +46,15 @@ public class SetDomainFilter extends GenericFilterBean {
 
     //TODO: replace with an already existing method from AuthenticationServiceBase (or move it in AuthUtils) and reuse everywhere
     // EDELIVERY-7610
-    protected UserDetail getAuthenticatedUser() {
+    protected DomibusUserDetails getAuthenticatedUser() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && (authentication.getPrincipal() instanceof UserDetail)) {
-            return (UserDetail) authentication.getPrincipal();
+        if (authentication != null && authentication.isAuthenticated() && (authentication.getPrincipal() instanceof DomibusUserDetails)) {
+            return (DomibusUserDetails) authentication.getPrincipal();
         }
         return null;
     }
 
-    protected String getDomain(UserDetail user) {
+    protected String getDomain(DomibusUserDetails user) {
         if (domibusConfigurationService.isMultiTenantAware()) {
             return user.getDomain();
         }

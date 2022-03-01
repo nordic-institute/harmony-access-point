@@ -33,23 +33,27 @@ public class MDCCleanAspect {
 
         List<String> mdcKeysToClean = null;
         try {
-            mdcKeysToClean = getMDCKeysToClean(targetLocation, method);
-            final Object proceed = joinPoint.proceed();
-            return proceed;
+            MDCKey annotation = getAnnotation(method);
+            if (annotation != null) {
+                List<String> keysToClean = Arrays.asList(annotation.value());
+                if (annotation.cleanOnStart()) {
+                    cleanMDCKeys(targetLocation, keysToClean);
+                }
+                mdcKeysToClean = getMDCKeysToClean(targetLocation, keysToClean);
+            }
+
+            return joinPoint.proceed();
         } finally {
             LOG.debug("Finished executing method [{}]", targetLocation);
             cleanMDCKeys(targetLocation, mdcKeysToClean);
         }
     }
 
-    protected List<String> getMDCKeysToClean(String locationIdentifier, Method method) {
-        final List<String> candidatesMDCKeysToClean = getMDCKeyAnnotations(method);
-        if (candidatesMDCKeysToClean == null) {
-            return null;
-        }
+    protected List<String> getMDCKeysToClean(String locationIdentifier, List<String> strings) {
+        final List<String> candidatesMDCKeysToClean = new ArrayList<>(strings);
         LOG.debug("[{}]: found candidate MDC keys for cleaning [{}]", locationIdentifier, candidatesMDCKeysToClean);
         final List<String> mdcKeysToClean = getMDCKeysToClean(candidatesMDCKeysToClean);
-        if (mdcKeysToClean.size() > 0) {
+        if (!mdcKeysToClean.isEmpty()) {
             LOG.debug("[{}]: the MDC keys [{}] will be cleaned", locationIdentifier, mdcKeysToClean);
         }
         return mdcKeysToClean;
@@ -59,13 +63,13 @@ public class MDCCleanAspect {
         return method.toString();
     }
 
-    protected List<String> getMDCKeyAnnotations(Method method) {
+    private MDCKey getAnnotation(Method method) {
         final MDCKey annotation = method.getAnnotation(MDCKey.class);
         if (annotation == null) {
             LOG.debug("No annotation present on method [{}]", method);
             return null;
         }
-        return new ArrayList<>(Arrays.asList(annotation.value()));
+        return annotation;
     }
 
     protected List<String> getMDCKeysToClean(List<String> candidatesMDCKeysToClean) {
@@ -74,6 +78,8 @@ public class MDCCleanAspect {
             //if the MDC key was not previously set then we need to clean it
             if (LOG.getMDC(key) == null) {
                 result.add(key);
+            } else {
+                LOG.trace("Will not delete [{}]", key);
             }
         }
         return result;

@@ -12,15 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
-import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Collections.singletonList;
-import static java.util.Locale.ENGLISH;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
@@ -108,20 +104,20 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         return em.createQuery(criteria).getSingleResult();
     }
 
-    public List<EArchiveBatchUserMessage> getNotArchivedMessages(Date messageStartDate, Date messageEndDate, Integer pageStart, Integer pageSize) {
+    public List<EArchiveBatchUserMessage> getNotArchivedMessages(Long startMessageId, Long endMessageId, Integer pageStart, Integer pageSize) {
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
-        query.setParameter("LAST_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-        query.setParameter("MAX_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setParameter("LAST_ENTITY_ID", startMessageId);
+        query.setParameter("MAX_ENTITY_ID", endMessageId);
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         queryUtil.setPaginationParametersToQuery(query, pageStart, pageSize);
         return query.getResultList();
     }
 
-    public Long getNotArchivedMessageCountForPeriod(Date messageStartDate, Date messageEndDate) {
+    public Long getNotArchivedMessageCountForPeriod(Long startMessageId, Long endMessageId) {
         TypedQuery<Long> query = em.createNamedQuery("UserMessageLog.countMessagesForArchiving", Long.class);
-        query.setParameter("LAST_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-        query.setParameter("MAX_ENTITY_ID", Long.parseLong(ZonedDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
+        query.setParameter("LAST_ENTITY_ID", startMessageId);
+        query.setParameter("MAX_ENTITY_ID", endMessageId);
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
         return query.getSingleResult();
     }
 
@@ -156,7 +152,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
 
         // by default (null) or if values is false return all batches which do not have exported set to true
         // for returnReExportedBatches return all batches - do not set condition
-        if (filter.getIncludeReExportedBatches() == null || !filter.getIncludeReExportedBatches())  {
+        if (filter.getIncludeReExportedBatches() == null || !filter.getIncludeReExportedBatches()) {
             // Note: reExported column is false by default and it should not be null
             Expression<Boolean> expression = eArchiveBatchRoot.get(EArchiveBatchEntity_.reExported);
             predicates.add(builder.equal(expression, Boolean.FALSE));

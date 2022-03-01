@@ -2,10 +2,9 @@ package eu.domibus.core.converter;
 
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.User;
-import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,7 +18,6 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
     private AuthCoreMapper authCoreMapper;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertUserUserResponseRO() {
         User toConvert = (User) objectService.createInstance(User.class);
         final UserResponseRO converted = authCoreMapper.userToUserResponseRO(toConvert);
@@ -29,7 +27,6 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertUserUserUI() {
         eu.domibus.core.user.ui.User toConvert = (eu.domibus.core.user.ui.User) objectService.createInstance(eu.domibus.core.user.ui.User.class);
         final User converted = authCoreMapper.userSecurityToUserApi(toConvert);
@@ -46,7 +43,6 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertAuthenticationEntityPluginUserRO_Certificate() {
         AuthenticationEntity toConvert = (AuthenticationEntity) objectService.createInstance(AuthenticationEntity.class);
 
@@ -66,7 +62,6 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void convertAuthenticationEntityPluginUserRO_Basic() {
         AuthenticationEntity toConvert = (AuthenticationEntity) objectService.createInstance(AuthenticationEntity.class);
 

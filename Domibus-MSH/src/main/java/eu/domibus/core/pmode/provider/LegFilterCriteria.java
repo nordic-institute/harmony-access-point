@@ -21,12 +21,12 @@ public class LegFilterCriteria {
     private final String service;
     private final String action;
     private final ProcessingType processingType;
-
+    private final String mpc;
 
     private Map<Process, String> processMismatchErrors;
     private Map<LegConfiguration, String> legMismatchErrors;
 
-    public LegFilterCriteria(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action, ProcessingType processingType) {
+    public LegFilterCriteria(String agreementName, String senderParty, String receiverParty, Role initiatorRole, Role responderRole, String service, String action, ProcessingType processingType, String mpc) {
         this.agreementName = agreementName;
         this.senderParty = senderParty;
         this.receiverParty = receiverParty;
@@ -34,6 +34,7 @@ public class LegFilterCriteria {
         this.responderRole = responderRole;
         this.service = service;
         this.action = action;
+        this.mpc = mpc;
 
         this.processMismatchErrors = new HashMap<>();
         this.legMismatchErrors = new HashMap<>();
@@ -68,6 +69,10 @@ public class LegFilterCriteria {
         return action;
     }
 
+    public String getMpc() {
+        return mpc;
+    }
+
     public Map<Process, String> getProcessMismatchErrors() {
         return processMismatchErrors;
     }
@@ -82,7 +87,7 @@ public class LegFilterCriteria {
         processMismatchErrors.put(process, processMismatchErrors.get(process).concat(", ").concat(newErrorDetail));
     }
 
-    public List<Process> listProcessesWitMismatchErrors(){
+    public List<Process> listProcessesWithMismatchErrors(){
         return new ArrayList<>(processMismatchErrors.keySet());
     }
 

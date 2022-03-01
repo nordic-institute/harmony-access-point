@@ -56,6 +56,16 @@ public interface CertificateService {
      */
     X509Certificate loadCertificateFromString(String content);
 
+
+    /**
+     * Returns the certificate deserialized from a bytearray
+     *
+     * @param content the certificate serialized as a bytearray
+     * @return a certificate
+     * @throws CertificateException if the cannot be deserialized to a certificate
+     */
+    X509Certificate loadCertificateFromByteArray(byte[] content);
+
     /**
      * Returns the certificate entry from the trust store given a certificate and an alias
      *
@@ -101,26 +111,27 @@ public interface CertificateService {
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
     /**
-     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     * Replaces the truststore pointed by the name with the one provided by location/password parameters
+     *
+     * @param fileLocation the file location representing the trust
+     * @param filePassword the password of the trust
+     * @param trustName    the name of the trust in hte DB
+     * @throws CryptoException
+     */
+    void replaceStore(String fileLocation, String filePassword, String trustName);
+
+    /**
+     * Replaces the truststore pointed by the name with the one provided by content/password parameters
      *
      * @param fileName     the file name representing the trust
      * @param fileContent  the trust content
      * @param filePassword the password of the trust
-     * @param trustName    the location of the trust on disc
+     * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
-    void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
+    void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
-    /**
-     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
-     *
-     * @param fileContent  the trust content
-     * @param filePassword the password of the trust
-     * @throws CryptoException
-     */
-    void replaceTrustStore(byte[] fileContent, String filePassword, String trustName) throws CryptoException;
-
-    /**
+     /**
      * Returns the truststore pointed by the location/password parameters
      *
      * @param trustName the location of the trust on disc
@@ -135,6 +146,8 @@ public interface CertificateService {
      * @return the list of cewrtificates and their names
      */
     List<TrustStoreEntry> getTrustStoreEntries(String trustName);
+
+    TruststoreInfo getTruststoreInfo(String trustName);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
@@ -175,7 +188,32 @@ public interface CertificateService {
      */
     boolean removeCertificates(String trustName, List<String> aliases);
 
+    /**
+     * Retrieves the content of the specified truststore
+     * @param trustName the name of the trust in the db
+     * @return
+     */
     byte[] getTruststoreContent(String trustName);
 
-    void persistTruststoresIfApplicable(final String name, boolean optional, Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+    /**
+     * Loads a truststore pointed by the file location and persists it in the DB (with the given name) if not already there. This happens at bootstrap time
+     *
+     * @param name the name of the truststore(can be domibus truststore and keystore and TLS trsustore)
+     * @param optional permits the location to be null without raising any exception
+     * @param filePathSupplier a supplier method that returns the file path on disc of the trust
+     * @param typeSupplier a supplier method that returns the type of the trust
+     * @param passwordSupplier a supplier method that returns the password of the trust
+     * @param domains in MT env it specifies for which domain to persist
+     */
+    void persistTruststoresIfApplicable(final String name, boolean optional,
+                                        Supplier<Optional<String>> filePathSupplier, Supplier<String> typeSupplier, Supplier<String> passwordSupplier, List<Domain> domains);
+
+    /**
+     * Extracts all Certificate Policy identifiers from the "Certificate policy" extension of the X.509Certificate.
+     * If the certificate policy extension is unavailable, returns an empty list.
+     *
+     * @param cert a X509 certificate
+     * @return the list of certificate policy identifiers
+     */
+    List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
 }

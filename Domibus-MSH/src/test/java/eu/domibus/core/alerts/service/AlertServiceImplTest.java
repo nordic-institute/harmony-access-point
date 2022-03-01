@@ -229,7 +229,7 @@ public class AlertServiceImplTest {
 
         alertService.createAndEnqueueAlertOnPluginEvent(event);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -486,21 +486,16 @@ public class AlertServiceImplTest {
         ZonedDateTime dateTime = ZonedDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).withHour(0).withMinute(0).withSecond(0).withNano(0);
         Date alertLimitDate = Date.from(dateTime.toInstant());
 
-        final List<eu.domibus.core.alerts.model.persist.Alert> alerts = new ArrayList<>();
-        alerts.add(alert);
         new Expectations() {{
             commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
-
-            alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
-            result = alerts;
 
         }};
 
         alertService.cleanAlerts();
 
         new Verifications() {{
-            alertDao.deleteAll(alerts);
+            alertDao.deleteAlerts(alertLimitDate);
             times = 1;
         }};
     }
@@ -552,14 +547,16 @@ public class AlertServiceImplTest {
                             @Injectable eu.domibus.core.alerts.model.persist.Event event1,
                             @Injectable eu.domibus.core.alerts.model.persist.Event event2) {
 
+        final HashSet<eu.domibus.core.alerts.model.persist.Event> eventsParam = new HashSet<>(Arrays.asList(event1, event2));
+
         new Expectations() {{
             alert.getEvents();
-            result = new HashSet<>(Arrays.asList(event1, event2));
+            result = eventsParam;
         }};
 
         alertService.deleteAlert(alert);
 
-        new FullVerifications() {{
+        new Verifications() {{
             event1.removeAlert(alert);
             event2.removeAlert(alert);
             alertDao.delete(alert);

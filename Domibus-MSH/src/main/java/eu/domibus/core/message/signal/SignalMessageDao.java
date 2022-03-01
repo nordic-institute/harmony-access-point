@@ -1,5 +1,6 @@
 package eu.domibus.core.message.signal;
 
+import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
@@ -100,5 +101,13 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         List<SignalMessage> signalMessages = query.getResultList();
         LOG.debug("Number of signal messages Found ids [{}]", signalMessages.size());
         return signalMessages;
+    }
+
+    public SignalMessage findLastTestMessage(String partyId, ActionEntity actionEntity) {
+        final TypedQuery<SignalMessage> query = this.em.createNamedQuery("SignalMessage.findTestMessageDesc", SignalMessage.class);
+        query.setParameter("PARTY_ID", partyId);
+        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        query.setMaxResults(1);
+        return DataAccessUtils.singleResult(query.getResultList());
     }
 }

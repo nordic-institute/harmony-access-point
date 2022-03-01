@@ -18,6 +18,7 @@ public class Command {
     public static final String EVICT_CACHES = "EVICT_CACHES";
     public static final String EVICT_2LC_CACHES = "EVICT_2LC_CACHES";
     public static final String RELOAD_TRUSTSTORE = "RELOAD_TRUSTSTORE";
+    public static final String RELOAD_KEYSTORE = "RELOAD_KEYSTORE";
     public static final String LOGGING_RESET = "LOGGING_RESET";
     public static final String LOGGING_SET_LEVEL = "LOGGING_SET_LEVEL";
     public static final String DOMIBUS_PROPERTY_CHANGE = "DOMIBUS_PROPERTY_CHANGE";
@@ -25,6 +26,7 @@ public class Command {
     public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
     public static final String RELOAD_TLS_TRUSTSTORE = "RELOAD_TLS_TRUSTSTORE";
     public static final String DOMAIN_ADDED = "DOMAIN_ADDED";
+
 
     private long entityId;
     protected String commandName;

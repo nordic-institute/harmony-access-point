@@ -96,7 +96,7 @@ public class LoggingPage extends DomibusPage {
 	public void setLoggingLevel(String level, String item) throws Exception {
 		search(item);
 
-		log.info("Setting log level to {} for {}", level, item );
+		log.info(String.format("Setting log level to {} for {}", level, item ));
 		LoggingGrid grid = loggingGrid();
 		int index = grid.scrollTo("Logger Name", item);
 		if(index<0){

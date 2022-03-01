@@ -61,7 +61,6 @@ public class TruststorePage extends DomibusPage {
 	public void uploadFile(String filePath, String password, SoftAssert soft) throws Exception {
 		getUploadButton().click();
 
-		wait.forXMillis(100);
 		chooseFileButton.sendKeys(filePath);
 
 //		soft.assertTrue(passValidationMsg.isDisplayed(), "Validation under password field is present");

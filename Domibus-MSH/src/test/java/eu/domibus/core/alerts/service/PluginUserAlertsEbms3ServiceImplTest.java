@@ -1,16 +1,17 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.enabled.plugin.PluginAccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationManager;
-import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.VerificationsInOrder;
@@ -96,8 +97,13 @@ public class PluginUserAlertsEbms3ServiceImplTest {
     }
 
     @Test
-    public void testGetAccountDisabledConfiguration() {
-        AccountDisabledModuleConfiguration val = userAlertsService.getAccountDisabledConfiguration();
+    public void testGetAccountDisabledConfiguration(@Injectable AccountDisabledModuleConfiguration accountDisabledModuleConfiguration) {
+        new Expectations() {{
+            pluginAccountDisabledConfigurationManager.getConfiguration();
+            result = accountDisabledModuleConfiguration;
+        }};
+
+        userAlertsService.getAccountDisabledConfiguration();
 
         new VerificationsInOrder() {{
             pluginAccountDisabledConfigurationManager.getConfiguration();

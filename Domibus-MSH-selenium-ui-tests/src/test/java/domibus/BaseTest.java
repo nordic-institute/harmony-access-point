@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +17,16 @@ import java.util.List;
 
 public class BaseTest {
 	
-	public static WebDriver driver;
+//	public static WebDriver driver;
+	public WebDriver driver;
 	public static TestRunData data = new TestRunData();
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
 	
 	public ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	
-	
-	Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
+
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	public void generateTestData() throws Exception {
 		
@@ -41,7 +41,6 @@ public class BaseTest {
 		}
 
 		for (int i = 0; i < domains.size(); i++) {
-			
 			String domain = domains.get(i);
 			
 			rearrangeMessageFilters(domain);
@@ -107,20 +106,25 @@ public class BaseTest {
 		}
 	}
 
-
 	private void generateAlerts() {
 		try {
 
-			for (String userRoleValue : DRoles.userRoleValues()) {
-				for (int i = 0; i < 5; i++) {
-					String name = rest.getUsername(null, userRoleValue, true, false, true);
-					rest.login(name, "veryVeryWrong");
+			for (String domain: rest.getDomainCodes()) {
+				for (String userRoleValue : DRoles.userRoleValues()) {
+					for (int i = 0; i < 5; i++) {
+						String name = rest.getUsername(domain, userRoleValue, true, false, true);
+						rest.login(name, "veryVeryWrong");
+					}
 				}
-			}
 
-			for (int i = 0; i < 5; i++) {
-				String pluginUsername = rest.getPluginUser(null, "BASIC", DRoles.ADMIN, true, false).getString("userName");
-				messageSender.sendMessage(pluginUsername, "veryVeryWrong", null, null);
+				for (int i = 0; i < 5; i++) {
+					String pluginUsername = rest.getPluginUser(domain, "BASIC", DRoles.ADMIN, true, false).getString("userName");
+					try {
+						messageSender.sendMessage(pluginUsername, "veryVeryWrong", null, null);
+					} catch (Exception e) {
+
+					}
+				}
 			}
 
 		} catch (Exception e) {

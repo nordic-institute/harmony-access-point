@@ -12,8 +12,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -29,7 +27,6 @@ import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PojoInstaciatorUtil;
 import org.apache.commons.lang3.Validate;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -59,6 +56,10 @@ public class MessageExchangeEbms3ServiceImplTest {
 
     @Mock
     private JMSManager jmsManager;
+    @Mock
+    private UserMessageDao userMessageDao;
+    @Mock
+    private MessageStatusDao messageStatusDao;
 
     @Mock
     private EbMS3MessageBuilder messageBuilder;
@@ -68,12 +69,6 @@ public class MessageExchangeEbms3ServiceImplTest {
 
     @Mock
     private PullMessageService pullMessageService;
-
-    @Mock
-    private DomibusPropertyProvider domibusPropertyProvider;
-
-    @Mock
-    private DomibusConfigurationService domibusConfigurationService;
 
     @Mock
     private DomainContextProvider domainProvider;
@@ -162,24 +157,30 @@ public class MessageExchangeEbms3ServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testSuccessFullOneWayPullConfiguration() throws Exception {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qn1]];[name:leg2,defaultMpc[name:test2,qualifiedName:qn2]]}", "initiatorParties{[name:resp1]}");
-        MessageStatus messageStatus = getMessageStatus(process);
+        MessageStatus messageStatus = getMessageStatus(process, ProcessingType.PULL);
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }
 
 
-    private MessageStatus getMessageStatus(Process process) throws EbMS3Exception {
+    private MessageStatus getMessageStatus(Process process, ProcessingType processingType)  {
         List<Process> processes = Lists.newArrayList();
         processes.add(process);
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agreementName", "senderParty", "receiverParty", "service", "action", "leg");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
-        return messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH).getMessageStatus();
+        when(messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
+        return messageExchangeService.getMessageStatus(messageExchangeConfiguration, processingType).getMessageStatus();
+    }
+
+    private MessageStatusEntity getPullMessageStatusEntity(MessageStatus readyToPull) {
+        MessageStatusEntity value = new MessageStatusEntity();
+        value.setMessageStatus(readyToPull);
+        return value;
     }
 
     @Test(expected = PModeException.class)
-    public void testIncorrectMultipleProcessFoundForConfiguration() throws EbMS3Exception {
+    public void testIncorrectMultipleProcessFoundForConfiguration()  {
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agreementName", "senderParty", "receiverParty", "service", "action", "leg");
         List<Process> processes = Lists.newArrayList();
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]");
@@ -251,7 +252,7 @@ public class MessageExchangeEbms3ServiceImplTest {
     @Test
     public void extractProcessOnMpc() throws Exception {
         List<Process> processes = Lists.newArrayList(PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qn1]];[name:leg2,defaultMpc[name:test2,qualifiedName:qn2]]}", "initiatorParties{[name:resp1]}"));
-        when(pModeProvider.findPullProcessByMpc(eq("qn1"))).thenReturn(processes);
+        when(pModeProvider.findPullProcessByMpc("qn1")).thenReturn(processes);
         PullContext pullContext = messageExchangeService.extractProcessOnMpc("qn1");
         assertEquals("resp1", pullContext.getInitiator().getName());
         assertEquals("party1", pullContext.getResponder().getName());
@@ -260,14 +261,14 @@ public class MessageExchangeEbms3ServiceImplTest {
 
     @Test(expected = PModeException.class)
     public void extractProcessMpcWithNoProcess() throws Exception {
-        when(pModeProvider.findPullProcessByMpc(eq("qn1"))).thenReturn(new ArrayList<Process>());
+        when(pModeProvider.findPullProcessByMpc("qn1")).thenReturn(new ArrayList<Process>());
         doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
         messageExchangeService.extractProcessOnMpc("qn1");
     }
 
     @Test(expected = PModeException.class)
     public void extractProcessMpcWithNoToManyProcess() throws Exception {
-        when(pModeProvider.findPullProcessByMpc(eq("qn1"))).thenReturn(Lists.newArrayList(new Process(), new Process()));
+        when(pModeProvider.findPullProcessByMpc("qn1")).thenReturn(Lists.newArrayList(new Process(), new Process()));
         doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
         messageExchangeService.extractProcessOnMpc("qn1");
     }
@@ -304,10 +305,9 @@ public class MessageExchangeEbms3ServiceImplTest {
         when(party.getIdentifiers()).thenReturn(identifiers);
 
         final String testMessageId = "testMessageId";
-        when(pullMessageService.getPullMessageId(eq("party1"), eq(mpc))).thenReturn(testMessageId);
+        when(pullMessageService.getPullMessageId("party1", mpc)).thenReturn(testMessageId);
         UserMessageLog userMessageLog = new UserMessageLog();
-        MessageStatusEntity messageStatus = new MessageStatusEntity();
-        messageStatus.setMessageStatus(MessageStatus.READY_TO_PULL);
+        MessageStatusEntity messageStatus = getPullMessageStatusEntity(MessageStatus.READY_TO_PULL);
         userMessageLog.setMessageStatus(messageStatus);
         when(userMessageLogDao.findByMessageId(testMessageId)).thenReturn(userMessageLog);
 
@@ -340,14 +340,13 @@ public class MessageExchangeEbms3ServiceImplTest {
 
         when(party.getIdentifiers()).thenReturn(identifiers);
 
-        when(pullMessageService.getPullMessageId(eq("party1"), eq(mpc))).thenReturn(null);
+        when(pullMessageService.getPullMessageId("party1", mpc)).thenReturn(null);
         assertNull(messageExchangeService.retrieveReadyToPullUserMessageId(mpc, party));
 
     }
 
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetMessageStatusWhenNoPullProcessFound() {
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agr1",
                 "sender",
@@ -356,13 +355,14 @@ public class MessageExchangeEbms3ServiceImplTest {
                 "action1",
                 "leg1");
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.<Process>newArrayList());
+        when(messageStatusDao.findOrCreate(MessageStatus.SEND_ENQUEUED)).thenReturn(getPullMessageStatusEntity(MessageStatus.SEND_ENQUEUED));
+
         final MessageStatus messageStatus = messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PUSH).getMessageStatus();
         assertEquals(MessageStatus.SEND_ENQUEUED, messageStatus);
 
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testRetrieveMessageRestoreStatusWithValidPull() throws EbMS3Exception {
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agr1",
                 "sender",
@@ -374,17 +374,18 @@ public class MessageExchangeEbms3ServiceImplTest {
         MpcEntity mpc = new MpcEntity();
         mpc.setValue("mpc123");
         userMessage.setMpc(mpc);
-//        when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
+
+        when(userMessageDao.findByMessageId("123")).thenReturn(userMessage);
         when(pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING)).thenReturn(messageExchangeConfiguration);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.newArrayList(process));
+        when(messageStatusDao.findOrCreate(MessageStatus.SEND_ENQUEUED)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
         final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123").getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
 
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
-    public void testRetrieveMessageRestoreStatusWithForcePull() throws EbMS3Exception {
+    public void testRetrieveMessageRestoreStatusWithForcePull()  {
         MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("agr1",
                 "sender",
                 "receiver",
@@ -395,8 +396,9 @@ public class MessageExchangeEbms3ServiceImplTest {
         MpcEntity mpc = new MpcEntity();
         mpc.setValue("mpc123");
         userMessage.setMpc(mpc);
-//        when(messagingDao.findUserMessageByMessageId("123")).thenReturn(userMessage);
+        when(userMessageDao.findByMessageId("123")).thenReturn(userMessage);
         when(mpcService.forcePullOnMpc(userMessage)).thenReturn(true);
+        when(messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
         final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123").getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }

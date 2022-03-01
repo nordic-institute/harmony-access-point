@@ -15,6 +15,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,11 +67,11 @@ public class PayloadProfileValidator {
         boolean compress = false;
         String mimeType = null;
         for (Property property : partInfo.getPartProperties()) {
-            if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
-                if (!CompressionService.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
+            if (MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
+                if (!MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
                     throw EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0052)
-                            .message(CompressionService.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue())
+                            .message(MessageConstants.COMPRESSION_PROPERTY_VALUE + " is the only accepted value for CompressionType. Got " + property.getValue())
                             .refToMessageId(messageId)
                             .build();
                 }

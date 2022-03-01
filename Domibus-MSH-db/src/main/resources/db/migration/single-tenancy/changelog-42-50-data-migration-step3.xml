@@ -371,7 +371,6 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         <renameTable oldTableName="TB_PM_JOIN_PROCESS_LEG" newTableName="OLD_TB_PM_JOIN_PROCESS_LEG" />
         <renameTable oldTableName="TB_PM_JOIN_PROCESS_RESP_PARTY" newTableName="OLD_TB_PM_JOIN_PROCESS_RESP_PARTY" />
         <renameTable oldTableName="TB_PM_CONFIGURATION_RAW" newTableName="OLD_TB_PM_CONFIGURATION_RAW" />
-        <renameTable oldTableName="TB_USER_MSG_DELETION_JOB" newTableName="OLD_TB_USER_MSG_DELETION_JOB" />
         <renameTable oldTableName="WS_PLUGIN_TB_MESSAGE_LOG" newTableName="OLD_WS_PLUGIN_TB_MESSAGE_LOG" />
         <renameTable oldTableName="TB_AUTHENTICATION_ENTRY_AUD" newTableName="OLD_TB_AUTHENTICATION_ENTRY_AUD" />
         <renameTable oldTableName="TB_BACK_RCRITERIA_AUD" newTableName="OLD_TB_BACK_RCRITERIA_AUD" />
@@ -447,7 +446,6 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         <renameTable oldTableName="MIGR_TB_PM_JOIN_PROCESS_LEG" newTableName="TB_PM_JOIN_PROCESS_LEG" />
         <renameTable oldTableName="MIGR_TB_PM_JOIN_PROC_RSP_PARTY" newTableName="TB_PM_JOIN_PROCESS_RESP_PARTY" />
         <renameTable oldTableName="MIGR_TB_PM_CONFIGURATION_RAW" newTableName="TB_PM_CONFIGURATION_RAW" />
-        <renameTable oldTableName="MIGR_TB_USER_MSG_DELETION_JOB" newTableName="TB_USER_MSG_DELETION_JOB" />
         <renameTable oldTableName="MIGR_WS_PLUGIN_TB_MESSAGE_LOG" newTableName="WS_PLUGIN_TB_MESSAGE_LOG" />
         <renameTable oldTableName="MIGR_TB_AUTH_ENTRY_AUD" newTableName="TB_AUTHENTICATION_ENTRY_AUD" />
         <renameTable oldTableName="MIGR_TB_BACK_RCRITERIA_AUD" newTableName="TB_BACK_RCRITERIA_AUD" />
@@ -500,9 +498,6 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
                                  constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_ROLE"/>
-        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
         <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
             <column name="ACTION_ID_FK"/>
         </createIndex>
@@ -613,6 +608,9 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         </createIndex>
         <createIndex indexName="IDX_MSG_ARCHIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ARCHIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_EXPORTED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="EXPORTED"/>
         </createIndex>
         <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
             <column name="ACKNOWLEDGED"/>
@@ -1369,6 +1367,11 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
                                  constraintName="FK_USER_MESSAGE_ID_FTR" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE_LOG"/>
+    </changeSet>
+
+    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-single-tenancy" author="Soumya">
+        <sqlFile path="src/main/resources/db/migration/oracle/db-migration-utc-conversion.sql" endDelimiter="\n/"
+                 dbms="oracle"/>
     </changeSet>
 
 </databaseChangeLog>

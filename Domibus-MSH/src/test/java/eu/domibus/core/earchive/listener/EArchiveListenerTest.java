@@ -16,6 +16,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,6 +29,7 @@ import java.util.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class EArchiveListenerTest {
 
     @Tested
@@ -162,7 +164,7 @@ public class EArchiveListenerTest {
             eArchiveBatch.setManifestChecksum("sha256:test");
             times = 1;
 
-            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any));
+            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
         }};
     }
@@ -213,7 +215,7 @@ public class EArchiveListenerTest {
             jmsUtil.setDomain(message);
             times = 1;
 
-            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any));
+            eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
 
             eArchiveBatchUtils.getMessageIds((List<EArchiveBatchUserMessage>) any);

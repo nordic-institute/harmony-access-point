@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.api.usermessage.UserMessageLogService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -17,6 +18,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.logging.DomibusLogger.MDC_MESSAGE_ENTITY_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -24,7 +26,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * @since 3.3
  */
 @Service
-public class UserMessageLogDefaultService {
+public class UserMessageLogDefaultService implements UserMessageLogService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDefaultService.class);
 
@@ -81,10 +83,8 @@ public class UserMessageLogDefaultService {
         if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, status, new Timestamp(System.currentTimeMillis()));
         }
-        final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(status);
-        //we set the status after we send the status change event; otherwise the old status and the new status would be the same
-        userMessageLog.setMessageStatus(messageStatusEntity);
         userMessageLogDao.create(userMessageLog);
+        LOG.putMDC(MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
 
         return userMessageLog;
     }
@@ -129,7 +129,7 @@ public class UserMessageLogDefaultService {
 
     protected void setSignalMessageAsDeleted(final String signalMessageId) {
         final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
-        final MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(MessageStatus.DELETED);
+        final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.DELETED);
         signalMessageLog.setDeleted(new Date());
         signalMessageLog.setMessageStatus(messageStatusEntity);
         uiReplicationSignalService.messageChange(signalMessageId);
@@ -159,18 +159,21 @@ public class UserMessageLogDefaultService {
         return userMessageLogDao.findByMessageId(messageId);
     }
 
-    public eu.domibus.common.MessageStatus getMessageStatus(String messageId) {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    public MessageStatus getMessageStatus(String messageId) {
+        return userMessageLogDao.getMessageStatus(messageId);
     }
 
-    public eu.domibus.common.MessageStatus getMessageStatus(final Long messageEntityId) {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageEntityId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    @Override
+    public MessageStatus getMessageStatus(final Long messageEntityId) {
+        return userMessageLogDao.getMessageStatus(messageEntityId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateStatusToArchived(List<Long> entityIds) {
         userMessageLogDao.updateArchived(entityIds);
+    }
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateStatusToExported(List<Long> entityIds) {
+        userMessageLogDao.updateExported(entityIds);
     }
 }

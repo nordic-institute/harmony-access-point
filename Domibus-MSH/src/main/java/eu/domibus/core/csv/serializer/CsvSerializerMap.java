@@ -1,6 +1,10 @@
 package eu.domibus.core.csv.serializer;
 
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -17,11 +21,14 @@ public class CsvSerializerMap implements CsvSerializer {
         return fieldValue instanceof Map;
     }
 
-    @Override // TODO: François Gautier 29-10-21 GSon to be removed EDELIVERY-8617
-    public String serialize(Object fieldValue) {
-        return new GsonBuilder()
-                .serializeNulls()
-                .disableHtmlEscaping()
-                .create().toJson(fieldValue);
+    @Override
+    public String serialize(Object fieldValue) throws DomibusCoreException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            return mapper.writeValueAsString(fieldValue);
+        } catch (JsonProcessingException ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Couldn't serialize the object." + ex);
+        }
     }
 }

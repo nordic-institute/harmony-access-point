@@ -10,6 +10,7 @@ import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -182,6 +183,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Autowired
     protected SubmissionValidatorService submissionValidatorService;
 
+    @Autowired
+    protected UserMessageContextKeyProvider userMessageContextKeyProvider;
+
+    @Autowired
+    protected PartInfoHelper partInfoHelper;
+
     @Transactional
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
@@ -229,7 +236,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         SignalMessageResult signalMessageResult = null;
         try {
-            signalMessageResult = as4ReceiptService.generateResponse(responseMessage, userMessage, selfSendingFlag);
+            signalMessageResult = as4ReceiptService.generateResponse(responseMessage, selfSendingFlag);
         } catch (final SOAPException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -248,6 +255,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.warn("Message is a duplicate", e);
         }
 
+        userMessageContextKeyProvider.setKeyOnTheCurrentMessage(UserMessage.USER_MESSAGE_DUPLICATE_KEY, "true");
         final boolean duplicateDetectionActive = legConfiguration.getReceptionAwareness().getDuplicateDetection();
 
         String errorMessage = "Duplicate message";
@@ -291,7 +299,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         soapUtil.logMessage(request);
 
         String messageId = userMessage.getMessageId();
-        partInfoService.checkPartInfoCharset(userMessage, partInfoList);
+        partInfoHelper.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
@@ -314,7 +322,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
-                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             } catch (SubmissionValidationException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
@@ -351,7 +359,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         String messageId = userMessage.getMessageId();
-        partInfoService.checkPartInfoCharset(userMessage, partInfoList);
+        partInfoHelper.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
@@ -367,7 +375,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
                 try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage, partInfoList);
+                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw EbMS3ExceptionBuilder.getInstance()
@@ -427,7 +435,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     protected String persistReceivedMessage(
             final SOAPMessage request,
             final LegConfiguration legConfiguration,

@@ -36,7 +36,7 @@ public abstract class AuthenticationServiceBase {
         }
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetail securityUser = (UserDetail) authentication.getPrincipal();
+        DomibusUserDetails securityUser = (DomibusUserDetails) authentication.getPrincipal();
         securityUser.setDomain(domainCode);
         refreshSecurityContext(authentication);
     }
@@ -47,14 +47,14 @@ public abstract class AuthenticationServiceBase {
      *
      * @return logged in user info
      */
-    public UserDetail getLoggedUser() {
+    public DomibusUserDetails getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null
                 && !(authentication instanceof AnonymousAuthenticationToken)
-                && (authentication.getPrincipal() instanceof UserDetail)) {
-            UserDetail userDetail = (UserDetail) authentication.getPrincipal();
-            LOG.debug("Principal found on SecurityContextHolder: {}", userDetail);
-            return userDetail;
+                && (authentication.getPrincipal() instanceof DomibusUserDetails)) {
+            DomibusUserDetails domibusUserDetails = (DomibusUserDetails) authentication.getPrincipal();
+            LOG.debug("Principal found on SecurityContextHolder: {}", domibusUserDetails);
+            return domibusUserDetails;
         }
         LOG.debug("Authentication is missing from the security context or it is of wrong type. Could not return the logged user.");
         return null;

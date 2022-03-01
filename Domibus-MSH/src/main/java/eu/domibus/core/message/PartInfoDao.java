@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.core.dao.BasicDao;
 import org.hibernate.jpa.QueryHints;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
@@ -25,6 +26,22 @@ public class PartInfoDao extends BasicDao<PartInfo> {
         query.setParameter("ENTITY_ID", userMessageEntityId);
         query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
         return query.getResultList();
+    }
+
+    public PartInfo findPartInfoByUserMessageEntityIdAndCid(final Long userMessageEntityId, String cid) {
+        final TypedQuery<PartInfo> query = this.em.createNamedQuery("PartInfo.findPartInfoByUserMessageEntityIdAndCid", PartInfo.class);
+        query.setParameter("ENTITY_ID", userMessageEntityId);
+        query.setParameter("CID", cid);
+        query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public PartInfo findPartInfoByUserMessageIdAndCid(final String userMessageId, String cid) {
+        final TypedQuery<PartInfo> query = this.em.createNamedQuery("PartInfo.findPartInfoByUserMessageIdAndCid", PartInfo.class);
+        query.setParameter("MESSAGE_ID", userMessageId);
+        query.setParameter("CID", cid);
+        query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
+        return DataAccessUtils.singleResult(query.getResultList());
     }
 
     public List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds) {

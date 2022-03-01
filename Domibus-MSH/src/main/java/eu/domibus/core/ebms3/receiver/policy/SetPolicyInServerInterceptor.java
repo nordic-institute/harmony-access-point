@@ -26,6 +26,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
+import org.apache.neethi.builders.converters.ConverterException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
@@ -143,7 +144,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
         try {
             if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                backendNotificationService.notifyMessageReceivedFailure(userMessage, partInfos, userMessageHandlerService.createErrorResult(e));
+                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
             }
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
@@ -159,7 +160,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             String xml = soapService.getMessagingAsRAWXml(message);
             LOG.error("EbMS3Exception caused by incoming message: {}", xml);
 
-        } catch (IOException | EbMS3Exception | TransformerException e) {
+        } catch (ConverterException | IOException | EbMS3Exception | TransformerException e) {
             LOG.error("Error while getting Soap Envelope", e);
         }
     }

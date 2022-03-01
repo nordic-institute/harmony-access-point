@@ -1,9 +1,12 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -18,7 +21,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,11 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Catalin Enache, Soumya Chandran
  * @since 4.2
  */
+@SuppressWarnings("ConstantConditions")
 @RunWith(JMockit.class)
 public class SetPolicyInServerInterceptorTest {
 
@@ -59,26 +64,41 @@ public class SetPolicyInServerInterceptorTest {
     ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void processPluginNotification(final @Injectable EbMS3Exception ebMS3Exception,
                                           final @Injectable LegConfiguration legConfiguration,
                                           final @Injectable Ebms3Messaging messaging,
-                                          final @Injectable UserMessage userMessage) {
+                                          final @Injectable Ebms3UserMessage ebms3UserMessage,
+                                          final @Injectable UserMessage userMessage,
+                                          final @Injectable PartInfo partInfo,
+                                          final @Injectable ErrorResult errorResult) {
+        List<PartInfo> partInfos = Arrays.asList(partInfo);
 
         new Expectations(setPolicyInServerInterceptor) {{
+            messaging.getUserMessage();
+            result = ebms3UserMessage;
+
+            ebms3Converter.convertFromEbms3(ebms3UserMessage);
+            result = userMessage;
+
+            ebms3Converter.convertPartInfoFromEbms3(ebms3UserMessage);
+            result = partInfos;
+
             userMessageHandlerService.checkTestMessage(userMessage);
             result = false;
 
             legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer();
             result = true;
+
+            userMessageHandlerService.createErrorResult(ebMS3Exception);
+            result = errorResult;
         }};
 
         //tested method
         setPolicyInServerInterceptor.processPluginNotification(ebMS3Exception, legConfiguration, messaging);
 
-//        new FullVerifications(backendNotificationService) {{
-//            backendNotificationService.notifyMessageReceivedFailure(userMessage, Matchers.eq(new ArrayList<>()), userMessageHandlerService.createErrorResult(ebMS3Exception));
-//        }};
+        new Verifications() {{
+            backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
+        }};
     }
 
     @Test

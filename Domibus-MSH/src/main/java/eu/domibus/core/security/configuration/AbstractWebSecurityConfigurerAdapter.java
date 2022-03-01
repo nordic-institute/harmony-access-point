@@ -3,6 +3,7 @@ package eu.domibus.core.security.configuration;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.web.filter.CookieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
+import eu.domibus.web.header.ServerHeaderWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +28,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.1
  */
 public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+
+    public static final String DOMIBUS_EXTERNAL_API_PREFIX = "/ext";
+    public static final String PLUGIN_API_PREFIX = "/api";
+
     @Autowired
     CsrfTokenRepository tokenRepository;
 
@@ -41,6 +46,9 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
 
     @Autowired
     CookieFilter cookieFilter;
+
+    @Autowired
+    ServerHeaderWriter serverHeaderWriter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -93,7 +101,9 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
         web
                 .ignoring().antMatchers("/services/**")
                 .and()
-                .ignoring().antMatchers("/ext/**");
+                .ignoring().antMatchers(DOMIBUS_EXTERNAL_API_PREFIX + "/**")
+                .and()
+                .ignoring().antMatchers(PLUGIN_API_PREFIX + "/**");
     }
 
     /**
@@ -115,7 +125,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                         "/rest/application/multitenancy",
                         "/rest/application/supportteam",
                         "/rest/security/user").permitAll()
-                .antMatchers("/rest/domains/**").hasAnyAuthority(AuthRole.ROLE_AP_ADMIN.name())
+                .antMatchers("/rest/domains/**").authenticated()
                 .antMatchers(HttpMethod.PUT, "/rest/security/user/password").authenticated()
                 .antMatchers("/rest/pmode/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/party/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
@@ -134,7 +144,7 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/**").authenticated()
                 .and()
                 .exceptionHandling().and()
-                .headers().frameOptions().deny().contentTypeOptions().and().xssProtection().xssProtectionEnabled(true).and()
+                .headers().addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions().and().xssProtection().xssProtectionEnabled(true).and()
                 .and()
                 .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
                 .and()

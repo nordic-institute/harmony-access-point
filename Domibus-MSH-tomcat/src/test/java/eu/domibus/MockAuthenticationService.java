@@ -1,7 +1,7 @@
 package eu.domibus;
 
 import eu.domibus.web.security.AuthenticationService;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class MockAuthenticationService implements AuthenticationService {
     @Override
-    public UserDetail authenticate(String username, String password, String domain) {
+    public DomibusUserDetails authenticate(String username, String password, String domain) {
         return null;
     }
 
@@ -18,12 +18,17 @@ public class MockAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public UserDetail getLoggedUser() {
+    public DomibusUserDetails getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            String userName = (String) authentication.getPrincipal();
-            UserDetail userDetail = new UserDetail(userName, StringUtils.EMPTY, authentication.getAuthorities());
-            return userDetail;
+            if (authentication.getPrincipal() instanceof String) {
+                String userName = (String) authentication.getPrincipal();
+                DomibusUserDetails domibusUserDetails = new DomibusUserDetails(userName, StringUtils.EMPTY, authentication.getAuthorities());
+                return domibusUserDetails;
+            }
+            if (authentication.getPrincipal() instanceof DomibusUserDetails) {
+                return (DomibusUserDetails) authentication.getPrincipal();
+            }
         }
         return null;
     }

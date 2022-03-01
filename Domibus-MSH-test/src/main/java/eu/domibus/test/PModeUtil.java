@@ -38,6 +38,7 @@ public class PModeUtil {
 
         final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes("UTF-8"));
         configurationDAO.updateConfiguration(pModeConfiguration);
+        pModeProvider.refresh();
     }
 
     public void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
@@ -54,6 +55,7 @@ public class PModeUtil {
 
         final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes("UTF-8"));
         configurationDAO.updateConfiguration(pModeConfiguration);
+        pModeProvider.refresh();
     }
 
     public void uploadPmode() throws IOException, XmlProcessingException {

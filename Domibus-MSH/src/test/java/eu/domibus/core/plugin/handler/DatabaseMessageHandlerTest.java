@@ -3,8 +3,10 @@ package eu.domibus.core.plugin.handler;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
@@ -25,6 +27,7 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
@@ -183,8 +186,14 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     UserMessageHandlerServiceImpl userMessageHandlerService;
 
+    @Injectable
+    UserMessageValidatorSpiService userMessageValidatorSpiService;
+
     @Tested
     private DatabaseMessageHandler databaseMessageHandler;
+
+    @Injectable
+    protected PartyEndpointProvider partyEndpointProvider;
 
     protected static MessageProperty createProperty(String name, String value, String type) {
         MessageProperty aProperty = new MessageProperty();
@@ -1051,7 +1060,7 @@ public class DatabaseMessageHandlerTest {
             result = false;
 
             userMessageLogService.getMessageStatus(MESS_ID);
-            result = eu.domibus.common.MessageStatus.ACKNOWLEDGED;
+            result = MessageStatus.ACKNOWLEDGED;
         }};
 
         // When
@@ -1157,7 +1166,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
 
-            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
+            messageExchangeService.getMessageStatusForPush();
             result = messageStatus;
 
             messageStatus.getMessageStatus();

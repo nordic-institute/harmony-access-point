@@ -156,7 +156,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     void createUIMessageFromUserMessageLog(String messageId, long jmsTimestamp) {
        /* final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-
+        TODO EDELIVERY-5517
         UIMessageEntity entity = createUIMessageEntity(messageId, jmsTimestamp, userMessageLog, userMessage);
         entity.setRefToMessageId(userMessage.getRefToMessageId());
         entity.setConversationId(userMessage.getConversationId());
@@ -178,7 +178,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     void createUIMessageFromSignalMessageLog(String messageId, final long jmsTimestamp) {
         final SignalMessage signalMessage = signalMessageDao.findBySignalMessageId(messageId);
 
-        UIMessageEntity entity = null;//TODO createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
+        UIMessageEntity entity = new UIMessageEntity();//TODO createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
         entity.setRefToMessageId(signalMessage.getRefToMessageId());
         entity.setConversationId(StringUtils.EMPTY);
         uiMessageDao.create(entity);

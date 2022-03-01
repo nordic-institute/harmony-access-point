@@ -1,4 +1,10 @@
 Domibus 5.0
+- Added domain properties domibus.sender.trust.validation.allowedCertificatePolicyOIDs to validate if certificate was issued with one of the listed policies. Validation is performed on top of the existing certificate subject verification defined in domibus.sender.trust.validation.expression.
+- Dynamic discovery: added a feature for validation of the CertificatePolicy for the SMP certificates.  Allowed list of policies can be defined in property: domibus.dynamicdiscovery.client.allowedCertificatePolicyOIDs
+- Dynamic discovery: added validation of ServiceMetadata Endpoint date validity according to elements from Endpoint/(ServiceActivationDate|ServiceExpirationDate) as specified in new Peppol SMP specification 1.2.0.
+- Remove deletion strategy STORED_PROCEDURE
+- change domibus.passwordPolicy.pattern, domibus.passwordPolicy.validationMessage, domibus.plugin.passwordPolicy.pattern and domibus.plugin.passwordPolicy.validationMessage properties to enforce 16 chars as a minimum length of passwords for users
+- Add HSTS header to admin console REST calls and the property domibus.httpSecurity.httpStrictTransportSecurity.maxAge to configure how much it is kept(default one year)
 - Remove overlapping indexes.
 - On the Domibus Admin Console, the Messages page displays by default only messages exchanged in the past hour
 - Update retry mechanism to consider the retry timeout
@@ -13,7 +19,8 @@ Domibus 5.0
 of the following values point to the same instant - the 21st of July 2021, 12:27:00 [UTC] -:
     - a date value of "2021-07-21T14:27:00+02:00" will be interpreted to have an offset of +02:00;
     - a date value of "2021-07-21T12:27:00" will be interpreted to be in the UTC timezone with a +00:00 offset.
-- Update all libraries to the latest version: Apache CXF 3.4.0, Ehcache 3.8.1, Hibernate Validator 6.1.5.Final, ActiveMQ 5.16.0, etc
+- Update all libraries to the latest version: Apache CXF 3.4.5, Ehcache 3.8.1, Hibernate Validator 6.1.5.Final, ActiveMQ 5.16.3, etc
+- Update Apache WSS4J to 2.3.3 to fix an issue reported in Apache Santuario.
 - Added a new property domibus.connection.cxf.ssl.offload.enable to allow support for offloading the SSL onto a forward SSL proxy
 - WS Plugin listPendingMessages Request will accept following optional parameters in order to filter the pending messages: messageId, conversationId, refToMessageId, fromPartyId, finalRecipient, originalSender, receivedFrom and receivedTo
 - WS Plugin can push notifications to a backend web service (notifications and submit message)

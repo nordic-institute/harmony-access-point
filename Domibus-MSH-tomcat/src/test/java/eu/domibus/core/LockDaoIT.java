@@ -1,12 +1,11 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.core.spring.lock.LockEntity;
 import eu.domibus.core.spring.lock.LockDao;
+import eu.domibus.core.spring.lock.LockEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,7 @@
 package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

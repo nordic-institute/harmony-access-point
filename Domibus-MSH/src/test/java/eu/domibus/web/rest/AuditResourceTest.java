@@ -47,7 +47,7 @@ public class AuditResourceTest {
                 auditCriteria.getFrom(),
                 auditCriteria.getTo(),
                 auditCriteria.getStart(),
-                auditCriteria.getMax())).thenReturn(result);
+                auditCriteria.getMax(), true)).thenReturn(result);
         auditResource.listAudits(auditCriteria);
         verify(auditService, Mockito.times(1)).listAudit(
                 auditCriteria.getAuditTargetName(),
@@ -56,7 +56,7 @@ public class AuditResourceTest {
                 auditCriteria.getFrom(),
                 auditCriteria.getTo(),
                 auditCriteria.getStart(),
-                auditCriteria.getMax());
+                auditCriteria.getMax(), true);
         verify(auditLogCoreMapper, times(1)).auditLogListToAuditResponseRoList(eq(result));
     }
 
@@ -69,7 +69,7 @@ public class AuditResourceTest {
                 Sets.newHashSet(ModificationType.ADD.name()),
                 auditCriteria.getUser(),
                 auditCriteria.getFrom(),
-                auditCriteria.getTo());
+                auditCriteria.getTo(), true);
 
     }
 

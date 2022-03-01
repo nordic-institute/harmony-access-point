@@ -29,7 +29,7 @@ public class EArchiveErrorHandler implements ErrorHandler {
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_BATCH_ENTITY_ID)
+    @MDCKey(value = DomibusLogger.MDC_BATCH_ENTITY_ID)
     @Transactional
     public void handleError(Throwable t) {
 

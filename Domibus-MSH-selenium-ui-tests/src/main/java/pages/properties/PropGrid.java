@@ -112,7 +112,6 @@ public class PropGrid extends DGrid {
 
 		weToDButton(undoElem).click();
 		wait.forElementToBeDisabled(undoElem);
-		wait.forXMillis(1000);
 	}
 
 

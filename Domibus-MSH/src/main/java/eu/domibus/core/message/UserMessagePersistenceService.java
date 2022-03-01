@@ -69,7 +69,7 @@ public class UserMessagePersistenceService {
             //stores the receipt
             receiptDao.create(receiptEntity);
 
-            MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(MessageStatus.ACKNOWLEDGED);
+            MessageStatusEntity messageStatus = messageStatusDao.findOrCreate(MessageStatus.ACKNOWLEDGED);
             MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.SENDING);
 
             // Builds the signal message log

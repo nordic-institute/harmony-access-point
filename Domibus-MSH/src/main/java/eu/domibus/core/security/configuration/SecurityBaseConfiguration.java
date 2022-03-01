@@ -2,6 +2,7 @@ package eu.domibus.core.security.configuration;
 
 import eu.domibus.web.filter.CookieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
+import eu.domibus.web.header.ServerHeaderWriter;
 import eu.domibus.web.matcher.URLCsrfMatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,8 +50,13 @@ public class SecurityBaseConfiguration {
     }
 
     @Bean
-    public CookieFilter coockieFilter() {
+    public CookieFilter cookieFilter() {
         return new CookieFilter();
+    }
+
+    @Bean
+    public ServerHeaderWriter serverHeaderWriter() {
+        return new ServerHeaderWriter();
     }
 
     @Bean

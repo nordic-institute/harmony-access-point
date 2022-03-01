@@ -4,12 +4,12 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeException;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +24,6 @@ import java.util.Map;
  */
 @Service
 public class MessageAcknowledgeDefaultService implements MessageAcknowledgeService {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgeDefaultService.class);
 
     @Autowired
     MessageAcknowledgementDao messageAcknowledgementDao;
@@ -90,8 +88,8 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
         MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
         messageAcknowledgementDao.create(entity);
 
-        if(properties != null) {
-            properties.entrySet().stream().forEach(entry -> {
+        if (properties != null) {
+            properties.entrySet().forEach(entry -> {
                 String name = entry.getKey();
                 String value = entry.getValue();
                 MessageAcknowledgementProperty property = new MessageAcknowledgementProperty();
@@ -108,6 +106,9 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     @Override
     public List<MessageAcknowledgement> getAcknowledgedMessages(String messageId) throws MessageAcknowledgeException {
         final List<MessageAcknowledgementEntity> entities = messageAcknowledgementDao.findByMessageId(messageId);
+        if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId) == null) {
+            throw new MessageNotFoundException(messageId);
+        }
         return messageAcknowledgeConverter.convert(entities);
     }
 

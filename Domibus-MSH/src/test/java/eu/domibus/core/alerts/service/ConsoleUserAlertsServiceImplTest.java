@@ -1,16 +1,18 @@
 package eu.domibus.core.alerts.service;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.VerificationsInOrder;
@@ -99,12 +101,12 @@ public class ConsoleUserAlertsServiceImplTest {
     }
 
     @Test
-    public void testGetAccountDisabledConfiguration() {
-        AccountDisabledModuleConfiguration val = userAlertsService.getAccountDisabledConfiguration();
-
-        new VerificationsInOrder() {{
+    public void testGetAccountDisabledConfiguration(@Injectable AccountDisabledModuleConfiguration accountDisabledModuleConfiguration) {
+        new Expectations() {{
             consoleAccountDisabledConfigurationManager.getConfiguration();
-            times = 1;
+            result = accountDisabledModuleConfiguration;
         }};
+
+        userAlertsService.getAccountDisabledConfiguration();
     }
 }

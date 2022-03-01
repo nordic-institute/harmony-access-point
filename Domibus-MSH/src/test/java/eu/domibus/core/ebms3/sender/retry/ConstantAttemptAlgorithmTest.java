@@ -1,11 +1,11 @@
 package eu.domibus.core.ebms3.sender.retry;
 
-import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import mockit.Mock;
 import mockit.MockUp;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class ConstantAttemptAlgorithmTest {
 
@@ -90,13 +91,14 @@ public class ConstantAttemptAlgorithmTest {
         Assert.assertNotNull(nextAttempt);
     }
 
+    @Deprecated // TODO: François Gautier 23-02-22 to be removed, might bring instability
     private static class SystemMockFirstOfJanuary2016 extends MockUp<System> {
         @Mock
         public static long currentTimeMillis() {
             return SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016;
         }
     }
-
+    @Deprecated // TODO: François Gautier 23-02-22 to be removed, might bring instability
     private static class SystemMockYearTransition extends MockUp<System> {
         @Mock
         public static long currentTimeMillis() {

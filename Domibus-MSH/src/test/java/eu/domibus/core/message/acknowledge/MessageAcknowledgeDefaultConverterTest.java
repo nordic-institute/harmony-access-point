@@ -39,10 +39,8 @@ public class MessageAcknowledgeDefaultConverterTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testConvert(@Injectable UserMessage userMessage)  {
         String user = "baciuco";
-        String messageId = "1";
         Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
         String from = "C3";
         String to = "C4";

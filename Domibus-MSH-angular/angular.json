@@ -49,6 +49,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "baseHref": "/domibus/",
+            "deployUrl": "/domibus/",
             "browserTarget": "domibus-MSH-web:build"
           },
           "configurations": {

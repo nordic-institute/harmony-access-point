@@ -23,7 +23,8 @@ public class DObject {
 
 
 	public WebElement element;
-	protected Logger log = LoggerFactory.getLogger(this.getClass());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
 	protected WebDriver driver;
 	protected DWait wait;
 	

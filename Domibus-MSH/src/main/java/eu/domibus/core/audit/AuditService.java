@@ -1,8 +1,8 @@
 package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.audit.envers.RevisionLogicalName;
 
 import java.util.Date;
 import java.util.List;
@@ -34,7 +34,8 @@ public interface AuditService {
                              Date from,
                              Date to,
                              int start,
-                             int max);
+                             int max,
+                             boolean domain);
 
     /**
      * Count the number of audit for the given criterias.
@@ -50,7 +51,8 @@ public interface AuditService {
                     Set<String> action,
                     Set<String> user,
                     Date from,
-                    Date to);
+                    Date to,
+                    boolean domain);
 
     /**
      * Entities targeted by the auditing system have a logical name.{@link RevisionLogicalName}
@@ -101,9 +103,9 @@ public interface AuditService {
     /**
      * Add message moved audit for a message.
      *
-     * @param messageId the id of the message.
-     * @param fromQueue the queue from which the message was moved.
-     * @param toQueue   the queue to which the message was moved.
+     * @param messageId  the id of the message.
+     * @param fromQueue  the queue from which the message was moved.
+     * @param toQueue    the queue to which the message was moved.
      * @param domainCode
      */
     void addJmsMessageMovedAudit(
@@ -123,7 +125,7 @@ public interface AuditService {
     /**
      * Add download audit for am envelope of user or signal messages
      *
-     * @param messageId the id of the message.
+     * @param messageId        the id of the message.
      * @param modificationType the modification type: either user or signal MessageEnvelopeDownload
      */
     void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType);

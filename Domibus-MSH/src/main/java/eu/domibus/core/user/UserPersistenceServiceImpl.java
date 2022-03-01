@@ -18,7 +18,7 @@ import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -76,21 +76,21 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     public void updateUsers(List<eu.domibus.api.user.User> users) {
         // insertion
         Collection<eu.domibus.api.user.User> newUsers = filterNewUsers(users);
-        LOG.debug("New users:" + newUsers.size());
+        LOG.debug("New users: [{}]", newUsers.size());
         insertNewUsers(newUsers);
 
         // update
         Collection<eu.domibus.api.user.User> noPasswordChangedModifiedUsers = filterModifiedUserWithoutPasswordChange(users);
-        LOG.debug("Modified users without password change:" + noPasswordChangedModifiedUsers.size());
+        LOG.debug("Modified users without password change: [{}]", noPasswordChangedModifiedUsers.size());
         updateUsers(noPasswordChangedModifiedUsers, false);
 
         Collection<eu.domibus.api.user.User> passwordChangedModifiedUsers = filterModifiedUserWithPasswordChange(users);
-        LOG.debug("Modified users with password change:" + passwordChangedModifiedUsers.size());
+        LOG.debug("Modified users with password change: [{}]", passwordChangedModifiedUsers.size());
         updateUsers(passwordChangedModifiedUsers, true);
 
         // deletion
         List<eu.domibus.api.user.User> deletedUsers = filterDeletedUsers(users);
-        LOG.debug("Users to delete:" + deletedUsers.size());
+        LOG.debug("Users to delete: [{}]", deletedUsers.size());
         deleteUsers(deletedUsers);
     }
 
@@ -140,7 +140,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void checkCanUpdateIfCurrentUser(eu.domibus.api.user.User user, User existing) {
-        UserDetail loggedUser = authenticationService.getLoggedUser();
+        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
         if (loggedUser == null || !StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
             LOG.debug("No need to validate the permission to update a user if it is different than the logged-in user [{}]; exiting.", user.getUserName());
             return;

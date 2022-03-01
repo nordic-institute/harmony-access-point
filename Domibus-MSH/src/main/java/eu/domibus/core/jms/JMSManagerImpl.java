@@ -35,7 +35,6 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Topic;
-import javax.management.ObjectName;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -404,9 +403,7 @@ public class JMSManagerImpl implements JMSManager {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Trying to match original queue name [{}] with queue [{}] [{}] [{}]", queueName, queue, queue.getName(), queue.getFullyQualifiedName());
             if (queue.getProperties() != null) {
-                queue.getProperties().keySet().forEach(p -> {
-                    LOG.trace("Property [{}]: [{}]", p, queue.getProperty(p));
-                });
+                queue.getProperties().keySet().forEach(p -> LOG.trace("Property [{}]: [{}]", p, queue.getProperty(p)));
             }
         }
 
@@ -509,8 +506,7 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected Collection<String> getQueueElements(String queueName, final NotificationType notificationType, final String finalRecipient) {
-        final Collection<String> result = browseQueue(queueName, notificationType, finalRecipient);
-        return result;
+        return browseQueue(queueName, notificationType, finalRecipient);
     }
 
     protected Collection<String> browseQueue(String queueName, final NotificationType notificationType, final String finalRecipient) {
@@ -533,9 +529,9 @@ public class JMSManagerImpl implements JMSManager {
             String messageId = message.getCustomStringProperty(MessageConstants.MESSAGE_ID);
             result.add(messageId);
             countOfMessagesIncluded++;
-            LOG.debug("Added MessageId [" + messageId + "]");
+            LOG.debug("Added MessageId [{}]", messageId);
             if ((intMaxPendingMessagesRetrieveCount != 0) && (countOfMessagesIncluded >= intMaxPendingMessagesRetrieveCount)) {
-                LOG.info("Limit of pending messages to return has been reached [" + countOfMessagesIncluded + "]");
+                LOG.info("Limit of pending messages to return has been reached [{}]", countOfMessagesIncluded);
                 break;
             }
         }
@@ -544,7 +540,7 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void removeFromPending(String queueName, String messageId) throws MessageNotFoundException {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();
@@ -558,7 +554,7 @@ public class JMSManagerImpl implements JMSManager {
         JmsMessage message = consumeMessage(queueName, messageId);
         if (message == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageId);
-            throw new MessageNotFoundException("No message with id [" + messageId + "] pending for download");
+            throw new MessageNotFoundException(messageId, " pending for download");
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
 

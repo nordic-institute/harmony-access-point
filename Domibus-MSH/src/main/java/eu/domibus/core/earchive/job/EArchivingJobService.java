@@ -88,15 +88,15 @@ public class EArchivingJobService {
     }
 
     @Transactional
-    public EArchiveBatchEntity createEArchiveBatchWithMessages(Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
+    public EArchiveBatchEntity createEArchiveBatchWithMessages(Long lastEntityIdProcessed, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
         return createEArchiveBatchWithMessages(null,
                 (userMessageToBeArchived.isEmpty() ? null : userMessageToBeArchived.get(0).getUserMessageEntityId()),
-                lastEntityIdProcessed, batchSize, userMessageToBeArchived, requestType);
+                lastEntityIdProcessed, userMessageToBeArchived, requestType);
     }
 
     @Transactional
-    public EArchiveBatchEntity createEArchiveBatchWithMessages(String originalBatchId, Long firstEntityIdProcessed, Long lastEntityIdProcessed, int batchSize, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
-        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId, batchSize, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
+    public EArchiveBatchEntity createEArchiveBatchWithMessages(String originalBatchId, Long firstEntityIdProcessed, Long lastEntityIdProcessed, List<EArchiveBatchUserMessage> userMessageToBeArchived, EArchiveRequestType requestType) {
+        EArchiveBatchEntity eArchiveBatch = createEArchiveBatch(originalBatchId,userMessageToBeArchived!=null?userMessageToBeArchived.size():0, firstEntityIdProcessed, lastEntityIdProcessed, requestType);
         if(CollectionUtils.isNotEmpty(userMessageToBeArchived)) {
             eArchiveBatchUserMessageDao.create(eArchiveBatch, userMessageToBeArchived);
         }
@@ -122,7 +122,6 @@ public class EArchivingJobService {
         EArchiveBatchEntity reExportedBatch = createEArchiveBatchWithMessages(originEntity.getBatchId(),
                 originEntity.getFirstPkUserMessage(),
                 originEntity.getLastPkUserMessage(),
-                originEntity.getBatchSize(),
                 messages,
                 EArchiveRequestType.MANUAL);// rexported batch is set to manual
         // set original entity as re-exported
@@ -228,8 +227,8 @@ public class EArchivingJobService {
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
 
-    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
-        return userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, size);
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize) {
+        return userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, batchMaxSize);
     }
 
     public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
@@ -242,16 +241,16 @@ public class EArchivingJobService {
         }
     }
 
-    public void createEventOnStartDateContinuousJobStopped(Date continuousStartDate) {
+    public void createEventOnStartDateContinuousJobStopped(Date continuousLastUpdatedDate) {
         Integer property = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
 
-        if (property == null || continuousStartDate == null) {
+        if (property == null || continuousLastUpdatedDate == null) {
             LOG.error("The configuration is incorrect: either [{}] is undefined or the continuous job start date is undefined", DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
             eArchivingEventService.sendEventStartDateStopped();
             return;
         }
 
-        ZonedDateTime continuousStartDateTime = ZonedDateTime.ofInstant(continuousStartDate.toInstant(), ZoneOffset.UTC);
+        ZonedDateTime continuousStartDateTime = ZonedDateTime.ofInstant(continuousLastUpdatedDate.toInstant(), ZoneOffset.UTC);
         ZonedDateTime allowedDateTime = ZonedDateTime.now(ZoneOffset.UTC).minusHours(property);
 
         if (allowedDateTime.isAfter(continuousStartDateTime)) {

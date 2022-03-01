@@ -24,6 +24,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
+import org.springframework.scheduling.SchedulingTaskExecutor;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -84,7 +85,8 @@ public class JMSPluginConfiguration {
     @Bean("backendJmsListenerContainerFactory")
     public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  JmsPluginPropertyManager jmsPluginPropertyManager,
-                                                                                 Optional<JndiDestinationResolver> jndiDestinationResolver) {
+                                                                                 Optional<JndiDestinationResolver> jndiDestinationResolver,
+                                                                                 @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         String queueInConcurrency = jmsPluginPropertyManager.getKnownPropertyValue(JMSPLUGIN_QUEUE_IN_CONCURRENCY);
@@ -92,6 +94,7 @@ public class JMSPluginConfiguration {
         result.setConcurrency(queueInConcurrency);
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+        result.setTaskExecutor(schedulingTaskExecutor);
 
         if (jndiDestinationResolver.isPresent()) {
             LOG.debug("Setting jndi destination resolver to the defaultJmsListenerContainerFactory");

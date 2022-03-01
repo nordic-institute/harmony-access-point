@@ -22,7 +22,6 @@
         <commons-csv_version>1.5</commons-csv_version>
         <selenium-chrome-driver_version>3.141.59</selenium-chrome-driver_version>
         <selenium-java_version>3.141.59</selenium-java_version>
-        <testng_version>7.1.0</testng_version>
         <poi-ooxml_version>3.17</poi-ooxml_version>
         <reflections_version>0.9.11</reflections_version>
         <jersey-client_version>1.19.4</jersey-client_version>
@@ -179,16 +178,6 @@
             <artifactId>junit-4.10-extended</artifactId>
             <version>${junit_version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
 
         <!--**************************************-->
         <!--FOR DATA DRIVEN TESTS-->
@@ -199,6 +188,14 @@
         </dependency>
 
         <!--**************************************-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
+        <!--**************************************-->
+
 
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
@@ -214,7 +211,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${testng_version}</version>
+            <version>7.4.0</version>
         </dependency>
 
         <dependency>

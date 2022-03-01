@@ -8,14 +8,14 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
-import eu.domibus.api.user.UserState;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.ro.PluginUserRO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,11 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.core.property.DomibusGeneralConstants.*;
 
 /**
  * @author Ion Perpegel, Catalin Enache
@@ -64,11 +65,10 @@ public class PluginUserServiceImpl implements PluginUserService {
     private AuthCoreMapper authCoreMapper;
 
     @Override
-    public List<PluginUserRO> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
+    public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
         Map<String, Object> filters = createFilterMap(authType, authRole, originalUser, userName);
         List<AuthenticationEntity> users = authenticationDAO.findPaged(page * pageSize, pageSize, "entityId", true, filters);
-        List<PluginUserRO> res = convertAndPrepareUsers(users);
-        return res;
+        return users;
     }
 
     @Override
@@ -104,38 +104,6 @@ public class PluginUserServiceImpl implements PluginUserService {
         userSecurityPolicyManager.reactivateSuspendedUsers();
     }
 
-    protected List<PluginUserRO> convertAndPrepareUsers(List<AuthenticationEntity> userEntities) {
-        List<PluginUserRO> users = new ArrayList<>();
-
-        userEntities.forEach(userEntity -> {
-            PluginUserRO user = convertAndPrepareUser(userEntity);
-            users.add(user);
-        });
-
-        return users;
-    }
-
-    protected PluginUserRO convertAndPrepareUser(AuthenticationEntity userEntity) {
-        PluginUserRO user = authCoreMapper.authenticationEntityToPluginUserRO(userEntity);
-
-        user.setStatus(UserState.PERSISTED.name());
-        user.setPassword(null);
-
-        // TODO: François Gautier 14-04-21 check if  setAuthenticationType setSuspended are still needed
-        user.setAuthenticationType(userEntity.getAuthenticationType().name());
-        user.setSuspended(userEntity.isSuspended());
-
-        String domainCode = userDomainService.getDomainForUser(userEntity.getUniqueIdentifier());
-        user.setDomain(domainCode);
-
-        if (userEntity.isBasic()) {
-            LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
-            user.setExpirationDate(expDate);
-        }
-
-        return user;
-    }
-
     /**
      * get all users from general schema and validate new users against existing names
      *
@@ -146,8 +114,10 @@ public class PluginUserServiceImpl implements PluginUserService {
         // check duplicates with other plugin users
         for (AuthenticationEntity user : addedUsers) {
             if (!StringUtils.isEmpty(user.getUserName())) {
-                if (addedUsers.stream().anyMatch(x -> x != user && user.getUserName().equalsIgnoreCase(x.getUserName())))
+                if (addedUsers.stream().anyMatch(x -> x != user && user.getUserName().equalsIgnoreCase(x.getUserName()))) {
                     throw new UserManagementException("Cannot add user " + user.getUserName() + " more than once.");
+                }
+                validatePluginUserName(user.getUserName());
             }
             if (StringUtils.isNotBlank(user.getCertificateId())) {
                 if (addedUsers.stream().anyMatch(x -> x != user && user.getCertificateId().equalsIgnoreCase(x.getCertificateId())))
@@ -161,6 +131,12 @@ public class PluginUserServiceImpl implements PluginUserService {
         }
 
         Streams.concat(addedUsers.stream(), updatedUsers.stream())
+                .forEach(authenticationEntity -> {
+                            validateAuthRoles(authenticationEntity.getAuthRoles());
+                            validateOriginalUser(authenticationEntity.getOriginalUser());
+                        }
+                );
+        Streams.concat(addedUsers.stream(), updatedUsers.stream())
                 .filter(user -> StringUtils.equals(user.getAuthRoles(), AuthRole.ROLE_USER.name()))
                 .filter(user -> StringUtils.isEmpty(user.getOriginalUser()))
                 .findFirst()
@@ -168,6 +144,45 @@ public class PluginUserServiceImpl implements PluginUserService {
                     throw new UserManagementException("Cannot add or update the user " + user.getUserName()
                             + " having the " + AuthRole.ROLE_USER.name() + " role without providing the original user value.");
                 });
+
+    }
+
+    protected void validateOriginalUser(String originalUser) {
+        if(StringUtils.isBlank(originalUser)){
+            return;
+        }
+        if(!originalUser.matches(PLUGINUSER_ORIGINAL_USER_PATTERN)){
+            LOG.error("Original User:[{}] does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]", originalUser);
+            throw new UserManagementException("Original User :" + originalUser + " does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner].");
+        }
+    }
+
+    protected void validateAuthRoles(String authRoles) {
+        if(StringUtils.isBlank(authRoles)){
+            LOG.error("Valid AuthRoles not provided for PluginUser");
+            throw new UserManagementException("Valid AuthRoles should be supplied for PluginUser.");
+        }
+        //authRoles is semicolon separated list
+        List<String> lstAuthRoles = Arrays.asList(authRoles.split(";"));
+        for (String authRole : lstAuthRoles) {
+            try {
+                AuthRole.valueOf(authRole);
+            } catch (IllegalArgumentException e) {
+                LOG.error("AuthRole supplied:[{}] is unknown.", authRole);
+                throw new UserManagementException("AuthRole supplied " + authRole + " is not known.");
+            }
+        }
+    }
+
+    protected void validatePluginUserName(String userName) {
+        String lclPluginUserName = StringUtils.trim(userName);
+        int lclPluginUserNameLength = StringUtils.length(lclPluginUserName);
+        if (lclPluginUserNameLength < PLUGIN_USERNAME_MIN_LENGTH || lclPluginUserNameLength > PLUGIN_USERNAME_MAX_LENGTH) {
+            throw new UserManagementException("Plugin User Username should be between 4 and 255 characters long.");
+        }
+        if (!lclPluginUserName.matches(PLUGIN_USERNAME_PATTERN)) {
+            throw new UserManagementException("Plugin User should be alphanumeric with allowed special characters .@_");
+        }
     }
 
     protected Map<String, Object> createFilterMap(AuthType authType, AuthRole authRole, String originalUser, String userName) {

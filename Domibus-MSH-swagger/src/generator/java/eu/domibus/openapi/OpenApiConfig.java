@@ -2,6 +2,7 @@ package eu.domibus.openapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
 import eu.domibus.ext.services.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -58,7 +59,7 @@ public class OpenApiConfig {
 
         Server serverDemo = new Server();
         serverDemo.setUrl("/domibus");
-        serverDemo.description("Domibus services!");
+        serverDemo.description("Domibus services");
         Server serverLocalhost = new Server();
         return new OpenAPI()
                 .info(new Info().title("Domibus API API")
@@ -125,7 +126,32 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public PluginUserExtService beanPluginUserExtService() {
+        return Mockito.mock(PluginUserExtService.class);
+    }
+
+    @Bean
     public AuthenticationExtService beanAuthenticationExtService() {
         return Mockito.mock(AuthenticationExtService.class);
+    }
+
+    @Bean
+    public PayloadExtService beanPayloadExtService() {
+        return Mockito.mock(PayloadExtService.class);
+    }
+
+    @Bean
+    public UserMessageValidatorServiceDelegate userMessageValidatorServiceDelegate() {
+        return Mockito.mock(UserMessageValidatorServiceDelegate.class);
+    }
+
+    @Bean
+    public PayloadExtService payloadExtService() {
+        return Mockito.mock(PayloadExtService.class);
+    }
+
+    @Bean
+    public DateExtService dateExtService() {
+        return Mockito.mock(DateExtService.class);
     }
 }

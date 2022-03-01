@@ -1,16 +1,15 @@
 package eu.domibus.core.user.plugin.security;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.multitenancy.UserSessionsService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.user.UserEntityBase;
+import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.core.user.ui.User;
-import eu.domibus.core.user.UserEntityBase;
-import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

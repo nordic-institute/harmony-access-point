@@ -27,6 +27,8 @@ import java.util.Set;
  */
 @NamedQueries({
         @NamedQuery(name = "PartInfo.findPartInfos", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID order by pi.partOrder"),
+        @NamedQuery(name = "PartInfo.findPartInfoByUserMessageEntityIdAndCid", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID and pi.href=:CID"),
+        @NamedQuery(name = "PartInfo.findPartInfoByUserMessageIdAndCid", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.messageId=:MESSAGE_ID and pi.href=:CID"),
         @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
         @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
 })
@@ -168,6 +170,9 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.partProperties = partProperties;
     }
 
+    /**
+     * WARNING: for message sent, the compress flag is NOT set and the {@link #getPayloadDatahandler} will provide the zipped data
+     */
     @PostLoad
     public void loadBinary() {
         if (fileName != null) { /* Create payload data handler from File */

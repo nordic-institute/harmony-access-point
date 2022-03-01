@@ -4,10 +4,11 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserState;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
+import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.user.plugin.AuthenticationEntity;
-import eu.domibus.core.user.plugin.PluginUserService;
+import eu.domibus.core.user.plugin.PluginUserMapper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.PluginUserFilterRequestRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
@@ -28,6 +29,9 @@ public class PluginUserResourceTest {
 
     @Tested
     PluginUserResource userResource;
+
+    @Injectable
+    PluginUserMapper pluginUserMapper;
 
     @Injectable
     private PluginUserService pluginUserService;
@@ -52,16 +56,23 @@ public class PluginUserResourceTest {
         String userName = "userName1";
         int pageStart = 1, pageSize = 10;
 
-        PluginUserRO userRO = new PluginUserRO();
-        userRO.setUserName("user1");
-        List<PluginUserRO> userROs = Arrays.asList(userRO);
+        AuthenticationEntity userAuthenticationEntity = new AuthenticationEntity();
+        userAuthenticationEntity.setUserName(userName);
+        List<AuthenticationEntity> userAuthenticationEntities = Arrays.asList(userAuthenticationEntity);
 
-        new Expectations() {{
+        PluginUserRO pluginUserRO = new PluginUserRO();
+        pluginUserRO.setUserName(userName);
+        List<PluginUserRO> pluginUserROList = Arrays.asList(pluginUserRO);
+
+        new Expectations(userResource) {{
             pluginUserService.countUsers(authType, authRole, originalUser, userName);
             result = 1;
 
             pluginUserService.findUsers(authType, authRole, originalUser, userName, pageStart, pageSize);
-            result = userROs;
+            result = userAuthenticationEntities;
+
+            pluginUserMapper.convertAndPrepareUsers(userAuthenticationEntities);
+            result = pluginUserROList;
         }};
 
         PluginUserFilterRequestRO req = new PluginUserFilterRequestRO() {{
@@ -75,7 +86,7 @@ public class PluginUserResourceTest {
         PluginUserResultRO result = userResource.findUsers(req);
 
         Assert.assertNotNull(result);
-        Assert.assertEquals(userRO, result.getEntries().get(0));
+        Assert.assertEquals(pluginUserRO, result.getEntries().get(0));
     }
 
     @Test
@@ -96,7 +107,7 @@ public class PluginUserResourceTest {
 
         userResource.updateUsers(userROs);
 
-        new Verifications(1) {{
+        new Verifications() {{
             List<AuthenticationEntity> addedUsers, updatedUsers, removedUsers;
             pluginUserService.updateUsers(addedUsers = withCapture(), updatedUsers = withCapture(), removedUsers = withCapture());
             times = 1;

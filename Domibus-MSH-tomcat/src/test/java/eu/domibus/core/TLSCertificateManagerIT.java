@@ -5,7 +5,6 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.TLSCertificateManagerImpl;
 import eu.domibus.core.crypto.TruststoreDao;
-import eu.domibus.core.crypto.TruststoreEntity;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

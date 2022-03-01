@@ -1,6 +1,7 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -13,7 +14,6 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,6 +23,7 @@ import java.sql.Timestamp;
  * @author Soumya Chandran
  * @since 4.2
  */
+@SuppressWarnings("ConstantConditions")
 @RunWith(JMockit.class)
 public class PullMessageStateServiceImplTest {
     @Tested
@@ -56,6 +57,8 @@ public class PullMessageStateServiceImplTest {
         new Expectations(pullMessageStateService) {{
             userMessageLogDao.findByMessageId(messageId);
             result = userMessageLog;
+            pullMessageStateService.sendFailed(userMessageLog, messageId);
+            times = 1;
         }};
         pullMessageStateService.expirePullMessage(messageId);
         Assert.assertNotNull(userMessageLog);
@@ -63,21 +66,18 @@ public class PullMessageStateServiceImplTest {
         new Verifications() {{
             rawEnvelopeLogDao.deleteUserMessageRawEnvelope(anyLong);
             times = 1;
-            pullMessageStateService.sendFailed(userMessageLog, messageId);
-            times = 1;
         }};
 
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void sendFailedTest(@Injectable UserMessageLog userMessageLog,
                                @Injectable UserMessage userMessage) {
         final String messageId = "messageId";
 
         new Expectations() {{
-            userMessage.getMessageId();
-            result = messageId;
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
         }};
         pullMessageStateService.sendFailed(userMessageLog, messageId);
         Assert.assertNotNull(userMessage);
@@ -89,15 +89,14 @@ public class PullMessageStateServiceImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void sendFailedWithNullUserMessageTest(@Injectable UserMessageLog userMessageLog,
                                                   @Injectable UserMessage userMessage) {
 
         final String messageId = "messageId";
 
         new Expectations() {{
-            userMessage.getMessageId();
-            result = messageId;
+            userMessageDao.findByMessageId(messageId);
+            result = null;
         }};
 
         pullMessageStateService.sendFailed(userMessageLog, messageId);
@@ -109,29 +108,36 @@ public class PullMessageStateServiceImplTest {
     }
 
     @Test
-    public void resetTest(@Injectable UserMessageLog userMessageLog,
-                          @Injectable MessageStatus messageStatus,
-                          @Mocked Timestamp timestamp) {
-        final MessageStatus readyToPull = messageStatus.READY_TO_PULL;
+    public void sendFailedWithNullUserMessageLogTest() {
+
         final String messageId = "messageId";
 
-        new Expectations(pullMessageStateService) {{
-//            userMessageLog.setMessageStatus(readyToPull);
-//            times = 1;
+        pullMessageStateService.sendFailed(null, messageId);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void resetTest(@Injectable UserMessageLog userMessageLog,
+                          @Injectable MessageStatusEntity readyToPull) {
+        final String messageId = "messageId";
+
+        new Expectations() {{
+            messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
+            result = readyToPull;
+        }};
+
+        pullMessageStateService.reset(userMessageLog, messageId);
+
+        new Verifications() {{
+            userMessageLog.setMessageStatus(readyToPull);
             userMessageLogDao.update(userMessageLog);
             times = 1;
             uiReplicationSignalService.messageChange(messageId);
             times = 1;
-            backendNotificationService.notifyOfMessageStatusChange(messageId, userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(anyLong));
+            backendNotificationService.notifyOfMessageStatusChange(messageId, userMessageLog, MessageStatus.READY_TO_PULL, (Timestamp) any);
             times = 1;
-        }};
-        pullMessageStateService.reset(userMessageLog, messageId);
-
-        new VerificationsInOrder() {{
-            userMessageLog.setMessageStatus(withCapture());
-            userMessageLogDao.update(withCapture());
-            uiReplicationSignalService.messageChange(withCapture());
-            backendNotificationService.notifyOfMessageStatusChange(messageId, userMessageLog, messageStatus.READY_TO_PULL, new Timestamp(anyLong));
         }};
     }
 

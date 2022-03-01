@@ -38,7 +38,7 @@ public class PropFilters extends FilterArea {
 
 	public void filterBy(String name, String type, String module, String value, Boolean showDomain) throws Exception {
 
-		log.info("Filtering properties by name {}, type {}, module {}, value {}, showDomain {}", name, type, module, value, showDomain);
+		log.info(String.format("Filtering properties by name {}, type {}, module {}, value {}, showDomain {}", name, type, module, value, showDomain));
 
 		expandArea();
 

@@ -8,7 +8,7 @@ public enum MessageStatus {
         /**
          * The message is ready to be put in the send queue .
          */
-        READY_TO_SEND,
+        READY_TO_SEND, // not used
         /**
          * The message is ready to get pulled.
          */
@@ -16,7 +16,7 @@ public enum MessageStatus {
         /**
          * The message is being pulled.
          */
-        BEING_PULLED,
+        BEING_PULLED, // not used
         /**
          * The message is in the send queue.
          */
@@ -24,7 +24,7 @@ public enum MessageStatus {
         /**
          * the message is being transferred to another MSH.
          */
-        SEND_IN_PROGRESS,
+        SEND_IN_PROGRESS, // not used
         /**
          * the message has been sent, but no receipt has been received yet.
          */
@@ -39,12 +39,12 @@ public enum MessageStatus {
          * error of severity WARNING. The nature of the acknowledgement(http 2xx, NRR receipt etc.) is dependent on the
          * corresponding message PMode. This IS CONSIDERED a SUCCESSFUL message transfer.
          */
-        ACKNOWLEDGED_WITH_WARNING,
+        ACKNOWLEDGED_WITH_WARNING, // not used
         /**
          * The last attempt to send the message has failed. There will either be retries, or the status will change to
          * SEND_FAILURE (depending on the corresponding PMode)
          */
-        SEND_ATTEMPT_FAILED,
+        SEND_ATTEMPT_FAILED, // not used
 
         /**
          * The final send attempt of the message has failed and there will be no more retries
@@ -71,7 +71,7 @@ public enum MessageStatus {
          * The message has been received and an acknowledgement containing an ebMS3
          * error of severity WARNING has been returned to the sender. This IS CONSIDERED a SUCCESSFUL message transfer.
          */
-        RECEIVED_WITH_WARNINGS,
+        RECEIVED_WITH_WARNINGS, // not used
 
         /**
          * The message has been processed by the MSH but the payloads have been deleted due to the message retention
@@ -84,14 +84,13 @@ public enum MessageStatus {
          */
         DOWNLOADED;
 
-        public static List<MessageStatus> getFinalStates(){
+        public static List<MessageStatus> getSuccessfulStates(){
                 return Arrays.asList(
                         ACKNOWLEDGED,
                         ACKNOWLEDGED_WITH_WARNING,
                         RECEIVED,
                         RECEIVED_WITH_WARNINGS,
-                        DOWNLOADED,
-                        DELETED);
+                        DOWNLOADED);
         }
 
         public static List<MessageStatus> getNotFinalStates(){
@@ -110,7 +109,7 @@ public enum MessageStatus {
 
         public static List<String> getFinalStatesAsString(){
                 List<String> messageStatusNames = new ArrayList<>();
-                getFinalStates().stream().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
+                getSuccessfulStates().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
                 return messageStatusNames;
         }
 }

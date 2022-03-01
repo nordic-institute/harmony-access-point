@@ -4,6 +4,7 @@ import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
+import {DomibusInfoService} from '../appinfo/domibusinfo.service';
 
 @Component({
   selector: 'domain-selector',
@@ -25,21 +26,23 @@ export class DomainSelectorComponent implements OnInit {
               private securityService: SecurityService,
               private alertService: AlertService,
               private router: Router,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private domibusInfoService: DomibusInfoService) {
   }
 
   async ngOnInit() {
     try {
       const isMultiDomain = await this.domainService.isMultiDomain().toPromise();
+      const isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
 
-      if (isMultiDomain && this.securityService.isCurrentUserSuperAdmin()) {
+      if (isMultiDomain && (this.securityService.isCurrentUserSuperAdmin() || isUserFromExternalAuthProvider)) {
         this.displayDomains = true;
         this.showDomains = this.shouldShowDomains(this.route.snapshot);
 
         this.domainService.getCurrentDomain().subscribe(domain => {
           this.domainCode = this.currentDomainCode = (domain ? domain.code : null);
         });
-        
+
         this.domainService.domains.subscribe(domains => {
           this.domains = domains;
         });

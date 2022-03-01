@@ -35,6 +35,7 @@ public class Submission {
     private String service;
     private String serviceType;
     private String conversationId;
+    private Long messageEntityId;
     private String messageId;
     private String refToMessageId;
     private String agreementRef;
@@ -43,7 +44,6 @@ public class Submission {
     private String toRole;
     private String mpc;
     private ProcessingType processingType;
-
 
 
     /**
@@ -228,6 +228,14 @@ public class Submission {
      */
     public void setFromRole(final String fromRole) {
         this.fromRole = trim(fromRole);
+    }
+
+    public Long getMessageEntityId() {
+        return messageEntityId;
+    }
+
+    public void setMessageEntityId(Long messageEntityId) {
+        this.messageEntityId = messageEntityId;
     }
 
     /**
@@ -612,12 +620,15 @@ public class Submission {
     }
 
     public static class Party {
-        private final String partyId;
-        private final String partyIdType;
+        private String partyId;
+        private String partyIdType;
 
         public Party(final String partyId, final String partyIdType) {
             this.partyId = trim(partyId);
             this.partyIdType = trim(partyIdType);
+        }
+
+        public Party() {
         }
 
         public String getPartyId() {
@@ -749,6 +760,9 @@ public class Submission {
             this.key = trim(key);
             this.value = trim(value);
             this.type = trim(type);
+        }
+
+        public TypedProperty() {
         }
 
         @Override

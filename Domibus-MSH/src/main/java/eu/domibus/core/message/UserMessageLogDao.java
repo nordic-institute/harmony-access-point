@@ -12,8 +12,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,16 +23,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -80,17 +74,17 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int size) {
+    public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize) {
         LOG.debug("UserMessageLog.findMessagesForArchivingAsc -> lastUserMessageLogId : [{}] maxEntityIdToArchived : [{}] size : [{}] ",
                 lastUserMessageLogId,
                 maxEntityIdToArchived,
-                size);
+                batchMaxSize);
         TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
 
         query.setParameter("LAST_ENTITY_ID", lastUserMessageLogId);
         query.setParameter("MAX_ENTITY_ID", maxEntityIdToArchived);
-        query.setParameter("STATUSES", MessageStatus.getFinalStates());
-        query.setMaxResults(size);
+        query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
+        query.setMaxResults(batchMaxSize);
 
         return query.getResultList();
     }
@@ -112,39 +106,24 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return findFailedMessages(finalRecipient, null, null);
     }
 
-    public List<String> findFailedMessages(String finalRecipient, Date failedStartDate, Date failedEndDate) {
-        String queryString = "select distinct m.messageId from UserMessageLog ml join ml.userMessage m " +
-                "left join m.messageProperties p, " +
-                "where ml.messageStatus.messageStatus = 'SEND_FAILURE' and ml.deleted is null ";
-        if (StringUtils.isNotEmpty(finalRecipient)) {
-            queryString += " and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT";
-        }
-        if (failedStartDate != null) {
-            queryString += " and ml.failed >= :START_DATE";
-        }
-        if (failedEndDate != null) {
-            queryString += " and ml.failed <= :END_DATE";
-        }
-        TypedQuery<String> query = this.em.createQuery(queryString, String.class);
-        if (StringUtils.isNotEmpty(finalRecipient)) {
-            query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        }
-        if (failedStartDate != null) {
-            query.setParameter("START_DATE", failedStartDate);
-        }
-        if (failedEndDate != null) {
-            query.setParameter("END_DATE", failedEndDate);
-        }
+    public List<String> findFailedMessages(String finalRecipient, Long failedStartDate, Long failedEndDate) {
+
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
+        query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", failedStartDate);
+        query.setParameter("END_DATE", failedEndDate);
         return query.getResultList();
     }
 
-    public List<String> findMessagesToDelete(String finalRecipient, Date startDate, Date endDate) {
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
-        query.setParameter("FINAL_RECIPIENT", finalRecipient);
-        query.setParameter("START_DATE", Long.parseLong(ZonedDateTime.ofInstant(startDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
 
-        query.setParameter("END_DATE", Long.parseLong(ZonedDateTime.ofInstant(endDate.toInstant(), ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX));
+    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
+
+        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+        query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
+        query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("START_DATE", startDate);
+        query.setParameter("END_DATE", endDate);
         return query.getResultList();
     }
 
@@ -156,16 +135,16 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
      */
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId) {
-        try {
-            final UserMessageLog userMessageLog = findByMessageId(messageId);
-            initializeChildren(userMessageLog);
-            return userMessageLog;
-        } catch (NoResultException nrEx) {
-            LOG.debug("Could not find any result for message with id {[]}", messageId);
+        final UserMessageLog userMessageLog = findByMessageId(messageId);
+        if (userMessageLog == null) {
+            LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
         }
+        initializeChildren(userMessageLog);
+        return userMessageLog;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initializeChildren(UserMessageLog userMessageLog) {
         //initialize values from the second level cache
         userMessageLog.getMessageStatus();
@@ -179,7 +158,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             query.setParameter(STR_MESSAGE_ID, messageId);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id {[]}", messageId);
+            LOG.debug("No result for message with id [{}]", messageId);
             return MessageStatus.NOT_FOUND;
         }
     }
@@ -190,51 +169,49 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             query.setParameter(STR_MESSAGE_ENTITY_ID, messageEntityId);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with entity id {[]}", messageEntityId);
+            LOG.debug("No result for message with entity id [{}]", messageEntityId);
             return MessageStatus.NOT_FOUND;
         }
     }
 
     @Transactional(readOnly = true)
     public UserMessageLog findByEntityId(final Long entityId) {
-        final UserMessageLog userMessageLog = super.read(entityId);
+        try {
+            final UserMessageLog userMessageLog = super.read(entityId);
 
-        initializeChildren(userMessageLog);
-
-        return userMessageLog;
+            if (userMessageLog != null) {
+                initializeChildren(userMessageLog);
+            }
+            return userMessageLog;
+        } catch (NoResultException nrEx) {
+            LOG.debug("Could not find any result for message with entityId [{}]", entityId);
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)
     public UserMessageLog findByEntityIdSafely(final Long entityId) {
         try {
             final UserMessageLog userMessageLog = findByEntityId(entityId);
-            initializeChildren(userMessageLog);
+            if (userMessageLog != null) {
+                initializeChildren(userMessageLog);
+            }
             return userMessageLog;
         } catch (NoResultException nrEx) {
-            LOG.debug("Could not find any result for message with entityId {[]}", entityId);
+            LOG.debug("Could not find any result for message with entityId [{}]", entityId);
             return null;
         }
     }
 
     public UserMessageLog findByMessageId(String messageId) {
 
-        //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        return query.getSingleResult();
-
-    }
-
-    public UserMessageLog findMessageToDeleteNotInFinalStatus(String messageId) {
-        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findMessageToDeleteNotInFinalStatus", UserMessageLog.class);
-        query.setParameter("MESSAGE_STATUSES", UserMessageLog.FINAL_STATUSES_FOR_MESSAGE);
-        query.setParameter(STR_MESSAGE_ID, messageId);
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Query UserMessageLog.findMessageToDeleteNotInFinalStatus did not find any result for message with id [" + messageId + "]");
-            return null;
+        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        if (userMessageLog == null) {
+            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
         }
+        return userMessageLog;
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
@@ -242,32 +219,31 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter("MSH_ROLE", mshRole);
 
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [" + messageId + "] and MSH role [" + mshRole + "]");
-            return null;
+        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+        if (userMessageLog == null) {
+            LOG.debug("Query UserMessageLog.findByMessageIdAndRole did not find any result for message with id [{}] and MSH role [{}]", messageId, mshRole);
         }
+        return userMessageLog;
     }
 
-    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
+    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
+    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
-            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
+            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesOlderThan");
         }
         // return only messages with payload not already cleared
-        return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
+        return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
     }
 
     public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
@@ -309,20 +285,21 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
+    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
+        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
 
     /**
      * EDELIVERY-7772 Hibernate setResultTransformer deprecated
      */
-    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, boolean eArchiveIsActive, String queryName) {
         Query query = em.createNamedQuery(queryName);
 
         query.unwrap(org.hibernate.query.Query.class)
                 .setResultTransformer(new UserMessageLogDtoResultTransformer());
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
+        query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
         query.setMaxResults(expiredMessagesLimit);
 
         try {
@@ -422,7 +399,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public int countUnarchivedMessagesOnPartition(String partitionName) {
-        final Query countQuery = em.createNativeQuery("SELECT COUNT(*) FROM tb_user_message_log PARTITION (" + partitionName + ") WHERE archived IS NULL");
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) WHERE archived IS NULL";
+        sqlString = sqlString.replace("$PARTITION", partitionName);
+        final Query countQuery = em.createNativeQuery(sqlString);
         try {
             int result = ((BigDecimal) countQuery.getSingleResult()).intValue();
             LOG.debug("count unarchived messages result [{}]", result);
@@ -435,7 +414,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Transactional
     public int countByMessageStatusOnPartition(List<String> messageStatuses, String partitionName) {
-        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION (" + partitionName + ") INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+        String sqlString = "SELECT COUNT(*) FROM TB_USER_MESSAGE_LOG PARTITION ($PARTITION) INNER JOIN TB_D_MESSAGE_STATUS dms ON MESSAGE_STATUS_ID_FK=dms.ID_PK WHERE dms.STATUS NOT IN :MESSAGE_STATUSES";
+        sqlString = sqlString.replace("$PARTITION", partitionName);
         try {
             final Query countQuery = em.createNativeQuery(sqlString);
             countQuery.setParameter("MESSAGE_STATUSES", messageStatuses);
@@ -452,29 +432,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLogInfoFilter;
     }
 
-    public String findLastTestMessageId(String party) {
-        Map<String, Object> filters = new HashMap<>();
-        filters.put("testMessage", true);
-        filters.put("mshRole", MSHRole.SENDING);
-        filters.put("toPartyId", party);
-        String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
-        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
-        TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
-        queryParameterized.setFirstResult(0);
-        queryParameterized.setMaxResults(1);
-        long startTime = 0;
-        if (LOG.isDebugEnabled()) {
-            startTime = System.currentTimeMillis();
-        }
-        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
-        if (LOG.isDebugEnabled()) {
-            final long endTime = System.currentTimeMillis();
-            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
-        }
-        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
-    }
-
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
         MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(messageStatus);
         messageLog.setMessageStatus(messageStatusEntity);
@@ -544,6 +502,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public void updateArchived(List<Long> entityIds) {
+        update(entityIds, this::updateArchivedBatched);
+    }
+
+    public void updateExported(List<Long> entityIds) {
+        update(entityIds, this::updateExportedBatched);
+    }
+
+    public void update(List<Long> entityIds, Consumer<List<Long>> updateArchivedBatched) {
         if (CollectionUtils.isEmpty(entityIds)) {
             return;
         }
@@ -554,7 +520,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         IntStream.range(0, maxBatchesToCreate + 1)
                 .mapToObj(createList(entityIds, totalSize, maxBatchesToCreate))
-                .forEach(this::updateArchivedBatched);
+                .forEach(updateArchivedBatched);
 
     }
 
@@ -582,7 +548,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
         int i = namedQuery.executeUpdate();
         if (LOG.isTraceEnabled()) {
-            LOG.trace("UserMessageLogs [{}] updated(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+            LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+        }
+    }
+
+    public void updateExportedBatched(List<Long> entityIds) {
+        Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateExported");
+
+        namedQuery.setParameter("ENTITY_IDS", entityIds);
+        namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        int i = namedQuery.executeUpdate();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
         }
     }
 }

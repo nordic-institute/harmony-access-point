@@ -1,10 +1,12 @@
 package eu.domibus.plugin.ws;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
@@ -13,15 +15,29 @@ import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.test.AbstractIT;
 import eu.domibus.test.DomibusConditionUtil;
+import eu.domibus.test.PModeUtil;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Document;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -40,6 +56,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     public static final String STRING_TYPE = "string";
 
+    protected static final int SERVICE_PORT = 8892;
 
     protected static final String WS_NOT_QUEUE = "domibus.notification.webservice";
 
@@ -58,6 +75,8 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     @Autowired
     DomibusConditionUtil domibusConditionUtil;
+    @Autowired
+    PModeUtil pModeUtil;
 
     protected void verifySendMessageAck(eu.domibus.plugin.ws.generated.body.SubmitResponse response) {
         final List<String> messageID = response.getMessageID();
@@ -76,6 +95,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         Assert.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
 
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -101,11 +121,13 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     protected eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging createMessageHeaderWs(String payloadHref) {
         return createMessageHeaderWs(payloadHref, "text/xml");
     }
+
     protected eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging createMessageHeaderWs(String payloadHref, String mimeType) {
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging ebMSHeaderInfo = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging();
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage userMessage = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage();
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo messageInfo = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo();
-        messageInfo.setMessageId("IT31-363a-4328-9f81-8d84bf2da59f@domibus.eu");
+        userMessage.setMpc(Ebms3Constants.DEFAULT_MPC);
+        messageInfo.setMessageId(UUID.randomUUID() + "@domibus.eu");
         userMessage.setMessageInfo(messageInfo);
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.CollaborationInfo collaborationInfo = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.CollaborationInfo();
         collaborationInfo.setAction("TC1Leg1");
@@ -156,6 +178,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         aProperty.setType(type);
         return aProperty;
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -163,6 +186,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     protected Messaging createMessageHeader(String payloadHref) {
         return createMessageHeader(payloadHref, "text/xml");
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -171,7 +195,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         Messaging ebMSHeaderInfo = new Messaging();
         UserMessage userMessage = new UserMessage();
         MessageInfo messageInfo = new MessageInfo();
-        messageInfo.setMessageId("IT31-363a-4328-9f81-8d84bf2da59f@domibus.eu");
+        messageInfo.setMessageId(UUID.randomUUID() + "f@domibus.eu");
         userMessage.setMessageInfo(messageInfo);
         CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setAction("TC1Leg1");
@@ -214,6 +238,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         ebMSHeaderInfo.setUserMessage(userMessage);
         return ebMSHeaderInfo;
     }
+
     /**
      * @deprecated to be removed when deprecated endpoint /backend is removed
      */
@@ -240,6 +265,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         submitRequest.getPayload().add(largePayload);
         return submitRequest;
     }
+
     protected eu.domibus.plugin.ws.generated.body.SubmitRequest createSubmitRequestWs(String payloadHref) {
         final eu.domibus.plugin.ws.generated.body.SubmitRequest submitRequest = new eu.domibus.plugin.ws.generated.body.SubmitRequest();
         eu.domibus.plugin.ws.generated.body.LargePayloadType largePayload = new eu.domibus.plugin.ws.generated.body.LargePayloadType();
@@ -270,4 +296,68 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     protected Callable<Boolean> findByMessageIdReturnMessage(String messageId) {
         return () -> wsMessageLogDao.findByMessageId(messageId) == null;
     }
+
+    protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
+        pModeUtil.uploadPmode(redHttpPort);
+    }
+
+    protected String replace(String body, Pair<String, String>... replace) {
+        for (Pair<String, String> key : replace) {
+            body = body.replaceAll(key.getLeft(), key.getRight());
+        }
+        return body;
+    }
+
+    public void prepareSendMessage(String responseFileName, Pair<String, String>... replace) {
+        String body = getAS4Response(responseFileName);
+        if (replace != null) {
+            body = replace(body, replace);
+        }
+
+        // Mock the response from the recipient MSH
+        stubFor(post(urlEqualTo("/domibus/services/msh"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/soap+xml")
+                        .withBody(body)));
+    }
+
+    /**
+     * Convert the given file to a string
+     */
+    protected String getAS4Response(String file) {
+        try {
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            InputStream is = getClass().getClassLoader().getResourceAsStream("dataset/as4/" + file);
+            Document doc = db.parse(is);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = null;
+            transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            return writer.getBuffer().toString().replaceAll("\n|\r", "");
+        } catch (Exception exc) {
+            Assert.fail(exc.getMessage());
+            exc.printStackTrace();
+        }
+        return null;
+    }
+
+    protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+    }
+
+    protected Callable<Boolean> messageHasStatus(String messageId, MessageStatus messageStatus) {
+        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId);
+    }
+
+    protected void waitUntilMessageIsInWaitingForRetry(String messageId) {
+        waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
+    }
+
+    public void waitUntilMessageIsReceived(String messageId) {
+        waitUntilMessageHasStatus(messageId, MessageStatus.RECEIVED);
+    }
+
 }

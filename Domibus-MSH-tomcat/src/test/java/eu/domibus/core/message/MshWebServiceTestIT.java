@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
@@ -22,7 +23,6 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +31,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
 public class MshWebServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MshWebServiceTestIT.class);
@@ -59,7 +57,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     MessagingService messagingService;
 
     @Autowired
-    Provider<SOAPMessage> mshWebserviceTest;
+    MSHWebservice mshWebserviceTest;
 
     @Autowired
     MessageUtil messageUtil;
@@ -103,6 +101,36 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
+    }
+
+    @Test
+    public void testDuplicateDetection() throws Exception {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+
+        String filename = "SOAPMessage2.xml";
+        String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
+        assertNotNull(ebms3Messaging);
+        final Ebms3SignalMessage firstSignalMessage = ebms3Messaging.getSignalMessage();
+
+        waitUntilMessageIsReceived(messageId);
+
+        //receive the same message again
+        soapResponse = mshWebserviceTest.invoke(soapMessage);
+        final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
+        assertNotNull(secondEbms3Messaging);
+        final Ebms3SignalMessage secondSignalMessage = secondEbms3Messaging.getSignalMessage();
+        final Ebms3MessageInfo secondMessageInfo = secondSignalMessage.getMessageInfo();
+
+        //check that the Signal refers to the original sent message(duplicate detection works)
+        assertEquals(messageId, secondMessageInfo.getRefToMessageId());
+        assertEquals(firstSignalMessage.getMessageInfo().getMessageId(), secondMessageInfo.getMessageId());
+        final String firstReceipt = firstSignalMessage.getReceipt().getAny().iterator().next();
+        final String secondReceipt = secondSignalMessage.getReceipt().getAny().iterator().next();
+        assertEquals(firstReceipt, secondReceipt);
     }
 
     @Test

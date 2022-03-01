@@ -25,7 +25,6 @@ public class Ebms3ConverterTestIT extends AbstractIT {
     Ebms3Converter ebms3Converter;
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testEbms3ConversionToEntityAndViceVersa() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();
@@ -33,7 +32,7 @@ public class Ebms3ConverterTestIT extends AbstractIT {
         Ebms3UserMessage ebms3UserMessage = ebms3Converter.convertToEbms3(userMessage, partInfoList);
 
         Assert.assertNotNull(ebms3UserMessage.getPayloadInfo().getPartInfo());
-        Assert.assertEquals(1, ebms3UserMessage.getPayloadInfo().getPartInfo());
+        Assert.assertEquals(1, ebms3UserMessage.getPayloadInfo().getPartInfo().size());
 
         UserMessage converted = ebms3Converter.convertFromEbms3(ebms3UserMessage);
         assertEquals(userMessage, converted);

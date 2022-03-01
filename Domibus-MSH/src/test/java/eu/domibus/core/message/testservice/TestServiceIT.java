@@ -2,9 +2,10 @@ package eu.domibus.core.message.testservice;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogService;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.plugin.Submission;
@@ -37,14 +38,16 @@ public class TestServiceIT {
     private UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    private SignalMessageLogDao signalMessageLogDao;
-
+    private UserMessageDao userMessageDao;
 
     @Injectable
     private ErrorLogService errorLogService;
 
     @Injectable
     private SignalMessageDao signalMessageDao;
+
+    @Injectable
+    private ActionDictionaryService actionDictionaryService;
 
     @Test
     public void createSubmission() throws IOException {

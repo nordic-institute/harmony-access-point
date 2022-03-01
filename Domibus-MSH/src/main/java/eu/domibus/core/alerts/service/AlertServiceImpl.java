@@ -322,14 +322,11 @@ public class AlertServiceImpl implements AlertService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
     public void cleanAlerts() {
         final Integer alertLifeTimeInDays = alertConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
         final Date alertLimitDate = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusDays(alertLifeTimeInDays).withHour(0).withMinute(0).withSecond(0).withNano(0).toInstant());
         LOG.debug("Cleaning alerts with creation time < [{}]", alertLimitDate);
-        final List<Alert> alerts = alertDao.retrieveAlertsWithCreationDateSmallerThen(alertLimitDate);
-        alertDao.deleteAll(alerts);
-        LOG.trace("[{}] old alerts deleted", alerts.size());
+        alertDao.deleteAlerts(alertLimitDate);
     }
 
     /**

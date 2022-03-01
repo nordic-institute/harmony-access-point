@@ -1,9 +1,10 @@
 package domibus.ui.functional;
 
-import ddsl.dobjects.DWait;
+import org.testng.Reporter;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.lang3.StringUtils;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -18,12 +19,10 @@ import utils.PModeXMLUtils;
 import java.io.File;
 
 
-
-
 public class ConnectionMonitorTest extends SeleniumTest {
 	private static String receiverEndPoint = "http://localhost:8181/domibus/services/msh";
 
-    /* EDELIVERY-5303 - CM-2 - Login as system admin and open Connection Monitoring page */
+	/* EDELIVERY-5303 - CM-2 - Login as system admin and open Connection Monitoring page */
 	@Test(description = "CM-2", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -32,16 +31,18 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Reporter.log("checking error message when no pmode is uploaded");
 			log.info("checking error message when no pmode is uploaded");
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		}
 
+		Reporter.log("checking page ..");
 		log.info("checking page ..");
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7240 - CM-1 - Login as system admin and open Connection Monitoring page without proper Pmode */
+	/* EDELIVERY-7240 - CM-1 - Login as system admin and open Connection Monitoring page without proper Pmode */
 	@Test(description = "CM-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void openWindowNoPmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -50,6 +51,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
 		if (!rest.pmode().isPmodeUploaded(null)) {
+			Reporter.log("checking error message when no pmode is uploaded");
 			log.info("checking error message when no pmode is uploaded");
 			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
 		} else {
@@ -58,7 +60,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7241 - CM-3 - Open details view for party that has never been tested or monitored */
+	/* EDELIVERY-7241 - CM-3 - Open details view for party that has never been tested or monitored */
 	@Test(description = "CM-3", groups = {"multiTenancy", "singleTenancy"})
 	public void partyNotTested() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -73,6 +75,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 			if (page.grid().connectionStatusIcons.get(i).getText().equals("indeterminate_check_box")) {
 				String partyName = page.grid().getRowSpecificColumnVal(i, "Party");
+				Reporter.log("party" + partyName);
 				log.info("party" + partyName);
 
 				page.grid().getActionButton("Details", i).click();
@@ -83,6 +86,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 				String expectedError =
 						String.format("Error retrieving Last Sent Test Message for %s [DOM_001]:No User message found for party [%s]", partyName, partyName);
 				soft.assertEquals(expectedError, page.getAlertArea().getAlertMessage(), "Correct error message is shown");
+				Reporter.log("test" + modalTest.getSentMessInfo().get("party"));
 				log.info("test" + modalTest.getSentMessInfo().get("party"));
 
 				soft.assertTrue(modalTest.isMessInfoPresent("send"), "Sent Message info field have no data");
@@ -98,7 +102,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7242 - CM-4 - Open details view for party that has never been tested or monitored and push Test button */
+	/* EDELIVERY-7242 - CM-4 - Open details view for party that has never been tested or monitored and push Test button */
 	@Test(description = "CM-4", groups = {"multiTenancy", "singleTenancy"})
 	public void sendTestMsg() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -111,6 +115,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 				|| grid.connectionStatusIcons.get(0).getText().equals("error")) {
 
 			String partyName = grid.getRowSpecificColumnVal(0, "Party");
+			Reporter.log("party " + partyName);
 			log.info("party " + partyName);
 			TestMessDetailsModal modalTest = new TestMessDetailsModal(driver);
 			grid.getActionButton("Details", 0).click();
@@ -131,7 +136,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7243 - CM-5 - Open details view for party and push Update button */
+	/* EDELIVERY-7243 - CM-5 - Open details view for party and push Update button */
 	@Test(description = "CM-5", groups = {"multiTenancy", "singleTenancy"})
 	public void checkUpdateFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -156,7 +161,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-7244 - CM-6 - Push Refresh button  */
+	/* EDELIVERY-7244 - CM-6 - Push Refresh button  */
 	@Test(description = "CM-6", groups = {"multiTenancy", "singleTenancy"})
 	public void checkRefreshFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -185,7 +190,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-7245 - CM-7 - Push Send button  */
+	/* EDELIVERY-7245 - CM-7 - Push Send button  */
 	@Test(description = "CM-7", groups = {"multiTenancy", "singleTenancy"})
 	public void checkSendFeature() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -211,12 +216,13 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7249 - CM-11 - Remove destination party as a responder in connection testing process */
+	/* EDELIVERY-7249 - CM-11 - Remove destination party as a responder in connection testing process */
 	@Test(description = "CM-11", groups = {"multiTenancy", "singleTenancy"})
 	public void currentSystemNotAsInitiator() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 
+		Reporter.log("upload pmode");
 		log.info("upload pmode");
 		String filepath = "pmodes/NoResponderInitiator.xml";
 		rest.pmode().uploadPMode(filepath, null);
@@ -238,12 +244,13 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-    /* EDELIVERY-7250 - CM-12 - Make sure destination party is not responding and test connection */
+	/* EDELIVERY-7250 - CM-12 - Make sure destination party is not responding and test connection */
 	@Test(description = "CM-12", groups = {"multiTenancy", "singleTenancy"})
 	public void recPartyInactive() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 
+		Reporter.log("upload pmode");
 		log.info("upload pmode");
 		String filepath = "pmodes/Edelivery-blue.xml";
 		rest.pmode().uploadPMode(filepath, null);
@@ -268,7 +275,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 	}
 
-    /* EDELIVERY-7251 - CM-13 - Test connection when destination party certificate is invalid or expired */
+	/* EDELIVERY-7251 - CM-13 - Test connection when destination party certificate is invalid or expired */
 	@Test(description = "CM-13", groups = {"multiTenancy", "singleTenancy"})
 	public void wrongRecCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -284,13 +291,14 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		String pathToInvalidCert = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
 
 		tPage.uploadFile(pathToInvalidCert, "test123", soft);
-		log.info(page.getAlertArea().getAlertMessage(), " Message after upload event");
+		Reporter.log(page.getAlertArea().getAlertMessage() + " Message after upload event");
+		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		TestMessDetailsModal modal = new TestMessDetailsModal(driver);
 		String partyName = page.grid().getRowSpecificColumnVal(0, "Party");
 
-		if (partyName != currentParty) {
+		if (!StringUtils.equalsIgnoreCase(partyName, currentParty)) {
 			String actualErrMsg = getAlrtForTestMsg(page, 0, "Details", modal);
 			String certError = String.format(DMessages.CONNECTION_MONITORING_CERT_ERROR, partyName, "red_gw");
 			soft.assertTrue(actualErrMsg.equals(certError), "Correct error is shown");

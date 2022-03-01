@@ -6,12 +6,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
-import eu.domibus.plugin.ws.webservice.*;
+import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
+import eu.domibus.plugin.ws.webservice.WebServiceExceptionFactory;
+import eu.domibus.plugin.ws.webservice.WebServiceImpl;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.WebServiceFaultOutInterceptor;
@@ -27,6 +30,8 @@ import javax.jms.Queue;
 import javax.xml.ws.Endpoint;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+
 /**
  * Class responsible for the configuration of the plugin, independent of any server
  *
@@ -39,9 +44,6 @@ public class WebServiceConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceConfiguration.class);
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
-    public static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
-    public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
-    public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
     @Bean(WSPluginImpl.PLUGIN_NAME)
     public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
@@ -57,13 +59,13 @@ public class WebServiceConfiguration {
 
     @Bean("backendWebservice")
     public WebServiceImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
-                                               WebServiceExceptionFactory webServicePluginExceptionFactory,
-                                               WSMessageLogService wsMessageLogService,
-                                               DomainContextExtService domainContextExtService,
-                                               WSPluginPropertyManager wsPluginPropertyManager,
-                                               AuthenticationExtService authenticationExtService,
-                                               MessageExtService messageExtService,
-                                               WSPluginImpl wsPlugin) {
+                                         WebServiceExceptionFactory webServicePluginExceptionFactory,
+                                         WSMessageLogService wsMessageLogService,
+                                         DomainContextExtService domainContextExtService,
+                                         WSPluginPropertyManager wsPluginPropertyManager,
+                                         AuthenticationExtService authenticationExtService,
+                                         MessageExtService messageExtService,
+                                         WSPluginImpl wsPlugin) {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogService,
@@ -105,6 +107,7 @@ public class WebServiceConfiguration {
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                              WebServiceImpl backendWebService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
+                                             HttpMethodAuthorizationInInterceptor httpMethodAuthorizationInInterceptor,
                                              CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WebServiceFaultOutInterceptor wsPluginFaultOutInterceptor,
@@ -113,7 +116,7 @@ public class WebServiceConfiguration {
         Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
         endpoint.setProperties(endpointProperties);
         endpoint.setSchemaLocations(getSchemaLocations());
-        endpoint.setInInterceptors(Collections.singletonList(customAuthenticationInterceptor));
+        endpoint.setInInterceptors(Arrays.asList(httpMethodAuthorizationInInterceptor, customAuthenticationInterceptor));
         endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
         endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));

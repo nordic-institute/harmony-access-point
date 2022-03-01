@@ -1,20 +1,23 @@
 package eu.domibus.core.message;
 
 
+import eu.domibus.ITTestsService;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,12 +26,19 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-
+@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
 @Transactional
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
-public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
+public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentSuccessMessageIT.class);
+
+    @Autowired
+    private ITTestsService itTestsService;
+
+    @Autowired
+    private UserMessageDao userMessageDao;
+    @Autowired
+    private UserMessageLogDao userMessageLogDao;
 
     @Before
     public void updatePmodeForAcknowledged() throws IOException, XmlProcessingException {
@@ -41,24 +51,27 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageIT {
      * Test to delete a sent success message
      */
     @Test
-    public void testDeleteSentMessage()  throws MessagingProcessingException, IOException {
-    BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
+    public void testDeleteSentMessage() throws MessagingProcessingException, IOException {
+        BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
-        LOG.trace("Get counters of the db tables, initial state");
-        Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
-        sendMessageToDelete(MessageStatus.ACKNOWLEDGED);
+        String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
 
-        LOG.trace("Get counters of the db tables, after sending");
-        Map<String, Integer> beforeDeletionMap = messageDBUtil.getTableCounts(tablesToExclude);
+        LOG.info("Message Id to delete: [{}]", messageId);
+        UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
+        Assert.assertNotNull(byMessageId);
+
+        Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
+        Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
+
         deleteMessages();
-        LOG.trace("Get counters of the db tables, after deletion");
 
-        Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-
-        Assert.assertTrue(initialMap.size() > 0);
-        Assert.assertTrue(beforeDeletionMap.size() > 0);
-        Assert.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
-        Assert.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
+        Assert.assertNull(userMessageDao.findByMessageId(messageId));
+        try {
+            userMessageLogDao.findByMessageId(messageId);
+            Assert.fail();
+        } catch (NoResultException e) {
+            //OK
+        }
     }
 }
