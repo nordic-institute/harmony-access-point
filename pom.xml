@@ -53,9 +53,9 @@
         <bouncycastle.version>1.69</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
-        <jackson.version>2.13.1</jackson.version>
+        <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.13.1</jackson-databind.version>
+        <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
         <freemarker.version>2.3.31</freemarker.version>
         <mail.version>1.6.2</mail.version>
