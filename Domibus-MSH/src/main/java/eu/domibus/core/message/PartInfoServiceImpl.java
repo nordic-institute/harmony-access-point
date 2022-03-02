@@ -210,6 +210,9 @@ public class PartInfoServiceImpl implements PartInfoService {
 
     }
 
+    /**
+     * WARNING: for message sent, the compress flag is NOT set and the {@link #getPayloadDatahandler} will provide the zipped data
+     */
     @Override
     public void loadBinaryData(PartInfo partInfo) {
         String fileName = partInfo.getFileName();
