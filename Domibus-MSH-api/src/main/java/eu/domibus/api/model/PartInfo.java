@@ -4,6 +4,7 @@ import eu.domibus.api.datasource.AutoCloseFileDataSource;
 import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.encryption.DecryptDataSource;
 import eu.domibus.api.message.compression.DecompressionDataSource;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -170,56 +171,10 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.partProperties = partProperties;
     }
 
-    /**
-     * WARNING: for message sent, the compress flag is NOT set and the {@link #getPayloadDatahandler} will provide the zipped data
-     */
     @PostLoad
     public void loadBinary() {
-        if (fileName != null) { /* Create payload data handler from File */
-            LOG.debug("LoadBinary from file: [{}]", fileName);
-            DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
-
-            if (isEncrypted()) {
-                LOG.debug("Using DecryptDataSource for payload [{}]", href);
-                final Cipher decryptCipher = getDecryptCipher();
-                fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
-            }
-
-            if(getCompressed()) {
-                LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
-                fsDataSource = new DecompressionDataSource(fsDataSource, getMime());
-            }
-
-            payloadDatahandler = new DataHandler(fsDataSource);
-            return;
-        }
-        /* Create payload data handler from binaryData (byte[]) */
-        if (binaryData == null) {
-            LOG.debug("Payload is empty!");
-            payloadDatahandler = null;
-        } else {
-            DataSource dataSource = new ByteArrayDataSource(binaryData, mime);
-
-            if (isEncrypted()) {
-                LOG.debug("Using DecryptDataSource for payload [{}]", href);
-                final Cipher decryptCipher = getDecryptCipher();
-                dataSource = new DecryptDataSource(dataSource, decryptCipher);
-            }
-
-            if(getCompressed()) {
-                LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
-                dataSource = new DecompressionDataSource(dataSource, getMime());
-            }
-            payloadDatahandler = new DataHandler(dataSource);
-        }
-
-    }
-
-    @Transient
-    protected Cipher getDecryptCipher() {
-        LOG.debug("Getting decrypt cipher for payload [{}]", href);
-        final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
-        return encryptionService.getDecryptCipherForPayload();
+        final PartInfoService partInfoService = SpringContextProvider.getApplicationContext().getBean("partInfoServiceImpl", PartInfoService.class);
+        partInfoService.loadBinaryData(this);
     }
 
     public Description getDescription() {

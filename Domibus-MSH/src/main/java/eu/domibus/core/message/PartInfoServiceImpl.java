@@ -1,9 +1,14 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.encryption.DecryptDataSource;
+import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -16,6 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.crypto.Cipher;
+import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +39,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author François Gautier
  * @since 5.0
  */
-@Service
+@Service //("PartInfoService")
 public class PartInfoServiceImpl implements PartInfoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfoServiceImpl.class);
@@ -201,6 +210,50 @@ public class PartInfoServiceImpl implements PartInfoService {
 
     }
 
+    /**
+     * WARNING: for message sent, the compress flag is NOT set and the {@link #getPayloadDatahandler} will provide the zipped data
+     */
+    @Override
+    public void loadBinaryData(PartInfo partInfo) {
+        String fileName = partInfo.getFileName();
 
+        if (fileName != null) { /* Create payload data handler from File */
+            LOG.debug("LoadBinary from file: [{}]", fileName);
+            DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
+            createPayloadDataHandler(partInfo, fsDataSource);
+            return;
+        }
+        /* Create payload data handler from binaryData (byte[]) */
+        byte[] binaryData = partInfo.getBinaryData();
+        if (binaryData == null) {
+            LOG.debug("Payload is empty!");
+            partInfo.setPayloadDatahandler(null);
+        } else {
+            DataSource dataSource = new ByteArrayDataSource(binaryData, partInfo.getMime());
+            createPayloadDataHandler(partInfo, dataSource);
+        }
+    }
+
+    private void createPayloadDataHandler(PartInfo partInfo, DataSource fsDataSource) {
+        String href = partInfo.getHref();
+        if (partInfo.isEncrypted()) {
+            LOG.debug("Using DecryptDataSource for payload [{}]", href);
+            final Cipher decryptCipher = getDecryptCipher(partInfo);
+            fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
+        }
+
+        if (partInfo.getCompressed()) {
+            LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
+            fsDataSource = new DecompressionDataSource(fsDataSource, partInfo.getMime());
+        }
+
+        partInfo.setPayloadDatahandler(new DataHandler(fsDataSource));
+    }
+
+    private Cipher getDecryptCipher(PartInfo partInfo) {
+        LOG.debug("Getting decrypt cipher for payload [{}]", partInfo.getHref());
+        final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
+        return encryptionService.getDecryptCipherForPayload();
+    }
 
 }
