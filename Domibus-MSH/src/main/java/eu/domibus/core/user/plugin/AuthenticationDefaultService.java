@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.*;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -50,6 +51,9 @@ public class AuthenticationDefaultService implements AuthenticationService {
     public Authentication basicAuthenticate(String user, String password) {
         LOG.debug("Authenticating user using basic authentication", user);
         final String domainForUser = userDomainService.getDomainForUser(user);
+        if (domainForUser == null) {
+            throw new ConfigurationException("Could not find domain for user [" + user + "].");
+        }
         domainContextProvider.setCurrentDomain(domainForUser);
         BasicAuthentication authentication = new BasicAuthentication(user, password);
         return authenticate(authentication);
