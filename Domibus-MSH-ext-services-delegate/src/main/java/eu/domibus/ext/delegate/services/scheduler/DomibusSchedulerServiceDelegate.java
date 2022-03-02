@@ -23,7 +23,7 @@ public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtServi
     protected final DomainService domainService;
 
     DomibusSchedulerServiceDelegate(DomibusScheduler domibusScheduler, DomainService domainService) {
-        LOG.info("creating DomibusSchedulerServiceDelegate");
+        LOG.debug("creating DomibusSchedulerServiceDelegate");
         this.domibusScheduler = domibusScheduler;
         this.domainService = domainService;
     }
