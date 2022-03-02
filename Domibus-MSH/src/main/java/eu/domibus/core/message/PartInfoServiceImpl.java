@@ -217,7 +217,7 @@ public class PartInfoServiceImpl implements PartInfoService {
         if (fileName != null) { /* Create payload data handler from File */
             LOG.debug("LoadBinary from file: [{}]", fileName);
             DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
-            getPayloadDataHandler(partInfo, fsDataSource);
+            createPayloadDataHandler(partInfo, fsDataSource);
             return;
         }
         /* Create payload data handler from binaryData (byte[]) */
@@ -227,11 +227,11 @@ public class PartInfoServiceImpl implements PartInfoService {
             partInfo.setPayloadDatahandler(null);
         } else {
             DataSource dataSource = new ByteArrayDataSource(binaryData, partInfo.getMime());
-            getPayloadDataHandler(partInfo, dataSource);
+            createPayloadDataHandler(partInfo, dataSource);
         }
     }
 
-    private void getPayloadDataHandler(PartInfo partInfo, DataSource fsDataSource) {
+    private void createPayloadDataHandler(PartInfo partInfo, DataSource fsDataSource) {
         String href = partInfo.getHref();
         if (partInfo.isEncrypted()) {
             LOG.debug("Using DecryptDataSource for payload [{}]", href);
@@ -247,7 +247,7 @@ public class PartInfoServiceImpl implements PartInfoService {
         partInfo.setPayloadDatahandler(new DataHandler(fsDataSource));
     }
 
-    protected Cipher getDecryptCipher(PartInfo partInfo) {
+    private Cipher getDecryptCipher(PartInfo partInfo) {
         LOG.debug("Getting decrypt cipher for payload [{}]", partInfo.getHref());
         final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
         return encryptionService.getDecryptCipherForPayload();
