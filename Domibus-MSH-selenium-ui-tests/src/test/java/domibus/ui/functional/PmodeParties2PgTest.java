@@ -543,7 +543,7 @@ public class PmodeParties2PgTest extends SeleniumTest {
 
 	/* EDELIVERY-8174 - PMP-30 Perform edit for Pmode party with no certificate  */
 	@Test(description = "PMP-30", groups = {"multiTenancy", "singleTenancy"})
-	public void EditPartyNoCert() throws Exception {
+	public void editPartyNoCert() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String newPatyName = Gen.randomAlphaNumeric(5);
 
