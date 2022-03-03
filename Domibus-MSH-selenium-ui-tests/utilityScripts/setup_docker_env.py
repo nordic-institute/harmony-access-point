@@ -32,7 +32,7 @@ services = data['services']
 for service in services:
 	image_text = data["services"][service]["image"]
 	version_start_index = image_text.rfind(":$")+1
-	new_image_text = image_text[:version_start_index] + version
+	new_image_text = 'edelivery-docker.devops.tech.ec.europa.eu/' + image_text[:version_start_index] + version
 
 	del data["services"][service]["image"]
 	data["services"][service]["image"] = new_image_text
