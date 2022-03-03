@@ -72,7 +72,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Column(name = "MIME")
     private String mime;
 
-    @Transient
+    @Column(name = "PART_LENGTH")
     private long length = -1;
 
     @Column(name = "PART_ORDER")
