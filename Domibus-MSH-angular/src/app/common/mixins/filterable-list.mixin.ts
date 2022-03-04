@@ -91,6 +91,16 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.onResetAdvancedSearchParams();
   }
 
+  // resetAllSearchParams() {
+  //   Object.keys(this.filterForm.controls).forEach(filterName => {
+  //     if (typeof this.filter[filterName] === 'boolean') {
+  //       this.filter[filterName] = false;
+  //     } else {
+  //       this.filter[filterName] = null;
+  //     }
+  //   });
+  // }
+
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
 
@@ -138,6 +148,10 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   canSearch(): boolean | Promise<boolean> {
+    return !super.isBusy();
+  }
+
+  canResetSearch(): boolean | Promise<boolean> {
     return !super.isBusy();
   }
 

@@ -35,7 +35,7 @@ export class FilterAreaFooterComponent implements AfterViewInit {
 
   canSearch() {
     const canSearch = this.parent.canSearch();
-    
+
     const form = this.form;
     if (!form) {
       return canSearch;
@@ -45,5 +45,13 @@ export class FilterAreaFooterComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.parent.filterForm = this.form;
+  }
+
+  canReset() {
+    return this.parent.canResetSearch();
+  }
+
+  reset() {
+    this.parent.resetFilters();
   }
 }
