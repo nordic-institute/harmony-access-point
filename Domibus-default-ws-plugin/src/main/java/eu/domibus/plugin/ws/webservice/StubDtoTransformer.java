@@ -253,6 +253,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
                         LOG.debug("{} property found=[{}]", propertyName, propertyValue);
                         propertyValue = DomibusStringUtil.sanitizeFileName(propertyValue);
+                        LOG.debug("Sanitized payload name: [{}]", propertyValue);
                     }
                     properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
                 }
