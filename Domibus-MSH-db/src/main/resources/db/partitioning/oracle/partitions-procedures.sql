@@ -18,7 +18,7 @@ CREATE OR REPLACE PROCEDURE PARTITIONSGEN(d IN NUMBER default 7)
 AS
 BEGIN
     DECLARE
-        number_of_partitions CONSTANT  NUMBER := 24; -- one partition every 4 hours
+        number_of_partitions CONSTANT  NUMBER := 24; -- one partition every hour
         p_id   NUMBER;
         p_name VARCHAR2(20);
         p_high NUMBER;

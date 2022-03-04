@@ -4,10 +4,7 @@ import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.ebms3.model.mf.Ebms3TypeType;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
@@ -234,6 +231,13 @@ public class EbMS3MessageBuilder {
                     mimeType = prop.getValue();
                 }
             }
+            // hack
+            PartProperty pp = new PartProperty();
+            pp.setName("DocName");
+            partInfo.getPartProperties().add(pp);
+
+            LOG.info ("\n\n\n~~~~~~~~~~~~~~~~~~~Added empty property [{}] \n\n\n", pp.getName());
+
         }
         final DataHandler dataHandler = partInfo.getPayloadDatahandler();
         if (partInfo.isInBody() && mimeType != null && mimeType.toLowerCase().contains("xml")) { //TODO: respect empty soap body config
