@@ -35,7 +35,11 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public String getKnownPropertyValue(String propertyName) {
-        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataSafely(propertyName);
+        if (propMeta == null) {
+            LOG.warn("Metadata not found for property [{}] so we fallback to core property provider.", propertyName);
+            return domibusPropertyExtService.getProperty(propertyName);
+        }
         if (propMeta.isStoredGlobally()) {
             return domibusPropertyExtService.getProperty(propertyName);
         }
@@ -57,7 +61,11 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public Integer getKnownIntegerPropertyValue(String propertyName) {
-        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataSafely(propertyName);
+        if (propMeta == null) {
+            LOG.warn("Metadata not found for property [{}] so we fallback to core property provider.", propertyName);
+            return domibusPropertyExtService.getIntegerProperty(propertyName);
+        }
         if (propMeta.isStoredGlobally()) {
             return domibusPropertyExtService.getIntegerProperty(propertyName);
         }
@@ -68,7 +76,11 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public Boolean getKnownBooleanPropertyValue(String propertyName) {
-        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataSafely(propertyName);
+        if (propMeta == null) {
+            LOG.warn("Metadata not found for property [{}] so we fallback to core property provider.", propertyName);
+            return domibusPropertyExtService.getBooleanProperty(propertyName);
+        }
         if (propMeta.isStoredGlobally()) {
             return domibusPropertyExtService.getBooleanProperty(propertyName);
         }
@@ -103,7 +115,12 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
-        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataSafely(propertyName);
+        if (propMeta == null) {
+            LOG.warn("Metadata not found for property [{}] so we fallback to core property provider on domain [{}].", propertyName, domainCode);
+            final DomainDTO domain = domainExtService.getDomain(domainCode);
+            return domibusPropertyExtService.getProperty(domain, propertyName);
+        }
         if (propMeta.isStoredGlobally()) {
             final DomainDTO domain = domainExtService.getDomain(domainCode);
             return domibusPropertyExtService.getProperty(domain, propertyName);
@@ -216,6 +233,13 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     protected DomibusPropertyMetadataDTO getPropertyMetadataIfExists(String propertyName) {
         checkPropertyExists(propertyName);
+        return getKnownProperties().get(propertyName);
+    }
+
+    protected DomibusPropertyMetadataDTO getPropertyMetadataSafely(String propertyName) {
+        if (!hasKnownProperty(propertyName)) {
+            return null;
+        }
         return getKnownProperties().get(propertyName);
     }
 
