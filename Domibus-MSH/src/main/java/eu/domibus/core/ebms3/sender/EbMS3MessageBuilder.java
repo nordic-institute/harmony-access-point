@@ -231,13 +231,6 @@ public class EbMS3MessageBuilder {
                     mimeType = prop.getValue();
                 }
             }
-            // hack
-            PartProperty pp = new PartProperty();
-            pp.setName("DocName");
-            partInfo.getPartProperties().add(pp);
-
-            LOG.info ("\n\n\n~~~~~~~~~~~~~~~~~~~Added empty property [{}] \n\n\n", pp.getName());
-
         }
         final DataHandler dataHandler = partInfo.getPayloadDatahandler();
         if (partInfo.isInBody() && mimeType != null && mimeType.toLowerCase().contains("xml")) { //TODO: respect empty soap body config
