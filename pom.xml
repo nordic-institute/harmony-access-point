@@ -28,7 +28,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.5.1</cxf.version>
+        <cxf.version>3.4.5</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
         <spring.version>5.3.15</spring.version>
         <spring.security.version>5.6.1</spring.security.version>
