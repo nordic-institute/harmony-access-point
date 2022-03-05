@@ -10,6 +10,7 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,18 +72,7 @@ public class JmsPluginPropertyManagerTest {
     public void testUnknownProperty() {
         String unknownPropertyName = "jmsplugin.unknown.property";
 
-        try {
-            jmsPluginPropertyManager.getKnownPropertyValue(unknownPropertyName);
-            Assert.fail("Expected exception not thrown");
-        } catch (DomibusPropertyExtException ex) {
-            Assert.assertTrue(ex.getMessage().contains(unknownPropertyName));
-        }
-
-        try {
-            jmsPluginPropertyManager.setKnownPropertyValue(unknownPropertyName, testValue);
-            Assert.fail("Expected exception not thrown");
-        } catch (DomibusPropertyExtException ex) {
-            Assert.assertTrue(ex.getMessage().contains(unknownPropertyName));
-        }
+        String value = jmsPluginPropertyManager.getKnownPropertyValue(unknownPropertyName);
+        Assert.assertTrue(StringUtils.isBlank(value));
     }
 }
