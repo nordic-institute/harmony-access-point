@@ -315,11 +315,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   protected onSetFilters() {
     this.syncInterval(this.filter);
-    
-    // if (this.filter.receivedFrom && this.filter.receivedTo) {
-    //   const diff = (this.filter.receivedTo.valueOf() - this.filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
-    //   this._messageInterval = this.messageIntervals.find(el => el.value == diff);
-    // }
   }
 
   private calculateCount(result: MessageLogResult) {
