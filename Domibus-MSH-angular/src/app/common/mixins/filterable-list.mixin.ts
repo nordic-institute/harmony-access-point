@@ -53,8 +53,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
     const canFilter = await this.canProceedToFilter();
     if (canFilter) {
-      this.onBeforeFilter();
-      this.setActiveFilter();
+      // this.onBeforeFilter();
       try {
         await this.filterData();
         return true;
@@ -66,13 +65,14 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   /**
-   * The method is supposed to be overridden in derived classes to implement actual search
+   * The method is called from code when entering a page
    */
   public filterData(): Promise<any> {
     if (!this.initialFilter) {
       this.initialFilter = JSON.parse(JSON.stringify(this.filter));
     }
 
+    this.onBeforeFilter();
     this.setActiveFilter();
 
     if (instanceOfPageableList(this)) {
@@ -99,6 +99,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   resetFiltersToInitial() {
     this.filter = {};
     Object.assign(this.filter, this.initialFilter);
+    this.onSetFilters();
 
     this.filterData();
   }
@@ -129,10 +130,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * active params are the ones that are used for actual filtering of data and can be different from the ones set by the user in the UI
    */
   public setActiveFilter() {
-    // just in case ngOnInit wasn't called from corresponding component class
-    // if (!this.activeFilter) {
-      this.activeFilter = {};
-    // }
+    this.activeFilter = {};
     Object.assign(this.activeFilter, this.filter);
   }
 
@@ -142,6 +140,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   public resetFilters() {
     this.filter = {};
     Object.assign(this.filter, this.activeFilter);
+    this.onSetFilters();
   }
 
   protected async canProceedToFilter(): Promise<boolean> {
@@ -174,6 +173,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   protected onBeforeFilter() {
   }
 
+  protected onSetFilters() {
+  }
 };
 export default FilterableListMixin;
 

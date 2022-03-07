@@ -292,10 +292,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (result.filter.receivedTo) {
       result.filter.receivedTo = new Date(result.filter.receivedTo);
     }
-    if (result.filter.receivedFrom && result.filter.receivedTo) {
-      const diff = (result.filter.receivedTo.valueOf() - result.filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
-      this._messageInterval = this.messageIntervals.find(el => el.value == diff);
-    }
+    this.syncInterval(result.filter);
 
     super.filter = result.filter;
 
@@ -305,8 +302,24 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.notifStatus = result.notifStatus;
   }
 
+  private syncInterval(filter: any) {
+    if (filter.receivedFrom && filter.receivedTo) {
+      const diff = (filter.receivedTo.valueOf() - filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
+      this._messageInterval = this.messageIntervals.find(el => el.value == diff);
+    }
+  }
+
   protected onBeforeFilter() {
     this.setDatesFromInterval();
+  }
+
+  protected onSetFilters() {
+    this.syncInterval(this.filter);
+    
+    // if (this.filter.receivedFrom && this.filter.receivedTo) {
+    //   const diff = (this.filter.receivedTo.valueOf() - this.filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
+    //   this._messageInterval = this.messageIntervals.find(el => el.value == diff);
+    // }
   }
 
   private calculateCount(result: MessageLogResult) {
