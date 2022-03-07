@@ -72,7 +72,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     if (!this.initialFilter) {
       this.initialFilter = JSON.parse(JSON.stringify(this.filter));
     }
-    
+
     this.setActiveFilter();
 
     if (instanceOfPageableList(this)) {
@@ -99,16 +99,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   resetFiltersToInitial() {
     this.filter = {};
     Object.assign(this.filter, this.initialFilter);
-    // this.activeFilter = {};
-    // Object.assign(this.activeFilter, this.initialFilter);
 
-    // Object.keys(this.filterForm.controls).forEach(filterName => {
-    //   if (typeof this.filter[filterName] === 'boolean') {
-    //     this.filter[filterName] = false;
-    //   } else {
-    //     this.filter[filterName] = null;
-    //   }
-    // });
+    this.filterData();
   }
 
   protected createAndSetParameters(): HttpParams {
@@ -138,9 +130,9 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    */
   public setActiveFilter() {
     // just in case ngOnInit wasn't called from corresponding component class
-    if (!this.activeFilter) {
+    // if (!this.activeFilter) {
       this.activeFilter = {};
-    }
+    // }
     Object.assign(this.activeFilter, this.filter);
   }
 
