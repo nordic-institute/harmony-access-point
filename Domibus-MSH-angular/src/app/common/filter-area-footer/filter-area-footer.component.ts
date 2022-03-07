@@ -52,6 +52,6 @@ export class FilterAreaFooterComponent implements AfterViewInit {
   }
 
   reset() {
-    this.parent.resetFilters();
+    this.parent.resetFiltersToInitial();
   }
 }

@@ -16,6 +16,8 @@ import {SecurityService} from '../../security/security.service';
 let FilterableListMixin = (superclass: Constructable) => class extends superclass
   implements IFilterableList, OnInit {
 
+  private initialFilter: any;
+
   public filterForm: NgForm;
 
   public filter: any;
@@ -67,7 +69,10 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is supposed to be overridden in derived classes to implement actual search
    */
   public filterData(): Promise<any> {
-
+    if (!this.initialFilter) {
+      this.initialFilter = JSON.parse(JSON.stringify(this.filter));
+    }
+    
     this.setActiveFilter();
 
     if (instanceOfPageableList(this)) {
@@ -91,15 +96,20 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     this.onResetAdvancedSearchParams();
   }
 
-  // resetAllSearchParams() {
-  //   Object.keys(this.filterForm.controls).forEach(filterName => {
-  //     if (typeof this.filter[filterName] === 'boolean') {
-  //       this.filter[filterName] = false;
-  //     } else {
-  //       this.filter[filterName] = null;
-  //     }
-  //   });
-  // }
+  resetFiltersToInitial() {
+    this.filter = {};
+    Object.assign(this.filter, this.initialFilter);
+    // this.activeFilter = {};
+    // Object.assign(this.activeFilter, this.initialFilter);
+
+    // Object.keys(this.filterForm.controls).forEach(filterName => {
+    //   if (typeof this.filter[filterName] === 'boolean') {
+    //     this.filter[filterName] = false;
+    //   } else {
+    //     this.filter[filterName] = null;
+    //   }
+    // });
+  }
 
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
@@ -171,6 +181,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
   protected onBeforeFilter() {
   }
+
 };
 export default FilterableListMixin;
 

@@ -148,7 +148,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
     }
 
-    this.filter.testMessage = false;
+    super.filter = {testMessage: false};
+    this.messageInterval = this.messageIntervals[1];
     this.filterData();
   }
 
@@ -508,6 +509,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   isCurrentUserAdmin(): boolean {
     return this.securityService.isCurrentUserAdmin();
+  }
+
+  protected onAfterResetFilters() {
   }
 }
 
