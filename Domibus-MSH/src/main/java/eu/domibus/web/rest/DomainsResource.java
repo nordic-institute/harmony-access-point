@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,7 @@ public class DomainsResource {
             if (userDetails instanceof DomibusUserDetails) {
                 List<Domain> availableDomains = ((DomibusUserDetails) userDetails).getAvailableDomainCodes().stream()
                         .map(domainService::getDomain)
+                        .sorted(Comparator.comparing(Domain::getName, String.CASE_INSENSITIVE_ORDER))
                         .collect(Collectors.toList());
                 domains.addAll(availableDomains);
             }
