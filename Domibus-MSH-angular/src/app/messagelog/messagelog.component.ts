@@ -148,7 +148,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
     }
 
-    this.filter.testMessage = false;
+    super.filter = {testMessage: false};
+    this.messageInterval = this.messageIntervals[1];
     this.filterData();
   }
 
@@ -291,10 +292,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (result.filter.receivedTo) {
       result.filter.receivedTo = new Date(result.filter.receivedTo);
     }
-    if (result.filter.receivedFrom && result.filter.receivedTo) {
-      const diff = (result.filter.receivedTo.valueOf() - result.filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
-      this._messageInterval = this.messageIntervals.find(el => el.value == diff);
-    }
+    this.syncInterval(result.filter);
 
     super.filter = result.filter;
 
@@ -304,8 +302,19 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.notifStatus = result.notifStatus;
   }
 
+  private syncInterval(filter: any) {
+    if (filter.receivedFrom && filter.receivedTo) {
+      const diff = (filter.receivedTo.valueOf() - filter.receivedFrom.valueOf()) / this.MS_PER_MINUTE;
+      this._messageInterval = this.messageIntervals.find(el => el.value == diff);
+    }
+  }
+
   protected onBeforeFilter() {
     this.setDatesFromInterval();
+  }
+
+  protected onSetFilters() {
+    this.syncInterval(this.filter);
   }
 
   private calculateCount(result: MessageLogResult) {
@@ -508,6 +517,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   isCurrentUserAdmin(): boolean {
     return this.securityService.isCurrentUserAdmin();
+  }
+
+  protected onAfterResetFilters() {
   }
 }
 

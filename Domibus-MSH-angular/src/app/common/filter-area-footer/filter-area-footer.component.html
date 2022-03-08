@@ -1,8 +1,12 @@
 <div class="searchArea">
-  <button mat-raised-button color="primary" [disabled]="!canSearch()"
-          id="searchbutton_id" button-click-behaviour>
+  <button mat-raised-button color="primary" [disabled]="!canSearch()" id="searchbutton_id" button-click-behaviour>
     <mat-icon>search</mat-icon>
     <span>Search</span>
+  </button>
+  <button type="button" mat-raised-button (click)="reset()" [disabled]="!canReset()"
+          color="primary" id="resetButton_id" button-click-behaviour style="margin-left: 15px;">
+    <mat-icon>restore</mat-icon>
+    <span>Reset</span>
   </button>
   <a href="#" *ngIf="isAdvancedVisible && !parent.advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
   <a href="#" *ngIf="parent.advancedSearch" (click)="toggleBasicSearch()" id="basiclink_id">Basic</a>
