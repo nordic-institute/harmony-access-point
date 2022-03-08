@@ -104,7 +104,7 @@ export class JmsComponent extends mix(BaseListComponent)
     this.defaultQueueSet.subscribe(oldVal => {
       super.tryFilter(false).then(done => {
         if (!done) {
-          //revert the drop-down value to the old one
+          // revert the drop-down value to the old one
           this._selectedSource = oldVal;
         }
       });
@@ -154,6 +154,10 @@ export class JmsComponent extends mix(BaseListComponent)
 
   ngAfterViewChecked() {
     this.changeDetector.detectChanges();
+  }
+
+  protected onSetFilters() {
+    this._selectedSource = this.queues.find(el => el.name == this.filter.source);
   }
 
   private getDestinations(): Observable<any> {
