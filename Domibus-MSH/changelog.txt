@@ -1,5 +1,9 @@
 Domibus 5.0
-- change domibus.passwordPolicy.pattern and domibus.passwordPolicy.validationMessage properties to enforce 16 chars as a minimum length of passwords for users
+- Added domain properties domibus.sender.trust.validation.allowedCertificatePolicyOIDs to validate if certificate was issued with one of the listed policies. Validation is performed on top of the existing certificate subject verification defined in domibus.sender.trust.validation.expression.
+- Dynamic discovery: added a feature for validation of the CertificatePolicy for the SMP certificates.  Allowed list of policies can be defined in property: domibus.dynamicdiscovery.client.allowedCertificatePolicyOIDs
+- Dynamic discovery: added validation of ServiceMetadata Endpoint date validity according to elements from Endpoint/(ServiceActivationDate|ServiceExpirationDate) as specified in new Peppol SMP specification 1.2.0.
+- Remove deletion strategy STORED_PROCEDURE
+- change domibus.passwordPolicy.pattern, domibus.passwordPolicy.validationMessage, domibus.plugin.passwordPolicy.pattern and domibus.plugin.passwordPolicy.validationMessage properties to enforce 16 chars as a minimum length of passwords for users
 - Add HSTS header to admin console REST calls and the property domibus.httpSecurity.httpStrictTransportSecurity.maxAge to configure how much it is kept(default one year)
 - Remove overlapping indexes.
 - On the Domibus Admin Console, the Messages page displays by default only messages exchanged in the past hour

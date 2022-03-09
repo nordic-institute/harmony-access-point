@@ -15,10 +15,8 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import javax.security.auth.x500.X500Principal;
 import java.security.*;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Collections;
-import java.util.Enumeration;
+import java.security.cert.*;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -33,8 +31,9 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
     protected CertificateService certificateService;
 
     private Pattern subjectRegularExpressionPattern;
+    private List<String> allowedCertificatePolicyOIDs;
 
-    public DomibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String subjectRegularExpression) {
+    public DomibusCertificateValidator(CertificateService certificateService, KeyStore trustStore, String subjectRegularExpression, List<String> allowedCertificatePolicyOIDs) {
         this.certificateService = certificateService;
 
         if (!StringUtils.isEmpty(subjectRegularExpression)) {
@@ -42,6 +41,7 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         } else {
             this.subjectRegularExpressionPattern = Pattern.compile(".*");
         }
+        this.allowedCertificatePolicyOIDs = allowedCertificatePolicyOIDs;
         // init merlin just with truststore.
         setTrustStore(trustStore);
     }
@@ -87,9 +87,10 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         } catch (WSSecurityException ex) {
             throw new CertificateException("Certificate is not trusted: " + subjectName, ex);
         }
+
         // verify the chain CRL
-        if (!verifyCertificateChain(certificate)){
-            throw new CertificateException("Lookup certificate validator failed for " + subjectName+". The certificate chain is not valid");
+        if (!verifyCertificateChain(certificate)) {
+            throw new CertificateException("Lookup certificate validator failed for " + subjectName + ". The certificate chain is not valid");
         }
 
         LOG.debug("The Certificate is valid and trusted: [{}]", subjectName);
@@ -163,6 +164,26 @@ public class DomibusCertificateValidator extends Merlin implements CertificateVa
         }
         LOG.debug("Certificate with subject [{}] not found in truststore", issuerString);
         return null;
+    }
+
+    /**
+     * Override merlin createPKIXParameters to enable certificate policy OIDs validation
+     *
+     * @param trustAnchors     - trust trust anchors from the truststore
+     * @param enableRevocation - enable revocation list validation by merlin
+     * @return the PKIXParameters for path validation
+     * @throws InvalidAlgorithmParameterException
+     */
+    protected PKIXParameters createPKIXParameters(
+            Set<TrustAnchor> trustAnchors, boolean enableRevocation
+    ) throws InvalidAlgorithmParameterException {
+        PKIXParameters param = super.createPKIXParameters(trustAnchors, enableRevocation);
+        if (!allowedCertificatePolicyOIDs.isEmpty()) {
+            LOG.debug("Set allowed certificate policies [{}]", allowedCertificatePolicyOIDs);
+            param.setInitialPolicies(new HashSet<>(allowedCertificatePolicyOIDs));
+            param.setExplicitPolicyRequired(true);
+        }
+        return param;
     }
 
     /**

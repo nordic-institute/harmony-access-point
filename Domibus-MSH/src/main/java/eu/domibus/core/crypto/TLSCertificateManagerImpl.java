@@ -10,6 +10,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.configuration.security.KeyStoreType;
@@ -63,7 +64,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
-        return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
+        try {
+            return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
+        } catch (ConfigurationException ex) {
+            throw new ConfigurationException("Error retrieving the TLS truststore: Could not find or read the client authentication file for domain " + domainProvider.getCurrentDomainSafely(), ex);
+        }
     }
 
     @Override
@@ -140,7 +145,10 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
             KeyStoreType result = k.getTrustManagers().getKeyStore();
             LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
             return Optional.of(result);
-        }).orElse(Optional.empty());
+        }).orElseGet(() -> {
+            LOG.info("TLS parameters for domain [{}] could not be read.", domainCode);
+            return Optional.empty();
+        });
     }
 
     protected void resetTLSTruststore() {

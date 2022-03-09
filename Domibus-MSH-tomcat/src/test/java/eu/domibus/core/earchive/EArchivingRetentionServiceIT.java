@@ -9,7 +9,6 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageDaoTestUtil;
-import eu.domibus.core.earchive.eark.FileSystemEArchivePersistenceE2EIT;
 import eu.domibus.core.earchive.job.EArchivingRetentionService;
 import eu.domibus.core.earchive.listener.EArchiveListener;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;

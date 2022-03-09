@@ -63,6 +63,48 @@
         </insert>
     </changeSet>
 
+    <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
+        <createTable tableName="TB_USER_DOMAIN_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="DOMAIN" type="VARCHAR(255)"/>
+            <column name="DOMAIN_MOD" type="BOOLEAN"/>
+            <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
+            <column name="PREFERREDDOMAIN_MOD" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    
+    <!--views-->
+    <changeSet author="Ion Perpegel" id="EDELIVERY-8688-General Schema Audit">
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME ,
+            ri.REVISION_DATE as AUDIT_DATE,
+            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV;
+        </createView>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
+    </changeSet>
+
     <!-- indexes -->
     <changeSet author="Catalin Enache" id="1564496480476-30-new-indices">
         <comment>create indexes</comment>
@@ -90,7 +132,12 @@
                                  referencedTableName="TB_REV_INFO"/>
     </changeSet>
 
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8895-multitenancy-performance">
+        <renameColumn tableName="TB_REV_CHANGES" oldColumnName="ENTIY_NAME" newColumnName="ENTITY_NAME" columnDataType="VARCHAR(255)" />
+    </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
 
 </databaseChangeLog>

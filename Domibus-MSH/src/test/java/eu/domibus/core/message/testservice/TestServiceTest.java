@@ -386,8 +386,6 @@ public class TestServiceTest {
             times = 0;
             gson.readValue(anyString, Submission.class);
             times = 0;
-            userMessageLogDao.findLastTestMessageId(partyId);
-            result = userMessageId;
             userMessageLogDao.findByMessageIdSafely(userMessageId);
             result = userMessageLog;
         }};
@@ -403,8 +401,6 @@ public class TestServiceTest {
             times = 0;
             gson.readValue(anyString, Submission.class);
             times = 0;
-            userMessageLogDao.findLastTestMessageId(anyString);
-            result = userMessageId;
             userMessageLogDao.findByMessageIdSafely(userMessageId);
             result = null;
         }};
@@ -468,8 +464,6 @@ public class TestServiceTest {
             times = 0;
             gson.readValue(anyString, Submission.class);
             times = 0;
-            signalMessageLogDao.findLastTestMessageId(partyId);
-            result = "signalMessageId";
             pModeProvider.getPartyByIdentifier(partyId);
             result = party;
         }};

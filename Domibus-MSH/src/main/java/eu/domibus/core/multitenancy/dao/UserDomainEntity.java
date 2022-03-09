@@ -3,6 +3,7 @@ package eu.domibus.core.multitenancy.dao;
 import eu.domibus.api.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ import javax.validation.constraints.NotNull;
         @NamedQuery(name = "UserDomainEntity.findByUserName", query = "FROM UserDomainEntity u where u.userName=:USER_NAME"),
         @NamedQuery(name = "UserDomainEntity.findPreferredDomains", query = "FROM UserDomainEntity u where u.preferredDomain is not null"),
 })
+@Audited(withModifiedFlag = true)
 public class UserDomainEntity extends AbstractBaseEntity {
 
     @NotNull

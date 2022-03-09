@@ -27,6 +27,10 @@ import java.util.Date;
         @NamedQuery(name = "SignalMessage.deleteMessages", query = "delete from SignalMessage signalMessage where signalMessage.entityId in :IDS"),
         @NamedQuery(name = "SignalMessage.find",
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.refToMessageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessage.findTestMessageDesc",
+                query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage um " +
+                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
+                        "order by um.entityId desc"),
 })
 public class SignalMessage extends AbstractNoGeneratedPkEntity {
 

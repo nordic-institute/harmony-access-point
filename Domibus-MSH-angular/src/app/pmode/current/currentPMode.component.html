@@ -1,7 +1,7 @@
-﻿<div style="height: calc(100% - 15px);">
+﻿<div class="domibus-page">
   <page-header id="pmodeheader_id">PMode - Current</page-header>
 
-  <div *ngIf="pModeExists" style="height: calc(100% - 60px);padding-top: 10px;">
+  <div *ngIf="pModeExists" class="domibus-grid-container">
     <div style="height: 100%; overflow-y: auto; overflow-x: hidden;">
             <textarea id="pmodetextarea_id" [(ngModel)]="pModeContents" (change)="textChanged()" (input)="textChanged()"
                       class="textarea" style="height: calc(100% - 20px);"></textarea>

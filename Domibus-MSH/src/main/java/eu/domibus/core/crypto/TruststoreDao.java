@@ -24,6 +24,14 @@ public class TruststoreDao extends BasicDao<TruststoreEntity> {
         return DataAccessUtils.singleResult(q.getResultList());
     }
 
+    public TruststoreEntity findByNameSafely(String name) {
+        try {
+            return findByName(name);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
     public boolean existsWithName(String name) {
         Query q = em.createNamedQuery("Truststore.countByName", Long.class);
         q.setParameter("NAME", name);

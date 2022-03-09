@@ -4,6 +4,7 @@ import eu.domibus.api.datasource.AutoCloseFileDataSource;
 import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.encryption.DecryptDataSource;
 import eu.domibus.api.message.compression.DecompressionDataSource;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -27,6 +28,8 @@ import java.util.Set;
  */
 @NamedQueries({
         @NamedQuery(name = "PartInfo.findPartInfos", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID order by pi.partOrder"),
+        @NamedQuery(name = "PartInfo.findPartInfoByUserMessageEntityIdAndCid", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID and pi.href=:CID"),
+        @NamedQuery(name = "PartInfo.findPartInfoByUserMessageIdAndCid", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.messageId=:MESSAGE_ID and pi.href=:CID"),
         @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
         @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
 })
@@ -170,51 +173,8 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
 
     @PostLoad
     public void loadBinary() {
-        if (fileName != null) { /* Create payload data handler from File */
-            LOG.debug("LoadBinary from file: [{}]", fileName);
-            DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
-
-            if (isEncrypted()) {
-                LOG.debug("Using DecryptDataSource for payload [{}]", href);
-                final Cipher decryptCipher = getDecryptCipher();
-                fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
-            }
-
-            if(getCompressed()) {
-                LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
-                fsDataSource = new DecompressionDataSource(fsDataSource, getMime());
-            }
-
-            payloadDatahandler = new DataHandler(fsDataSource);
-            return;
-        }
-        /* Create payload data handler from binaryData (byte[]) */
-        if (binaryData == null) {
-            LOG.debug("Payload is empty!");
-            payloadDatahandler = null;
-        } else {
-            DataSource dataSource = new ByteArrayDataSource(binaryData, mime);
-
-            if (isEncrypted()) {
-                LOG.debug("Using DecryptDataSource for payload [{}]", href);
-                final Cipher decryptCipher = getDecryptCipher();
-                dataSource = new DecryptDataSource(dataSource, decryptCipher);
-            }
-
-            if(getCompressed()) {
-                LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
-                dataSource = new DecompressionDataSource(dataSource, getMime());
-            }
-            payloadDatahandler = new DataHandler(dataSource);
-        }
-
-    }
-
-    @Transient
-    protected Cipher getDecryptCipher() {
-        LOG.debug("Getting decrypt cipher for payload [{}]", href);
-        final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
-        return encryptionService.getDecryptCipherForPayload();
+        final PartInfoService partInfoService = SpringContextProvider.getApplicationContext().getBean("partInfoServiceImpl", PartInfoService.class);
+        partInfoService.loadBinaryData(this);
     }
 
     public Description getDescription() {

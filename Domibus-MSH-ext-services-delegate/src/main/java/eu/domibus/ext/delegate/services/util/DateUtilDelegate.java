@@ -1,6 +1,8 @@
 package eu.domibus.ext.delegate.services.util;
 
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.ext.services.DateExtService;
 import org.springframework.stereotype.Service;
 
@@ -28,4 +30,14 @@ public class DateUtilDelegate implements DateExtService {
     public Date getUtcDate() {
         return dateUtil.getUtcDate();
     }
+
+    @Override
+    public Long getIdPkDateHour(String date) {
+        try {
+            return dateUtil.getIdPkDateHour(date);
+        } catch (DomibusDateTimeException e) {
+            throw new DomibusDateTimeExtException("Could not get IdPK from date [" + date + "]", e);
+        }
+    }
+
 }

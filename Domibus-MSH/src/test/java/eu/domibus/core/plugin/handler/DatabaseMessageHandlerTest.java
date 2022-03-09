@@ -6,6 +6,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
@@ -1059,7 +1060,7 @@ public class DatabaseMessageHandlerTest {
             result = false;
 
             userMessageLogService.getMessageStatus(MESS_ID);
-            result = eu.domibus.common.MessageStatus.ACKNOWLEDGED;
+            result = MessageStatus.ACKNOWLEDGED;
         }};
 
         // When
@@ -1165,7 +1166,7 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getLegConfiguration(pModeKey);
             result = legConfiguration;
 
-            messageExchangeService.getMessageStatus(userMessageExchangeConfiguration, ProcessingType.PUSH);
+            messageExchangeService.getMessageStatusForPush();
             result = messageStatus;
 
             messageStatus.getMessageStatus();

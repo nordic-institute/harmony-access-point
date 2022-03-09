@@ -117,14 +117,4 @@ public class SignalMessageLogDaoIT extends AbstractIT {
             Assert.assertEquals(2, messages.size());
         }
     }
-
-    @Test
-    @Transactional
-    public void testFindLastTestMessageId() {
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
-        String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
-
-        String messageId = signalMessageLogDao.findLastTestMessageId(testParty);
-        Assert.assertEquals("signal-msg-test-1", messageId);
-    }
 }

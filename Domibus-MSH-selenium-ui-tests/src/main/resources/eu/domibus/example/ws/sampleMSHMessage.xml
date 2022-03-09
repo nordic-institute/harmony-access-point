@@ -1,6 +1,6 @@
 <eb:Messaging xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
 			  xmlns="">
-	<eb:UserMessage>
+	<eb:UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC">
 		<eb:MessageInfo>
 			<eb:Timestamp></eb:Timestamp>
 			<eb:MessageId></eb:MessageId>

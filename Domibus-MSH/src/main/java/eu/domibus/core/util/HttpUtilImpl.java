@@ -69,7 +69,7 @@ public class HttpUtilImpl implements HttpUtil {
             int httpTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT);
             if (httpTimeout > 0) {
                 LOG.debug("Configure the http client with httpTimeout: [{}]", httpTimeout);
-                int httpTimeoutMilis = new Long(httpTimeout * DateUtils.MILLIS_PER_SECOND).intValue();
+                int httpTimeoutMilis = (int) (httpTimeout * DateUtils.MILLIS_PER_SECOND);
                 builder.setConnectTimeout(httpTimeoutMilis)
                         .setConnectionRequestTimeout(httpTimeoutMilis)
                         .setSocketTimeout(httpTimeoutMilis);

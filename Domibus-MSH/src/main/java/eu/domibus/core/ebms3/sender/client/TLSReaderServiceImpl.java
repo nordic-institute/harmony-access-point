@@ -85,6 +85,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     public Optional<TLSClientParametersType> getTlsClientParametersType(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
+            LOG.debug("The client authentication xml path for domain [{}] could not be found.", domainCode);
             return Optional.empty();
         }
         try {
@@ -97,7 +98,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     }
 
     private String getFileContent(Optional<Path> path) throws IOException {
-        byte[] encoded = Files.readAllBytes(path.get());
+        byte[] encoded = Files.readAllBytes(path.orElse(null));
         String config = new String(encoded, StandardCharsets.UTF_8);
         config = config.replaceAll(REGEX_DOMIBUS_CONFIG_LOCATION, domibusConfigurationService.getConfigLocation().replace('\\', '/'));
         return config;

@@ -3,12 +3,10 @@ package eu.domibus.core.pmode.provider;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.pmode.PModeConstants;
-import eu.domibus.api.pmode.PModeValidationException;
-import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.pmode.*;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
@@ -30,6 +28,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,7 +48,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -99,6 +97,9 @@ public abstract class PModeProvider {
 
     public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
+        if (rawConfiguration == null) {
+            throw new PModeException(DomibusCoreErrorCode.DOM_009, "PMode [" + id + "] does not exist");
+        }
         return getRawConfigurationBytes(rawConfiguration);
     }
 
@@ -110,7 +111,7 @@ public abstract class PModeProvider {
     }
 
     public ConfigurationRaw getRawConfiguration(long id) {
-         return this.configurationRawDAO.getConfigurationRaw(id);
+        return this.configurationRawDAO.getConfigurationRaw(id);
     }
 
     public PModeArchiveInfo getCurrentPmode() {
@@ -210,8 +211,8 @@ public abstract class PModeProvider {
 
 
     public UnmarshallerResult unmarshall(byte[] bytes, boolean ignoreWhitespaces) throws XmlProcessingException {
-        Configuration configuration = null;
-        UnmarshallerResult unmarshallerResult = null;
+        Configuration configuration;
+        UnmarshallerResult unmarshallerResult;
 
         InputStream xsdStream = getClass().getClassLoader().getResourceAsStream(SCHEMAS_DIR + DOMIBUS_PMODE_XSD);
         ByteArrayInputStream xmlStream = new ByteArrayInputStream(bytes);
@@ -243,7 +244,7 @@ public abstract class PModeProvider {
         return serializedPMode;
     }
 
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID,DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
 
         final String agreementName;
@@ -356,7 +357,7 @@ public abstract class PModeProvider {
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message( "Mandatory field To PartyId is not provided.")
+                    .message("Mandatory field To PartyId is not provided.")
                     .build();
         }
         try {
@@ -405,7 +406,7 @@ public abstract class PModeProvider {
      * @return boolean true if there is the same AP
      */
     public boolean checkSelfSending(String pmodeKey) {
-        if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE)) {
+        if (BooleanUtils.isNotTrue(domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE))) {
             LOG.debug("Self sending check is deactivated");
             return false;
         }
@@ -433,11 +434,11 @@ public abstract class PModeProvider {
 
     public abstract String findServiceName(ServiceEntity service) throws EbMS3Exception;
 
-    public abstract String findServiceName(String service,String serviceType) throws EbMS3Exception;
+    public abstract String findServiceName(String service, String serviceType) throws EbMS3Exception;
 
     public abstract String findPartyName(PartyId partyId) throws EbMS3Exception;
 
-    public abstract String findPartyName(String partyId,String partyIdType) throws EbMS3Exception;
+    public abstract String findPartyName(String partyId, String partyIdType) throws EbMS3Exception;
 
     public abstract String findAgreement(AgreementRefEntity agreementRef) throws EbMS3Exception;
 

@@ -1,11 +1,14 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.ActionEntity;
+import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -16,6 +19,7 @@ import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Cosmin Baciu
@@ -37,14 +41,19 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public UserMessage findByEntityId(Long entityId) {
         final UserMessage userMessage = super.read(entityId);
 
-        initializeChildren(userMessage);
+        if(userMessage != null) {
+            initializeChildren(userMessage);
+        }
 
         return userMessage;
     }
 
     private void initializeChildren(UserMessage userMessage) {
         //initialize values from the second level cache
-        userMessage.getMessageProperties().forEach(messageProperty -> messageProperty.getValue());
+        final Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
+        if(CollectionUtils.isNotEmpty(messageProperties)) {
+            messageProperties.forEach(messageProperty -> messageProperty.getValue());
+        }
         userMessage.getMpcValue();
         userMessage.getServiceValue();
         userMessage.getActionValue();
@@ -136,5 +145,13 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         int result = deleteQuery.executeUpdate();
         LOG.debug("deleteMessages result [{}]", result);
         return result;
+    }
+    
+    public UserMessage findLastTestMessage(String partyId, ActionEntity actionEntity) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
+        query.setParameter("PARTY_ID", partyId);
+        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        query.setMaxResults(1);
+        return DataAccessUtils.singleResult(query.getResultList());
     }
 }

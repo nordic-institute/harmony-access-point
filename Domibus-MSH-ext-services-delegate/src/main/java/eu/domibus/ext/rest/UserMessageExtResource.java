@@ -7,6 +7,7 @@ import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -53,7 +54,7 @@ public class UserMessageExtResource {
     @Operation(summary = "Get user message", description = "Retrieve the user message with the specified message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"usermessage"})
     @GetMapping(path = "/{messageId:.+}")
-    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) {
+    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) throws MessageNotFoundException {
         LOG.debug("Getting User Message with id = '{}", messageId);
         return userMessageExtService.getMessage(messageId);
     }

@@ -2,24 +2,43 @@ package eu.domibus.ext.rest;
 
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.payload.persistence.DatabasePayloadPersistence;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 import static eu.domibus.ext.rest.DomibusEArchiveExtResourceIT.TEST_PLUGIN_PASSWORD;
 import static eu.domibus.ext.rest.DomibusEArchiveExtResourceIT.TEST_PLUGIN_USERNAME;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 public class UserMessagePayloadExtResourceIT extends AbstractIT {
+
+    public static final String TEST_ENDPOINT_DOWNLOAD_PAYLOAD = "/ext/messages/ids/{messageEntityId}/payloads/{cid}";
 
     @Autowired
     UserMessageValidatorSpi userMessageValidatorSpi;
@@ -27,10 +46,22 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
     @Autowired
     UserMessagePayloadExtResource payloadExtResource;
 
+    @Autowired
+    MessageDaoTestUtil messageDaoTestUtil;
+
     private MockMvc mockMvc;
 
     @Autowired
     private WebApplicationContext webAppContext;
+
+    @Autowired
+    DatabasePayloadPersistence databasePayloadPersistence;
+
+    @Autowired
+    UserMessageService userMessageService;
+
+    @Autowired
+    PartInfoService partInfoService;
 
     @Before
     public void setUp() {
@@ -40,9 +71,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
 
     @Test
     public void testPayloadValidation_ok() throws Exception {
-
-        MockMultipartFile file
-                = new MockMultipartFile(
+        MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "hello.txt",
                 MediaType.TEXT_PLAIN_VALUE,
@@ -56,6 +85,34 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
+    }
+
+    @Test
+    @Transactional
+    public void testDownloadPayload() throws Exception {
+        // when
+        String cid = "message";
+        String content = "hello world";
+
+        final UserMessageLog userMessageLog = messageDaoTestUtil.createUserMessageLog("myMessage", new Date());
+        UserMessage userMessage = userMessageService.getByMessageEntityId(userMessageLog.getEntityId());
+
+        PartInfo partInfo = new PartInfo();
+        partInfo.setHref("cid:" + cid);
+        partInfo.setBinaryData(content.getBytes(StandardCharsets.UTF_8));
+        partInfo.setMime("application/text");
+        partInfo.loadBinary();
+        partInfoService.create(partInfo, userMessage);
+
+
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD, userMessage.getEntityId(), cid)
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String resultContent = result.getResponse().getContentAsString();
+        Assert.assertEquals(content, resultContent);
     }
 
 

@@ -9,7 +9,10 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.*;
-import eu.domibus.ext.domain.archive.*;
+import eu.domibus.ext.domain.archive.BatchDTO;
+import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
+import eu.domibus.ext.domain.archive.ExportedBatchStatusType;
+import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +29,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -167,7 +169,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         BatchDTO batchDTO = objectMapper.readValue(content, BatchDTO.class);
 
-        Assert.assertNotNull(batchDTO);
+        assertNotNull(batchDTO);
         Assert.assertEquals(ExportedBatchStatusType.QUEUED, batchDTO.getStatus());
     }
 
@@ -342,6 +344,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
                         .param("lastCountRequests", lastCountRequests + "")
+                        .param("requestType", "CONTINUOUS")
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
@@ -350,8 +353,9 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
         QueuedBatchResultDTO response = objectMapper.readValue(content, QueuedBatchResultDTO.class);
 
-        Assert.assertNotNull(response.getFilter());
-        Assert.assertNotNull(response.getPagination());
+        assertTrue(response.getFilter().getRequestTypes().isEmpty());
+        assertNotNull(response.getFilter());
+        assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
         assertEquals(lastCountRequests, response.getFilter().getLastCountRequests());
         //
@@ -384,8 +388,8 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         ExportedBatchResultDTO response = objectMapper.readValue(content, ExportedBatchResultDTO.class);
         // test filters
-        Assert.assertNotNull(response.getFilter());
-        Assert.assertNotNull(response.getPagination());
+        assertNotNull(response.getFilter());
+        assertNotNull(response.getPagination());
         assertEquals(Integer.valueOf(1), response.getPagination().getTotal());
         assertEquals(messageStartDate, response.getFilter().getMessageStartDate());
         assertEquals(messageEndDate, response.getFilter().getMessageEndDate());
@@ -418,7 +422,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     @Test
     @Transactional
     public void testGetQueuedBatchRequestsForResults() throws Exception {
-// given
+        // given
         Integer lastCountRequests = 5;
 
         // when

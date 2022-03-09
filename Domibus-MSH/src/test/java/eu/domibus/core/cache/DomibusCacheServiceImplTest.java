@@ -42,59 +42,69 @@ public class DomibusCacheServiceImplTest {
     @Test
     public void doesNotRefreshTheCacheWhenTheCacheManagerContainsNoCaches() {
         new Expectations() {{
-            cacheManager.getCacheNames(); result = Lists.<String>newArrayList();
+            cacheManager.getCacheNames();
+            result = Lists.<String>newArrayList();
         }};
 
         domibusCacheService.clearCache("cache");
 
         new Verifications() {{
-            cache.clear(); times = 0;
+            cache.clear();
+            times = 0;
         }};
     }
 
     @Test
     public void doesNotRefreshTheCacheWhenTheCacheManagerContainsOnlyNonMatchingCaches() {
         new Expectations() {{
-            cacheManager.getCacheNames(); result = Lists.newArrayList("nonMatching");
+            cacheManager.getCacheNames();
+            result = Lists.newArrayList("nonMatching");
         }};
 
         domibusCacheService.clearCache("cache");
 
         new Verifications() {{
-            cache.clear(); times = 0;
+            cache.clear();
+            times = 0;
         }};
     }
 
     @Test
     public void doesNotRefreshTheCacheWhenTheCacheManagerContainsNullMatchingCache() {
         new Expectations() {{
-            cacheManager.getCacheNames(); result = Lists.newArrayList("cache");
-            cacheManager.getCache("cache"); result = null;
+            cacheManager.getCacheNames();
+            result = Lists.newArrayList("cache");
+            cacheManager.getCache("cache");
+            result = null;
         }};
 
         domibusCacheService.clearCache("cache");
 
         new Verifications() {{
-            cache.clear(); times = 0;
+            cache.clear();
+            times = 0;
         }};
     }
 
     @Test
     public void refreshTheCacheWhenTheCacheManagerContainsMatchingCache() {
         new Expectations() {{
-            cacheManager.getCacheNames(); result = Lists.newArrayList("cache");
-            cacheManager.getCache("cache"); result = cache;
+            cacheManager.getCacheNames();
+            result = Lists.newArrayList("cache");
+            cacheManager.getCache("cache");
+            result = cache;
         }};
 
         domibusCacheService.clearCache("cache");
 
         new Verifications() {{
-            cache.clear(); times = 1;
+            cache.clear();
+            times = 1;
         }};
     }
 
     @Test
-    public void clearAllCaches(@Injectable DomibusCacheServiceNotifier domibusCacheServiceNotifier) {
+    public void clearAllCaches() {
         Collection<String> cacheNames = new ArrayList<>();
         String cacheName = "cache1";
         cacheNames.add(cacheName);
@@ -106,7 +116,7 @@ public class DomibusCacheServiceImplTest {
             domibusCacheService.notifyClearAllCaches();
         }};
 
-        domibusCacheService.clearAllCaches();
+        domibusCacheService.clearAllCaches(true);
 
         new Verifications() {{
             cacheManager.getCache(cacheName).clear();
@@ -115,7 +125,7 @@ public class DomibusCacheServiceImplTest {
     }
 
     @Test
-    public void clear2LCaches(@Injectable DomibusCacheServiceNotifier domibusCacheServiceNotifier, @Injectable SessionFactory sessionFactory) {
+    public void clear2LCaches(@Injectable SessionFactory sessionFactory) {
 
         new Expectations(domibusCacheService) {{
             localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
@@ -124,7 +134,7 @@ public class DomibusCacheServiceImplTest {
             domibusCacheService.notifyClear2LCaches();
         }};
 
-        domibusCacheService.clear2LCCaches();
+        domibusCacheService.clear2LCCaches(true);
 
         new Verifications() {{
             sessionFactory.getCache().evictAll();

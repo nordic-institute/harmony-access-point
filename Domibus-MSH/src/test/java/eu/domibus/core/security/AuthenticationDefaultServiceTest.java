@@ -6,8 +6,6 @@ import eu.domibus.api.security.*;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDefaultService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -39,7 +37,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class AuthenticationDefaultServiceTest{
+public class AuthenticationDefaultServiceTest {
 
     private static final String DOMIBUS_URL = "https://localhost:8080/domibus/services/backend";
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
@@ -147,6 +145,8 @@ public class AuthenticationDefaultServiceTest{
             authentication.setAuthenticated(true);
             securityCustomAuthenticationProvider.authenticate((Authentication) any);
             result = authentication;
+            userDomainService.getDomainForUser(anyString);
+            result = "default";
         }};
 
         authenticationService.authenticate(request);
@@ -166,6 +166,8 @@ public class AuthenticationDefaultServiceTest{
             authentication.setAuthenticated(false);
             securityCustomAuthenticationProvider.authenticate((Authentication) any);
             result = authentication;
+            userDomainService.getDomainForUser(anyString);
+            result = "default";
         }};
 
         authenticationService.authenticate(request);

@@ -102,7 +102,7 @@ public class PluginUsersClient extends BaseRestClient {
 
 		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
 		if (response.getStatus() != 200) {
-			throw new DomibusRestException("Could not get users ", response);
+			throw new DomibusRestException("Could not get plugin users ", response);
 		}
 
 		try {

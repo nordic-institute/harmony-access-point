@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.MessageStatus.*;
+import static eu.domibus.api.util.DateUtil.REST_FORMATTER;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
@@ -307,32 +308,13 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void testFindLastTestMessageId() {
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage("msg-test-1");
-        String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
-
-        String messageId = userMessageLogDao.findLastTestMessageId(testParty);
-        assertEquals("msg-test-1", messageId);
-    }
-
-    @Test
-    @Transactional
-    public void getMessageInFinalStatus() {
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessageInSend_Failure("msg-test-2");
-
-        UserMessageLog message = userMessageLogDao.findMessageToDeleteNotInFinalStatus("msg-test-2");
-        assertEquals("msg-test-2", message.getUserMessage().getMessageId());
-    }
-
-    @Test
-    @Transactional
     public void findMessagesToDelete() {
         final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
 
-        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
+        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(3, message.size());
     }
 
@@ -344,7 +326,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
 
-        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, Date.from(startDate.toInstant()), Date.from(endDate.toInstant()));
+        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(1, message.size());
     }
 

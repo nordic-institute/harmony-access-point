@@ -1,14 +1,14 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.encryption.DecryptDataSource;
+import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.Property;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.ErrorCode;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -21,6 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.crypto.Cipher;
+import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +39,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author François Gautier
  * @since 5.0
  */
-@Service
+@Service //("PartInfoService")
 public class PartInfoServiceImpl implements PartInfoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfoServiceImpl.class);
@@ -62,6 +66,23 @@ public class PartInfoServiceImpl implements PartInfoService {
     @Override
     public List<PartInfo> findPartInfo(UserMessage userMessage) {
         return partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+    }
+
+    @Override
+    public PartInfo findPartInfo(String messageId, String cid) {
+        return partInfoDao.findPartInfoByUserMessageIdAndCid(messageId, getCid(cid));
+    }
+
+    @Override
+    public PartInfo findPartInfo(Long messageEntityId, String cid) {
+        return partInfoDao.findPartInfoByUserMessageEntityIdAndCid(messageEntityId, getCid(cid));
+    }
+
+    protected String getCid(String cid) {
+        if(StringUtils.startsWith(cid, "cid:")) {
+            return cid;
+        }
+        return "cid:" + cid;
     }
 
     @Override
@@ -189,43 +210,50 @@ public class PartInfoServiceImpl implements PartInfoService {
 
     }
 
+    /**
+     * WARNING: for message sent, the compress flag is NOT set and the {@link #getPayloadDatahandler} will provide the zipped data
+     */
     @Override
-    public void validatePayloadSizeBeforeSchedulingSave(LegConfiguration legConfiguration, List<PartInfo> partInfos) {
-        for (PartInfo partInfo : partInfos) {
-            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength(), true);
+    public void loadBinaryData(PartInfo partInfo) {
+        String fileName = partInfo.getFileName();
+
+        if (fileName != null) { /* Create payload data handler from File */
+            LOG.debug("LoadBinary from file: [{}]", fileName);
+            DataSource fsDataSource = new AutoCloseFileDataSource(fileName);
+            createPayloadDataHandler(partInfo, fsDataSource);
+            return;
+        }
+        /* Create payload data handler from binaryData (byte[]) */
+        byte[] binaryData = partInfo.getBinaryData();
+        if (binaryData == null) {
+            LOG.debug("Payload is empty!");
+            partInfo.setPayloadDatahandler(null);
+        } else {
+            DataSource dataSource = new ByteArrayDataSource(binaryData, partInfo.getMime());
+            createPayloadDataHandler(partInfo, dataSource);
         }
     }
 
-    /**
-     * Required for AS4_TA_12
-     *
-     * @param userMessage the UserMessage received
-     * @throws EbMS3Exception if an attachment with an invalid charset is received
-     */
-    @Override
-    public void checkPartInfoCharset(final UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
-        LOG.debug("Checking charset for attachments");
-        if (partInfoList == null) {
-            LOG.debug("No partInfo found");
-            return;
+    private void createPayloadDataHandler(PartInfo partInfo, DataSource fsDataSource) {
+        String href = partInfo.getHref();
+        if (partInfo.isEncrypted()) {
+            LOG.debug("Using DecryptDataSource for payload [{}]", href);
+            final Cipher decryptCipher = getDecryptCipher(partInfo);
+            fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
         }
 
-        for (final PartInfo partInfo : partInfoList) {
-            if (partInfo.getPartProperties() == null) {
-                continue;
-            }
-            for (final Property property : partInfo.getPartProperties()) {
-                if (Property.CHARSET.equalsIgnoreCase(property.getName()) && !Property.CHARSET_PATTERN.matcher(property.getValue()).matches()) {
-                    LOG.businessError(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, property.getValue(), userMessage.getMessageId());
-                    throw EbMS3ExceptionBuilder.getInstance()
-                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                            .message(property.getValue() + " is not a valid Charset")
-                            .refToMessageId( userMessage.getMessageId())
-                            .mshRole(MSHRole.RECEIVING)
-                            .build();
-                }
-            }
+        if (partInfo.getCompressed()) {
+            LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
+            fsDataSource = new DecompressionDataSource(fsDataSource, partInfo.getMime());
         }
+
+        partInfo.setPayloadDatahandler(new DataHandler(fsDataSource));
+    }
+
+    private Cipher getDecryptCipher(PartInfo partInfo) {
+        LOG.debug("Getting decrypt cipher for payload [{}]", partInfo.getHref());
+        final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
+        return encryptionService.getDecryptCipherForPayload();
     }
 
 }

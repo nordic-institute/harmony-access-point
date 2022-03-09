@@ -23,13 +23,10 @@ public abstract class PasswordEncryptionContextAbstract implements PasswordEncry
 
     protected PasswordEncryptionService passwordEncryptionService;
     protected DomibusConfigurationService domibusConfigurationService;
-    protected DomibusPropertyProvider domibusPropertyProvider;
 
     public PasswordEncryptionContextAbstract(PasswordEncryptionService passwordEncryptionService,
-                                             DomibusPropertyProvider domibusPropertyProvider,
                                              DomibusConfigurationService domibusConfigurationService) {
         this.passwordEncryptionService = passwordEncryptionService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
     }
 

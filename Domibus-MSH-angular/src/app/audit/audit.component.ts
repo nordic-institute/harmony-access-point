@@ -1,4 +1,12 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {AuditService} from './support/audit.service';
 import {UserService} from '../user/support/user.service';
 import {AlertService} from '../common/alert/alert.service';
@@ -10,7 +18,8 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
-import {DomibusInfoService} from "../common/appinfo/domibusinfo.service";
+import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
+import {SecurityService} from '../security/security.service';
 
 /**
  * @author Thomas Dussart
@@ -42,10 +51,11 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
   extAuthProviderEnabled = false;
+  displayDomainCheckBox: boolean;
 
   constructor(private applicationService: ApplicationContextService, private auditService: AuditService, private userService: UserService,
               private alertService: AlertService, private changeDetector: ChangeDetectorRef, private http: HttpClient,
-              private domibusInfoService: DomibusInfoService) {
+              private domibusInfoService: DomibusInfoService, private securityService: SecurityService,) {
     super();
   }
 
@@ -72,6 +82,9 @@ export class AuditComponent extends mix(BaseListComponent)
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
+
+    this.displayDomainCheckBox = this.securityService.isCurrentUserSuperAdmin();
+    super.filter = {domain: true};
 
 // --- lets count the records and fill the table.---
     this.filterData();
@@ -167,4 +180,5 @@ export class AuditComponent extends mix(BaseListComponent)
   get csvUrl(): string {
     return 'rest/audit/csv?' + this.createAndSetParameters();
   }
+
 }

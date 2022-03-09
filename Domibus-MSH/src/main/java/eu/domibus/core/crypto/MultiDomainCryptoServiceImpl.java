@@ -35,8 +35,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
     public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
-    public final static String INIT_TRUSTSTORE_NAME = "TRUSTSTORE";
-    public final static String INIT_KEYSTORE_NAME = "KEYSTORE";
     public static final String CERT_VALIDATION_BY_ALIAS = "certValidationByAlias";
 
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
@@ -139,6 +137,12 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
+    public void resetTrustStore(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.resetTrustStore();
+    }
+
+    @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
         doReplaceTrustStore(domain, storeFileName, storeContent, storePassword);
     }
@@ -214,14 +218,14 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Override
     public void reset(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         domainCertificateProvider.reset();
     }
 
     @Override
-    public void reset(Domain domain, KeyStoreType type) {
-        final DomainCryptoService domainCertificateProvider = getDomainCryptoService(domain);
-        domainCertificateProvider.reset(type);
+    public void resetKeyStore(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        domainCertificateProvider.resetKeyStore();
     }
 
     @Override
@@ -244,6 +248,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void onDomainRemoved(Domain domain) {
     }
+
 
     private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
         certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE), storeFileNameOrLocation);
@@ -288,18 +293,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
             }
         }
         return domainCertificateProviderMap.get(domain);
-    }
-
-    private DomainCryptoService getDomainCryptoService(Domain domain) {
-        if (domain == null) {
-            throw new InvalidParameterException("Domain is null.");
-        }
-
-        final DomainCryptoService domainCertificateProvider = domainCertificateProviderMap.get(domain);
-        if (domainCertificateProvider == null) {
-            throw new DomibusCertificateException("Domain certificate provider for domain [" + domain.getName() + "] not found.");
-        }
-        return domainCertificateProvider;
     }
 
     private void saveCertificateAndLogRevocation(Domain domain) {

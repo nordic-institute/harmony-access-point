@@ -2,6 +2,7 @@ package eu.domibus.core.crypto.spi;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
@@ -11,22 +12,34 @@ import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
+import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.RegexUtilImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+import java.math.BigInteger;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
-import static org.junit.Assert.assertNotNull;
+import static eu.domibus.core.pki.PKIUtil.*;
+import static org.junit.Assert.*;
 
 /**
  * @author idragusa
@@ -61,6 +74,11 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
     @Injectable
     MultiDomainCryptoService multiDomainCryptoService;
+
+    @Injectable
+    CertificateService certificateService;
+
+    PKIUtil pkiUtil = new PKIUtil();
 
     @Test
     public void testGetIdentifier() {
@@ -148,6 +166,103 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
         defaultAuthorizationServiceSpi.authorizeAgainstCertificateSubjectExpression(signingCertificate);
     }
+
+
+    @Test
+    public void authorizeAgainstCertificatePolicyMatchTestDisabled() {
+        X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
+            result = null;
+        }};
+
+        defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho");
+    }
+
+    @Test
+    public void authorizeAgainstCertificatePolicyMatchTestOK() throws OperatorCreationException, CertificateException, NoSuchAlgorithmException, IOException {
+        X509Certificate signingCertificate = pkiUtil.createCertificate(BigInteger.ONE, null, Collections.singletonList(CERTIFICATE_POLICY_QCP_LEGAL));
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
+            result = CERTIFICATE_POLICY_QCP_LEGAL;
+
+            certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
+            result = Collections.singletonList(CERTIFICATE_POLICY_QCP_LEGAL);
+        }};
+
+        defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho");
+    }
+
+    @Test
+    public void authorizeAgainstCertificatePolicyMatchTestOneFromListOK() throws OperatorCreationException, CertificateException, NoSuchAlgorithmException, IOException {
+        X509Certificate signingCertificate = pkiUtil.createCertificate(BigInteger.ONE, null, Collections.singletonList(CERTIFICATE_POLICY_QCP_LEGAL));
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
+            // list with spaces
+            result = CERTIFICATE_POLICY_QCP_LEGAL+" , " + CERTIFICATE_POLICY_QCP_NATURAL + ", " + CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
+
+            certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
+            result = Collections.singletonList(CERTIFICATE_POLICY_QCP_NATURAL);
+        }};
+
+        defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho");
+    }
+
+    @Test
+    public void authorizeAgainstCertificatePolicyMatchTestMultipletOK() throws OperatorCreationException, CertificateException, NoSuchAlgorithmException, IOException {
+        X509Certificate signingCertificate = pkiUtil.createCertificate(BigInteger.ONE, null, Collections.singletonList(CERTIFICATE_POLICY_QCP_LEGAL));
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
+            // list with spaces
+            result =CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
+
+            certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
+            result = Arrays.asList(CERTIFICATE_POLICY_QCP_LEGAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL);
+        }};
+
+        defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho");
+    }
+
+    @Test
+    public void authorizeAgainstCertificatePolicyMatchTestWithEmptyCertificatePolicy() throws OperatorCreationException, CertificateException, NoSuchAlgorithmException, IOException {
+
+        X509Certificate signingCertificate = pkiUtil.createCertificate(BigInteger.ONE, null, null);
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
+            result = CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
+
+            certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
+            result = Collections.emptyList();
+        }};
+
+        //when
+        AuthorizationException exception = assertThrows(AuthorizationException.class,
+                () ->   defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho"));
+
+        assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, exception.getAuthorizationError());
+        MatcherAssert.assertThat(exception.getMessage(), CoreMatchers.containsString("has empty CertificatePolicy extension"));
+    }
+
+    @Test
+    public void authorizeAgainstCertificatePolicyMatchTestWithMissMatchCertificatePolicy() throws OperatorCreationException, CertificateException, NoSuchAlgorithmException, IOException {
+
+        X509Certificate signingCertificate = pkiUtil.createCertificate(BigInteger.ONE, null, null);
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
+            result = CERTIFICATE_POLICY_QCP_NATURAL_QSCD+","+CERTIFICATE_POLICY_QCP_NATURAL;
+
+            certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
+            result = Arrays.asList(CERTIFICATE_POLICY_QCP_LEGAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL);
+        }};
+
+        //when
+        AuthorizationException exception = assertThrows(AuthorizationException.class,
+                () ->   defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho"));
+
+        assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, exception.getAuthorizationError());
+        MatcherAssert.assertThat(exception.getMessage(),CoreMatchers.containsString("does not contain any of the required certificate policies"));
+    }
+
 
     @Test
     public void authorizeAgainstCertificateSubjectExpressionTestNullCert() {

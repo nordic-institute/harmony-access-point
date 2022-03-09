@@ -10,19 +10,27 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.activation.DataHandler;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.*;
 import javax.xml.transform.dom.DOMSource;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPOutputStream;
 
 @Service
 public class SoapSampleUtil {
 
     public SOAPMessage createSOAPMessage(String dataset, String messageId) throws SOAPException, IOException, ParserConfigurationException, SAXException {
+        return createSOAPMessage(dataset, messageId, false);
+    }
+
+    public SOAPMessage createSOAPMessage(String dataset, String messageId, boolean compression) throws SOAPException, IOException, ParserConfigurationException, SAXException {
         MessageFactory factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
         SOAPMessage message = factory.createMessage();
 
@@ -38,7 +46,16 @@ public class SoapSampleUtil {
         soapPart.setContent(domSource);
 
         AttachmentPart attachment = message.createAttachmentPart();
-        attachment.setContent(Base64.decodeBase64("PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=".getBytes()), "text/xml");
+
+        byte[] decodeBase64 = Base64.decodeBase64("PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=".getBytes());
+        DataHandler dataHandler;
+        if (compression) {
+            dataHandler = new DataHandler(new ByteArrayDataSource(compress(decodeBase64), "text/xml"));
+        } else {
+            dataHandler = new DataHandler(new ByteArrayDataSource(decodeBase64, "text/xml"));
+        }
+        attachment.setDataHandler(dataHandler);
+
         attachment.setContentId("cid:message");
         message.addAttachmentPart(attachment);
 
@@ -48,6 +65,16 @@ public class SoapSampleUtil {
         message.setProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());
 
         return message;
+    }
+
+    public static byte[] compress(final byte[] input) throws IOException {
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
+             GZIPOutputStream gzipper = new GZIPOutputStream(bout)) {
+            gzipper.write(input, 0, input.length);
+            gzipper.finish();
+
+            return bout.toByteArray();
+        }
     }
 
     public String composePModeKey(final String senderParty, final String receiverParty, final String service,

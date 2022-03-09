@@ -4,9 +4,11 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -42,7 +44,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -53,19 +54,16 @@ import java.util.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static eu.domibus.core.message.UserMessageDefaultService.BATCH_SIZE;
 import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu, Soumya
  * @since 3.3
  */
-@Ignore("EDELIVERY-8892")
-@SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions"})
 @RunWith(JMockit.class)
 public class UserMessageDefaultServiceTest {
 
-    private static final long SYSTEM_DATE = new Date().getTime();
     public static final String MESSAGE_ID = "1000";
 
     @Tested
@@ -251,8 +249,8 @@ public class UserMessageDefaultServiceTest {
             userMessageLogDao.findBackendForMessageId(messageId);
             result = backendName;
 
-
-            userMessageDefaultService.createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, anyString, anyInt);
+            userMessageDefaultService.createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragment1, 1);
+            times = 1;
         }};
 
         userMessageDefaultService.createMessageFragments(sourceMessage, messageGroupEntity, fragmentFiles);
@@ -260,7 +258,7 @@ public class UserMessageDefaultServiceTest {
         new Verifications() {{
             messageGroupDao.create(messageGroupEntity);
 
-            userMessageDefaultService.createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragment1, 1);
+
         }};
     }
 
@@ -284,7 +282,8 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-
+            userMessageDao.findByMessageId(messageId);
+            result = null;
         }};
 
         Assert.assertNull(userMessageDefaultService.getFinalRecipient(messageId));
@@ -306,8 +305,6 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
         final Date failedDate = new Date();
 
-        new CurrentTimeMillisMock();
-
         new Expectations(userMessageDefaultService) {{
             userMessageDefaultService.getFailedMessage(messageId);
             result = userMessageLog;
@@ -317,14 +314,12 @@ public class UserMessageDefaultServiceTest {
         }};
 
         final Long failedMessageElapsedTime = userMessageDefaultService.getFailedMessageElapsedTime(messageId);
-        assertEquals(SYSTEM_DATE - failedDate.getTime(), (long) failedMessageElapsedTime);
+        assertNotNull(failedMessageElapsedTime);
     }
 
     @Test(expected = UserMessageException.class)
     public void testGetFailedMessageElapsedTimeWhenFailedDateIsNull(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
-
-        new CurrentTimeMillisMock();
 
         new Expectations(userMessageDefaultService) {{
             userMessageDefaultService.getFailedMessage(messageId);
@@ -339,7 +334,7 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void testScheduleSending(@Injectable final JmsMessage jmsMessage,
-                                    @Mocked DispatchMessageCreator dispatchMessageCreator,
+                                    @Injectable DispatchMessageCreator dispatchMessageCreator,
                                     @Injectable UserMessageLog userMessageLog,
                                     @Injectable UserMessage userMessage) {
         final String messageId = "1";
@@ -352,7 +347,7 @@ public class UserMessageDefaultServiceTest {
             userMessage.getEntityId();
             result = messageEntityId;
 
-            new DispatchMessageCreator(messageId, messageEntityId);
+            userMessageDefaultService.getDispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();
@@ -365,7 +360,8 @@ public class UserMessageDefaultServiceTest {
 
         userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
 
     }
 
@@ -383,23 +379,26 @@ public class UserMessageDefaultServiceTest {
 
     }
 
-    @Test(expected = UserMessageException.class)
-    public void testFailedMessageWhenNoMessageIsFound(@Injectable final UserMessageLog userMessageLog) {
+    public void testFailedMessageWhenNoMessageIsFound() {
         final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             userMessageLogDao.findByMessageId(messageId);
             result = null;
         }};
 
-        userMessageDefaultService.getFailedMessage(messageId);
+        try {
+            userMessageDefaultService.getFailedMessage(messageId);
+        } catch (MessageNotFoundException e) {
+            //OK
+        }
     }
 
     @Test(expected = UserMessageException.class)
     public void testFailedMessageWhenStatusIsNotFailed(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             userMessageLogDao.findByMessageId(messageId);
             result = userMessageLog;
 
@@ -414,7 +413,7 @@ public class UserMessageDefaultServiceTest {
     public void testGetFailedMessage(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             userMessageLogDao.findByMessageId(messageId);
             result = userMessageLog;
 
@@ -431,7 +430,7 @@ public class UserMessageDefaultServiceTest {
                                    @Injectable UserMessage userMessage) {
         final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
         }};
 
@@ -510,7 +509,7 @@ public class UserMessageDefaultServiceTest {
                                              @Injectable MessageInfo messageInfo) {
         final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
@@ -542,7 +541,7 @@ public class UserMessageDefaultServiceTest {
                                                          @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
@@ -579,7 +578,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) throws Exception {
+    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Injectable UserMessageLog userMessageLog)  {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -610,7 +609,7 @@ public class UserMessageDefaultServiceTest {
     public void test_ResendFailedOrSendEnqueuedMessage_MessageNotFound() {
         final String messageId = UUID.randomUUID().toString();
 
-        new Expectations(userMessageDefaultService) {{
+        new Expectations() {{
             userMessageLogDao.findByMessageId(messageId);
             result = null;
         }};
@@ -620,15 +619,16 @@ public class UserMessageDefaultServiceTest {
             userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
             Assert.fail("Exception expected");
         } catch (Exception e) {
-            Assert.assertEquals(UserMessageException.class, e.getClass());
+            Assert.assertEquals(MessageNotFoundException.class, e.getClass());
         }
 
-        new FullVerifications(userMessageDefaultService) {
+        new FullVerifications() {
         };
     }
 
     @Test
-    public void test_sendEnqueued(final @Mocked UserMessageLog userMessageLog, final @Mocked UserMessage userMessage) {
+    public void test_sendEnqueued(final @Injectable UserMessageLog userMessageLog,
+                                  final @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -647,15 +647,20 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getNextAttempt();
             result = null;
 
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
+
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+            times = 1;
+
         }};
 
         //tested method
         userMessageDefaultService.sendEnqueuedMessage(messageId);
 
-        new FullVerifications(userMessageDefaultService) {{
+        new FullVerifications() {{
             reprogrammableService.setRescheduleInfo(userMessageLog, withAny(new Date()));
             userMessageLogDao.update(userMessageLog);
-            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
         }};
     }
 
@@ -679,12 +684,6 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    private static class CurrentTimeMillisMock extends MockUp<System> {
-        @Mock
-        public static long currentTimeMillis() {
-            return SYSTEM_DATE;
-        }
-    }
 
     @Test
     public void deleteFailedMessageTest() {
@@ -709,7 +708,7 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void scheduleSendingWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
                                                   @Injectable UserMessageLog userMessageLog,
-                                                  @Mocked DispatchMessageCreator dispatchMessageCreator,
+                                                  @Injectable DispatchMessageCreator dispatchMessageCreator,
                                                   @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();
         Long messageEntityId = 1L;
@@ -729,19 +728,20 @@ public class UserMessageDefaultServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            new DispatchMessageCreator(messageId, messageEntityId);
+            userMessageDefaultService.getDispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage(retryCount);
             result = jmsMessage;
 
-            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId, messageEntityId).createMessage(retryCount));
+            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, jmsMessage);
             times = 1;
         }};
 
         userMessageDefaultService.scheduleSending(userMessageLog, retryCount);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -856,12 +856,12 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void scheduleSourceMessageSendingTest(@Injectable final JmsMessage jmsMessage,
-                                                 @Mocked DispatchMessageCreator dispatchMessageCreator) {
+                                                 @Injectable DispatchMessageCreator dispatchMessageCreator) {
         final String messageId = UUID.randomUUID().toString();
         Long messageEntityId = 1L;
 
-        new Expectations() {{
-            new DispatchMessageCreator(messageId, messageEntityId);
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getDispatchMessageCreator(messageId, messageEntityId);
             result = dispatchMessageCreator;
 
             dispatchMessageCreator.createMessage();
@@ -932,17 +932,17 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void getMessageInFinalStatus(@Injectable final UserMessageLog userMessageLog) {
+    public void getMessageInFinalStatus() {
         final String messageId = "1";
 
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+        new Expectations() {{
+            userMessageLogDao.findByMessageId(messageId);
             result = null;
         }};
         try {
             userMessageDefaultService.getMessageNotInFinalStatus(messageId);
             Assert.fail();
-        } catch (UserMessageException ex) {
+        } catch (MessageNotFoundException ex) {
             Assert.assertTrue(ex.getMessage().contains("Message [1] does not exist"));
         }
 
@@ -953,12 +953,64 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
+            userMessageLogDao.findByMessageId(messageId);
             result = userMessageLog;
+
+            userMessageLog.getDeleted();
+            result = null;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
         }};
 
         final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId);
         Assert.assertNotNull(message);
+    }
+
+    @Test
+    public void getMessageNotInFinalStatus_deleted(@Injectable final UserMessageLog userMessageLog) {
+        final String messageId = "1";
+        Date deleted = new Date();
+        new Expectations() {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getDeleted();
+            result = deleted;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.ACKNOWLEDGED;
+        }};
+
+        try {
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            fail();
+        } catch (MessagingException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Message [1] in state [" + MessageStatus.ACKNOWLEDGED.name() + "] is already deleted. Delete time: [" + deleted + "]"));
+        }
+    }
+
+    @Test
+    public void getMessageNotInFinalStatus_FinalState(@Injectable final UserMessageLog userMessageLog) {
+        final String messageId = "1";
+
+        new Expectations() {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getDeleted();
+            result = null;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.ACKNOWLEDGED;
+        }};
+
+        try {
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            fail();
+        } catch (MessagingException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Message [1] is in final state [" + MessageStatus.ACKNOWLEDGED.name() + "]"));
+        }
     }
 
     @Test
@@ -982,8 +1034,6 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void deleteMessagesDuringPeriod() {
-        final Date startDate = new Date();
-        final Date endDate = new Date();
         final String messageId = "1";
         final List<String> messagesToDelete = new ArrayList<>();
         messagesToDelete.add(messageId);
@@ -991,19 +1041,16 @@ public class UserMessageDefaultServiceTest {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
+            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
             userMessageDefaultService.deleteMessage(messageId);
             times = 1;
         }};
 
-        userMessageDefaultService.deleteMessagesDuringPeriod(startDate, endDate, originalUserFromSecurityContext);
+        userMessageDefaultService.deleteMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
 
-        new FullVerificationsInOrder(userMessageDefaultService) {{
-            userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, startDate, endDate);
-            userMessageDefaultService.deleteMessage(messageId);
-            times = 1;
-        }};
+        new FullVerifications() {
+        };
     }
 
 

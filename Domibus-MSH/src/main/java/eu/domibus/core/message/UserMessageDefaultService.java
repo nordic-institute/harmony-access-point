@@ -11,12 +11,14 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -76,11 +78,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
     static final String MESSAGE = "Message [";
-    static final String DOES_NOT_EXIST = "] does not exist";
-
-    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
-    private static final String MESSAGE_WITH_ENTITY_ID_STR = "Message with entity id [";
-    private static final String WAS_NOT_FOUND_STR = "] was not found";
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
 
@@ -263,7 +260,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+            throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
@@ -291,7 +288,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+            throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
             sendEnqueuedMessage(messageId);
@@ -313,18 +310,21 @@ public class UserMessageDefaultService implements UserMessageService {
 
 
     public void scheduleSending(UserMessage userMessage, UserMessageLog userMessageLog) {
-        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage());
+        scheduleSending(userMessage, userMessageLog, getDispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage());
+    }
+
+    protected DispatchMessageCreator getDispatchMessageCreator(String userMessageId, long userMessageEntityId) {
+        return new DispatchMessageCreator(userMessageId, userMessageEntityId);
     }
 
     @Transactional
     public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
         UserMessage userMessage = userMessageDao.read(userMessageLog.getEntityId());
-        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, new DispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage(retryCount));
+        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, getDispatchMessageCreator(userMessage.getMessageId(), userMessage.getEntityId()).createMessage(retryCount));
     }
 
     /**
      * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
-     *
      */
     protected void scheduleSending(final UserMessage userMessage, final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, jmsMessage);
@@ -351,7 +351,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public void scheduleSourceMessageSending(String messageId, Long messageEntityId) {
         LOG.debug("Sending message to sendLargeMessageQueue");
-        final JmsMessage jmsMessage = new DispatchMessageCreator(messageId, messageEntityId).createMessage();
+        final JmsMessage jmsMessage = getDispatchMessageCreator(messageId, messageEntityId).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
     }
 
@@ -475,18 +475,28 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
-        final UserMessage userMessageByMessageId = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessageByMessageId = getMessageEntity(messageId);
         return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
+    }
+
+    @Override
+    public UserMessage getMessageEntity(String messageId) {
+        return userMessageDao.findByMessageId(messageId);
+    }
+
+    @Override
+    public UserMessage getMessageEntity(Long messageEntityId) {
+        return userMessageDao.findByEntityId(messageEntityId);
     }
 
     @Transactional
     @Override
-    public List<String> restoreFailedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
+    public List<String> restoreFailedMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
         if (failedMessages == null) {
             return null;
         }
-        LOG.debug("Found failed messages [{}] using start date [{}], end date [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
+        LOG.debug("Found failed messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
 
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
@@ -498,7 +508,7 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
+        LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
 
         return restoredMessages;
     }
@@ -520,7 +530,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+            throw new MessageNotFoundException(messageId);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
@@ -529,23 +539,32 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
-        final UserMessageLog messageToDelete = userMessageLogDao.findMessageToDeleteNotInFinalStatus(messageId);
-        if (messageToDelete == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + DOES_NOT_EXIST);
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
         }
-        return messageToDelete;
+
+        if (userMessageLog.getDeleted() != null) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
+        }
+
+        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
+            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
+        }
+
+        return userMessageLog;
     }
 
 
     @Transactional
     @Override
-    public List<String> deleteMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
+    public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
         final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
-            LOG.debug("Cannot find messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            LOG.debug("Cannot find messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
             return Collections.emptyList();
         }
-        LOG.debug("Found messages to delete [{}] using start date [{}], end date [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+        LOG.debug("Found messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
 
         final List<String> deletedMessages = new ArrayList<>();
         for (String messageId : messagesToDelete) {
@@ -557,7 +576,7 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Deleted messages [{}] using start date [{}], end date [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+        LOG.debug("Deleted messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
 
         return deletedMessages;
     }
@@ -685,7 +704,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public UserMessage getByMessageId(String messageId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
+            throw new MessageNotFoundException(messageId);
         }
         return userMessage;
     }
@@ -694,7 +713,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {
-            throw new MessageNotFoundException(MESSAGE_WITH_ENTITY_ID_STR + messageEntityId + WAS_NOT_FOUND_STR);
+            throw new MessageNotFoundException(messageEntityId);
         }
         return userMessage;
     }
@@ -730,10 +749,10 @@ public class UserMessageDefaultService implements UserMessageService {
                 } catch (IOException e) {
                     LOG.debug("Error encountered while trying to close the message input stream.", e);
                 }
-                throw new MessageNotFoundException("Could not find attachment for [" + pInfo.getHref() + "]");
+                throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
+                result.put(DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
@@ -747,7 +766,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
-            throw new MessageNotFoundException("Could not find message metadata for id " + messageId);
+            throw new MessageNotFoundException(messageId);
         }
 
         return userMessage;
@@ -799,7 +818,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public Map<String,String> getProperties(Long messageEntityId) {
+    public Map<String, String> getProperties(Long messageEntityId) {
         HashMap<String, String> properties = new HashMap<>();
         final UserMessage userMessage = userMessageDao.read(messageEntityId);
         final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();

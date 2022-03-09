@@ -51,6 +51,8 @@ public class AuditFilterRequestRO {
      */
     private int max;
 
+    private boolean domain = true;
+
     public Set<String> getAuditTargetName() {
         return auditTargetName;
     }
@@ -107,6 +109,14 @@ public class AuditFilterRequestRO {
         this.max = max;
     }
 
+    public boolean isDomain() {
+        return domain;
+    }
+
+    public void setDomain(boolean domain) {
+        this.domain = domain;
+    }
+
     @Override
     public String toString() {
         return "AuditFilterRequestRO{" +
@@ -117,6 +127,7 @@ public class AuditFilterRequestRO {
                 ", to=" + to +
                 ", start=" + start +
                 ", max=" + max +
+                ", domain=" + domain +
                 '}';
     }
 }

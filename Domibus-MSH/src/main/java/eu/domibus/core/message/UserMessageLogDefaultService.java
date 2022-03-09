@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.api.usermessage.UserMessageLogService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -25,7 +26,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * @since 3.3
  */
 @Service
-public class UserMessageLogDefaultService {
+public class UserMessageLogDefaultService implements UserMessageLogService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDefaultService.class);
 
@@ -158,14 +159,13 @@ public class UserMessageLogDefaultService {
         return userMessageLogDao.findByMessageId(messageId);
     }
 
-    public eu.domibus.common.MessageStatus getMessageStatus(String messageId) {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    public MessageStatus getMessageStatus(String messageId) {
+        return userMessageLogDao.getMessageStatus(messageId);
     }
 
-    public eu.domibus.common.MessageStatus getMessageStatus(final Long messageEntityId) {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageEntityId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+    @Override
+    public MessageStatus getMessageStatus(final Long messageEntityId) {
+        return userMessageLogDao.getMessageStatus(messageEntityId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

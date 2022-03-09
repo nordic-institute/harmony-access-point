@@ -1,7 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
@@ -11,14 +11,10 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.xml.soap.SOAPMessage;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -58,22 +54,16 @@ public class NonRepudiationDefaultServiceTest {
     private UserMessageDao userMessageDao;
 
 
-    @Test
+    @Test(expected = MessageNotFoundException.class)
     public void getUserMessageEnvelope_noMessage() {
         String messageId = "msgid";
         new Expectations(nonRepudiationService) {{
             nonRepudiationService.getUserMessageById(messageId);
-            result = null;
+            result = new MessageNotFoundException(messageId);
         }};
 
-        String result = nonRepudiationService.getUserMessageEnvelope(messageId);
+        nonRepudiationService.getUserMessageEnvelope(messageId);
 
-        assertNull(result);
-
-        new Verifications() {{
-            rawEnvelopeLogDao.findUserMessageEnvelopeById(anyLong);
-            times = 0;
-        }};
     }
 
     @Test

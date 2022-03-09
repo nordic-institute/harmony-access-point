@@ -48,7 +48,6 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
         entity.setStartDate(new Timestamp(System.currentTimeMillis()));
         entity.setEndDate(new Timestamp(System.currentTimeMillis()));
         entity.setStatus(MessageAttemptStatus.SUCCESS);
-//        entity.setMessageId("123");
 
         messageAttemptDao.create(entity);
         assertTrue(entity.getEntityId() > 0);
@@ -64,6 +63,13 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
 
         assertEquals(next.getCreationTime(), next.getModificationTime());
 
+    }
+
+    @Test
+    @Transactional
+    public void testSaveMessageAcknowledge_notFound() {
+        final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId("not_found");
+        assertEquals(0, entities.size());
     }
 }
 

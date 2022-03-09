@@ -59,21 +59,24 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     }
 
     @Override
-    public void clearAllCaches() throws DomibusCoreException {
+    public void clearAllCaches(boolean notification) throws DomibusCoreException {
         LOG.debug("Clearing all caches from the cacheManager");
         Collection<String> cacheNames = cacheManager.getCacheNames();
         for (String cacheName : cacheNames) {
             cacheManager.getCache(cacheName).clear();
         }
-
-        notifyClearAllCaches();
+        if (notification) {
+            notifyClearAllCaches();
+        }
     }
 
     @Override
-    public void clear2LCCaches() throws DomibusCoreException {
+    public void clear2LCCaches(boolean notification) throws DomibusCoreException {
         SessionFactory sessionFactory = localContainerEntityManagerFactoryBean.getNativeEntityManagerFactory().unwrap(SessionFactory.class);
         sessionFactory.getCache().evictAll();
-        notifyClear2LCaches();
+        if (notification) {
+            notifyClear2LCaches();
+        }
     }
 
     private Cache getCacheByName(String name) {
