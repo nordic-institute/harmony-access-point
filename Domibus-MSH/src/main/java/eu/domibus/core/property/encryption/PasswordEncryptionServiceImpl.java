@@ -4,7 +4,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
@@ -61,7 +60,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusRawPropertyProvider domibusRawPropertyProvider1;
 
     @Autowired
     protected PasswordEncryptionDao passwordEncryptionDao;
@@ -102,7 +101,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         //operate on global context, without a current domain
         domainContextProvider.clearCurrentDomain();
         final PasswordEncryptionContextDefault passwordEncryptionContext =
-                new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService, domibusRawPropertyProvider);
+                new PasswordEncryptionContextDefault(this, domibusRawPropertyProvider, domibusConfigurationService);
         encryptPasswords(passwordEncryptionContext);
 
         if (domibusConfigurationService.isMultiTenantAware()) {
@@ -132,7 +131,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     private void encryptPasswords(Domain domain) {
         domainContextProvider.setCurrentDomain(domain);
-        final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+        final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusRawPropertyProvider1, domibusConfigurationService, domain);
         encryptPasswords(passwordEncryptionContextDomain);
         domainContextProvider.clearCurrentDomain();
     }
@@ -193,7 +192,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue) {
         LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domain);
 
-        final PasswordEncryptionContextDomain passwordEncryptionContext = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
+        final PasswordEncryptionContextDomain passwordEncryptionContext = new PasswordEncryptionContextDomain(this, domibusRawPropertyProvider1, domibusConfigurationService, domain);
 
         final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
         if (isNotTrue(encryptionActive)) {

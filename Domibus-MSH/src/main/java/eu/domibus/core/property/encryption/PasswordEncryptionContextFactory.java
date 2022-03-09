@@ -24,9 +24,6 @@ public class PasswordEncryptionContextFactory {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
 
     @Autowired
@@ -35,10 +32,10 @@ public class PasswordEncryptionContextFactory {
     public PasswordEncryptionContext getPasswordEncryptionContext(Domain domain) {
         PasswordEncryptionContext result = null;
         if (domain != null) {
-            result = new PasswordEncryptionContextDomain(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService, domain);
+            result = new PasswordEncryptionContextDomain(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, domain);
             LOG.trace("Using PasswordEncryptionContextDomain with domain [{}]", domain);
         } else {
-            result = new PasswordEncryptionContextDefault(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService, domibusRawPropertyProvider);
+            result = new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService);
             LOG.trace("Using PasswordEncryptionContextDefault");
         }
         return result;

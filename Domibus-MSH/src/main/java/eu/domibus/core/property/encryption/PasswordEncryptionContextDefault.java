@@ -15,10 +15,9 @@ public class PasswordEncryptionContextDefault extends PasswordEncryptionContextA
     private final DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     public PasswordEncryptionContextDefault(PasswordEncryptionService passwordEncryptionService,
-                                            DomibusPropertyProvider domibusPropertyProvider,
-                                            DomibusConfigurationService domibusConfigurationService,
-                                            DomibusRawPropertyProvider domibusRawPropertyProvider) {
-        super(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService);
+                                            DomibusRawPropertyProvider domibusRawPropertyProvider,
+                                            DomibusConfigurationService domibusConfigurationService) {
+        super(passwordEncryptionService, domibusConfigurationService);
         this.domibusRawPropertyProvider = domibusRawPropertyProvider;
     }
 
