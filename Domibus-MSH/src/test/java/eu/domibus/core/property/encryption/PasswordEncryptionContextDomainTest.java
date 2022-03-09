@@ -8,13 +8,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
+@RunWith(JMockit.class)
 public class PasswordEncryptionContextDomainTest {
 
     @Injectable
