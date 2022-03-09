@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -27,7 +28,7 @@ public class PasswordEncryptionContextDomainTest {
     protected PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusRawPropertyProvider domibusPropertyProvider;
 
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
@@ -51,7 +52,7 @@ public class PasswordEncryptionContextDomainTest {
         passwordEncryptionContextDomain.getProperty(myProperty);
 
         new Verifications() {{
-            domibusPropertyProvider.getProperty(domain, myProperty);
+            domibusPropertyProvider.getRawPropertyValue(domain, myProperty);
         }};
     }
 

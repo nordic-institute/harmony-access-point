@@ -26,9 +26,6 @@ public class PasswordEncryptionContextFactoryTest {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
     protected PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
@@ -43,7 +40,7 @@ public class PasswordEncryptionContextFactoryTest {
         Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDefault);
 
         new Verifications() {{
-            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService, domibusRawPropertyProvider);
+            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService);
         }};
     }
 
@@ -53,7 +50,7 @@ public class PasswordEncryptionContextFactoryTest {
         Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDomain);
 
         new Verifications() {{
-            new PasswordEncryptionContextDomain(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService, domain);
+            new PasswordEncryptionContextDomain(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, domain);
         }};
     }
 }
