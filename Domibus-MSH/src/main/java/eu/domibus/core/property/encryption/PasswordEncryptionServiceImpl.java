@@ -11,7 +11,6 @@ import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.core.util.DomibusEncryptionException;
-import eu.domibus.core.util.WarningUtil;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -60,7 +59,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected DomibusRawPropertyProvider domibusRawPropertyProvider1;
+    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     @Autowired
     protected PasswordEncryptionDao passwordEncryptionDao;
@@ -85,9 +84,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     @Autowired
     protected PasswordDecryptionHelper passwordDecryptionHelper;
-
-    @Autowired
-    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     @Override
     public boolean isValueEncrypted(String propertyValue) {
@@ -131,7 +127,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     private void encryptPasswords(Domain domain) {
         domainContextProvider.setCurrentDomain(domain);
-        final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusRawPropertyProvider1, domibusConfigurationService, domain);
+        final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusRawPropertyProvider, domibusConfigurationService, domain);
         encryptPasswords(passwordEncryptionContextDomain);
         domainContextProvider.clearCurrentDomain();
     }
@@ -148,7 +144,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         final List<String> propertiesToEncrypt = passwordEncryptionContext.getPropertiesToEncrypt();
         if (CollectionUtils.isEmpty(propertiesToEncrypt)) {
-            LOG.info(WarningUtil.warnOutput("No properties are needed to be encrypted"));
+            LOG.info("No properties are needed to be encrypted");
             return;
         }
 
@@ -192,7 +188,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue) {
         LOG.debug("Encrypting property [{}] for domain [{}]", propertyName, domain);
 
-        final PasswordEncryptionContextDomain passwordEncryptionContext = new PasswordEncryptionContextDomain(this, domibusRawPropertyProvider1, domibusConfigurationService, domain);
+        final PasswordEncryptionContextDomain passwordEncryptionContext = new PasswordEncryptionContextDomain(this, domibusRawPropertyProvider, domibusConfigurationService, domain);
 
         final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
         if (isNotTrue(encryptionActive)) {

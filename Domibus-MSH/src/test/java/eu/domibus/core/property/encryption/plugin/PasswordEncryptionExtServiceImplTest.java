@@ -10,14 +10,17 @@ import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.2
  */
 @Ignore("EDELIVERY-8892")
+@RunWith(JMockit.class)
 @SuppressWarnings("TestMethodWithIncorrectSignature")
 public class PasswordEncryptionExtServiceImplTest {
 
