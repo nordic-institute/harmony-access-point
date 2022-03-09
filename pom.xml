@@ -1647,6 +1647,8 @@
                                 Bouncy Castle Licence|
                                 Mozilla Public License Version 2.0|
                                 No Copyright|
+                                EPL 1.0|
+                                MPL 2.0|
                             </includedLicenses>
                             <!-- license validation scope  -->
                             <excludedGroups>^eu.domibus.*</excludedGroups>
