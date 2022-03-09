@@ -74,6 +74,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
         domainTaskExecutor.submit(() -> {
             userDomainDao.setPreferredDomainByUser(user, domainCode);
             domibusCacheService.clearCache(DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE);
+            return null;
         });
     }
 
