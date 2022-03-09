@@ -1,10 +1,11 @@
 package eu.domibus.core.property.encryption;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
@@ -30,6 +31,9 @@ public class PasswordEncryptionContextFactoryTest {
     @Injectable
     protected PasswordEncryptionService passwordEncryptionService;
 
+    @Injectable
+    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
+
     @Tested
     PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
@@ -39,7 +43,7 @@ public class PasswordEncryptionContextFactoryTest {
         Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDefault);
 
         new Verifications() {{
-            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService);
+            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService, domibusRawPropertyProvider);
         }};
     }
 

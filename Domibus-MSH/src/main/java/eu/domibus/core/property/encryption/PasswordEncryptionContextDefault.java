@@ -4,6 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 
 /**
  * @author Cosmin Baciu
@@ -11,10 +12,14 @@ import eu.domibus.api.property.encryption.PasswordEncryptionService;
  */
 public class PasswordEncryptionContextDefault extends PasswordEncryptionContextAbstract {
 
+    private final DomibusRawPropertyProvider domibusRawPropertyProvider;
+
     public PasswordEncryptionContextDefault(PasswordEncryptionService passwordEncryptionService,
                                             DomibusPropertyProvider domibusPropertyProvider,
-                                            DomibusConfigurationService domibusConfigurationService) {
+                                            DomibusConfigurationService domibusConfigurationService,
+                                            DomibusRawPropertyProvider domibusRawPropertyProvider) {
         super(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService);
+        this.domibusRawPropertyProvider = domibusRawPropertyProvider;
     }
 
     @Override
@@ -24,7 +29,7 @@ public class PasswordEncryptionContextDefault extends PasswordEncryptionContextA
 
     @Override
     public String getProperty(String propertyName) {
-        return domibusPropertyProvider.getProperty(propertyName);
+        return domibusRawPropertyProvider.getRawPropertyValue(propertyName);
     }
 
     @Override
