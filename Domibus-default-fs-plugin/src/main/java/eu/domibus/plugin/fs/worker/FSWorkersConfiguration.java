@@ -9,6 +9,7 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
@@ -28,7 +29,8 @@ public class FSWorkersConfiguration {
     protected final DomibusSchedulerExtService domibusSchedulerExtService;
 
     public FSWorkersConfiguration(DomainContextExtService domainContextExtService,
-                                  DomibusSchedulerExtService domibusSchedulerExtService) {
+                                  //Lazy loading of DomibusSchedulerExtService to avoid the circular dependency and the jobs are not created in the database
+                                  @Lazy DomibusSchedulerExtService domibusSchedulerExtService) {
         this.domainContextExtService = domainContextExtService;
         this.domibusSchedulerExtService = domibusSchedulerExtService;
     }
