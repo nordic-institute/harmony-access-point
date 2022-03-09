@@ -10,6 +10,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.EncryptionUtil;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.core.util.backup.BackupService;
@@ -35,7 +36,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -87,6 +87,9 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected PasswordDecryptionHelper passwordDecryptionHelper;
 
+    @Autowired
+    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
+
     @Override
     public boolean isValueEncrypted(String propertyValue) {
         return passwordDecryptionHelper.isValueEncrypted(propertyValue);
@@ -98,7 +101,8 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         //operate on global context, without a current domain
         domainContextProvider.clearCurrentDomain();
-        final PasswordEncryptionContextDefault passwordEncryptionContext = new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService);
+        final PasswordEncryptionContextDefault passwordEncryptionContext =
+                new PasswordEncryptionContextDefault(this, domibusPropertyProvider, domibusConfigurationService, domibusRawPropertyProvider);
         encryptPasswords(passwordEncryptionContext);
 
         if (domibusConfigurationService.isMultiTenantAware()) {
@@ -145,7 +149,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
         final List<String> propertiesToEncrypt = passwordEncryptionContext.getPropertiesToEncrypt();
         if (CollectionUtils.isEmpty(propertiesToEncrypt)) {
-            LOG.warn(WarningUtil.warnOutput("No properties are needed to be encrypted"));
+            LOG.info(WarningUtil.warnOutput("No properties are needed to be encrypted"));
             return;
         }
 
@@ -334,21 +338,19 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final String[] propertiesToEncrypt = StringUtils.split(propertiesToEncryptString, ",");
         LOG.debug("The following properties are configured for encryption [{}]", Arrays.asList(propertiesToEncrypt));
 
-        List<String> result = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
+        List<String> properties = Arrays.stream(propertiesToEncrypt).filter(propertyName -> {
             propertyName = StringUtils.trim(propertyName);
             final String propertyValue = getPropertyFn.apply(propertyName);
             if (StringUtils.isBlank(propertyValue)) {
                 return false;
             }
-
-            if (!isValueEncrypted(propertyValue)) {
-                return true;
-            }
-            return false;
+            return !isValueEncrypted(propertyValue);
         }).collect(Collectors.toList());
 
-        LOG.debug("The following properties are not encrypted [{}]", result);
+        if (!CollectionUtils.isEmpty(properties)) {
+            LOG.debug("The following properties are not encrypted [{}]", properties);
+        }
 
-        return result;
+        return properties;
     }
 }
