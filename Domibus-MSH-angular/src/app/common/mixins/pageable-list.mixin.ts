@@ -1,7 +1,7 @@
 import {Constructable} from './base-list.component';
 import {RowLimiterBase} from '../row-limiter/row-limiter-base';
 import {IPageableList, PaginationType} from './ipageable-list';
-import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
+import {instanceOfFilterableList} from './type.utils';
 import {OnInit} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import {SecurityService} from '../../security/security.service';
@@ -101,6 +101,11 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   }
 
   public async onPage(event) {
+    if (this.isLoading) {
+      console.log('exiting onPage due to isLoading')
+      return;
+    }
+
     this.alertService.clearAlert();
 
     await this.loadPage(event.offset);

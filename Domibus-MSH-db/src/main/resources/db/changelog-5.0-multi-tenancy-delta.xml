@@ -63,6 +63,24 @@
         </insert>
     </changeSet>
 
+    <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
+        <createTable tableName="TB_USER_DOMAIN_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="DOMAIN" type="VARCHAR(255)"/>
+            <column name="DOMAIN_MOD" type="BOOLEAN"/>
+            <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
+            <column name="PREFERREDDOMAIN_MOD" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    
     <!--views-->
     <changeSet author="Ion Perpegel" id="EDELIVERY-8688-General Schema Audit">
         <createView

@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 
 /**
  * @author Cosmin Baciu
@@ -14,12 +15,15 @@ public class PasswordEncryptionContextDomain extends PasswordEncryptionContextAb
 
     protected Domain domain;
 
+    private final DomibusRawPropertyProvider domibusRawPropertyProvider;
+
     public PasswordEncryptionContextDomain(PasswordEncryptionService passwordEncryptionService,
-                                           DomibusPropertyProvider domibusPropertyProvider,
+                                           DomibusRawPropertyProvider domibusRawPropertyProvider,
                                            DomibusConfigurationService domibusConfigurationService,
                                            Domain domain) {
-        super(passwordEncryptionService, domibusPropertyProvider, domibusConfigurationService);
+        super(passwordEncryptionService, domibusConfigurationService);
         this.domain = domain;
+        this.domibusRawPropertyProvider = domibusRawPropertyProvider;
     }
 
     @Override
@@ -29,7 +33,7 @@ public class PasswordEncryptionContextDomain extends PasswordEncryptionContextAb
 
     @Override
     public String getProperty(String propertyName) {
-        return domibusPropertyProvider.getProperty(domain, propertyName);
+        return domibusRawPropertyProvider.getRawPropertyValue(domain, propertyName);
     }
 
     @Override
