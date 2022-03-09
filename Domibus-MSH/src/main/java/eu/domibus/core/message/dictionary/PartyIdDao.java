@@ -41,7 +41,7 @@ public class PartyIdDao extends BasicDao<PartyId> {
         return findByValue(value);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PartyId findOrCreateParty(String value, String type) {
         PartyId party = findExistingPartyId(value, type);
         if (party != null) {

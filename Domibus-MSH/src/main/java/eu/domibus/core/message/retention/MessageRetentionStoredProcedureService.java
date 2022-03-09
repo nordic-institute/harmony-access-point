@@ -57,6 +57,11 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
     }
 
     @Override
+    public void deleteAllMessages() {
+        throw new DomibusCoreException("Deleting all messages not supported");
+    }
+
+    @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
         return DeletionStrategy.STORED_PROCEDURE == DeletionStrategy.valueOf(retentionStrategy);
     }

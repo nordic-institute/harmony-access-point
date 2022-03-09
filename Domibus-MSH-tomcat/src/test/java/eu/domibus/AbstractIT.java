@@ -200,6 +200,7 @@ public abstract class AbstractIT {
             try {
                 return userRoleDao.listRoles().size() > 0;
             } catch (Exception e) {
+                LOG.error("Could not get the roles list", e);
             }
             return false;
         };

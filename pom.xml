@@ -71,7 +71,7 @@
         <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.1.210</h2.version>
         <liquibase.version>4.5.0</liquibase.version>
         <mysql.connector.java.version>8.0.27</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
@@ -1269,7 +1269,7 @@
                         <execution>
                             <id>default-test</id>
                             <configuration>
-                                <argLine>-server -ea -Duser.language=en -Xms512m -Xmx1024m ${surefire.argLine}
+                                <argLine>-server -ea -Duser.language=en -Xms512m -Xmx3024m ${surefire.argLine}
                                 </argLine>
                                 <excludes>
                                     <exclude>**/IT*.java</exclude>
@@ -1292,7 +1292,7 @@
                             </goals>
                             <configuration>
                                 <!-- Sets the VM argument line used when integration tests are run. -->
-                                <argLine>-server -ea -Xms512m -Xmx2048m -Duser.language=en ${failsafeArgLine}
+                                <argLine>-server -ea -Xms512m -Xmx3048m -Duser.language=en ${failsafeArgLine}
                                 </argLine>
                                 <!-- Skips integration tests if the value of skipITs property is true-->
                                 <skipTests>${skipITs}</skipTests>
@@ -1310,7 +1310,7 @@
                             </goals>
                             <configuration>
                                 <!-- Sets the VM argument line used when integration tests are run. -->
-                                <argLine>-server -ea -Xms512m -Xmx2048m -Duser.language=en ${failsafeArgLine}
+                                <argLine>-server -ea -Xms512m -Xmx3048m -Duser.language=en ${failsafeArgLine}
                                 </argLine>
                                 <!-- Skips integration tests if the value of skipITs property is true-->
                                 <skipTests>${skipITs}</skipTests>

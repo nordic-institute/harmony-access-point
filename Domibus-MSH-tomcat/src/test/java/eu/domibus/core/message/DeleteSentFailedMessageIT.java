@@ -25,7 +25,6 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-//@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
 @Transactional
 public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentFailedMessageIT.class);
@@ -48,6 +47,8 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
 
     @Test
     public void testDeleteFailedMessage() throws MessagingProcessingException {
+        deleteAllMessages();
+
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
@@ -60,7 +61,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
         Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
         Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
 
-        deleteMessages();
+        deleteAllMessages();
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
         try {

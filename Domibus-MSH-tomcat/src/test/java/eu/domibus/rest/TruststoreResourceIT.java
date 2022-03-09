@@ -6,12 +6,11 @@ import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.web.rest.TruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,9 +34,9 @@ public class TruststoreResourceIT extends AbstractIT {
         }
     }
 
+    @Ignore
     @Test
     public void testTruststoreEntries_ok() throws IOException {
-
         eu.domibus.core.crypto.TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
         domibusTruststoreEntity.setName(DOMIBUS_TRUSTSTORE_NAME);
         domibusTruststoreEntity.setType("JKS");
@@ -46,6 +45,10 @@ public class TruststoreResourceIT extends AbstractIT {
         domibusTruststoreEntity.setContent(trustStoreBytes);
 
         truststoreDao.create(domibusTruststoreEntity);
+
+        final String originalFilename = "truststore.jks";
+        MultipartFile tlsTruststore = new MockMultipartFile(originalFilename, originalFilename, "application/octet-stream", trustStoreBytes);
+        truststoreResource.uploadTruststoreFile(tlsTruststore, "test123");
 
         List<TrustStoreRO> trustStoreROS = truststoreResource.trustStoreEntries();
         for (TrustStoreRO trustStoreRO : trustStoreROS) {

@@ -10,6 +10,7 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -22,7 +23,6 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.h2.tools.Server;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -30,15 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.transaction.TestTransaction;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -54,6 +51,9 @@ public class MshWebServiceTestIT extends AbstractIT {
             return Mockito.mock(BackendConnectorProvider.class);
         }
     }
+
+    @Autowired
+    MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
     BackendConnectorProvider backendConnectorProvider;
@@ -137,6 +137,8 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String firstReceipt = firstSignalMessage.getReceipt().getAny().iterator().next();
         final String secondReceipt = secondSignalMessage.getReceipt().getAny().iterator().next();
         assertEquals(firstReceipt, secondReceipt);
+
+        messageRetentionService.deleteAllMessages();
     }
 
     @Transactional

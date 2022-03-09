@@ -13,7 +13,6 @@ import eu.domibus.core.crypto.*;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -32,16 +30,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  */
-@Ignore("EDELIVERY-8892")
 @Transactional
 public class MultiDomainCryptoServiceIT extends AbstractIT {
 

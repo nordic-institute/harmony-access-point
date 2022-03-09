@@ -9,26 +9,34 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
+import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.ebms3.sender.client.TLSReaderServiceImpl;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.web.rest.TLSTruststoreResource;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
+
+import static eu.domibus.core.crypto.TLSCertificateManagerImpl.TLS_TRUSTSTORE_NAME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Soumya
  * @since 5.0
  */
-@Ignore("EDELIVERY-8052 Failing tests must be ignored (FAILS ON BAMBOO) ")
+@Transactional
 public class TLSTruststoreResourceIT extends AbstractIT {
 
     @Autowired
@@ -61,7 +69,17 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
 
-    @Test(expected = DomibusCertificateException.class)
+    @Autowired
+    private TruststoreDao truststoreDao;
+
+    @Before
+    public void clean() {
+        final List<TruststoreEntity> all = truststoreDao.findAll();
+        truststoreDao.deleteAll(all);
+        em.flush();
+    }
+
+    @Test(expected = ConfigurationException.class)
     public void getEntries() {
         tlsTruststoreResource.getTLSTruststoreEntries();
     }
@@ -75,8 +93,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "");
             Assert.fail();
         } catch (RequestValidationException ex) {
-
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:Failed to upload the truststoreFile file since its password was empty.");
+            assertEquals(ex.getMessage(), "[DOM_001]:Failed to upload the truststoreFile file since its password was empty.");
         }
     }
 
@@ -89,11 +106,11 @@ public class TLSTruststoreResourceIT extends AbstractIT {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "test123");
             Assert.fail();
         } catch (ConfigurationException ex) {
-            Assert.assertEquals(ex.getMessage(), "Exception loading truststore.");
+            assertTrue(ex.getMessage().contains("Could not retrieve truststore"));
         }
     }
 
-    @Test(expected = DomibusCertificateException.class)
+    @Test(expected = ConfigurationException.class)
     public void downloadTrust() {
         tlsTruststoreResource.downloadTLSTrustStore();
     }
@@ -106,28 +123,36 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         tlsTruststoreResource.addTLSCertificate(truststoreFile, "tlscert");
     }
 
-    @Test(expected = DomibusCertificateException.class)
+    @Test(expected = ConfigurationException.class)
     public void removeTLSCertificate() {
         tlsTruststoreResource.removeTLSCertificate("tlscert");
     }
 
 
     @Test
-    public void getEntries_ok() {
-        TrustStoreRO trustStore1 = new TrustStoreRO();
-        trustStore1.setName("blue_gw");
-        TrustStoreRO trustStore2 = new TrustStoreRO();
-        trustStore2.setName("red_gw");
-        List<TrustStoreRO> entriesRO = new ArrayList<>();
-        entriesRO.add(trustStore1);
-        entriesRO.add(trustStore2);
-        //Overriding the config location in AbstractIT
-        System.setProperty("domibus.config.location", new File("src/test/resources").getAbsolutePath());
+    public void testUploadTLSTruststore() throws IOException {
+        uploadTLSTruststore();
+        final List<TrustStoreRO> entriesRO = tlsTruststoreResource.getTLSTruststoreEntries();
+        assertEquals(entriesRO.size(), 2);
+    }
 
-        entriesRO = tlsTruststoreResource.getTLSTruststoreEntries();
+    private void uploadTLSTruststore() throws IOException {
+        byte[] trustStoreBytes = IOUtils.toByteArray(this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore.jks"));
+        final String originalFilename = "tlstruststore.jks";
+        MultipartFile tlsTruststore = new MockMultipartFile(originalFilename, originalFilename, "application/octet-stream", trustStoreBytes);
 
-        Assert.assertEquals(entriesRO.size(), 2);
-        Assert.assertEquals(entriesRO.get(0).getName(), "blue_gw");
+        createTLSTruststore(trustStoreBytes);
+
+        tlsTruststoreResource.uploadTLSTruststoreFile(tlsTruststore, "test123");
+    }
+
+    private void createTLSTruststore(byte[] trustStoreBytes) {
+        TruststoreEntity domibusTruststoreEntity = new TruststoreEntity();
+        domibusTruststoreEntity.setName(TLS_TRUSTSTORE_NAME);
+        domibusTruststoreEntity.setType("JKS");
+        domibusTruststoreEntity.setPassword("test123");
+        domibusTruststoreEntity.setContent(trustStoreBytes);
+        truststoreDao.create(domibusTruststoreEntity);
     }
 
 }

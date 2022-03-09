@@ -107,7 +107,7 @@ public class UpdateRetryLoggingService {
      * @param userMessage        id of the message that needs to be retried
      * @param legConfiguration processing information for the message
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void updatePushedMessageRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration, final MessageAttempt messageAttempt) {
         updateRetryLogging(userMessage, legConfiguration, MessageStatus.WAITING_FOR_RETRY, messageAttempt);
     }

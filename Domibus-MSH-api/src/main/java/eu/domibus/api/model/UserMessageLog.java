@@ -139,6 +139,17 @@ import java.util.Date;
                         "and uml.modificationTime is not null                                                        " +
                         "and uml.modificationTime < :DATE                                                            " +
                         "and  ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)   "),
+        @NamedQuery(name = "UserMessageLog.findAllMessages",
+                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "             ,     " +
+                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "            ,     " +
+                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "          ,     " +
+                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "       ,     " +
+                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "            ,     " +
+                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
+                        "FROM UserMessageLog uml                                                                     " +
+                        "JOIN uml.userMessage um                                                                     " +
+                        "left join um.messageProperties p                                                            "
+                        ),
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.entityId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findMessagesForArchivingAsc",

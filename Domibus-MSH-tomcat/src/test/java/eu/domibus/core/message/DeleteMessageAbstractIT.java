@@ -60,8 +60,12 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
         mshWebserviceTest.invoke(soapMessage);
     }
 
-    protected void deleteMessages() {
+    protected void deleteExpiredMessages() {
         messageRetentionService.deleteExpiredMessages();
+    }
+
+    protected void deleteAllMessages() {
+        messageRetentionService.deleteAllMessages();
     }
 
 }

@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author François Gautier
  * @since 5.0
  */
-@Ignore("EDELIVERY-8892")
+@Ignore("EDELIVERY-8971")
 public class CacheExtResourceIT extends AbstractIT {
 
     @Rule

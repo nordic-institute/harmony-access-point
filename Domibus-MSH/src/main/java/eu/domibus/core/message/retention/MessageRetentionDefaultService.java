@@ -22,6 +22,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.util.ArrayList;
@@ -76,6 +77,13 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
         return DeletionStrategy.DEFAULT == DeletionStrategy.valueOf(retentionStrategy);
+    }
+
+    @Transactional
+    @Override
+    public void deleteAllMessages() {
+        final List<UserMessageLogDto> allMessages = userMessageLogDao.getAllMessages();
+        userMessageDefaultService.deleteMessages(allMessages);
     }
 
     /**

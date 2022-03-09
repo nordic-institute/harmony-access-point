@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -59,9 +58,6 @@ import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-//@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
-@DirtiesContext
-@Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Configuration
@@ -300,7 +296,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     public void testNotifyMessageDeleted() throws MessagingProcessingException {
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
 
-        deleteMessages();
+        deleteAllMessages();
 
         assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().size(), 1);
         assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().get(0).getMessageId(), messageId);
@@ -340,7 +336,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
 
-        deleteMessages();
+        deleteAllMessages();
     }
 
     @Test
@@ -376,7 +372,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
         assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
 
-        deleteMessages();
+        deleteAllMessages();
     }
 
 }

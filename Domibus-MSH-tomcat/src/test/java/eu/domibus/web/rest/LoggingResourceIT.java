@@ -8,13 +8,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
-import eu.domibus.core.security.AuthUtilsImpl;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
-import eu.domibus.web.rest.ro.LoggingLevelRO;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Mock;
-import mockit.MockUp;
 import org.apache.commons.lang3.BooleanUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -42,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author François Gautier
  * @since 4.2
  */
-@DirtiesContext
 public class LoggingResourceIT extends AbstractIT {
 
     @Autowired
@@ -53,6 +45,9 @@ public class LoggingResourceIT extends AbstractIT {
 
     @Autowired
     private LoggingResource loggingResource;
+
+    @Autowired
+    protected AuthUtils authUtils;
 
     private MockMvc mockMvc;
 
@@ -70,11 +65,6 @@ public class LoggingResourceIT extends AbstractIT {
             return Mockito.mock(LoggingService.class);
         }
 
-        @Primary
-        @Bean
-        public DomibusCoreMapper coreMapper() {
-            return Mockito.mock(DomibusCoreMapper.class);
-        }
     }
 
     @Before
@@ -85,42 +75,31 @@ public class LoggingResourceIT extends AbstractIT {
     @Test(expected = NestedServletException.class)
     @WithMockUser
     public void getLogLevel_accessDenied() throws Exception {
-
-        new Expectations() {{
-            new MockUp<AuthUtilsImpl>() {
-                @Mock
-                public boolean isAdminMultiAware() {
-                    return false;
-                }
-            };
-        }};
+        Mockito.when(authUtils.isAdminMultiAware()).thenReturn(false);
 
         // the order of the items are not checked
         mockMvc.perform(get("/rest/logging/loglevel"));
-
-        new FullVerifications() {
-        };
     }
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void getLogLevel_ok() throws Exception {
-        List<LoggingEntry> loggingEntryList = new ArrayList<>();
-        loggingEntryList.add(new LoggingEntry());
+       /* List<LoggingEntry> loggingEntryList = new ArrayList<>();
+        loggingEntryList.add(new LoggingEntry());*/
 
-        final List<LoggingLevelRO> loggingLevelROList = new ArrayList<>();
-        LoggingLevelRO loggingLevelRO1 = new LoggingLevelRO();
+        final List<LoggingEntry> loggingEntryList = new ArrayList<>();
+        LoggingEntry loggingLevelRO1 = new LoggingEntry();
         loggingLevelRO1.setLevel("INFO");
         loggingLevelRO1.setName("eu.domibus");
-        loggingLevelROList.add(loggingLevelRO1);
-        LoggingLevelRO loggingLevelRO2 = new LoggingLevelRO();
+        loggingEntryList.add(loggingLevelRO1);
+        LoggingEntry loggingLevelRO2 = new LoggingEntry();
         loggingLevelRO2.setLevel("DEBUG");
         loggingLevelRO2.setName("eu.domibus.common");
-        loggingLevelROList.add(loggingLevelRO2);
-        LoggingLevelRO loggingLevelRO3 = new LoggingLevelRO();
+        loggingEntryList.add(loggingLevelRO2);
+        LoggingEntry loggingLevelRO3 = new LoggingEntry();
         loggingLevelRO3.setLevel("TRACE");
         loggingLevelRO3.setName("eu.domibus.common.model");
-        loggingLevelROList.add(loggingLevelRO3);
+        loggingEntryList.add(loggingLevelRO3);
 
         LoggingFilterRequestRO loggingFilterRequestRO = new LoggingFilterRequestRO();
         loggingFilterRequestRO.setAsc(Boolean.TRUE);
@@ -130,22 +109,8 @@ public class LoggingResourceIT extends AbstractIT {
         loggingFilterRequestRO.setPage(0);
         loggingFilterRequestRO.setShowClasses(true);
 
-        new Expectations() {{
-            new MockUp<AuthUtilsImpl>() {
-                @Mock
-                public boolean isAdminMultiAware() {
-                    return true;
-                }
-            };
-
-            loggingService.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses());
-            result = loggingEntryList;
-            times = 1;
-
-            coreMapper.loggingEntryListToLoggingLevelROList(loggingEntryList);
-            result = loggingLevelROList;
-            times = 1;
-        }};
+        Mockito.when(authUtils.isAdminMultiAware()).thenReturn(true);
+        Mockito.when(loggingService.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses())).thenReturn(loggingEntryList);
 
         // the order of the items are not checked
         mockMvc.perform(get("/rest/logging/loglevel")
@@ -172,9 +137,6 @@ public class LoggingResourceIT extends AbstractIT {
                         "TRACE"
                 )))
         ;
-
-        new FullVerifications() {
-        };
     }
 
     public static byte[] convertObjectToJsonBytes(Object object)

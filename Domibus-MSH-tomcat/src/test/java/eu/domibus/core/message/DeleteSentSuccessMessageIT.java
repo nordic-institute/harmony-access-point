@@ -11,7 +11,6 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-//@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
 @Transactional
 public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
 
@@ -52,6 +50,8 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
      */
     @Test
     public void testDeleteSentMessage() throws MessagingProcessingException, IOException {
+        deleteAllMessages();
+
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
@@ -64,7 +64,7 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
         Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
         Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
 
-        deleteMessages();
+        deleteAllMessages();
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
         try {

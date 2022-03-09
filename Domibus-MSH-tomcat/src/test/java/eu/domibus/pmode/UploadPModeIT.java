@@ -45,7 +45,6 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ConstantConditions")
 @Transactional
-@Ignore("EDELIVERY-8797: Upload PMode: IT Tests")
 public class UploadPModeIT extends AbstractIT {
 
     public static final String SCHEMAS_DIR = "schemas/";
