@@ -77,7 +77,7 @@ public class BackendFilterInitializerService implements DomainsAware {
 
     @Override
     public void onDomainRemoved(Domain domain) {
-        // nothing for now; should we?
+        // todo nothing for now; should we?
     }
 
     protected void createBackendFilters(List<Domain> domains) {

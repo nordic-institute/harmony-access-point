@@ -104,6 +104,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        removeScheduler(domain);
     }
 
     private void initQuartzSchedulers(List<Domain> domains) {
@@ -124,8 +125,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         // General Schedulers
         for (Scheduler scheduler : generalSchedulers) {
+            LOG.info("Shutting down Quartz Scheduler for general -> scheduler [{}]", scheduler);
             try {
-                LOG.info("Shutting down Quartz Scheduler for general -> scheduler [{}]", scheduler);
                 scheduler.shutdown(true);
             } catch (SchedulerException e) {
                 LOG.error("Error while shutting down Quartz Scheduler for general schema", e);
@@ -135,10 +136,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         // Domain Schedulers
         for (Map.Entry<Domain, Scheduler> domainSchedulerEntry : schedulers.entrySet()) {
             final Domain domain = domainSchedulerEntry.getKey();
-            final Scheduler quartzScheduler = domainSchedulerEntry.getValue();
-            LOG.info("Shutting down Quartz Scheduler for domain [{}] -> scheduler [{}]", domain, quartzScheduler);
+            final Scheduler scheduler = domainSchedulerEntry.getValue();
+            LOG.info("Shutting down Quartz Scheduler for domain [{}] -> scheduler [{}]", domain, scheduler);
             try {
-                quartzScheduler.shutdown(true);
+                scheduler.shutdown(true);
             } catch (SchedulerException e) {
                 LOG.error("Error while shutting down Quartz Scheduler for domain [{}]", domain, e);
             }
@@ -146,7 +147,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     }
 
     /**
-     * entry point method (post-construct)
+     * entry point method
      *
      * @param domain the domain
      * @throws SchedulerException Quartz scheduler exception
@@ -166,6 +167,23 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         pauseJobsForCurrentDomain();
 
         domainContextProvider.clearCurrentDomain();
+    }
+
+    private void removeScheduler(Domain domain) {
+        if (!schedulers.containsKey(domain)) {
+            LOG.info("Quartz Scheduler for domain [{}] not found; exiting.", domain);
+            return;
+        }
+
+        Scheduler scheduler = schedulers.get(domain);
+        try {
+            //todo just shutdown or also remove all his jobs??
+            scheduler.shutdown(true);
+        } catch (SchedulerException e) {
+            LOG.error("Error while shutting down Quartz Scheduler for domain [{}]", domain, e);
+        }
+        schedulers.remove(domain);
+
     }
 
     protected void removeMarkedForDeletionJobs() {

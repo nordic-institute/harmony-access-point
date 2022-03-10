@@ -53,6 +53,12 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        removeStorage(domain);
+    }
+
+    private void removeStorage(Domain domain) {
+        instances.remove(domain);
+        LOG.info("EArchiving Storage removed for domain [{}]", domain);
     }
 
     private void createStorage(List<Domain> domains) {
