@@ -1,6 +1,7 @@
 package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainMessageListenerContainer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
@@ -10,10 +11,10 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
  * Domibus specific MessageListenerContainer, created for a specific domain;
  * We need this because we manage them explicitly and we need also to replace one at runtime
  */
-public class DomainMessageListenerContainer extends DefaultMessageListenerContainer {
+public class DomainMessageListenerContainerImpl extends DefaultMessageListenerContainer implements DomainMessageListenerContainer {
     private Domain domain;
 
-    public DomainMessageListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl(Domain domain) {
         this.domain = domain;
     }
 
