@@ -69,6 +69,11 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
+        public DomibusRawPropertyProvider domibusRawPropertyProvider() {
+            return Mockito.mock(DomibusRawPropertyProvider.class);
+        }
+
+        @Bean
         public GlobalPropertyMetadataManager domibusPropertyMetadataManager() {
             return Mockito.mock(GlobalPropertyMetadataManagerImpl.class);
         }
@@ -181,6 +186,9 @@ public class PModeValidationServiceImplIT {
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     @Test
     public void validate() throws IOException, SAXException, XMLStreamException, ParserConfigurationException, JAXBException {

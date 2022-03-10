@@ -2,7 +2,7 @@
 
 <mat-dialog-content style="width:450px;">
 
-  <form [formGroup]="truststoreForm">
+  <form [formGroup]="truststoreForm" (submit)="submit()">
     <mat-card>
       <mat-card-content>
 
@@ -13,7 +13,7 @@
         {{selectedFileName}}
 
         <mat-form-field class="password" style="margin-top: 20px;">
-          <input matInput placeholder="Password" id="password_id"  name="password" type="password"
+          <input matInput placeholder="Password" id="password_id"  name="password" type="password" #passwordField
                  [formControl]="truststoreForm.controls['password']" required="true">
           <span class="help-block" *ngIf="shouldShowErrors(truststoreForm.controls['password'])">
               <div *ngIf="truststoreForm.controls['password'].errors?.required" class="error">Password is required</div>
@@ -24,12 +24,12 @@
     </mat-card>
 
     <div class="buttonsRow">
-      <button id="okbuttonupload_id" class="button" mat-raised-button color="primary" (click)="submit()"
+      <button type="submit" id="okbuttonupload_id" class="button" mat-raised-button color="primary"
               [disabled]="!isFormValid()">
         <mat-icon>check_circle</mat-icon>
         <span>OK</span>
       </button>
-      <button id="cancelbuttonupload_id" class="button" mat-raised-button color="primary" (click)="dialogRef.close(null)">
+      <button type="button" id="cancelbuttonupload_id" class="button" mat-raised-button color="primary" (click)="dialogRef.close(null)">
         <mat-icon>cancel</mat-icon>
         <span>Cancel</span>
       </button>

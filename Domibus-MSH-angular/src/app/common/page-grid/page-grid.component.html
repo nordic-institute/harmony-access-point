@@ -34,7 +34,7 @@
           {{selectedCount.toLocaleString()}} {{table.messages.selectedMessage}} /
           {{totalMessage?.replace('$1', rowCount.toLocaleString())}}
         </div>
-        <datatable-pager
+        <domibus-datatable-pager [grid]="this"
           [pagerLeftArrowIcon]="'datatable-icon-left'"
           [pagerRightArrowIcon]="'datatable-icon-right'"
           [pagerPreviousIcon]="'datatable-icon-prev'"
@@ -43,8 +43,8 @@
           [size]="pageSize"
           [count]="rowCount"
           [hidden]="!((rowCount / pageSize) > 1)"
-          (change)="table.onFooterPage($event)">
-        </datatable-pager>
+          (change)="onFooterChange($event)">
+        </domibus-datatable-pager>
       </ng-template>
     </ngx-datatable-footer>
 

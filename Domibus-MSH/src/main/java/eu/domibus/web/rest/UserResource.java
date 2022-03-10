@@ -179,6 +179,10 @@ public class UserResource extends BaseResource {
 
     private void validateUsers(List<UserResponseRO> users) {
         users.forEach(user -> {
+            if (user.isDeleted()) {
+                return;
+            }
+
             if (Strings.isNullOrEmpty(user.getUserName())) {
                 throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User name cannot be null.");
             }
@@ -188,11 +192,11 @@ public class UserResource extends BaseResource {
             }
 
             if (StringUtils.isEmpty(user.getDomain())) {
-                throw new DomainTaskException("Could not create user: domain is empty");
+                throw new DomainTaskException("User domain cannot be null.");
             }
 
             if (!domainService.getDomains().stream().anyMatch(d -> user.getDomain().equalsIgnoreCase(d.getCode()))) {
-                throw new DomainTaskException("Could not create user: unknown domain (" + user.getDomain() + ")");
+                throw new DomainTaskException("Unknown domain (" + user.getDomain() + ")");
             }
         });
     }
