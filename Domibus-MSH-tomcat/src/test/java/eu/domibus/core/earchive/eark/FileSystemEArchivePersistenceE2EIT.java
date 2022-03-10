@@ -153,7 +153,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
                 }
                 if (StringUtils.equalsIgnoreCase(file.getName(), messageId)) {
                     List<File> collect = Arrays.stream(file.listFiles()).sorted().collect(Collectors.toList());
-                    assertEquals("message.attachment", collect.get(0).getName());
+                    assertEquals("message.attachment.xml", collect.get(0).getName());
                     //TODO check if the attachment is unzipped
                     assertEquals(SOAP_ENVELOPE_XML, collect.get(1).getName());
                 }

@@ -13,7 +13,6 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionException;
-import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -206,12 +205,22 @@ public class MessagingServiceImpl implements MessagingService {
 
 
     protected void setContentType(PartInfo partInfo) {
-        String contentType = partInfo.getPayloadDatahandler().getContentType();
-        if (StringUtils.isBlank(contentType)) {
-            contentType = MIME_TYPE_APPLICATION_UNKNOWN;
+        String mimeType = null;
+        if (partInfo.getPartProperties() != null) {
+            for (final Property property : partInfo.getPartProperties()) {
+                if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
+                    mimeType = property.getValue();
+                }
+            }
         }
-        LOG.debug("Setting the payload [{}] content type to [{}]", partInfo.getHref(), contentType);
-        partInfo.setMime(contentType);
+        if(mimeType == null) {
+            mimeType = partInfo.getPayloadDatahandler().getContentType();
+            if (StringUtils.isBlank(mimeType)) {
+                mimeType = MIME_TYPE_APPLICATION_UNKNOWN;
+            }
+        }
+        LOG.debug("Setting the payload [{}] content type to [{}]", partInfo.getHref(), mimeType);
+        partInfo.setMime(mimeType);
     }
 
     protected boolean hasCompressionProperty(PartInfo partInfo) {
