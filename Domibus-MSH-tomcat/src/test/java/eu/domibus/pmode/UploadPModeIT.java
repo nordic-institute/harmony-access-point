@@ -126,7 +126,7 @@ public class UploadPModeIT extends AbstractIT {
     @Test
     @Transactional
     public void testVerifyPModeContent() throws IOException, JAXBException, SQLException {
-        Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
+//        Server.createWebServer("-web", "-webAllowOthers", "-webPort", "8082").start();
 
         InputStream is = getClass().getClassLoader().getResourceAsStream(SAMPLE_PMODES_DOMIBUS_CONFIGURATION_VALID_XML);
         Configuration configuration = testUpdatePModes(IOUtils.toByteArray(is));
