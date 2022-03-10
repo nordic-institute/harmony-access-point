@@ -155,7 +155,8 @@ public abstract class AbstractIT {
 
         final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes(UTF_8));
 //        if (!configurationDAO.configurationExists()) {
-            configurationDAO.updateConfiguration(pModeConfiguration);
+        configurationDAO.updateConfiguration(pModeConfiguration);
+        pModeProvider.refresh();
 //        }
     }
 
