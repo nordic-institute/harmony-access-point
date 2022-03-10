@@ -131,4 +131,6 @@ public interface DomibusPropertyExtService {
     }
 
     void loadProperties(DomainDTO domain, String propertiesFilePath);
+
+    void removeProperties(DomainDTO domain);
 }

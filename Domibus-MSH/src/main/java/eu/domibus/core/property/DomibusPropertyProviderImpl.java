@@ -197,6 +197,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
     }
 
+    @Override
+    public void removeProperties(Domain domibusDomain) {
+        
+    }
+
     protected String getPropertyValue(String propertyName, Domain domain) {
         String value = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
 
