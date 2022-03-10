@@ -58,6 +58,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Configuration

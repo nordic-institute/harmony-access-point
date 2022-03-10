@@ -40,7 +40,7 @@ public class MessageDBUtil {
     }
 
     public Integer getCounter(String tableName) {
-        String selectStr = "SELECT count(*) from ($TABLE_NAME)";
+        String selectStr = "SELECT count(*) from TABLE_NAME";
         selectStr = selectStr.replace("TABLE_NAME", tableName);
         Query query = entityManager.createNativeQuery(selectStr);
 

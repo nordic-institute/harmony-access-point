@@ -61,6 +61,8 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
         Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
         Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
 
+        em.flush();
+        em.clear();
         deleteAllMessages();
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
