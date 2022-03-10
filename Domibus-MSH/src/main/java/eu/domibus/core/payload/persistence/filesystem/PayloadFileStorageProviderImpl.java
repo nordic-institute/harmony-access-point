@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +60,14 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
         PayloadFileStorage instance = storageFactory.create(domain);
         instances.put(domain, instance);
         LOG.info("Storage initialized for domain [{}]", domain);
+    }
+
+    private void removeStorage(Domain domain) {
+        if (!instances.containsKey(domain)) {
+            LOG.info("Could not find storage for domain [{}]", domain);
+            return;
+        }
+        instances.remove(domain);
     }
 
     @Override

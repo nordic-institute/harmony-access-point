@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +56,10 @@ public class EArchiveFileStorageProviderImpl implements EArchiveFileStorageProvi
     }
 
     private void removeStorage(Domain domain) {
+        if (!instances.containsKey(domain)) {
+            LOG.info("No storage to remove for domain [{}]; exiting.", domain);
+            return;
+        }
         instances.remove(domain);
         LOG.info("EArchiving Storage removed for domain [{}]", domain);
     }

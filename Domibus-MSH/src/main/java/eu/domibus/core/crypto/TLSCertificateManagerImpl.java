@@ -109,6 +109,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        removeTruststore(domain);
+    }
+
+    private void removeTruststore(Domain domain) {
+        certificateService.removeTruststore(TLS_TRUSTSTORE_NAME, domain);
     }
 
     private void persistTruststoresIfApplicable(List<Domain> domains) {

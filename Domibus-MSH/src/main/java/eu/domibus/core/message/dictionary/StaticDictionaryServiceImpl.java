@@ -77,6 +77,7 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        // I'd say nothing to do here
     }
 
     private void createEntries(Domain domain) {

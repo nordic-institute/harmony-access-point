@@ -108,13 +108,13 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
     }
 
     protected void removePayloadEncryptionKey(Domain domain) {
-        domainTaskExecutor.submit(() -> createPayloadEncryptionKeyIfNotExists(), domain);
+        domainTaskExecutor.submit(() -> doRemovePayloadEncryptionKey(domain), domain);
     }
 
-    protected void removePayloadEncryptionKey() {
+    private void doRemovePayloadEncryptionKey(Domain domain) {
         final EncryptionKeyEntity payloadKey = encryptionKeyDao.findByUsage(EncryptionUsage.PAYLOAD);
         if (payloadKey == null) {
-            LOG.debug("Payload encryption key does not exist.");
+            LOG.debug("Payload encryption key for domain [{}] does not exist.", domain);
             return;
         }
         encryptionKeyDao.delete(payloadKey);
