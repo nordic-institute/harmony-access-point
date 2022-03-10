@@ -49,6 +49,7 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setJdbcUrl(h2DataSource.getUrl());
         dataSource.setUsername(h2DataSource.getUser());
         dataSource.setPassword(h2DataSource.getPassword());
+        dataSource.setAutoCommit(false);
 
         dataSource.setConnectionTestQuery("SELECT 1");
         dataSource.setMaxLifetime(5 * 1000L);
