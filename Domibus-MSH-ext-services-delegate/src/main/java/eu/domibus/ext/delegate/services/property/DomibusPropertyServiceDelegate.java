@@ -142,8 +142,8 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
-    public void removeProperties(DomainDTO domain) {
+    public void removeProperties(DomainDTO domain, String propertiesFilePath) {
         final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
-        domibusPropertyProvider.removeProperties(domibusDomain);
+        domibusPropertyProvider.removeProperties(domibusDomain, propertiesFilePath);
     }
 }

@@ -178,7 +178,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public void loadProperties(Domain domain, String propertiesFilePath) {
         if (StringUtils.isEmpty(propertiesFilePath)) {
-            LOG.info("Exiting loading properties file for domain [{}] as properties file path is empty. .", domain);
+            LOG.info("Exiting loading properties file for domain [{}] as properties file path is empty.", domain);
             return;
         }
         ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
@@ -198,8 +198,17 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
-    public void removeProperties(Domain domibusDomain) {
-        
+    public void removeProperties(Domain domain, String propertiesFilePath) {
+        if (StringUtils.isEmpty(propertiesFilePath)) {
+            LOG.info("Exiting removing for domain [{}] as properties file path is empty.", domain);
+            return;
+        }
+        ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
+        MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
+        String configFile = domibusConfigurationService.getConfigLocation() + File.separator + propertiesFilePath;
+        LOG.debug("Removing properties file for domain [{}]: [{}]...", domain, configFile);
+        String propertySourceName = domain.getCode() + "-" + configFile;
+        propertySources.remove(propertySourceName);
     }
 
     protected String getPropertyValue(String propertyName, Domain domain) {

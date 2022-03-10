@@ -75,7 +75,7 @@ public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExt
     }
 
     @Override
-    public void removeProperties(DomainDTO domain) {
+    public void removeProperties(DomainDTO domain, String propertiesFilePath) {
 
     }
 }

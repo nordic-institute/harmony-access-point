@@ -159,5 +159,5 @@ public interface DomibusPropertyProvider {
 
     void loadProperties(Domain domain, String propertiesFilePath);
 
-    void removeProperties(Domain domibusDomain);
+    void removeProperties(Domain domibusDomain, String propertiesFilePath);
 }

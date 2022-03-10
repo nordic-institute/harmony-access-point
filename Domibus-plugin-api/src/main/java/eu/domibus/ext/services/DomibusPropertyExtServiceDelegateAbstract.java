@@ -218,7 +218,12 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public void removeProperties(DomainDTO domain) {
-        domibusPropertyExtService.removeProperties(domain);
+        Optional<String> propFileName = getConfigurationFileName(domain);
+        if (!propFileName.isPresent()) {
+            LOG.info("No property file name provided for domain [{}]. Exiting.", domain);
+            return;
+        }
+        domibusPropertyExtService.removeProperties(domain, propFileName.get());
     }
 
     /**
