@@ -100,7 +100,7 @@
             </activation>
 
             <properties>
-                <tomcat.version>9.0.50</tomcat.version>
+                <tomcat.version>9.0.59</tomcat.version>
             </properties>
             <build>
                 <plugins>
@@ -297,7 +297,7 @@
         <profile>
             <id>wildfly</id>
             <properties>
-                <wildfly.version>20.0.1.Final</wildfly.version>
+                <wildfly.version>26.0.1.Final</wildfly.version>
             </properties>
             <build>
                 <plugins>
