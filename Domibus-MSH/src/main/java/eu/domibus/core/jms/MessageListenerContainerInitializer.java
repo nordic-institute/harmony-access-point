@@ -1,6 +1,7 @@
 package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainMessageListenerContainer;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -8,6 +9,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerImpl;
 import eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration;
+import eu.domibus.core.jms.multitenancy.PluginDomainMessageListenerContainerAdapter;
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
 import eu.domibus.core.message.UserMessagePriorityService;
 import eu.domibus.ext.domain.DomainDTO;
@@ -63,7 +65,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     @Autowired
     protected UserMessagePriorityService userMessagePriorityService;
 
-    protected List<MessageListenerContainer> instances = new ArrayList<>();
+    protected List<DomainMessageListenerContainer> instances = new ArrayList<>();
 
     @PostConstruct
     public void init() {
@@ -114,15 +116,19 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         final Map<String, PluginMessageListenerContainer> beansOfType = applicationContext.getBeansOfType(PluginMessageListenerContainer.class);
 
         for (Map.Entry<String, PluginMessageListenerContainer> entry : beansOfType.entrySet()) {
-            final String pluginMessageListenerContainerName = entry.getKey();
+            final String name = entry.getKey();
             final PluginMessageListenerContainer pluginMessageListenerContainer = entry.getValue();
 
             MessageListenerContainer instance = pluginMessageListenerContainer.createMessageListenerContainer(domainDTO);
-            if (instance != null) { // if null domain is disabled
-                instance.start();
-                instances.add(instance);
-                LOG.info("{} initialized for domain [{}]", pluginMessageListenerContainerName, domain);
+            // if null, domain is disabled
+            if (instance == null) {
+                LOG.info("Message listener container [{}] for domain [{}] returned null so exiting.", name, domain);
+                return;
             }
+            DomainMessageListenerContainer adapter = new PluginDomainMessageListenerContainerAdapter(instance, domain, name);
+            instance.start();
+            instances.add(adapter);
+            LOG.info("{} initialized for domain [{}]", name, domain);
         }
     }
 
@@ -244,30 +250,26 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     }
 
     public void setConcurrency(Domain domain, String beanName, String concurrency) {
-        DomainMessageListenerContainerImpl instance = getInstanceByNameAndDomain(domain, beanName);
+        DomainMessageListenerContainer instance = getInstanceByNameAndDomain(domain, beanName);
         if (instance != null) {
             instance.setConcurrency(concurrency);
         }
     }
 
-    private DomainMessageListenerContainerImpl getInstanceByNameAndDomain(Domain domain, String beanName) {
+    private DomainMessageListenerContainer getInstanceByNameAndDomain(Domain domain, String beanName) {
         return instances.stream()
-                .filter(instance -> instance instanceof DomainMessageListenerContainerImpl)
-                .map(instance -> (DomainMessageListenerContainerImpl) instance)
                 .filter(instance -> domain.equals(instance.getDomain()))
                 .filter(instance -> beanName.equals(instance.getName()))
                 .findFirst().orElse(null);
     }
 
-    private List<MessageListenerContainer> getInstancesByDomain(Domain domain) {
-        return instances.stream().filter(instance -> instance instanceof DomainMessageListenerContainerImpl)
-                .map(instance -> (DomainMessageListenerContainerImpl) instance)
+    private List<DomainMessageListenerContainer> getInstancesByDomain(Domain domain) {
+        return instances.stream()
                 .filter(instance -> domain.equals(instance.getDomain()))
-                .map(instance -> (MessageListenerContainer) instance)
                 .collect(Collectors.toList());
     }
 
-    private void stop(List<MessageListenerContainer> instances) {
+    private void stop(List<DomainMessageListenerContainer> instances) {
         LOG.info("Shutting down MessageListenerContainer instances");
 
         // There is an issue with destroying / shutting down the message listener containers on Tomcat while stopping
@@ -282,13 +284,13 @@ public class MessageListenerContainerInitializer implements DomainsAware {
             shutdownInstance(instance);
         });
     }
-    
+
     private void stopInstancesFor(Domain domain) {
-        List<MessageListenerContainer> instances = getInstancesByDomain(domain);
+        List<DomainMessageListenerContainer> instances = getInstancesByDomain(domain);
         stop(instances);
     }
 
-    private void shutdownInstance(MessageListenerContainer instance) {
+    private void shutdownInstance(DomainMessageListenerContainer instance) {
         try {
             LOG.info("Shutting down MessageListenerContainer instance: {}", instance);
             ((AbstractMessageListenerContainer) instance).shutdown();
@@ -297,10 +299,10 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         }
     }
 
-    private void stopInstance(MessageListenerContainer instance) {
+    private void stopInstance(DomainMessageListenerContainer instance) {
         try {
             LOG.info("Stopping MessageListenerContainer instance: {}", instance);
-            instance.stop();
+            instance.get().stop();
         } catch (Exception e) {
             LOG.error("Error while stopping MessageListenerContainer", e);
         }

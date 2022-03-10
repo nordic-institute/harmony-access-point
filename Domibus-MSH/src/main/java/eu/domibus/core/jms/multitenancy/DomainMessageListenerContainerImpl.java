@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainMessageListenerContainer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.jms.listener.MessageListenerContainer;
 
 /**
  * @author Ion Perpegel
@@ -16,6 +17,11 @@ public class DomainMessageListenerContainerImpl extends DefaultMessageListenerCo
 
     public DomainMessageListenerContainerImpl(Domain domain) {
         this.domain = domain;
+    }
+
+    @Override
+    public MessageListenerContainer get() {
+        return this;
     }
 
     /**
