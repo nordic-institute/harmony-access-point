@@ -38,6 +38,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
     @Autowired
     private UserMessageLogDao userMessageLogDao;
 
+    @Transactional
     @Before
     public void updatePmodeForSendFailure() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
@@ -61,18 +62,10 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
         Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
         Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
 
-        em.flush();
-        em.clear();
         deleteAllMessages();
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        try {
-            userMessageLogDao.findByMessageId(messageId);
-            Assert.fail();
-        } catch (NoResultException e) {
-            //OK
-        }
-
+        Assert.assertNull(userMessageLogDao.findByMessageId(messageId));
     }
 
 }
