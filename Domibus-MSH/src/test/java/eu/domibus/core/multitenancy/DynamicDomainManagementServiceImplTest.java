@@ -154,7 +154,7 @@ public class DynamicDomainManagementServiceImplTest {
             result = domain1Dto;
         }};
 
-        dynamicDomainManagementService.notifyExternalModules(domain1);
+        dynamicDomainManagementService.notifyExternalModulesofAddition(domain1);
 
         new Verifications() {{
             externalDomainsAwareList.get(0).onDomainAdded(domain1Dto);

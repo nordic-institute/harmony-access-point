@@ -26,7 +26,7 @@ public class Command {
     public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
     public static final String RELOAD_TLS_TRUSTSTORE = "RELOAD_TLS_TRUSTSTORE";
     public static final String DOMAIN_ADDED = "DOMAIN_ADDED";
-
+    public static final String DOMAIN_REMOVED = "DOMAIN_REMOVED";
 
     private long entityId;
     protected String commandName;

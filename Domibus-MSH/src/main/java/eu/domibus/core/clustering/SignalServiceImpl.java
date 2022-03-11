@@ -186,4 +186,13 @@ public class SignalServiceImpl implements SignalService {
 
         sendMessage(commandProperties);
     }
+
+    @Override
+    public void signalDomainsRemoved(String domainCode) {
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.DOMAIN_REMOVED);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+
+        sendMessage(commandProperties);
+    }
 }
