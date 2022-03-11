@@ -610,6 +610,14 @@
         <dropTable tableName="TB_USER_MSG_DELETION_JOB" />
     </changeSet>
 
+    <changeSet author="Soumya Chandran" id="EDELIVERY-4609">
+        <addColumn tableName="TB_PART_INFO">
+            <column name="PART_LENGTH" type="BIGINT" defaultValueNumeric="-1">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
