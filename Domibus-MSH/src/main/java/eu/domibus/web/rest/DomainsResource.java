@@ -83,4 +83,9 @@ public class DomainsResource {
     public void addDomain(@RequestBody @Valid String domainCode){
         dynamicDomainManagementService.addDomain(domainCode);
     }
+
+    @DeleteMapping(value = "")
+    public void removeDomain(@RequestBody @Valid String domainCode){
+        dynamicDomainManagementService.removeDomain(domainCode);
+    }
 }
