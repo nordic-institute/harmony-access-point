@@ -29,6 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
 
@@ -177,7 +178,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         Scheduler scheduler = schedulers.get(domain);
         try {
-            //todo just shutdown or also remove all his jobs??
+            doForAllSchedulerJobs(scheduler, (s, jk) -> deleteSchedulerJob(s, jk, null));
             scheduler.shutdown(true);
         } catch (SchedulerException e) {
             LOG.error("Error while shutting down Quartz Scheduler for domain [{}]", domain, e);
@@ -610,6 +611,18 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 .usingJobData(jobDetail.getJobDataMap())
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(repeatInterval).repeatForever())
                 .build();
+    }
+
+    private void doForAllSchedulerJobs(Scheduler scheduler, BiConsumer<Scheduler, JobKey> action) throws SchedulerException {
+        for (String groupName : scheduler.getJobGroupNames()) {
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                try {
+                    action.accept(scheduler, jobKey);
+                } catch (Exception ex) {
+                    LOG.info("Error while calling [{}] action on scheduler [{}]", action, scheduler.getSchedulerName());
+                }
+            }
+        }
     }
 
 }
