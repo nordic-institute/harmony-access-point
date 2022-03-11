@@ -57,7 +57,7 @@ public class CompressionService {
 
         //if compression is not necessary return false
         if (!legConfigForMessage.isCompressPayloads()) {
-            LOG.debug("Compression is not configured for message [{}]");
+            LOG.debug("Compression is not configured for message [{}]", messageId);
             return false;
         }
 
@@ -110,7 +110,7 @@ public class CompressionService {
         final CompressedDataSource compressedDataSource = new CompressedDataSource(partInfo.getPayloadDatahandler().getDataSource());
         DataHandler gZipDataHandler = new DataHandler(compressedDataSource);
         partInfo.setPayloadDatahandler(gZipDataHandler);
-        CompressionService.LOG.debug("Payload with cid: " + partInfo.getHref() + " and mime type: " + mimeType + " will be compressed");
+        LOG.debug("Payload with cid: [{}] and mime type: [{}] will be compressed", partInfo.getHref(), mimeType);
 
         return true;
     }

@@ -30,4 +30,6 @@ public interface PartInfoService {
     List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds);
 
     boolean scheduleSourceMessagePayloads(List<PartInfo> partInfos);
+
+    void loadBinaryData(PartInfo partInfo);
 }

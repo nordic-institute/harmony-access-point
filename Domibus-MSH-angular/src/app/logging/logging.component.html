@@ -1,4 +1,4 @@
-﻿<div style="height: calc(100% - 15px);">
+﻿<div class="domibus-page">
   <page-header id="loggingheader_id">{{name}}</page-header>
 
   <div class="selectionCriteria">
@@ -39,24 +39,23 @@
     </mat-card>
   </div>
 
-  <div class="panel" style="height: calc(100% - 140px);">
-    <div class="group-filter-button">
+  <div class="group-filter-button">
     <span class="row-button">
       <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
                        (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
     </span>
-    </div>
-
-    <div style="height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden;">
-      <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
-    </div>
-
-    <ng-template #rowWithToggleTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <mat-button-toggle-group [name]="row.name" (ngModelChange)="onLevelChange($event, row)" [(ngModel)]="row.level">
-        <mat-button-toggle *ngFor="let level of levels" [value]="level">
-          {{level}}
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-    </ng-template>
   </div>
+
+  <div class="domibus-grid-container">
+    <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+  </div>
+
+  <ng-template #rowWithToggleTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+    <mat-button-toggle-group [name]="row.name" (ngModelChange)="onLevelChange($event, row)" [(ngModel)]="row.level">
+      <mat-button-toggle *ngFor="let level of levels" [value]="level">
+        {{level}}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </ng-template>
+
 </div>

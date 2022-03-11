@@ -1,5 +1,5 @@
 <ns:Messaging xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
-	<ns:UserMessage>
+	<ns:UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC">
 		<ns:PartyInfo>
 			<ns:From>
 				<ns:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</ns:PartyId>

@@ -1,6 +1,5 @@
 package eu.domibus.core.ebms3.sender.retry;
 
-import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import mockit.Mock;
 import mockit.MockUp;
 import mockit.integration.junit4.JMockit;
@@ -92,13 +91,14 @@ public class ConstantAttemptAlgorithmTest {
         Assert.assertNotNull(nextAttempt);
     }
 
+    @Deprecated // TODO: François Gautier 23-02-22 to be removed, might bring instability
     private static class SystemMockFirstOfJanuary2016 extends MockUp<System> {
         @Mock
         public static long currentTimeMillis() {
             return SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016;
         }
     }
-
+    @Deprecated // TODO: François Gautier 23-02-22 to be removed, might bring instability
     private static class SystemMockYearTransition extends MockUp<System> {
         @Mock
         public static long currentTimeMillis() {

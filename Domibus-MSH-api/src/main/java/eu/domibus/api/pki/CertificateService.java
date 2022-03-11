@@ -56,6 +56,16 @@ public interface CertificateService {
      */
     X509Certificate loadCertificateFromString(String content);
 
+
+    /**
+     * Returns the certificate deserialized from a bytearray
+     *
+     * @param content the certificate serialized as a bytearray
+     * @return a certificate
+     * @throws CertificateException if the cannot be deserialized to a certificate
+     */
+    X509Certificate loadCertificateFromByteArray(byte[] content);
+
     /**
      * Returns the certificate entry from the trust store given a certificate and an alias
      *

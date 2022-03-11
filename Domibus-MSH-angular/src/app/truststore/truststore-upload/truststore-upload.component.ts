@@ -18,6 +18,8 @@ export class TrustStoreUploadComponent {
 
   @ViewChild('fileInput', {static: false}) fileInput;
 
+  @ViewChild('passwordField', {static: false}) passwordField;
+  
   constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>, private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.truststoreForm = fb.group({
       'password': new FormControl('', Validators.required),
@@ -47,6 +49,8 @@ export class TrustStoreUploadComponent {
     this.selectedFileName = file.name;
 
     this.fileSelected = fi.files.length != 0;
+
+    this.passwordField.nativeElement.focus();
   }
 
   public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {

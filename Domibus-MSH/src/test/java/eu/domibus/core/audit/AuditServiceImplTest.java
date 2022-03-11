@@ -115,7 +115,7 @@ public class AuditServiceImplTest {
                 from,
                 from,
                 0,
-                10);
+                10, true);
         verify(auditLogCoreMapper, times(1)).auditLogListToAuditList(eq(audits));
 
     }
@@ -128,7 +128,7 @@ public class AuditServiceImplTest {
                 Sets.newHashSet("ADD"),
                 Sets.newHashSet("Admin"),
                 from,
-                from);
+                from, true);
         verify(auditDao, times(1)).countAudit(
                 Sets.newHashSet("User", "Pmode"),
                 Sets.newHashSet("ADD"),

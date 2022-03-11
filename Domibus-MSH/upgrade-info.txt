@@ -1,5 +1,6 @@
 Domibus 5.0 (from 4.2.6)
                 [Multitenancy only]
+                    - domibus.security.keystore.* and domibus.security.truststore.* properties are used only the first time domibus starts and persisted in the DB to be used from there on;
                     - Create a folder named "domains" in "conf/domibus" and, inside it, create a new folder for every domain (e.g. conf/domibus/domains/domain1)
                     - Move the super-domibus.properties file into "conf/domibus/domains"
                     - For each domain, move its properties file into the domain folder (e.g. move domain1-domibus.properties into conf/domibus/domains/domain1/)

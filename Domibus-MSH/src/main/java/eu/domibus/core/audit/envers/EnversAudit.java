@@ -31,7 +31,7 @@ public class EnversAudit extends AbstractBaseEntity {
     /**
      * The name of the entity.
      */
-    @Column(name = "ENTIY_NAME")
+    @Column(name = "ENTITY_NAME")
     private String entityName;
     /**
      * The type of modification of the entity.

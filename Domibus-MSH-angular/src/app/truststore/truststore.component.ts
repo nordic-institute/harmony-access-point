@@ -30,10 +30,19 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
 
     this.canHandleCertificates = false;
+    this.showResetOperation = true;
   }
 
   ngOnInit(): void {
     super.ngOnInit();
   }
 
+  async reloadKeyStore() {
+    try {
+      await this.trustStoreService.reloadKeyStore();
+      this.alertService.success('Keystore was successfully reset.')
+    } catch (ex) {
+      this.alertService.exception('Error reseting the keystore:', ex);
+    }
+  }
 }
