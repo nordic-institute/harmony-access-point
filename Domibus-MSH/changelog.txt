@@ -1,5 +1,4 @@
 Domibus 5.0
-- domibus.authentication.dss.lotl.country.code property has been removed.
 - Upgrade DSS library to version 5.8.
 - Added domain properties domibus.sender.trust.validation.allowedCertificatePolicyOIDs to validate if certificate was issued with one of the listed policies. Validation is performed on top of the existing certificate subject verification defined in domibus.sender.trust.validation.expression.
 - Dynamic discovery: added a feature for validation of the CertificatePolicy for the SMP certificates.  Allowed list of policies can be defined in property: domibus.dynamicdiscovery.client.allowedCertificatePolicyOIDs
