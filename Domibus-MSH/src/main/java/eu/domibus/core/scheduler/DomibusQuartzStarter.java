@@ -183,7 +183,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             LOG.error("Error while shutting down Quartz Scheduler for domain [{}]", domain, e);
         }
         schedulers.remove(domain);
-
     }
 
     protected void removeMarkedForDeletionJobs() {

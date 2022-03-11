@@ -97,4 +97,9 @@ public class BackendFilterInitializerService implements DomainsAware {
 
         LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
     }
+
+    protected void removeBackendFilters(Domain domain) {
+        Runnable task = () -> authUtils.runWithDomibusSecurityContext(routingService::removeBackendFilters, AuthRole.ROLE_AP_ADMIN, true);
+        domainTaskExecutor.submit(task, domain, true, 3L, TimeUnit.MINUTES);
+    }
 }
