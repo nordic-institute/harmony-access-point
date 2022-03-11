@@ -213,6 +213,7 @@ public class MessagingServiceImpl implements MessagingService {
             if (partInfo.getPartProperties() != null) {
                 for (final Property property : partInfo.getPartProperties()) {
                     if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
+                        LOG.debug("Mime Type from the part property [{}] found: [{}] ", Property.MIME_TYPE, property.getValue());
                         mimeType = property.getValue();
                     }
                 }
