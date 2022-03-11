@@ -208,6 +208,9 @@ public class MessagingServiceImplTest {
         partProperties.add(partProperty);
 
         new Expectations() {{
+            partInfo.getPayloadDatahandler().getContentType();
+            result = null;
+
             partInfo.getPartProperties();
             result = partProperties;
 

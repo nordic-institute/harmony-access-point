@@ -98,7 +98,7 @@ public class MessagingServiceImpl implements MessagingService {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
             if (partInfoService.scheduleSourceMessagePayloads(partInfoList)) {
-               partInfoHelper.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
+                partInfoHelper.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
 
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(
@@ -203,20 +203,19 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
 
-
+    /**
+     * In the case of sent message, the Datahandler ContentType is "application/gzip"
+     */
     protected void setContentType(PartInfo partInfo) {
-        String mimeType = null;
-        if (partInfo.getPartProperties() != null) {
-            for (final Property property : partInfo.getPartProperties()) {
-                if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
-                    mimeType = property.getValue();
+        String mimeType = partInfo.getPayloadDatahandler().getContentType();
+        if (StringUtils.isBlank(mimeType)) {
+            mimeType = MIME_TYPE_APPLICATION_UNKNOWN;
+            if (partInfo.getPartProperties() != null) {
+                for (final Property property : partInfo.getPartProperties()) {
+                    if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
+                        mimeType = property.getValue();
+                    }
                 }
-            }
-        }
-        if(mimeType == null) {
-            mimeType = partInfo.getPayloadDatahandler().getContentType();
-            if (StringUtils.isBlank(mimeType)) {
-                mimeType = MIME_TYPE_APPLICATION_UNKNOWN;
             }
         }
         LOG.debug("Setting the payload [{}] content type to [{}]", partInfo.getHref(), mimeType);
