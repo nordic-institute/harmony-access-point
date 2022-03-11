@@ -2,6 +2,8 @@ package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -12,6 +14,9 @@ import org.junit.Test;
 import java.util.Arrays;
 
 public class ObjectBlacklistValidatorTest {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidatorTest.class);
+
     @Tested
     ObjectBlacklistValidator blacklistValidator;
 
@@ -101,8 +106,14 @@ public class ObjectBlacklistValidatorTest {
 
         boolean actualValid1 = blacklistValidator.isValid(ro1);
         t2.start();
-        Thread.currentThread().sleep(1000);
+        try {
+            Thread.currentThread().sleep(100);
+        } catch (InterruptedException e) {
+            LOG.debug("Interrupted exception in test", e);
+        }
+
         String mess1 = blacklistValidator.getErrorMessage();
         Assert.assertEquals("Forbidden character detected in property routingCriterias[1]->expression", mess1);
+        t2.join();
     }
 }
