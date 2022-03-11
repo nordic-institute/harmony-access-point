@@ -198,6 +198,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
+    public void removeProperties(Domain domain) {
+        removeProperties(domain, domibusConfigurationService.getConfigurationFileName(domain));
+    }
+
+    @Override
     public void removeProperties(Domain domain, String propertiesFilePath) {
         if (StringUtils.isEmpty(propertiesFilePath)) {
             LOG.info("Exiting removing for domain [{}] as properties file path is empty.", domain);

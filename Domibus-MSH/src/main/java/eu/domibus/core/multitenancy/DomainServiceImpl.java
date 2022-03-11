@@ -136,4 +136,16 @@ public class DomainServiceImpl implements DomainService {
         this.domains = null;
         this.domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
     }
+
+    @Override
+    public void removeDomain(String domainCode) {
+        if (StringUtils.isEmpty(domainCode)) {
+            return;
+        }
+        Domain domain = domains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
+        if (domain == null) {
+            return;
+        }
+        domains.remove(domain);
+    }
 }
