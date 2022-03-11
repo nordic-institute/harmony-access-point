@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
@@ -42,9 +41,6 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     private MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Autowired
-    UserMessageService userMessageService;
-
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
@@ -62,9 +58,11 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
         MessageLogDao dao = getMessageLogDao(messageType);
         List<MessageLogInfo> resultList = countAndFilter(dao, from, max, column, asc, filters, result);
+
         List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
                 .collect(Collectors.toList());
+
         setCanDownload(convertedList);
         result.setMessageLogEntries(convertedList);
 
