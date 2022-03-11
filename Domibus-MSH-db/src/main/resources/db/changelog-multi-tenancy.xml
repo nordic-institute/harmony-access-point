@@ -408,10 +408,10 @@
     <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
         <createTable tableName="TB_USER_DOMAIN_AUD">
             <column name="ID_PK" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN_AUD"/>
             </column>
             <column name="REV" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN_AUD"/>
             </column>
             <column name="REVTYPE" type="TINYINT"/>
             <column name="USER_NAME" type="VARCHAR(255)"/>
