@@ -1,4 +1,12 @@
 Domibus 5.0
+- Added Reset filters button on all pages of Admin Console
+- Added possibility to display service and action information in the Domibus Admin console.
+- Added possibility to download eDelivery message receipts for non-repudiation purposes in the messages page
+- Added a new page in the admin console that displays the TLS Truststore; One can download or upload the truststore or add and remove certificates from this trsut from within this page
+- Added a new page in the admin console that displays the active and disabled domains; One can activate or deactivate a domain at runtime from within this page
+- Added refresh keystore button on the Domibus Truststore page in admin console to force reading the file from the disk and save it in the DB;
+- domibus.security.keystore.* and domibus.security.truststore.* properties are used only the first time domibus starts and persisted in the DB to be used from there on;
+- Added possibility to re-read the trust and key stores from the disk by changing the properties above
 - Added domain properties domibus.sender.trust.validation.allowedCertificatePolicyOIDs to validate if certificate was issued with one of the listed policies. Validation is performed on top of the existing certificate subject verification defined in domibus.sender.trust.validation.expression.
 - Dynamic discovery: added a feature for validation of the CertificatePolicy for the SMP certificates.  Allowed list of policies can be defined in property: domibus.dynamicdiscovery.client.allowedCertificatePolicyOIDs
 - Dynamic discovery: added validation of ServiceMetadata Endpoint date validity according to elements from Endpoint/(ServiceActivationDate|ServiceExpirationDate) as specified in new Peppol SMP specification 1.2.0.
