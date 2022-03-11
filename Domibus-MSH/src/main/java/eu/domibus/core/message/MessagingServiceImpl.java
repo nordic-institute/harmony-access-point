@@ -204,7 +204,7 @@ public class MessagingServiceImpl implements MessagingService {
 
 
     /**
-     * In the case of sent message, the Datahandler ContentType is "application/gzip"
+     * In the case of sent message, the Datahandler ContentType is "application/gzip" if the compression is activated in PMode
      */
     protected void setContentType(PartInfo partInfo) {
         String mimeType = partInfo.getPayloadDatahandler().getContentType();

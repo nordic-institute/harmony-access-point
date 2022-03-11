@@ -6,6 +6,7 @@ import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -82,7 +83,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     public String getMimeProperty() {
         return partProperties.stream()
                 .filter(Objects::nonNull)
-                .filter(partProperty -> partProperty.getName().equals(Ebms3Property.MIME_TYPE))
+                .filter(partProperty -> StringUtils.equalsIgnoreCase(partProperty.getName(), Ebms3Property.MIME_TYPE))
                 .findFirst()
                 .map(Property::getValue)
                 .orElse(null);
