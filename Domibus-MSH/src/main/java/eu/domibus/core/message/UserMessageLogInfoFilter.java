@@ -43,7 +43,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 MESSAGE_COLLABORATION_INFO_ACTION + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_TYPE + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_VALUE + "," +
-                "log.backend" +
+                "log.backend" + "," +
+                "message.partInfo.length" +
                 ")" + getQueryBody(filters);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
@@ -62,6 +63,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                         (isFourCornerModel() ?
                                 "left join message.messageProperties propsFrom "  +
                                 "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
+                        "left join message.partInfo partInfo "  +
                         "left join log.timezoneOffset timezoneOffset " +
                         "left join message.partyInfo.from.fromPartyId partyFrom " +
                         "left join message.partyInfo.to.toPartyId partyTo " +

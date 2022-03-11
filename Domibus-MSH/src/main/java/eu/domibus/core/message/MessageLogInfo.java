@@ -70,7 +70,7 @@ public class MessageLogInfo {
 
     private String pluginType;
 
-    private Boolean canDownload;
+    private Long partLength;
 
     public MessageLogInfo() {
     }
@@ -131,7 +131,7 @@ public class MessageLogInfo {
                           final String serviceType,
                           final String serviceValue,
                           final String pluginType,
-                          final Boolean canDownload
+                          final Long partLength
     ) {
         this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, testMessage);
@@ -151,7 +151,7 @@ public class MessageLogInfo {
         this.failed = failed;
         this.restored = restored;
         this.pluginType = pluginType;
-        this.canDownload = canDownload;
+        this.partLength = partLength;
     }
 
     public void setMessageId(String messageId) {
@@ -371,12 +371,12 @@ public class MessageLogInfo {
         this.messageType = messageType;
     }
 
-    public Boolean getCanDownload() {
-        return canDownload;
+    public Long getPartLength() {
+        return partLength;
     }
 
-    public void setCanDownload(Boolean canDownload) {
-        this.canDownload = canDownload;
+    public void setPartLength(Long partLength) {
+        this.partLength = partLength;
     }
 
     @Override
@@ -412,7 +412,7 @@ public class MessageLogInfo {
                 .append(serviceType, this.serviceType)
                 .append(serviceValue, this.serviceValue)
                 .append(pluginType, this.pluginType)
-                .append(canDownload, this.canDownload)
+                .append(partLength, this.partLength)
                 .isEquals();
     }
 
@@ -443,7 +443,7 @@ public class MessageLogInfo {
                 .append(serviceType)
                 .append(serviceValue)
                 .append(pluginType)
-                .append(canDownload)
+                .append(partLength)
                 .toHashCode();
     }
 }

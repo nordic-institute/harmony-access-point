@@ -42,11 +42,10 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     private MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
     UserMessageService userMessageService;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
@@ -66,6 +65,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
                 .collect(Collectors.toList());
+        setCanDownload(convertedList);
         result.setMessageLogEntries(convertedList);
 
         return result;
@@ -103,19 +103,21 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         if (number > 0) {
             resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
         }
-        setCanDownload(resultList);
+
         return resultList;
     }
 
-    private List<MessageLogInfo> setCanDownload( List<MessageLogInfo> resultList) {
+    protected List<MessageLogRO> setCanDownload(List<MessageLogRO> resultList) {
+        LOG.debug("Check whether the message's can download or not.");
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
-        for (MessageLogInfo messageLogInfo : resultList) {
-            byte[] content = userMessageService.getMessageAsBytes(messageLogInfo.getMessageId());
-            if (content.length > maxDownLoadSize) {
-                LOG.debug("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
-                messageLogInfo.setCanDownload(false);
+        for (MessageLogRO messageLogRO : resultList) {
+            messageLogRO.setCanDownload(true);
+            long content = messageLogRO.getPartLength();
+            LOG.debug("The message size [{}]: ", content);
+            if (content > maxDownLoadSize) {
+                LOG.debug("Couldn't download the message. The message size exceeds maximum download size limit [{}].: ", maxDownLoadSize);
+                messageLogRO.setCanDownload(false);
             }
-            messageLogInfo.setCanDownload(true);
         }
         return resultList;
     }

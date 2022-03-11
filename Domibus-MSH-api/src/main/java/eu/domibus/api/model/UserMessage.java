@@ -97,6 +97,13 @@ public class UserMessage extends AbstractBaseEntity {
     )
     protected Set<MessageProperty> messageProperties; //NOSONAR
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinTable(name = "TB_PART_INFO",
+            joinColumns = @JoinColumn(name = "USER_MESSAGE_ID_FK"),
+            inverseJoinColumns = @JoinColumn(name = "ID_PK")
+    )
+    protected PartInfo partInfo;
+
     public boolean isTestMessage() {
         return BooleanUtils.toBoolean(testMessage);
     }
@@ -231,6 +238,15 @@ public class UserMessage extends AbstractBaseEntity {
 
     public void setMessageFragment(Boolean messageFragment) {
         this.messageFragment = messageFragment;
+    }
+
+
+    public PartInfo getPartInfo() {
+        return partInfo;
+    }
+
+    public void setPartInfo(PartInfo partInfo) {
+        this.partInfo = partInfo;
     }
 
     @Override
