@@ -11,7 +11,7 @@ export class DomainService {
 
   static readonly MULTI_TENANCY_URL: string = 'rest/application/multitenancy';
   static readonly CURRENT_DOMAIN_URL: string = 'rest/security/user/domain';
-  static readonly DOMAIN_LIST_URL: string = 'rest/domains';
+  static readonly DOMAIN_LIST_URL = 'rest/domains';
 
   private isMultiDomainSubject: Subject<boolean>;
   private domainSubject: Subject<Domain>;
@@ -102,13 +102,13 @@ export class DomainService {
     });
   }
 
-  async setActiveState(domain: Domain) {
-    if (!domain.active) {
-      throw new Error('Cannot remove domain ' + domain.name);
+  async setActiveState(domain: Domain, active: boolean) {
+    if (active) {
+      await this.http.post(DomainService.DOMAIN_LIST_URL, domain.code).toPromise();
+      this.getDomains().then(res => this._domains.next(res));
+    } else {
+      await this.http.delete(DomainService.DOMAIN_LIST_URL + '/' + domain.code).toPromise();
+      this.getDomains().then(res => this._domains.next(res));
     }
-    // add domain
-    await this.http.post(DomainService.DOMAIN_LIST_URL, domain.code).toPromise();
-    this.getDomains().then(res => this._domains.next(res));
   }
-
 }

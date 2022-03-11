@@ -80,12 +80,12 @@ public class DomainsResource {
     }
 
     @PostMapping(value = "")
-    public void addDomain(@RequestBody @Valid String domainCode){
+    public void addDomain(@RequestBody @Valid String domainCode) {
         dynamicDomainManagementService.addDomain(domainCode);
     }
 
-    @DeleteMapping(value = "")
-    public void removeDomain(@RequestBody @Valid String domainCode){
+    @DeleteMapping(value = "/{domainCode:.+}")
+    public void removeDomain(@PathVariable(value = "domainCode") @Valid String domainCode) {
         dynamicDomainManagementService.removeDomain(domainCode);
     }
 }
