@@ -9,5 +9,7 @@ public interface DomainMessageListenerContainer {
 
     Domain getDomain();
 
+    void shutdown();
+
     void setConcurrency(String concurrency);
 }

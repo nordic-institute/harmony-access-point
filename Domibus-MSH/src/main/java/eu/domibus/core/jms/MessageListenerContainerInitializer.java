@@ -20,7 +20,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jms.listener.AbstractMessageListenerContainer;
 import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Service;
 
@@ -297,7 +296,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     private void shutdownInstance(DomainMessageListenerContainer instance) {
         try {
             LOG.info("Shutting down MessageListenerContainer instance: {}", instance);
-            ((AbstractMessageListenerContainer) instance).shutdown();
+            instance.shutdown();
         } catch (Exception e) {
             LOG.error("Error while shutting down MessageListenerContainer", e);
         }

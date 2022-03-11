@@ -42,6 +42,16 @@ public class PluginDomainMessageListenerContainerAdapter implements DomainMessag
     }
 
     @Override
+    public void shutdown() {
+        if (messageListenerContainer instanceof DefaultMessageListenerContainer) {
+            ((DefaultMessageListenerContainer) messageListenerContainer).shutdown();
+        } else {
+            LOG.warn("Could not shutdown message listener [{}] for domain [{}] because it is not a DefaultMessageListenerContainer",
+                    name, domain);
+        }
+    }
+
+    @Override
     public void setConcurrency(String concurrency) {
         if (messageListenerContainer instanceof DefaultMessageListenerContainer) {
             ((DefaultMessageListenerContainer) messageListenerContainer).setConcurrency(concurrency);
