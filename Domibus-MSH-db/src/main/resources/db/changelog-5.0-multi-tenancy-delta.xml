@@ -79,6 +79,15 @@
             <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
             <column name="PREFERREDDOMAIN_MOD" type="BOOLEAN"/>
         </createTable>
+
+        <createIndex indexName="IDX_FK_USR_DOM_AUD_REV_INFO" tableName="TB_USER_DOMAIN_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_DOMAIN_AUD"
+                                 constraintName="FK_USR_DOM_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
     </changeSet>
     
     <!--views-->
