@@ -1,4 +1,4 @@
-Domibus 5.0 (from 4.2.6)
+Domibus 5.0 (from 4.2.7)
                 [Multitenancy only]
                     - domibus.security.keystore.* and domibus.security.truststore.* properties are used only the first time domibus starts and persisted in the DB to be used from there on;
                     - Create a folder named "domains" in "conf/domibus" and, inside it, create a new folder for every domain (e.g. conf/domibus/domains/domain1)
@@ -257,6 +257,8 @@ Domibus 5.0 (from 4.2.6)
                                eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
                                eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
                                eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
+Domibus 4.2.7 (from 4.2.6):
+                - Replace the Domibus war
 Domibus 4.2.6 (from 4.2.5):
                 - Please remove the following properties from the file /conf/domibus/extensions/config/authentication-dss-extension.properties:
                         - domibus.authentication.dss.custom.trusted.lists.list1.code
