@@ -89,76 +89,81 @@ Domibus 5.0 (from 4.2.7)
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Run the appropriate DB migration script:
                     o [Oracle only]
-                        - single tenancy: oracle-4.2.3-to-5.0-migration.ddl
+                        - single tenancy: oracle-4.2.7-to-5.0-migration.ddl
                         - multitenancy:
-                            - general schema: oracle-4.2.3-to-5.0-multi-tenancy-migration.ddl
-                            - domain schemas: oracle-4.2.3-to-5.0-migration.ddl
+                            - general schema: oracle-4.2.7-to-5.0-multi-tenancy-migration.ddl
+                            - domain schemas: oracle-4.2.7-to-5.0-migration.ddl
                     o [Mysql only]
-                        - single tenancy: mysql-4.2.3-to-5.0-migration.ddl
+                        - single tenancy: mysql-4.2.7-to-5.0-migration.ddl
                         - multitenancy:
-                            - general database: mysql-4.2.3-to-5.0-multi-tenancy-migration.ddl
-                            - domain databases: mysql-4.2.3-to-5.0-migration.ddl
+                            - general database: mysql-4.2.7-to-5.0-multi-tenancy-migration.ddl
+                            - domain databases: mysql-4.2.7-to-5.0-migration.ddl
                 - Data migration scripts should be run in order to migrate data from old tables to the new tables:
                     o [Oracle only]
                         Domibus application (.war) should be stopped while running these:
                             - single tenancy:
-                                - step 1: oracle-4.2.3-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                - step 2: oracle-4.2.3-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                - step 1: oracle-4.2.7-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                - step 2: oracle-4.2.7-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                - step 3: oracle-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                - step 3: oracle-4.2.7-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
                                 - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                - step 4: oracle-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                                - step 4: oracle-4.2.7-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
                                 - general schema:
-                                    - step 1: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                    - step 2: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 1: oracle-4.2.7-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 2: oracle-4.2.7-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: oracle-4.2.7-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
                                     - UTC date migration step: execute the migrate_multitenancy procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                    - step 4: oracle-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                                    - step 4: oracle-4.2.7-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain schemas:
-                                    - step 1: oracle-4.2.3-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                    - step 2: oracle-4.2.3-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 1: oracle-4.2.7-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 2: oracle-4.2.7-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: oracle-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: oracle-4.2.7-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
                                     - UTC date migration step: execute the migrate procedure from the MIGRATE_42_TO_50_utc_conversion package providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                    - step 4: oracle-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                                    - step 4: oracle-4.2.7-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - grant privileges to the general schema using oracle10g-5.0-multi-tenancy-rights.sql, updating the schema names before execution
                     o [Mysql only]
+                    	The scripts below must be run using the root user, specifying the target databases as part of the command. For example, for single tenancy:
+                            	mysql -u root -p domibus < mysql-4.2.7-to-5.0-data-migration-step1.ddl
+                            or, for multitenancy:
+                            	mysql -u root -p domibus_general < mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step1.ddl
+                            	mysql -u root -p domibus_domain_1 < mysql-4.2.7-to-5.0-data-migration-step1.ddl
                         Domibus application (.war) should be stopped while running these:
                             - single tenancy:
-                                - step 1: mysql-4.2.3-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                - step 2: mysql-4.2.3-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                - step 1: mysql-4.2.7-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                - step 2: mysql-4.2.7-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                - step 3: mysql-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                - step 3: mysql-4.2.7-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
                                 - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                - step 4: mysql-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                                - step 4: mysql-4.2.7-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
                                 - general database:
-                                    - step 1: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                    - step 2: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 1: mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 2: mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
                                     - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                    - step 4: mysql-4.2.3-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                                    - step 4: mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain databases:
-                                    - step 1: mysql-4.2.3-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                    - step 2: mysql-4.2.3-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
+                                    - step 1: mysql-4.2.7-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - step 2: mysql-4.2.7-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
-                                    - step 3: mysql-4.2.3-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
+                                    - step 3: mysql-4.2.7-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
                                     - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
-                                    - step 4: mysql-4.2.3-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
+                                    - step 4: mysql-4.2.7-to-5.0-data-migration-step4.ddl (this step is optional - during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                 - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
