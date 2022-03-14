@@ -52,6 +52,9 @@ public class MessageFilterArea extends FilterArea {
 	@FindBy(id = "serviceValue_id")
 	public WebElement serviceValueInput;
 
+	@FindBy(id = "messagesInterval_id")
+	public WebElement messagesIntevalContainer;
+
 
 	@FindBy(id = "showTestMessages_id")
 	public WebElement showTestMessagesChk;
@@ -168,5 +171,10 @@ public class MessageFilterArea extends FilterArea {
 
 	public DatePicker getReceivedFromContainer() {
 		return weToDatePicker(receivedFromContainer);
+	}
+
+	public void showAllMessages() throws Exception {
+		weToSelect(messagesIntevalContainer).selectOptionByText("Last 48 hours");
+		clickSearch();
 	}
 }
