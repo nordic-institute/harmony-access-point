@@ -26,13 +26,13 @@ public class Pagination extends DComponent {
 	List<WebElement> pgLinks;
 	@FindBy(css = "li.pages.active")
 	WebElement activePageLnk;
-	@FindBy(css = "datatable-footer > div > datatable-pager > ul > li:nth-child(1)")
+	@FindBy(css = "datatable-footer > div ul > li:nth-child(1)")
 	WebElement skipFirstLnk;
-	@FindBy(css = "datatable-footer > div > datatable-pager > ul > li:nth-last-child(1)")
+	@FindBy(css = "datatable-footer > div ul > li:nth-last-child(1)")
 	WebElement skipLastLnk;
-	@FindBy(css = "datatable-footer > div > datatable-pager > ul > li:nth-last-child(2)")
+	@FindBy(css = "datatable-footer > div ul > li:nth-last-child(2)")
 	WebElement nextPageLnk;
-	@FindBy(css = "datatable-footer > div > datatable-pager > ul > li:nth-child(2)")
+	@FindBy(css = "datatable-footer > div ul > li:nth-child(2)")
 	WebElement prevPageLnk;
 	@FindBy(id = "pagesize_id")
 	WebElement pageSizeSelectContainer;
