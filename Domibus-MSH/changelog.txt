@@ -1,4 +1,11 @@
 Domibus 5.0
+- Improved overall performance including refactoring of the database to allow partitioning
+- Optimized pull locking for Oracle
+- Possibility to use an external eArchiving agent
+- Possibility to validate incoming UserMessages using a Validation Extension
+- Possibility to reference JMS Plugin payloads via HTTP endpoints
+- New WS Plugin which uses the edelivery namespace
+- New client authentication trust store admin console page
 - Added Reset filters button on all pages of Admin Console
 - Added possibility to display service and action information in the Domibus Admin console.
 - Added possibility to download eDelivery message receipts for non-repudiation purposes in the messages page

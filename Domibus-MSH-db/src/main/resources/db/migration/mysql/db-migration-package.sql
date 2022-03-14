@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.3 to 5.0 data migration subprograms
+-- Domibus 4.2.7 to 5.0 data migration subprograms
 --
 -- Main entry point is the procedure 'MIGRATE_42_TO_50_migrate'.
 --
@@ -454,7 +454,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_check_counts(in_tab_name1 VARCHAR(64), in_tab_
     END
 //
 
-CREATE FUNCTION MIGRATE_42_TO_50_generate_scalable_seq(incr BIGINT, creation_time DATE)
+CREATE FUNCTION MIGRATE_42_TO_50_generate_scalable_seq(incr BIGINT, creation_time DATETIME)
 RETURNS BIGINT
 READS SQL DATA
     BEGIN
@@ -485,7 +485,7 @@ READS SQL DATA
 //
 
 -- This function generates a new sequence id based on DOMIBUS_SCALABLE_SEQUENCE for an old entry based on old id_pk and old creation_time
-CREATE FUNCTION MIGRATE_42_TO_50_generate_new_id(old_id BIGINT, creation_time DATE)
+CREATE FUNCTION MIGRATE_42_TO_50_generate_new_id(old_id BIGINT, creation_time DATETIME)
 RETURNS BIGINT
 READS SQL DATA
     BEGIN
@@ -520,7 +520,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_lookup_migration_pk(migration_key VARCHAR(255)
 //
 
 
-CREATE PROCEDURE MIGRATE_42_TO_50_lookup_audit_migration_pk(migration_key VARCHAR(255), migration_pks JSON, missing_entity_date_prefix DATE, old_id BIGINT, OUT new_id BIGINT)
+CREATE PROCEDURE MIGRATE_42_TO_50_lookup_audit_migration_pk(migration_key VARCHAR(255), migration_pks JSON, missing_entity_date_prefix DATETIME, old_id BIGINT, OUT new_id BIGINT)
 BEGIN
     CALL MIGRATE_42_TO_50_log_verbose(CONCAT('Lookup audit migration primary key mapping for ', migration_key,
                  ' having old_id=', old_id, ', new_id=', new_id));
@@ -7345,7 +7345,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_info(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -7470,7 +7470,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -7605,7 +7605,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migrati
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -7686,7 +7686,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(INOUT migration_pks
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -7776,7 +7776,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(INOUT migration_pks
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -7878,7 +7878,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(INOUT migration_pks JS
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -7964,7 +7964,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -8059,7 +8059,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(INOUT migrati
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -8158,7 +8158,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(INOUT migration_pks JSON,
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -8243,7 +8243,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -8321,7 +8321,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(INOUT migratio
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -8407,7 +8407,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -8537,7 +8537,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(INOUT migration_pks JSON, mis
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -8619,7 +8619,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(INOUT migration_pks JSON
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATE)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
