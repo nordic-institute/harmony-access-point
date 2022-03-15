@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
 
-import eu.domibus.ext.services.FileUtilExtService;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -12,7 +12,6 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -30,10 +29,6 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class StubDtoTransformer implements MessageSubmissionTransformer<Messaging>, MessageRetrievalTransformer<UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
-
-    @Autowired
-    FileUtilExtService fileUtilExtService;
-
 
     @Override
     public UserMessage transformFromSubmission(final Submission submission, final UserMessage target) {
@@ -257,7 +252,8 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                     String propertyValue = trim(property.getValue());
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
                         LOG.debug("{} property found=[{}]", propertyName, propertyValue);
-                        propertyValue = fileUtilExtService.sanitizeFileName(propertyValue);
+                        propertyValue = DomibusStringUtil.sanitizeFileName(propertyValue);
+                        LOG.debug("Sanitized payload name: [{}]", propertyValue);
                     }
                     properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
                 }

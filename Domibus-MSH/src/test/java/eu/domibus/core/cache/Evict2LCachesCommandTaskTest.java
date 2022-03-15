@@ -41,7 +41,7 @@ public class Evict2LCachesCommandTaskTest {
         evict2LCachesCommandTask.execute(properties);
 
         new FullVerifications() {{
-            domibusCacheService.clear2LCCaches();
+            domibusCacheService.clear2LCCaches(false);
         }};
     }
 }

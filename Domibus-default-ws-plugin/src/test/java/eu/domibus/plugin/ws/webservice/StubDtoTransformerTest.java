@@ -1,11 +1,11 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.webService.generated.PayloadType;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,6 +34,8 @@ public class StubDtoTransformerTest {
     private static final String SERVICE_NOPROCESS = "bdx:noprocess";
     private static final String SERVICE_TYPE_TC1 = "tc1";
     private static final String PROPERTY_ENDPOINT = "endPointAddress";
+    private static final String PAYLOAD_NAME = "Test_123__.txt";
+    private static final String SANITIZED_PAYLOAD_NAME = "Test_123__.txt";
 
     /**
      * Testing the basic happy flow of transformation form Submission to UserMessage
@@ -257,6 +259,8 @@ public class StubDtoTransformerTest {
         Property objProperty = new Property();
         objProperty.setName(MIME_TYPE);
         objProperty.setValue(DEFAULT_MT);
+        objProperty.setName(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME);
+        objProperty.setValue(PAYLOAD_NAME);
 
         PartProperties objPartProperties = new PartProperties();
         objPartProperties.getProperty().add(objProperty);
@@ -302,6 +306,8 @@ public class StubDtoTransformerTest {
         for (Submission.TypedProperty prop : objSubmission.getMessageProperties()) {
             Assert.assertEquals(MIME_TYPE, prop.getKey());
             Assert.assertEquals(DEFAULT_MT, prop.getValue());
+            Assert.assertEquals(MessageConstants.PAYLOAD_PROPERTY_FILE_NAME, prop.getKey());
+            Assert.assertEquals(SANITIZED_PAYLOAD_NAME, prop.getValue());
         }
         LOG.info("Completed with test case: testTransformFromMessaging_TrimWhiteSpace");
     }

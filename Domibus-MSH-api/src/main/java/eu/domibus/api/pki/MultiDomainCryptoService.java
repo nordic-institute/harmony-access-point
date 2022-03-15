@@ -68,11 +68,13 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void reset(Domain domain);
 
-    void reset(Domain domain, KeyStoreType type);
+    void resetKeyStore(Domain domain);
 
     byte[] getTruststoreContent(Domain domain);
 
     void persistTruststoresIfApplicable();
 
     void refreshKeyStore(Domain currentDomain);
+
+    void resetTrustStore(Domain domain);
 }

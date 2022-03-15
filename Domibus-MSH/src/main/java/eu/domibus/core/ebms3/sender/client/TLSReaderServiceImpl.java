@@ -85,6 +85,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     public Optional<TLSClientParametersType> getTlsClientParametersType(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
+            LOG.debug("The client authentication xml path for domain [{}] could not be found.", domainCode);
             return Optional.empty();
         }
         try {

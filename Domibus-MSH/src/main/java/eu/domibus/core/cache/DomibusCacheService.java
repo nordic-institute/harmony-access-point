@@ -23,8 +23,8 @@ public interface DomibusCacheService {
 
     void evict(String cacheName, String propertyName);
 
-    void clearAllCaches() throws DomibusCoreException;
+    void clearAllCaches(boolean notification) throws DomibusCoreException;
 
-    void clear2LCCaches() throws DomibusCoreException;
+    void clear2LCCaches(boolean notification) throws DomibusCoreException;
 
 }

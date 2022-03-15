@@ -1,7 +1,7 @@
 <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/">
 	<soap:Header>
 		<ns:Messaging>
-			<ns:UserMessage>
+			<ns:UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC">
 				<ns:MessageInfo>
 					<ns:RefToMessageId>${RefToMessageId}</ns:RefToMessageId>
 				</ns:MessageInfo>

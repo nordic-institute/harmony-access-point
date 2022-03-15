@@ -46,7 +46,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Test
     public void setProperty_nonexistent() {
-        String propertyName = "non-existent-property";
+        String propertyName = "non-existent-property-test";
         boolean isDomain = true;
         String propertyValue = "100";
 
@@ -60,7 +60,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Test
     public void setProperty_composable() {
-        String propertyName = "composable_property";
+        String propertyName = "composable_property_name";
         boolean isDomain = false;
         DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(propertyName);
         propertyMetadata.setComposable(true);
@@ -105,7 +105,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
      */
     @Test
     public void setProperty_nested() {
-        String composablePropertyName = "composable_property";
+        String composablePropertyName = "composable_property_nested";
         String nestedPropertyName = composablePropertyName + ".prop1";
         boolean isDomain = true;
         DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(composablePropertyName);
@@ -135,7 +135,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Test
     public void getProperty_nested_notfound() {
-        String composablePropertyName = "composable_property2";
+        String composablePropertyName = "composable_property_inexistent";
         //TODO EDELIVERY-7553 if we use "composable_property1" here the test
         // will fail while running at package or project level but pass at class level
         //so we need to check if is not related also to @Cacheable

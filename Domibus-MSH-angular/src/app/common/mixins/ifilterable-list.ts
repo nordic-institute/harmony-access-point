@@ -1,4 +1,4 @@
-import {FormGroup, NgForm} from '@angular/forms';
+import {NgForm} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -23,6 +23,10 @@ export interface IFilterableList {
 
   resetAdvancedSearchParams();
 
+  resetFiltersToInitial();
+
   canSearch(): boolean | Promise<boolean>;
+
+  canResetSearch(): boolean | Promise<boolean>;
 }
 

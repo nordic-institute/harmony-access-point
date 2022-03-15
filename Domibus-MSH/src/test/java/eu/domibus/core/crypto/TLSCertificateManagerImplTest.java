@@ -90,7 +90,9 @@ public class TLSCertificateManagerImplTest {
     }
 
     @Test
-    public void addCertificate(@Mocked KeyStoreType trustStore, @Mocked byte[] certificateData, @Mocked String alias, @Mocked String backupLocation) {
+    public void addCertificate(@Mocked KeyStoreType trustStore, @Mocked byte[] certificateData) {
+        String alias = "mockalias";
+
         new Expectations(tlsCertificateManager) {{
             certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
             result = true;
@@ -106,7 +108,9 @@ public class TLSCertificateManagerImplTest {
     }
 
     @Test
-    public void removeCertificate(@Mocked KeyStoreType trustStore, @Mocked String alias, @Mocked String backupLocation) {
+    public void removeCertificate(@Mocked KeyStoreType trustStore) {
+        String alias = "mockalias";
+
         new Expectations(tlsCertificateManager) {{
             certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
             result = true;

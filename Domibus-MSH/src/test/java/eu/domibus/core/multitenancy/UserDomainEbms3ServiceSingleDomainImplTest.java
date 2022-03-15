@@ -1,9 +1,12 @@
 package eu.domibus.core.multitenancy;
 
 import mockit.Tested;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(JMockit.class)
 public class UserDomainEbms3ServiceSingleDomainImplTest {
 
     @Tested

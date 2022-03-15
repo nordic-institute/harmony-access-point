@@ -402,6 +402,49 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
+
+    </changeSet>
+
+    <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
+        <createTable tableName="TB_USER_DOMAIN_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="DOMAIN" type="VARCHAR(255)"/>
+            <column name="DOMAIN_MOD" type="BOOLEAN"/>
+            <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
+            <column name="PREFERREDDOMAIN_MOD" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+
+    <!--views-->
+    <changeSet author="Ion Perpegel" id="EDELIVERY-8688-General Schema Audit">
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME ,
+            ri.REVISION_DATE as AUDIT_DATE,
+            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV;
+        </createView>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
     </changeSet>
 
     <!-- unique constraints -->
@@ -453,6 +496,11 @@
         <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
             <column name="REV"/>
         </createIndex>
+
+        <createIndex indexName="IDX_FK_USR_DOM_AUD_REV_INFO" tableName="TB_USER_DOMAIN_AUD">
+            <column name="REV"/>
+        </createIndex>
+
     </changeSet>
 
     <!-- foreign keys -->
@@ -507,5 +555,11 @@
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
 
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_DOMAIN_AUD"
+                                 constraintName="FK_USR_DOM_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
     </changeSet>
+
 </databaseChangeLog>

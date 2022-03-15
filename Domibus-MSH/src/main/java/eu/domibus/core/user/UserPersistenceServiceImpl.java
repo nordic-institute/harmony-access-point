@@ -20,7 +20,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,35 +38,38 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserPersistenceServiceImpl.class);
 
-    @Autowired
-    private UserDao userDao;
+    protected final UserDao userDao;
 
-    @Autowired
-    private UserRoleDao userRoleDao;
+    protected final UserRoleDao userRoleDao;
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptEncoder;
+    protected final BCryptPasswordEncoder bCryptEncoder;
 
-    @Autowired
-    private AuthCoreMapper authCoreMapper;
+    protected final AuthCoreMapper authCoreMapper;
 
-    @Autowired
-    protected UserDomainService userDomainService;
+    protected final UserDomainService userDomainService;
 
-    @Autowired
-    private ConsoleUserSecurityPolicyManager securityPolicyManager;
+    protected final ConsoleUserSecurityPolicyManager securityPolicyManager;
 
-    @Autowired
-    UserSessionsService userSessionsService;
+    protected final UserSessionsService userSessionsService;
 
-    @Autowired
-    AuthenticationService authenticationService;
+    protected final AuthenticationService authenticationService;
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider; //NOSONAR: not necessary to be transient or serializable
+    protected final DomainContextProvider domainContextProvider; //NOSONAR: not necessary to be transient or serializable
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected final DomibusConfigurationService domibusConfigurationService;
+
+    public UserPersistenceServiceImpl(UserDao userDao, UserRoleDao userRoleDao, BCryptPasswordEncoder bCryptEncoder, AuthCoreMapper authCoreMapper, UserDomainService userDomainService, ConsoleUserSecurityPolicyManager securityPolicyManager, UserSessionsService userSessionsService, AuthenticationService authenticationService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        this.userDao = userDao;
+        this.userRoleDao = userRoleDao;
+        this.bCryptEncoder = bCryptEncoder;
+        this.authCoreMapper = authCoreMapper;
+        this.userDomainService = userDomainService;
+        this.securityPolicyManager = securityPolicyManager;
+        this.userSessionsService = userSessionsService;
+        this.authenticationService = authenticationService;
+        this.domainContextProvider = domainContextProvider;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -195,8 +197,9 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
         for (eu.domibus.api.user.User user : newUsers) {
             setUserDomainForMultiTenancy(user);
-            securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
-
+            if (!user.hasDefaultPassword()) {
+                securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
+            }
             User userEntity = authCoreMapper.userApiToUserSecurity(user);
 
             userEntity.setPassword(bCryptEncoder.encode(userEntity.getPassword()));

@@ -37,9 +37,9 @@ import java.util.List;
  * @since 4.1.2
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class CRLEbms3ServiceImplIT {
+public class CRLServiceImplIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLEbms3ServiceImplIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImplIT.class);
 
     @Configuration
     @EnableCaching
@@ -94,6 +94,11 @@ public class CRLEbms3ServiceImplIT {
         @Bean
         public PropertyProviderHelper domibusPropertyProviderHelper() {
             return Mockito.mock(PropertyProviderHelper.class);
+        }
+
+        @Bean
+        public DomibusRawPropertyProvider domibusRawPropertyProvider() {
+            return Mockito.mock(DomibusRawPropertyProvider.class);
         }
 
         @Bean
