@@ -11,7 +11,9 @@ import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
@@ -26,6 +28,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
+@RunWith(JMockit.class)
 public class DomibusContextRefreshedListenerTest {
 
     @Tested
@@ -102,6 +105,9 @@ public class DomibusContextRefreshedListenerTest {
             times = 1;
 
             multiDomainCryptoService.persistTruststoresIfApplicable();
+            times = 1;
+
+            userManagementService.createDefaultUserIfApplicable();
             times = 1;
 
             staticDictionaryService.createStaticDictionaryEntries();
