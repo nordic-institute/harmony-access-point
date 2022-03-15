@@ -93,12 +93,16 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler) throws WSSecurityException {
+    public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler) {
         try {
             return iamProvider.getPrivateKey(certificate, callbackHandler);
-        }catch (WSSecurityException e) {
-            String identifier = iamProvider.getX509Identifier(certificate);
-            throw new DomibusCertificateException("Could not retrieve private key for alias: " + identifier, e);
+        } catch (WSSecurityException e) {
+            try {
+                String identifier = iamProvider.getX509Identifier(certificate);
+                throw new DomibusCertificateException("Could not retrieve private key for alias: " + identifier, e);
+            } catch (WSSecurityException ex) {
+                throw new DomibusCertificateException("Could not retrieve X509 identifier for certificate: " + certificate, ex);
+            }
         }
     }
 
