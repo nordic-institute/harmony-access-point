@@ -15,12 +15,14 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hamcrest.CustomMatcher;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -57,29 +59,29 @@ public class DomainResourceTest {
             domainDao.findAll();
             result = domainEntries;
 
-           coreMapper.domainListToDomainROList(domainEntries);
-           result = domainROEntries;
+            coreMapper.domainListToDomainROList(domainEntries);
+            result = domainROEntries;
         }};
 
         // WHEN
         List<DomainRO> result = domainsResource.getDomains(activeFlag);
 
         // THEN
-        new FullVerifications() { /* no unexpected interactions */ };
+        new FullVerifications() { /* no unexpected interactions */
+        };
         assertEquals(domainROEntries, result);
     }
 
     @Test
     public void testGetDomains_ActiveFlagWhenNoUserDetails() {
         // GIVEN
-        final Boolean activeFlag = Boolean.TRUE;
         new Expectations() {{
-            authUtils.getUserDetails();
-            result = null;
+            domainService.getDomains();
+            result = new ArrayList<>();
         }};
 
         // WHEN
-        domainsResource.getDomains(activeFlag);
+        domainsResource.getDomains(true);
 
         // THEN
         new FullVerifications() {{
@@ -87,44 +89,4 @@ public class DomainResourceTest {
         }};
     }
 
-
-    @Test
-    public void testGetDomains(@Injectable DomibusUserDetails userDetails,
-                               @Injectable List<DomainRO> domainROEntries) {
-        final Domain red = new Domain("red", "Red");
-        final Domain yellow = new Domain("yellow", "Yellow");
-        final Domain blue = new Domain("blue", "Blue");
-
-        // GIVEN
-        new Expectations() {{
-            authUtils.getUserDetails();
-            result = userDetails;
-
-            userDetails.getAvailableDomainCodes();
-            result = new HashSet<>(Arrays.asList("red", "yellow", "blue"));
-
-            domainService.getDomain("red"); result = red;
-            domainService.getDomain("yellow"); result = yellow;
-            domainService.getDomain("blue"); result = blue;
-
-            coreMapper.domainListToDomainROList(withArgThat(
-                    new CustomTypeSafeMatcher<List<Domain>>("The argument list can contain domains in any order") {
-                        @Override
-                        protected boolean matchesSafely(List<Domain> domains) {
-                            return CollectionUtils.containsAll(domains,
-                                    Arrays.asList(red, yellow, blue));
-                        }
-                    }
-                )
-            );
-            result = domainROEntries;
-        }};
-
-        // WHEN
-        final List<DomainRO> result = domainsResource.getDomains(true);
-
-        // THEN
-        new FullVerifications() { /* no unexpected interactions */ };
-        assertEquals(domainROEntries, result);
-    }
 }
