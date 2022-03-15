@@ -1,3 +1,5 @@
+Domibus 4.2.8 (from 4.2.7):
+                - Replace the Domibus war
 Domibus 4.2.7 (from 4.2.6):
                 - Replace the Domibus war
 Domibus 4.2.6 (from 4.2.5):
