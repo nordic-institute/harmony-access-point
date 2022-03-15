@@ -5,17 +5,14 @@
 --
 -- Parameters to be adjusted:
 -- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
---              default value is 10000
+--              default value is 100
 -- VERBOSE_LOGS - more information into the logs; default to false
---
--- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
--- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO,
--- TB_ERROR_LOG, TB_MESSAGE_ACKNW, TB_SEND_ATTEMPT
 -- ********************************************************************************************************
+
 DELIMITER //
 
 -- batch size for commit of the migrated records
-SET @BATCH_SIZE := 10000
+SET @BATCH_SIZE := 100
 //
 
 -- enable more verbose logs
@@ -49,13 +46,7 @@ DROP FUNCTION IF EXISTS MIGRATE_42_TO_50_generate_id
 DROP FUNCTION IF EXISTS MIGRATE_42_TO_50_generate_new_id
 //
 
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_update_migration_pks
-//
-
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_lookup_migration_pk
-//
-
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_lookup_audit_migration_pk
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_lookup_migration_pk_tz_offset
 //
 
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_get_tb_d_mpc_rec
@@ -346,6 +337,258 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_multitenancy
 //
 
+DROP TABLE IF EXISTS MIGR_TB_PKS_TIMEZONE_OFFSET
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_USER_MESSAGE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_MESSAGE_INFO
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_MESSAGE_GROUP
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PART_INFO
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_MESSAGE_ACKNW
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_SEND_ATTEMPT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_ACTION_AUDIT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_ALERT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_EVENT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_AUTH_ENTRY
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_BACKEND_FILTER
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_ROUTING_CRITERIA
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_CERTIFICATE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_COMMAND
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_BUSINESS_PROC
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_ACTION
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_AGREEMENT
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_ERROR_HANDLING
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_MEP
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_MEP_BINDING
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_MESSAGE_PROP
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_MSG_PROP_SET
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_PARTY
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_CONFIGURATION
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_MPC
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_PARTY_ID_TYPE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_PARTY_ID
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_PAYLOAD
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_PAYLOAD_PROF
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_RECEPTN_AWARNS
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_RELIABILITY
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_ROLE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_SECURITY
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_SERVICE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_SPLITTING
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_LEG
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_PROCESS
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_PM_CONF_RAW
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_USER
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_USER_ROLE
+//
+
+DROP TABLE IF EXISTS MIGR_TB_PKS_REV_INFO
+//
+
+CREATE TABLE MIGR_TB_PKS_TIMEZONE_OFFSET (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_TIMEZONE_OFFSET PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_USER_MESSAGE (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_USER_MESSAGE PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_MESSAGE_INFO (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_MESSAGE_INFO PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_MESSAGE_GROUP (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_MESSAGE_GROUP PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PART_INFO (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PART_INFO PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_MESSAGE_ACKNW (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_MESSAGE_ACKNW PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_SEND_ATTEMPT (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_SEND_ATTEMPT PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_ACTION_AUDIT (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_ACTION_AUDIT PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_ALERT (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_ALERT PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_EVENT (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_EVENT PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_AUTH_ENTRY (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_AUTH_ENTRY PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_BACKEND_FILTER (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_BACKEND_FILTER PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_ROUTING_CRITERIA (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_ROUTING_CRITERIA PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_CERTIFICATE (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_CERTIFICATE PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_COMMAND (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_COMMAND PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_BUSINESS_PROC (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_BUSINESS_PROC PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_ACTION (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_ACTION PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_AGREEMENT (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_AGREEMENT PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_ERROR_HANDLING (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_ERROR_HANDLING PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_MEP (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_MEP PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_MEP_BINDING (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_MEP_BINDING PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_MESSAGE_PROP (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_MESSAGE_PROP PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_MSG_PROP_SET (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_MSG_PROP_SET PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_PARTY (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_PARTY PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_CONFIGURATION (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_CONFIGURATION PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_MPC (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_MPC PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_PARTY_ID_TYPE (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_PARTY_ID_TYPE PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_PARTY_ID (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_PARTY_ID PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_PAYLOAD (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_PAYLOAD PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_PAYLOAD_PROF (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_PAYLOAD_PROF PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_RECEPTN_AWARNS (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_RECEPTN_AWARNS PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_RELIABILITY (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_RELIABILITY PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_ROLE (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_ROLE PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_SECURITY (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_SECURITY PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_SERVICE (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_SERVICE PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_SPLITTING (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_SPLITTING PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_LEG (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_LEG PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_PROCESS (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_PROCESS PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_PM_CONF_RAW (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_PM_CONF_RAW PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_USER (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_USER PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_USER_ROLE (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_USER_ROLE PRIMARY KEY (OLD_ID))
+//
+
+CREATE TABLE MIGR_TB_PKS_REV_INFO (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_REV_INFO PRIMARY KEY (OLD_ID))
+//
+
 /** -- Helper procedures and functions start -*/
 CREATE FUNCTION MIGRATE_42_TO_50_check_table_exists(in_tab_name VARCHAR(64))
 RETURNS BOOLEAN
@@ -496,41 +739,16 @@ READS SQL DATA
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_update_migration_pks(migration_key VARCHAR(255), old_id BIGINT, new_id BIGINT, INOUT migration_pks JSON)
-    BEGIN
-        CALL MIGRATE_42_TO_50_log_verbose(CONCAT('Update migration primary keys mappings for ', migration_key,
-                ' having old_id=', old_id, ', new_id=', new_id));
-
-        IF NOT JSON_CONTAINS_PATH(migration_pks, 'one', CONCAT('$.', migration_key)) THEN
-            CALL MIGRATE_42_TO_50_log_verbose('Create missing key mapping');
-            SET migration_pks := JSON_SET(migration_pks, CONCAT('$.', migration_key), CAST('{}' AS JSON));
-        END IF;
-
-        SET migration_pks := JSON_SET(migration_pks, CONCAT('$.', migration_key, '."', old_id, '"'), new_id);
-    END
-//
-
-CREATE PROCEDURE MIGRATE_42_TO_50_lookup_migration_pk(migration_key VARCHAR(255), migration_pks JSON, old_id BIGINT, OUT new_id BIGINT)
-    BEGIN
-        CALL MIGRATE_42_TO_50_log_verbose(CONCAT('Lookup migration primary key mapping for ', migration_key,
-                 ' having old_id=', old_id, ', new_id=', new_id));
-
-        SET new_id := CAST(JSON_EXTRACT(migration_pks, CONCAT('$.', migration_key, '."', old_id, '"')) AS UNSIGNED);
-    END
-//
-
-
-CREATE PROCEDURE MIGRATE_42_TO_50_lookup_audit_migration_pk(migration_key VARCHAR(255), migration_pks JSON, missing_entity_date_prefix DATETIME, old_id BIGINT, OUT new_id BIGINT)
+CREATE FUNCTION MIGRATE_42_TO_50_lookup_migration_pk_tz_offset()
+    RETURNS BIGINT
+    READS SQL DATA
 BEGIN
-    CALL MIGRATE_42_TO_50_log_verbose(CONCAT('Lookup audit migration primary key mapping for ', migration_key,
-                 ' having old_id=', old_id, ', new_id=', new_id));
-
-    CALL MIGRATE_42_TO_50_lookup_migration_pk(migration_key, migration_pks, old_id, new_id);
-
-    IF new_id IS NULL THEN
-        CALL MIGRATE_42_TO_50_log_verbose('Audit primary key not found (deleted entity?): prefixing with current date');
-        SET new_id := MIGRATE_42_TO_50_generate_scalable_seq(old_id, missing_entity_date_prefix);
-    END IF;
+    DECLARE new_id BIGINT;
+    SELECT MPKSTO.NEW_ID
+    FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSTO
+    WHERE MPKSTO.OLD_ID = 1
+    INTO new_id;
+    RETURN new_id;
 END
 //
 
@@ -681,7 +899,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_agreement_rec(in_agreement_type VARCH
                     SET out_id_pk := LAST_INSERT_ID();
                 END;
 
-            SELECT ID_PK INTO out_id_pk FROM TB_D_AGREEMENT WHERE TYPE = in_agreement_type AND VALUE = in_agreement_value;
+            IF in_agreement_type IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_AGREEMENT WHERE TYPE IS NULL AND VALUE = in_agreement_value;
+            ELSEIF in_agreement_value IS NULL THEN
+                SELECT ID_PK INTO out_id_pk FROM TB_D_AGREEMENT WHERE TYPE = in_agreement_type AND VALUE IS NULL;
+            ELSE
+                SELECT ID_PK INTO out_id_pk FROM TB_D_AGREEMENT WHERE TYPE = in_agreement_type AND VALUE = in_agreement_value;
+            END IF;
         END;
     END
 //
@@ -784,7 +1008,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_user_message_rec(in_message_id VARCHAR(
                     CALL MIGRATE_42_TO_50_trace(CONCAT('No record found into MIGR_TB_USER_MESSAGE for MESSAGE_ID = ', in_message_id));
                 END;
 
-            -- TODO check index on message_id column?
             SELECT ID_PK INTO out_id_pk FROM MIGR_TB_USER_MESSAGE WHERE MESSAGE_ID = in_message_id;
         END;
     END
@@ -803,7 +1026,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_signal_message_rec(in_message_id VARCHA
                     CALL MIGRATE_42_TO_50_trace(CONCAT('No record found into MIGR_TB_SIGNAL_MESSAGE for MESSAGE_ID = ', in_message_id));
                 END;
 
-            -- TODO check index on signal_message_id column?
             SELECT ID_PK INTO out_id_pk FROM MIGR_TB_SIGNAL_MESSAGE WHERE SIGNAL_MESSAGE_ID = in_message_id;
         END;
     END
@@ -866,7 +1088,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_part_property_rec(in_prop_name VARCHA
 //
 
 /**-- TB_D_TIMEZONE_OFFSET migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_prepare_timezone_offset(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_prepare_timezone_offset()
     BEGIN
         DECLARE calculated_id_pk BIGINT;
 
@@ -874,7 +1096,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_prepare_timezone_offset(INOUT migration_pks JS
 
         IF calculated_id_pk IS NULL THEN
             SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(1, SYSDATE());
-            CALL MIGRATE_42_TO_50_update_migration_pks('timezone_offset', 1, calculated_id_pk, migration_pks);
+
+            INSERT INTO MIGR_TB_PKS_TIMEZONE_OFFSET (OLD_ID, NEW_ID)
+            VALUES(1, calculated_id_pk);
 
             INSERT INTO TB_D_TIMEZONE_OFFSET (ID_PK, NEXT_ATTEMPT_TIMEZONE_ID, NEXT_ATTEMPT_OFFSET_SECONDS, CREATION_TIME, CREATED_BY)
             VALUES (calculated_id_pk,
@@ -887,7 +1111,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_prepare_timezone_offset(INOUT migration_pks JS
 //
 
 /**-- TB_USER_MESSAGE migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message()
     BEGIN
         DECLARE action VARCHAR(255);
         DECLARE agreement_ref_type VARCHAR(255);
@@ -983,8 +1207,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('user_message', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_update_migration_pks('message_info', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_USER_MESSAGE (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
+
+                INSERT INTO MIGR_TB_PKS_MESSAGE_INFO (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
+
                 CALL MIGRATE_42_TO_50_get_tb_d_mpc_rec(mpc, calculated_mpc_id_fk);
                 CALL MIGRATE_42_TO_50_get_tb_d_role_rec(from_role, calculated_from_role_id_fk);
                 CALL MIGRATE_42_TO_50_get_tb_d_role_rec(to_role, calculated_to_role_id_fk);
@@ -1037,7 +1266,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message(INOUT migration_pks JSON)
 //
 
 /**-- TB_MESSAGE_FRAGMENT migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
@@ -1048,13 +1277,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment(INOUT migration_pks J
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_id_pk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_message_fragment CURSOR FOR
-            SELECT UM.ID_PK, -- 1:1 ID_PK implementation
+            SELECT (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
                    MF.GROUP_ID,
                    MF.FRAGMENT_NUMBER,
                    MF.CREATION_TIME,
@@ -1099,11 +1328,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment(INOUT migration_pks J
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user_message', migration_pks, id_pk, calculated_id_pk);
-
                 INSERT INTO MIGR_TB_SJ_MESSAGE_FRAGMENT (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME,
                         CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_id_pk,
+                VALUES (id_pk,
                         group_id_fk,
                         fragment_number,
                         creation_time,
@@ -1134,7 +1361,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment(INOUT migration_pks J
 //
 
 /**-- TB_MESSAGE_GROUP migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group()
     BEGIN
         DECLARE compressed_message_size BIGINT;
         DECLARE compression_algorithm VARCHAR(255);
@@ -1214,7 +1441,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group(INOUT migration_pks JSON
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('message_group', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_MESSAGE_GROUP (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
+
                 CALL MIGRATE_42_TO_50_get_tb_d_msh_role_rec(msh_role, calculated_msh_role_id_fk);
                 CALL MIGRATE_42_TO_50_get_tb_user_message_rec(source_message_id, calculated_source_message_id_fk);
 
@@ -1264,7 +1494,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group(INOUT migration_pks JSON
 //
 
 /**-- TB_MESSAGE_GROUP migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header()
     BEGIN
         DECLARE boundary VARCHAR(255);
         DECLARE created_by VARCHAR(255);
@@ -1274,13 +1504,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header(INOUT migration_pks JSO
         DECLARE modified_by VARCHAR(255);
         DECLARE start VARCHAR(255);
 
-        DECLARE calculated_id_pk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_message_header CURSOR FOR
-            SELECT MG.ID_PK, -- 1:1 ID_PK implementation
+            SELECT (SELECT MPKSMG.NEW_ID
+                    FROM MIGR_TB_PKS_MESSAGE_GROUP MPKSMG
+                    WHERE MPKSMG.OLD_ID = MG.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
                    MH.BOUNDARY,
                    MH.START,
                    MH.CREATION_TIME,
@@ -1322,11 +1552,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header(INOUT migration_pks JSO
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('message_group', migration_pks, id_pk, calculated_id_pk);
-
                 INSERT INTO MIGR_TB_SJ_MESSAGE_HEADER (ID_PK, BOUNDARY, START_MULTIPART, CREATION_TIME, CREATED_BY,
                         MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_id_pk,
+                VALUES (id_pk,
                         boundary,
                         start,
                         creation_time,
@@ -1358,7 +1586,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header(INOUT migration_pks JSO
 //
 
 /**-- TB_SIGNAL_MESSAGE, TB_RECEIPT and TB_RECEIPT_DATA migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
@@ -1374,13 +1602,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt(INOUT migration_pks JSO
         DECLARE ref_to_message_id VARCHAR(255);
         DECLARE signal_message_id VARCHAR(255);
 
-        DECLARE calculated_id_pk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_signal_message_receipt CURSOR FOR
-            SELECT UM.ID_PK, --  1:1 here
+            SELECT (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
                    MI.MESSAGE_ID        SIGNAL_MESSAGE_ID,
                    MI.REF_TO_MESSAGE_ID REF_TO_MESSAGE_ID,
                    MI.TIME_STAMP        EBMS3_TIMESTAMP,
@@ -1445,12 +1673,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt(INOUT migration_pks JSO
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user_message', migration_pks, id_pk, calculated_id_pk);
-
                 -- new tb_signal_message table
                 INSERT INTO MIGR_TB_SIGNAL_MESSAGE (ID_PK, SIGNAL_MESSAGE_ID, REF_TO_MESSAGE_ID, EBMS3_TIMESTAMP,
                         CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_id_pk,
+                VALUES (id_pk,
                         signal_message_id,
                         ref_to_message_id,
                         ebms3_timestamp,
@@ -1461,7 +1687,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt(INOUT migration_pks JSO
 
                 -- new tb_receipt table
                 INSERT INTO MIGR_TB_RECEIPT (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_id_pk,
+                VALUES (id_pk,
                         CAST(raw_xml AS BINARY),
                         r_creation_time,
                         r_created_by,
@@ -1498,7 +1724,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt(INOUT migration_pks JSO
 //
 
 /**-- TB_RAWENVELOPE_LOG migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
@@ -1508,13 +1734,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log(INOUT migration_pks J
         DECLARE raw_xml LONGTEXT;
         DECLARE type VARCHAR(6);
 
-        DECLARE calculated_id_pk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_raw_envelope CURSOR FOR
-            SELECT UM.ID_PK, --  1:1 here
+            SELECT (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
                    'USER' AS TYPE,
                    RA.RAW_XML,
                    RA.CREATION_TIME,
@@ -1525,7 +1751,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log(INOUT migration_pks J
                  TB_RAWENVELOPE_LOG RA
             WHERE UM.ID_PK = RA.USERMESSAGE_ID_FK
             UNION ALL
-            SELECT UM.ID_PK, --  1:1 here
+            SELECT (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
                    'SIGNAL' AS TYPE,
                    RA.RAW_XML,
                    RA.CREATION_TIME,
@@ -1570,8 +1798,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log(INOUT migration_pks J
                 LEAVE read_loop;
             END IF;
 
-            CALL MIGRATE_42_TO_50_lookup_migration_pk('user_message', migration_pks, id_pk, calculated_id_pk);
-
             IF @v_type = 'USER' THEN
                 BEGIN
                     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -1585,7 +1811,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log(INOUT migration_pks J
 
                     INSERT INTO MIGR_TB_USER_MESSAGE_RAW (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
                             MODIFIED_BY)
-                    VALUES (calculated_id_pk,
+                    VALUES (id_pk,
                         CAST(raw_xml AS BINARY),
                         creation_time,
                         created_by,
@@ -1605,7 +1831,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log(INOUT migration_pks J
 
                     INSERT INTO MIGR_TB_SIGNAL_MESSAGE_RAW (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY,
                             MODIFICATION_TIME, MODIFIED_BY)
-                    VALUES (calculated_id_pk,
+                    VALUES (id_pk,
                             CAST(raw_xml AS BINARY),
                             creation_time,
                             created_by,
@@ -1806,7 +2032,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_log()
 //
 
 /**- TB_PROPERTY, TB_USER_MESSAGE data migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
@@ -1817,14 +2043,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property(INOUT migration_pks JSON)
         DECLARE user_message_id_fk BIGINT;
         DECLARE value VARCHAR(1024);
 
-        DECLARE calculated_user_message_id_fk BIGINT;
         DECLARE calculated_message_property_fk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_property CURSOR FOR
-            SELECT UM.ID_PK USER_MESSAGE_ID_FK,
+            SELECT (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS USER_MESSAGE_ID_FK, -- 1:1 ID_PK implementation
                    TP.NAME,
                    TP.VALUE,
                    TP.TYPE,
@@ -1864,12 +2091,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property(INOUT migration_pks JSON)
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user_message', migration_pks, user_message_id_fk, calculated_user_message_id_fk);
                 CALL MIGRATE_42_TO_50_get_tb_d_msg_property_rec(name, value, type, calculated_message_property_fk);
 
                 INSERT INTO MIGR_TB_MESSAGE_PROPERTIES (USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME,
                         CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_user_message_id_fk,
+                VALUES (user_message_id_fk,
                         calculated_message_property_fk,
                         creation_time,
                         created_by,
@@ -1898,7 +2124,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property(INOUT migration_pks JSON)
 //
 
 /**- TB_PART_INFO, TB_USER_MESSAGE data migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
     BEGIN
         DECLARE binary_data LONGBLOB;
         DECLARE created_by VARCHAR(255);
@@ -1917,7 +2143,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
         DECLARE user_message_id_fk BIGINT;
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_user_message_id_fk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -1937,7 +2162,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
                    PI.CREATION_TIME,
                    PI.MODIFIED_BY,
                    PI.MODIFICATION_TIME,
-                   UM.ID_PK USER_MESSAGE_ID_FK
+                   (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS USER_MESSAGE_ID_FK -- 1:1 ID_PK implementation
             FROM TB_USER_MESSAGE UM,
                  TB_PART_INFO PI
             WHERE PI.PAYLOADINFO_ID = UM.ID_PK;
@@ -1971,8 +2198,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('part_info', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user_message', migration_pks, user_message_id_fk, calculated_user_message_id_fk);
+
+                INSERT INTO MIGR_TB_PKS_PART_INFO (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PART_INFO (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY,
                         FILENAME, MIME, PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY,
@@ -1987,7 +2215,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
                         mime,
                         part_order,
                         encrypted,
-                        calculated_user_message_id_fk,
+                        user_message_id_fk,
                         creation_time,
                         created_by,
                         modification_time,
@@ -2015,7 +2243,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
 //
 
 /**- TB_PART_INFO, TB_PROPERTY data migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
@@ -2026,7 +2254,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property(INOUT migration_pks
         DECLARE type VARCHAR(255);
         DECLARE value VARCHAR(1024);
 
-        DECLARE calculated_part_info_id_fk BIGINT;
         DECLARE calculated_part_info_property_fk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
@@ -2035,7 +2262,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property(INOUT migration_pks
             SELECT PR.NAME,
                    PR.VALUE,
                    PR.TYPE,
-                   PI.ID_PK PART_INFO_ID_FK,
+                   (SELECT MPKSPI.NEW_ID
+                    FROM MIGR_TB_PKS_PART_INFO MPKSPI
+                    WHERE MPKSPI.OLD_ID = PI.ID_PK) AS PART_INFO_ID_FK,
                    PR.CREATION_TIME,
                    PR.CREATED_BY,
                    PR.MODIFICATION_TIME,
@@ -2071,13 +2300,12 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property(INOUT migration_pks
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('part_info', migration_pks, part_info_id_fk, calculated_part_info_id_fk);
                 CALL MIGRATE_42_TO_50_get_tb_d_part_property_rec(name, value, type, calculated_part_info_property_fk);
 
                 -- TODO check if AUTOINCREMENT is fine
                 INSERT INTO MIGR_TB_PART_PROPERTIES (PART_INFO_ID_FK, PART_INFO_PROPERTY_FK, CREATION_TIME, CREATED_BY,
                         MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_part_info_id_fk,
+                VALUES (part_info_id_fk,
                     calculated_part_info_property_fk,
                     creation_time,
                     created_by,
@@ -2101,7 +2329,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property(INOUT migration_pks
 //
 
 /**- TB_ERROR_LOG data migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log()
     BEGIN
         DECLARE created_by VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
@@ -2118,7 +2346,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log(INOUT migration_pks JSON)
         DECLARE user_message_id_fk BIGINT;
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_user_message_id_fk BIGINT;
         DECLARE calculated_msh_role_id_fk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
@@ -2137,7 +2364,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log(INOUT migration_pks JSON)
                    EL.CREATED_BY,
                    EL.MODIFICATION_TIME,
                    EL.MODIFIED_BY,
-                   UMMI.ID_PK USER_MESSAGE_ID_FK
+                   (SELECT MPKSMI.NEW_ID
+                    FROM MIGR_TB_PKS_MESSAGE_INFO MPKSMI
+                    WHERE MPKSMI.OLD_ID = UMMI.ID_PK) AS USER_MESSAGE_ID_FK
             FROM TB_ERROR_LOG EL
                      LEFT JOIN
                  (SELECT MI.MESSAGE_ID, UM.ID_PK
@@ -2174,8 +2403,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('error_log', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('message_info', migration_pks, user_message_id_fk, calculated_user_message_id_fk);
                 CALL MIGRATE_42_TO_50_get_tb_d_msh_role_rec(msh_role, calculated_msh_role_id_fk);
 
                 INSERT INTO MIGR_TB_ERROR_LOG (ID_PK, ERROR_CODE, ERROR_DETAIL, ERROR_SIGNAL_MESSAGE_ID,
@@ -2189,7 +2416,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log(INOUT migration_pks JSON)
                         calculated_msh_role_id_fk,
                         notified,
                         time_stamp,
-                        calculated_user_message_id_fk,
+                        user_message_id_fk,
                         creation_time,
                         created_by,
                         modification_time,
@@ -2218,7 +2445,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log(INOUT migration_pks JSON)
 //
 
 /**- TB_MESSAGE_ACKNW data migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw()
     BEGIN
         DECLARE acknowledge_date TIMESTAMP;
         DECLARE created_by VARCHAR(255);
@@ -2231,7 +2458,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw(INOUT migration_pks JSON
         DECLARE user_message_id_fk BIGINT;
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_user_message_id_fk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -2245,7 +2471,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw(INOUT migration_pks JSON
                    MA.CREATED_BY,
                    MA.MODIFICATION_TIME,
                    MA.MODIFIED_BY,
-                   UM.ID_PK USER_MESSAGE_ID_FK
+                   (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS USER_MESSAGE_ID_FK
             FROM
                 TB_MESSAGE_ACKNW MA,
                 TB_MESSAGE_INFO MI,
@@ -2280,8 +2508,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw(INOUT migration_pks JSON
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('message_acknw', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user_message', migration_pks, user_message_id_fk, calculated_user_message_id_fk);
+
+                INSERT INTO MIGR_TB_PKS_MESSAGE_ACKNW (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_MESSAGE_ACKNW (ID_PK, FROM_VALUE, TO_VALUE, ACKNOWLEDGE_DATE, USER_MESSAGE_ID_FK,
                         CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -2289,7 +2518,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw(INOUT migration_pks JSON
                         from_value,
                         to_value,
                         acknowledge_date,
-                        calculated_user_message_id_fk,
+                        user_message_id_fk,
                         creation_time,
                         created_by,
                         modification_time,
@@ -2318,7 +2547,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw(INOUT migration_pks JSON
 //
 
 /**- TB_SEND_ATTEMPT data migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_send_attempt(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_send_attempt()
 
 BEGIN
     DECLARE status VARCHAR(255);
@@ -2333,7 +2562,6 @@ BEGIN
     DECLARE user_message_id_fk BIGINT;
 
     DECLARE calculated_id_pk BIGINT;
-    DECLARE calculated_user_message_id_fk BIGINT;
 
     DECLARE done INT DEFAULT FALSE;
     DECLARE migration_status BOOLEAN;
@@ -2348,7 +2576,9 @@ BEGIN
                SA.CREATED_BY,
                SA.MODIFICATION_TIME,
                SA.MODIFIED_BY,
-               UM.ID_PK USER_MESSAGE_ID_FK
+               (SELECT MPKSUM.NEW_ID
+                FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                WHERE MPKSUM.OLD_ID = UM.ID_PK) AS USER_MESSAGE_ID_FK
         FROM TB_SEND_ATTEMPT SA,
              TB_MESSAGE_INFO MI,
              TB_USER_MESSAGE UM
@@ -2383,8 +2613,9 @@ BEGIN
             END IF;
 
             SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-            CALL MIGRATE_42_TO_50_update_migration_pks('send_attempt', id_pk, calculated_id_pk, migration_pks);
-            CALL MIGRATE_42_TO_50_lookup_migration_pk('user_message', migration_pks, user_message_id_fk, calculated_user_message_id_fk);
+
+            INSERT INTO MIGR_TB_PKS_SEND_ATTEMPT (OLD_ID, NEW_ID)
+            VALUES (id_pk, calculated_id_pk);
 
             INSERT INTO MIGR_TB_SEND_ATTEMPT (ID_PK, START_DATE, END_DATE, STATUS, ERROR, USER_MESSAGE_ID_FK,
                                               CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -2393,7 +2624,7 @@ BEGIN
                     end_date,
                     status,
                     error,
-                    calculated_user_message_id_fk,
+                    user_message_id_fk,
                     creation_time,
                     created_by,
                     modification_time,
@@ -2420,7 +2651,7 @@ BEGIN
 END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_action_audit(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_action_audit()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE audit_type VARCHAR(31);
@@ -2482,7 +2713,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_action_audit(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('action_audit', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_ACTION_AUDIT (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_ACTION_AUDIT (ID_PK, AUDIT_TYPE, ENTITY_ID, MODIFICATION_TYPE, REVISION_DATE,
                                                   USER_NAME, FROM_QUEUE, TO_QUEUE, CREATION_TIME, CREATED_BY,
@@ -2521,7 +2754,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_action_audit(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_alert(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_alert()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE alert_type VARCHAR(50);
@@ -2572,6 +2805,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_alert(INOUT migration_pks JSON)
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
+        SET fk_timezone_offset := MIGRATE_42_TO_50_lookup_migration_pk_tz_offset();
+
         OPEN c_alert;
         read_loop:
 		LOOP
@@ -2592,8 +2827,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_alert(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('alert', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('timezone_offset', migration_pks, 1, fk_timezone_offset);
+
+                INSERT INTO MIGR_TB_PKS_ALERT (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_ALERT (ID_PK, ALERT_TYPE, ATTEMPTS_NUMBER, MAX_ATTEMPTS_NUMBER, PROCESSED,
                                            PROCESSED_TIME, REPORTING_TIME, REPORTING_TIME_FAILURE, NEXT_ATTEMPT,
@@ -2637,7 +2873,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_alert(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE event_type VARCHAR(50);
@@ -2692,7 +2928,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('event', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_EVENT (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_EVENT (ID_PK, EVENT_TYPE, REPORTING_TIME, LAST_ALERT_DATE, CREATION_TIME,
                                            CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -2726,7 +2964,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_alert(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_alert()
     BEGIN
         DECLARE fk_event BIGINT;
         DECLARE fk_alert BIGINT;
@@ -2735,15 +2973,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_alert(INOUT migration_pks JSON)
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_fk_event BIGINT;
-        DECLARE calculated_fk_alert BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_event_alert CURSOR FOR
-        SELECT EA.FK_EVENT,
-                EA.FK_ALERT,
+        SELECT (SELECT MPKSE.NEW_ID
+                FROM MIGR_TB_PKS_EVENT MPKSE
+                WHERE MPKSE.OLD_ID = EA.FK_EVENT) AS FK_EVENT,
+               (SELECT MPKSA.NEW_ID
+                FROM MIGR_TB_PKS_ALERT MPKSA
+                WHERE MPKSA.OLD_ID = EA.FK_ALERT) AS FK_ALERT,
                 EA.CREATION_TIME,
                 EA.CREATED_BY,
                 EA.MODIFICATION_TIME,
@@ -2776,12 +3015,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_alert(INOUT migration_pks JSON)
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('alert', migration_pks, fk_alert, calculated_fk_alert);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('event', migration_pks, fk_event, calculated_fk_event);
-
                 INSERT INTO MIGR_TB_EVENT_ALERT (FK_EVENT, FK_ALERT, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_fk_event,
-                        calculated_fk_alert,
+                VALUES (fk_event,
+                        fk_alert,
                         creation_time,
                         created_by,
                         modification_time,
@@ -2808,7 +3044,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_alert(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_property(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_property()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE property_type VARCHAR(50);
@@ -2822,23 +3058,24 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_property(INOUT migration_pks JSO
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_event BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_event_property CURSOR FOR
-        SELECT EA.ID_PK,
-                EA.PROPERTY_TYPE,
-                EA.FK_EVENT,
-                EA.DTYPE,
-                EA.STRING_VALUE,
-                EA.DATE_VALUE,
-                EA.CREATION_TIME,
-                EA.CREATED_BY,
-                EA.MODIFICATION_TIME,
-                EA.MODIFIED_BY
-        FROM TB_EVENT_PROPERTY EA;
+        SELECT EP.ID_PK,
+                EP.PROPERTY_TYPE,
+               (SELECT MPKSE.NEW_ID
+                FROM MIGR_TB_PKS_EVENT MPKSE
+                WHERE MPKSE.OLD_ID = EP.FK_EVENT) AS FK_EVENT,
+                EP.DTYPE,
+                EP.STRING_VALUE,
+                EP.DATE_VALUE,
+                EP.CREATION_TIME,
+                EP.CREATED_BY,
+                EP.MODIFICATION_TIME,
+                EP.MODIFIED_BY
+        FROM TB_EVENT_PROPERTY EP;
 
         DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
 
@@ -2868,13 +3105,12 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_property(INOUT migration_pks JSO
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('event', migration_pks, fk_event, calculated_fk_event);
 
                 INSERT INTO MIGR_TB_EVENT_PROPERTY (ID_PK, PROPERTY_TYPE, FK_EVENT, DTYPE, STRING_VALUE, DATE_VALUE,
                                                     CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         property_type,
-                        calculated_fk_event,
+                        fk_event,
                         dtype,
                         string_value,
                         date_value,
@@ -2904,7 +3140,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_property(INOUT migration_pks JSO
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE certificate_id VARCHAR(255);
@@ -2976,7 +3212,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry(INOUT migration_p
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('authentication_entry', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_AUTH_ENTRY (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_AUTHENTICATION_ENTRY (ID_PK, CERTIFICATE_ID, USERNAME, PASSWD, AUTH_ROLES,
                                                           ORIGINAL_USER, BACKEND, PASSWORD_CHANGE_DATE,
@@ -3021,7 +3259,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_plugin_user_passwd_history(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_plugin_user_passwd_history()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE user_id BIGINT;
@@ -3033,14 +3271,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_plugin_user_passwd_history(INOUT migra
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_user_id BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_plugin_user_passwd_history CURSOR FOR
             SELECT PUPH.ID_PK,
-                    PUPH.USER_ID,
+                   (SELECT MPKSAE.NEW_ID
+                    FROM MIGR_TB_PKS_AUTH_ENTRY MPKSAE
+                    WHERE MPKSAE.OLD_ID = PUPH.USER_ID) AS USER_ID,
                     PUPH.USER_PASSWORD,
                     PUPH.PASSWORD_CHANGE_DATE,
                     PUPH.CREATION_TIME,
@@ -3077,13 +3316,12 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_plugin_user_passwd_history(INOUT migra
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('authentication_entry', migration_pks, user_id, calculated_user_id);
 
                 INSERT INTO MIGR_TB_PLUGIN_USR_PASSWD_HIST (ID_PK, USER_ID, USER_PASSWORD, PASSWORD_CHANGE_DATE,
                                                                 CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
                                                                 MODIFIED_BY)
                 VALUES (calculated_id_pk,
-                        calculated_user_id,
+                        user_id,
                         user_password,
                         password_change_date,
                         creation_time,
@@ -3112,7 +3350,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_plugin_user_passwd_history(INOUT migra
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE backend_name VARCHAR(255);
@@ -3165,7 +3403,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter(INOUT migration_pks JSO
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('backend_filter', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_BACKEND_FILTER (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_BACKEND_FILTER (ID_PK, BACKEND_NAME, PRIORITY, CREATION_TIME, CREATED_BY,
                                                     MODIFICATION_TIME, MODIFIED_BY)
@@ -3198,7 +3438,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter(INOUT migration_pks JSO
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE expression VARCHAR(255);
@@ -3211,7 +3451,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria(INOUT migration_pks J
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_backend_filter BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -3220,7 +3459,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria(INOUT migration_pks J
             SELECT RC.ID_PK,
                     RC.EXPRESSION,
                     RC.NAME,
-                    RC.FK_BACKEND_FILTER,
+                   (SELECT MPKSBF.NEW_ID
+                    FROM MIGR_TB_PKS_BACKEND_FILTER MPKSBF
+                    WHERE MPKSBF.OLD_ID = RC.FK_BACKEND_FILTER) AS FK_BACKEND_FILTER,
                     RC.PRIORITY,
                     RC.CREATION_TIME,
                     RC.CREATED_BY,
@@ -3256,15 +3497,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria(INOUT migration_pks J
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('routing_criteria', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('backend_filter', migration_pks, fk_backend_filter, calculated_fk_backend_filter);
+
+                INSERT INTO MIGR_TB_PKS_ROUTING_CRITERIA (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_ROUTING_CRITERIA (ID_PK, EXPRESSION, NAME, FK_BACKEND_FILTER, PRIORITY,
                                                       CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         expression,
                         name,
-                        calculated_fk_backend_filter,
+                        fk_backend_filter,
                         priority,
                         creation_time,
                         created_by,
@@ -3292,7 +3534,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria(INOUT migration_pks J
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE certificate_alias VARCHAR(255);
@@ -3358,7 +3600,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('certificate', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_CERTIFICATE (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_CERTIFICATE (ID_PK, CERTIFICATE_ALIAS, NOT_VALID_BEFORE_DATE, NOT_VALID_AFTER_DATE,
                                                  REVOKE_NOTIFICATION_DATE, ALERT_IMM_NOTIFICATION_DATE,
@@ -3399,7 +3643,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE server_name VARCHAR(255);
@@ -3452,7 +3696,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('command', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_COMMAND (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_COMMAND (ID_PK, SERVER_NAME, COMMAND_NAME, CREATION_TIME, CREATED_BY,
                                              MODIFICATION_TIME, MODIFIED_BY)
@@ -3485,7 +3731,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command_property(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command_property()
     BEGIN
         DECLARE property_name VARCHAR(50);
         DECLARE property_value VARCHAR(255);
@@ -3495,15 +3741,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command_property(INOUT migration_pks J
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_fk_command BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_command_property CURSOR FOR
             SELECT CP.PROPERTY_NAME,
                     CP.PROPERTY_VALUE,
-                    CP.FK_COMMAND,
+                   (SELECT MPKSC.NEW_ID
+                    FROM MIGR_TB_PKS_COMMAND MPKSC
+                    WHERE MPKSC.OLD_ID = CP.FK_COMMAND) AS FK_COMMAND,
                     CP.CREATION_TIME,
                     CP.CREATED_BY,
                     CP.MODIFICATION_TIME,
@@ -3537,13 +3783,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command_property(INOUT migration_pks J
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('command', migration_pks, fk_command, calculated_fk_command);
-
                 INSERT INTO MIGR_TB_COMMAND_PROPERTY (PROPERTY_NAME, PROPERTY_VALUE, FK_COMMAND, CREATION_TIME,
                                                       CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (property_name,
                         property_value,
-                        calculated_fk_command,
+                        fk_command,
                         creation_time,
                         created_by,
                         modification_time,
@@ -3658,7 +3902,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_encryption_key()
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw_prop(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw_prop()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE property_name VARCHAR(255);
@@ -3670,7 +3914,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw_prop(INOUT migration_pks
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_msg_acknowledge BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -3679,7 +3922,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw_prop(INOUT migration_pks
             SELECT MAP.ID_PK,
                     MAP.PROPERTY_NAME,
                     MAP.PROPERTY_VALUE,
-                    MAP.FK_MSG_ACKNOWLEDGE,
+                   (SELECT MPKSMA.NEW_ID
+                    FROM MIGR_TB_PKS_MESSAGE_ACKNW MPKSMA
+                    WHERE MPKSMA.OLD_ID = MAP.FK_MSG_ACKNOWLEDGE) AS FK_MSG_ACKNOWLEDGE,
                     MAP.CREATION_TIME,
                     MAP.CREATED_BY,
                     MAP.MODIFICATION_TIME,
@@ -3714,14 +3959,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw_prop(INOUT migration_pks
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('message_acknw', migration_pks, fk_msg_acknowledge, calculated_fk_msg_acknowledge);
 
                 INSERT INTO MIGR_TB_MESSAGE_ACKNW_PROP (ID_PK, PROPERTY_NAME, PROPERTY_VALUE, FK_MSG_ACKNOWLEDGE,
                                                         CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         property_name,
                         property_value,
-                        calculated_fk_msg_acknowledge,
+                        fk_msg_acknowledge,
                         creation_time,
                         created_by,
                         modification_time,
@@ -3748,7 +3992,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw_prop(INOUT migration_pks
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_messaging_lock(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_messaging_lock()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE message_type VARCHAR(10);
@@ -3799,6 +4043,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_messaging_lock(INOUT migration_pks JSO
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
+        SET fk_timezone_offset := MIGRATE_42_TO_50_lookup_migration_pk_tz_offset();
+
         OPEN c_messaging_lock;
         read_loop:
 		LOOP
@@ -3819,7 +4065,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_messaging_lock(INOUT migration_pks JSO
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('timezone_offset', migration_pks, 1, fk_timezone_offset);
 
                 INSERT INTO MIGR_TB_MESSAGING_LOCK (ID_PK, MESSAGE_TYPE, MESSAGE_RECEIVED, MESSAGE_STATE, MESSAGE_ID,
                                                     INITIATOR, MPC, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, NEXT_ATTEMPT,
@@ -3863,7 +4108,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_messaging_lock(INOUT migration_pks JSO
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_business_process(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_business_process()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE creation_time TIMESTAMP;
@@ -3911,7 +4156,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_business_process(INOUT migration_pk
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_business_process', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_PM_BUSINESS_PROC (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_BUSINESS_PROCESS (ID_PK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
                                                          MODIFIED_BY)
@@ -3942,7 +4189,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_business_process(INOUT migration_pk
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_action(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_action()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -3954,7 +4201,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_action(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -3963,7 +4209,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_action(INOUT migration_pks JSON)
             SELECT PA.ID_PK,
                     PA.NAME,
                     PA.VALUE,
-                    PA.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PA.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PA.CREATION_TIME,
                     PA.CREATED_BY,
                     PA.MODIFICATION_TIME,
@@ -3998,15 +4246,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_action(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_action', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_ACTION (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_ACTION (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
                                                MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         name,
                         value,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4033,7 +4282,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_action(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -4046,7 +4295,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4056,7 +4304,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement(INOUT migration_pks JSON)
                     PA.NAME,
                     PA.TYPE,
                     PA.VALUE,
-                    PA.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PA.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PA.CREATION_TIME,
                     PA.CREATED_BY,
                     PA.MODIFICATION_TIME,
@@ -4091,8 +4341,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_agreement', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_AGREEMENT (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_AGREEMENT (ID_PK, NAME, TYPE, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
                                                   CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -4100,7 +4351,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement(INOUT migration_pks JSON)
                         name,
                         type,
                         value,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4127,7 +4378,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE business_error_notify_consumer BIT(1);
@@ -4142,7 +4393,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling(INOUT migration_pks 
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4154,7 +4404,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling(INOUT migration_pks 
                     PEH.DELIVERY_FAIL_NOTIFY_PRODUCER,
                     PEH.ERROR_AS_RESPONSE,
                     PEH.NAME,
-                    PEH.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PEH.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PEH.CREATION_TIME,
                     PEH.CREATED_BY,
                     PEH.MODIFICATION_TIME,
@@ -4190,8 +4442,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling(INOUT migration_pks 
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_error_handling', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_ERROR_HANDLING (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_ERROR_HANDLING (ID_PK, BUSINESS_ERROR_NOTIFY_CONSUMER,
                                                        BUSINESS_ERROR_NOTIFY_PRODUCER, DELIVERY_FAIL_NOTIFY_PRODUCER,
@@ -4203,7 +4456,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling(INOUT migration_pks 
                         delivery_fail_notify_producer,
                         error_as_response,
                         name,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4230,7 +4483,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling(INOUT migration_pks 
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE leg_count INT;
@@ -4243,7 +4496,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4253,7 +4505,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep(INOUT migration_pks JSON)
                     PM.LEG_COUNT,
                     PM.NAME,
                     PM.VALUE,
-                    PM.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PM.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PM.CREATION_TIME,
                     PM.CREATED_BY,
                     PM.MODIFICATION_TIME,
@@ -4288,8 +4542,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_mep', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_MEP (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_MEP (ID_PK, LEG_COUNT, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
                                             CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -4297,7 +4552,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep(INOUT migration_pks JSON)
                         leg_count,
                         name,
                         value,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4324,7 +4579,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep_binding(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep_binding()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -4336,7 +4591,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep_binding(INOUT migration_pks JSO
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4345,7 +4599,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep_binding(INOUT migration_pks JSO
             SELECT PMB.ID_PK,
                     PMB.NAME,
                     PMB.VALUE,
-                    PMB.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PMB.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PMB.CREATION_TIME,
                     PMB.CREATED_BY,
                     PMB.MODIFICATION_TIME,
@@ -4380,15 +4636,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep_binding(INOUT migration_pks JSO
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_mep_binding', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_MEP_BINDING (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_MEP_BINDING (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
                                                     MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         name,
                         value,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4415,7 +4672,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep_binding(INOUT migration_pks JSO
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE datatype VARCHAR(255);
@@ -4429,7 +4686,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property(INOUT migration_pk
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4440,7 +4696,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property(INOUT migration_pk
                     PMP.KEY_,
                     PMP.NAME,
                     PMP.REQUIRED_,
-                    PMP.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PMP.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PMP.CREATION_TIME,
                     PMP.CREATED_BY,
                     PMP.MODIFICATION_TIME,
@@ -4475,8 +4733,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property(INOUT migration_pk
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_message_property', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_MESSAGE_PROP (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_MESSAGE_PROPERTY (ID_PK, DATATYPE, KEY_, NAME, REQUIRED_, FK_BUSINESSPROCESS,
                                                          CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -4485,7 +4744,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property(INOUT migration_pk
                         key_,
                         name,
                         required_,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4512,7 +4771,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property(INOUT migration_pk
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property_set(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property_set()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -4523,7 +4782,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property_set(INOUT migratio
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4531,7 +4789,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property_set(INOUT migratio
         DECLARE c_pm_message_property_set CURSOR FOR
             SELECT PMPS.ID_PK,
                     PMPS.NAME,
-                    PMPS.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PMPS.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PMPS.CREATION_TIME,
                     PMPS.CREATED_BY,
                     PMPS.MODIFICATION_TIME,
@@ -4566,14 +4826,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property_set(INOUT migratio
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_message_property_set', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_MSG_PROP_SET (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_MSG_PROPERTY_SET (ID_PK, NAME, FK_BUSINESSPROCESS, CREATION_TIME,
                                                              CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         name,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4600,7 +4861,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property_set(INOUT migratio
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_property_set(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_property_set()
     BEGIN
         DECLARE property_fk BIGINT;
         DECLARE set_fk BIGINT;
@@ -4609,15 +4870,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_property_set(INOUT migration_p
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_property_fk BIGINT;
-        DECLARE calculated_set_fk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
+        -- FKs are inverse here so we need to pass the other FK value when doing the lookups
+        -- (i.e PROPERTY_FK for pm_message_property_set and SET_FK for pm_message_property)
         DECLARE c_pm_join_property_set CURSOR FOR
-            SELECT PJPS.PROPERTY_FK,
-                    PJPS.SET_FK,
+            SELECT (SELECT MPKSPMPS.NEW_ID
+                    FROM MIGR_TB_PKS_PM_MSG_PROP_SET MPKSPMPS
+                    WHERE MPKSPMPS.OLD_ID = PJPS.PROPERTY_FK) AS PROPERTY_FK,
+                   (SELECT MPKSPMP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_MESSAGE_PROP MPKSPMP
+                    WHERE MPKSPMP.OLD_ID = PJPS.SET_FK) AS SET_FK,
                     PJPS.CREATION_TIME,
                     PJPS.CREATED_BY,
                     PJPS.MODIFICATION_TIME,
@@ -4651,15 +4915,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_property_set(INOUT migration_p
                     LEAVE read_loop;
                 END IF;
 
-                -- FKs are inverse here so we need to pass the other FK value when doing the lookups
-                -- (i.e PROPERTY_FK for pm_message_property_set and SET_FK for pm_message_property)
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_message_property_set', migration_pks, property_fk, calculated_property_fk);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_message_property', migration_pks, set_fk, calculated_set_fk);
-
                 INSERT INTO MIGR_TB_PM_JOIN_PROPERTY_SET (PROPERTY_FK, SET_FK, CREATION_TIME, CREATED_BY,
                                                           MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_property_fk,
-                        calculated_set_fk,
+                VALUES (property_fk,
+                        set_fk,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4686,7 +4945,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_property_set(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE endpoint VARCHAR(1024);
@@ -4700,7 +4959,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4711,7 +4969,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party(INOUT migration_pks JSON)
                     PP.NAME,
                     PP.PASSWORD,
                     PP.USERNAME,
-                    PP.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PP.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PP.CREATION_TIME,
                     PP.CREATED_BY,
                     PP.MODIFICATION_TIME,
@@ -4746,8 +5006,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_party', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_PARTY (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_PARTY (ID_PK, ENDPOINT, NAME, PASSWORD, USERNAME, FK_BUSINESSPROCESS,
                                               CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -4756,7 +5017,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party(INOUT migration_pks JSON)
                         name,
                         password,
                         username,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4783,7 +5044,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE fk_businessprocesses BIGINT;
@@ -4794,16 +5055,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration(INOUT migration_pks J
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
-        DECLARE calculated_fk_party BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_configuration CURSOR FOR
             SELECT PC.ID_PK,
-                    PC.FK_BUSINESSPROCESSES,
-                    PC.FK_PARTY,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PC.FK_BUSINESSPROCESSES) AS FK_BUSINESSPROCESSES,
+                   (SELECT MPKSPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY MPKSPP
+                    WHERE MPKSPP.OLD_ID = PC.FK_PARTY) AS FK_PARTY,
                     PC.CREATION_TIME,
                     PC.CREATED_BY,
                     PC.MODIFICATION_TIME,
@@ -4838,15 +5101,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration(INOUT migration_pks J
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_configuration', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocesses, calculated_fk_businessprocess);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_party', migration_pks, fk_party, calculated_fk_party);
+
+                INSERT INTO MIGR_TB_PKS_PM_CONFIGURATION (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_CONFIGURATION (ID_PK, FK_BUSINESSPROCESSES, FK_PARTY, CREATION_TIME, CREATED_BY,
                                                       MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
-                        calculated_fk_businessprocess,
-                        calculated_fk_party,
+                        fk_businessprocesses,
+                        fk_party,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4873,7 +5136,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration(INOUT migration_pks J
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE default_mpc BIT(1);
@@ -4892,7 +5155,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_configuration BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -4908,7 +5170,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc(INOUT migration_pks JSON)
                     PM.RETENTION_SENT,
                     PM.DELETE_MESSAGE_METADATA,
                     PM.MAX_BATCH_DELETE,
-                    PM.FK_CONFIGURATION,
+                   (SELECT MPKSPC.NEW_ID
+                    FROM MIGR_TB_PKS_PM_CONFIGURATION MPKSPC
+                    WHERE MPKSPC.OLD_ID = PM.FK_CONFIGURATION) AS FK_CONFIGURATION,
                     PM.CREATION_TIME,
                     PM.CREATED_BY,
                     PM.MODIFICATION_TIME,
@@ -4944,8 +5208,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_mpc', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_configuration', migration_pks, fk_configuration, calculated_fk_configuration);
+
+                INSERT INTO MIGR_TB_PKS_PM_MPC (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_MPC (ID_PK, DEFAULT_MPC, IS_ENABLED, NAME, QUALIFIED_NAME, RETENTION_DOWNLOADED,
                                             RETENTION_UNDOWNLOADED, RETENTION_SENT, DELETE_MESSAGE_METADATA,
@@ -4961,7 +5226,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc(INOUT migration_pks JSON)
                         retention_sent,
                         delete_message_metadata,
                         max_batch_delete,
-                        calculated_fk_configuration,
+                        fk_configuration,
                         creation_time,
                         created_by,
                         modification_time,
@@ -4988,7 +5253,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -5000,7 +5265,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type(INOUT migration_pks J
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5009,7 +5273,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type(INOUT migration_pks J
             SELECT PPIT.ID_PK,
                     PPIT.NAME,
                     PPIT.VALUE,
-                    PPIT.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PPIT.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PPIT.CREATION_TIME,
                     PPIT.CREATED_BY,
                     PPIT.MODIFICATION_TIME,
@@ -5044,15 +5310,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type(INOUT migration_pks J
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_party_id_type', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_PARTY_ID_TYPE (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_PARTY_ID_TYPE (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
                                                       CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         name,
                         value,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5079,7 +5346,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type(INOUT migration_pks J
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE party_id VARCHAR(255);
@@ -5091,8 +5358,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier(INOUT migration_pk
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_party_id_type BIGINT;
-        DECLARE calculated_fk_party BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5100,8 +5365,12 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier(INOUT migration_pk
         DECLARE c_pm_party_identifier CURSOR FOR
             SELECT PPI.ID_PK,
                     PPI.PARTY_ID,
-                    PPI.FK_PARTY_ID_TYPE,
-                    PPI.FK_PARTY,
+                   (SELECT MPKSPPIT.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY_ID_TYPE MPKSPPIT
+                    WHERE MPKSPPIT.OLD_ID = PPI.FK_PARTY_ID_TYPE) AS FK_PARTY_ID_TYPE,
+                   (SELECT MPKSPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY MPKSPP
+                    WHERE MPKSPP.OLD_ID = PPI.FK_PARTY) AS FK_PARTY,
                     PPI.CREATION_TIME,
                     PPI.CREATED_BY,
                     PPI.MODIFICATION_TIME,
@@ -5136,16 +5405,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier(INOUT migration_pk
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_party_identifier', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_party_id_type', migration_pks, fk_party_id_type, calculated_fk_party_id_type);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_party', migration_pks, fk_party, calculated_fk_party);
+
+                INSERT INTO MIGR_TB_PKS_PM_PARTY_ID (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_PARTY_IDENTIFIER (ID_PK, PARTY_ID, FK_PARTY_ID_TYPE, FK_PARTY, CREATION_TIME,
                                                          CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         party_id,
-                        calculated_fk_party_id_type,
-                        calculated_fk_party,
+                        fk_party_id_type,
+                        fk_party,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5172,7 +5441,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier(INOUT migration_pk
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE cid VARCHAR(255);
@@ -5189,7 +5458,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5203,7 +5471,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload(INOUT migration_pks JSON)
                     PP.NAME,
                     PP.REQUIRED_,
                     PP.SCHEMA_FILE,
-                    PP.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PP.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PP.CREATION_TIME,
                     PP.CREATED_BY,
                     PP.MODIFICATION_TIME,
@@ -5238,8 +5508,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_payload', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_PAYLOAD (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_PAYLOAD (ID_PK, CID, IN_BODY, MAX_SIZE, MIME_TYPE, NAME, REQUIRED_, SCHEMA_FILE,
                                                 FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
@@ -5252,7 +5523,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload(INOUT migration_pks JSON)
                         name,
                         required_,
                         schema_file,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5279,7 +5550,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload_profile(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload_profile()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE max_size BIGINT;
@@ -5291,7 +5562,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload_profile(INOUT migration_pks
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5300,7 +5570,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload_profile(INOUT migration_pks
             SELECT PPP.ID_PK,
                     PPP.MAX_SIZE,
                     PPP.NAME,
-                    PPP.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PPP.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PPP.CREATION_TIME,
                     PPP.CREATED_BY,
                     PPP.MODIFICATION_TIME,
@@ -5335,15 +5607,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload_profile(INOUT migration_pks
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_payload_profile', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_PAYLOAD_PROF (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_PAYLOAD_PROFILE (ID_PK, MAX_SIZE, NAME, FK_BUSINESSPROCESS, CREATION_TIME,
                                                         CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         max_size,
                         name,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5370,7 +5643,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload_profile(INOUT migration_pks
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile()
     BEGIN
         DECLARE fk_payload BIGINT;
         DECLARE fk_profile BIGINT;
@@ -5379,15 +5652,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile(INOUT migratio
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_fk_payload BIGINT;
-        DECLARE calculated_fk_profile BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
+        -- FKs are inverse here so we need to pass the other FK value when doing the lookups
+        -- (i.e FK_PAYLOAD for pm_payload_profile and FK_PROFILE for pm_payload)
         DECLARE c_pm_join_payload_profile CURSOR FOR
-            SELECT PJPP.FK_PAYLOAD,
-                    PJPP.FK_PROFILE,
+            SELECT (SELECT MPKSPPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PAYLOAD_PROF MPKSPPP
+                    WHERE MPKSPPP.OLD_ID = PJPP.FK_PAYLOAD) AS FK_PAYLOAD,
+                   (SELECT MPKSPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PAYLOAD MPKSPP
+                    WHERE MPKSPP.OLD_ID = PJPP.FK_PROFILE) AS FK_PROFILE,
                     PJPP.CREATION_TIME,
                     PJPP.CREATED_BY,
                     PJPP.MODIFICATION_TIME,
@@ -5421,15 +5697,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile(INOUT migratio
                     LEAVE read_loop;
                 END IF;
 
-                -- FKs are inverse here so we need to pass the other FK value when doing the lookups
-                -- (i.e FK_PAYLOAD for pm_payload_profile and FK_PROFILE for pm_payload)
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload_profile', migration_pks, fk_payload, calculated_fk_payload);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload', migration_pks, fk_profile, calculated_fk_profile);
-
                 INSERT INTO MIGR_TB_PM_JOIN_PAYLD_PROFILE (FK_PAYLOAD, FK_PROFILE, CREATION_TIME, CREATED_BY,
                                                              MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_fk_payload,
-                        calculated_fk_profile,
+                VALUES (fk_payload,
+                        fk_profile,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5456,7 +5727,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile(INOUT migratio
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE duplicate_detection BIT(1);
@@ -5471,7 +5742,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness(INOUT migration
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5483,7 +5753,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness(INOUT migration
                     PRA.RETRY_COUNT,
                     PRA.RETRY_TIMEOUT,
                     PRA.STRATEGY,
-                    PRA.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PRA.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PRA.CREATION_TIME,
                     PRA.CREATED_BY,
                     PRA.MODIFICATION_TIME,
@@ -5518,8 +5790,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness(INOUT migration
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_reception_awareness', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_RECEPTN_AWARNS (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_RECEPTION_AWARENESS (ID_PK, DUPLICATE_DETECTION, NAME, RETRY_COUNT,
                                                             RETRY_TIMEOUT, STRATEGY, FK_BUSINESSPROCESS, CREATION_TIME,
@@ -5530,7 +5803,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness(INOUT migration
                         retry_count,
                         retry_timeout,
                         strategy,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5557,7 +5830,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness(INOUT migration
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -5570,7 +5843,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability(INOUT migration_pks JSO
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5580,7 +5852,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability(INOUT migration_pks JSO
                     PR.NAME,
                     PR.NON_REPUDIATION,
                     PR.REPLY_PATTERN,
-                    PR.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PR.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PR.CREATION_TIME,
                     PR.CREATED_BY,
                     PR.MODIFICATION_TIME,
@@ -5615,8 +5889,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability(INOUT migration_pks JSO
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_reliability', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_RELIABILITY (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_RELIABILITY (ID_PK, NAME, NON_REPUDIATION, REPLY_PATTERN, FK_BUSINESSPROCESS,
                                                     CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -5624,7 +5899,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability(INOUT migration_pks JSO
                         name,
                         non_repudiation,
                         reply_pattern,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5651,7 +5926,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability(INOUT migration_pks JSO
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_role(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_role()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -5663,7 +5938,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_role(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5672,7 +5946,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_role(INOUT migration_pks JSON)
             SELECT PR.ID_PK,
                     PR.NAME,
                     PR.VALUE,
-                    PR.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PR.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PR.CREATION_TIME,
                     PR.CREATED_BY,
                     PR.MODIFICATION_TIME,
@@ -5707,15 +5983,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_role(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_role', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_ROLE (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_ROLE (ID_PK, NAME, VALUE, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
                                              MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         name,
                         value,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5742,7 +6019,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_role(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -5755,7 +6032,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5765,7 +6041,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security(INOUT migration_pks JSON)
                     PS.NAME,
                     PS.POLICY,
                     PS.SIGNATURE_METHOD,
-                    PS.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PS.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PS.CREATION_TIME,
                     PS.CREATED_BY,
                     PS.MODIFICATION_TIME,
@@ -5800,8 +6078,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_security', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_SECURITY (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_SECURITY (ID_PK, NAME, POLICY, SIGNATURE_METHOD, FK_BUSINESSPROCESS,
                                                  CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -5809,7 +6088,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security(INOUT migration_pks JSON)
                         name,
                         policy,
                         signature_method,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5836,7 +6115,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -5849,7 +6128,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5859,7 +6137,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service(INOUT migration_pks JSON)
                     PS.NAME,
                     PS.SERVICE_TYPE,
                     PS.VALUE,
-                    PS.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PS.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PS.CREATION_TIME,
                     PS.CREATED_BY,
                     PS.MODIFICATION_TIME,
@@ -5894,8 +6174,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_service', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_SERVICE (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_SERVICE (ID_PK, NAME, SERVICE_TYPE, VALUE, FK_BUSINESSPROCESS, CREATION_TIME,
                                                 CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -5903,7 +6184,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service(INOUT migration_pks JSON)
                         name,
                         service_type,
                         value,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -5930,7 +6211,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -5945,7 +6226,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -5957,7 +6237,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting(INOUT migration_pks JSON)
                     PS.COMPRESSION,
                     PS.COMPRESSION_ALGORITHM,
                     PS.JOIN_INTERVAL,
-                    PS.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PS.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PS.CREATION_TIME,
                     PS.CREATED_BY,
                     PS.MODIFICATION_TIME,
@@ -5992,8 +6274,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_splitting', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_SPLITTING (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_SPLITTING (ID_PK, NAME, FRAGMENT_SIZE, COMPRESSION, COMPRESSION_ALGORITHM,
                                                   JOIN_INTERVAL, FK_BUSINESSPROCESS, CREATION_TIME, CREATED_BY,
@@ -6004,7 +6287,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting(INOUT migration_pks JSON)
                         compression,
                         compression_algorithm,
                         join_interval,
-                        calculated_fk_businessprocess,
+                        fk_businessprocess,
                         creation_time,
                         created_by,
                         modification_time,
@@ -6031,7 +6314,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE compress_payloads BIT(1);
@@ -6053,17 +6336,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_action BIGINT;
-        DECLARE calculated_fk_mpc BIGINT;
-        DECLARE calculated_fk_error_handling BIGINT;
-        DECLARE calculated_fk_payload_profile BIGINT;
-        DECLARE calculated_fk_property_set BIGINT;
-        DECLARE calculated_fk_reception_awareness BIGINT;
-        DECLARE calculated_fk_reliability BIGINT;
-        DECLARE calculated_fk_security BIGINT;
-        DECLARE calculated_fk_service BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
-        DECLARE calculated_fk_splitting BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -6072,17 +6344,39 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg(INOUT migration_pks JSON)
             SELECT PL.ID_PK,
                     PL.COMPRESS_PAYLOADS,
                     PL.NAME,
-                    PL.FK_ACTION,
-                    PL.FK_MPC,
-                    PL.FK_ERROR_HANDLING,
-                    PL.FK_PAYLOAD_PROFILE,
-                    PL.FK_PROPERTY_SET,
-                    PL.FK_RECEPTION_AWARENESS,
-                    PL.FK_RELIABILITY,
-                    PL.FK_SECURITY,
-                    PL.FK_SERVICE,
-                    PL.FK_BUSINESSPROCESS,
-                    PL.FK_SPLITTING,
+                   (SELECT MPKSPA.NEW_ID
+                    FROM MIGR_TB_PKS_PM_ACTION MPKSPA
+                    WHERE MPKSPA.OLD_ID = PL.FK_ACTION) AS FK_ACTION,
+                   (SELECT MPKSPM.NEW_ID
+                    FROM MIGR_TB_PKS_PM_MPC MPKSPM
+                    WHERE MPKSPM.OLD_ID = PL.FK_MPC) AS FK_MPC,
+                   (SELECT MPKSPEH.NEW_ID
+                    FROM MIGR_TB_PKS_PM_ERROR_HANDLING MPKSPEH
+                    WHERE MPKSPEH.OLD_ID = PL.FK_ERROR_HANDLING) AS FK_ERROR_HANDLING,
+                   (SELECT MPKSPPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PAYLOAD_PROF MPKSPPP
+                    WHERE MPKSPPP.OLD_ID = PL.FK_PAYLOAD_PROFILE) AS FK_PAYLOAD_PROFILE,
+                   (SELECT MPKSPMPS.NEW_ID
+                    FROM MIGR_TB_PKS_PM_MSG_PROP_SET MPKSPMPS
+                    WHERE MPKSPMPS.OLD_ID = PL.FK_PROPERTY_SET) AS FK_PROPERTY_SET,
+                   (SELECT MPKSPRA.NEW_ID
+                    FROM MIGR_TB_PKS_PM_RECEPTN_AWARNS MPKSPRA
+                    WHERE MPKSPRA.OLD_ID = PL.FK_RECEPTION_AWARENESS) AS FK_RECEPTION_AWARENESS,
+                   (SELECT MPKSPR.NEW_ID
+                    FROM MIGR_TB_PKS_PM_RELIABILITY MPKSPR
+                    WHERE MPKSPR.OLD_ID = PL.FK_RELIABILITY) AS FK_RELIABILITY,
+                   (SELECT MPKSPSEC.NEW_ID
+                    FROM MIGR_TB_PKS_PM_SECURITY MPKSPSEC
+                    WHERE MPKSPSEC.OLD_ID = PL.FK_SECURITY) AS FK_SECURITY,
+                   (SELECT MPKSPSER.NEW_ID
+                    FROM MIGR_TB_PKS_PM_SERVICE MPKSPSER
+                    WHERE MPKSPSER.OLD_ID = PL.FK_SERVICE) AS FK_SERVICE,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PL.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
+                   (SELECT MPKSPS.NEW_ID
+                    FROM MIGR_TB_PKS_PM_SPLITTING MPKSPS
+                    WHERE MPKSPS.OLD_ID = PL.FK_SPLITTING) AS FK_SPLITTING,
                     PL.CREATION_TIME,
                     PL.CREATED_BY,
                     PL.MODIFICATION_TIME,
@@ -6119,18 +6413,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_leg', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_action', migration_pks, fk_action, calculated_fk_action);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_mpc', migration_pks, fk_mpc, calculated_fk_mpc);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_error_handling', migration_pks, fk_error_handling, calculated_fk_error_handling);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_payload_profile', migration_pks, fk_payload_profile, calculated_fk_payload_profile);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_message_property_set', migration_pks, fk_property_set, calculated_fk_property_set);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_reception_awareness', migration_pks, fk_reception_awareness, calculated_fk_reception_awareness);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_reliability', migration_pks, fk_reliability, calculated_fk_reliability);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_security', migration_pks, fk_security, calculated_fk_security);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_service', migration_pks, fk_service, calculated_fk_service);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_splitting', migration_pks, fk_splitting, calculated_fk_splitting);
+
+                INSERT INTO MIGR_TB_PKS_PM_LEG (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_LEG (ID_PK, COMPRESS_PAYLOADS, NAME, FK_ACTION, FK_MPC, FK_ERROR_HANDLING,
                                             FK_PAYLOAD_PROFILE, FK_PROPERTY_SET, FK_RECEPTION_AWARENESS,
@@ -6139,17 +6424,17 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg(INOUT migration_pks JSON)
                 VALUES (calculated_id_pk,
                         compress_payloads,
                         name,
-                        calculated_fk_action,
-                        calculated_fk_mpc,
-                        calculated_fk_error_handling,
-                        calculated_fk_payload_profile,
-                        calculated_fk_property_set,
-                        calculated_fk_reception_awareness,
-                        calculated_fk_reliability,
-                        calculated_fk_security,
-                        calculated_fk_service,
-                        calculated_fk_businessprocess,
-                        calculated_fk_splitting,
+                        fk_action,
+                        fk_mpc,
+                        fk_error_handling,
+                        fk_payload_profile,
+                        fk_property_set,
+                        fk_reception_awareness,
+                        fk_reliability,
+                        fk_security,
+                        fk_service,
+                        fk_businessprocess,
+                        fk_splitting,
                         creation_time,
                         created_by,
                         modification_time,
@@ -6176,7 +6461,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg_mpc(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg_mpc()
     BEGIN
         DECLARE legconfiguration_id_pk BIGINT;
         DECLARE partympcmap_id_pk BIGINT;
@@ -6186,17 +6471,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg_mpc(INOUT migration_pks JSON)
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_legconfiguration_id_pk BIGINT;
-        DECLARE calculated_partympcmap_id_pk BIGINT;
-        DECLARE calculated_partympcmap_key BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_leg_mpc CURSOR FOR
-            SELECT PLM.LEGCONFIGURATION_ID_PK,
-                    PLM.PARTYMPCMAP_ID_PK,
-                    PLM.PARTYMPCMAP_KEY,
+            SELECT (SELECT MPKSPL.NEW_ID
+                    FROM MIGR_TB_PKS_PM_LEG MPKSPL
+                    WHERE MPKSPL.OLD_ID = PLM.LEGCONFIGURATION_ID_PK) AS LEGCONFIGURATION_ID_PK,
+                   (SELECT MPKSPM.NEW_ID
+                    FROM MIGR_TB_PKS_PM_MPC MPKSPM
+                    WHERE MPKSPM.OLD_ID = PLM.PARTYMPCMAP_ID_PK) AS PARTYMPCMAP_ID_PK,
+                   (SELECT MPKSPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY MPKSPP
+                    WHERE MPKSPP.OLD_ID = PLM.PARTYMPCMAP_KEY) AS PARTYMPCMAP_KEY,
                     PLM.CREATION_TIME,
                     PLM.CREATED_BY,
                     PLM.MODIFICATION_TIME,
@@ -6230,15 +6517,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg_mpc(INOUT migration_pks JSON)
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_leg', migration_pks, legconfiguration_id_pk, calculated_legconfiguration_id_pk);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_mpc', migration_pks, partympcmap_id_pk, calculated_partympcmap_id_pk);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_party', migration_pks, partympcmap_key, calculated_partympcmap_key);
-
                 INSERT INTO MIGR_TB_PM_LEG_MPC (LEGCONFIGURATION_ID_PK, PARTYMPCMAP_ID_PK, PARTYMPCMAP_KEY,
                                                 CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_legconfiguration_id_pk,
-                        calculated_partympcmap_id_pk,
-                        calculated_partympcmap_key,
+                VALUES (legconfiguration_id_pk,
+                        partympcmap_id_pk,
+                        partympcmap_key,
                         creation_time,
                         created_by,
                         modification_time,
@@ -6265,7 +6548,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg_mpc(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE name VARCHAR(255);
@@ -6283,12 +6566,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process(INOUT migration_pks JSON)
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_fk_agreement BIGINT;
-        DECLARE calculated_fk_initiator_role BIGINT;
-        DECLARE calculated_fk_mep BIGINT;
-        DECLARE calculated_fk_mep_binding BIGINT;
-        DECLARE calculated_fk_responder_role BIGINT;
-        DECLARE calculated_fk_businessprocess BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
@@ -6296,12 +6573,24 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process(INOUT migration_pks JSON)
         DECLARE c_pm_process CURSOR FOR
             SELECT PP.ID_PK,
                     PP.NAME,
-                    PP.FK_AGREEMENT,
-                    PP.FK_INITIATOR_ROLE,
-                    PP.FK_MEP,
-                    PP.FK_MEP_BINDING,
-                    PP.FK_RESPONDER_ROLE,
-                    PP.FK_BUSINESSPROCESS,
+                   (SELECT MPKSPA.NEW_ID
+                    FROM MIGR_TB_PKS_PM_AGREEMENT MPKSPA
+                    WHERE MPKSPA.OLD_ID = PP.FK_AGREEMENT) AS FK_AGREEMENT,
+                   (SELECT MPKSPIR.NEW_ID
+                    FROM MIGR_TB_PKS_PM_ROLE MPKSPIR
+                    WHERE MPKSPIR.OLD_ID = PP.FK_INITIATOR_ROLE) AS FK_INITIATOR_ROLE,
+                   (SELECT MPKSPM.NEW_ID
+                    FROM MIGR_TB_PKS_PM_MEP MPKSPM
+                    WHERE MPKSPM.OLD_ID = PP.FK_MEP) AS FK_MEP,
+                   (SELECT MPKSPMB.NEW_ID
+                    FROM MIGR_TB_PKS_PM_MEP_BINDING MPKSPMB
+                    WHERE MPKSPMB.OLD_ID = PP.FK_MEP_BINDING) AS FK_MEP_BINDING,
+                   (SELECT MPKSPRR.NEW_ID
+                    FROM MIGR_TB_PKS_PM_ROLE MPKSPRR
+                    WHERE MPKSPRR.OLD_ID = PP.FK_RESPONDER_ROLE) AS FK_RESPONDER_ROLE,
+                   (SELECT MPKSPBP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_BUSINESS_PROC MPKSPBP
+                    WHERE MPKSPBP.OLD_ID = PP.FK_BUSINESSPROCESS) AS FK_BUSINESSPROCESS,
                     PP.USE_DYNAMIC_INITIATOR,
                     PP.USE_DYNAMIC_RESPONDER,
                     PP.CREATION_TIME,
@@ -6339,13 +6628,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_process', id_pk, calculated_id_pk, migration_pks);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_agreement', migration_pks, fk_agreement, calculated_fk_agreement);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_role', migration_pks, fk_initiator_role, calculated_fk_initiator_role);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_mep', migration_pks, fk_mep, calculated_fk_mep);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_mep_binding', migration_pks, fk_mep_binding, calculated_fk_mep_binding);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_role', migration_pks, fk_responder_role, calculated_fk_responder_role);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_business_process', migration_pks, fk_businessprocess, calculated_fk_businessprocess);
+
+                INSERT INTO MIGR_TB_PKS_PM_PROCESS (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_PROCESS (ID_PK, NAME, FK_AGREEMENT, FK_INITIATOR_ROLE, FK_MEP, FK_MEP_BINDING,
                                                 FK_RESPONDER_ROLE, FK_BUSINESSPROCESS, USE_DYNAMIC_INITIATOR,
@@ -6353,12 +6638,12 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process(INOUT migration_pks JSON)
                                                 MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         name,
-                        calculated_fk_agreement,
-                        calculated_fk_initiator_role,
-                        calculated_fk_mep,
-                        calculated_fk_mep_binding,
-                        calculated_fk_responder_role,
-                        calculated_fk_businessprocess,
+                        fk_agreement,
+                        fk_initiator_role,
+                        fk_mep,
+                        fk_mep_binding,
+                        fk_responder_role,
+                        fk_businessprocess,
                         use_dynamic_initiator,
                         use_dynamic_responder,
                         creation_time,
@@ -6387,7 +6672,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_init_party(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_init_party()
     BEGIN
         DECLARE process_fk BIGINT;
         DECLARE party_fk BIGINT;
@@ -6396,15 +6681,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_init_party(INOUT migra
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_process_fk BIGINT;
-        DECLARE calculated_party_fk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_join_process_init_party CURSOR FOR
-            SELECT PJPIP.PROCESS_FK,
-                    PJPIP.PARTY_FK,
+            SELECT (SELECT MPKSPPR.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PROCESS MPKSPPR
+                    WHERE MPKSPPR.OLD_ID = PJPIP.PROCESS_FK) AS PROCESS_FK,
+                   (SELECT MPKSPPA.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY MPKSPPA
+                    WHERE MPKSPPA.OLD_ID = PJPIP.PARTY_FK) AS PARTY_FK,
                     PJPIP.CREATION_TIME,
                     PJPIP.CREATED_BY,
                     PJPIP.MODIFICATION_TIME,
@@ -6438,13 +6724,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_init_party(INOUT migra
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_process', migration_pks, process_fk, calculated_process_fk);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_party', migration_pks, party_fk, calculated_party_fk);
-
                 INSERT INTO MIGR_TB_PM_JOIN_PROC_INI_PARTY (PROCESS_FK, PARTY_FK, CREATION_TIME, CREATED_BY,
                                                                 MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_process_fk,
-                        calculated_party_fk,
+                VALUES (process_fk,
+                        party_fk,
                         creation_time,
                         created_by,
                         modification_time,
@@ -6471,7 +6754,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_init_party(INOUT migra
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_leg(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_leg()
     BEGIN
         DECLARE process_fk BIGINT;
         DECLARE leg_fk BIGINT;
@@ -6480,15 +6763,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_leg(INOUT migration_pk
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_process_fk BIGINT;
-        DECLARE calculated_leg_fk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_join_process_leg CURSOR FOR
-            SELECT PJPL.PROCESS_FK,
-                    PJPL.LEG_FK,
+            SELECT (SELECT MPKSPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PROCESS MPKSPP
+                    WHERE MPKSPP.OLD_ID = PJPL.PROCESS_FK) AS PROCESS_FK,
+                   (SELECT MPKSPL.NEW_ID
+                    FROM MIGR_TB_PKS_PM_LEG MPKSPL
+                    WHERE MPKSPL.OLD_ID = PJPL.LEG_FK) AS LEG_FK,
                     PJPL.CREATION_TIME,
                     PJPL.CREATED_BY,
                     PJPL.MODIFICATION_TIME,
@@ -6522,13 +6806,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_leg(INOUT migration_pk
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_process', migration_pks, process_fk, calculated_process_fk);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_leg', migration_pks, leg_fk, calculated_leg_fk);
-
                 INSERT INTO MIGR_TB_PM_JOIN_PROCESS_LEG (PROCESS_FK, LEG_FK, CREATION_TIME, CREATED_BY,
                                                          MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_process_fk,
-                        calculated_leg_fk,
+                VALUES (process_fk,
+                        leg_fk,
                         creation_time,
                         created_by,
                         modification_time,
@@ -6555,7 +6836,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_leg(INOUT migration_pk
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_resp_party(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_resp_party()
     BEGIN
         DECLARE process_fk BIGINT;
         DECLARE party_fk BIGINT;
@@ -6564,15 +6845,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_resp_party(INOUT migra
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_process_fk BIGINT;
-        DECLARE calculated_party_fk BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_join_process_resp_party CURSOR FOR
-            SELECT PJPRP.PROCESS_FK,
-                    PJPRP.PARTY_FK,
+            SELECT (SELECT MPKSPPR.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PROCESS MPKSPPR
+                    WHERE MPKSPPR.OLD_ID = PJPRP.PROCESS_FK) AS PROCESS_FK,
+                   (SELECT MPKSPPA.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY MPKSPPA
+                    WHERE MPKSPPA.OLD_ID = PJPRP.PARTY_FK) AS PARTY_FK,
                     PJPRP.CREATION_TIME,
                     PJPRP.CREATED_BY,
                     PJPRP.MODIFICATION_TIME,
@@ -6606,13 +6888,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_resp_party(INOUT migra
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_process', migration_pks, process_fk, calculated_process_fk);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('pm_party', migration_pks, party_fk, calculated_party_fk);
-
                 INSERT INTO MIGR_TB_PM_JOIN_PROC_RSP_PARTY (PROCESS_FK, PARTY_FK, CREATION_TIME, CREATED_BY,
                                                                 MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (calculated_process_fk,
-                        calculated_party_fk,
+                VALUES (process_fk,
+                        party_fk,
                         creation_time,
                         created_by,
                         modification_time,
@@ -6639,7 +6918,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_resp_party(INOUT migra
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE configuration_date TIMESTAMP;
@@ -6694,7 +6973,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw(INOUT migration_p
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('pm_configuration_raw', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_PM_CONF_RAW (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_PM_CONFIGURATION_RAW (ID_PK, CONFIGURATION_DATE, XML, DESCRIPTION, CREATION_TIME,
                                                           CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
@@ -6815,7 +7096,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_domain()
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE user_email VARCHAR(255);
@@ -6885,7 +7166,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('user', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_USER (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_USER (ID_PK, USER_EMAIL, USER_ENABLED, USER_PASSWORD, USER_NAME, OPTLOCK,
                                           ATTEMPT_COUNT, SUSPENSION_DATE, USER_DELETED, PASSWORD_CHANGE_DATE,
@@ -6927,7 +7210,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_password_history(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_password_history()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE user_id BIGINT;
@@ -6939,14 +7222,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_password_history(INOUT migration_
         DECLARE modified_by VARCHAR(255);
 
         DECLARE calculated_id_pk BIGINT;
-        DECLARE calculated_user_id BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_user_password_history CURSOR FOR
             SELECT UPH.ID_PK,
-                    UPH.USER_ID,
+                   (SELECT MPKU.NEW_ID
+                    FROM MIGR_TB_PKS_USER MPKU
+                    WHERE MPKU.OLD_ID = UPH.USER_ID) AS USER_ID,
                     UPH.USER_PASSWORD,
                     UPH.PASSWORD_CHANGE_DATE,
                     UPH.CREATION_TIME,
@@ -6983,12 +7267,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_password_history(INOUT migration_
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user', migration_pks, user_id, calculated_user_id);
 
                 INSERT INTO MIGR_TB_USER_PASSWORD_HISTORY (ID_PK, USER_ID, USER_PASSWORD, PASSWORD_CHANGE_DATE,
                                                            CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
-                        calculated_user_id,
+                        user_id,
                         user_password,
                         password_change_date,
                         creation_time,
@@ -7017,7 +7300,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_password_history(INOUT migration_
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role()
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE role_name VARCHAR(255);
@@ -7067,7 +7350,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
-                CALL MIGRATE_42_TO_50_update_migration_pks('user_role', id_pk, calculated_id_pk, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_USER_ROLE (OLD_ID, NEW_ID)
+                VALUES (id_pk, calculated_id_pk);
 
                 INSERT INTO MIGR_TB_USER_ROLE (ID_PK, ROLE_NAME, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
                                                MODIFIED_BY)
@@ -7099,7 +7384,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles()
     BEGIN
         DECLARE user_id BIGINT;
         DECLARE role_id BIGINT;
@@ -7108,15 +7393,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles(INOUT migration_pks JSON)
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_user_id BIGINT;
-        DECLARE calculated_role_id BIGINT;
-
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_user_roles CURSOR FOR
-            SELECT UR.USER_ID,
-                    UR.ROLE_ID,
+            SELECT (SELECT MPKSU.NEW_ID
+                    FROM MIGR_TB_PKS_USER MPKSU
+                    WHERE MPKSU.OLD_ID = UR.USER_ID) AS USER_ID,
+                   (SELECT MPKSUR.NEW_ID
+                    FROM MIGR_TB_PKS_USER_ROLE MPKSUR
+                    WHERE MPKSUR.OLD_ID = UR.ROLE_ID) AS ROLE_ID,
                     UR.CREATION_TIME,
                     UR.CREATED_BY,
                     UR.MODIFICATION_TIME,
@@ -7149,13 +7435,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles(INOUT migration_pks JSON)
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user', migration_pks, user_id, calculated_user_id);
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('user_role', migration_pks, role_id, calculated_role_id);
-
                 INSERT INTO MIGR_TB_USER_ROLES (USER_ID, ROLE_ID, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
                                                 MODIFIED_BY)
-                VALUES (calculated_user_id,
-                        calculated_role_id,
+                VALUES (user_id,
+                        role_id,
                         creation_time,
                         created_by,
                         modification_time,
@@ -7270,7 +7553,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_ws_plugin_tb_message_log()
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_info(INOUT migration_pks JSON)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_info()
     BEGIN
         DECLARE id BIGINT;
         DECLARE timestamp BIGINT;
@@ -7316,7 +7599,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_info(INOUT migration_pks JSON)
                 END IF;
 
                 SET calculated_id := MIGRATE_42_TO_50_generate_scalable_seq(id, revision_date);
-                CALL MIGRATE_42_TO_50_update_migration_pks('rev_info', id, calculated_id, migration_pks);
+
+                INSERT INTO MIGR_TB_PKS_REV_INFO (OLD_ID, NEW_ID)
+                VALUES (id, calculated_id);
 
                 INSERT INTO MIGR_TB_REV_INFO (ID, TIMESTAMP, REVISION_DATE, USER_NAME)
                 VALUES (calculated_id,
@@ -7345,7 +7630,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_info(INOUT migration_pks JSON)
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
         DECLARE rev BIGINT;
@@ -7353,13 +7638,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
         DECLARE entity_name VARCHAR(255);
         DECLARE group_name VARCHAR(255);
         DECLARE entity_id VARCHAR(255);
+        DECLARE original_entity_id VARCHAR(255);
         DECLARE modification_type VARCHAR(255);
         DECLARE creation_time TIMESTAMP;
         DECLARE created_by VARCHAR(255);
         DECLARE modification_time TIMESTAMP;
         DECLARE modified_by VARCHAR(255);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
         DECLARE calculated_entity_id BIGINT;
 
@@ -7368,16 +7653,115 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
 
         DECLARE c_rev_changes CURSOR FOR
             SELECT RC.ID_PK,
-                    RC.REV,
-                    RC.AUDIT_ORDER,
-                    RC.ENTITY_NAME,
-                    RC.GROUP_NAME,
-                    RC.ENTITY_ID,
-                    RC.MODIFICATION_TYPE,
-                    RC.CREATION_TIME,
-                    RC.CREATED_BY,
-                    RC.MODIFICATION_TIME,
-                    RC.MODIFIED_BY
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = RC.REV) AS REV,
+                   RC.AUDIT_ORDER,
+                   CASE -- entity names have changed over time from 4.x to 5.0 so adapt to the new fully qualified names
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.security.AuthenticationEntity'
+                           THEN 'eu.domibus.api.user.plugin.AuthenticationEntity'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.user.plugin.AuthenticationEntity'
+                           THEN 'eu.domibus.api.user.plugin.AuthenticationEntity'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.plugin.routing.BackendFilterEntity'
+                           THEN 'eu.domibus.core.plugin.routing.BackendFilterEntity'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.plugin.routing.RoutingCriteriaEntity'
+                           THEN 'eu.domibus.core.plugin.routing.RoutingCriteriaEntity'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.security.User'
+                           THEN 'eu.domibus.core.user.ui.User'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.user.User'
+                           THEN 'eu.domibus.core.user.ui.User'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.security.UserRole'
+                           THEN 'eu.domibus.core.user.ui.UserRole'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.user.UserRole'
+                           THEN 'eu.domibus.core.user.ui.UserRole'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.audit.PModeAudit'
+                           THEN 'eu.domibus.core.audit.model.PModeAudit'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.audit.MessageAudit'
+                           THEN 'eu.domibus.core.audit.model.MessageAudit'
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.audit.JmsMessageAudit'
+                           THEN 'eu.domibus.core.audit.model.JmsMessageAudit'
+                       ELSE RC.ENTITY_NAME -- else keep the existing name since it's up-to-date
+                       END AS ENTITY_NAME,
+                   RC.GROUP_NAME,
+                   CASE
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.core.user.plugin.AuthenticationEntity',
+                                               'eu.domibus.core.user.plugin.AuthenticationEntity',
+                                               'eu.domibus.api.user.plugin.AuthenticationEntity')
+                           THEN (SELECT MPKSAE.NEW_ID
+                                 FROM MIGR_TB_PKS_AUTH_ENTRY MPKSAE
+                                 WHERE MPKSAE.OLD_ID = RC.ENTITY_ID) -- authentication_entry
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.plugin.routing.BackendFilterEntity',
+                                               'eu.domibus.core.plugin.routing.BackendFilterEntity')
+                           THEN (SELECT MPKSBF.NEW_ID
+                                 FROM MIGR_TB_PKS_BACKEND_FILTER MPKSBF
+                                 WHERE MPKSBF.OLD_ID = RC.ENTITY_ID) -- backend_filter
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.plugin.routing.RoutingCriteriaEntity',
+                                               'eu.domibus.core.plugin.routing.RoutingCriteriaEntity')
+                           THEN (SELECT MPKSRC.NEW_ID
+                                 FROM MIGR_TB_PKS_ROUTING_CRITERIA MPKSRC
+                                 WHERE MPKSRC.OLD_ID = RC.ENTITY_ID) -- routing_criteria
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.common.model.security.User',
+                                               'eu.domibus.core.user.User',
+                                               'eu.domibus.core.user.ui.User')
+                           THEN (SELECT MPKSU.NEW_ID
+                                 FROM MIGR_TB_PKS_USER MPKSU
+                                 WHERE MPKSU.OLD_ID = RC.ENTITY_ID) -- user
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.configuration.Configuration'
+                           THEN (SELECT MPKSPC.NEW_ID
+                                 FROM MIGR_TB_PKS_PM_CONFIGURATION MPKSPC
+                                 WHERE MPKSPC.OLD_ID = RC.ENTITY_ID) -- pm_configuration
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.configuration.ConfigurationRaw'
+                           THEN (SELECT MPKSPCR.NEW_ID
+                                 FROM MIGR_TB_PKS_PM_CONF_RAW MPKSPCR
+                                 WHERE MPKSPCR.OLD_ID = RC.ENTITY_ID) -- pm_configuration_raw
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.configuration.Party'
+                           THEN (SELECT MPKSPP.NEW_ID
+                                 FROM MIGR_TB_PKS_PM_PARTY MPKSPP
+                                 WHERE MPKSPP.OLD_ID = RC.ENTITY_ID) -- pm_party
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.common.model.configuration.PartyIdType'
+                           THEN (SELECT MPKSPPIT.NEW_ID
+                                 FROM MIGR_TB_PKS_PM_PARTY_ID_TYPE MPKSPPIT
+                                 WHERE MPKSPPIT.OLD_ID = RC.ENTITY_ID) -- pm_party_id_type
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.certificate.Certificate'
+                           THEN (SELECT MPKSC.NEW_ID
+                                 FROM MIGR_TB_PKS_CERTIFICATE MPKSC
+                                 WHERE MPKSC.OLD_ID = RC.ENTITY_ID) -- certificate
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.common.model.security.UserRole',
+                                               'eu.domibus.core.user.UserRole',
+                                               'eu.domibus.core.user.ui.UserRole')
+                           THEN (SELECT MPKSUR.NEW_ID
+                                 FROM MIGR_TB_PKS_USER_ROLE MPKSUR
+                                 WHERE MPKSUR.OLD_ID = RC.ENTITY_ID) -- user_role
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.audit.model.TruststoreAudit'
+                           THEN (SELECT MPKSTA.NEW_ID
+                                 FROM MIGR_TB_PKS_ACTION_AUDIT MPKSTA
+                                 WHERE MPKSTA.OLD_ID = RC.ENTITY_ID) -- action_audit
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.common.model.audit.PModeAudit',
+                                               'eu.domibus.core.audit.model.PModeAudit')
+                           THEN (SELECT MPKSPA.NEW_ID
+                                 FROM MIGR_TB_PKS_ACTION_AUDIT MPKSPA
+                                 WHERE MPKSPA.OLD_ID = RC.ENTITY_ID) -- action_audit
+                       WHEN RC.ENTITY_NAME = 'eu.domibus.core.audit.model.PModeArchiveAudit'
+                           THEN (SELECT MPKSPAA.NEW_ID
+                                 FROM MIGR_TB_PKS_ACTION_AUDIT MPKSPAA
+                                 WHERE MPKSPAA.OLD_ID = RC.ENTITY_ID) -- action_audit
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.common.model.audit.MessageAudit',
+                                               'eu.domibus.core.audit.model.MessageAudit')
+                           THEN (SELECT MPKSMA.NEW_ID
+                                 FROM MIGR_TB_PKS_ACTION_AUDIT MPKSMA
+                                 WHERE MPKSMA.OLD_ID = RC.ENTITY_ID) -- action_audit
+                       WHEN RC.ENTITY_NAME IN ('eu.domibus.common.model.audit.JmsMessageAudit',
+                                               'eu.domibus.core.audit.model.JmsMessageAudit')
+                           THEN (SELECT MPKSJMA.NEW_ID
+                                 FROM MIGR_TB_PKS_ACTION_AUDIT MPKSJMA
+                                 WHERE MPKSJMA.OLD_ID = RC.ENTITY_ID) -- action_audit
+                       END AS ENTITY_ID,
+                   RC.ENTITY_ID AS ORIGINAL_ENTITY_ID,
+                   RC.MODIFICATION_TYPE,
+                   RC.CREATION_TIME,
+                   RC.CREATED_BY,
+                   RC.MODIFICATION_TIME,
+                   RC.MODIFIED_BY
             FROM TB_REV_CHANGES RC;
 
         DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
@@ -7400,45 +7784,40 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_rev_changes -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_rev_changes INTO id_pk, rev, audit_order, entity_name, group_name, entity_id, modification_type,
-                        creation_time, created_by, modification_time, modified_by;
+                FETCH c_rev_changes INTO id_pk, rev, audit_order, entity_name, group_name, entity_id,
+                        original_entity_id, modification_type, creation_time, created_by, modification_time,
+                        modified_by;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
+                IF entity_name NOT IN ('eu.domibus.api.user.plugin.AuthenticationEntity',
+                                                         'eu.domibus.core.plugin.routing.BackendFilterEntity',
+                                                         'eu.domibus.core.plugin.routing.RoutingCriteriaEntity',
+                                                         'eu.domibus.core.user.ui.User',
+                                                         'eu.domibus.common.model.configuration.Configuration',
+                                                         'eu.domibus.common.model.configuration.ConfigurationRaw',
+                                                         'eu.domibus.common.model.configuration.Party',
+                                                         'eu.domibus.common.model.configuration.PartyIdType',
+                                                         'eu.domibus.core.certificate.Certificate',
+                                                         'eu.domibus.core.user.ui.UserRole',
+                                                         'eu.domibus.core.audit.model.TruststoreAudit',
+                                                         'eu.domibus.core.audit.model.PModeAudit',
+                                                         'eu.domibus.core.audit.model.PModeArchiveAudit',
+                                                         'eu.domibus.core.audit.model.MessageAudit',
+                                                         'eu.domibus.core.audit.model.JmsMessageAudit') THEN
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('Unknown entity name ', entity_name));
+                END IF;
 
-                CASE entity_name
-                    WHEN 'eu.domibus.core.user.plugin.AuthenticationEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.plugin.routing.BackendFilterEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.plugin.routing.RoutingCriteriaEntity' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('routing_criteria', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.user.ui.User' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('user', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.common.model.configuration.Configuration' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_configuration', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.common.model.configuration.ConfigurationRaw' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_configuration_raw', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.common.model.configuration.Party' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_party', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.common.model.configuration.PartyIdType' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_party_id_type', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.certificate.Certificate' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('certificate', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.user.ui.UserRole' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('user_role', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.audit.model.TruststoreAudit' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('action_audit', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.audit.model.PModeAudit' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('action_audit', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.audit.model.PModeArchiveAudit' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('action_audit', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.audit.model.MessageAudit' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('action_audit', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    WHEN 'eu.domibus.core.audit.model.JmsMessageAudit' THEN CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('action_audit', migration_pks, missing_entity_date_prefix, CAST(entity_id AS UNSIGNED), calculated_entity_id);
-                    ELSE
-                        BEGIN
-                            -- use the previous entity ID value for unknown entities
-                            CALL MIGRATE_42_TO_50_trace(CONCAT('Unknown entity name ', entity_name));
-                            SET calculated_entity_id := MIGRATE_42_TO_50_generate_scalable_seq(entity_id, missing_entity_date_prefix);
-                        END;
-                END CASE;
+                SET calculated_entity_id := COALESCE(entity_id, MIGRATE_42_TO_50_generate_scalable_seq(original_entity_id, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_REV_CHANGES (ID_PK, REV, AUDIT_ORDER, ENTITY_NAME, GROUP_NAME, ENTITY_ID,
                                                  MODIFICATION_TYPE, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
                                                  MODIFIED_BY)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         audit_order,
                         entity_name,
                         group_name,
@@ -7470,9 +7849,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(INOUT migration_pks JSON, 
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE certificate_id VARCHAR(255);
@@ -7494,15 +7874,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migrati
         DECLARE default_password BIT(1);
         DECLARE defaultpassword_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_authentication_entry_aud CURSOR FOR
-            SELECT AEA.ID_PK,
-                    AEA.REV,
+            SELECT (SELECT MPKSAE.NEW_ID
+                    FROM MIGR_TB_PKS_AUTH_ENTRY MPKSAE
+                    WHERE MPKSAE.OLD_ID = AEA.ID_PK) AS ID_PK,
+                   AEA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = AEA.REV) AS REV,
                     AEA.REVTYPE,
                     AEA.CERTIFICATE_ID,
                     AEA.CERTIFICATEID_MOD,
@@ -7544,17 +7928,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migrati
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_authentication_entry_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_authentication_entry_aud INTO id_pk, rev, revtype, certificate_id, certificateid_mod, username,
-                        username_mod, passwd, password_mod, auth_roles, authroles_mod, original_user, originaluser_mod,
-                        backend, backend_mod, user_enabled, active_mod, password_change_date, passwordchangedate_mod,
-                        default_password, defaultpassword_mod;
+                FETCH c_authentication_entry_aud INTO id_pk, original_id_pk, rev, revtype, certificate_id,
+                        certificateid_mod, username, username_mod, passwd, password_mod, auth_roles, authroles_mod,
+                        original_user, originaluser_mod, backend, backend_mod, user_enabled, active_mod,
+                        password_change_date, passwordchangedate_mod, default_password, defaultpassword_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('authentication_entry', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_AUTH_ENTRY_AUD (ID_PK, REV, REVTYPE, CERTIFICATE_ID, CERTIFICATEID_MOD,
                                                               USERNAME, USERNAME_MOD, PASSWD, PASSWORD_MOD, AUTH_ROLES,
@@ -7563,7 +7946,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migrati
                                                               PASSWORD_CHANGE_DATE, PASSWORDCHANGEDATE_MOD,
                                                               DEFAULT_PASSWORD, DEFAULTPASSWORD_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         certificate_id,
                         certificateid_mod,
@@ -7605,15 +7988,16 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(INOUT migrati
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE fk_backend_filter BIGINT;
+        DECLARE original_fk_backend_filter BIGINT;
         DECLARE priority INT;
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
         DECLARE calculated_fk_backend_filter BIGINT;
 
@@ -7621,10 +8005,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(INOUT migration_pks
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_back_rcriteria_aud CURSOR FOR
-            SELECT BRA.ID_PK,
-                    BRA.REV,
+            SELECT (SELECT MPKSRC.NEW_ID
+                    FROM MIGR_TB_PKS_ROUTING_CRITERIA MPKSRC
+                    WHERE MPKSRC.OLD_ID = BRA.ID_PK) AS ID_PK,
+                   BRA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = BRA.REV) AS REV,
                     BRA.REVTYPE,
-                    BRA.FK_BACKEND_FILTER,
+                   (SELECT MPKSBF.NEW_ID
+                    FROM MIGR_TB_PKS_BACKEND_FILTER MPKSBF
+                    WHERE MPKSBF.OLD_ID = BRA.FK_BACKEND_FILTER) AS FK_BACKEND_FILTER,
+                   BRA.FK_BACKEND_FILTER AS ORIGINAL_FK_BACKEND_FILTER,
                     BRA.PRIORITY
             FROM TB_BACK_RCRITERIA_AUD BRA;
 
@@ -7648,19 +8040,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(INOUT migration_pks
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_back_rcriteria_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_back_rcriteria_aud INTO id_pk, rev, revtype, fk_backend_filter, priority;
+                FETCH c_back_rcriteria_aud INTO id_pk, original_id_pk, rev, revtype, fk_backend_filter,
+                        original_fk_backend_filter, priority;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('routing_criteria', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, fk_backend_filter, calculated_fk_backend_filter);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
+                SET calculated_fk_backend_filter := COALESCE(fk_backend_filter, MIGRATE_42_TO_50_generate_scalable_seq(original_fk_backend_filter, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_BACK_RCRITERIA_AUD (ID_PK, REV, REVTYPE, FK_BACKEND_FILTER, PRIORITY)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         calculated_fk_backend_filter,
                         priority);
@@ -7686,9 +8078,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(INOUT migration_pks
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE backend_name VARCHAR(255);
@@ -7697,15 +8090,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(INOUT migration_pks
         DECLARE index_mod BIT(1);
         DECLARE routingcriterias_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_backend_filter_aud CURSOR FOR
-            SELECT BFA.ID_PK,
-                    BFA.REV,
+            SELECT (SELECT MPKSBF.NEW_ID
+                    FROM MIGR_TB_PKS_BACKEND_FILTER MPKSBF
+                    WHERE MPKSBF.OLD_ID = BFA.ID_PK) AS ID_PK,
+                   BFA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = BFA.REV) AS REV,
                     BFA.REVTYPE,
                     BFA.BACKEND_NAME,
                     BFA.BACKENDNAME_MOD,
@@ -7734,20 +8131,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(INOUT migration_pks
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_backend_filter_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_backend_filter_aud INTO id_pk, rev, revtype, backend_name, backendname_mod, priority,
-                        index_mod, routingcriterias_mod;
+                FETCH c_backend_filter_aud INTO id_pk, original_id_pk, rev, revtype, backend_name, backendname_mod,
+                        priority, index_mod, routingcriterias_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('backend_filter', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_BACKEND_FILTER_AUD (ID_PK, REV, REVTYPE, BACKEND_NAME, BACKENDNAME_MOD, PRIORITY,
                                                         INDEX_MOD, ROUTINGCRITERIAS_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         backend_name,
                         backendname_mod,
@@ -7776,9 +8172,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(INOUT migration_pks
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE certificate_alias VARCHAR(255);
@@ -7790,15 +8187,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(INOUT migration_pks JS
         DECLARE certificate_status VARCHAR(255);
         DECLARE certificate_type VARCHAR(255);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_certificate_aud CURSOR FOR
-            SELECT CA.ID_PK,
-                    CA.REV,
+            SELECT (SELECT MPKSC.NEW_ID
+                    FROM MIGR_TB_PKS_CERTIFICATE MPKSC
+                    WHERE MPKSC.OLD_ID = CA.ID_PK) AS ID_PK,
+                   CA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = CA.REV) AS REV,
                     CA.REVTYPE,
                     CA.CERTIFICATE_ALIAS,
                     CA.NOT_VALID_BEFORE_DATE,
@@ -7830,23 +8231,22 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(INOUT migration_pks JS
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_certificate_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_certificate_aud INTO id_pk, rev, revtype, certificate_alias, not_valid_before_date,
-                        not_valid_after_date, revoke_notification_date, alert_imm_notification_date,
-                        alert_exp_notification_date, certificate_status, certificate_type;
+                FETCH c_certificate_aud INTO id_pk, original_id_pk, rev, revtype, certificate_alias,
+                        not_valid_before_date, not_valid_after_date, revoke_notification_date,
+                        alert_imm_notification_date, alert_exp_notification_date, certificate_status, certificate_type;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('certificate', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_CERTIFICATE_AUD (ID_PK, REV, REVTYPE, CERTIFICATE_ALIAS, NOT_VALID_BEFORE_DATE,
                                                      NOT_VALID_AFTER_DATE, REVOKE_NOTIFICATION_DATE,
                                                      ALERT_IMM_NOTIFICATION_DATE, ALERT_EXP_NOTIFICATION_DATE,
                                                      CERTIFICATE_STATUS, CERTIFICATE_TYPE)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         certificate_alias,
                         not_valid_before_date,
@@ -7878,9 +8278,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(INOUT migration_pks JS
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE expression VARCHAR(255);
@@ -7888,15 +8289,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(INOUT migration_p
         DECLARE name VARCHAR(255);
         DECLARE name_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_configuration_aud CURSOR FOR
-            SELECT PCA.ID_PK,
-                    PCA.REV,
+            SELECT (SELECT MPKSPC.NEW_ID
+                    FROM MIGR_TB_PKS_PM_CONFIGURATION MPKSPC
+                    WHERE MPKSPC.OLD_ID = PCA.ID_PK) AS ID_PK,
+                   PCA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = PCA.REV) AS REV,
                     PCA.REVTYPE,
                     PCA.EXPRESSION,
                     PCA.EXPRESSION_MOD,
@@ -7924,19 +8329,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(INOUT migration_p
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_pm_configuration_aud INTO id_pk, rev, revtype, expression, expression_mod, name, name_mod;
+                FETCH c_pm_configuration_aud INTO id_pk, original_id_pk, rev, revtype, expression, expression_mod, name,
+                        name_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_configuration', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_PM_CONFIGURATION_AUD (ID_PK, REV, REVTYPE, EXPRESSION, EXPRESSION_MOD, NAME,
                                                           NAME_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         expression,
                         expression_mod,
@@ -7964,9 +8369,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE configuration_date TIMESTAMP;
@@ -7976,15 +8382,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(INOUT migrati
         DECLARE xml LONGBLOB;
         DECLARE xml_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_configuration_raw_aud CURSOR FOR
-            SELECT PCRA.ID_PK,
-                    PCRA.REV,
+            SELECT (SELECT MPKSPCR.NEW_ID
+                    FROM MIGR_TB_PKS_PM_CONF_RAW MPKSPCR
+                    WHERE MPKSPCR.OLD_ID = PCRA.ID_PK) AS ID_PK,
+                   PCRA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = PCRA.REV) AS REV,
                     PCRA.REVTYPE,
                     PCRA.CONFIGURATION_DATE,
                     PCRA.CONFIGURATIONDATE_MOD,
@@ -8014,22 +8424,20 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(INOUT migrati
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_raw_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_pm_configuration_raw_aud INTO id_pk, rev, revtype, configuration_date, configurationdate_mod,
-                        description, description_mod, xml, xml_mod;
+                FETCH c_pm_configuration_raw_aud INTO id_pk, original_id_pk, rev, revtype, configuration_date,
+                        configurationdate_mod, description, description_mod, xml, xml_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_configuration_raw', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 -- XML (BLOB > LONGBLOB)
-                INSERT INTO MIGR_TB_PM_CONF_RAW_AUD (ID_PK, REV, REVTYPE, CONFIGURATION_DATE,
-                                                              CONFIGURATIONDATE_MOD, DESCRIPTION, DESCRIPTION_MOD,
-                                                              XML, XML_MOD)
+                INSERT INTO MIGR_TB_PM_CONF_RAW_AUD (ID_PK, REV, REVTYPE, CONFIGURATION_DATE, CONFIGURATIONDATE_MOD,
+                                                     DESCRIPTION, DESCRIPTION_MOD, XML, XML_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         configuration_date,
                         configurationdate_mod,
@@ -8059,9 +8467,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(INOUT migrati
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE endpoint VARCHAR(1024);
@@ -8073,15 +8482,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(INOUT migration_pks JSON,
         DECLARE username VARCHAR(255);
         DECLARE username_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_party_aud CURSOR FOR
-            SELECT PPA.ID_PK,
-                    PPA.REV,
+            SELECT (SELECT MPKSPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY MPKSPP
+                    WHERE MPKSPP.OLD_ID = PPA.ID_PK) AS ID_PK,
+                   PPA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = PPA.REV) AS REV,
                     PPA.REVTYPE,
                     PPA.ENDPOINT,
                     PPA.ENDPOINT_MOD,
@@ -8113,20 +8526,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(INOUT migration_pks JSON,
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_pm_party_aud INTO id_pk, rev, revtype, endpoint, endpoint_mod, name, name_mod, password,
-                        password_mod, username, username_mod;
+                FETCH c_pm_party_aud INTO id_pk, original_id_pk, rev, revtype, endpoint, endpoint_mod, name, name_mod,
+                        password, password_mod, username, username_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_party', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_PM_PARTY_AUD (ID_PK, REV, REVTYPE, ENDPOINT, ENDPOINT_MOD, NAME, NAME_MOD,
                                                   PASSWORD, PASSWORD_MOD, USERNAME, USERNAME_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         endpoint,
                         endpoint_mod,
@@ -8158,9 +8570,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(INOUT migration_pks JSON,
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE name VARCHAR(255);
@@ -8168,15 +8581,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(INOUT migration_p
         DECLARE value VARCHAR(1024);
         DECLARE value_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_party_id_type_aud CURSOR FOR
-            SELECT PPITA.ID_PK,
-                    PPITA.REV,
+            SELECT (SELECT MPKSPPIT.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY_ID_TYPE MPKSPPIT
+                    WHERE MPKSPPIT.OLD_ID = PPITA.ID_PK) AS ID_PK,
+                   PPITA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = PPITA.REV) AS REV,
                     PPITA.REVTYPE,
                     PPITA.NAME,
                     PPITA.NAME_MOD,
@@ -8204,18 +8621,17 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(INOUT migration_p
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_id_type_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_pm_party_id_type_aud INTO id_pk, rev, revtype, name, name_mod, value, value_mod;
+                FETCH c_pm_party_id_type_aud INTO id_pk, original_id_pk, rev, revtype, name, name_mod, value, value_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_party_id_type', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_PM_PARTY_ID_TYPE_AUD (ID_PK, REV, REVTYPE, NAME, NAME_MOD, VALUE, VALUE_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         name,
                         name_mod,
@@ -8243,14 +8659,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE fk_party BIGINT;
+        DECLARE original_fk_party BIGINT;
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
         DECLARE calculated_fk_party BIGINT;
 
@@ -8258,10 +8675,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(INOUT migratio
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_pm_party_identifier_aud CURSOR FOR
-            SELECT PPIA.ID_PK,
-                    PPIA.REV,
+            SELECT (SELECT MPKSPPI.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY_ID MPKSPPI
+                    WHERE MPKSPPI.OLD_ID = PPIA.ID_PK) AS ID_PK,
+                   PPIA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = PPIA.REV) AS REV,
                     PPIA.REVTYPE,
-                    PPIA.FK_PARTY
+                   (SELECT MPKSPP.NEW_ID
+                    FROM MIGR_TB_PKS_PM_PARTY MPKSPP
+                    WHERE MPKSPP.OLD_ID = PPIA.FK_PARTY) AS FK_PARTY,
+                   PPIA.FK_PARTY AS ORIGINAL_FK_PARTY
             FROM TB_PM_PARTY_IDENTIFIER_AUD PPIA;
 
         DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
@@ -8284,19 +8709,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(INOUT migratio
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_identifier_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_pm_party_identifier_aud INTO id_pk, rev, revtype, fk_party;
+                FETCH c_pm_party_identifier_aud INTO id_pk, original_id_pk, rev, revtype, fk_party, original_fk_party;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_party_identifier', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('pm_party', migration_pks, missing_entity_date_prefix, fk_party, calculated_fk_party);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
+                SET calculated_fk_party := COALESCE(fk_party, MIGRATE_42_TO_50_generate_scalable_seq(original_fk_party, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_PM_PARTY_IDENTIF_AUD (ID_PK, REV, REVTYPE, FK_PARTY)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         calculated_fk_party);
 
@@ -8321,9 +8745,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(INOUT migratio
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE expression VARCHAR(255);
@@ -8331,15 +8756,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(INOUT migration_p
         DECLARE name VARCHAR(255);
         DECLARE name_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_routing_criteria_aud CURSOR FOR
-            SELECT RCA.ID_PK,
-                    RCA.REV,
+            SELECT (SELECT MPKSRC.NEW_ID
+                    FROM MIGR_TB_PKS_ROUTING_CRITERIA MPKSRC
+                    WHERE MPKSRC.OLD_ID = RCA.ID_PK) AS ID_PK,
+                   RCA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = RCA.REV) AS REV,
                     RCA.REVTYPE,
                     RCA.EXPRESSION,
                     RCA.EXPRESSION_MOD,
@@ -8367,19 +8796,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(INOUT migration_p
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_routing_criteria_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_routing_criteria_aud INTO id_pk, rev, revtype, expression, expression_mod, name, name_mod;
+                FETCH c_routing_criteria_aud INTO id_pk, original_id_pk, rev, revtype, expression, expression_mod, name,
+                        name_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('routing_criteria', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_ROUTING_CRITERIA_AUD (ID_PK, REV, REVTYPE, EXPRESSION, EXPRESSION_MOD, NAME,
                                                           NAME_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         expression,
                         expression_mod,
@@ -8407,9 +8836,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(INOUT migration_p
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE user_enabled BIT(1);
@@ -8430,15 +8860,19 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(INOUT migration_pks JSON, mis
         DECLARE default_password BIT(1);
         DECLARE defaultpassword_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_user_aud CURSOR FOR
-            SELECT UA.ID_PK,
-                    UA.REV,
+            SELECT (SELECT MPKSU.NEW_ID
+                    FROM MIGR_TB_PKS_USER MPKSU
+                    WHERE MPKSU.OLD_ID = UA.ID_PK) AS ID_PK,
+                   UA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = UA.REV) AS REV,
                     UA.REVTYPE,
                     UA.USER_ENABLED,
                     UA.ACTIVE_MOD,
@@ -8479,24 +8913,23 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(INOUT migration_pks JSON, mis
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_user_aud INTO id_pk, rev, revtype, user_enabled, active_mod, user_deleted, deleted_mod,
-                        user_email, email_mod, user_password, password_mod, user_name, username_mod, optlock,
-                        version_mod, roles_mod, password_change_date, passwordchangedate_mod, default_password,
+                FETCH c_user_aud INTO id_pk, original_id_pk, rev, revtype, user_enabled, active_mod, user_deleted,
+                        deleted_mod, user_email, email_mod, user_password, password_mod, user_name, username_mod,
+                        optlock, version_mod, roles_mod, password_change_date, passwordchangedate_mod, default_password,
                         defaultpassword_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('user', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_USER_AUD (ID_PK, REV, REVTYPE, USER_ENABLED, ACTIVE_MOD, USER_DELETED, DELETED_MOD,
                                               USER_EMAIL, EMAIL_MOD, USER_PASSWORD, PASSWORD_MOD, USER_NAME,
                                               USERNAME_MOD, OPTLOCK, VERSION_MOD, ROLES_MOD, PASSWORD_CHANGE_DATE,
                                               PASSWORDCHANGEDATE_MOD, DEFAULT_PASSWORD, DEFAULTPASSWORD_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         user_enabled,
                         active_mod,
@@ -8537,24 +8970,29 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(INOUT migration_pks JSON, mis
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE id_pk BIGINT;
+        DECLARE original_id_pk BIGINT;
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE role_name VARCHAR(255);
         DECLARE name_mod BIT(1);
         DECLARE users_mod BIT(1);
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_id_pk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_user_role_aud CURSOR FOR
-            SELECT URA.ID_PK,
-                    URA.REV,
+            SELECT (SELECT MPKSUR.NEW_ID
+                    FROM MIGR_TB_PKS_USER_ROLE MPKSUR
+                    WHERE MPKSUR.OLD_ID = URA.ID_PK) AS ID_PK,
+                   URA.ID_PK AS ORIGINAL_ID_PK,
+                   (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = URA.REV) AS REV,
                     URA.REVTYPE,
                     URA.ROLE_NAME,
                     URA.NAME_MOD,
@@ -8581,18 +9019,17 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(INOUT migration_pks JSON
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_role_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_user_role_aud INTO id_pk, rev, revtype, role_name, name_mod, users_mod;
+                FETCH c_user_role_aud INTO id_pk, original_id_pk, rev, revtype, role_name, name_mod, users_mod;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('user_role', migration_pks, missing_entity_date_prefix, id_pk, calculated_id_pk);
+                SET calculated_id_pk := COALESCE(id_pk, MIGRATE_42_TO_50_generate_scalable_seq(original_id_pk, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_USER_ROLE_AUD (ID_PK, REV, REVTYPE, ROLE_NAME, NAME_MOD, USERS_MOD)
                 VALUES (calculated_id_pk,
-                        calculated_rev,
+                        rev,
                         revtype,
                         role_name,
                         name_mod,
@@ -8619,14 +9056,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(INOUT migration_pks JSON
     END
 //
 
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(INOUT migration_pks JSON, missing_entity_date_prefix DATETIME)
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(missing_entity_date_prefix DATETIME)
     BEGIN
         DECLARE rev BIGINT;
         DECLARE revtype TINYINT;
         DECLARE user_id BIGINT;
+        DECLARE original_user_id BIGINT;
         DECLARE role_id BIGINT;
+        DECLARE original_role_id BIGINT;
 
-        DECLARE calculated_rev BIGINT;
         DECLARE calculated_user_id BIGINT;
         DECLARE calculated_role_id BIGINT;
 
@@ -8634,10 +9072,18 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(INOUT migration_pks JSO
         DECLARE migration_status BOOLEAN;
 
         DECLARE c_user_roles_aud CURSOR FOR
-            SELECT URA.REV,
+            SELECT (SELECT MPKSRI.NEW_ID
+                    FROM MIGR_TB_PKS_REV_INFO MPKSRI
+                    WHERE MPKSRI.OLD_ID = URA.REV) AS REV,
                     URA.REVTYPE,
-                    URA.USER_ID,
-                    URA.ROLE_ID
+                   (SELECT MPKSU.NEW_ID
+                    FROM MIGR_TB_PKS_USER MPKSU
+                    WHERE MPKSU.OLD_ID = URA.USER_ID) AS USER_ID,
+                   URA.USER_ID AS ORIGINAL_USER_ID,
+                   (SELECT MPKSUR.NEW_ID
+                    FROM MIGR_TB_PKS_USER_ROLE MPKSUR
+                    WHERE MPKSUR.OLD_ID = URA.ROLE_ID) AS ROLE_ID,
+                   URA.ROLE_ID AS ORIGINAL_ROLE_ID
             FROM TB_USER_ROLES_AUD URA;
 
         DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
@@ -8660,18 +9106,17 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(INOUT migration_pks JSO
                     CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_roles_aud -> execute immediate error: ', @p2));
                 END;
 
-                FETCH c_user_roles_aud INTO rev, revtype, user_id, role_id;
+                FETCH c_user_roles_aud INTO rev, revtype, user_id, original_user_id, role_id, original_role_id;
 
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
-                CALL MIGRATE_42_TO_50_lookup_migration_pk('rev_info', migration_pks, rev, calculated_rev);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('user', migration_pks, missing_entity_date_prefix, user_id, calculated_user_id);
-                CALL MIGRATE_42_TO_50_lookup_audit_migration_pk('user_role', migration_pks, missing_entity_date_prefix, role_id, calculated_role_id);
+                SET calculated_user_id := COALESCE(user_id, MIGRATE_42_TO_50_generate_scalable_seq(original_user_id, missing_entity_date_prefix));
+                SET calculated_role_id := COALESCE(role_id, MIGRATE_42_TO_50_generate_scalable_seq(original_role_id, missing_entity_date_prefix));
 
                 INSERT INTO MIGR_TB_USER_ROLES_AUD (REV, REVTYPE, USER_ID, ROLE_ID)
-                VALUES (calculated_rev,
+                VALUES (rev,
                         revtype,
                         calculated_user_id,
                         calculated_role_id);
@@ -8700,112 +9145,110 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(INOUT migration_pks JSO
 /**-- main entry point for running the single tenancy or multitenancy non-general schema migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
     BEGIN
-        SET @migration_pks := '{}';
-
-        CALL MIGRATE_42_TO_50_prepare_timezone_offset(@migration_pks);
-
         -- keep it in this order
-        -- START migrate to the new schema (including primary keys to the new format)
-        CALL MIGRATE_42_TO_50_migrate_user_message(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_message_fragment(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_message_group(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_message_header(@migration_pks);
+        CALL MIGRATE_42_TO_50_prepare_timezone_offset();
 
-        CALL MIGRATE_42_TO_50_migrate_signal_receipt(@migration_pks);
+        -- START migrate to the new schema (including primary keys to the new format)
+        CALL MIGRATE_42_TO_50_migrate_user_message();
+        CALL MIGRATE_42_TO_50_migrate_message_fragment();
+        CALL MIGRATE_42_TO_50_migrate_message_group();
+        CALL MIGRATE_42_TO_50_migrate_message_header();
+
+        CALL MIGRATE_42_TO_50_migrate_signal_receipt();
         CALL MIGRATE_42_TO_50_migrate_message_log;
 
-        CALL MIGRATE_42_TO_50_migrate_raw_envelope_log(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_raw_envelope_log();
 
-        CALL MIGRATE_42_TO_50_migrate_property(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_part_info_user(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_part_info_property(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_property();
+        CALL MIGRATE_42_TO_50_migrate_part_info_user();
+        CALL MIGRATE_42_TO_50_migrate_part_info_property();
 
-        CALL MIGRATE_42_TO_50_migrate_error_log(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_message_acknw(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_send_attempt(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_error_log();
+        CALL MIGRATE_42_TO_50_migrate_message_acknw();
+        CALL MIGRATE_42_TO_50_migrate_send_attempt();
         -- END migrate to the new schema (including primary keys to the new format)
 
         -- START migrate primary keys to new format
-        CALL MIGRATE_42_TO_50_migrate_action_audit(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_alert(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_event(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_event_alert(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_event_property(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_action_audit();
+        CALL MIGRATE_42_TO_50_migrate_alert();
+        CALL MIGRATE_42_TO_50_migrate_event();
+        CALL MIGRATE_42_TO_50_migrate_event_alert();
+        CALL MIGRATE_42_TO_50_migrate_event_property();
         --
-        CALL MIGRATE_42_TO_50_migrate_authentication_entry(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_plugin_user_passwd_history(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_authentication_entry();
+        CALL MIGRATE_42_TO_50_migrate_plugin_user_passwd_history();
         --
-        CALL MIGRATE_42_TO_50_migrate_backend_filter(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_routing_criteria(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_backend_filter();
+        CALL MIGRATE_42_TO_50_migrate_routing_criteria();
         --
-        CALL MIGRATE_42_TO_50_migrate_certificate(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_certificate();
         --
-        CALL MIGRATE_42_TO_50_migrate_command(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_command_property(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_command();
+        CALL MIGRATE_42_TO_50_migrate_command_property();
         --
         CALL MIGRATE_42_TO_50_migrate_encryption_key; -- SECRET_KEY & INIT_VECTOR (BLOB > LONGBLOB)
         --
-        CALL MIGRATE_42_TO_50_migrate_message_acknw_prop(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_message_acknw_prop();
         --
         -- CALL MIGRATE_42_TO_50_migrate_message_ui; -- not part of this task (UI replication to be fixed later)
         --
-        CALL MIGRATE_42_TO_50_migrate_messaging_lock(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_messaging_lock();
         --
-        CALL MIGRATE_42_TO_50_migrate_pm_business_process(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_action(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_agreement(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_error_handling(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_mep(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_mep_binding(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_message_property(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_message_property_set(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_join_property_set(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_party(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_configuration(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_mpc(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_party_id_type(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_party_identifier(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_payload(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_payload_profile(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_join_payload_profile(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_reception_awareness(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_reliability(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_role(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_security(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_service(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_splitting(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_leg(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_leg_mpc(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_process(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_join_process_init_party(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_join_process_leg(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_pm_join_process_resp_party(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_pm_business_process();
+        CALL MIGRATE_42_TO_50_migrate_pm_action();
+        CALL MIGRATE_42_TO_50_migrate_pm_agreement();
+        CALL MIGRATE_42_TO_50_migrate_pm_error_handling();
+        CALL MIGRATE_42_TO_50_migrate_pm_mep();
+        CALL MIGRATE_42_TO_50_migrate_pm_mep_binding();
+        CALL MIGRATE_42_TO_50_migrate_pm_message_property();
+        CALL MIGRATE_42_TO_50_migrate_pm_message_property_set();
+        CALL MIGRATE_42_TO_50_migrate_pm_join_property_set();
+        CALL MIGRATE_42_TO_50_migrate_pm_party();
+        CALL MIGRATE_42_TO_50_migrate_pm_configuration();
+        CALL MIGRATE_42_TO_50_migrate_pm_mpc();
+        CALL MIGRATE_42_TO_50_migrate_pm_party_id_type();
+        CALL MIGRATE_42_TO_50_migrate_pm_party_identifier();
+        CALL MIGRATE_42_TO_50_migrate_pm_payload();
+        CALL MIGRATE_42_TO_50_migrate_pm_payload_profile();
+        CALL MIGRATE_42_TO_50_migrate_pm_join_payload_profile();
+        CALL MIGRATE_42_TO_50_migrate_pm_reception_awareness();
+        CALL MIGRATE_42_TO_50_migrate_pm_reliability();
+        CALL MIGRATE_42_TO_50_migrate_pm_role();
+        CALL MIGRATE_42_TO_50_migrate_pm_security();
+        CALL MIGRATE_42_TO_50_migrate_pm_service();
+        CALL MIGRATE_42_TO_50_migrate_pm_splitting();
+        CALL MIGRATE_42_TO_50_migrate_pm_leg();
+        CALL MIGRATE_42_TO_50_migrate_pm_leg_mpc();
+        CALL MIGRATE_42_TO_50_migrate_pm_process();
+        CALL MIGRATE_42_TO_50_migrate_pm_join_process_init_party();
+        CALL MIGRATE_42_TO_50_migrate_pm_join_process_leg();
+        CALL MIGRATE_42_TO_50_migrate_pm_join_process_resp_party();
         --
-        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw(@migration_pks); -- XML (BLOB > LONGBLOB)
+        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw(); -- XML (BLOB > LONGBLOB)
         --
-        CALL MIGRATE_42_TO_50_migrate_user(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_user_password_history(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_user_role(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_user_roles(@migration_pks);
+        CALL MIGRATE_42_TO_50_migrate_user();
+        CALL MIGRATE_42_TO_50_migrate_user_password_history();
+        CALL MIGRATE_42_TO_50_migrate_user_role();
+        CALL MIGRATE_42_TO_50_migrate_user_roles();
         --
         CALL MIGRATE_42_TO_50_migrate_ws_plugin_tb_message_log;
         --
         SET @missing_entity_date_prefix := SYSDATE();
-        CALL MIGRATE_42_TO_50_migrate_rev_info(@migration_pks);
-        CALL MIGRATE_42_TO_50_migrate_rev_changes(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_authentication_entry_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_back_rcriteria_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_backend_filter_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_certificate_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_pm_configuration_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(@migration_pks, @missing_entity_date_prefix); -- XML (BLOB > LONGBLOB)
-        CALL MIGRATE_42_TO_50_migrate_pm_party_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_routing_criteria_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_user_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_user_role_aud(@migration_pks, @missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_user_roles_aud(@migration_pks, @missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_rev_info();
+        CALL MIGRATE_42_TO_50_migrate_rev_changes(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_authentication_entry_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_back_rcriteria_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_backend_filter_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_certificate_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_pm_configuration_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(@missing_entity_date_prefix); -- XML (BLOB > LONGBLOB)
+        CALL MIGRATE_42_TO_50_migrate_pm_party_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_routing_criteria_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_user_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_user_role_aud(@missing_entity_date_prefix);
+        CALL MIGRATE_42_TO_50_migrate_user_roles_aud(@missing_entity_date_prefix);
         -- END migrate primary keys to new format
     END
 //
@@ -8813,32 +9256,30 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
 /**-- main entry point for running the multitenancy general schema migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate_multitenancy()
 BEGIN
-    SET @migration_pks := '{}';
-
     -- keep it in this order
-    CALL MIGRATE_42_TO_50_prepare_timezone_offset(@migration_pks);
+    CALL MIGRATE_42_TO_50_prepare_timezone_offset();
 
     -- START migrate primary keys to new format
-    CALL MIGRATE_42_TO_50_migrate_alert(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_event(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_event_alert(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_event_property(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_alert();
+    CALL MIGRATE_42_TO_50_migrate_event();
+    CALL MIGRATE_42_TO_50_migrate_event_alert();
+    CALL MIGRATE_42_TO_50_migrate_event_property();
     --
-    CALL MIGRATE_42_TO_50_migrate_command(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_command_property(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_command();
+    CALL MIGRATE_42_TO_50_migrate_command_property();
     --
     CALL MIGRATE_42_TO_50_migrate_user_domain;
     --
-    CALL MIGRATE_42_TO_50_migrate_user(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_user_password_history(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_user_role(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_user_roles(@migration_pks);
+    CALL MIGRATE_42_TO_50_migrate_user();
+    CALL MIGRATE_42_TO_50_migrate_user_password_history();
+    CALL MIGRATE_42_TO_50_migrate_user_role();
+    CALL MIGRATE_42_TO_50_migrate_user_roles();
     --
     SET @missing_entity_date_prefix := SYSDATE();
-    CALL MIGRATE_42_TO_50_migrate_rev_info(@migration_pks);
-    CALL MIGRATE_42_TO_50_migrate_rev_changes(@migration_pks, @missing_entity_date_prefix);
-    CALL MIGRATE_42_TO_50_migrate_user_role_aud(@migration_pks, @missing_entity_date_prefix);
-    CALL MIGRATE_42_TO_50_migrate_user_roles_aud(@migration_pks, @missing_entity_date_prefix);
+    CALL MIGRATE_42_TO_50_migrate_rev_info();
+    CALL MIGRATE_42_TO_50_migrate_rev_changes(@missing_entity_date_prefix);
+    CALL MIGRATE_42_TO_50_migrate_user_role_aud(@missing_entity_date_prefix);
+    CALL MIGRATE_42_TO_50_migrate_user_roles_aud(@missing_entity_date_prefix);
     -- END migrate primary keys to new format
 END
 //

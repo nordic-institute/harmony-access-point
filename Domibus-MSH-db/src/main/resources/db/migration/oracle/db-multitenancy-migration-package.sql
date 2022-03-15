@@ -1,7 +1,7 @@
 -- ********************************************************************************************************
 -- Domibus 4.2.7 to 5.0 data migration package
 --
--- Main entry point is the procedure 'migrate_multitenancy'. To be executed into a begin/end; block
+-- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
 -- Parameters to be adjusted:
 -- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
