@@ -58,8 +58,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     public String getQueryBody(Map<String, Object> filters) {
         return
-                " from PartInfo partInfo, UserMessage message, UserMessageLog log " +
-                        "join log.userMessage message " +
+                " from PartInfo partInfo inner join partInfo.userMessage message, UserMessageLog log " +
                         (isFourCornerModel() ?
                                 "left join message.messageProperties propsFrom "  +
                                 "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
@@ -68,7 +67,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                         "left join message.partyInfo.to.toPartyId partyTo " +
                         (isFourCornerModel() ?
                                 "where propsFrom.name = 'originalSender' "  +
-                                "and partInfo.userMessage.messageId = message.messageId "  +
+                                "and log.userMessage = message "  +
                                 "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
 
     }
