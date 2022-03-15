@@ -9,6 +9,7 @@ import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -18,7 +19,8 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -52,6 +54,9 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     TLSCertificateManager tlsCertificateManager;
+
+    @Injectable
+    UserManagementServiceImpl userManagementService;
 
     @Injectable
     DomibusPropertyValidatorService domibusPropertyValidatorService;
