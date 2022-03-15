@@ -59,7 +59,7 @@ public class PayloadExtDelegate implements PayloadExtService {
     public PartInfoDTO getPayload(Long messageEntityId, String cid) throws PayloadExtException {
         final UserMessage userMessage = userMessageService.getMessageEntity(messageEntityId);
         if (userMessage == null) {
-            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Could not find message with entity id [" + messageEntityId + "]");
+            throw new PayloadExtException(DomibusErrorCode.DOM_009, "Could not find message with entity id [" + messageEntityId + "]");
         }
         return getPartInfoDTO(userMessage, cid);
     }
@@ -68,7 +68,7 @@ public class PayloadExtDelegate implements PayloadExtService {
     public PartInfoDTO getPayload(String messageId, String cid) throws PayloadExtException {
         final UserMessage userMessage = userMessageService.getMessageEntity(messageId);
         if (userMessage == null) {
-            throw new PayloadExtException(DomibusErrorCode.DOM_005, "Could not find message with message id [" + messageId + "]");
+            throw new PayloadExtException(DomibusErrorCode.DOM_009, "Could not find message with message id [" + messageId + "]");
         }
         return getPartInfoDTO(userMessage, cid);
     }

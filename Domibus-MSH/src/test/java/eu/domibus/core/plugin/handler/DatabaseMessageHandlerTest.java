@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.handler;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
@@ -46,6 +47,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.jms.Queue;
@@ -194,6 +196,8 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     protected PartyEndpointProvider partyEndpointProvider;
+    @Autowired
+    protected UserMessageSecurityService userMessageSecurityService;
 
     protected static MessageProperty createProperty(String name, String value, String type) {
         MessageProperty aProperty = new MessageProperty();
@@ -203,7 +207,7 @@ public class DatabaseMessageHandlerTest {
         return aProperty;
     }
 
-    protected static UserMessage createUserMessage() {
+    public static UserMessage createUserMessage() {
         UserMessage userMessage = new UserMessage();
         ActionEntity action = new ActionEntity();
         action.setValue("TC2Leg1");
@@ -731,7 +735,7 @@ public class DatabaseMessageHandlerTest {
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
-            databaseMessageHandler.validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
             result = new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
         }};
 
@@ -872,45 +876,6 @@ public class DatabaseMessageHandlerTest {
 
     }
 
-    @Test
-    public void testValidateOriginalUserOK(@Injectable final UserMessage userMessage) {
-        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-
-        new Expectations() {{
-            userMessageServiceHelper.getOriginalUser(userMessage, MessageConstants.ORIGINAL_SENDER);
-            result = originalUser;
-            authUtils.getOriginalUserFromSecurityContext();
-            result = originalUser;
-        }};
-
-        databaseMessageHandler.validateOriginalUser(userMessage);
-    }
-
-    @Test(expected = AccessDeniedException.class)
-    public void testValidateOriginalUserNoFR() {
-        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-
-        final UserMessage userMessage = createUserMessage();
-        new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
-            result = originalUser;
-        }};
-
-        databaseMessageHandler.validateOriginalUser(userMessage);
-    }
-
-    @Test(expected = AccessDeniedException.class)
-    public void testValidateOriginalUserNoMatch() {
-        String originalUser = "nobodywho";
-        new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
-            result = originalUser;
-        }};
-
-        final UserMessage userMessage = createUserMessage();
-
-        databaseMessageHandler.validateOriginalUser(userMessage);
-    }
 
     @Test
     public void testDownloadMessageOK(@Injectable UserMessage userMessage,
@@ -970,7 +935,7 @@ public class DatabaseMessageHandlerTest {
             authUtils.getOriginalUserFromSecurityContext();
             result = originalUser;
 
-            databaseMessageHandler.validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+            userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
             result = new AccessDeniedException("You are not allowed to handle this message");
         }};
 
@@ -1080,7 +1045,7 @@ public class DatabaseMessageHandlerTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            databaseMessageHandler.validateOriginalUser((UserMessage) any);
+            userMessageSecurityService.validateUserAccess((UserMessage) any);
             result = new AccessDeniedException("");
         }};
 

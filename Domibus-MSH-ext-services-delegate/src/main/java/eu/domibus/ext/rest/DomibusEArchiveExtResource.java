@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -34,6 +35,7 @@ import java.util.List;
 @RequestMapping(value = "/ext/archive")
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "DomibusBasicAuth", scheme = "basic")
 @Tag(name = "archive", description = "Domibus eArchive services API")
+@PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
 public class DomibusEArchiveExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
     public static final String RETURN_RESULTS_OF_TOTAL = "Return [{}] results of total: [{}].";

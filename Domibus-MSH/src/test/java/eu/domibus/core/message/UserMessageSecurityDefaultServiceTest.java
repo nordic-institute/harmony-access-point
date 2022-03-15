@@ -1,13 +1,16 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.logging.DomibusLogger;
+import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * @author Cosmin Baciu
@@ -30,10 +33,10 @@ public class UserMessageSecurityDefaultServiceTest {
 
 
     @Test(expected = AuthenticationException.class)
-    public void testCheckMessageAuthorizationWithNonExistingMessage() throws Exception {
+    public void testCheckMessageAuthorizationWithNonExistingMessage() {
         final String messageId = "1";
         new Expectations() {{
-            userMessageService.getFinalRecipient(messageId);
+            userMessageService.findByMessageId(messageId);
             result = null;
         }};
 
@@ -41,21 +44,22 @@ public class UserMessageSecurityDefaultServiceTest {
     }
 
     @Test
-    public void testCheckMessageAuthorizationWithExistingMessage() throws Exception {
+    public void testCheckMessageAuthorizationWithExistingMessage(@Injectable UserMessage userMessage) {
         final String messageId = "1";
-        final String finalRecipient = "C4";
         new Expectations(userMessageSecurityDefaultService) {{
-            userMessageService.getFinalRecipient(messageId);
-            result = finalRecipient;
+            userMessageService.findByMessageId(messageId);
+            result = userMessage;
 
-            userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
+            userMessageSecurityDefaultService.validateUserAccess(userMessage);
+            times = 1;
         }};
 
         userMessageSecurityDefaultService.checkMessageAuthorization(messageId);
+
     }
 
     @Test
-    public void testCheckAuthorizationWithAdminRole(final @Capturing DomibusLogger log) throws Exception {
+    public void testCheckAuthorizationWithAdminRole(final @Capturing DomibusLogger log) {
         final String finalRecipient = "C4";
         new Expectations() {{
             authUtils.getOriginalUserFromSecurityContext();
@@ -71,7 +75,7 @@ public class UserMessageSecurityDefaultServiceTest {
     }
 
     @Test(expected = AuthenticationException.class)
-    public void testCheckSecurityWhenOriginalUserFromSecurityContextIsDifferent() throws Exception {
+    public void testCheckSecurityWhenOriginalUserFromSecurityContextIsDifferent() {
         final String finalRecipient = "C4";
         final String originalUserFromSecurityContext = "differentRecipient";
 
@@ -84,7 +88,7 @@ public class UserMessageSecurityDefaultServiceTest {
     }
 
     @Test
-    public void testCheckSecurityWhenOriginalUserFromSecurityContextIsSame() throws Exception {
+    public void testCheckSecurityWhenOriginalUserFromSecurityContextIsSame() {
         final String finalRecipient = "C4";
         final String originalUserFromSecurityContext = "C4";
 
@@ -95,4 +99,83 @@ public class UserMessageSecurityDefaultServiceTest {
 
         userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
     }
+
+
+    @Test
+    public void testValidateOriginalUserOK_finalRecipient(@Injectable final UserMessage userMessage) {
+        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+        String other = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+
+        new Expectations() {{
+            authUtils.isUnsecureLoginAllowed();
+            result = false;
+
+            authUtils.getOriginalUserFromSecurityContext();
+            result = originalUser;
+
+            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            result = other;
+
+            userMessageServiceHelper.getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
+            result = originalUser;
+        }};
+
+        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+    }
+
+    @Test
+    public void testValidateOriginalUserOK_originalSender(@Injectable final UserMessage userMessage) {
+        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+        String other = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+
+        new Expectations() {{
+            authUtils.isUnsecureLoginAllowed();
+            result = false;
+
+            authUtils.getOriginalUserFromSecurityContext();
+            result = originalUser;
+
+            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            result = originalUser;
+        }};
+
+        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+    }
+
+    @Test
+    public void testValidateOriginalUserOK_admin(@Injectable final UserMessage userMessage) {
+
+        new Expectations() {{
+            authUtils.isUnsecureLoginAllowed();
+            result = false;
+
+            authUtils.getOriginalUserFromSecurityContext();
+            result = null;
+        }};
+
+        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void validateUserAccess_noAccess(@Injectable final UserMessage userMessage) {
+        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
+        String other = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+
+        new Expectations() {{
+            authUtils.isUnsecureLoginAllowed();
+            result = false;
+
+            authUtils.getOriginalUserFromSecurityContext();
+            result = originalUser;
+
+            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            result = other;
+
+            userMessageServiceHelper.getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
+            result = other;
+        }};
+
+        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+    }
+
 }

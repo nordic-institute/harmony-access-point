@@ -45,4 +45,11 @@ public interface UserMessageSecurityService {
      * @throws AuthenticationException in case the user doesn't have the permission
      */
     String getOriginalUserFromSecurityContext() throws AuthenticationException;
+
+    void validateUserAccess(UserMessage userMessage);
+
+    void validateUserAccess(UserMessage userMessage, String authOriginalUser, String propertyName);
+
+    void checkMessageAuthorization(final Long messageEntityId);
+
 }

@@ -8,8 +8,13 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -31,27 +36,12 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     @Override
-    public void checkMessageAuthorization(String messageId) throws AuthenticationException {
-        /* unsecured login allowed */
-        if (authUtils.isUnsecureLoginAllowed()) {
-            LOG.debug("Unsecured login is allowed");
-            return;
-        }
-
-        final String finalRecipient = userMessageService.getFinalRecipient(messageId);
-        if (StringUtils.isEmpty(finalRecipient)) {
-            throw new AuthenticationException("Couldn't get the finalRecipient for message with ID [" + messageId + "]");
-        }
-        checkAuthorization(finalRecipient);
-    }
-
-    @Override
     public void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException {
-        final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
-        if (StringUtils.isEmpty(finalRecipient)) {
-            throw new AuthenticationException("Couldn't get the finalRecipient for message with ID [" + userMessage.getMessageId() + "]");
+        try {
+            validateUserAccess(userMessage);
+        } catch (AccessDeniedException e) {
+            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
         }
-        checkAuthorization(finalRecipient);
     }
 
     @Override
@@ -79,6 +69,67 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     @Override
     public String getOriginalUserFromSecurityContext() throws AuthenticationException {
         return authUtils.getOriginalUserFromSecurityContext();
+    }
+
+    /**
+     * @param userMessage with set of {@link eu.domibus.api.model.MessageProperty}
+     * @throws AccessDeniedException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
+     */
+    public void validateUserAccess(UserMessage userMessage) throws AccessDeniedException {
+        /* unsecured login allowed */
+        if (authUtils.isUnsecureLoginAllowed()) {
+            LOG.debug("Unsecured login is allowed");
+            return;
+        }
+        String authOriginalUser = authUtils.getOriginalUserFromSecurityContext();
+        List<String> propertyNames = new ArrayList<>();
+        propertyNames.add(MessageConstants.ORIGINAL_SENDER);
+        propertyNames.add(MessageConstants.FINAL_RECIPIENT);
+
+        if (authOriginalUser != null) {
+            LOG.debug("OriginalUser is [{}]", authOriginalUser);
+            /* check the message belongs to the authenticated user */
+            boolean found = false;
+            for (String propertyName : propertyNames) {
+                String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
+                if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
+                throw new AccessDeniedException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
+            }
+        }
+    }
+
+    public void validateUserAccess(UserMessage userMessage, String authOriginalUser, String propertyName) {
+        if (authOriginalUser != null) {
+            LOG.debug("OriginalUser is [{}]", authOriginalUser);
+            /* check the message belongs to the authenticated user */
+            String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
+            if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
+                LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
+                throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
+            }
+        }
+    }
+
+    public void checkMessageAuthorization(final Long messageEntityId) {
+        UserMessage userMessage = userMessageService.findByEntityId(messageEntityId);
+        if (userMessage == null) {
+            throw new AuthenticationException("Usermessage with entityId [" + messageEntityId + "] not found.");
+        }
+        validateUserAccess(userMessage);
+    }
+
+    public void checkMessageAuthorization(String messageId) {
+        UserMessage userMessage = userMessageService.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new AuthenticationException("Usermessage with messageId [" + messageId + "] not found.");
+        }
+        validateUserAccess(userMessage);
     }
 
 }

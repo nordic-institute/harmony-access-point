@@ -84,9 +84,6 @@ public class MessagingServiceImplTest {
     @Injectable
     SubmissionAS4Transformer transformer;
 
-    @Injectable
-    PartInfoHelper partInfoHelper;
-
     @Test
     public void testStoreOutgoingPayload(@Injectable UserMessage userMessage,
                                          @Injectable PartInfo partInfo,
