@@ -97,22 +97,6 @@ public class UserDomainServiceMultiDomainImplTest {
         }};
     }
 
-    @Test
-    public void executeInContext(@Mocked Runnable method, @Mocked UserDetails ud) throws Exception {
-        new Expectations() {{
-            authUtils.getUserDetails();
-            result = ud;
-        }};
-
-        userDomainServiceMultiDomainImpl.executeInContext(method);
-        mockExecutorSubmit();
-
-        new Verifications() {{
-            authUtils.getUserDetails();
-            authUtils.runWithSecurityContext((AuthenticatedProcedure) any, ud.getUsername(), ud.getPassword());
-        }};
-    }
-
     private <T> T mockExecutorSubmit() throws Exception {
         Mockito.verify(domainTaskExecutor).submit((Callable) argCaptor.capture());
         Callable<T> callable = (Callable<T>) argCaptor.getValue();
