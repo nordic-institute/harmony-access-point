@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,18 +41,12 @@ public class DomainsResource {
 
     private final DomibusCoreMapper coreMapper;
 
-    private final AuthUtils authUtils;
-
-    private final DomibusConfigurationService domibusConfigurationService;
-
     public DomainsResource(DynamicDomainManagementService dynamicDomainManagementService, DomainService domainService,
-                           DomainDao domainDao, DomibusCoreMapper coreMapper, AuthUtils authUtils, DomibusConfigurationService domibusConfigurationService) {
+                           DomainDao domainDao, DomibusCoreMapper coreMapper) {
         this.dynamicDomainManagementService = dynamicDomainManagementService;
         this.domainService = domainService;
         this.domainDao = domainDao;
         this.coreMapper = coreMapper;
-        this.authUtils = authUtils;
-        this.domibusConfigurationService = domibusConfigurationService;
     }
 
     /**
@@ -61,20 +56,13 @@ public class DomainsResource {
      */
     @GetMapping(value = "")
     public List<DomainRO> getDomains(@Valid Boolean active) {
-        List<Domain> domains = new ArrayList<>();
+        List<Domain> domains = Arrays.asList();
         if (active == null) {
-            LOG.debug("Getting all domains");
+            LOG.debug("Getting all domains.");
             domains = domainDao.findAll();
         } else if (active) {
-            LOG.debug("Getting active domains");
-            UserDetails userDetails = authUtils.getUserDetails();
-            if (userDetails instanceof DomibusUserDetails) {
-                List<Domain> availableDomains = ((DomibusUserDetails) userDetails).getAvailableDomainCodes().stream()
-                        .map(domainService::getDomain)
-                        .sorted(Comparator.comparing(Domain::getName, String.CASE_INSENSITIVE_ORDER))
-                        .collect(Collectors.toList());
-                domains.addAll(availableDomains);
-            }
+            LOG.debug("Getting active domains.");
+            domains = domainService.getDomains();
         }
         return coreMapper.domainListToDomainROList(domains);
     }
