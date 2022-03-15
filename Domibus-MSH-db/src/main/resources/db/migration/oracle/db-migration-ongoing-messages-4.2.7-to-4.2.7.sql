@@ -1,19 +1,19 @@
 -- ********************************************************************************************************
--- Domibus 5.0 to 5.0 ongoing messages data migration package
+-- Domibus 4.2.7 to 4.2.7 ongoing messages data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
 -- Parameters to be adjusted:
 -- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
---              default value is 10000
--- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 10000
+--              default value is 100
+-- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
 -- ********************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES IS
     -- batch size for commit of the migrated records
-    BATCH_SIZE CONSTANT NUMBER := 10000;
+    BATCH_SIZE CONSTANT NUMBER := 100;
 
     -- limit loading a high number of records into memory
-    BULK_COLLECT_LIMIT CONSTANT NUMBER := 10000;
+    BULK_COLLECT_LIMIT CONSTANT NUMBER := 100;
 
     DEFAULT_MIGRATION_START_DATE            CONSTANT TIMESTAMP               := TIMESTAMP '1970-01-01 00:00:00.00';
     DEFAULT_MIGRATION_END_DATE              CONSTANT TIMESTAMP               := SYSTIMESTAMP;
@@ -716,8 +716,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
                   AND RECEIVED BETWEEN migration.startDate AND migration.endDate
             );
 
-        TYPE T_SEND_ATTEMPT IS TABLE OF c_messaging_lock%ROWTYPE;
-        messaging_lock T_SEND_ATTEMPT;
+        TYPE T_MESSAGING_LOCK IS TABLE OF c_messaging_lock%ROWTYPE;
+        messaging_lock T_MESSAGING_LOCK;
     BEGIN
         dbms_output.put_line('Migrating TB_MESSAGING_LOCK entries...');
 
