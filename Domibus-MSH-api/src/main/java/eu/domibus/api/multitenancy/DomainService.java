@@ -31,4 +31,6 @@ public interface DomainService {
     void resetDomains();
 
     void removeDomain(String domainCode);
+
+    void add(Domain domain);
 }

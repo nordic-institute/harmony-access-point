@@ -20,6 +20,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -138,14 +139,27 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
+    public void add(Domain domain) {
+        if (domain == null) {
+            LOG.info("Could not add a null domain.");
+            return;
+        }
+        LOG.debug("Adding domain [{}]", domain);
+        domains.add(domain);
+    }
+
+    @Override
     public void removeDomain(String domainCode) {
         if (StringUtils.isEmpty(domainCode)) {
+            LOG.info("Could not remove an empty domain.");
             return;
         }
         Domain domain = domains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
         if (domain == null) {
+            LOG.info("Could not find domain [{}] to remove.", domainCode);
             return;
         }
         domains.remove(domain);
     }
+
 }

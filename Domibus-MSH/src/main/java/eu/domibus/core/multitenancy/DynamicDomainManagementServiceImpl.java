@@ -176,7 +176,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     protected void internalAddDomain(Domain domain) {
         domibusPropertyProvider.loadProperties(domain);
 
-        domainService.getDomains().add(domain);
+        domainService.add(domain);
 
         try {
             notifyInternalBeansOfAddition(domain);

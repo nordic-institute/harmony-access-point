@@ -25,10 +25,10 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JMockit.class)
-public class DomainsResourceTest {
+public class DomainResourceTest {
 
     @Tested
-    private DomainsResource domainsResource;
+    private DomainResource domainsResource;
 
     @Injectable
     private DomibusCoreMapper coreMapper;

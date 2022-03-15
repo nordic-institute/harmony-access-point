@@ -2,24 +2,17 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
-import eu.domibus.web.security.DomibusUserDetails;
 import org.slf4j.Logger;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -29,9 +22,9 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(value = "/rest/domains")
-public class DomainsResource {
+public class DomainResource {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomainsResource.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomainResource.class);
 
     private final DynamicDomainManagementService dynamicDomainManagementService;
 
@@ -41,8 +34,8 @@ public class DomainsResource {
 
     private final DomibusCoreMapper coreMapper;
 
-    public DomainsResource(DynamicDomainManagementService dynamicDomainManagementService, DomainService domainService,
-                           DomainDao domainDao, DomibusCoreMapper coreMapper) {
+    public DomainResource(DynamicDomainManagementService dynamicDomainManagementService, DomainService domainService,
+                          DomainDao domainDao, DomibusCoreMapper coreMapper) {
         this.dynamicDomainManagementService = dynamicDomainManagementService;
         this.domainService = domainService;
         this.domainDao = domainDao;

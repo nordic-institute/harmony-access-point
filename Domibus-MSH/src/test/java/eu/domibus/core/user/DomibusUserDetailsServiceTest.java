@@ -20,7 +20,9 @@ import org.junit.runner.RunWith;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
 import static org.junit.Assert.assertEquals;
@@ -31,7 +33,7 @@ import static org.junit.Assert.assertFalse;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class DomibusUserDetailsServiceImplTest {
+public class DomibusUserDetailsServiceTest {
 
     @Injectable
     private UserDao userDao;
@@ -55,7 +57,7 @@ public class DomibusUserDetailsServiceImplTest {
     private UserDetailServiceImpl userDetailService;
 
     @Test
-    public void loadUserByUsernameSuccessfully()  {
+    public void loadUserByUsernameSuccessfully() {
         User user = new User() {{
             setUserName("admin");
             setPassword("whateverdifferentthandefaultpasswordhash");

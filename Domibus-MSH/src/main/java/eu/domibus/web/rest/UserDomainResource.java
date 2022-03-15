@@ -2,11 +2,8 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.multitenancy.DynamicDomainManagementService;
-import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.security.DomibusUserDetails;
@@ -29,9 +26,9 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping(value = "/rest/userdomains")
-public class UserDomainsResource {
+public class UserDomainResource {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(UserDomainsResource.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(UserDomainResource.class);
 
     private final DomainService domainService;
 
@@ -39,8 +36,8 @@ public class UserDomainsResource {
 
     private final AuthUtils authUtils;
 
-    public UserDomainsResource(DomainService domainService,
-                               DomibusCoreMapper coreMapper, AuthUtils authUtils) {
+    public UserDomainResource(DomainService domainService,
+                              DomibusCoreMapper coreMapper, AuthUtils authUtils) {
         this.domainService = domainService;
         this.coreMapper = coreMapper;
         this.authUtils = authUtils;
@@ -54,7 +51,7 @@ public class UserDomainsResource {
         LOG.debug("Getting user domains");
         UserDetails userDetails = authUtils.getUserDetails();
         if (!(userDetails instanceof DomibusUserDetails)) {
-            LOG.info("Could not get user domains");
+            LOG.info("Could not get user domains.");
             return new ArrayList<>();
         }
 
