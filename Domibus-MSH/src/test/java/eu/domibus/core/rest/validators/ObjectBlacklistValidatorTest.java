@@ -7,7 +7,6 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -20,7 +19,6 @@ public class ObjectBlacklistValidatorTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
-    @Ignore
     public void testValid() {
         RoutingCriteria rt = new RoutingCriteria();
         rt.setName("name");
@@ -47,7 +45,6 @@ public class ObjectBlacklistValidatorTest {
     }
 
     @Test()
-    @Ignore
     public void testInvalid() {
         RoutingCriteria rt = new RoutingCriteria();
         rt.setName("name");
@@ -74,7 +71,6 @@ public class ObjectBlacklistValidatorTest {
     }
 
     @Test()
-    @Ignore
     public void testInvalidMessageMultiple() throws InterruptedException {
         RoutingCriteria rt1 = new RoutingCriteria();
         rt1.setName("name1");
