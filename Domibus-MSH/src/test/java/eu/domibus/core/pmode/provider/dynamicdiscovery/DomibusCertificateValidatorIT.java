@@ -4,17 +4,14 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import mockit.internal.expectations.argumentMatching.StringPrefixMatcher;
-import no.difi.vefa.peppol.common.code.Service;
-import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
+import network.oxalis.vefa.peppol.common.code.Service;
+import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
@@ -25,15 +22,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static eu.domibus.core.pki.PKIUtil.*;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
 
 @RunWith(JMockit.class)
 public class DomibusCertificateValidatorIT {
