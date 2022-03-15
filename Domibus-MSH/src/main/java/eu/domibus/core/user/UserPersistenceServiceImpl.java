@@ -125,7 +125,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
         userDao.update(existing);
 
-        if (user.getAuthorities() != null && user.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name())) {
+        if (user.getAuthorities() != null && user.isSuperAdmin()) {
             userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
         }
     }
@@ -203,7 +203,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
             addRoleToUser(user.getAuthorities(), userEntity);
             userDao.create(userEntity);
 
-            if (user.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name())) {
+            if (user.isSuperAdmin()) {
                 userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
             } else {
                 userDomainService.setDomainForUser(user.getUserName(), user.getDomain());
