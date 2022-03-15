@@ -10,11 +10,11 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import no.difi.vefa.peppol.common.lang.PeppolParsingException;
-import no.difi.vefa.peppol.common.model.*;
-import no.difi.vefa.peppol.lookup.LookupClient;
-import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
-import no.difi.vefa.peppol.mode.Mode;
+import network.oxalis.vefa.peppol.common.lang.PeppolParsingException;
+import network.oxalis.vefa.peppol.common.model.*;
+import network.oxalis.vefa.peppol.lookup.LookupClient;
+import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
+import network.oxalis.vefa.peppol.mode.Mode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -248,7 +248,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
         ProcessMetadata<Endpoint> process = ProcessMetadata.of(processIdentifier, endpoint);
         processes.add(process);
 
-        ServiceMetadata sm = ServiceMetadata.of(null, null, processes);
+        ServiceMetadata sm = ServiceMetadata.of(ServiceInformation.of(null, null, processes));
         return sm;
     }
 

@@ -2,12 +2,14 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @author Ion Perpegel
@@ -25,6 +27,9 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
 
     @Autowired
     protected DomibusCacheService domibusCacheService;
+
+    @Autowired
+    protected AuthUtils authUtils;
 
     /**
      * Get the domain associated to the provided user from the general schema. <br>
@@ -60,33 +65,31 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     public void setDomainForUser(String user, String domainCode) {
         LOG.debug("Setting domain [{}] for user [{}]", domainCode, user);
 
-        domainTaskExecutor.submit(() -> {
-            userDomainDao.setDomainByUser(user, domainCode);
-            domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
-            return null;
-        });
+        executeInContext(() -> userDomainDao.setDomainByUser(user, domainCode));
     }
 
     @Override
     public void setPreferredDomainForUser(String user, String domainCode) {
         LOG.debug("Setting preferred domain [{}] for user [{}]", domainCode, user);
 
-        domainTaskExecutor.submit(() -> {
-            userDomainDao.setPreferredDomainByUser(user, domainCode);
-            domibusCacheService.clearCache(DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE);
-            return null;
-        });
+        executeInContext(() -> userDomainDao.setPreferredDomainByUser(user, domainCode));
     }
 
     @Override
     public void deleteDomainForUser(String user) {
         LOG.debug("Deleting domain for user [{}]", user);
 
-        domainTaskExecutor.submit(() -> {
-            userDomainDao.deleteDomainByUser(user);
-            domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
-            return null;
-        });
+        executeInContext(() -> userDomainDao.deleteDomainByUser(user));
     }
 
+    protected void executeInContext(Runnable method) {
+        UserDetails ud = authUtils.getUserDetails();
+        domainTaskExecutor.submit(() -> {
+            authUtils.runWithSecurityContext(() -> {
+                LOG.putMDC(DomibusLogger.MDC_USER, ud.getUsername());
+                method.run();
+                domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
+            }, ud.getUsername(), ud.getPassword());
+        });
+    }
 }
