@@ -51,7 +51,7 @@ public class UserDomainResource {
         LOG.debug("Getting user domains");
         UserDetails userDetails = authUtils.getUserDetails();
         if (!(userDetails instanceof DomibusUserDetails)) {
-            LOG.info("Could not get user domains.");
+            LOG.info("Could not get user details to get domains.");
             return new ArrayList<>();
         }
 

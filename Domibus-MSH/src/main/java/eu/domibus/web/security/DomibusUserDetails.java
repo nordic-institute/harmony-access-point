@@ -1,8 +1,10 @@
 package eu.domibus.web.security;
 
 import com.google.common.collect.Lists;
-import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserRole;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +16,8 @@ import java.util.*;
  * @since 3.3
  */
 public class DomibusUserDetails implements UserDetails {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusUserDetails.class);
+
     private final UserDetails springUser;
 
     private boolean defaultPasswordUsed;
@@ -98,7 +102,9 @@ public class DomibusUserDetails implements UserDetails {
         return springUser.isEnabled();
     }
 
-    public boolean isDefaultPasswordUsed() { return defaultPasswordUsed; }
+    public boolean isDefaultPasswordUsed() {
+        return defaultPasswordUsed;
+    }
 
     public void setDefaultPasswordUsed(boolean defaultPasswordUsed) {
         this.defaultPasswordUsed = defaultPasswordUsed;
@@ -118,6 +124,22 @@ public class DomibusUserDetails implements UserDetails {
 
     public void setAvailableDomainCodes(Set<String> availableDomainCodes) {
         this.availableDomainCodes = new HashSet<>(availableDomainCodes);
+    }
+
+    public void addDomainCode(String domainCode) {
+        if (availableDomainCodes.contains(domainCode)) {
+            LOG.info("Could not add existing domain [{}].", domainCode);
+            return;
+        }
+        availableDomainCodes.add(domainCode);
+    }
+
+    public void removeDomainCode(String domainCode) {
+        if (!availableDomainCodes.contains(domainCode)) {
+            LOG.info("Could not remove domain [{}] as it is not present.", domainCode);
+            return;
+        }
+        availableDomainCodes.remove(domainCode);
     }
 
     public Integer getDaysTillExpiration() {
