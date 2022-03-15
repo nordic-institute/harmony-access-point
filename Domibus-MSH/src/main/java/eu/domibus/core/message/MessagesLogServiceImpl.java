@@ -111,9 +111,9 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         for (MessageLogRO messageLogRO : resultList) {
             messageLogRO.setCanDownload(true);
             long content = messageLogRO.getPartLength();
-            LOG.debug("The message size [{}]: ", content);
+            LOG.debug("The message [{}] size is [{}].", messageLogRO.getMessageId(), content);
             if (content > maxDownLoadSize) {
-                LOG.debug("Couldn't download the message. The message size exceeds maximum download size limit [{}].: ", maxDownLoadSize);
+                LOG.debug("Couldn't download the message. The message [{}] size exceeds maximum download size limit: [{}].", messageLogRO.getMessageId(), maxDownLoadSize);
                 messageLogRO.setCanDownload(false);
             }
         }
