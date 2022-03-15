@@ -69,7 +69,6 @@ export class DomainService {
       this._domains = new ReplaySubject<Domain[]>(1);
       this.http.get<Domain[]>(DomainService.USER_DOMAIN_LIST_URL).toPromise()
         .then(res => this._domains.next(res));
-      // this.getDomains().then(res => this._domains.next(res));
     }
     return this._domains.asObservable();
   }
@@ -112,6 +111,14 @@ export class DomainService {
     } else {
       await this.http.delete(DomainService.APP_DOMAIN_LIST_URL + '/' + domain.code).toPromise();
       this.getDomains().then(res => this._domains.next(res));
+
+      const current = await this.getCurrentDomain().toPromise();
+      if (current && current.code == domain.code) {
+        const domains = await this.http.get<Domain[]>(DomainService.USER_DOMAIN_LIST_URL).toPromise();
+        if (domains.length) {
+          this.setCurrentDomain(domains[0]);
+        }
+      }
     }
   }
 }
