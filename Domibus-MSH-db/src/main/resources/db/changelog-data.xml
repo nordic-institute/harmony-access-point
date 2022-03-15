@@ -20,53 +20,6 @@
         </insert>
     </changeSet>
 
-    <changeSet id="insert_ws_default_auth" author="idragusa" dbms="oracle">
-        <insert tableName="TB_AUTHENTICATION_ENTRY">
-            <column name="ID_PK" valueComputed="HIBERNATE_SEQUENCE.nextval"/>
-            <column name="USERNAME" value="admin"/>
-            <column name="PASSWD" value="$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36"/>
-            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
-            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
-            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
-        </insert>
-        <insert tableName="TB_AUTHENTICATION_ENTRY">
-            <column name="ID_PK" valueComputed="HIBERNATE_SEQUENCE.nextval"/>
-            <column name="USERNAME" value="user"/>
-            <column name="PASSWD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
-            <column name="AUTH_ROLES" value="ROLE_USER"/>
-            <column name="ORIGINAL_USER" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"/>
-            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
-            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
-        </insert>
-        <insert tableName="TB_AUTHENTICATION_ENTRY">
-            <column name="ID_PK" valueComputed="HIBERNATE_SEQUENCE.nextval"/>
-            <column name="CERTIFICATE_ID" value="CN=blue_gw,O=eDelivery,C=BE:10370035830817850458"/>
-            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
-        </insert>
-    </changeSet>
-
-    <changeSet id="insert_ws_default_auth" author="idragusa" dbms="mysql">
-        <insert tableName="TB_AUTHENTICATION_ENTRY">
-            <column name="USERNAME" value="admin"/>
-            <column name="PASSWD" value="$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36"/>
-            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
-            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
-            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
-        </insert>
-        <insert tableName="TB_AUTHENTICATION_ENTRY">
-            <column name="USERNAME" value="user"/>
-            <column name="PASSWD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
-            <column name="AUTH_ROLES" value="ROLE_USER"/>
-            <column name="ORIGINAL_USER" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"/>
-            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
-            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
-        </insert>
-        <insert tableName="TB_AUTHENTICATION_ENTRY">
-            <column name="CERTIFICATE_ID" value="CN=blue_gw,O=eDelivery,C=BE:10370035830817850458"/>
-            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
-        </insert>
-    </changeSet>
-
     <changeSet author="idragusa" id="EDELIVERY-7836-insert">
         <insert tableName="TB_USER_MESSAGE">
             <column name="ID_PK" value="${default_id_pk}" type="BIGINT"/>

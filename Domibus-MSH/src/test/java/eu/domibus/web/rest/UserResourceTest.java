@@ -86,8 +86,15 @@ public class UserResourceTest {
     @Test
     public void testUsers(@Injectable Domain domain) {
         // Given
+        User user = new User();
+        user.setUserName("userName");
+        user.setEmail("email");
+        user.setActive(true);
+        user.setAuthorities(Arrays.asList("ROLE_USER"));
+        user.setStatus(UserState.PERSISTED.name());
+
         final List<User> userList = new ArrayList<User>();
-        userList.add(new User("username", "email", true, Arrays.asList("ROLE_USER"), UserState.PERSISTED, null, false));
+        userList.add(user);
 
         final List<UserResponseRO> userResponseROList = getUserResponseList();
         List<Domain> domainsList = new ArrayList<>();

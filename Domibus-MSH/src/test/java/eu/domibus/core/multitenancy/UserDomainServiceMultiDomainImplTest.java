@@ -1,12 +1,11 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -14,6 +13,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.concurrent.Callable;
 
@@ -31,6 +31,9 @@ public class UserDomainServiceMultiDomainImplTest {
 
     @Injectable
     protected DomibusCacheService domibusCacheService;
+
+    @Injectable
+    protected AuthUtils authUtils;
 
     @Tested
     UserDomainServiceMultiDomainImpl userDomainServiceMultiDomainImpl;
@@ -71,34 +74,26 @@ public class UserDomainServiceMultiDomainImplTest {
     }
 
     @Test
-    public void setDomainForUser() throws Exception {
+    public void setDomainForUser() {
         String user = "user1";
         String domainCode = "domain1";
 
         userDomainServiceMultiDomainImpl.setDomainForUser(user, domainCode);
-        mockExecutorSubmit();
 
         new Verifications() {{
-            userDomainDao.setDomainByUser(user, domainCode);
-            times = 1;
-            domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
-            times = 1;
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.setDomainByUser(user, domainCode));
         }};
     }
 
     @Test
-    public void setPreferredDomainForUser() throws Exception {
+    public void setPreferredDomainForUser() {
         String user = "user1";
         String domainCode = "domain1";
 
         userDomainServiceMultiDomainImpl.setPreferredDomainForUser(user, domainCode);
-        mockExecutorSubmit();
 
         new Verifications() {{
-            userDomainDao.setPreferredDomainByUser(user, domainCode);
-            times = 1;
-            domibusCacheService.clearCache(DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE);
-            times = 1;
+            userDomainServiceMultiDomainImpl.executeInContext(() -> userDomainDao.setPreferredDomainByUser(user, domainCode));
         }};
     }
 
@@ -107,4 +102,5 @@ public class UserDomainServiceMultiDomainImplTest {
         Callable<T> callable = (Callable<T>) argCaptor.getValue();
         return callable.call();
     }
+
 }

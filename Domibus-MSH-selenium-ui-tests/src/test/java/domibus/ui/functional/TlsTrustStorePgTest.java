@@ -25,7 +25,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
-		page.getAlertArea().closeButton.click();
+//		page.getAlertArea().closeButton.click();
 		String certFileName = "gateway_truststore.jks";
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
 
