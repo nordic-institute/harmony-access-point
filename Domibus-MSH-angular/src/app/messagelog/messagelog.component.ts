@@ -405,7 +405,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isRowDownloadButtonEnabled(row): boolean {
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
-      && !this.isSplitAndJoinMessage(row);
+      && !this.isSplitAndJoinMessage(row) && row.canDownload;
   }
 
   isDownloadEnvelopeEnabledAction(row): boolean {

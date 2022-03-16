@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * @author Federico Martini
@@ -37,6 +40,9 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Autowired
     private MessagesLogServiceHelper messagesLogServiceHelper;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
@@ -56,6 +62,8 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
                 .collect(Collectors.toList());
+
+        setCanDownload(convertedList);
         result.setMessageLogEntries(convertedList);
 
         return result;
@@ -92,6 +100,22 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         long number = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, result);
         if (number > 0) {
             resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
+        }
+
+        return resultList;
+    }
+
+    protected List<MessageLogRO> setCanDownload(List<MessageLogRO> resultList) {
+        LOG.debug("Check whether the message's can download or not.");
+        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+        for (MessageLogRO messageLogRO : resultList) {
+            messageLogRO.setCanDownload(true);
+            long content = messageLogRO.getPartLength();
+            LOG.debug("The message [{}] size is [{}].", messageLogRO.getMessageId(), content);
+            if (content > maxDownLoadSize) {
+                LOG.debug("Couldn't download the message. The message [{}] size exceeds maximum download size limit: [{}].", messageLogRO.getMessageId(), maxDownLoadSize);
+                messageLogRO.setCanDownload(false);
+            }
         }
         return resultList;
     }

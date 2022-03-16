@@ -29,11 +29,11 @@
                              value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:eu-customs:EORI"/>
             </partyIdTypes>
 
-            <party name="sti-taxud" endpoint="http://localhost:8080/domibus/services/msh"
+            <party name="sti-taxud" endpoint="http://localhost:7003/domibus/services/msh"
                    allowChunking="false">
                 <identifier partyId="sti-taxud" partyIdType="authorityType"/>
             </party>
-            <party name="BE00000001" endpoint="http://localhost:7050/domibus/services/msh" allowChunking="false">
+            <party name="BE00000001" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
                 <identifier partyId="BE00000001" partyIdType="EORIType"/>
             </party>
         </parties>

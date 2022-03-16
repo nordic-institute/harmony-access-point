@@ -1,17 +1,17 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.exception.ConfigurationException;
-import no.difi.vefa.peppol.common.lang.EndpointNotFoundException;
-import no.difi.vefa.peppol.common.lang.PeppolLoadingException;
-import no.difi.vefa.peppol.common.lang.PeppolParsingException;
-import no.difi.vefa.peppol.common.model.*;
-import no.difi.vefa.peppol.lookup.LookupClient;
-import no.difi.vefa.peppol.lookup.LookupClientBuilder;
-import no.difi.vefa.peppol.lookup.api.LookupException;
-import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
-import no.difi.vefa.peppol.mode.Mode;
-import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
-import no.difi.vefa.peppol.security.util.EmptyCertificateValidator;
+import network.oxalis.vefa.peppol.common.lang.EndpointNotFoundException;
+import network.oxalis.vefa.peppol.common.lang.PeppolLoadingException;
+import network.oxalis.vefa.peppol.common.lang.PeppolParsingException;
+import network.oxalis.vefa.peppol.common.model.*;
+import network.oxalis.vefa.peppol.lookup.LookupClient;
+import network.oxalis.vefa.peppol.lookup.LookupClientBuilder;
+import network.oxalis.vefa.peppol.lookup.api.LookupException;
+import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
+import network.oxalis.vefa.peppol.mode.Mode;
+import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
+import network.oxalis.vefa.peppol.security.util.EmptyCertificateValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -83,7 +83,7 @@ public class PeppolIT {
 
             final ProcessIdentifier processIdentifier = ProcessIdentifier.parse(processId);
             final ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
-            final Endpoint endpoint = sm.getEndpoint(processIdentifier, TransportProfile.AS4);
+            final Endpoint endpoint = sm.getServiceInformation().getEndpoint(processIdentifier, TransportProfile.AS4);
 
             if (endpoint == null || endpoint.getAddress() == null) {
                 throw new ConfigurationException("Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId);

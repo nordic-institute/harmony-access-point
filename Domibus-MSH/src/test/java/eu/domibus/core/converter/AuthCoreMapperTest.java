@@ -23,6 +23,8 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
         final UserResponseRO converted = authCoreMapper.userToUserResponseRO(toConvert);
         final User convertedBack = authCoreMapper.userResponseROToUser(converted);
 
+        convertedBack.setDefaultPassword(toConvert.hasDefaultPassword());
+
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -37,6 +39,7 @@ public class AuthCoreMapperTest extends AbstractMapperTest {
         convertedBack.setPasswordChangeDate(toConvert.getPasswordChangeDate());
         convertedBack.setDefaultPassword(toConvert.hasDefaultPassword());
         convertedBack.setEntityId(toConvert.getEntityId());
+        convertedBack.setPassword(toConvert.getPassword());
         toConvert.getRoles().forEach(userRole -> convertedBack.addRole(userRole));
 
         objectService.assertObjects(convertedBack, toConvert);

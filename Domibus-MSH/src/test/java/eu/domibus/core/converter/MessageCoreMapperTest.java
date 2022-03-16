@@ -38,7 +38,7 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         MessageLogRO toConvert = (MessageLogRO) objectService.createInstance(MessageLogRO.class);
         final MessageLogInfo converted = messageCoreMapper.messageLogROToMessageLogInfo(toConvert);
         final MessageLogRO convertedBack = messageCoreMapper.messageLogInfoToMessageLogRO(converted);
-
+        convertedBack.setCanDownload(toConvert.getCanDownload());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
