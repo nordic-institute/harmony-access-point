@@ -105,14 +105,17 @@ public class MessagesLogServiceImplTest {
         MessageLogRO converted = new MessageLogRO();
         filters.put("messageId", userMessageId);
         List<MessageLogInfo> resultList = Arrays.asList(item1);
+        List<MessageLogRO> convertedList = Arrays.asList(converted);
 
-        new Expectations() {{
+        new Expectations(messagesLogServiceImpl) {{
             messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
             result = numberOfLogs;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
             messageCoreConverter.messageLogInfoToMessageLogRO(item1);
             result = converted;
+            messagesLogServiceImpl.setCanDownload(convertedList);
+            result = true;
         }};
 
         MessageLogRO res = messagesLogServiceImpl.findUserMessageById(userMessageId);
