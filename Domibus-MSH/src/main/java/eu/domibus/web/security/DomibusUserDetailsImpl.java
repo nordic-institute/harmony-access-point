@@ -1,7 +1,7 @@
 package eu.domibus.web.security;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.security.IDomibusUserDetails;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -16,8 +16,8 @@ import java.util.*;
  * @author Thomas Dussart, Catalin Enache
  * @since 3.3
  */
-public class DomibusUserDetails implements IDomibusUserDetails {
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusUserDetails.class);
+public class DomibusUserDetailsImpl implements DomibusUserDetails {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusUserDetailsImpl.class);
 
     private final UserDetails springUser;
 
@@ -34,7 +34,7 @@ public class DomibusUserDetails implements IDomibusUserDetails {
      */
     private Set<String> availableDomainCodes = new HashSet<>();
 
-    public DomibusUserDetails(final User user) {
+    public DomibusUserDetailsImpl(final User user) {
         this.defaultPasswordUsed = user.hasDefaultPassword();
         springUser = org.springframework.security.core.userdetails.User
                 .withUsername(user.getUserName())
@@ -50,8 +50,8 @@ public class DomibusUserDetails implements IDomibusUserDetails {
      * @param password
      * @param authorities
      */
-    public DomibusUserDetails(String username, String password,
-                              Collection<? extends GrantedAuthority> authorities) {
+    public DomibusUserDetailsImpl(String username, String password,
+                                  Collection<? extends GrantedAuthority> authorities) {
 
         this.springUser = org.springframework.security.core.userdetails.User
                 .withUsername(username)

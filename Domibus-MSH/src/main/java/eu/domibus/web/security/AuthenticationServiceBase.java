@@ -36,7 +36,7 @@ public abstract class AuthenticationServiceBase {
         }
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        DomibusUserDetails securityUser = (DomibusUserDetails) authentication.getPrincipal();
+        DomibusUserDetailsImpl securityUser = (DomibusUserDetailsImpl) authentication.getPrincipal();
         securityUser.setDomain(domainCode);
         refreshSecurityContext(authentication);
     }
@@ -47,12 +47,12 @@ public abstract class AuthenticationServiceBase {
      *
      * @return logged in user info
      */
-    public DomibusUserDetails getLoggedUser() {
+    public DomibusUserDetailsImpl getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null
                 && !(authentication instanceof AnonymousAuthenticationToken)
-                && (authentication.getPrincipal() instanceof DomibusUserDetails)) {
-            DomibusUserDetails domibusUserDetails = (DomibusUserDetails) authentication.getPrincipal();
+                && (authentication.getPrincipal() instanceof DomibusUserDetailsImpl)) {
+            DomibusUserDetailsImpl domibusUserDetails = (DomibusUserDetailsImpl) authentication.getPrincipal();
             LOG.debug("Principal found on SecurityContextHolder: {}", domibusUserDetails);
             return domibusUserDetails;
         }

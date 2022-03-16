@@ -6,9 +6,9 @@ package eu.domibus.web.security;
  */
 public interface AuthenticationService {
 
-    DomibusUserDetails authenticate(String username, String password, String domain);
+    DomibusUserDetailsImpl authenticate(String username, String password, String domain);
 
     void changeDomain(String domainCode);
 
-    DomibusUserDetails getLoggedUser();
+    DomibusUserDetailsImpl getLoggedUser();
 }

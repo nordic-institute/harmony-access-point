@@ -8,7 +8,7 @@ import java.util.Set;
  * @author Ion Perpegel
  * @since 5.0
  */
-public interface IDomibusUserDetails extends UserDetails {
+public interface DomibusUserDetails extends UserDetails {
 
     boolean isDefaultPasswordUsed();
 

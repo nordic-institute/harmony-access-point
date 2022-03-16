@@ -3,16 +3,15 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.IDomibusUserDetails;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 
@@ -88,9 +87,9 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     }
 
     protected void executeInContext(Runnable method) {
-        IDomibusUserDetails ud = authUtils.getUserDetails() != null
+        DomibusUserDetails ud = authUtils.getUserDetails() != null
                 ? authUtils.getUserDetails()
-                : new DomibusUserDetails("domibus", StringUtils.EMPTY, new ArrayList<>());
+                : new DomibusUserDetailsImpl("domibus", StringUtils.EMPTY, new ArrayList<>());
 
         domainTaskExecutor.submit(() -> authUtils.runWithSecurityContext(() -> {
             LOG.putMDC(DomibusLogger.MDC_USER, ud.getUsername());

@@ -3,13 +3,11 @@ package eu.domibus.web.rest;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.IDomibusUserDetails;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
-import eu.domibus.web.security.DomibusUserDetails;
 import org.slf4j.Logger;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,7 +48,7 @@ public class UserDomainResource {
     @GetMapping(value = "")
     public List<DomainRO> getDomains() {
         LOG.debug("Getting user domains");
-        IDomibusUserDetails userDetails = authUtils.getUserDetails();
+        DomibusUserDetails userDetails = authUtils.getUserDetails();
         if (userDetails == null) {
             LOG.info("Could not get user details to get domains.");
             return new ArrayList<>();

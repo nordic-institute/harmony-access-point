@@ -5,12 +5,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
-import eu.domibus.api.security.IDomibusUserDetails;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -85,17 +85,17 @@ public class AuthUtilsImpl implements AuthUtils {
     }
 
     @Override
-    public IDomibusUserDetails getUserDetails() {
+    public DomibusUserDetails getUserDetails() {
         if (SecurityContextHolder.getContext() == null || SecurityContextHolder.getContext().getAuthentication() == null) {
             LOG.debug("Authentication is missing from the security context");
             return null;
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof DomibusUserDetails)) {
+        if (!(authentication.getPrincipal() instanceof DomibusUserDetailsImpl)) {
             LOG.debug("User details are missing from the authentication");
             return null;
         }
-        return (DomibusUserDetails) authentication.getPrincipal();
+        return (DomibusUserDetailsImpl) authentication.getPrincipal();
     }
 
     @Override

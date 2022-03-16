@@ -45,7 +45,7 @@ public class AuthenticationEbms3ServiceBaseTest {
     }
 
     @Test
-    public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked DomibusUserDetails domibusUserDetails) {
+    public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked DomibusUserDetailsImpl domibusUserDetails) {
         final String domainCode = "domain1";
 
         new Expectations() {{
@@ -124,7 +124,7 @@ public class AuthenticationEbms3ServiceBaseTest {
     @Test
     public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        final DomibusUserDetails domibusUserDetails = new DomibusUserDetails("username", "password", authorities);
+        final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl("username", "password", authorities);
 
         new Expectations() {{
             new MockUp<SecurityContextHolder>() {
@@ -143,7 +143,7 @@ public class AuthenticationEbms3ServiceBaseTest {
         }};
 
         //tested method
-        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        DomibusUserDetailsImpl userDetai1Actual = authenticationServiceBase.getLoggedUser();
         Assert.assertEquals(domibusUserDetails, userDetai1Actual);
     }
 
@@ -164,7 +164,7 @@ public class AuthenticationEbms3ServiceBaseTest {
         }};
 
         //tested method
-        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        DomibusUserDetailsImpl userDetai1Actual = authenticationServiceBase.getLoggedUser();
         Assert.assertNull(userDetai1Actual);
     }
 }

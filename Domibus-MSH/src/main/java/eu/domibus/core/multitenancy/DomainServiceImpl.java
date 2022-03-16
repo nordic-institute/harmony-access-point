@@ -4,14 +4,13 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.IDomibusUserDetails;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -164,7 +163,7 @@ public class DomainServiceImpl implements DomainService {
         LOG.debug("Adding domain [{}]", domain);
         domains.add(domain);
 
-        IDomibusUserDetails userDetails = authUtils.getUserDetails();
+        DomibusUserDetails userDetails = authUtils.getUserDetails();
         if (userDetails == null) {
             LOG.info("Could not get user details.");
             return;
@@ -185,7 +184,7 @@ public class DomainServiceImpl implements DomainService {
         }
         domains.remove(domain);
 
-        IDomibusUserDetails userDetails = authUtils.getUserDetails();
+        DomibusUserDetails userDetails = authUtils.getUserDetails();
         if (userDetails == null) {
             LOG.info("Could not get user details.");
             return;

@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -194,7 +193,7 @@ public class AuthUtilsImplTest {
     public void getUserDetails(
             @Mocked SecurityContextHolder securityContextHolder,
             @Injectable Authentication authentication,
-            @Injectable DomibusUserDetails userDetails) {
+            @Injectable DomibusUserDetailsImpl userDetails) {
         new Expectations() {{
             SecurityContextHolder.getContext().getAuthentication();
             result = authentication;

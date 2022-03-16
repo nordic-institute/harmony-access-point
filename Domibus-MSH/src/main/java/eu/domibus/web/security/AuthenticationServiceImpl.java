@@ -34,7 +34,7 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
     private UserService userService;
 
     @Override
-    public DomibusUserDetails authenticate(String username, String password, String domain) {
+    public DomibusUserDetailsImpl authenticate(String username, String password, String domain) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authentication;
         try {
@@ -57,7 +57,7 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
         }
 
         userService.handleCorrectAuthentication(username);
-        DomibusUserDetails principal = (DomibusUserDetails) authentication.getPrincipal();
+        DomibusUserDetailsImpl principal = (DomibusUserDetailsImpl) authentication.getPrincipal();
         principal.setDomain(domain);
         refreshSecurityContext(authentication);
         return principal;

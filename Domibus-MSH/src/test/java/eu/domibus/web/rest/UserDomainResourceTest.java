@@ -8,7 +8,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.web.rest.ro.DomainRO;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -19,7 +19,6 @@ import org.hamcrest.CustomTypeSafeMatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -68,7 +67,7 @@ public class UserDomainResourceTest {
 
 
     @Test
-    public void testGetDomains(@Injectable DomibusUserDetails userDetails,
+    public void testGetDomains(@Injectable DomibusUserDetailsImpl userDetails,
                                @Injectable List<DomainRO> domainROEntries) {
         final Domain red = new Domain("red", "Red");
         final Domain yellow = new Domain("yellow", "Yellow");

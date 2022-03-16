@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
@@ -52,8 +52,8 @@ public class UserSessionsServiceImpl implements UserSessionsService {
 
     protected void doInvalidateSessions(String userName) {
         LOG.debug("Invalidate sessions called for user [{}]", userName);
-        List<DomibusUserDetails> principals = sessionRegistry.getAllPrincipals().stream()
-                .map(p -> ((DomibusUserDetails) p))
+        List<DomibusUserDetailsImpl> principals = sessionRegistry.getAllPrincipals().stream()
+                .map(p -> ((DomibusUserDetailsImpl) p))
                 .filter(u -> u.getUsername().equals(userName))
                 .collect(Collectors.toList());
         principals.forEach(principal -> {

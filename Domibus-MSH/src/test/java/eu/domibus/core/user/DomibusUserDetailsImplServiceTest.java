@@ -10,7 +10,7 @@ import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertFalse;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class DomibusUserDetailsServiceTest {
+public class DomibusUserDetailsImplServiceTest {
 
     @Injectable
     private UserDao userDao;
@@ -75,7 +75,7 @@ public class DomibusUserDetailsServiceTest {
         }};
 
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals("whateverdifferentthandefaultpasswordhash", admin.getPassword());
         assertEquals("admin", admin.getUsername());
@@ -100,7 +100,7 @@ public class DomibusUserDetailsServiceTest {
             result = 90;
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals("$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36", admin.getPassword());
         assertEquals("user", admin.getUsername());
@@ -124,7 +124,7 @@ public class DomibusUserDetailsServiceTest {
             result = 90;
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals("$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36", admin.getPassword());
         assertEquals("user", admin.getUsername());
@@ -152,7 +152,7 @@ public class DomibusUserDetailsServiceTest {
             this.result = domains;
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("super");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("super");
 
         assertEquals(Sets.newHashSet("red", "yellow", "blue"), admin.getAvailableDomainCodes());
     }
@@ -173,7 +173,7 @@ public class DomibusUserDetailsServiceTest {
             this.result = "red";
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals(Collections.singleton("red"), admin.getAvailableDomainCodes());
     }

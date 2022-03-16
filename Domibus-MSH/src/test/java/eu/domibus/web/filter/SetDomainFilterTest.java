@@ -2,7 +2,7 @@ package eu.domibus.web.filter;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class SetDomainFilterTest {
 
     @Test
     public void doFilter(@Mocked ServletRequest request, @Mocked ServletResponse response,
-                         @Mocked FilterChain chain, @Mocked DomibusUserDetails domibusUserDetails)
+                         @Mocked FilterChain chain, @Mocked DomibusUserDetailsImpl domibusUserDetails)
             throws IOException, ServletException {
 
         String domainCode = "default";
@@ -55,7 +55,7 @@ public class SetDomainFilterTest {
     }
 
     @Test
-    public void getDomain(@Mocked DomibusUserDetails domibusUserDetails) {
+    public void getDomain(@Mocked DomibusUserDetailsImpl domibusUserDetails) {
 
         String domainCode = "default";
 
