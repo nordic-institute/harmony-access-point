@@ -18,6 +18,8 @@ public interface DomainService {
 
     List<Domain> getDomains();
 
+    List<Domain> getPotentialDomains();
+
     Domain getDomain(String code);
 
     Domain getDomainForScheduler(String schedulerName);

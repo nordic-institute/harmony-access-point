@@ -4,7 +4,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.DynamicDomainManagementService;
-import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
 import org.slf4j.Logger;
@@ -30,15 +29,12 @@ public class DomainResource {
 
     private final DomainService domainService;
 
-    private final DomainDao domainDao;
-
     private final DomibusCoreMapper coreMapper;
 
-    public DomainResource(DynamicDomainManagementService dynamicDomainManagementService, DomainService domainService,
-                          DomainDao domainDao, DomibusCoreMapper coreMapper) {
+    public DomainResource(DynamicDomainManagementService dynamicDomainManagementService,
+                          DomainService domainService, DomibusCoreMapper coreMapper) {
         this.dynamicDomainManagementService = dynamicDomainManagementService;
         this.domainService = domainService;
-        this.domainDao = domainDao;
         this.coreMapper = coreMapper;
     }
 
@@ -51,10 +47,8 @@ public class DomainResource {
     public List<DomainRO> getDomains(@Valid Boolean active) {
         List<Domain> domains = Arrays.asList();
         if (active == null) {
-            LOG.debug("Getting all domains.");
-            domains = domainDao.findAll();
+            domains = domainService.getPotentialDomains();
         } else if (active) {
-            LOG.debug("Getting active domains.");
             domains = domainService.getDomains();
         }
         return coreMapper.domainListToDomainROList(domains);

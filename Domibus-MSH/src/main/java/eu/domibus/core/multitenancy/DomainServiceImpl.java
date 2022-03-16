@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -34,29 +33,41 @@ public class DomainServiceImpl implements DomainService {
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 
     protected final Object generalSchemaLock = new Object();
+
     protected volatile String generalSchema;
+
     protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected DomainDao domainDao;
-
-    @Autowired
-    private DomibusCacheService domibusCacheService;
-
-    @Autowired
-    private AuthUtils authUtils;
 
     private List<Domain> domains;
 
+    protected final DomibusPropertyProvider domibusPropertyProvider;
+
+    protected final DomainDao domainDao;
+
+    private final DomibusCacheService domibusCacheService;
+
+    private final AuthUtils authUtils;
+
+    public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider, DomainDao domainDao,
+                             DomibusCacheService domibusCacheService, AuthUtils authUtils) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domainDao = domainDao;
+        this.domibusCacheService = domibusCacheService;
+        this.authUtils = authUtils;
+
+        domains = domainDao.findAll();
+    }
+
     @Override
     public synchronized List<Domain> getDomains() {
-        if (domains == null) {
-            domains = domainDao.findAll();
-        }
+        LOG.debug("Getting active domains.");
         return domains;
+    }
+
+    @Override
+    public List<Domain> getPotentialDomains() {
+        LOG.debug("Getting all potential domains.");
+        return domainDao.findAll();
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
