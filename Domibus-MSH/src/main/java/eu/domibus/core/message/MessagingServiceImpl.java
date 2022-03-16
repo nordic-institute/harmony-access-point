@@ -200,14 +200,24 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
 
-
+    /**
+     * In the case of sent message, the Datahandler ContentType is "application/gzip" if the compression is activated in PMode
+     */
     protected void setContentType(PartInfo partInfo) {
-        String contentType = partInfo.getPayloadDatahandler().getContentType();
-        if (StringUtils.isBlank(contentType)) {
-            contentType = MIME_TYPE_APPLICATION_UNKNOWN;
+        String mimeType = partInfo.getPayloadDatahandler().getContentType();
+        if (StringUtils.isBlank(mimeType)) {
+            mimeType = MIME_TYPE_APPLICATION_UNKNOWN;
+            if (partInfo.getPartProperties() != null) {
+                for (final Property property : partInfo.getPartProperties()) {
+                    if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
+                        LOG.debug("Mime Type from the part property [{}] found: [{}] ", Property.MIME_TYPE, property.getValue());
+                        mimeType = property.getValue();
+                    }
+                }
+            }
         }
-        LOG.debug("Setting the payload [{}] content type to [{}]", partInfo.getHref(), contentType);
-        partInfo.setMime(contentType);
+        LOG.debug("Setting the payload [{}] content type to [{}]", partInfo.getHref(), mimeType);
+        partInfo.setMime(mimeType);
     }
 
     protected boolean hasCompressionProperty(PartInfo partInfo) {
