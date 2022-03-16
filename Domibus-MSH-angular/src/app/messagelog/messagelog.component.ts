@@ -408,6 +408,15 @@ export class MessageLogComponent extends mix(BaseListComponent)
       && !this.isSplitAndJoinMessage(row);
   }
 
+  isDownloadEnvelopeEnabledAction(row): boolean {
+    return this.isRowDownloadEnvelopeEnabled(row);
+  }
+
+  private isRowDownloadEnvelopeEnabled(row): boolean {
+    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
+      && !this.isSplitAndJoinMessage(row);
+  }
+
   private isOneRowSelected() {
     return this.selected && this.selected.length == 1;
   }

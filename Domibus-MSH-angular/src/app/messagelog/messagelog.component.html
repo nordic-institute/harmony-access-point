@@ -153,7 +153,7 @@
             (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
       <mat-icon>file_download</mat-icon>
     </button>
-    <button mat-icon-button color="primary" button-click-behaviour
+    <button mat-icon-button color="primary"  [disabled]="!isDownloadEnvelopeEnabledAction(row)" button-click-behaviour
             (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id"
             tooltip="Download Envelopes">
       <mat-icon>local_post_office</mat-icon>
