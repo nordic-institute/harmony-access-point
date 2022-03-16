@@ -110,17 +110,19 @@ export class DomainService {
       this.getDomains().then(res => this._domains.next(res));
     } else {
       await this.http.delete(DomainService.APP_DOMAIN_LIST_URL + '/' + domain.code).toPromise();
-      this.getDomains().then(res => this._domains.next(res));
+      this.getDomains().then(domains => {
+        this._domains.next(domains);
 
-      const subscr = this.getCurrentDomain().subscribe(async (current) => {
-        if (current && current.code == domain.code) {
-          const domains = await this.http.get<Domain[]>(DomainService.USER_DOMAIN_LIST_URL).toPromise();
-          if (domains.length) {
-            this.setCurrentDomain(domains[0]);
+        const subscr = this.getCurrentDomain().subscribe(async (current) => {
+          if (current && current.code == domain.code) {
+            if (domains.length) {
+              this.setCurrentDomain(domains[0]);
+            }
           }
-        }
+        });
+        subscr.unsubscribe();
+        
       });
-      subscr.unsubscribe();
     }
   }
 }
