@@ -145,7 +145,7 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
-    public void add(Domain domain) {
+    public void addDomain(Domain domain) {
         if (domain == null) {
             LOG.info("Could not add a null domain.");
             return;

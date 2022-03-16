@@ -32,5 +32,5 @@ public interface DomainService {
 
     void removeDomain(String domainCode);
 
-    void add(Domain domain);
+    void addDomain(Domain domain);
 }
