@@ -128,6 +128,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected UserMessageValidatorSpiService userMessageValidatorSpiService;
+
     @Autowired
     protected UserMessageSecurityService userMessageSecurityService;
 
