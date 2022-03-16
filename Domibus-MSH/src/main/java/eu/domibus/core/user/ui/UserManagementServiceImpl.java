@@ -61,7 +61,7 @@ public class UserManagementServiceImpl implements UserService {
     protected UserDomainService userDomainService;
 
     @Autowired
-    ConsoleUserSecurityPolicyManager userPasswordManager;
+    ConsoleUserSecurityPolicyManager userSecurityPolicyManager;
 
     @Autowired
     ConsoleUserAlertsServiceImpl userAlertsService;
@@ -134,7 +134,7 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     public synchronized UserLoginErrorReason handleWrongAuthentication(final String userName) {
         // there is no security context when the user failed to login -> we're creating one
-        return authUtils.runFunctionWithDomibusSecurityContext(() -> userPasswordManager.handleWrongAuthentication(userName), AuthRole.ROLE_ADMIN, true);
+        return authUtils.runFunctionWithDomibusSecurityContext(() -> userSecurityPolicyManager.handleWrongAuthentication(userName), AuthRole.ROLE_ADMIN, true);
     }
 
     /**
@@ -143,7 +143,7 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     @Transactional
     public void reactivateSuspendedUsers() {
-        userPasswordManager.reactivateSuspendedUsers();
+        userSecurityPolicyManager.reactivateSuspendedUsers();
     }
 
     /**
@@ -151,7 +151,7 @@ public class UserManagementServiceImpl implements UserService {
      */
     @Override
     public void handleCorrectAuthentication(final String userName) {
-        userPasswordManager.handleCorrectAuthentication(userName);
+        userSecurityPolicyManager.handleCorrectAuthentication(userName);
     }
 
     /**
@@ -163,7 +163,7 @@ public class UserManagementServiceImpl implements UserService {
         boolean defaultPassword = user.hasDefaultPassword();
         LocalDateTime passwordChangeDate = user.getPasswordChangeDate();
 
-        userPasswordManager.validatePasswordExpired(userName, defaultPassword, passwordChangeDate);
+        userSecurityPolicyManager.validatePasswordExpired(userName, defaultPassword, passwordChangeDate);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class UserManagementServiceImpl implements UserService {
         boolean isDefaultPassword = user.hasDefaultPassword();
         LocalDateTime passwordChangeDate = user.getPasswordChangeDate();
 
-        return userPasswordManager.getDaysTillExpiration(userName, isDefaultPassword, passwordChangeDate);
+        return userSecurityPolicyManager.getDaysTillExpiration(userName, isDefaultPassword, passwordChangeDate);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class UserManagementServiceImpl implements UserService {
         String domainCode = getDomainForUserFn.apply(user);
         user.setDomain(domainCode);
 
-        LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
+        LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
         user.setExpirationDate(expDate);
         return user;
     }
@@ -289,8 +289,9 @@ public class UserManagementServiceImpl implements UserService {
         String userName = domibusConfigurationService.isMultiTenantAware() ? "super" : "admin";
 
         // check already exists
-        User existing = userDao.loadUserByUsername(userName);
-        if (existing != null) {
+        try {
+            userSecurityPolicyManager.validateUniqueUser(userName);
+        } catch (UserManagementException ex) {
             LOG.info("User [{}] already exists; exiting.", userName);
             return;
         }
