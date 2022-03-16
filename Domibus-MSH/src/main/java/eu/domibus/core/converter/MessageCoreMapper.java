@@ -37,6 +37,7 @@ public interface MessageCoreMapper {
 
     MessageLogInfo messageLogROToMessageLogInfo(MessageLogRO messageLogRO);
 
+    @Mapping(target = "canDownload", ignore = true)
     MessageLogRO messageLogInfoToMessageLogRO(MessageLogInfo messageLogInfo);
 
     UIMessageDiffEntity uiMessageEntityToUIMessageDiffEntity(UIMessageEntity uiMessageEntity);
