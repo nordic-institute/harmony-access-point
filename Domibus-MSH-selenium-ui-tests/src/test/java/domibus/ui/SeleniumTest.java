@@ -46,8 +46,8 @@ public class SeleniumTest extends BaseTest {
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
 
-		deleteAllPluginUsers();
-		generateTestData();
+//		deleteAllPluginUsers();
+//		generateTestData();
 	}
 
 	public void deleteAllPluginUsers() throws Exception {
