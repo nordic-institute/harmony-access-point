@@ -56,7 +56,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
      *
      * @return the code of the preferred domain of a super user
      */
-    @Cacheable(value = DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user")
+    @Cacheable(value = DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user", unless="#result == null")
     @Override
     public String getPreferredDomainForUser(String user) {
         LOG.debug("Searching preferred domain for user [{}]", user);
