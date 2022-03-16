@@ -71,7 +71,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         internalAddDomain(domain);
 
-        notifyExternalModulesofAddition(domain);
+        notifyExternalModulesOfAddition(domain);
 
         notifyClusterNodesOfAddition(domainCode);
     }
@@ -211,7 +211,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         throw addException;
     }
 
-    protected void notifyExternalModulesofAddition(Domain domain) {
+    protected void notifyExternalModulesOfAddition(Domain domain) {
         DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
         externalDomainsAwareList.forEach(el -> {
             LOG.debug("Notifying external module [{}]", el);
