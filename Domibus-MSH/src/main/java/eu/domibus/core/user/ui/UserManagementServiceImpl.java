@@ -318,7 +318,7 @@ public class UserManagementServiceImpl implements UserService {
         String password = getPassword();
         user.setPassword(password);
         if (domibusConfigurationService.isMultiTenantAware()) {
-            user.setDomain(domainService.DEFAULT_DOMAIN.getName());
+            user.setDomain(domainService.DEFAULT_DOMAIN.getCode());
         }
 
         userPersistenceService.updateUsers(Arrays.asList(user));
