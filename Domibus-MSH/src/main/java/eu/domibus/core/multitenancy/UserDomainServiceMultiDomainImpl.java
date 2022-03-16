@@ -7,9 +7,13 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.DomibusUserDetails;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.ArrayList;
 
 /**
  * @author Ion Perpegel
@@ -52,7 +56,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
      *
      * @return the code of the preferred domain of a super user
      */
-    @Cacheable(value = DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user")
+    @Cacheable(value = DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user", unless="#result == null")
     @Override
     public String getPreferredDomainForUser(String user) {
         LOG.debug("Searching preferred domain for user [{}]", user);
@@ -83,13 +87,14 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     }
 
     protected void executeInContext(Runnable method) {
-        UserDetails ud = authUtils.getUserDetails();
-        domainTaskExecutor.submit(() -> {
-            authUtils.runWithSecurityContext(() -> {
-                LOG.putMDC(DomibusLogger.MDC_USER, ud.getUsername());
-                method.run();
-                domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
-            }, ud.getUsername(), ud.getPassword());
-        });
+        UserDetails ud = authUtils.getUserDetails() != null
+                ? authUtils.getUserDetails()
+                : new DomibusUserDetails("domibus", StringUtils.EMPTY, new ArrayList<>());
+
+        domainTaskExecutor.submit(() -> authUtils.runWithSecurityContext(() -> {
+            LOG.putMDC(DomibusLogger.MDC_USER, ud.getUsername());
+            method.run();
+            domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
+        }, ud.getUsername(), ud.getPassword()));
     }
 }
