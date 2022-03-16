@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
+import eu.domibus.api.security.IDomibusUserDetails;
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.logging.DomibusLogger;
@@ -84,7 +85,7 @@ public class AuthUtilsImpl implements AuthUtils {
     }
 
     @Override
-    public DomibusUserDetails getUserDetails() {
+    public IDomibusUserDetails getUserDetails() {
         if (SecurityContextHolder.getContext() == null || SecurityContextHolder.getContext().getAuthentication() == null) {
             LOG.debug("Authentication is missing from the security context");
             return null;

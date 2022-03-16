@@ -2,6 +2,7 @@ package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.IDomibusUserDetails;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +38,8 @@ public class DefaultPasswordInterceptor extends HandlerInterceptorAdapter {
 
         LOG.debug("Intercepted request for [{}]", request.getRequestURI());
 
-        final UserDetails userDetails = authUtils.getUserDetails();
-        if (userDetails instanceof DomibusUserDetails && ((DomibusUserDetails) userDetails).isDefaultPasswordUsed()) {
+        final IDomibusUserDetails userDetails = authUtils.getUserDetails();
+        if (userDetails != null && userDetails.isDefaultPasswordUsed()) {
             response.setStatus(HttpURLConnection.HTTP_FORBIDDEN);
             return false;
         }

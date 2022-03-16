@@ -121,7 +121,7 @@ export class DomainService {
           }
         });
         subscr.unsubscribe();
-        
+
       });
     }
   }

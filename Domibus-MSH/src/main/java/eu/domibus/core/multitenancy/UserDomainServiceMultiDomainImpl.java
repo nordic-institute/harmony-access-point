@@ -3,6 +3,7 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.IDomibusUserDetails;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.logging.DomibusLogger;
@@ -87,7 +88,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     }
 
     protected void executeInContext(Runnable method) {
-        UserDetails ud = authUtils.getUserDetails() != null
+        IDomibusUserDetails ud = authUtils.getUserDetails() != null
                 ? authUtils.getUserDetails()
                 : new DomibusUserDetails("domibus", StringUtils.EMPTY, new ArrayList<>());
 

@@ -4,11 +4,11 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.IDomibusUserDetails;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -164,12 +164,12 @@ public class DomainServiceImpl implements DomainService {
         LOG.debug("Adding domain [{}]", domain);
         domains.add(domain);
 
-        UserDetails userDetails = authUtils.getUserDetails();
-        if (!(userDetails instanceof DomibusUserDetails)) {
+        IDomibusUserDetails userDetails = authUtils.getUserDetails();
+        if (userDetails == null) {
             LOG.info("Could not get user details.");
             return;
         }
-        ((DomibusUserDetails) userDetails).addDomainCode(domain.getCode());
+        userDetails.addDomainCode(domain.getCode());
     }
 
     @Override
@@ -185,12 +185,12 @@ public class DomainServiceImpl implements DomainService {
         }
         domains.remove(domain);
 
-        UserDetails userDetails = authUtils.getUserDetails();
-        if (!(userDetails instanceof DomibusUserDetails)) {
+        IDomibusUserDetails userDetails = authUtils.getUserDetails();
+        if (userDetails == null) {
             LOG.info("Could not get user details.");
             return;
         }
-        ((DomibusUserDetails) userDetails).removeDomainCode(domain.getCode());
+        userDetails.removeDomainCode(domain.getCode());
     }
 
 }

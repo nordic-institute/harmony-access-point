@@ -17,7 +17,7 @@ public interface AuthUtils {
 
     String getAuthenticatedUser();
 
-    UserDetails getUserDetails();
+    IDomibusUserDetails getUserDetails();
 
     boolean isUnsecureLoginAllowed();
 

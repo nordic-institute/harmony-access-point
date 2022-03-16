@@ -1,6 +1,7 @@
 package eu.domibus.web.security;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.security.IDomibusUserDetails;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,7 +16,7 @@ import java.util.*;
  * @author Thomas Dussart, Catalin Enache
  * @since 3.3
  */
-public class DomibusUserDetails implements UserDetails {
+public class DomibusUserDetails implements IDomibusUserDetails {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusUserDetails.class);
 
     private final UserDetails springUser;

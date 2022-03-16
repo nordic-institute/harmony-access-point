@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.IDomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
@@ -49,13 +50,13 @@ public class UserDomainResource {
     @GetMapping(value = "")
     public List<DomainRO> getDomains() {
         LOG.debug("Getting user domains");
-        UserDetails userDetails = authUtils.getUserDetails();
-        if (!(userDetails instanceof DomibusUserDetails)) {
+        IDomibusUserDetails userDetails = authUtils.getUserDetails();
+        if (userDetails == null) {
             LOG.info("Could not get user details to get domains.");
             return new ArrayList<>();
         }
 
-        List<Domain> availableDomains = ((DomibusUserDetails) userDetails).getAvailableDomainCodes().stream()
+        List<Domain> availableDomains = userDetails.getAvailableDomainCodes().stream()
                 .map(domainService::getDomain)
                 .sorted(Comparator.comparing(Domain::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
