@@ -449,10 +449,7 @@ public class MessagesPgTest extends SeleniumTest {
 		String messageIDDefault = rest.getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = navigate();
-
 		String defaultDomainName = page.getDomainSelector().getSelectedValue();
-
-		page.refreshPage();
 		page.grid().waitForRowsToLoad();
 
 		page.grid().scrollToAndSelect("Message Id", messageIDDefault);
@@ -462,6 +459,9 @@ public class MessagesPgTest extends SeleniumTest {
 		page.getDomainSelector().selectOptionByText(domainName);
 		Reporter.log("switch domain to " + domainName);
 		log.info("switch domain to " + domainName);
+		page.getFilters().showAllMessages();
+		page.grid().waitForRowsToLoad();
+
 
 		Reporter.log("check Download and Resend buttons status");
 		log.info("check Download and Resend buttons status");
@@ -474,8 +474,11 @@ public class MessagesPgTest extends SeleniumTest {
 		log.info("selected message from new domain");
 
 		page.getDomainSelector().selectOptionByText(defaultDomainName);
+		page.getFilters().showAllMessages();
+		page.grid().waitForRowsToLoad();
 		Reporter.log("switch domain to default");
 		log.info("switch domain to default");
+
 
 		Reporter.log("check Download and Resend buttons status");
 		log.info("check Download and Resend buttons status");
