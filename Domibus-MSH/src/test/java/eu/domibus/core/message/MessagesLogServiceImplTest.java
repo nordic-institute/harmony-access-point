@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
@@ -36,6 +37,9 @@ public class MessagesLogServiceImplTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    NonRepudiationService nonRepudiationService;
 
     @Test
     public void countAndFilter1() {
@@ -111,8 +115,8 @@ public class MessagesLogServiceImplTest {
             result = resultList;
             messageCoreConverter.messageLogInfoToMessageLogRO(item1);
             result = converted;
-            messagesLogServiceImpl.setCanDownload(convertedList);
-            result = true;
+            messagesLogServiceImpl.setCanMessageAndEnvelopeDownload(convertedList);
+            result = convertedList;
         }};
 
         MessageLogRO res = messagesLogServiceImpl.findUserMessageById(userMessageId);

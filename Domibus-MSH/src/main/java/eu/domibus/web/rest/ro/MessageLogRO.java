@@ -72,6 +72,8 @@ public class MessageLogRO implements Serializable {
 
     private Boolean canDownload;
 
+    private Boolean canEnvelopeDownload;
+
     public String getMessageId() {
         return messageId;
     }
@@ -302,6 +304,14 @@ public class MessageLogRO implements Serializable {
 
     public void setCanDownload(Boolean canDownload) {
         this.canDownload = canDownload;
+    }
+
+    public Boolean getCanEnvelopeDownload() {
+        return canEnvelopeDownload;
+    }
+
+    public void setCanEnvelopeDownload(Boolean canEnvelopeDownload) {
+        this.canEnvelopeDownload = canEnvelopeDownload;
     }
 
 }
