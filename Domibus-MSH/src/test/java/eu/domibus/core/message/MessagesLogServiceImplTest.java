@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.web.rest.ro.MessageLogRO;
@@ -9,13 +10,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+@RunWith(JMockit.class)
 public class MessagesLogServiceImplTest {
 
     @Tested
@@ -32,6 +36,9 @@ public class MessagesLogServiceImplTest {
 
     @Injectable
     MessagesLogServiceHelper messagesLogServiceHelper;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void countAndFilter1() {

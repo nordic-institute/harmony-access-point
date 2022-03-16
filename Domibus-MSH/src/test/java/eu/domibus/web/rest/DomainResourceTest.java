@@ -56,7 +56,7 @@ public class DomainResourceTest {
         // GIVEN
         final Boolean activeFlag = null;
         new Expectations() {{
-            domainDao.findAll();
+            domainService.getPotentialDomains();
             result = domainEntries;
 
             coreMapper.domainListToDomainROList(domainEntries);

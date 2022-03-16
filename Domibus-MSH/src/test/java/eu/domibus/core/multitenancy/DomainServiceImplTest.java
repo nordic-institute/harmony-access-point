@@ -3,6 +3,7 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import mockit.Expectations;
@@ -37,6 +38,9 @@ public class DomainServiceImplTest {
 
     @Injectable
     private DomibusCacheService domibusCacheService;
+
+    @Injectable
+    AuthUtils authUtils;
 
     @Test
     public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
