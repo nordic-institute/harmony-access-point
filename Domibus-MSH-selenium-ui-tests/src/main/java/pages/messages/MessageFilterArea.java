@@ -1,6 +1,7 @@
 package pages.messages;
 
 import ddsl.dcomponents.FilterArea;
+import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DatePicker;
 import ddsl.dobjects.Select;
@@ -174,7 +175,7 @@ public class MessageFilterArea extends FilterArea {
 	}
 
 	public void showAllMessages() throws Exception {
-		weToSelect(messagesIntevalContainer).selectOptionByText("Last 48 hours");
+		weToSelect(messagesIntevalContainer).selectOptionByText("Last 30 days");
 		clickSearch();
 	}
 }

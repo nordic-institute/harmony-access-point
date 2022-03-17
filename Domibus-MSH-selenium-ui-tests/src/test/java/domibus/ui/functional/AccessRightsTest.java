@@ -136,6 +136,7 @@ public class AccessRightsTest extends SeleniumTest {
 		log.info("Logged in with user " + username);
 
 		MessagesPage page = new MessagesPage(driver);
+		page.getFilters().showAllMessages();
 		page.grid().waitForRowsToLoad();
 
 		try {
