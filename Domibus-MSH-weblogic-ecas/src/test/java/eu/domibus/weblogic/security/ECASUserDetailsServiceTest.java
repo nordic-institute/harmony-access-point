@@ -1,12 +1,12 @@
 package eu.domibus.weblogic.security;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.api.security.DomibusUserDetails;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -131,7 +131,8 @@ public class ECASUserDetailsServiceTest {
         // WHEN
         ecasUserDetailsService.createUserDetails(username);
 
-        new FullVerifications(ecasUserDetailsService) { /* no unexpected interactions */ };
+        new FullVerifications(ecasUserDetailsService) { /* no unexpected interactions */
+        };
     }
 
     @Test
@@ -141,7 +142,8 @@ public class ECASUserDetailsServiceTest {
 
         // THEN
         assertTrue(grantedAuthorities.isEmpty());
-        new FullVerifications() { /* no unexpected interactions */ };
+        new FullVerifications() { /* no unexpected interactions */
+        };
     }
 
     @Test
@@ -157,7 +159,8 @@ public class ECASUserDetailsServiceTest {
 
         // THEN
         assertTrue(grantedAuthorities.isEmpty());
-        new FullVerifications() { /* no unexpected interactions */ };
+        new FullVerifications() { /* no unexpected interactions */
+        };
     }
 
     @Test
@@ -173,7 +176,8 @@ public class ECASUserDetailsServiceTest {
 
         // THEN
         assertEquals(Collections.singletonList(grantedAuthority), grantedAuthorities);
-        new FullVerifications() { /* no unexpected interactions */ };
+        new FullVerifications() { /* no unexpected interactions */
+        };
     }
 
     @Test
@@ -192,7 +196,8 @@ public class ECASUserDetailsServiceTest {
 
         // THEN
         assertTrue(grantedAuthorities.isEmpty());
-        new FullVerifications() { /* no unexpected interactions */ };
+        new FullVerifications() { /* no unexpected interactions */
+        };
     }
 
     @Test
@@ -211,7 +216,8 @@ public class ECASUserDetailsServiceTest {
 
         // THEN
         assertEquals(Collections.singletonList(grantedAuthority), grantedAuthorities);
-        new FullVerifications() { /* no unexpected interactions */ };
+        new FullVerifications() { /* no unexpected interactions */
+        };
     }
 
     @Test
