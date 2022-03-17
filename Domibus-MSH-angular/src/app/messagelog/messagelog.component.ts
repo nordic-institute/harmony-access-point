@@ -405,7 +405,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isRowDownloadButtonEnabled(row): boolean {
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
-      && !this.isSplitAndJoinMessage(row) && row.canDownload;
+      && !this.isSplitAndJoinMessage(row) && row.canDownloadMessage;
   }
 
   private isOneRowSelected() {
@@ -456,7 +456,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isRowDownloadEnvelopeEnabled(row): boolean {
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
-      && !this.isSplitAndJoinMessage(row) && row.canEnvelopeDownload;
+      && !this.isSplitAndJoinMessage(row) && row.canDownloadEnvelope;
   }
   downloadAction(row) {
     this.downloadMessage(row);

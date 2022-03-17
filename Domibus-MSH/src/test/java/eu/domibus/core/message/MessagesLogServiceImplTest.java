@@ -115,7 +115,7 @@ public class MessagesLogServiceImplTest {
             result = resultList;
             messageCoreConverter.messageLogInfoToMessageLogRO(item1);
             result = converted;
-            messagesLogServiceImpl.setCanMessageAndEnvelopeDownload(convertedList);
+            messagesLogServiceImpl.setCanDownloadMessageAndEnvelope(convertedList);
             result = convertedList;
         }};
 

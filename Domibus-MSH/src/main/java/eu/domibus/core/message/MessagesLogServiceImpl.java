@@ -68,7 +68,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
                 .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
                 .collect(Collectors.toList());
 
-        setCanMessageAndEnvelopeDownload(convertedList);
+        setCanDownloadMessageAndEnvelope(convertedList);
         result.setMessageLogEntries(convertedList);
 
         return result;
@@ -110,29 +110,29 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         return resultList;
     }
 
-    protected List<MessageLogRO> setCanMessageAndEnvelopeDownload(List<MessageLogRO> resultList) {
+    protected List<MessageLogRO> setCanDownloadMessageAndEnvelope(List<MessageLogRO> resultList) {
         LOG.debug("Check whether the message's can download or not.");
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         for (MessageLogRO messageLogRO : resultList) {
-            messageLogRO.setCanDownload(true);
+            messageLogRO.setCanDownloadMessage(true);
             long content = messageLogRO.getPartLength();
             LOG.debug("The message [{}] size is [{}].", messageLogRO.getMessageId(), content);
             if (content > maxDownLoadSize) {
                 LOG.debug("Couldn't download the message. The message [{}] size exceeds maximum download size limit: [{}].", messageLogRO.getMessageId(), maxDownLoadSize);
-                messageLogRO.setCanDownload(false);
+                messageLogRO.setCanDownloadMessage(false);
             }
-            setCanEnvelopeDownload(messageLogRO);
+            setCanDownloadEnvelope(messageLogRO);
         }
         return resultList;
     }
 
-    protected void setCanEnvelopeDownload(MessageLogRO messageLogRO) {
+    protected void setCanDownloadEnvelope(MessageLogRO messageLogRO) {
         Map<String, InputStream> envelope = nonRepudiationService.getMessageEnvelopes(messageLogRO.getMessageId());
         LOG.debug("The message envelope size is [{}].", envelope.size());
-        messageLogRO.setCanEnvelopeDownload(true);
+        messageLogRO.setCanDownloadEnvelope(true);
         if (envelope.isEmpty()) {
             LOG.debug("Couldn't download the message envelope. The message [{}] envelope is empty.", messageLogRO.getMessageId());
-            messageLogRO.setCanEnvelopeDownload(false);
+            messageLogRO.setCanDownloadEnvelope(false);
         }
     }
 

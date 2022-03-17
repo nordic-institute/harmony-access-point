@@ -70,9 +70,9 @@ public class MessageLogRO implements Serializable {
 
     private Long partLength;
 
-    private Boolean canDownload;
+    private Boolean canDownloadMessage;
 
-    private Boolean canEnvelopeDownload;
+    private Boolean canDownloadEnvelope;
 
     public String getMessageId() {
         return messageId;
@@ -298,20 +298,20 @@ public class MessageLogRO implements Serializable {
         this.partLength = partLength;
     }
 
-    public Boolean getCanDownload() {
-        return canDownload;
+    public Boolean getCanDownloadMessage() {
+        return canDownloadMessage;
     }
 
-    public void setCanDownload(Boolean canDownload) {
-        this.canDownload = canDownload;
+    public void setCanDownloadMessage(Boolean canDownloadMessage) {
+        this.canDownloadMessage = canDownloadMessage;
     }
 
-    public Boolean getCanEnvelopeDownload() {
-        return canEnvelopeDownload;
+    public Boolean getCanDownloadEnvelope() {
+        return canDownloadEnvelope;
     }
 
-    public void setCanEnvelopeDownload(Boolean canEnvelopeDownload) {
-        this.canEnvelopeDownload = canEnvelopeDownload;
+    public void setCanDownloadEnvelope(Boolean canDownloadEnvelope) {
+        this.canDownloadEnvelope = canDownloadEnvelope;
     }
 
 }
