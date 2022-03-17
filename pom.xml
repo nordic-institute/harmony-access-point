@@ -160,7 +160,7 @@
     <distributionManagement>
         <repository>
             <id>cefdigital-releases</id>
-            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/groups/public/</url>
+            <url>https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/eDelivery/</url>
         </repository>
         <snapshotRepository>
             <id>cefdigital-snapshots</id>
