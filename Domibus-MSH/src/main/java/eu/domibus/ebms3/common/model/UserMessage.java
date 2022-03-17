@@ -173,8 +173,9 @@ public class UserMessage extends AbstractBaseEntity {
     @XmlElement(name = "MessageProperties")
     @Embedded
     public MessageProperties getMessageProperties() {
-        if(this.messageProperties != null && CollectionUtils.isEmpty(this.messageProperties.getProperty()))
+        if (this.messageProperties != null && CollectionUtils.isEmpty(this.messageProperties.getProperty())) {
             return null;
+        }
         return this.messageProperties;
     }
 
