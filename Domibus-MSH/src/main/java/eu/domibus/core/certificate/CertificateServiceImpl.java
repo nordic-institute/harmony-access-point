@@ -1045,7 +1045,7 @@ public class CertificateServiceImpl implements CertificateService {
     private void doRemoveTruststore(String truststoreName, Domain domain) {
         TruststoreEntity entity = truststoreDao.findByNameSafely(truststoreName);
         if (entity == null) {
-            LOG.info("Could not find store named [{}] for domain [{}] to delete", truststoreName, domain);
+            LOG.warn("Could not find store named [{}] for domain [{}] to delete", truststoreName, domain);
             return;
         }
         truststoreDao.delete(entity);
