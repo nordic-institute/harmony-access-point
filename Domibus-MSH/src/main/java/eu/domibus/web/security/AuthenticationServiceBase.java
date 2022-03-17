@@ -2,6 +2,7 @@ package eu.domibus.web.security;
 
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +48,7 @@ public abstract class AuthenticationServiceBase {
      *
      * @return logged in user info
      */
-    public DomibusUserDetailsImpl getLoggedUser() {
+    public DomibusUserDetails getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null
                 && !(authentication instanceof AnonymousAuthenticationToken)

@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
@@ -116,12 +117,12 @@ public class AuthenticationResource {
         }
 
         LOG.debug("Authenticating user [{}]", loginRO.getUsername());
-        final DomibusUserDetailsImpl principal = authenticationService.authenticate(loginRO.getUsername(), loginRO.getPassword(), domainCode);
+        final DomibusUserDetails principal = authenticationService.authenticate(loginRO.getUsername(), loginRO.getPassword(), domainCode);
         if (principal.isDefaultPasswordUsed()) {
             LOG.warn(WarningUtil.warnOutput(principal.getUsername() + " is using default password."));
         }
 
-        sas.onAuthentication( SecurityContextHolder.getContext().getAuthentication(), request, response);
+        sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
         return createUserRO(principal, loginRO.getUsername());
     }
@@ -145,6 +146,7 @@ public class AuthenticationResource {
      * Method used by admin console to check if the current session is still active
      * if the user has proper authentication rights and valid session it succeeds
      * otherwise the method is not called because the infrastructure throws 401 or 403
+     *
      * @return always true
      */
     @GetMapping(value = "user/connected")
@@ -155,7 +157,7 @@ public class AuthenticationResource {
     @GetMapping(value = "user")
     public UserRO getUser() {
         LOG.debug("get user - start");
-        DomibusUserDetailsImpl domibusUserDetails = authenticationService.getLoggedUser();
+        DomibusUserDetails domibusUserDetails = authenticationService.getLoggedUser();
 
         return domibusUserDetails != null ? createUserRO(domibusUserDetails, domibusUserDetails.getUsername()) : null;
     }
@@ -188,12 +190,11 @@ public class AuthenticationResource {
      * Set the password of the current user
      *
      * @param param the object holding the current and new passwords of the current user
-     *
-     * */
+     */
     @PutMapping(value = "user/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
-        DomibusUserDetailsImpl loggedUser = authenticationService.getLoggedUser();
+        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
         loggedUser.setDefaultPasswordUsed(false);
@@ -208,7 +209,7 @@ public class AuthenticationResource {
     }
 
 
-    private UserRO createUserRO(DomibusUserDetailsImpl principal, String username) {
+    private UserRO createUserRO(DomibusUserDetails principal, String username) {
         //Parse Granted authorities to a list of string authorities
         List<String> authorities = new ArrayList<>();
         for (GrantedAuthority grantedAuthority : principal.getAuthorities()) {

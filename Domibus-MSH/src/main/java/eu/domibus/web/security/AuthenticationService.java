@@ -1,14 +1,17 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.security.DomibusUserDetails;
+
 /**
  * @author Catalin Enache
  * @since 4.1
  */
 public interface AuthenticationService {
 
-    DomibusUserDetailsImpl authenticate(String username, String password, String domain);
+    DomibusUserDetails authenticate(String username, String password, String domain);
 
     void changeDomain(String domainCode);
 
-    DomibusUserDetailsImpl getLoggedUser();
+    // todo EDELIVERY-9087 - eliminate redundancy with AuthUtils
+    DomibusUserDetails getLoggedUser();
 }

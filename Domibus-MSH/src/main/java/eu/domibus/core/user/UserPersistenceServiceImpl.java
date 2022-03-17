@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
@@ -140,7 +141,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void checkCanUpdateIfCurrentUser(eu.domibus.api.user.User user, User existing) {
-        DomibusUserDetailsImpl loggedUser = authenticationService.getLoggedUser();
+        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
         if (loggedUser == null || !StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
             LOG.debug("No need to validate the permission to update a user if it is different than the logged-in user [{}]; exiting.", user.getUserName());
             return;

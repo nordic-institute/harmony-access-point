@@ -16,6 +16,7 @@ public interface AuthUtils {
 
     String getAuthenticatedUser();
 
+    // todo EDELIVERY-9087 - eliminate redundancy with AuthenticationService
     DomibusUserDetails getUserDetails();
 
     boolean isUnsecureLoginAllowed();

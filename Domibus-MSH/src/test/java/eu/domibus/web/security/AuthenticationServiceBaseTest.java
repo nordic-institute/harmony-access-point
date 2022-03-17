@@ -3,6 +3,7 @@ package eu.domibus.web.security;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.security.DomibusUserDetails;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,7 @@ import java.util.Set;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class AuthenticationEbms3ServiceBaseTest {
+public class AuthenticationServiceBaseTest {
 
     @Tested
     AuthenticationServiceBase authenticationServiceBase;
@@ -143,7 +144,7 @@ public class AuthenticationEbms3ServiceBaseTest {
         }};
 
         //tested method
-        DomibusUserDetailsImpl userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
         Assert.assertEquals(domibusUserDetails, userDetai1Actual);
     }
 
@@ -164,7 +165,7 @@ public class AuthenticationEbms3ServiceBaseTest {
         }};
 
         //tested method
-        DomibusUserDetailsImpl userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
         Assert.assertNull(userDetai1Actual);
     }
 }

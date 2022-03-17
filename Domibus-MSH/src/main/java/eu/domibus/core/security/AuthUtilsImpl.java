@@ -95,7 +95,7 @@ public class AuthUtilsImpl implements AuthUtils {
             LOG.debug("User details are missing from the authentication");
             return null;
         }
-        return (DomibusUserDetailsImpl) authentication.getPrincipal();
+        return (DomibusUserDetails) authentication.getPrincipal();
     }
 
     @Override

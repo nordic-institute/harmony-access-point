@@ -1,5 +1,6 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
@@ -34,7 +35,7 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
     private UserService userService;
 
     @Override
-    public DomibusUserDetailsImpl authenticate(String username, String password, String domain) {
+    public DomibusUserDetails authenticate(String username, String password, String domain) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
         Authentication authentication;
         try {
