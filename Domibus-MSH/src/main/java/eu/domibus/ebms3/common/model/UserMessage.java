@@ -3,6 +3,7 @@ package eu.domibus.ebms3.common.model;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLog;
 import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -64,8 +65,7 @@ public class UserMessage extends AbstractBaseEntity {
     @Embedded
     protected CollaborationInfo collaborationInfo; //NOSONAR
 
-    @XmlElement(name = "MessageProperties")
-    @Embedded
+    @XmlTransient
     protected MessageProperties messageProperties; //NOSONAR
 
     @XmlElement(name = "PayloadInfo")
@@ -170,7 +170,12 @@ public class UserMessage extends AbstractBaseEntity {
      *
      * @return possible object is {@link MessageProperties }
      */
+    @XmlElement(name = "MessageProperties")
+    @Embedded
     public MessageProperties getMessageProperties() {
+        if (this.messageProperties != null && CollectionUtils.isEmpty(this.messageProperties.getProperty())) {
+            return null;
+        }
         return this.messageProperties;
     }
 
