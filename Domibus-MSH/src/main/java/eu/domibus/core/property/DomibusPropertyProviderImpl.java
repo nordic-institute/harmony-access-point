@@ -211,7 +211,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         ConfigurableEnvironment configurableEnvironment = rootContext.getEnvironment();
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
         String configFile = domibusConfigurationService.getConfigLocation() + File.separator + propertiesFilePath;
-        LOG.debug("Removing properties file for domain [{}]: [{}]...", domain, configFile);
+        LOG.debug("Removing properties file for domain [{}]: [{}].", domain, configFile);
         String propertySourceName = domain.getCode() + "-" + configFile;
         propertySources.remove(propertySourceName);
     }
