@@ -2176,6 +2176,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
         SET @v_tab := 'TB_PART_INFO';
         SET @v_tab_user_message := 'TB_USER_MESSAGE';
         SET @v_tab_new := 'MIGR_TB_PART_INFO';
+        SET @v_part_length := 1;
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
@@ -2220,7 +2221,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
                         created_by,
                         modification_time,
                         modified_by,
-                        part_length);
+                        @v_part_length);
 
                 SET @i = @i + 1;
                 IF @i MOD @BATCH_SIZE = 0 THEN
