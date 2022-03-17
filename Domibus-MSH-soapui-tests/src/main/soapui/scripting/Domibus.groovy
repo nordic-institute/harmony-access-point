@@ -741,6 +741,28 @@ class Domibus{
         closeAllDbConnections()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    // retrieve message entity ID
+    def retrieveMessageEntityID(String messageID = null, String domainId=redDomainID) {
+        debugLog("  ====  Calling \"retrieveMessageEntityID\".", log)
+
+        def entID=null
+
+        debugLog("  retrieveMessageEntityID  [][]  domainId = " + domainId + " message ID = " + messageID, log)
+        def sqlConn = retrieveSqlConnectionRefFromDomainId(domainId)
+        def usedDomains = [domainId]
+		try {
+			sqlConn.eachRow("Select ID_PK from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+				entID = it.ID_PK
+			}
+		}catch (SQLException ex) {
+            closeDbConnections(usedDomains)
+            assert 0,"SQLException occurred: " + ex
+        }
+        assert(entID!=null),"  retrieveMessageEntityID  [][]  Error: Message " + messageID + " not found."
+        closeDbConnections(usedDomains)
+		return entID.toString()
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
     static def getStatusRetriveStatus(log, context, messageExchange) {
         debugLog("  ====  Calling \"getStatusRetriveStatus\".", log)
         def outStatus = null
@@ -2757,7 +2779,7 @@ class Domibus{
             assert(propMap != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value: null result found."
             propValue = propMap.value
 
-            assert(propValue!= null), "Error: getPropertyAtRuntime: no property found matching name \"$propName\""
+            //assert(propValue!= null), "Error: getPropertyAtRuntime: no property found matching name \"$propName\""
             log.info "  getPropertyAtRuntime  [][]  Property \"$propName\" value = \"$propValue\"."
 
         } finally {
@@ -3109,6 +3131,7 @@ class Domibus{
 		def returnedMessage=null
 		def queueTypeList=["replyQueue","outQueue","errorNotifyConsumer","errorNotifyProducer","inQueue","DLQ"]
 		def queueType="";
+		def patternTable=[]
 
         def jmsMessagesMap = jsonSlurper.parseText(browseJmsQueue(side,context,log,queueName,domainValue,authUser,authPwd))
         debugLog("  SearchMessageJmsQueue  [][]  jmsMessagesMap:" + jmsMessagesMap, log)
@@ -3124,6 +3147,7 @@ class Domibus{
 		
         switch(queueType){
             case "replyQueue":
+				debugLog("  SearchMessageJmsQueue  [][]  queueType=\"replyQueue\".", log)
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3146,6 +3170,7 @@ class Domibus{
                 }
                 break
             case "errorNotifyConsumer":
+				debugLog("  SearchMessageJmsQueue  [][]  queueType=\"errorNotifyConsumer\".", log)
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3169,12 +3194,27 @@ class Domibus{
                 break
 
 			case "outQueue":
+				debugLog("  SearchMessageJmsQueue  [][]  queueType=\"outQueue\".", log)
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
                         if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
-                            debugLog("  SearchMessageJmsQueue  [][]  Found message ID \"" + jmsMessagesMap.messages[i].customProperties.messageId + "\".", log)
-							found=true
+                            debugLog("  SearchMessageJmsQueue  [][]  Found message with ID \"" + jmsMessagesMap.messages[i].customProperties.messageId + "\".", log)
+							if(pattern!=null){
+								patternTable=pattern.split("#")
+								assert(patternTable.size() == 2),"Error:SearchMessageJmsQueue: Error while parsing parsing parameter $pattern."
+								debugLog("  SearchMessageJmsQueue  [][]  pattern key =\"" + patternTable[0] + "\".", log)
+								debugLog("  SearchMessageJmsQueue  [][]  pattern value =\"" + patternTable[1] + "\".", log)
+								if(jmsMessagesMap.messages[i].customProperties."${patternTable[0]}"!=null){
+									if(jmsMessagesMap.messages[i].customProperties."${patternTable[0]}" =~ patternTable[1]){
+										found=true
+									}else{
+										log.error "  SearchMessageJmsQueue  [][]  pattern value ="+jmsMessagesMap.messages[i].customProperties."${patternTable[0]}", log)
+									}
+								}								
+							}else{
+								found=true
+							}
                         }
                     }
                     else{
@@ -3948,9 +3988,9 @@ class Domibus{
         def retrievedID = getCurrentPmodeID(side,context,log,testRunner,domainValue,authUser, authPwd)
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode/" + retrievedID + "?noAudit = true",
+            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode/" + retrievedID + "?noAudit=true",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H", "Content-Type: application/json",
+                                 "-H", "Accept: application/json, text/plain, */*",
                                  "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
                                  "-v"]
             commandResult = runCommandInShell(commandString, log)
@@ -3971,9 +4011,11 @@ class Domibus{
         (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         String pmodeText = getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd)
+		debugLog("  updatePmodeParameterRest  [][]  Current Pmode successfully retrieved.", log)
         def pmodeFile = null
         def pmDescription = "SoapUI sample test description for PMode upload."
         def swapText = null
+		def formattedPath=null
 
         // Read Pmode file
         try{
@@ -4013,20 +4055,29 @@ class Domibus{
             tempfile.deleteOnExit()
         } catch(Exception ex) {
             // if any error occurs
-            log.info "Error while creating temp file ... " + ex
+			assert (0),"Error while creating temp file ... " + ex
+            //log.info "Error while creating temp file ... " + ex
         }
+		formattedPath=tempfile.getAbsolutePath()
+		if (System.properties['os.name'].toLowerCase().contains('windows'))
+            formattedPath = formattedPath.replace("\\", "\\\\")
+        else
+            formattedPath = formattedPath.replace("\\", "/")
+		
+		debugLog("  updatePmodeParameterRest  [][]  formattedPath: "+formattedPath, log)
 
         try{
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-F", "description = " + pmDescription,
-                                 "-F", "file = @" + tempfile,
+                                 "-F", "description=" + pmDescription,
+                                 "-F", "file=@" + tempfile,
                                  "-v"]
             def commandResult = runCommandInShell(commandString, log)
             assert(commandResult[0].contains("successfully")),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected string \"successfully\"."
         }finally {
             resetAuthTokens(log)
+			tempfile.delete()  
         }
 
         debugLog("  ====  \"updatePmodeParameter\" DONE.", log)
