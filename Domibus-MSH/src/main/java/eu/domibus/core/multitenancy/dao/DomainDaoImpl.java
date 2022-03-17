@@ -12,7 +12,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -36,14 +35,18 @@ public class DomainDaoImpl implements DomainDao {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainDaoImpl.class);
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
     protected static final String DOMAIN_NAME_REGEX = "^[a-z0-9_]*$";
 
-    //    @Cacheable(value = DomibusCacheService.ALL_DOMAINS_CACHE)
+    protected final DomibusPropertyProvider domibusPropertyProvider;
+
+    protected final DomibusConfigurationService domibusConfigurationService;
+
+    public DomainDaoImpl(DomibusPropertyProvider domibusPropertyProvider, DomibusConfigurationService domibusConfigurationService) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
+
     @Override
     public List<Domain> findAll() {
         LOG.trace("Finding all domains");

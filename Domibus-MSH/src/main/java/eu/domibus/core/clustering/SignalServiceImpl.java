@@ -12,7 +12,6 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Topic;
@@ -30,17 +29,21 @@ import java.util.Map;
 public class SignalServiceImpl implements SignalService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalServiceImpl.class);
 
-    @Autowired
-    protected JMSManager jmsManager;
+    protected final JMSManager jmsManager;
 
-    @Autowired
-    protected Topic clusterCommandTopic;
+    protected final Topic clusterCommandTopic;
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    protected final DomainContextProvider domainContextProvider;
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected final DomibusConfigurationService domibusConfigurationService;
+
+    public SignalServiceImpl(JMSManager jmsManager, Topic clusterCommandTopic, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        this.jmsManager = jmsManager;
+
+        this.clusterCommandTopic = clusterCommandTopic;
+        this.domainContextProvider = domainContextProvider;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @Override
     public void signalTrustStoreUpdate(Domain domain) {
