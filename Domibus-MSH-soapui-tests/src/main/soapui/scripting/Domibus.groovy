@@ -3209,7 +3209,7 @@ class Domibus{
 									if(jmsMessagesMap.messages[i].customProperties."${patternTable[0]}" =~ patternTable[1]){
 										found=true
 									}else{
-										log.error "  SearchMessageJmsQueue  [][]  pattern value ="+jmsMessagesMap.messages[i].customProperties."${patternTable[0]}", log)
+										log.error "  SearchMessageJmsQueue  [][]  pattern value ="+jmsMessagesMap.messages[i].customProperties."${patternTable[0]}"
 									}
 								}								
 							}else{
