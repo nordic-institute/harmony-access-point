@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.web.rest.ro.MessageLogRO;
@@ -32,6 +33,9 @@ public class MessagesLogServiceImplTest {
 
     @Injectable
     MessagesLogServiceHelper messagesLogServiceHelper;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void countAndFilter1() {
@@ -98,14 +102,17 @@ public class MessagesLogServiceImplTest {
         MessageLogRO converted = new MessageLogRO();
         filters.put("messageId", userMessageId);
         List<MessageLogInfo> resultList = Arrays.asList(item1);
+        List<MessageLogRO> convertedList = Arrays.asList(converted);
 
-        new Expectations() {{
+        new Expectations(messagesLogServiceImpl) {{
             messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
             result = numberOfLogs;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
             messageCoreConverter.messageLogInfoToMessageLogRO(item1);
             result = converted;
+            messagesLogServiceImpl.setCanDownload(convertedList);
+            result = true;
         }};
 
         MessageLogRO res = messagesLogServiceImpl.findUserMessageById(userMessageId);

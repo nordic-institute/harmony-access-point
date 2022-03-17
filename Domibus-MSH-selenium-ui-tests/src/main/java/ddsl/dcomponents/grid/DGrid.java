@@ -193,7 +193,8 @@ public class DGrid extends DComponent {
 	}
 
 	public int scrollTo(String columnName, String value) throws Exception {
-		
+
+		log.debug("scrolling to % = %", columnName, value );
 
 		ArrayList<String> columnNames = getColumnNames();
 		if (!columnNames.contains(columnName)) {
@@ -219,7 +220,8 @@ public class DGrid extends DComponent {
 	}
 
 	public int scrollToAndSelect(String columnName, String value) throws Exception {
-		
+
+		log.debug("scrolling and selecting to % = %", columnName, value );
 
 		int index = scrollTo(columnName, value);
 		if (index < 0) {

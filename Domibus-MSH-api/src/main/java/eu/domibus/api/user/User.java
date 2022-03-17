@@ -23,20 +23,7 @@ public class User implements UserBase {
     private boolean suspended;
     private boolean deleted;
     private LocalDateTime expirationDate;
-
-    public User(String userName, String email, Boolean active, List<String> authorities, UserState userState,
-                Date suspensionDate, boolean deleted) {
-        this.userName = userName;
-        this.email = email;
-        this.active = active;
-        this.authorities = authorities;
-        this.status = userState.name();
-        this.password = null;
-        if (suspensionDate != null) {
-            this.suspended = true;
-        }
-        this.deleted = deleted;
-    }
+    private Boolean defaultPassword = false;
 
     public User() {
         authorities = new LinkedList<>();
@@ -145,5 +132,12 @@ public class User implements UserBase {
 
     public boolean isNew() {
         return UserState.NEW.name().equals(getStatus());
+    }
+
+    public Boolean hasDefaultPassword() {
+        return this.defaultPassword;
+    }
+    public void setDefaultPassword(Boolean defaultPassword) {
+        this.defaultPassword = defaultPassword;
     }
 }

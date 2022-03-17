@@ -33,7 +33,11 @@ public class UserSessionsServiceImplTest {
         Set<GrantedAuthority> authorities = new HashSet<>();
         final DomibusUserDetails domibusUserDetails = new DomibusUserDetails("userName", "password", authorities);
 
-        User user = new User("userName", "email", false, new ArrayList<String>(), UserState.UPDATED, null, false);
+        User user = new User();
+        user.setUserName("userName");
+        user.setEmail("email");
+        user.setActive(false);
+        user.setStatus(UserState.UPDATED.name());
 
         SessionInformation sinfo = new SessionInformation(domibusUserDetails, "id", new Date());
 

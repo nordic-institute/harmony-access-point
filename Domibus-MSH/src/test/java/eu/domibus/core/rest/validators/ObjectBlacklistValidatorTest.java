@@ -107,11 +107,13 @@ public class ObjectBlacklistValidatorTest {
         boolean actualValid1 = blacklistValidator.isValid(ro1);
         t2.start();
         try {
-            Thread.currentThread().sleep(1000);
+            Thread.currentThread().sleep(100);
         } catch (InterruptedException e) {
-            LOG.trace("Interrupted thread", e);
+            LOG.debug("Interrupted exception in test", e);
         }
+
         String mess1 = blacklistValidator.getErrorMessage();
         Assert.assertEquals("Forbidden character detected in property routingCriterias[1]->expression", mess1);
+        t2.join();
     }
 }

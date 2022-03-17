@@ -306,11 +306,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(users);
     }
 
-    /**
-     * Throws exception if the specified user exists in any domain. Uses getUniqueIdentifier instead of the Name to accommodate plugin users identified by certificareId
-     */
-    public void validateUniqueUser(UserBase user) throws UserManagementException {
-        String userId = user.getUniqueIdentifier();
+    public void validateUniqueUser(String userId) throws UserManagementException {
         if (domibusConfigurationService.isMultiTenantAware()) {
             //check to see if it is a domain user
             String domain = userDomainService.getDomainForUser(userId);
@@ -330,6 +326,14 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
                 throw new UserManagementException(errorMessage);
             }
         }
+    }
+
+    /**
+     * Throws exception if the specified user exists in any domain. Uses getUniqueIdentifier instead of the Name to accommodate plugin users identified by certificareId
+     */
+    public void validateUniqueUser(UserBase user) throws UserManagementException {
+        String userId = user.getUniqueIdentifier();
+        validateUniqueUser(userId);
     }
 
     @Nullable

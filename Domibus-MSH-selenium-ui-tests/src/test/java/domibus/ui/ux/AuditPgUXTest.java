@@ -16,6 +16,7 @@ import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import pages.tlsTrustStore.TlsTrustStorePage;
 import rest.RestServicePaths;
+import utils.DFileUtils;
 import utils.TestRunData;
 import utils.TestUtils;
 
@@ -449,6 +450,14 @@ public class AuditPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+
+		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
+
+		if(page.getAlertArea().isShown()){
+			page.getAlertArea().closeAlert();
+			page.uploadTruststore(path, "test123");
+		}
+
 		page.getDownloadButton().click();
 
 		page.getSidebar().goToPage(PAGES.AUDIT);

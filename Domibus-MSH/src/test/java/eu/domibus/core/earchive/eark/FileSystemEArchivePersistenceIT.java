@@ -149,12 +149,13 @@ public class FileSystemEArchivePersistenceIT {
         };
         File[] files = temp.listFiles();
         File batchFolder = files[0];
-        File representation = batchFolder.listFiles()[1];
+        File representation = Arrays.stream(batchFolder.listFiles()).sorted().collect(Collectors.toList()).get(1);
+        File mets = Arrays.stream(batchFolder.listFiles()).sorted().collect(Collectors.toList()).get(0);        
         File representation1 = representation.listFiles()[0];
         File data = representation1.listFiles()[0];
 
         assertEquals(batchId, batchFolder.getName());
-        assertEquals(IPConstants.METS_FILE, batchFolder.listFiles()[0].getName());
+        assertEquals(IPConstants.METS_FILE, mets.getName());
         assertEquals(IPConstants.REPRESENTATIONS, representation.getName());
         assertEquals(IPConstants.METS_REPRESENTATION_TYPE_PART_1 + "1", representation1.getName());
         assertEquals(IPConstants.DATA, data.getName());

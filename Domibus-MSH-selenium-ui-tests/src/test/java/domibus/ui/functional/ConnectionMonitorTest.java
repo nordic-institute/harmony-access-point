@@ -301,7 +301,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		if (!StringUtils.equalsIgnoreCase(partyName, currentParty)) {
 			String actualErrMsg = getAlrtForTestMsg(page, 0, "Details", modal);
 			String certError = String.format(DMessages.CONNECTION_MONITORING_CERT_ERROR, partyName, "red_gw");
-			soft.assertTrue(actualErrMsg.equals(certError), "Correct error is shown");
+			soft.assertEquals(actualErrMsg, certError, "Correct error is shown");
 			modal.getCloseBtn().click();
 
 		}
@@ -313,6 +313,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 
 	}
 
+//	TODO: needs refactoring
 	public String getAlrtForTestMsg(ConnectionMonitoringPage page, int i, String actionBtnName, TestMessDetailsModal modal) throws Exception {
 		page.grid().getActionButton(actionBtnName, i).click();
 

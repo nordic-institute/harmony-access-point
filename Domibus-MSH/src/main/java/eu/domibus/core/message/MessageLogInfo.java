@@ -70,6 +70,8 @@ public class MessageLogInfo {
 
     private String pluginType;
 
+    private Long partLength;
+
     public MessageLogInfo() {
     }
 
@@ -128,7 +130,8 @@ public class MessageLogInfo {
                           final String action,
                           final String serviceType,
                           final String serviceValue,
-                          final String pluginType
+                          final String pluginType,
+                          final Long partLength
     ) {
         this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, testMessage);
@@ -148,6 +151,7 @@ public class MessageLogInfo {
         this.failed = failed;
         this.restored = restored;
         this.pluginType = pluginType;
+        this.partLength = partLength;
     }
 
     public void setMessageId(String messageId) {
@@ -367,6 +371,14 @@ public class MessageLogInfo {
         this.messageType = messageType;
     }
 
+    public Long getPartLength() {
+        return partLength;
+    }
+
+    public void setPartLength(Long partLength) {
+        this.partLength = partLength;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -400,6 +412,7 @@ public class MessageLogInfo {
                 .append(serviceType, this.serviceType)
                 .append(serviceValue, this.serviceValue)
                 .append(pluginType, this.pluginType)
+                .append(partLength, this.partLength)
                 .isEquals();
     }
 
@@ -430,6 +443,7 @@ public class MessageLogInfo {
                 .append(serviceType)
                 .append(serviceValue)
                 .append(pluginType)
+                .append(partLength)
                 .toHashCode();
     }
 }

@@ -8,10 +8,12 @@ import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -37,6 +39,7 @@ import static eu.domibus.core.property.DomibusPropertiesPropertySource.UPDATED_P
  * @since 4.2
  */
 @SuppressWarnings("TestMethodWithIncorrectSignature")
+@RunWith(JMockit.class)
 public class DomibusApplicationInitializerTest {
 
     @Tested

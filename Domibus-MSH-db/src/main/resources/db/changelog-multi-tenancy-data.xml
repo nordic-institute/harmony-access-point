@@ -12,23 +12,6 @@
             <column name="ID_PK" value="${default_id_pk}0000000003" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_AP_ADMIN"/>
         </insert>
-        <insert tableName="TB_USER">
-            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
-            <column name="USER_NAME" value="super"/>
-            <column name="USER_PASSWORD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
-            <column name="USER_ENABLED" valueBoolean="true"/>
-            <column name="USER_DELETED" valueBoolean="false"/>
-            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
-        </insert>
-        <insert tableName="TB_USER_ROLES">
-            <column name="USER_ID" value="${default_id_pk}0000000001" type="INT"/>
-            <column name="ROLE_ID" value="${default_id_pk}0000000003" type="INT"/>
-        </insert>
-        <insert tableName="TB_USER_DOMAIN">
-            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
-            <column name="USER_NAME" value="super"/>
-            <column name="PREFERRED_DOMAIN" value="default"/>
-        </insert>
         <insert tableName="TB_LOCK">
             <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>

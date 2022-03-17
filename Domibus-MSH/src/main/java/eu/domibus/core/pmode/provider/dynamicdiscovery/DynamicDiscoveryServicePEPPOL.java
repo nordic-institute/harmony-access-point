@@ -8,16 +8,16 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import no.difi.vefa.peppol.common.lang.EndpointNotFoundException;
-import no.difi.vefa.peppol.common.lang.PeppolLoadingException;
-import no.difi.vefa.peppol.common.lang.PeppolParsingException;
-import no.difi.vefa.peppol.common.model.*;
-import no.difi.vefa.peppol.lookup.LookupClient;
-import no.difi.vefa.peppol.lookup.LookupClientBuilder;
-import no.difi.vefa.peppol.lookup.api.LookupException;
-import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
-import no.difi.vefa.peppol.mode.Mode;
-import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
+import network.oxalis.vefa.peppol.common.lang.EndpointNotFoundException;
+import network.oxalis.vefa.peppol.common.lang.PeppolLoadingException;
+import network.oxalis.vefa.peppol.common.lang.PeppolParsingException;
+import network.oxalis.vefa.peppol.common.model.*;
+import network.oxalis.vefa.peppol.lookup.LookupClient;
+import network.oxalis.vefa.peppol.lookup.LookupClientBuilder;
+import network.oxalis.vefa.peppol.lookup.api.LookupException;
+import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
+import network.oxalis.vefa.peppol.mode.Mode;
+import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -152,7 +152,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
 
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Get the Endpoint from ServiceMetadata with transport profile [{}]", transportProfileAS4);
-            final Endpoint endpoint = getEndpoint(sm.getProcesses(), processIdentifier, TransportProfile.of(transportProfileAS4));
+            final Endpoint endpoint = getEndpoint(sm.getServiceInformation().getProcesses(),  processIdentifier, TransportProfile.of(transportProfileAS4));
 
             if (endpoint == null || endpoint.getAddress() == null) {
                 throw new ConfigurationException("Received incomplete metadata from the SMP for documentId " + documentId + " processId " + processId);

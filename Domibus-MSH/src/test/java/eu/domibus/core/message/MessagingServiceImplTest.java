@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -17,17 +18,18 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+
+import static eu.domibus.common.model.configuration.Payload_.MIME_TYPE;
+import static eu.domibus.core.message.MessagingServiceImpl.MIME_TYPE_APPLICATION_UNKNOWN;
 
 /**
  * @author Ioana Dragusanu
@@ -138,10 +140,10 @@ public class MessagingServiceImplTest {
             userMessage.getEntityId();
             result = messageEntityId;
 
-            messagingService.storePayloads(userMessage,null, mshRole, legConfiguration, backendName);
+            messagingService.storePayloads(userMessage, null, mshRole, legConfiguration, backendName);
         }};
 
-        messagingService.storeSourceMessagePayloads(userMessage,null, mshRole, legConfiguration, backendName);
+        messagingService.storeSourceMessagePayloads(userMessage, null, mshRole, legConfiguration, backendName);
 
         new Verifications() {{
             userMessageService.scheduleSourceMessageSending(messageId, messageEntityId);
@@ -150,7 +152,7 @@ public class MessagingServiceImplTest {
 
     @Test
     public void testStoreMessageCalls(@Injectable final UserMessage userMessage) {
-        messagingService.storeMessagePayloads(userMessage, null,MSHRole.SENDING, legConfiguration, "backend");
+        messagingService.storeMessagePayloads(userMessage, null, MSHRole.SENDING, legConfiguration, "backend");
     }
 
     @Test
@@ -177,4 +179,56 @@ public class MessagingServiceImplTest {
         }};
     }
 
+    @Test
+    public void setContentType_unknown(@Injectable PartInfo partInfo) {
+        new Expectations() {{
+            partInfo.getPartProperties();
+            result = null;
+
+            partInfo.getPayloadDatahandler().getContentType();
+            result = null;
+
+            partInfo.getHref();
+            result = "href";
+        }};
+
+        messagingService.setContentType(partInfo);
+
+        new FullVerifications() {{
+            partInfo.setMime(MIME_TYPE_APPLICATION_UNKNOWN);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void setContentType(@Injectable PartInfo partInfo,
+                               @Injectable PartProperty partProperty) {
+
+        HashSet<PartProperty> partProperties = new HashSet<>();
+        partProperties.add(partProperty);
+
+        new Expectations() {{
+            partInfo.getPayloadDatahandler().getContentType();
+            result = null;
+
+            partInfo.getPartProperties();
+            result = partProperties;
+
+            partProperty.getName();
+            result = MIME_TYPE;
+
+            partProperty.getValue();
+            result = "application/json";
+
+            partInfo.getHref();
+            result = "href";
+        }};
+
+        messagingService.setContentType(partInfo);
+
+        new FullVerifications() {{
+            partInfo.setMime("application/json");
+            times = 1;
+        }};
+    }
 }
