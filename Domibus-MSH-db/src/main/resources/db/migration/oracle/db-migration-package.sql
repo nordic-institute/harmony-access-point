@@ -2116,7 +2116,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab              VARCHAR2(30) := 'TB_PART_INFO';
         v_tab_new          VARCHAR2(30) := 'MIGR_TB_PART_INFO';
         v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
-        v_part_length          NUMBER       := 1;
+
         v_id_pk NUMBER;
 
         CURSOR c_part_info IS
@@ -2209,7 +2209,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         INSERT INTO MIGR_TB_PART_INFO (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF,
                                                        IN_BODY, FILENAME, MIME, PART_ORDER, ENCRYPTED,
                                                        USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
-                                                       MODIFIED_BY, PART_LENGTH)
+                                                       MODIFIED_BY)
                         VALUES (migr_part_info(i).ID_PK,
                                 migr_part_info(i).BINARY_DATA,
                                 migr_part_info(i).DESCRIPTION_LANG,
@@ -2224,8 +2224,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 migr_part_info(i).CREATION_TIME,
                                 migr_part_info(i).CREATED_BY,
                                 migr_part_info(i).MODIFICATION_TIME,
-                                migr_part_info(i).MODIFIED_BY,
-                                v_part_length);
+                                migr_part_info(i).MODIFIED_BY);
                 EXCEPTION
                     WHEN failure_in_forall
                         THEN

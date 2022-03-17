@@ -2176,7 +2176,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
         SET @v_tab := 'TB_PART_INFO';
         SET @v_tab_user_message := 'TB_USER_MESSAGE';
         SET @v_tab_new := 'MIGR_TB_PART_INFO';
-        SET @v_part_length := 1;
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
@@ -2205,7 +2204,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
 
                 INSERT INTO MIGR_TB_PART_INFO (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY,
                         FILENAME, MIME, PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY,
-                        MODIFICATION_TIME, MODIFIED_BY, PART_LENGTH)
+                        MODIFICATION_TIME, MODIFIED_BY)
                 VALUES (calculated_id_pk,
                         binary_data,
                         description_lang,
@@ -2220,8 +2219,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
                         creation_time,
                         created_by,
                         modification_time,
-                        modified_by,
-                        @v_part_length);
+                        modified_by);
 
                 SET @i = @i + 1;
                 IF @i MOD @BATCH_SIZE = 0 THEN
