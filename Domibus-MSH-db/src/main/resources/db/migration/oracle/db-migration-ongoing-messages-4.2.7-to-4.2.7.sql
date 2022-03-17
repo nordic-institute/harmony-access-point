@@ -4,14 +4,9 @@
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
 -- Parameters to be adjusted:
--- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
---              default value is 100
 -- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
 -- ********************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES IS
-    -- batch size for commit of the migrated records
-    BATCH_SIZE CONSTANT NUMBER := 100;
-
     -- limit loading a high number of records into memory
     BULK_COLLECT_LIMIT CONSTANT NUMBER := 100;
 
