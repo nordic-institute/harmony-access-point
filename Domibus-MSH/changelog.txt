@@ -1,4 +1,11 @@
 Domibus 5.0
+- Improved overall performance including refactoring of the database to allow partitioning
+- Optimized pull locking for Oracle
+- Possibility to use an external eArchiving agent
+- Possibility to validate incoming UserMessages using a Validation Extension
+- Possibility to reference JMS Plugin payloads via HTTP endpoints
+- New WS Plugin which uses the edelivery namespace
+- New client authentication trust store admin console page
 - Added Reset filters button on all pages of Admin Console
 - Added possibility to display service and action information in the Domibus Admin console.
 - Added possibility to download eDelivery message receipts for non-repudiation purposes in the messages page
@@ -40,6 +47,11 @@ of the following values point to the same instant - the 21st of July 2021, 12:27
 - FSPlugin - in multitenancy mode:
     - added specific domain property file e.g domain1-fs-plugin.properties
     - a domain could be disabled - by setting a property e.g. domain1.fsplugin.domain.enabled (default to true) in the specific domain domain1-fs-plugin.properties file
+Domibus 4.2.6
+- Upgrade DSS library to version 5.8.
+- The following properties have been added into the authentication-dss-extension.properties file to configure DSS 5.8 data loader:
+    - domibus.dss.data.loader.socket.timeout=6000
+    - domibus.dss.data.loader.connection.timeout=6000
 Domibus 4.2.3
 - Fixed the move of messages from the DLQ queue
 - Fixed an issue when receiving a message without a payload

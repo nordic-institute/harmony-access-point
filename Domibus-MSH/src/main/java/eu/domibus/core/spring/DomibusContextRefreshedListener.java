@@ -9,6 +9,7 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,9 @@ public class DomibusContextRefreshedListener {
     TLSCertificateManager tlsCertificateManager;
 
     @Autowired
+    UserManagementServiceImpl userManagementService;
+
+    @Autowired
     DomibusPropertyValidatorService domibusPropertyValidatorService;
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -92,6 +96,8 @@ public class DomibusContextRefreshedListener {
 
         multiDomainCryptoService.persistTruststoresIfApplicable();
         tlsCertificateManager.persistTruststoresIfApplicable();
+
+        userManagementService.createDefaultUserIfApplicable();
 
         domibusPropertyValidatorService.enforceValidation();
     }

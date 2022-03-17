@@ -1,6 +1,7 @@
 package pages.messages;
 
 import ddsl.dcomponents.FilterArea;
+import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DatePicker;
 import ddsl.dobjects.Select;
@@ -51,6 +52,9 @@ public class MessageFilterArea extends FilterArea {
 	public WebElement serviceTypeInput;
 	@FindBy(id = "serviceValue_id")
 	public WebElement serviceValueInput;
+
+	@FindBy(id = "messagesInterval_id")
+	public WebElement messagesIntevalContainer;
 
 
 	@FindBy(id = "showTestMessages_id")
@@ -168,5 +172,10 @@ public class MessageFilterArea extends FilterArea {
 
 	public DatePicker getReceivedFromContainer() {
 		return weToDatePicker(receivedFromContainer);
+	}
+
+	public void showAllMessages() throws Exception {
+		weToSelect(messagesIntevalContainer).selectOptionByText("Last 30 days");
+		clickSearch();
 	}
 }

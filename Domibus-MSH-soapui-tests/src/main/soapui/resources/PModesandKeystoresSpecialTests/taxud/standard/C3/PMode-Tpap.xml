@@ -29,11 +29,11 @@
                              value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:eu-customs:EORI"/>
             </partyIdTypes>
 
-            <party name="sti-taxud" endpoint="http://localhost:8080/domibus/services/msh"
+            <party name="sti-taxud" endpoint="http://localhost:7003/domibus/services/msh"
                    allowChunking="false">
                 <identifier partyId="sti-taxud" partyIdType="authorityType"/>
             </party>
-            <party name="be00000001" endpoint="http://localhost:7050/domibus/services/msh" allowChunking="false">
+            <party name="be00000001" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
                 <identifier partyId="BE00000001" partyIdType="EORIType"/>
             </party>
         </parties>
@@ -158,7 +158,7 @@
             <action name="IE3N11" value="IE3N11"/>
         </actions>
         <as4>
-            <receptionAwareness name="receptionAwareness" retry="0;0;CONSTANT" duplicateDetection="true"/>
+            <receptionAwareness name="receptionAwareness" retry="4;4;CONSTANT" duplicateDetection="true"/>
             <reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
         </as4>
         <legConfigurations>

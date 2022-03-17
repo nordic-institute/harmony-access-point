@@ -9,8 +9,11 @@ import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
@@ -18,12 +21,14 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
+@RunWith(JMockit.class)
 public class DomibusContextRefreshedListenerTest {
 
     @Tested
@@ -52,6 +57,9 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     TLSCertificateManager tlsCertificateManager;
+
+    @Injectable
+    UserManagementServiceImpl userManagementService;
 
     @Injectable
     DomibusPropertyValidatorService domibusPropertyValidatorService;
@@ -97,6 +105,9 @@ public class DomibusContextRefreshedListenerTest {
             times = 1;
 
             multiDomainCryptoService.persistTruststoresIfApplicable();
+            times = 1;
+
+            userManagementService.createDefaultUserIfApplicable();
             times = 1;
 
             staticDictionaryService.createStaticDictionaryEntries();

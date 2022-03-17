@@ -320,7 +320,7 @@
 
         <!-- Difi libraries -->
         <dependency>
-            <groupId>no.difi.vefa</groupId>
+            <groupId>network.oxalis.vefa</groupId>
             <artifactId>peppol-lookup</artifactId>
         </dependency>
         <!-- End Difi libraries -->

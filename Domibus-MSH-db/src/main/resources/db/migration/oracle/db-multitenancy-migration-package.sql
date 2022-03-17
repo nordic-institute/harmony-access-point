@@ -1,3 +1,15 @@
+-- ********************************************************************************************************
+-- Domibus 4.2.7 to 5.0 data migration package
+--
+-- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
+--
+-- Parameters to be adjusted:
+-- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
+--              default value is 100
+-- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
+-- VERBOSE_LOGS - more information into the logs; default to false
+-- ********************************************************************************************************
+
 DECLARE
     table_does_not_exist exception;
     PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
@@ -148,27 +160,12 @@ CREATE GLOBAL TEMPORARY TABLE MIGR_TB_PKS_USER (OLD_ID NUMBER NOT NULL, NEW_ID N
 
 CREATE GLOBAL TEMPORARY TABLE MIGR_TB_PKS_USER_ROLE (OLD_ID NUMBER NOT NULL, NEW_ID NUMBER NOT NULL, CONSTRAINT PK_MIGR_PKS_USER_ROLE PRIMARY KEY (OLD_ID)) ON COMMIT PRESERVE ROWS;
 
--- ********************************************************************************************************
--- Domibus 4.2.3 to 5.0 data migration package
---
--- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
---
--- Parameters to be adjusted:
--- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
---              default value is 10000
--- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 10000
--- VERBOSE_LOGS - more information into the logs; default to false
---
--- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
--- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG, TB_PROPERTY, TB_PART_INFO,
--- TB_ERROR_LOG, TB_MESSAGE_ACKNW, TB_SEND_ATTEMPT
--- ********************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
-    BATCH_SIZE CONSTANT NUMBER := 10000;
+    BATCH_SIZE CONSTANT NUMBER := 100;
 
     -- limit loading a high number of records into memory
-    BULK_COLLECT_LIMIT CONSTANT NUMBER := 10000;
+    BULK_COLLECT_LIMIT CONSTANT NUMBER := 100;
 
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
@@ -375,10 +372,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             migr_alert := T_MIGR_ALERT();
             migr_pks_alert := T_MIGR_PKS_ALERT();
 
-            SELECT MPKSUM.NEW_ID
+            SELECT MPKSTO.NEW_ID
             INTO v_fk_timezone_offset
-            FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSUM
-            WHERE MPKSUM.OLD_ID = 1;
+            FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSTO
+            WHERE MPKSTO.OLD_ID = 1;
 
             FOR i IN alert.FIRST .. alert.LAST
                 LOOP

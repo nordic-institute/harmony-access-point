@@ -29,7 +29,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class MessagesPgTest extends SeleniumTest {
@@ -40,7 +39,10 @@ public class MessagesPgTest extends SeleniumTest {
 		log.info("logged in");
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
+
+		page.getFilters().showAllMessages();
 		page.grid().waitForRowsToLoad();
+
 		return page;
 	}
 
@@ -49,7 +51,6 @@ public class MessagesPgTest extends SeleniumTest {
 	@Test(description = "MSG-4", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleclickMessageRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
-
 		String messID = rest.getMessageIDs(null, 1, false).get(0);
 
 		MessagesPage page = navigate();
@@ -86,7 +87,7 @@ public class MessagesPgTest extends SeleniumTest {
 		Reporter.log("Login with admin");
 		log.info("Login with admin");
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
-		MessagesPage page = new MessagesPage(driver);
+		MessagesPage page = navigate();
 		DGrid grid = page.grid();
 
 		Reporter.log("Getting all listed message info");
@@ -179,7 +180,7 @@ public class MessagesPgTest extends SeleniumTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		Reporter.log("logged in");
 		log.info("logged in");
-		MessagesPage page = new MessagesPage(driver);
+		MessagesPage page = navigate();
 
 		int gridRows = page.grid().getRowsNo();
 		int allRows = page.grid().getPagination().getTotalItems();
@@ -204,7 +205,7 @@ public class MessagesPgTest extends SeleniumTest {
 		login(data.getAdminUser()).getSidebar().goToPage(PAGES.MESSAGES);
 		Reporter.log("logged in");
 		log.info("logged in");
-		MessagesPage page = new MessagesPage(driver);
+		MessagesPage page = navigate();
 
 		int gridRows = page.grid().getRowsNo();
 		int allRows = page.grid().getPagination().getTotalItems();
@@ -220,6 +221,7 @@ public class MessagesPgTest extends SeleniumTest {
 
 //		refresh because entering empty string everywhere does not trigger change event
 		page.refreshPage();
+		page.getFilters().showAllMessages();
 		page.grid().waitForRowsToLoad();
 
 		Reporter.log("checking results after refresh");
@@ -235,7 +237,7 @@ public class MessagesPgTest extends SeleniumTest {
 	public void downloadMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		MessagesPage page = new MessagesPage(driver);
+		MessagesPage page = navigate();
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
 
@@ -396,7 +398,7 @@ public class MessagesPgTest extends SeleniumTest {
 		login(userAdmin, data.defaultPass()).getSidebar().goToPage(PAGES.MESSAGES);
 		Reporter.log("logged in as created admin");
 		log.info("logged in as created admin");
-		MessagesPage page = new MessagesPage(driver);
+		MessagesPage page = navigate();
 		page.grid().waitForRowsToLoad();
 
 		Reporter.log("checking if new messages are visible");
@@ -446,11 +448,8 @@ public class MessagesPgTest extends SeleniumTest {
 		String messageIDDomain = rest.getMessageIDs(domain, 1, false).get(0);
 		String messageIDDefault = rest.getMessageIDs(null, 1, false).get(0);
 
-		MessagesPage page = new MessagesPage(driver);
-
+		MessagesPage page = navigate();
 		String defaultDomainName = page.getDomainSelector().getSelectedValue();
-
-		page.refreshPage();
 		page.grid().waitForRowsToLoad();
 
 		page.grid().scrollToAndSelect("Message Id", messageIDDefault);
@@ -460,6 +459,9 @@ public class MessagesPgTest extends SeleniumTest {
 		page.getDomainSelector().selectOptionByText(domainName);
 		Reporter.log("switch domain to " + domainName);
 		log.info("switch domain to " + domainName);
+		page.getFilters().showAllMessages();
+		page.grid().waitForRowsToLoad();
+
 
 		Reporter.log("check Download and Resend buttons status");
 		log.info("check Download and Resend buttons status");
@@ -472,8 +474,11 @@ public class MessagesPgTest extends SeleniumTest {
 		log.info("selected message from new domain");
 
 		page.getDomainSelector().selectOptionByText(defaultDomainName);
+		page.getFilters().showAllMessages();
+		page.grid().waitForRowsToLoad();
 		Reporter.log("switch domain to default");
 		log.info("switch domain to default");
+
 
 		Reporter.log("check Download and Resend buttons status");
 		log.info("check Download and Resend buttons status");
@@ -527,11 +532,10 @@ public class MessagesPgTest extends SeleniumTest {
 
 	/* EDELIVERY-5068 - MSG-16 - Download list of messages multitenancy */
 	@Test(description = "MSG-16", groups = {"multiTenancy"})
-	public void downloadMsgs() throws Exception {
+	public void downloadCSV() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
 		MessagesPage page = navigate();
-		String domain = selectRandomDomain();
 
 		Reporter.log("Click on download csv button");
 		log.info("Click on download csv button");
@@ -546,7 +550,6 @@ public class MessagesPgTest extends SeleniumTest {
 		page.grid().getGridCtrl().showAllColumns();
 
 		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
-		int maxMess = page.grid().getRowsNo();
 
 		page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
 		soft.assertAll();
@@ -556,7 +559,7 @@ public class MessagesPgTest extends SeleniumTest {
 	@Test(description = "MSG-29", groups = {"multiTenancy", "singleTenancy"})
 	public void checkMsgEnvXML() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		MessagesPage page = new MessagesPage(driver);
+		MessagesPage page = navigate();
 
 		String zipPath = page.downloadMessageEnvelop(0);
 		Reporter.log("downloaded message to zip with path " + zipPath);

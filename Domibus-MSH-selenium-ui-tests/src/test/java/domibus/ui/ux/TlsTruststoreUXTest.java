@@ -275,7 +275,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		int domainCount = rest.getDomainNames().size();
 		for (int i = 0; i < domainCount; i++) {
 			String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
-			page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+			page.uploadTruststore(path, "test123");
 			page.waitForPageToLoad();
 			List<HashMap<String, String>> firstDomainData = page.grid().getAllRowInfo();
 			page.getDomainSelector().selectAnotherDomain();
@@ -322,7 +322,7 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 			int beforeCount = page.grid().getPagination().getTotalItems();
 			if (beforeCount == 0) {
 				String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
-				page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+				page.uploadTruststore(path, "test123");
 				page.grid().waitForRowsToLoad();
 			}
 			int afterCount = page.grid().getPagination().getTotalItems();

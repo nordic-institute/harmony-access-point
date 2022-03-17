@@ -1,10 +1,10 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import com.google.common.io.ByteStreams;
-import no.difi.vefa.peppol.lookup.api.FetcherResponse;
-import no.difi.vefa.peppol.lookup.api.LookupException;
-import no.difi.vefa.peppol.lookup.fetcher.AbstractFetcher;
-import no.difi.vefa.peppol.mode.Mode;
+import network.oxalis.vefa.peppol.lookup.api.FetcherResponse;
+import network.oxalis.vefa.peppol.lookup.api.LookupException;
+import network.oxalis.vefa.peppol.lookup.fetcher.AbstractFetcher;
+import network.oxalis.vefa.peppol.mode.Mode;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;

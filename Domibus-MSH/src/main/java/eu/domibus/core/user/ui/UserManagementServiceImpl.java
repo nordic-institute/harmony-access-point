@@ -1,15 +1,19 @@
 package eu.domibus.core.user.ui;
 
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
+import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
-import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -20,11 +24,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_AUTOGENERATE_PASSWORD;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE;
 
 /**
  * * Management of regular users, used in ST mode and when a domain admin user logs in in MT mode
@@ -51,16 +55,13 @@ public class UserManagementServiceImpl implements UserService {
     private UserRoleDao userRoleDao;
 
     @Autowired
-    protected UserConverter userConverter;
-
-    @Autowired
     protected UserPersistenceService userPersistenceService;
 
     @Autowired
     protected UserDomainService userDomainService;
 
     @Autowired
-    ConsoleUserSecurityPolicyManager userPasswordManager;
+    ConsoleUserSecurityPolicyManager userSecurityPolicyManager;
 
     @Autowired
     ConsoleUserAlertsServiceImpl userAlertsService;
@@ -70,6 +71,18 @@ public class UserManagementServiceImpl implements UserService {
 
     @Autowired
     private UserFilteringDao listDao;
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    DomainService domainService;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected AuthCoreMapper authCoreMapper;
 
     /**
      * {@inheritDoc}
@@ -121,7 +134,7 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     public synchronized UserLoginErrorReason handleWrongAuthentication(final String userName) {
         // there is no security context when the user failed to login -> we're creating one
-        return authUtils.runFunctionWithDomibusSecurityContext(() -> userPasswordManager.handleWrongAuthentication(userName), AuthRole.ROLE_ADMIN, true);
+        return authUtils.runFunctionWithDomibusSecurityContext(() -> userSecurityPolicyManager.handleWrongAuthentication(userName), AuthRole.ROLE_ADMIN, true);
     }
 
     /**
@@ -130,7 +143,7 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     @Transactional
     public void reactivateSuspendedUsers() {
-        userPasswordManager.reactivateSuspendedUsers();
+        userSecurityPolicyManager.reactivateSuspendedUsers();
     }
 
     /**
@@ -138,7 +151,7 @@ public class UserManagementServiceImpl implements UserService {
      */
     @Override
     public void handleCorrectAuthentication(final String userName) {
-        userPasswordManager.handleCorrectAuthentication(userName);
+        userSecurityPolicyManager.handleCorrectAuthentication(userName);
     }
 
     /**
@@ -150,7 +163,7 @@ public class UserManagementServiceImpl implements UserService {
         boolean defaultPassword = user.hasDefaultPassword();
         LocalDateTime passwordChangeDate = user.getPasswordChangeDate();
 
-        userPasswordManager.validatePasswordExpired(userName, defaultPassword, passwordChangeDate);
+        userSecurityPolicyManager.validatePasswordExpired(userName, defaultPassword, passwordChangeDate);
     }
 
     @Override
@@ -159,7 +172,7 @@ public class UserManagementServiceImpl implements UserService {
         boolean isDefaultPassword = user.hasDefaultPassword();
         LocalDateTime passwordChangeDate = user.getPasswordChangeDate();
 
-        return userPasswordManager.getDaysTillExpiration(userName, isDefaultPassword, passwordChangeDate);
+        return userSecurityPolicyManager.getDaysTillExpiration(userName, isDefaultPassword, passwordChangeDate);
     }
 
     @Override
@@ -203,12 +216,12 @@ public class UserManagementServiceImpl implements UserService {
     }
 
     protected eu.domibus.api.user.User convertAndPrepareUser(Function<eu.domibus.api.user.User, String> getDomainForUserFn, User userEntity) {
-        eu.domibus.api.user.User user = userConverter.convert(userEntity);
+        eu.domibus.api.user.User user = authCoreMapper.userSecurityToUserApi(userEntity);
 
         String domainCode = getDomainForUserFn.apply(user);
         user.setDomain(domainCode);
 
-        LocalDateTime expDate = userPasswordManager.getExpirationDate(userEntity);
+        LocalDateTime expDate = userSecurityPolicyManager.getExpirationDate(userEntity);
         user.setExpirationDate(expDate);
         return user;
     }
@@ -257,11 +270,78 @@ public class UserManagementServiceImpl implements UserService {
         return finalUsers;
     }
 
-
     @Override
     public long countUsers(AuthRole authRole, String userName, String deleted) {
         Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
         return listDao.countEntries(filters);
+    }
+
+    @Override
+    public void createDefaultUserIfApplicable() {
+        // check property
+        boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE);
+        if (!enabled) {
+            LOG.info("Default user creation [{}] is disabled; exiting.", DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE);
+            return;
+        }
+
+        // super if multi, admin if single
+        String userName = domibusConfigurationService.isMultiTenantAware() ? "super" : "admin";
+
+        // check already exists
+        try {
+            userSecurityPolicyManager.validateUniqueUser(userName);
+        } catch (UserManagementException ex) {
+            LOG.info("User [{}] already exists; exiting.", userName);
+            return;
+        }
+
+        // create api user
+        createDefaultUser(userName);
+    }
+
+    protected void createDefaultUser(String userName) {
+        eu.domibus.api.user.User user = new eu.domibus.api.user.User();
+
+        user.setUserName(userName);
+        user.setStatus(UserState.NEW.name());
+
+        // AP_ADMIN if multi, ADMIN if single
+        String userRole = domibusConfigurationService.isMultiTenantAware() ? AuthRole.ROLE_AP_ADMIN.name() : AuthRole.ROLE_ADMIN.name();
+        user.setAuthorities(Arrays.asList(userRole));
+
+        // need to set the hasDefaultPassword property
+        user.setDefaultPassword(true);
+        user.setActive(true);
+
+        // generate password as guid
+        String password = getPassword();
+        user.setPassword(password);
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            user.setDomain(domainService.DEFAULT_DOMAIN.getCode());
+        }
+
+        userPersistenceService.updateUsers(Arrays.asList(user));
+
+        LOG.info("Default password for user [{}] is [{}].", userName, password);
+    }
+
+    private String getPassword() {
+        String result;
+        boolean generate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_AUTOGENERATE_PASSWORD);
+        if (generate) {
+            long start = System.currentTimeMillis();
+
+            result = UUID.randomUUID().toString();
+
+            long finish = System.currentTimeMillis();
+            LOG.info("Password generation for default user took [{}]", finish - start);
+        } else {
+            result = "123456";
+            LOG.info("Password for the default user will be hardcoded");
+        }
+
+        return result;
     }
 
     protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {

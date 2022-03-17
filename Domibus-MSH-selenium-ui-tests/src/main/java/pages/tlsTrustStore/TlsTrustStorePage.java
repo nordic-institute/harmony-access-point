@@ -82,30 +82,44 @@ public class TlsTrustStorePage extends DomibusPage {
         return new DButton(driver, okButton);
     }
 
-    public void uploadAddCert(String filePath, String password, DButton button, DInput inputField) throws Exception {
+    public void uploadTruststore(String filePath, String password) throws Exception {
+        log.debug("uploading truststore certificate");
 
-        button.click();
+        getUploadButton().click();
         chooseFileButton.sendKeys(filePath);
-        inputField.fill(password);
+        getPassInputField().fill(password);
 
         wait.forElementToBeClickable(okButton);
         getOkButton().click();
     }
+
+    public void addCertificate(String filePath, String password) throws Exception {
+
+        log.debug("adding certificate");
+        getAddCertButton().click();
+        chooseFileButton.sendKeys(filePath);
+        getPassInputField().fill(password);
+
+        wait.forElementToBeClickable(okButton);
+        getOkButton().click();
+    }
+
     public Boolean isDefaultElmPresent(Boolean tlsConfig) throws Exception {
 
-        if (tlsConfig) {
-            Boolean isElmPresent = !getAlertArea().isShown() && getUploadButton().isEnabled() &&
+        Boolean isElmPresent;
+
+        if(tlsConfig) {
+            isElmPresent = !getAlertArea().isShown() && getUploadButton().isEnabled() &&
                     getDownloadButton().isEnabled() && getAddCertButton().isEnabled() &&
                     getRemoveCertButton().isDisabled();
-
-            return isElmPresent;
         } else {
-            Boolean isElmPresent =  getUploadButton().isEnabled() && getAddCertButton().isDisabled()
+            isElmPresent =  getUploadButton().isEnabled() && getAddCertButton().isDisabled()
                     && getRemoveCertButton().isDisabled();
-            return isElmPresent;
         }
 
+        return isElmPresent;
     }
+
     public void pressDownloadCertAndSaveFile(String filePath) throws Exception {
 
         log.info("Clean given directory");

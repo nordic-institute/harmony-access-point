@@ -1,5 +1,6 @@
 package eu.domibus.core.multitenancy.dao;
 
+import eu.domibus.api.audit.envers.RevisionLogicalName;
 import eu.domibus.api.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotNull;
         @NamedQuery(name = "UserDomainEntity.findPreferredDomains", query = "FROM UserDomainEntity u where u.preferredDomain is not null"),
 })
 @Audited(withModifiedFlag = true)
+@RevisionLogicalName("UserDomain")
 public class UserDomainEntity extends AbstractBaseEntity {
 
     @NotNull

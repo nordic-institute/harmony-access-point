@@ -33,7 +33,9 @@ END MIGRATE_ONGOING_MESSAGES;
 
 CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
 
-    TYPE T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS TABLE OF NUMBER INDEX BY BINARY_INTEGER;
+    TYPE T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+
+    TYPE T_MESSAGE_STATUS_PRIMARY_KEYS IS TABLE OF TB_D_MESSAGE_STATUS.ID_PK%TYPE INDEX BY PLS_INTEGER;
 
     FUNCTION lookup_value_safely(lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, lookup_key NUMBER) RETURN NUMBER IS
         value NUMBER;
@@ -54,98 +56,909 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
         RETURN remote_pk;
     END new_remote_pk;
 
-    PROCEDURE migrate_message_log(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
-        CURSOR c_message_log IS
-            SELECT DELETED, MESSAGE_ID, MESSAGE_STATUS, MESSAGE_TYPE, MPC, MSH_ROLE, NEXT_ATTEMPT, NOTIFICATION_STATUS, RECEIVED, RESTORED, DOWNLOADED, FAILED, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, BACKEND, ENDPOINT, MESSAGE_SUBTYPE, SOURCE_MESSAGE, MESSAGE_FRAGMENT, SCHEDULED, VERSION, CREATED_BY, CREATION_TIME
-            FROM TB_MESSAGE_LOG
-            WHERE MESSAGE_STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
+    FUNCTION migrate_tb_d_message_status(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_message_status IS
+            SELECT ID_PK, STATUS, CREATED_BY, CREATION_TIME
+            FROM TB_D_MESSAGE_STATUS
+            WHERE ID_PK IN ongoing_message_status_pks;
+
+        TYPE T_D_MESSAGE_STATUS IS TABLE OF c_d_message_status%ROWTYPE;
+        message_status T_D_MESSAGE_STATUS;
+
+        remote_id TB_D_MESSAGE_STATUS.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_MESSAGE_STATUS entries...');
+        OPEN c_d_message_status;
+        LOOP
+            FETCH c_d_message_status BULK COLLECT INTO message_status LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN message_status.COUNT = 0;
+
+            FOR i IN message_status.FIRST .. message_status.LAST LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_STATUS@' || db_link || ' WHERE STAATUS = :p_1'
+                            INTO remote_id
+                            USING message_status(i).STATUS;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_STATUS@' || db_link || ' (ID_PK, STATUS, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4)'
+                                USING remote_id,
+                                message_status(i).STATUS,
+                                message_status(i).CREATED_BY,
+                                message_status(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(message_status(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_MESSAGE_STATUS[' || message_status(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || message_status.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_message_status;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_message_status;
+
+    FUNCTION migrate_tb_d_party(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_party IS
+            SELECT ID_PK, "VALUE", "TYPE", CREATED_BY, CREATION_TIME
+            FROM TB_D_PARTY
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT um.FROM_PARTY_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.TO_PARTY_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.FROM_PARTY_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.TO_PARTY_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+
+        TYPE T_D_PARTY IS TABLE OF c_d_party%ROWTYPE;
+        party T_D_PARTY;
+
+        remote_id TB_D_PARTY.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_PARTY entries...');
+        OPEN c_d_party;
+        LOOP
+            FETCH c_d_party BULK COLLECT INTO party LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN party.COUNT = 0;
+
+            FOR i IN party.FIRST .. party.LAST LOOP
+                    BEGIN
+                        IF party(i).TYPE IS NULL THEN
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_PARTY@' || db_link || ' WHERE VALUE = :p_1 AND TYPE IS NULL'
+                                INTO remote_id
+                                USING party(i).VALUE;
+                        ELSE
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_PARTY@' || db_link || ' WHERE VALUE = :p_1 AND TYPE = :p_2'
+                                INTO remote_id
+                                USING party(i).VALUE,
+                                party(i).TYPE;
+                        END IF;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_PARTY@' || db_link || ' (ID_PK, VALUE, TYPE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5)'
+                                USING remote_id,
+                                party(i).VALUE,
+                                party(i).TYPE,
+                                party(i).CREATED_BY,
+                                party(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(party(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_PARTY[' || party(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || party.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_party;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_party;
+
+    FUNCTION migrate_tb_d_mpc(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_mpc IS
+            SELECT ID_PK, "VALUE", CREATED_BY, CREATION_TIME
+            FROM TB_D_MPC
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT um.MPC_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.MPC_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+
+        TYPE T_D_PARTY IS TABLE OF c_d_mpc%ROWTYPE;
+        mpc T_D_PARTY;
+
+        remote_id TB_D_MPC.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_MPC entries...');
+        OPEN c_d_mpc;
+        LOOP
+            FETCH c_d_mpc BULK COLLECT INTO mpc LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN mpc.COUNT = 0;
+
+            FOR i IN mpc.FIRST .. mpc.LAST LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MPC@' || db_link || ' WHERE VALUE = :p_1'
+                            INTO remote_id
+                            USING mpc(i).VALUE;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_MPC@' || db_link || ' (ID_PK, VALUE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4)'
+                                USING remote_id,
+                                mpc(i).VALUE,
+                                mpc(i).CREATED_BY,
+                                mpc(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(mpc(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_MPC[' || mpc(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || mpc.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_mpc;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_mpc;
+
+    FUNCTION migrate_tb_d_role(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_role IS
+            SELECT ID_PK, ROLE, CREATED_BY, CREATION_TIME
+            FROM TB_D_ROLE
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT um.FROM_ROLE_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.TO_ROLE_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.FROM_ROLE_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.TO_ROLE_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+
+        TYPE T_D_ROLE IS TABLE OF c_d_role%ROWTYPE;
+        role T_D_ROLE;
+
+        remote_id TB_D_ROLE.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_ROLE entries...');
+        OPEN c_d_role;
+        LOOP
+            FETCH c_d_role BULK COLLECT INTO role LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN role.COUNT = 0;
+
+            FOR i IN role.FIRST .. role.LAST LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ROLE@' || db_link || ' WHERE ROLE = :p_1'
+                            INTO remote_id
+                            USING role(i).ROLE;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_ROLE@' || db_link || ' (ID_PK, ROLE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4)'
+                                USING remote_id,
+                                role(i).ROLE,
+                                role(i).CREATED_BY,
+                                role(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(role(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_ROLE[' || role(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || role.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_role;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_role;
+
+    FUNCTION migrate_tb_d_service(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_service IS
+            SELECT ID_PK, "VALUE", "TYPE", CREATED_BY, CREATION_TIME
+            FROM TB_D_SERVICE
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT um.SERVICE_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.SERVICE_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+
+        TYPE T_D_SERVICE IS TABLE OF c_d_service%ROWTYPE;
+        service T_D_SERVICE;
+
+        remote_id TB_D_SERVICE.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_SERVICE entries...');
+        OPEN c_d_service;
+        LOOP
+            FETCH c_d_service BULK COLLECT INTO service LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN service.COUNT = 0;
+
+            FOR i IN service.FIRST .. service.LAST LOOP
+                    BEGIN
+                        IF service(i).TYPE IS NULL THEN
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_SERVICE@' || db_link || ' WHERE VALUE = :p_1 AND TYPE IS NULL'
+                                INTO remote_id
+                                USING service(i).VALUE;
+                        ELSE
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_SERVICE@' || db_link || ' WHERE VALUE = :p_1 AND TYPE = :p_2'
+                                INTO remote_id
+                                USING service(i).VALUE,
+                                service(i).TYPE;
+                        END IF;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_SERVICE@' || db_link || ' (ID_PK, VALUE, TYPE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5)'
+                                USING remote_id,
+                                service(i).VALUE,
+                                service(i).TYPE,
+                                service(i).CREATED_BY,
+                                service(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(service(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_SERVICE[' || service(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || service.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_service;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_service;
+
+    FUNCTION migrate_tb_d_agreement(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_agreement IS
+            SELECT ID_PK, "VALUE", "TYPE", CREATED_BY, CREATION_TIME
+            FROM TB_D_AGREEMENT
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT um.AGREEMENT_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.AGREEMENT_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+
+        TYPE T_D_AGREEMENT IS TABLE OF c_d_agreement%ROWTYPE;
+        agreement T_D_AGREEMENT;
+
+        remote_id TB_D_AGREEMENT.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_AGREEMENT entries...');
+        OPEN c_d_agreement;
+        LOOP
+            FETCH c_d_agreement BULK COLLECT INTO agreement LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN agreement.COUNT = 0;
+
+            FOR i IN agreement.FIRST .. agreement.LAST LOOP
+                    BEGIN
+                        IF agreement(i).TYPE IS NULL THEN
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_AGREEMENT@' || db_link || ' WHERE VALUE = :p_1 AND TYPE IS NULL'
+                                INTO remote_id
+                                USING agreement(i).VALUE;
+                        ELSE
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_AGREEMENT@' || db_link || ' WHERE VALUE = :p_1 AND TYPE = :p_2'
+                                INTO remote_id
+                                USING agreement(i).VALUE,
+                                agreement(i).TYPE;
+                        END IF;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_AGREEMENT@' || db_link || ' (ID_PK, VALUE, TYPE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5)'
+                                USING remote_id,
+                                agreement(i).VALUE,
+                                agreement(i).TYPE,
+                                agreement(i).CREATED_BY,
+                                agreement(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(agreement(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_AGREEMENT[' || agreement(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || agreement.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_agreement;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_agreement;
+
+    FUNCTION migrate_tb_d_action(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_action IS
+            SELECT ID_PK, ACTION, CREATED_BY, CREATION_TIME
+            FROM TB_D_ACTION
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT um.ACTION_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_USER_MESSAGE_LOG uml
+                                            ON um.ID_PK = uml.ID_PK
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT um.ACTION_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE um
+                                 INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                            ON um.ID_PK = sml.ID_PK
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+
+        TYPE T_D_ACTION IS TABLE OF c_d_action%ROWTYPE;
+        action T_D_ACTION;
+
+        remote_id TB_D_ROLE.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_ACTION entries...');
+        OPEN c_d_action;
+        LOOP
+            FETCH c_d_action BULK COLLECT INTO action LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN action.COUNT = 0;
+
+            FOR i IN action.FIRST .. action.LAST LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ACTION@' || db_link || ' WHERE ROLE = :p_1'
+                            INTO remote_id
+                            USING action(i).ACTION;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_ACTION@' || db_link || ' (ID_PK, ROLE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4)'
+                                USING remote_id,
+                                action(i).ACTION,
+                                action(i).CREATED_BY,
+                                action(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(action(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_ACTION[' || action(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || action.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_action;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_action;
+
+    FUNCTION migrate_tb_d_msh_role(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_msh_role IS
+            SELECT ID_PK, ROLE, CREATED_BY, CREATION_TIME
+            FROM TB_D_MSH_ROLE
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT uml.MSH_ROLE_ID_FK AS ID_PK
+                        FROM TB_USER_MESSAGE_LOG uml
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT sml.MSH_ROLE_ID_FK AS ID_PK
+                        FROM TB_SIGNAL_MESSAGE_LOG sml
+                        WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT el.MSH_ROLE_ID_FK AS ID_PK
+                        FROM TB_ERROR_LOG el
+                        WHERE el.USER_MESSAGE_ID_FK IN
+                              (SELECT ID_PK FROM
+                                  ((SELECT um.ID_PK AS ID_PK
+                                    FROM TB_USER_MESSAGE um
+                                             INNER JOIN TB_USER_MESSAGE_LOG uml
+                                                        ON um.ID_PK = uml.ID_PK
+                                    WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                                      AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                                   UNION
+
+                                   (SELECT um.ID_PK AS ID_PK
+                                    FROM TB_USER_MESSAGE um
+                                             INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                                        ON um.ID_PK = sml.ID_PK
+                                    WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                                      AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate))))
+
+                       UNION
+
+                       (SELECT DISTINCT sjmg.MSH_ROLE_ID_FK AS ID_PK
+                        FROM TB_SJ_MESSAGE_GROUP sjmg
+                        WHERE sjmg.SOURCE_MESSAGE_ID_FK IN
+                              (SELECT ID_PK FROM
+                                  ((SELECT um.ID_PK AS ID_PK
+                                    FROM TB_USER_MESSAGE um
+                                             INNER JOIN TB_USER_MESSAGE_LOG uml
+                                                        ON um.ID_PK = uml.ID_PK
+                                    WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                                      AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                                   UNION
+
+                                   (SELECT um.ID_PK AS ID_PK
+                                    FROM TB_USER_MESSAGE um
+                                             INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                                        ON um.ID_PK = sml.ID_PK
+                                    WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                                      AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate))))));
+
+        TYPE T_D_MSH_ROLE IS TABLE OF c_d_msh_role%ROWTYPE;
+        msh_role T_D_MSH_ROLE;
+
+        remote_id TB_D_MSH_ROLE.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_MSH_ROLE entries...');
+        OPEN c_d_msh_role;
+        LOOP
+            FETCH c_d_msh_role BULK COLLECT INTO msh_role LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN msh_role.COUNT = 0;
+
+            FOR i IN msh_role.FIRST .. msh_role.LAST LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MSH_ROLE@' || db_link || ' WHERE ROLE = :p_1'
+                            INTO remote_id
+                            USING msh_role(i).ROLE;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_MSH_ROLE@' || db_link || ' (ID_PK, ROLE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4)'
+                                USING remote_id,
+                                msh_role(i).ROLE,
+                                msh_role(i).CREATED_BY,
+                                msh_role(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(msh_role(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_MSH_ROLE[' || msh_role(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || msh_role.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_msh_role;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_msh_role;
+
+    FUNCTION migrate_tb_d_timezone_offset(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_timezone_offset IS
+            SELECT ID_PK, NEXT_ATTEMPT_TIMEZONE_ID, NEXT_ATTEMPT_OFFSET_SECONDS, CREATED_BY, CREATION_TIME
+            FROM TB_D_TIMEZONE_OFFSET
+            WHERE ID_PK IN
+                  (SELECT ID_PK FROM
+                      ((SELECT DISTINCT uml.FK_TIMEZONE_OFFSET AS ID_PK
+                        FROM TB_USER_MESSAGE_LOG uml
+                        WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                          AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                       UNION
+
+                       (SELECT DISTINCT ml.FK_TIMEZONE_OFFSET AS ID_PK
+                        FROM TB_MESSAGING_LOCK ml
+                        WHERE ml.MESSAGE_ID IN
+                              (SELECT MESSAGE_ID FROM (
+                                                          (SELECT um.MESSAGE_ID AS MESSAGE_ID
+                                                           FROM TB_USER_MESSAGE um
+                                                                    INNER JOIN TB_USER_MESSAGE_LOG uml
+                                                                               ON um.ID_PK = uml.ID_PK
+                                                           WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                                                             AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate)
+
+                                                          UNION
+
+                                                          (SELECT um.MESSAGE_ID AS MESSAGE_ID
+                                                           FROM TB_USER_MESSAGE um
+                                                                    INNER JOIN TB_SIGNAL_MESSAGE_LOG sml
+                                                                               ON um.ID_PK = sml.ID_PK
+                                                           WHERE sml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                                                             AND sml.RECEIVED BETWEEN migration.startDate AND migration.endDate))))));
+
+        TYPE T_D_TIMEZONE_OFFSET IS TABLE OF c_d_timezone_offset%ROWTYPE;
+        timezone_offset T_D_TIMEZONE_OFFSET;
+
+        remote_id TB_D_TIMEZONE_OFFSET.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_TIMEZONE_OFFSET entries...');
+        OPEN c_d_timezone_offset;
+        LOOP
+            FETCH c_d_timezone_offset BULK COLLECT INTO timezone_offset LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN timezone_offset.COUNT = 0;
+
+            FOR i IN timezone_offset.FIRST .. timezone_offset.LAST LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_TIMEZONE_OFFSET@' || db_link || ' WHERE NEXT_ATTEMPT_TIMEZONE_ID = :p_1 AND NEXT_ATTEMPT_OFFSET_SECONDS = :p_2'
+                            INTO remote_id
+                            USING timezone_offset(i).NEXT_ATTEMPT_TIMEZONE_ID,
+                            timezone_offset(i).NEXT_ATTEMPT_OFFSET_SECONDS;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_TIMEZONE_OFFSET@' || db_link || ' (ID_PK, NEXT_ATTEMPT_TIMEZONE_ID, NEXT_ATTEMPT_OFFSET_SECONDS, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5)'
+                                USING remote_id,
+                                timezone_offset(i).NEXT_ATTEMPT_TIMEZONE_ID,
+                                timezone_offset(i).NEXT_ATTEMPT_OFFSET_SECONDS,
+                                timezone_offset(i).CREATED_BY,
+                                timezone_offset(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(timezone_offset(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_TIMEZONE_OFFSET[' || timezone_offset(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || timezone_offset.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_timezone_offset;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_timezone_offset;
+
+    FUNCTION migrate_tb_d_notification_status(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_notification_status IS
+            SELECT ID_PK, STATUS, CREATED_BY, CREATION_TIME
+            FROM TB_D_NOTIFICATION_STATUS
+            WHERE ID_PK IN (SELECT DISTINCT uml.NOTIFICATION_STATUS_ID_FK
+                            FROM TB_USER_MESSAGE_LOG uml
+                            WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                              AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate);
+
+        TYPE T_D_NOTIFICATION_STATUS IS TABLE OF c_d_notification_status%ROWTYPE;
+        notification_status T_D_NOTIFICATION_STATUS;
+
+        remote_id TB_D_NOTIFICATION_STATUS.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_NOTIFICATION_STATUS entries...');
+        OPEN c_d_notification_status;
+        LOOP
+            FETCH c_d_notification_status BULK COLLECT INTO notification_status LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN notification_status.COUNT = 0;
+
+            FOR i IN notification_status.FIRST .. notification_status.LAST LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_NOTIFICATION_STATUS@' || db_link || ' WHERE STATUS = :p_1'
+                            INTO remote_id
+                            USING notification_status(i).STATUS;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_NOTIFICATION_STATUS@' || db_link || ' (ID_PK, STATUS, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4)'
+                                USING remote_id,
+                                notification_status(i).STATUS,
+                                notification_status(i).CREATED_BY,
+                                notification_status(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(notification_status(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_NOTIFICATION_STATUS[' || notification_status(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || notification_status.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_notification_status;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_notification_status;
+
+    FUNCTION migrate_tb_d_message_property(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_d_message_property IS
+            SELECT ID_PK, NAME, "VALUE", "TYPE", CREATED_BY, CREATION_TIME
+            FROM TB_D_MESSAGE_PROPERTY
+            WHERE ID_PK IN (SELECT DISTINCT uml.NOTIFICATION_STATUS_ID_FK
+                            FROM TB_USER_MESSAGE_LOG uml
+                            WHERE uml.MESSAGE_STATUS_ID_FK in ongoing_message_status_pks
+                              AND uml.RECEIVED BETWEEN migration.startDate AND migration.endDate);
+
+        TYPE T_D_MESSAGE_PROPERTY IS TABLE OF c_d_message_property%ROWTYPE;
+        message_property T_D_MESSAGE_PROPERTY;
+
+        remote_id TB_D_MESSAGE_PROPERTY.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_D_MESSAGE_PROPERTY entries...');
+        OPEN c_d_message_property;
+        LOOP
+            FETCH c_d_message_property BULK COLLECT INTO message_property LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN message_property.COUNT = 0;
+
+            FOR i IN message_property.FIRST .. message_property.LAST LOOP
+                    BEGIN
+                        IF message_property(i).VALUE IS NULL AND message_property(i).TYPE IS NULL THEN
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_PROPERTY@' || db_link || ' WHERE NAME = :p_1 AND VALUE IS NULL AND TYPE IS NULL'
+                                INTO remote_id
+                                USING message_property(i).NAME;
+                        ELSIF message_property(i).VALUE IS NULL THEN
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_PROPERTY@' || db_link || ' WHERE NAME = :p_1 AND VALUE IS NULL AND TYPE = :p_2'
+                                INTO remote_id
+                                USING message_property(i).NAME,
+                                message_property(i).TYPE;
+                        ELSIF message_property(i).TYPE IS NULL THEN
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_PROPERTY@' || db_link || ' WHERE NAME = :p_1 AND VALUE = :p_2 AND TYPE IS NULL'
+                                INTO remote_id
+                                USING message_property(i).NAME,
+                                message_property(i).VALUE;
+                        ELSE
+                            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_PROPERTY@' || db_link || ' WHERE NAME = :p_1 AND VALUE = :p_2 AND TYPE = :p_3'
+                                INTO remote_id
+                                USING message_property(i).NAME,
+                                message_property(i).VALUE,
+                                message_property(i).TYPE;
+                        END IF;
+                    EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                            remote_id := new_remote_pk(db_link);
+                            EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_PROPERTY@' || db_link || ' (ID_PK, NAME, VALUE, TYPE, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
+                                USING remote_id,
+                                message_property(i).NAME,
+                                message_property(i).VALUE,
+                                message_property(i).TYPE,
+                                message_property(i).CREATED_BY,
+                                message_property(i).CREATION_TIME;
+                    END;
+
+                    localToRemotePks(message_property(i).ID_PK) := remote_id;
+                    dbms_output.put_line('Local to remote mapping: TB_D_MESSAGE_PROPERTY[' || message_property(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+
+            dbms_output.put_line('Processed ' || message_property.COUNT || ' local records');
+        END LOOP;
+        CLOSE c_d_message_property;
+
+        RETURN localToRemotePks;
+    END migrate_tb_d_message_property;
+
+    FUNCTION migrate_user_message(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, action_lookup_table IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, agreement_lookup_table IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, service_lookup_table IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, mpc_lookup_table IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, party_lookup_table IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, role_lookup_table IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_user_message IS
+            SELECT ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, TEST_MESSAGE, EBMS3_TIMESTAMP, ACTION_ID_FK, AGREEMENT_ID_FK, SERVICE_ID_FK, MPC_ID_FK, FROM_PARTY_ID_FK, FROM_ROLE_ID_FK, TO_PARTY_ID_FK, TO_ROLE_ID_FK, CREATION_TIME, CREATED_BY
+            FROM TB_USER_MESSAGE
+            WHERE ID_PK IN (
+                SELECT ID_PK
+                FROM TB_USER_MESSAGE_LOG
+                WHERE MESSAGE_STATUS_ID_FK IN ongoing_message_status_pks
+                  AND RECEIVED BETWEEN migration.startDate AND migration.endDate);
+
+        TYPE T_USER_MESSAGE IS TABLE OF c_user_message%ROWTYPE;
+        user_message T_USER_MESSAGE;
+
+        remote_id TB_USER_MESSAGE.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_USER_MESSAGE entries...');
+
+        OPEN c_user_message;
+        LOOP
+            FETCH c_user_message BULK COLLECT INTO user_message LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN user_message.COUNT = 0;
+
+            FOR i IN user_message.FIRST .. user_message.LAST LOOP
+                    remote_id := new_remote_pk(db_link);
+
+                    EXECUTE IMMEDIATE 'INSERT INTO TB_USER_MESSAGE@' || db_link || ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, TEST_MESSAGE, EBMS3_TIMESTAMP, ACTION_ID_FK, AGREEMENT_ID_FK, SERVICE_ID_FK, MPC_ID_FK, FROM_PARTY_ID_FK, FROM_ROLE_ID_FK, TO_PARTY_ID_FK, TO_ROLE_ID_FK, CREATION_TIME, CREATED_BY) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17, :p_18)'
+                        USING remote_id,
+                        user_message(i).MESSAGE_ID,
+                        user_message(i).REF_TO_MESSAGE_ID,
+                        user_message(i).CONVERSATION_ID,
+                        user_message(i).SOURCE_MESSAGE,
+                        user_message(i).MESSAGE_FRAGMENT,
+                        user_message(i).TEST_MESSAGE,
+                        user_message(i).EBMS3_TIMESTAMP,
+                        lookup_value_safely(action_lookup_table, user_message(i).ACTION_ID_FK),
+                        lookup_value_safely(agreement_lookup_table, user_message(i).AGREEMENT_ID_FK),
+                        lookup_value_safely(service_lookup_table, user_message(i).SERVICE_ID_FK),
+                        lookup_value_safely(mpc_lookup_table, user_message(i).MPC_ID_FK),
+                        lookup_value_safely(party_lookup_table, user_message(i).FROM_PARTY_ID_FK),
+                        lookup_value_safely(role_lookup_table, user_message(i).FROM_ROLE_ID_FK),
+                        lookup_value_safely(party_lookup_table, user_message(i).TO_PARTY_ID_FK),
+                        lookup_value_safely(role_lookup_table, user_message(i).TO_ROLE_ID_FK),
+                        user_message(i).CREATION_TIME,
+                        user_message(i).CREATED_BY;
+
+                    localToRemotePks(user_message(i).ID_PK) := remote_id;
+
+                    dbms_output.put_line('Local to remote mapping: TB_USER_MESSAGE[' || user_message(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+            dbms_output.put_line('Wrote ' || user_message.COUNT || ' records');
+        END LOOP;
+        CLOSE c_user_message;
+
+        RETURN localToRemotePks;
+    END migrate_user_message;
+
+    FUNCTION migrate_signal_message(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, user_message_lookup_table IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
+        CURSOR c_signal_message IS
+            SELECT ID_PK, SIGNAL_MESSAGE_ID, REF_TO_MESSAGE_ID, EBMS3_TIMESTAMP, CREATION_TIME, CREATED_BY
+            FROM TB_SIGNAL_MESSAGE
+            WHERE ID_PK IN (
+                SELECT ID_PK
+                FROM TB_SIGNAL_MESSAGE_LOG
+                WHERE MESSAGE_STATUS_ID_FK IN ongoing_message_status_pks
+                  AND RECEIVED BETWEEN migration.startDate AND migration.endDate);
+
+        TYPE T_SIGNAL_MESSAGE IS TABLE OF c_signal_message%ROWTYPE;
+        signal_message T_SIGNAL_MESSAGE;
+
+        remote_id TB_SIGNAL_MESSAGE.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
+        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+    BEGIN
+        dbms_output.put_line('Migrating TB_SIGNAL_MESSAGE entries...');
+
+        OPEN c_signal_message;
+        LOOP
+            FETCH c_signal_message BULK COLLECT INTO signal_message LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN signal_message.COUNT = 0;
+
+            FOR i IN signal_message.FIRST .. signal_message.LAST LOOP
+                    remote_id := user_message_lookup_table(signal_message(i).ID_PK);
+
+                    EXECUTE IMMEDIATE 'INSERT INTO TB_SIGNAL_MESSAGE@' || db_link || ' (ID_PK, SIGNAL_MESSAGE_ID, REF_TO_MESSAGE_ID, EBMS3_TIMESTAMP, CREATION_TIME, CREATED_BY) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17, :p_18)'
+                        USING remote_id,
+                        signal_message(i).SIGNAL_MESSAGE_ID,
+                        signal_message(i).REF_TO_MESSAGE_ID,
+                        signal_message(i).EBMS3_TIMESTAMP,
+                        signal_message(i).CREATION_TIME,
+                        signal_message(i).CREATED_BY;
+
+                    localToRemotePks(signal_message(i).ID_PK) := remote_id;
+
+                    dbms_output.put_line('Local to remote mapping: TB_SIGNAL_MESSAGE[' || signal_message(i).ID_PK || '] = ' || remote_id);
+                END LOOP;
+            dbms_output.put_line('Wrote ' || signal_message.COUNT || ' records');
+        END LOOP;
+        CLOSE c_signal_message;
+
+        RETURN localToRemotePks;
+    END migrate_signal_message;
+
+    PROCEDURE migrate_user_message_log(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, user_message_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, timezone_offset_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, message_status_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, msh_role_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, notification_status_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
+        CURSOR c_user_message_log IS
+            SELECT ID_PK, BACKEND, RECEIVED, ACKNOWLEDGED, DOWNLOADED, ARCHIVED, EXPORTED, FAILED, RESTORED, DELETED, NEXT_ATTEMPT, FK_TIMEZONE_OFFSET, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, SCHEDULED, VERSION, MESSAGE_STATUS_ID_FK, MSH_ROLE_ID_FK, NOTIFICATION_STATUS_ID_FK, CREATION_TIME, CREATED_BY, PROCESSING_TYPE
+            FROM TB_USER_MESSAGE_LOG
+            WHERE MESSAGE_STATUS_ID_FK IN ongoing_message_status_pks
               AND RECEIVED BETWEEN migration.startDate AND migration.endDate;
 
-        TYPE T_MESSAGE_LOG IS TABLE OF c_message_log%ROWTYPE;
-        message_log T_MESSAGE_LOG;
+        TYPE T_USER_MESSAGE_LOG IS TABLE OF c_user_message_log%ROWTYPE;
+        user_message_log T_USER_MESSAGE_LOG;
     BEGIN
         dbms_output.put_line('Migrating TB_MESSAGE_LOG entries...');
-        OPEN c_message_log;
+        OPEN c_user_message_log;
         LOOP
-            FETCH c_message_log BULK COLLECT INTO message_log LIMIT BULK_COLLECT_LIMIT;
-            EXIT WHEN message_log.COUNT = 0;
+            FETCH c_user_message_log BULK COLLECT INTO user_message_log LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN user_message_log.COUNT = 0;
 
-            FOR i IN message_log.FIRST .. message_log.LAST LOOP
-                    EXECUTE IMMEDIATE 'INSERT INTO TB_MESSAGE_LOG@' || db_link || ' (ID_PK, DELETED, MESSAGE_ID, MESSAGE_STATUS, MESSAGE_TYPE, MPC, MSH_ROLE, NEXT_ATTEMPT, NOTIFICATION_STATUS, RECEIVED, RESTORED, DOWNLOADED, FAILED, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, BACKEND, ENDPOINT, MESSAGE_SUBTYPE, SOURCE_MESSAGE, MESSAGE_FRAGMENT, SCHEDULED, VERSION, CREATED_BY, CREATION_TIME) VALUES (HIBERNATE_SEQUENCE.NEXTVAL@' || db_link || ', :p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17, :p_18, :p_19, :p_20, :p_21, :p_22, :p_23)'
-                        USING message_log(i).DELETED,
-                        message_log(i).MESSAGE_ID,
-                        message_log(i).MESSAGE_STATUS,
-                        message_log(i).MESSAGE_TYPE,
-                        message_log(i).MPC,
-                        message_log(i).MSH_ROLE,
-                        message_log(i).NEXT_ATTEMPT,
-                        message_log(i).NOTIFICATION_STATUS,
-                        message_log(i).RECEIVED,
-                        message_log(i).RESTORED,
-                        message_log(i).DOWNLOADED,
-                        message_log(i).FAILED,
-                        message_log(i).SEND_ATTEMPTS,
-                        message_log(i).SEND_ATTEMPTS_MAX,
-                        message_log(i).BACKEND,
-                        message_log(i).ENDPOINT,
-                        message_log(i).MESSAGE_SUBTYPE,
-                        message_log(i).SOURCE_MESSAGE,
-                        message_log(i).MESSAGE_FRAGMENT,
-                        message_log(i).SCHEDULED,
-                        message_log(i).VERSION,
-                        message_log(i).CREATED_BY,
-                        message_log(i).CREATION_TIME;
+            FOR i IN user_message_log.FIRST .. user_message_log.LAST LOOP
+                    EXECUTE IMMEDIATE 'INSERT INTO TB_MESSAGE_LOG@' || db_link || ' (ID_PK, BACKEND, RECEIVED, ACKNOWLEDGED, DOWNLOADED, ARCHIVED, EXPORTED, FAILED, RESTORED, DELETED, NEXT_ATTEMPT, FK_TIMEZONE_OFFSET, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, SCHEDULED, VERSION, MESSAGE_STATUS_ID_FK, MSH_ROLE_ID_FK, NOTIFICATION_STATUS_ID_FK, CREATION_TIME, CREATED_BY, PROCESSING_TYPE) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17, :p_18, :p_19, :p_20, :p_21, :p_22)'
+                        USING user_message_lookup_table(user_message_log(i).ID_PK),
+                        user_message_log(i).BACKEND,
+                        user_message_log(i).RECEIVED,
+                        user_message_log(i).ACKNOWLEDGED,
+                        user_message_log(i).DOWNLOADED,
+                        user_message_log(i).ARCHIVED,
+                        user_message_log(i).EXPORTED,
+                        user_message_log(i).FAILED,
+                        user_message_log(i).RESTORED,
+                        user_message_log(i).DELETED,
+                        user_message_log(i).NEXT_ATTEMPT,
+                        lookup_value_safely(timezone_offset_lookup_table, user_message_log(i).FK_TIMEZONE_OFFSET),
+                        user_message_log(i).SEND_ATTEMPTS,
+                        user_message_log(i).SEND_ATTEMPTS_MAX,
+                        user_message_log(i).SCHEDULED,
+                        user_message_log(i).VERSION,
+                        lookup_value_safely(message_status_lookup_table, user_message_log(i).MESSAGE_STATUS_ID_FK),
+                        msh_role_lookup_table(user_message_log(i).MSH_ROLE_ID_FK),
+                        lookup_value_safely(notification_status_lookup_table, user_message_log(i).NOTIFICATION_STATUS_ID_FK),
+                        user_message_log(i).CREATION_TIME,
+                        user_message_log(i).CREATED_BY,
+                        user_message_log(i).PROCESSING_TYPE;
                 END LOOP;
-            dbms_output.put_line('Wrote ' || message_log.COUNT || ' records');
+            dbms_output.put_line('Wrote ' || user_message_log.COUNT || ' records');
         END LOOP;
-        CLOSE c_message_log;
-    END migrate_message_log;
+        CLOSE c_user_message_log;
+    END migrate_user_message_log;
 
-    PROCEDURE migrate_message_ui(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
-        CURSOR c_message_ui IS
-            SELECT MESSAGE_ID, MESSAGE_STATUS, NOTIFICATION_STATUS, MSH_ROLE, MESSAGE_TYPE, DELETED, RECEIVED, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, NEXT_ATTEMPT, CONVERSATION_ID, FROM_ID, TO_ID, FROM_SCHEME, TO_SCHEME, REF_TO_MESSAGE_ID, FAILED, RESTORED, MESSAGE_SUBTYPE, LAST_MODIFIED, CREATED_BY, CREATION_TIME
-            FROM TB_MESSAGE_UI
-            WHERE MESSAGE_STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
-              AND RECEIVED BETWEEN migration.startDate AND migration.endDate;
-
-        TYPE T_MESSAGE_UI IS TABLE OF c_message_ui%ROWTYPE;
-        message_ui T_MESSAGE_UI;
+    -- TODO continue from here
+    PROCEDURE migrate_signal_message_log(ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS, user_message_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
     BEGIN
-        dbms_output.put_line('Migrating TB_MESSAGE_UI entries...');
-        OPEN c_message_ui;
-        LOOP
-            FETCH c_message_ui BULK COLLECT INTO message_ui LIMIT BULK_COLLECT_LIMIT;
-            EXIT WHEN message_ui.COUNT = 0;
-
-            FOR i IN message_ui.FIRST .. message_ui.LAST LOOP
-                    EXECUTE IMMEDIATE 'INSERT INTO TB_MESSAGE_UI@' || db_link || ' (ID_PK, MESSAGE_ID, MESSAGE_STATUS, NOTIFICATION_STATUS, MSH_ROLE, MESSAGE_TYPE, DELETED, RECEIVED, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, NEXT_ATTEMPT, CONVERSATION_ID, FROM_ID, TO_ID, FROM_SCHEME, TO_SCHEME, REF_TO_MESSAGE_ID, FAILED, RESTORED, MESSAGE_SUBTYPE, LAST_MODIFIED, CREATED_BY, CREATION_TIME) VALUES (HIBERNATE_SEQUENCE.NEXTVAL@' || db_link || ', :p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17, :p_18, :p_19, :p_20, :p_21, :p_22)'
-                        USING message_ui(i).MESSAGE_ID,
-                        message_ui(i).MESSAGE_STATUS,
-                        message_ui(i).NOTIFICATION_STATUS,
-                        message_ui(i).MSH_ROLE,
-                        message_ui(i).MESSAGE_TYPE,
-                        message_ui(i).DELETED,
-                        message_ui(i).RECEIVED,
-                        message_ui(i).SEND_ATTEMPTS,
-                        message_ui(i).SEND_ATTEMPTS_MAX,
-                        message_ui(i).NEXT_ATTEMPT,
-                        message_ui(i).CONVERSATION_ID,
-                        message_ui(i).FROM_ID,
-                        message_ui(i).TO_ID,
-                        message_ui(i).FROM_SCHEME,
-                        message_ui(i).TO_SCHEME,
-                        message_ui(i).REF_TO_MESSAGE_ID,
-                        message_ui(i).FAILED,
-                        message_ui(i).RESTORED,
-                        message_ui(i).MESSAGE_SUBTYPE,
-                        message_ui(i).LAST_MODIFIED,
-                        message_ui(i).CREATED_BY,
-                        message_ui(i).CREATION_TIME;
-                END LOOP;
-            dbms_output.put_line('Wrote ' || message_ui.COUNT || ' records');
-        END LOOP;
-        CLOSE c_message_ui;
-    END migrate_message_ui;
+    END migrate_signal_message_log;
 
     FUNCTION migrate_message_info(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
         CURSOR c_message_info IS
@@ -192,66 +1005,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
 
         RETURN localToRemotePks;
     END migrate_message_info;
-
-    FUNCTION migrate_user_message(messageInfoLookupTable IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) RETURN T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS
-        CURSOR c_user_message IS
-            SELECT ID_PK, COLLABORATION_INFO_ACTION, AGREEMENT_REF_PMODE, AGREEMENT_REF_TYPE, AGREEMENT_REF_VALUE, COLL_INFO_CONVERS_ID, SERVICE_TYPE, SERVICE_VALUE, MPC, FROM_ROLE, TO_ROLE, MESSAGEINFO_ID_PK, FK_MESSAGE_FRAGMENT_ID, SPLIT_AND_JOIN, CREATED_BY, CREATION_TIME
-            FROM TB_USER_MESSAGE
-            WHERE MESSAGEINFO_ID_PK IN (
-                SELECT ID_PK
-                FROM TB_MESSAGE_INFO
-                WHERE MESSAGE_ID IN (
-                    SELECT MESSAGE_ID
-                    FROM TB_MESSAGE_LOG
-                    WHERE MESSAGE_STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
-                      AND RECEIVED BETWEEN migration.startDate AND migration.endDate
-                )
-            );
-
-        TYPE T_USER_MESSAGE IS TABLE OF c_user_message%ROWTYPE;
-        user_message T_USER_MESSAGE;
-
-        remote_id TB_USER_MESSAGE.ID_PK%TYPE; -- using the local table for the type but the remote has the same type too
-        localToRemotePks T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
-    BEGIN
-        dbms_output.put_line('Migrating TB_USER_MESSAGE entries...');
-
-        OPEN c_user_message;
-        LOOP
-            FETCH c_user_message BULK COLLECT INTO user_message LIMIT BULK_COLLECT_LIMIT;
-            EXIT WHEN user_message.COUNT = 0;
-
-            FOR i IN user_message.FIRST .. user_message.LAST LOOP
-                    remote_id := new_remote_pk(db_link);
-
-                    EXECUTE IMMEDIATE 'INSERT INTO TB_USER_MESSAGE@' || db_link || ' (ID_PK, COLLABORATION_INFO_ACTION, AGREEMENT_REF_PMODE, AGREEMENT_REF_TYPE, AGREEMENT_REF_VALUE, COLL_INFO_CONVERS_ID, SERVICE_TYPE, SERVICE_VALUE, MPC, FROM_ROLE, TO_ROLE, MESSAGEINFO_ID_PK, FK_MESSAGE_FRAGMENT_ID, SPLIT_AND_JOIN, CREATED_BY, CREATION_TIME) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16)'
-                        USING remote_id,
-                        user_message(i).COLLABORATION_INFO_ACTION,
-                        user_message(i).AGREEMENT_REF_PMODE,
-                        user_message(i).AGREEMENT_REF_TYPE,
-                        user_message(i).AGREEMENT_REF_VALUE,
-                        user_message(i).COLL_INFO_CONVERS_ID,
-                        user_message(i).SERVICE_TYPE,
-                        user_message(i).SERVICE_VALUE,
-                        user_message(i).MPC,
-                        user_message(i).FROM_ROLE,
-                        user_message(i).TO_ROLE,
-                        messageInfoLookupTable(user_message(i).MESSAGEINFO_ID_PK),
-                        user_message(i).FK_MESSAGE_FRAGMENT_ID,
-                        user_message(i).SPLIT_AND_JOIN,
-                        user_message(i).CREATED_BY,
-                        user_message(i).CREATION_TIME;
-
-                    localToRemotePks(user_message(i).ID_PK) := remote_id;
-
-                    dbms_output.put_line('Local to remote mapping: TB_USER_MESSAGE[' || user_message(i).ID_PK || '] = ' || remote_id);
-                END LOOP;
-            dbms_output.put_line('Wrote ' || user_message.COUNT || ' records');
-        END LOOP;
-        CLOSE c_user_message;
-
-        RETURN localToRemotePks;
-    END migrate_user_message;
 
     PROCEDURE migrate_error(signalMessageLookupTable IN T_LOCAL_TO_REMOTE_PRIMARY_KEYS, db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
         CURSOR c_error IS
@@ -747,20 +1500,53 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
     END migrate_messaging_lock;
 
     PROCEDURE migrate(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
-        messageInfoLookupTable T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
-        userMessageLookupTable T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
-        partInfoLookupTable T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        ongoing_message_status_pks T_MESSAGE_STATUS_PRIMARY_KEYS;
+
+        message_status_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        party_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        mpc_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        role_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        service_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        agreement_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        action_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        msh_role_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        timezone_offset_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        notification_status_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        message_property_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+
+        user_message_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        signal_message_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
+        part_info_lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
     BEGIN
-        migrate_message_log(db_link, migration);
-        migrate_message_ui(db_link, migration);
-        messageInfoLookupTable := migrate_message_info(db_link, migration);
-        userMessageLookupTable := migrate_user_message(messageInfoLookupTable, db_link, migration);
-        migrate_rawenvelope_log(userMessageLookupTable, db_link, migration);
-        partInfoLookupTable := migrate_part_info(userMessageLookupTable, db_link, migration);
-        migrate_property(userMessageLookupTable, partInfoLookupTable,db_link, migration);
-        migrate_party_id(userMessageLookupTable, db_link, migration);
+        SELECT ID_PK
+        INTO ongoing_message_status_pks
+        FROM TB_D_MESSAGE_STATUS
+        WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT');
+
+        message_status_lookup_table := migrate_tb_d_message_status(ongoing_message_status_pks, db_link);
+        party_lookup_table := migrate_tb_d_party(ongoing_message_status_pks, db_link, migration);
+        mpc_lookup_table := migrate_tb_d_mpc(ongoing_message_status_pks, db_link, migration);
+        role_lookup_table := migrate_tb_d_role(ongoing_message_status_pks, db_link, migration);
+        service_lookup_table := migrate_tb_d_service(ongoing_message_status_pks, db_link, migration);
+        agreement_lookup_table := migrate_tb_d_agreement(ongoing_message_status_pks, db_link, migration);
+        action_lookup_table := migrate_tb_d_action(ongoing_message_status_pks, db_link, migration);
+        msh_role_lookup_table := migrate_tb_d_msh_role(ongoing_message_status_pks, db_link, migration);
+        timezone_offset_lookup_table := migrate_tb_d_timezone_offset(ongoing_message_status_pks, db_link, migration);
+        notification_status_lookup_table := migrate_tb_d_notification_status(ongoing_message_status_pks, db_link, migration);
+        message_property_lookup_table := migrate_tb_d_message_property(ongoing_message_status_pks, db_link, migration);
+
+        user_message_lookup_table := migrate_user_message(ongoing_message_status_pks, action_lookup_table, agreement_lookup_table, service_lookup_table, mpc_lookup_table, party_lookup_table, role_lookup_table, db_link, migration);
+        signal_message_lookup_table := migrate_signal_message(ongoing_message_status_pks, user_message_lookup_table, db_link, migration);
+        migrate_user_message_log(ongoing_message_status_pks, user_message_lookup_table, timezone_offset_lookup_table, message_status_lookup_table, msh_role_lookup_table, notification_status_lookup_table, db_link, migration);
+        migrate_signal_message_log(ongoing_message_status_pks, user_message_lookup_table, db_link, migration);
+
+        --- OLD migration
+        migrate_rawenvelope_log(user_message_lookup_table, db_link, migration);
+        part_info_lookup_table := migrate_part_info(user_message_lookup_table, db_link, migration);
+        migrate_property(user_message_lookup_table, part_info_lookup_table,db_link, migration);
+        migrate_party_id(user_message_lookup_table, db_link, migration);
         migrate_error_log(db_link, migration);
-        migrate_messaging(userMessageLookupTable, db_link, migration);
+        migrate_messaging(user_message_lookup_table, db_link, migration);
         migrate_action_audit(db_link, migration);
         migrate_send_attempt(db_link, migration);
         migrate_messaging_lock(db_link, migration);
