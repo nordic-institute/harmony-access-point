@@ -2134,7 +2134,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    PI.CREATION_TIME,
                    PI.MODIFIED_BY,
                    PI.MODIFICATION_TIME,
-                   PI.PART_LENGTH,
                    (SELECT MPKSUM.NEW_ID
                     FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
                     WHERE MPKSUM.OLD_ID = UM.ID_PK) AS USER_MESSAGE_ID_FK -- 1:1 ID_PK implementation
@@ -2186,7 +2185,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     migr_part_info(i).CREATED_BY := part_info(i).CREATED_BY;
                     migr_part_info(i).MODIFICATION_TIME := part_info(i).MODIFICATION_TIME;
                     migr_part_info(i).MODIFIED_BY := part_info(i).MODIFIED_BY;
-                    migr_part_info(i).PART_LENGTH := part_info(i).PART_LENGTH;
                 END LOOP;
 
             v_start := 1;

@@ -1571,6 +1571,9 @@ ALTER INDEX PK_USER_ROLE_AUD RENAME TO OLD_PK_USER_ROLE_AUD
             </column>
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="PART_LENGTH" type="BIGINT" defaultValueNumeric="-1">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <!-- TB_PART_PROPERTIES -->
