@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 public class DomainRemovedCommandTask implements CommandTask {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomainRemovedCommandTask.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainRemovedCommandTask.class);
 
     final DynamicDomainManagementService dynamicDomainManagementService;
 
@@ -33,7 +33,7 @@ public class DomainRemovedCommandTask implements CommandTask {
 
     @Override
     public void execute(Map<String, String> properties) {
-        LOGGER.debug("Checking and handling domain removed");
+        LOG.debug("Checking and handling domain removed");
 
         String domainCode = properties.get(MessageConstants.DOMAIN);
         dynamicDomainManagementService.removeDomain(domainCode);

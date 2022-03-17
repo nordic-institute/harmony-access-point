@@ -64,7 +64,7 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
 
     private void removeStorage(Domain domain) {
         if (!instances.containsKey(domain)) {
-            LOG.info("Could not find storage for domain [{}]", domain);
+            LOG.warn("Could not find storage for domain [{}]", domain);
             return;
         }
         instances.remove(domain);
