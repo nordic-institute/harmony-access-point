@@ -178,7 +178,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         Scheduler scheduler = schedulers.get(domain);
         try {
-            doForAllSchedulerJobs(scheduler, (scheduler, jobkey) -> deleteSchedulerJob(scheduler, jobkey, null));
+            doForAllSchedulerJobs(scheduler, (schedulerParam, jobkeyParam) -> deleteSchedulerJob(schedulerParam, jobkeyParam, null));
             scheduler.shutdown(true);
         } catch (SchedulerException e) {
             LOG.error("Error while shutting down Quartz Scheduler for domain [{}]", domain, e);

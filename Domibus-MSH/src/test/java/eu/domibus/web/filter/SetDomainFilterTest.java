@@ -36,8 +36,8 @@ public class SetDomainFilterTest {
     AuthUtils authUtils;
 
     @Test
-    public void doFilter(@Mocked ServletRequest request, @Mocked ServletResponse response,
-                         @Mocked FilterChain chain, @Mocked DomibusUserDetailsImpl domibusUserDetails)
+    public void doFilter(@Injectable ServletRequest request, @Injectable ServletResponse response,
+                         @Injectable FilterChain chain, @Injectable DomibusUserDetailsImpl domibusUserDetails)
             throws IOException, ServletException {
 
         String domainCode = "default";

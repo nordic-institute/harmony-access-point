@@ -201,7 +201,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     protected void handleAddDomainException(Domain domain, List<DomainsAware> executedSuccessfully, DomainsAware bean, Exception exception) throws Exception {
         executedSuccessfully.forEach(executedBean -> {
-            try {DomainRemovedCommandTask
+            try {
                 executedBean.onDomainRemoved(domain);
                 LOG.info("Removed back domain [{}] in bean [{}] due to error on adding [{}]", domain, executedBean, bean);
             } catch (Exception removeException) {
