@@ -81,13 +81,13 @@ public class AuthenticationDefaultService implements AuthenticationService {
         final String basicHeaderValue = httpRequest.getHeader(BASIC_AUTH_HEADER_KEY);
 
         if (basicHeaderValue != null) {
-            LOG.debug("Basic authentication header found: " + basicHeaderValue);
+            LOG.debug("Basic authentication header found: [{}]", basicHeaderValue);
         }
         if (certificateAttribute != null) {
             LOG.debug("CertificateAttribute found: " + certificateAttribute.getClass());
         }
         if (certHeaderValue != null) {
-            LOG.debug("Client certificate in header found: " + certHeaderValue);
+            LOG.debug("Client certificate in header found: [{}]", certHeaderValue);
         }
 
         Authentication authenticationResult;

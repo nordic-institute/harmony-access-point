@@ -20,7 +20,7 @@
                 <partyIdType name="EORIType"
                              value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:eu-customs:EORI"/>
             </partyIdTypes>
-            <party name="red_gw" endpoint="http://localhost:8180/domibus/services/msh" allowChunking="false">
+            <party name="red_gw" endpoint="http://localhost:7003/domibus/services/msh" allowChunking="false">
                 <identifier partyId="sti-taxud" partyIdType="authorityType"/>
             </party>
             <party name="uumds" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">

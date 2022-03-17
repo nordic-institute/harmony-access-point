@@ -4963,6 +4963,487 @@ test.cleanDBMessageIDStartsWith("-DomJMS068-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>2666</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS071-EDELIVERY-8933-Possibility to reference the payloads via a REST endpoint" searchProperties="true" id="c6da9416-5fbc-4bab-bff1-e7a67f4d9707">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Save properties values" id="53a36f6c-84b6-49e3-8266-aaab98a0dae4"><con:settings/><con:config><script>// C3
+// jmsplugin.putAttachmentInQueue
+def custPropName="jmsplugin.putAttachmentInQueue";
+def propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+// jmsplugin.attachment.reference.type
+custPropName="jmsplugin.attachment.reference.type";
+propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+// domibus.attachment.storage.location
+custPropName="domibus.attachment.storage.location";
+propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+// jmsplugin.attachment.reference.context
+custPropName="jmsplugin.attachment.reference.context";
+propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+// jmsplugin.attachment.reference.url
+custPropName="jmsplugin.attachment.reference.url";
+propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+// Wait
+sleep(3000)</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="a3732b9b-5160-415d-ae68-d1c8662e53d5"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Update props-Attach in Q-referencetype File-Storage DB-C3" id="900aafbb-76cf-49e9-b8f1-9302229d077e"><con:settings/><con:config><script>Domibus.changePropertyAtRuntime("C3", "jmsplugin.putAttachmentInQueue", "true", context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.type", "FILE", context, log);
+
+Domibus.changePropertyAtRuntime("C3", "domibus.attachment.storage.location", " ", context, log);
+
+//Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.context", " ", context, log);
+
+//Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.url", " ", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message-1" id="de665425-dee9-4f0c-ad27-2c928c694c4c"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc12")
+messageMap.setStringProperty("action", "TC12Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcWSDom123")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS071-1-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test-1" id="e9a73107-dcd3-4f5a-82b5-36e51a61c9eb"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS071-1-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="c09cd778-01a5-4401-ba2d-f7f952479de6"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Update props-Attach in Q-referencetype URL-Storage DB-C3" id="9f7a43a8-a6e4-4cff-a86b-40bcc4c21e78"><con:settings/><con:config><script>Domibus.changePropertyAtRuntime("C3", "jmsplugin.putAttachmentInQueue", "true", context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.type", "URL", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message-2" id="794f22b7-6bb4-4e26-8417-61fc4d4e94c6"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc12")
+messageMap.setStringProperty("action", "TC12Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcWSDom123")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS071-2-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test-2" id="96c3dcf3-57e8-44f8-a5a6-17f8c6253764"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS071-2-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="da2380c7-59e6-4796-a4c3-03b7a6d25a26"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Update props-Attach not in Q-referencetype URL-Storage DB-C3" id="913ec33c-ce07-4d59-9af5-95f3fc45423f"><con:settings/><con:config><script>Domibus.changePropertyAtRuntime("C3", "jmsplugin.putAttachmentInQueue", "false", context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.type", "URL", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message-3" id="a3c1a9ae-7f31-4bee-89c1-2e021cd30a0e"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc12")
+messageMap.setStringProperty("action", "TC12Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcWSDom123")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS071-3-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test-3" id="9f91188d-eea4-4035-a384-a2f181202ed9"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS071-3-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="8ebad506-3f66-4d1d-bd3d-c5326bd818d1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Update props-Attach not in Q-referencetype FILE-Storage DB-C3" id="e2e9be45-1c66-4636-9b45-444578b6a7ee"><con:settings/><con:config><script>Domibus.changePropertyAtRuntime("C3", "jmsplugin.putAttachmentInQueue", "false", context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.type", "FILE", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message-4" id="2f932984-8f2c-4d22-945d-485bc75ac519"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc12")
+messageMap.setStringProperty("action", "TC12Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcWSDom123")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS071-4-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test-4" id="d565f331-a5d1-4d6d-9c1f-c779b52d6bbc"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS071-4-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D4" id="62b797d5-dfa9-4ec2-9b7e-8e177da029e5"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Update props-Attach not in Q-referencetype FILE-Storage FS-C3" id="bb2c11e5-0d09-4829-a9d6-a2fd4f20485c"><con:settings/><con:config><script>def storagePath=context.expand('${#Project#pathRed}')+"payloads"
+
+Domibus.changePropertyAtRuntime("C3", "domibus.attachment.storage.location", storagePath, context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.putAttachmentInQueue", "false", context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.type", "FILE", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message-5" id="3c74bfab-5962-4163-b0e1-b849511a9b65"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc12")
+messageMap.setStringProperty("action", "TC12Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcWSDom123")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS071-5-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test-5" id="ed4aaa5f-419e-48ff-8c99-5500d8c4715a"><con:settings/><con:config><script>def entityID=null
+def messageID="-DomJMS071-5-"
+  
+def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED",messageID)
+entityID=test.retrieveMessageEntityID(messageID,"C3")
+test.finalize()
+
+
+def side="c3"
+def searchKey=messageID
+def endpointUrl=context.expand('${#Project#remoteUrl}')
+def pattern="payload_1_fileURL#$endpointUrl/ext/messages/ids/$entityID/payloads/message"
+def queueName="domibus.backend.jms.outQueue"
+def outcome=false
+def domainValue="Default"
+
+Domibus.SearchMessageJmsQueue(side, context, log,searchKey,pattern,queueName, outcome,domainValue)
+log.info "--------------------------------------------------------------------------"
+log.info "--------------------------------------------------------------------------"
+log.info "--------------------------------------------------------------------------"
+log.info "--------------------------------------------------------------------------"
+outcome=true
+pattern="payload_1_fileName#.*payload"
+Domibus.SearchMessageJmsQueue(side, context, log,searchKey,pattern,queueName, outcome,domainValue)
+log.info "--------------------------------------------------------------------------"
+log.info "--------------------------------------------------------------------------"
+log.info "--------------------------------------------------------------------------"
+log.info "--------------------------------------------------------------------------"
+log.info "DONE !"</script></con:config></con:testStep><con:testStep type="delay" name="D5" id="08d7610e-9ea5-4b16-9f61-986593fbe004"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Update props-Attach not in Q-Set URL context and reference-C3" id="2655ee85-998a-4a4a-baa5-ca43450f8df0"><con:settings/><con:config><script>def storagePath=context.expand('${#Project#pathRed}')+"payloads"
+Domibus.changePropertyAtRuntime("C3", "domibus.attachment.storage.location", storagePath, context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.putAttachmentInQueue", "false", context, log);
+
+Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.type", "URL", context, log);
+
+//Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.context", "http://localhost:8180/domibus", context, log);
+
+//Domibus.changePropertyAtRuntime("C3", "jmsplugin.attachment.reference.url", "/ext/messages/ids/MESSAGE_ENTITY_ID/payloads/PAYLOAD_CID", context, log);
+
+sleep(3000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message-9" id="ff5a6294-ee10-4c48-a23c-4d2a6894189e"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc12")
+messageMap.setStringProperty("action", "TC12Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcWSDom123")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS071-9-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test-9" id="0633cec2-ee95-463a-87e0-6aa4b222c180"><con:settings/><con:config><script>def entityID=null
+def messageID="-DomJMS071-9-"
+  
+def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED",messageID)
+entityID=test.retrieveMessageEntityID(messageID,"C3")
+test.finalize()
+
+
+def side="c3"
+def searchKey=messageID
+def endpointUrl=context.expand('${#Project#remoteUrl}')
+def pattern="payload_1_fileURL#$endpointUrl/ext/messages/ids/$entityID/payloads/message"
+def queueName="domibus.backend.jms.outQueue"
+def outcome=true
+def domainValue="Default"
+
+Domibus.SearchMessageJmsQueue(side, context, log,searchKey,pattern,queueName, outcome,domainValue)</script></con:config></con:testStep><con:testStep type="delay" name="D6" id="2c623ee4-cc09-4a61-b63d-78ef719dd765"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Create plugin users" id="d1cfe741-bcb8-49f3-82d8-55e70f4c80b9"><con:settings/><con:config><script>def pluginUser=null
+def pluginPassword="DomibusEdel-12345"
+def originalUser="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"
+def userRole="ROLE_USER"
+def domain="Default"
+def site="C3"
+
+
+// Create standard user 1 C3
+pluginUser="userPlOUC4"+(new Date().format("ddHHmmss"))
+testRunner.testCase.setPropertyValue( "usernameC4",pluginUser);
+Domibus.addPluginUser(site,context,log,domain,userRole,pluginUser,pluginPassword,originalUser);
+
+// Create standard user 2 C3
+pluginUser="userPlOUC1"+(new Date().format("ddHHmmss"))
+originalUser="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"
+testRunner.testCase.setPropertyValue( "usernameC1",pluginUser);
+Domibus.addPluginUser(site,context,log,domain,userRole,pluginUser,pluginPassword,originalUser);
+
+// Create admin user C3
+userRole="ROLE_ADMIN"
+originalUser=null
+pluginUser="userPlAdmin"+(new Date().format("ddHHmmss"))
+testRunner.testCase.setPropertyValue( "adminUsername",pluginUser);
+Domibus.addPluginUser(site,context,log,domain,userRole,pluginUser,pluginPassword,originalUser);
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D7" id="e3050b31-ec56-4b6d-82a2-508799c9d0ce"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Download-Payload-EntityID-Success-UserC4" id="80025499-c9b9-45fd-ac82-ba072063466c"><con:settings/><con:config><script>def side="c3"
+def status="success"
+def messageID="-DomJMS071-9-"
+def messageCID="message"
+def entityID=null
+def pluginUser=testRunner.testCase.getPropertyValue("usernameC4");
+def pluginPassword="DomibusEdel-12345"
+def message="PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4="
+
+
+def test = new Domibus(log,null,context)
+entityID=test.retrieveMessageEntityID(messageID,"C3")
+test.finalize()
+
+
+
+ExtRestUtils.testDownloadPayloadEntityIDRequest(log,context,side, status, entityID, messageCID, pluginUser, pluginPassword, message)</script></con:config></con:testStep><con:testStep type="delay" name="D8" id="2331679d-3580-40f6-9759-b93b4b7f8c25"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Download-Payload-EntityID-Success-Admin" id="493cb821-1650-44ae-9eae-7ae86257b68c"><con:settings/><con:config><script>def side="c3"
+def status="success"
+def messageID="-DomJMS071-9-"
+def messageCID="message"
+def entityID=null
+def pluginUser=testRunner.testCase.getPropertyValue("adminUsername");
+def pluginPassword="DomibusEdel-12345"
+def message=null
+
+
+def test = new Domibus(log,null,context)
+entityID=test.retrieveMessageEntityID(messageID)
+test.finalize()
+
+
+
+ExtRestUtils.testDownloadPayloadEntityIDRequest(log,context,side, status, entityID, messageCID, pluginUser, pluginPassword, message)</script></con:config></con:testStep><con:testStep type="delay" name="D9" id="10267d1a-3ea6-42d6-a026-c3e67febdccd"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Download-Payload-EntityID-Failure-UserC1" id="d151ba48-c6a5-492a-92d9-c3de7651602e"><con:settings/><con:config><script>def side="c3"
+def status="unauthorized"
+def messageID="-DomJMS071-9-"
+def messageCID="message"
+def entityID=null
+def pluginUser=testRunner.testCase.getPropertyValue("usernameC1");
+def pluginPassword="DomibusEdel-12345"
+def message=null
+
+
+def test = new Domibus(log,null,context)
+entityID=test.retrieveMessageEntityID(messageID)
+test.finalize()
+
+
+
+ExtRestUtils.testDownloadPayloadEntityIDRequest(log,context,side, status, entityID, messageCID, pluginUser, pluginPassword, message)</script></con:config></con:testStep><con:testStep type="delay" name="D10" id="62f51a3f-f04b-4183-b5a2-f1b8eb10ce73"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Download-Payload-EntityID-Failure-Wrong password" id="06ba1b71-8e4b-4500-b14d-7f62b97fce17"><con:settings/><con:config><script>def side="c3"
+def status="unauthorized"
+def messageID="-DomJMS071-9-"
+def messageCID="message"
+def entityID=null
+def pluginUser=testRunner.testCase.getPropertyValue("usernameC4");
+def pluginPassword="DomibusEdel-12"
+def message=null
+
+
+def test = new Domibus(log,null,context)
+entityID=test.retrieveMessageEntityID(messageID)
+test.finalize()
+
+
+
+ExtRestUtils.testDownloadPayloadEntityIDRequest(log,context,side, status, entityID, messageCID, pluginUser, pluginPassword, message)</script></con:config></con:testStep><con:testStep type="delay" name="D11" id="26522e98-b503-456c-8e3d-02636d9718e6"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Download-Payload-EntityID-Failure-Entity ID not existing" id="0f9e80f9-54ca-4779-a830-6a423f42fbe3"><con:settings/><con:config><script>def side="c3"
+def status="badrequest"
+def messageID="-DomJMS071-9-"
+def messageCID="message"
+def entityID="1234"
+def pluginUser=testRunner.testCase.getPropertyValue("usernameC4");
+def pluginPassword="DomibusEdel-12345"
+def message="Could not find message with entity id"
+
+
+
+ExtRestUtils.testDownloadPayloadEntityIDRequest(log,context,side, status, entityID, messageCID, pluginUser, pluginPassword, message)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset properties values" id="d09cf6b3-5418-4d81-9ee6-6ef764a8c96a" disabled="true"><con:settings/><con:config><script>// C3
+// jmsplugin.putAttachmentInQueue
+def custPropName="jmsplugin.putAttachmentInQueue";
+def defPropValue="true";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+
+// jmsplugin.attachment.reference.type
+custPropName="jmsplugin.attachment.reference.type";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+
+// jmsplugin.attachment.reference.type
+custPropName="domibus.attachment.storage.location";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+
+sleep(3000);
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Delete plugin users" id="17125abc-d05a-48ad-8e71-0e4c8245364f" disabled="true"><con:settings/><con:config><script>// Delete plugin user in C2
+def username=testRunner.testCase.getPropertyValue("usernameC4");
+Domibus.removePluginUser("C3",context,log,"Default",username);
+
+username=testRunner.testCase.getPropertyValue("usernameC1");
+Domibus.removePluginUser("C3",context,log,"Default",username);
+
+username=testRunner.testCase.getPropertyValue("userPlAdmin");
+Domibus.removePluginUser("C3",context,log,"Default",username);
+
+</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.cleanDBMessageIDStartsWith("-DomJMS071-");
+test.finalize();
+
+testRunner.testCase.testSteps['Reset properties values'].run(testRunner, context);
+testRunner.testCase.testSteps['Delete plugin users'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log);
+</con:tearDownScript><con:properties><con:property><con:name>usernameC4</con:name><con:value>userPlOUC423153343</con:value></con:property><con:property><con:name>usernameC1</con:name><con:value>userPlOUC123153344</con:value></con:property><con:property><con:name>adminUsername</con:name><con:value>userPlAdmin23153344</con:value></con:property><con:property><con:name>jmsplugin.putAttachmentInQueue</con:name><con:value>true</con:value></con:property><con:property><con:name>jmsplugin.attachment.reference.type</con:name><con:value>URL</con:value></con:property><con:property><con:name>domibus.attachment.storage.location</con:name><con:value>C:/domibus/1-mainBranch/receiver/domibus/payloads</con:value></con:property><con:property><con:name>jmsplugin.attachment.reference.context</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>jmsplugin.attachment.reference.url</con:name><con:value>/ext/messages/ids/MESSAGE_ENTITY_ID/payloads/message</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="56622746-a47f-4bf8-af90-c884725e3fb1" name="JMS-oneway Push-Manual test cases"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS055-Manual-EDELIVERY-1706-JMS Monitoring: empty messages are not displayed" searchProperties="true" id="afb24ea2-e853-4fc2-9790-e18c1c36617c">
             <con:settings/>
 

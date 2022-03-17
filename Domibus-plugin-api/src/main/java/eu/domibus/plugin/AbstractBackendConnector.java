@@ -55,6 +55,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
         } catch (IllegalArgumentException iaEx) {

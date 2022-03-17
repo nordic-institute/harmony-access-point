@@ -34,7 +34,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 			currentDomain = "default";
 		}
 
-		page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+		page.uploadTruststore(path, "test123");
 
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_UPLOAD, certFileName, currentDomain)
 		), "Both error messages are same");
@@ -55,7 +55,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
 
-		page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+		page.uploadTruststore(path, "test123");
 
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.TlsTruststore.TLS_TRUSTSTORE_SUCCESS_UPLOAD), "Success message is shown");
 		soft.assertAll();
@@ -75,7 +75,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
-		page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+		page.uploadTruststore(path, "test123");
 		page.grid().waitForRowsToLoad();
 
 		int beforeCount = page.grid().getPagination().getTotalItems();
@@ -101,12 +101,13 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
 		Reporter.log("Login into application and navigate to TlsTruststore page");
 		log.info("Login into application and navigate to TlsTruststore page");
-		selectRandomDomain();
 
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
-		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
-		page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+		if(page.getAlertArea().isShown()){
+			page.getAlertArea().closeAlert();
+			page.uploadTruststore(DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks"), "test123");
+		}
 		page.grid().waitForRowsToLoad();
 
 
@@ -116,8 +117,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 			String selectedAlias = page.grid().getRowInfo(i).get("Name");
 			soft.assertTrue(page.getRemoveCertButton().isEnabled(), "Remove Button is enabled");
 			page.getRemoveCertButton().click();
-			soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_REMOVE_CERT, selectedAlias)
-			), "Both error messages are same");
+			soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_REMOVE_CERT, selectedAlias), "Both error messages are same");
 			page.getAlertArea().closeButton.click();
 
 		}
@@ -150,7 +150,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		}
 		soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "grid is empty now");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
-		page.uploadAddCert(path, "test123", page.getUploadButton(), page.getPassInputField());
+		page.uploadTruststore(path, "test123");
 		page.grid().waitForRowsToLoad();
 
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.TlsTruststore.TLS_TRUSTSTORE_SUCCESS_UPLOAD));
@@ -169,7 +169,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		String path = "./src/main/resources/pmodes/" + certFileName;
 		String absolutePath = DFileUtils.getAbsolutePath(path);
 
-		page.uploadAddCert(absolutePath, "test123", page.getUploadButton(), page.getPassInputField());
+		page.uploadTruststore(absolutePath, "test123");
 
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(
 				String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_WRONGFILE_UPLOAD, certFileName)), "Error message is shown");
@@ -187,7 +187,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		String path = "./src/main/resources/pmodes/" + certFileName;
 		String absolutePath = DFileUtils.getAbsolutePath(path);
 
-		page.uploadAddCert(absolutePath, "test123", page.getAddCertButton(), page.getAliasInputField());
+		page.addCertificate(absolutePath, "test123");
 
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTOE_WRONGFILE_ADD, certFileName)), "Correct error message is shown");
 		soft.assertAll();
@@ -203,7 +203,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		String path = "./src/main/resources/truststore/" + certFileName;
 		String absolutePath = DFileUtils.getAbsolutePath(path);
 
-		page.uploadAddCert(absolutePath, "test123", page.getUploadButton(), page.getPassInputField());
+		page.uploadTruststore(absolutePath, "test123");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.TlsTruststore.TLS_TRUSTSTORE_SUCCESS_UPLOAD), "Success message is shown");
 		soft.assertAll();
 
@@ -215,16 +215,20 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
+
+		if(page.getAlertArea().isShown()){
+			page.getAlertArea().closeAlert();
+		}
+
 		List<HashMap<String, String>> beforeUploadData = page.grid().getAllRowInfo();
 		String certFileName = "expired.jks";
 		String path = "./src/main/resources/truststore/" + certFileName;
 		String absolutePath = DFileUtils.getAbsolutePath(path);
 
-		page.uploadAddCert(absolutePath, "test123", page.getUploadButton(), page.getPassInputField());
+		page.uploadTruststore(absolutePath, "test123");
 		List<HashMap<String, String>> afterUploadData = page.grid().getAllRowInfo();
 		soft.assertFalse(beforeUploadData.equals(afterUploadData), "Before and after data are different");
 		soft.assertAll();
-
 	}
 
 
