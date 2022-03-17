@@ -10,7 +10,6 @@ import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -91,7 +90,7 @@ public class AuthUtilsImpl implements AuthUtils {
             return null;
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof DomibusUserDetailsImpl)) {
+        if (!(authentication.getPrincipal() instanceof DomibusUserDetails)) {
             LOG.debug("User details are missing from the authentication");
             return null;
         }
