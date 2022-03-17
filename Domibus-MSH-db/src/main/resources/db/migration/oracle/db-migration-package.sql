@@ -2137,6 +2137,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    PI.CREATION_TIME,
                    PI.MODIFIED_BY,
                    PI.MODIFICATION_TIME,
+                   PI.PART_LENGTH,
                    (SELECT MPKSUM.NEW_ID
                     FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
                     WHERE MPKSUM.OLD_ID = UM.ID_PK) AS USER_MESSAGE_ID_FK -- 1:1 ID_PK implementation
@@ -2188,6 +2189,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     migr_part_info(i).CREATED_BY := part_info(i).CREATED_BY;
                     migr_part_info(i).MODIFICATION_TIME := part_info(i).MODIFICATION_TIME;
                     migr_part_info(i).MODIFIED_BY := part_info(i).MODIFIED_BY;
+                    migr_part_info(i).PART_LENGTH := part_info(i).PART_LENGTH;
                 END LOOP;
 
             v_start := 1;
@@ -2212,7 +2214,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         INSERT INTO MIGR_TB_PART_INFO (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF,
                                                        IN_BODY, FILENAME, MIME, PART_ORDER, ENCRYPTED,
                                                        USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME,
-                                                       MODIFIED_BY)
+                                                       MODIFIED_BY, PART_LENGTH)
                         VALUES (migr_part_info(i).ID_PK,
                                 migr_part_info(i).BINARY_DATA,
                                 migr_part_info(i).DESCRIPTION_LANG,
@@ -2227,7 +2229,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 migr_part_info(i).CREATION_TIME,
                                 migr_part_info(i).CREATED_BY,
                                 migr_part_info(i).MODIFICATION_TIME,
-                                migr_part_info(i).MODIFIED_BY);
+                                migr_part_info(i).MODIFIED_BY,
+                                migr_part_info(i).PART_LENGTH);
                 EXCEPTION
                     WHEN failure_in_forall
                         THEN

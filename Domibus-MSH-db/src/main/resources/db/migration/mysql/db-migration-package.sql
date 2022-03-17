@@ -1937,6 +1937,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
                    PI.CREATION_TIME,
                    PI.MODIFIED_BY,
                    PI.MODIFICATION_TIME,
+                   PI.PART_LENGTH,
                    UM.ID_PK USER_MESSAGE_ID_FK
             FROM TB_USER_MESSAGE UM,
                  TB_PART_INFO PI
@@ -1963,7 +1964,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
                     END;
 
                 FETCH c_part_info INTO id_pk, binary_data, description_lang, description_value, href, in_body, filename,
-                        mime, part_order, encrypted, created_by, creation_time, modified_by, modification_time,
+                        mime, part_order, encrypted, created_by, creation_time, modified_by, modification_time, part_length,
                         user_message_id_fk;
 
                 IF done THEN
@@ -1976,7 +1977,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
 
                 INSERT INTO MIGR_TB_PART_INFO (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY,
                         FILENAME, MIME, PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY,
-                        MODIFICATION_TIME, MODIFIED_BY)
+                        MODIFICATION_TIME, MODIFIED_BY, PART_LENGTH)
                 VALUES (calculated_id_pk,
                         binary_data,
                         description_lang,
@@ -1991,7 +1992,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user(INOUT migration_pks JSO
                         creation_time,
                         created_by,
                         modification_time,
-                        modified_by);
+                        modified_by,
+                        part_length);
 
                 SET @i = @i + 1;
                 IF @i MOD @BATCH_SIZE = 0 THEN
