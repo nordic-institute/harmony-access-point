@@ -59,9 +59,9 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
             return;
         }
 
-        getLogger().debug("Sending message ID [{}] for domain [{}]", messageId, domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
         getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        getLogger().debug("Sending message ID [{}] for domain [{}]", messageId, domainCode);
 
         sendUserMessage(messageId, messageEntityId, retryCount);
 
