@@ -64,7 +64,7 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
-    public List<Domain> getPotentialDomains() {
+    public List<Domain> getAllDomains() {
         LOG.debug("Getting all potential domains.");
         return domainDao.findAll();
     }

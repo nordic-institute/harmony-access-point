@@ -47,7 +47,7 @@ public class DomainResource {
     public List<DomainRO> getDomains(@Valid Boolean active) {
         List<Domain> domains = Arrays.asList();
         if (active == null) {
-            domains = domainService.getPotentialDomains();
+            domains = domainService.getAllDomains();
         } else if (active) {
             domains = domainService.getDomains();
         }
