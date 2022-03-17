@@ -18,7 +18,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jms.listener.MessageListenerContainer;
 import org.springframework.stereotype.Service;
@@ -44,30 +43,35 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class MessageListenerContainerInitializer implements DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializer.class);
+
     public static final String JMS_PRIORITY = "JMSPriority";
-
-    @Autowired
-    ApplicationContext applicationContext;
-
-    @Autowired
-    protected DomainMessageListenerContainerFactory messageListenerContainerFactory;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    protected DomibusCoreMapper coreMapper;
-
-    @Autowired
-    protected UserMessagePriorityService userMessagePriorityService;
 
     protected List<DomainMessageListenerContainer> instances = new ArrayList<>();
 
-    @PostConstruct
-    public void init() {
+    protected final ApplicationContext applicationContext;
+
+    protected final DomainMessageListenerContainerFactory messageListenerContainerFactory;
+
+    protected final DomibusPropertyProvider domibusPropertyProvider;
+
+    protected final DomainService domainService;
+
+    protected final DomibusCoreMapper coreMapper;
+
+    protected final UserMessagePriorityService userMessagePriorityService;
+
+    public MessageListenerContainerInitializer(ApplicationContext applicationContext,
+                                               DomainMessageListenerContainerFactory messageListenerContainerFactory,
+                                               DomibusPropertyProvider domibusPropertyProvider, DomainService domainService,
+                                               DomibusCoreMapper coreMapper, UserMessagePriorityService userMessagePriorityService) {
+
+        this.applicationContext = applicationContext;
+        this.messageListenerContainerFactory = messageListenerContainerFactory;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domainService = domainService;
+        this.coreMapper = coreMapper;
+        this.userMessagePriorityService = userMessagePriorityService;
+
         final List<Domain> domains = domainService.getDomains();
         createInstancesFor(domains);
     }
