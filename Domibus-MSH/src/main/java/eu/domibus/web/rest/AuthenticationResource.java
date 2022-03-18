@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
@@ -16,7 +17,6 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
-import eu.domibus.web.security.DomibusUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -121,7 +121,7 @@ public class AuthenticationResource {
             LOG.warn(WarningUtil.warnOutput(principal.getUsername() + " is using default password."));
         }
 
-        sas.onAuthentication( SecurityContextHolder.getContext().getAuthentication(), request, response);
+        sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
         return createUserRO(principal, loginRO.getUsername());
     }
@@ -145,6 +145,7 @@ public class AuthenticationResource {
      * Method used by admin console to check if the current session is still active
      * if the user has proper authentication rights and valid session it succeeds
      * otherwise the method is not called because the infrastructure throws 401 or 403
+     *
      * @return always true
      */
     @GetMapping(value = "user/connected")
@@ -188,8 +189,7 @@ public class AuthenticationResource {
      * Set the password of the current user
      *
      * @param param the object holding the current and new passwords of the current user
-     *
-     * */
+     */
     @PutMapping(value = "user/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {

@@ -23,7 +23,7 @@ public class ActionDao extends BasicDao<ActionEntity> {
         super(ActionEntity.class);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public ActionEntity findOrCreateAction(String value) {
         if (StringUtils.isBlank(value)) {
             return null;

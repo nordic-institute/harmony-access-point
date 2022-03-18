@@ -1,8 +1,11 @@
 package eu.domibus.web.security;
 
 import com.google.common.collect.Lists;
-import eu.domibus.core.user.ui.UserRole;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserRole;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +16,9 @@ import java.util.*;
  * @author Thomas Dussart, Catalin Enache
  * @since 3.3
  */
-public class DomibusUserDetails implements UserDetails {
+public class DomibusUserDetailsImpl implements DomibusUserDetails {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusUserDetailsImpl.class);
+
     private final UserDetails springUser;
 
     private boolean defaultPasswordUsed;
@@ -29,7 +34,7 @@ public class DomibusUserDetails implements UserDetails {
      */
     private Set<String> availableDomainCodes = new HashSet<>();
 
-    public DomibusUserDetails(final User user) {
+    public DomibusUserDetailsImpl(final User user) {
         this.defaultPasswordUsed = user.hasDefaultPassword();
         springUser = org.springframework.security.core.userdetails.User
                 .withUsername(user.getUserName())
@@ -45,8 +50,8 @@ public class DomibusUserDetails implements UserDetails {
      * @param password
      * @param authorities
      */
-    public DomibusUserDetails(String username, String password,
-                              Collection<? extends GrantedAuthority> authorities) {
+    public DomibusUserDetailsImpl(String username, String password,
+                                  Collection<? extends GrantedAuthority> authorities) {
 
         this.springUser = org.springframework.security.core.userdetails.User
                 .withUsername(username)
@@ -98,7 +103,9 @@ public class DomibusUserDetails implements UserDetails {
         return springUser.isEnabled();
     }
 
-    public boolean isDefaultPasswordUsed() { return defaultPasswordUsed; }
+    public boolean isDefaultPasswordUsed() {
+        return defaultPasswordUsed;
+    }
 
     public void setDefaultPasswordUsed(boolean defaultPasswordUsed) {
         this.defaultPasswordUsed = defaultPasswordUsed;
@@ -118,6 +125,22 @@ public class DomibusUserDetails implements UserDetails {
 
     public void setAvailableDomainCodes(Set<String> availableDomainCodes) {
         this.availableDomainCodes = new HashSet<>(availableDomainCodes);
+    }
+
+    public void addDomainCode(String domainCode) {
+        if (availableDomainCodes.contains(domainCode)) {
+            LOG.info("Could not add existing domain [{}].", domainCode);
+            return;
+        }
+        availableDomainCodes.add(domainCode);
+    }
+
+    public void removeDomainCode(String domainCode) {
+        if (!availableDomainCodes.contains(domainCode)) {
+            LOG.info("Could not remove domain [{}] as it is not present.", domainCode);
+            return;
+        }
+        availableDomainCodes.remove(domainCode);
     }
 
     public Integer getDaysTillExpiration() {

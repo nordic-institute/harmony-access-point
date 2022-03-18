@@ -34,8 +34,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Cosmin Baciu
  * @since 3.3
  */
-//@ActiveProfiles("h2Debug")
-//TODO move it in the core module when Domibus will reference the configuration files via the classpath instead of file disk
+@Transactional
 public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);

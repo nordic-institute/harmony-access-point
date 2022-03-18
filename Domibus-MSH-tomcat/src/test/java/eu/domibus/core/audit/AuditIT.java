@@ -14,7 +14,7 @@ import javax.persistence.PersistenceContext;
  * @author Thomas Dussart
  * @since 4.0
  */
-
+@Transactional
 public class AuditIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditIT.class);

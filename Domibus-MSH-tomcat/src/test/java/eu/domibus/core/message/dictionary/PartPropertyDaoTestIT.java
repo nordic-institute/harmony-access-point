@@ -15,6 +15,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Cosmin Baciu
  * @since 5.0
  */
+@Transactional
 public class PartPropertyDaoTestIT extends AbstractIT {
 
     @Autowired

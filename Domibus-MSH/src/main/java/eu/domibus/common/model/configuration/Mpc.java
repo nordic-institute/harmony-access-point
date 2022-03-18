@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
 public class Mpc extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)
-    @Column(name = "name")
+    @Column(name = "NAME")
     protected String name;
     @XmlAttribute(name = "retention_downloaded", required = true)
     @Column(name = "RETENTION_DOWNLOADED")

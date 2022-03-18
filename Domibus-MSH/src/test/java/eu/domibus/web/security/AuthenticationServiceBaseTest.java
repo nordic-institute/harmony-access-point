@@ -3,6 +3,7 @@ package eu.domibus.web.security;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.security.DomibusUserDetails;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,7 @@ import java.util.Set;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class AuthenticationEbms3ServiceBaseTest {
+public class AuthenticationServiceBaseTest {
 
     @Tested
     AuthenticationServiceBase authenticationServiceBase;
@@ -45,7 +46,7 @@ public class AuthenticationEbms3ServiceBaseTest {
     }
 
     @Test
-    public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked DomibusUserDetails domibusUserDetails) {
+    public void test_changeDomain_DomainExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication, final @Mocked DomibusUserDetailsImpl domibusUserDetails) {
         final String domainCode = "domain1";
 
         new Expectations() {{
@@ -124,7 +125,7 @@ public class AuthenticationEbms3ServiceBaseTest {
     @Test
     public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        final DomibusUserDetails domibusUserDetails = new DomibusUserDetails("username", "password", authorities);
+        final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl("username", "password", authorities);
 
         new Expectations() {{
             new MockUp<SecurityContextHolder>() {

@@ -71,14 +71,97 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         internalAddDomain(domain);
 
-        notifyExternalModules(domain);
+        notifyExternalModulesOfAddition(domain);
 
-        notifyClusterNodes(domainCode);
+        notifyClusterNodesOfAddition(domainCode);
     }
+
+    @Override
+    public void removeDomain(String domainCode) {
+        validateRemoval(domainCode);
+
+        Domain domain = new Domain(domainCode, domainCode);
+
+        internalRemoveDomain(domain);
+
+        notifyExternalModulesOfRemoval(domain);
+
+        notifyClusterNodesOfRemoval(domainCode);
+    }
+
+    protected void validateRemoval(String domainCode) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            throw new DomibusDomainException(String.format("Cannot remove domain [%s] in single tenancy mode.", domainCode));
+        }
+
+        if (!domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
+            throw new DomibusDomainException(String.format("Cannot remove domain [%s] since is is not present.", domainCode));
+        }
+    }
+
+    protected void internalRemoveDomain(Domain domain) {
+        domibusPropertyProvider.removeProperties(domain);
+
+        domainService.removeDomain(domain.getCode());
+
+        try {
+            notifyInternalBeansOfRemoval(domain);
+        } catch (Exception ex) {
+            domainService.addDomain(domain);
+            throw new DomibusDomainException(String.format("Error removing the domain [%s]. ", domain), ex);
+        }
+    }
+
+    protected void notifyInternalBeansOfRemoval(Domain domain) throws Exception {
+        List<DomainsAware> executedSuccessfully = new ArrayList<>();
+        for (DomainsAware bean : domainsAwareList) {
+            try {
+                LOG.debug("Removing domain [{}] in bean [{}]", domain, bean);
+                bean.onDomainRemoved(domain);
+                executedSuccessfully.add(bean);
+            } catch (Exception addException) {
+                handleRemoveDomainException(domain, executedSuccessfully, bean, addException);
+            }
+        }
+    }
+
+    protected void handleRemoveDomainException(Domain domain, List<DomainsAware> executedSuccessfully, DomainsAware bean, Exception exception) throws Exception {
+        executedSuccessfully.forEach(executedBean -> {
+            try {
+                executedBean.onDomainAdded(domain);
+                LOG.info("Added back domain [{}] in bean [{}] due to error on removing [{}]", domain, executedBean, bean);
+            } catch (Exception removeException) {
+                LOG.warn("Error adding back the domain [{}] from bean [{}] ", domain, executedBean, exception);
+            }
+        });
+        throw exception;
+    }
+
+    protected void notifyExternalModulesOfRemoval(Domain domain) {
+        DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
+        externalDomainsAwareList.forEach(el -> {
+            LOG.debug("Notifying external module [{}] of domain removal.", el);
+            try {
+                el.onDomainRemoved(domainDTO);
+            } catch (Exception ex) {
+                LOG.warn("Error removing domain [{}] to module [{}] ", domain, el, ex);
+            }
+        });
+    }
+
+    protected void notifyClusterNodesOfRemoval(String domainCode) {
+        LOG.debug("Broadcasting removing domain [{}]", domainCode);
+        try {
+            signalService.signalDomainsRemoved(domainCode);
+        } catch (Exception ex) {
+            LOG.warn("Exception signaling removing domain [{}].", domainCode, ex);
+        }
+    }
+
 
     protected void validateAddition(String domainCode) {
         if (domibusConfigurationService.isSingleTenantAware()) {
-            throw new DomibusDomainException(String.format("Cannot add a domain in single tenancy mode.", domainCode));
+            throw new DomibusDomainException(String.format("Cannot add [%s] domain in single tenancy mode.", domainCode));
         }
 
         if (domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
@@ -93,17 +176,17 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     protected void internalAddDomain(Domain domain) {
         domibusPropertyProvider.loadProperties(domain);
 
-        domainService.getDomains().add(domain);
+        domainService.addDomain(domain);
 
         try {
-            notifyInternalBeans(domain);
+            notifyInternalBeansOfAddition(domain);
         } catch (Exception ex) {
-            domainService.getDomains().remove(domain);
+            domainService.removeDomain(domain.getCode());
             throw new DomibusDomainException(String.format("Error adding the domain [%s]. ", domain), ex);
         }
     }
 
-    protected void notifyInternalBeans(Domain domain) throws Exception {
+    protected void notifyInternalBeansOfAddition(Domain domain) throws Exception {
         List<DomainsAware> executedSuccessfully = new ArrayList<>();
         for (DomainsAware bean : domainsAwareList) {
             try {
@@ -116,33 +199,31 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
     }
 
-    protected void handleAddDomainException(Domain domain, List<DomainsAware> executedSuccessfully, DomainsAware bean, Exception addException) throws Exception {
+    protected void handleAddDomainException(Domain domain, List<DomainsAware> executedSuccessfully, DomainsAware bean, Exception exception) throws Exception {
         executedSuccessfully.forEach(executedBean -> {
             try {
                 executedBean.onDomainRemoved(domain);
-                LOG.info("Removed domain [{}] in bean [{}] due to error on adding [{}]", domain, executedBean, bean);
+                LOG.info("Removed back domain [{}] in bean [{}] due to error on adding [{}]", domain, executedBean, bean);
             } catch (Exception removeException) {
-                LOG.warn("Error removing the domain [{}] from bean [{}] ", domain, executedBean, addException);
+                LOG.warn("Error removing back the domain [{}] from bean [{}] ", domain, executedBean, exception);
             }
         });
-        throw addException;
+        throw exception;
     }
 
-    protected void notifyExternalModules(Domain domain) {
-        //notify external modules
+    protected void notifyExternalModulesOfAddition(Domain domain) {
         DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
-        externalDomainsAwareList.forEach(el -> {
-            LOG.info("Notifying external module [{}]", el);
+        externalDomainsAwareList.forEach(bean -> {
+            LOG.debug("Notifying external module [{}] of addition of domain [{}]", bean, domain);
             try {
-                el.onDomainAdded(domainDTO);
+                bean.onDomainAdded(domainDTO);
             } catch (Exception ex) {
-                LOG.warn("Error adding the domain [{}] to module [{}] ", domain, el, ex);
+                LOG.warn("Error adding the domain [{}] to module [{}] ", domain, bean, ex);
             }
         });
     }
 
-    protected void notifyClusterNodes(String domainCode) {
-        //notify other nodes in the cluster
+    protected void notifyClusterNodesOfAddition(String domainCode) {
         LOG.debug("Broadcasting adding domain [{}]", domainCode);
         try {
             signalService.signalDomainsAdded(domainCode);

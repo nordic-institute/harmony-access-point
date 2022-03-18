@@ -27,6 +27,7 @@ import java.util.UUID;
  * @author François Gautier
  * @since 5.0
  */
+@Transactional
 public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
 
     @Autowired

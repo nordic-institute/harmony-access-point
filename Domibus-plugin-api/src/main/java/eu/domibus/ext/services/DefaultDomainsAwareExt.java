@@ -23,5 +23,6 @@ public class DefaultDomainsAwareExt implements DomainsAwareExt {
 
     @Override
     public void onDomainRemoved(DomainDTO domain) {
+        domibusPropertyManagerExt.removeProperties(domain);
     }
 }

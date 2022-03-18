@@ -28,7 +28,7 @@ public class PartyRoleDao extends BasicDao<PartyRole> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PartyRole findOrCreateRole(String value) {
         if(StringUtils.isBlank(value)) {
             return null;

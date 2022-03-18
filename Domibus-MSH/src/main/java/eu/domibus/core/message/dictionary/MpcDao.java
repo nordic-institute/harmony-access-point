@@ -21,7 +21,7 @@ public class MpcDao extends BasicDao<MpcEntity> {
         super(MpcEntity.class);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public MpcEntity findOrCreateMpc(String value) {
         if (StringUtils.isBlank(value)) {
             return null;

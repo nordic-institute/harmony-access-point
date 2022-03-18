@@ -3,7 +3,7 @@ package eu.domibus.common.dao.security;
 import eu.domibus.AbstractIT;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.user.ui.UserRole;
-import eu.domibus.core.user.ui.UserRoleDao;
+import eu.domibus.core.user.ui.UserRoleDaoImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class UserRoleDaoImplTestIT extends AbstractIT {
     @Autowired
-    private UserRoleDao userRoleDao;
+    private UserRoleDaoImpl userRoleDao;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
@@ -60,7 +60,7 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
 
     private void createUserRole(String name) {
         UserRole userRole = new UserRole(name);
-        entityManager.persist(userRole);
+        userRoleDao.create(userRole);
     }
 
 }

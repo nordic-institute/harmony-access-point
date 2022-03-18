@@ -22,6 +22,7 @@ import javax.persistence.PersistenceContext;
  * @author Ion Perpegel
  * @since 4.1
  */
+@Transactional
 public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Autowired
@@ -56,7 +57,6 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Rollback
     public void testPasswordReusePolicy_shouldPass() {
         AuthenticationEntity user = initTestUser("testUser1");
         userSecurityPolicyManager.changePassword(user, "Password-1111111");
@@ -70,7 +70,6 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Test(expected = DomibusCoreException.class)
     @Transactional
-    @Rollback
     public void testPasswordReusePolicy_shouldFail() {
         AuthenticationEntity user = initTestUser("testUser2");
         userSecurityPolicyManager.changePassword(user, "Password-1111111");
@@ -83,7 +82,6 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Test(expected = DomibusCoreException.class)
     @Transactional
-    @Rollback
     public void testPasswordComplexity_blankPasswordShouldFail() {
         AuthenticationEntity user = initTestUser("testUser3");
         userSecurityPolicyManager.changePassword(user, "");
@@ -91,7 +89,6 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Test(expected = DomibusCoreException.class)
     @Transactional
-    @Rollback
     public void testPasswordComplexity_shortPasswordShouldFail() {
         AuthenticationEntity user = initTestUser("testUser4");
         userSecurityPolicyManager.changePassword(user, "Aa-1");
@@ -99,7 +96,6 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Test(expected = UserManagementException.class)
     @Transactional
-    @Rollback
     public void test_validateUniqueUser() {
         AuthenticationEntity user = initTestUser("testUser_Unique");
         userSecurityPolicyManager.validateUniqueUser(user);

@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.executor.tomcat.TomcatTaskExecutorConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.scheduling.quartz.SimpleThreadPoolTaskExecutor;
@@ -20,43 +21,29 @@ public class TomcatTaskExecutorConfigurationTest {
     TomcatTaskExecutorConfiguration tomcatTaskExecutorConfiguration;
 
     @Test
-    public void simpleThreadPoolTaskExecutor(@Injectable DomibusPropertyProvider domibusPropertyProvider,
-                                             @Mocked SimpleThreadPoolTaskExecutor poolTaskExecutor) {
+    public void simpleThreadPoolTaskExecutor(@Injectable DomibusPropertyProvider domibusPropertyProvider) {
         int threadCount = 20;
 
         new Expectations() {{
-            new SimpleThreadPoolTaskExecutor();
-            result = poolTaskExecutor;
-
             domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_TASK_EXECUTOR_THREAD_COUNT);
             result = threadCount;
         }};
 
-        tomcatTaskExecutorConfiguration.simpleThreadPoolTaskExecutor(domibusPropertyProvider);
-
-        new FullVerifications() {{
-            poolTaskExecutor.setThreadCount(threadCount);
-        }};
+        final SimpleThreadPoolTaskExecutor simpleThreadPoolTaskExecutor = tomcatTaskExecutorConfiguration.simpleThreadPoolTaskExecutor(domibusPropertyProvider);
+        Assert.assertEquals(threadCount, simpleThreadPoolTaskExecutor.getThreadCount());
     }
 
     @Test
-    public void simpleThreadPoolMshTaskExecutor(@Injectable DomibusPropertyProvider domibusPropertyProvider,
-                                             @Mocked SimpleThreadPoolTaskExecutor poolTaskExecutor) {
+    public void simpleThreadPoolMshTaskExecutor(@Injectable DomibusPropertyProvider domibusPropertyProvider) {
         int threadCount = 35;
 
         new Expectations() {{
-            new SimpleThreadPoolTaskExecutor();
-            result = poolTaskExecutor;
-
             domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT);
             result = threadCount;
         }};
 
-        tomcatTaskExecutorConfiguration.simpleThreadPoolMshTaskExecutor(domibusPropertyProvider);
-
-        new FullVerifications() {{
-            poolTaskExecutor.setThreadCount(threadCount);
-        }};
+        final SimpleThreadPoolTaskExecutor simpleThreadPoolTaskExecutor = tomcatTaskExecutorConfiguration.simpleThreadPoolMshTaskExecutor(domibusPropertyProvider);
+        Assert.assertEquals(threadCount, simpleThreadPoolTaskExecutor.getThreadCount());
     }
 
 

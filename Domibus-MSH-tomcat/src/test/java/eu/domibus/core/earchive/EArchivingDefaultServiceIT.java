@@ -33,7 +33,7 @@ import static java.util.Locale.ENGLISH;
  * @author François Gautier
  * @since 5.0
  */
-
+@Transactional
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired

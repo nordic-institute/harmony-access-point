@@ -7,9 +7,10 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -144,7 +145,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         final List<GrantedAuthority> authorities = validateHighestAuthority(highestAuthority, domain);
         final String domainCode = getDomainCode(domain);
 
-        DomibusUserDetails domibusUserDetails = new DomibusUserDetails(username, StringUtils.EMPTY, authorities);
+        DomibusUserDetails domibusUserDetails = new DomibusUserDetailsImpl(username, StringUtils.EMPTY, authorities);
         domibusUserDetails.setAvailableDomainCodes(availableDomainCodes);
         domibusUserDetails.setDefaultPasswordUsed(false);
         domibusUserDetails.setExternalAuthProvider(true);
@@ -197,9 +198,9 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
 
         final String[] domainCodesFromLDAPArray = domainCodesFromLDAP.toArray(new String[0]);
         Set<String> availableDomainCodes = domainService.getDomains().stream()
-                    .map(Domain::getCode)
-                    .filter(code -> StringUtils.equalsAny(code, domainCodesFromLDAPArray))
-                    .collect(Collectors.toSet());
+                .map(Domain::getCode)
+                .filter(code -> StringUtils.equalsAny(code, domainCodesFromLDAPArray))
+                .collect(Collectors.toSet());
 
         LOG.info("userDetail availableDomainCodes={}", availableDomainCodes);
         return availableDomainCodes;
@@ -209,14 +210,14 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         List<GrantedAuthority> authorities = Collections.emptyList();
         if (applicableAuthority != null) {
             if (hasSuperAdminUserPrivilege(applicableAuthority)) {
-                if(domibusConfigurationService.isMultiTenantAware()) {
+                if (domibusConfigurationService.isMultiTenantAware()) {
                     //we set the groups only if the privilege is that of a super admin user in a multitenancy scenario
                     LOG.debug("granted role is [{}]", applicableAuthority.getAuthority());
                     authorities = Collections.singletonList(applicableAuthority);
                 } else {
                     LOG.warn("User has the super admin role but Domibus is not currently running in multitenancy mode");
                 }
-            }else if (domain != null) {
+            } else if (domain != null) {
                 //we set the groups only if the LDAP groups are mapping on both privileges and domain code
                 LOG.debug("granted role is [{}]", applicableAuthority.getAuthority());
                 authorities = Collections.singletonList(applicableAuthority);

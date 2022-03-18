@@ -14,6 +14,7 @@ import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -214,6 +215,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         Assert.assertNotNull(byMessageId.getDeleted());
     }
 
+    @Ignore("EDELIVERY-8892")
     @Test
     public void delete_id_notFound() throws Exception {
 

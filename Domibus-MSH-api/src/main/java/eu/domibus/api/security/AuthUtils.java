@@ -2,7 +2,6 @@ package eu.domibus.api.security;
 
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @author Cosmin Baciu
@@ -17,7 +16,8 @@ public interface AuthUtils {
 
     String getAuthenticatedUser();
 
-    UserDetails getUserDetails();
+    // todo EDELIVERY-9087 - eliminate redundancy with AuthenticationService
+    DomibusUserDetails getUserDetails();
 
     boolean isUnsecureLoginAllowed();
 

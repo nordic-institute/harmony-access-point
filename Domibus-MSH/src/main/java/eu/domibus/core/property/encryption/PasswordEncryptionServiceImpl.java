@@ -117,6 +117,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        // nothing to do
     }
 
     private void encryptPasswords(List<Domain> domains) {

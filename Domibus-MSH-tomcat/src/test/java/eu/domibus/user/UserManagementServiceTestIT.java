@@ -25,6 +25,7 @@ import java.util.*;
  * @author Ion Perpegel
  * @since 5.0
  */
+@Transactional
 public class UserManagementServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceTestIT.class);

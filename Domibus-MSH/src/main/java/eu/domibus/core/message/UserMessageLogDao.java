@@ -246,6 +246,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
     }
 
+    public List<UserMessageLogDto> getAllMessages() {
+        Query query = em.createNamedQuery("UserMessageLog.findAllMessages");
+        query.unwrap(org.hibernate.query.Query.class).setResultTransformer(new UserMessageLogDtoResultTransformer());
+        return query.getResultList();
+    }
+
     public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
         StoredProcedureQuery query = em.createStoredProcedureQuery(queryName)
                 .registerStoredProcedureParameter(
@@ -389,6 +395,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     @Timer(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
+    @Transactional
     public int deleteMessageLogs(List<Long> ids) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("IDS", ids);

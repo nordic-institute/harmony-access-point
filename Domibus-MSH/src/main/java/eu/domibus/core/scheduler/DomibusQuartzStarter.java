@@ -29,6 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
 
@@ -104,6 +105,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        removeScheduler(domain);
     }
 
     private void initQuartzSchedulers(List<Domain> domains) {
@@ -124,8 +126,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         // General Schedulers
         for (Scheduler scheduler : generalSchedulers) {
+            LOG.info("Shutting down Quartz Scheduler for general -> scheduler [{}]", scheduler);
             try {
-                LOG.info("Shutting down Quartz Scheduler for general -> scheduler [{}]", scheduler);
                 scheduler.shutdown(true);
             } catch (SchedulerException e) {
                 LOG.error("Error while shutting down Quartz Scheduler for general schema", e);
@@ -135,10 +137,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         // Domain Schedulers
         for (Map.Entry<Domain, Scheduler> domainSchedulerEntry : schedulers.entrySet()) {
             final Domain domain = domainSchedulerEntry.getKey();
-            final Scheduler quartzScheduler = domainSchedulerEntry.getValue();
-            LOG.info("Shutting down Quartz Scheduler for domain [{}] -> scheduler [{}]", domain, quartzScheduler);
+            final Scheduler scheduler = domainSchedulerEntry.getValue();
+            LOG.info("Shutting down Quartz Scheduler for domain [{}] -> scheduler [{}]", domain, scheduler);
             try {
-                quartzScheduler.shutdown(true);
+                scheduler.shutdown(true);
             } catch (SchedulerException e) {
                 LOG.error("Error while shutting down Quartz Scheduler for domain [{}]", domain, e);
             }
@@ -146,7 +148,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     }
 
     /**
-     * entry point method (post-construct)
+     * entry point method
      *
      * @param domain the domain
      * @throws SchedulerException Quartz scheduler exception
@@ -166,6 +168,22 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         pauseJobsForCurrentDomain();
 
         domainContextProvider.clearCurrentDomain();
+    }
+
+    private void removeScheduler(Domain domain) {
+        if (!schedulers.containsKey(domain)) {
+            LOG.info("Quartz Scheduler for domain [{}] not found; exiting.", domain);
+            return;
+        }
+
+        Scheduler scheduler = schedulers.get(domain);
+        try {
+            doForAllSchedulerJobs(scheduler, (schedulerParam, jobkeyParam) -> deleteSchedulerJob(schedulerParam, jobkeyParam, null));
+            scheduler.shutdown(true);
+        } catch (SchedulerException e) {
+            LOG.error("Error while shutting down Quartz Scheduler for domain [{}]", domain, e);
+        }
+        schedulers.remove(domain);
     }
 
     protected void removeMarkedForDeletionJobs() {
@@ -593,6 +611,18 @@ public class DomibusQuartzStarter implements DomibusScheduler {
                 .usingJobData(jobDetail.getJobDataMap())
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(repeatInterval).repeatForever())
                 .build();
+    }
+
+    private void doForAllSchedulerJobs(Scheduler scheduler, BiConsumer<Scheduler, JobKey> action) throws SchedulerException {
+        for (String groupName : scheduler.getJobGroupNames()) {
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                try {
+                    action.accept(scheduler, jobKey);
+                } catch (Exception ex) {
+                    LOG.info("Error while calling [{}] action on scheduler [{}]", action, scheduler.getSchedulerName());
+                }
+            }
+        }
     }
 
 }

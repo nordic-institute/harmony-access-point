@@ -11,10 +11,10 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.Map;
  * @author idragusa
  * @since 5.0
  */
-@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+@Transactional
 public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentFailedMessageIT.class);
 
@@ -38,6 +38,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
     @Autowired
     private UserMessageLogDao userMessageLogDao;
 
+    @Transactional
     @Before
     public void updatePmodeForSendFailure() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
@@ -47,6 +48,8 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
 
     @Test
     public void testDeleteFailedMessage() throws MessagingProcessingException {
+        deleteAllMessages();
+
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
@@ -59,16 +62,10 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
         Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
         Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
 
-        deleteMessages();
+        deleteAllMessages();
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        try {
-            userMessageLogDao.findByMessageId(messageId);
-            Assert.fail();
-        } catch (NoResultException e) {
-            //OK
-        }
-
+        Assert.assertNull(userMessageLogDao.findByMessageId(messageId));
     }
 
 }
