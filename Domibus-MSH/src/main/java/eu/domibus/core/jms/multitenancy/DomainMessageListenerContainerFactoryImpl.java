@@ -24,55 +24,55 @@ public class DomainMessageListenerContainerFactoryImpl implements DomainMessageL
     protected ApplicationContext applicationContext;
 
     @Override
-    public DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain, String selector, String concurrencyPropertyName) {
+    public DomainMessageListenerContainerImpl createSendMessageListenerContainer(Domain domain, String selector, String concurrencyPropertyName) {
         LOG.debug("Creating the SendMessageListenerContainer for domain [{}] with selector [{}] and concurrency [{}]", domain, selector, concurrencyPropertyName);
-        return (DomainMessageListenerContainer) applicationContext.getBean(DISPATCH_CONTAINER, domain, selector, concurrencyPropertyName);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(DISPATCH_CONTAINER, domain, selector, concurrencyPropertyName);
     }
 
     @Override
-    public DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createSendLargeMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the SendLargeMessageListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(SEND_LARGE_MESSAGE_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(SEND_LARGE_MESSAGE_CONTAINER, domain);
     }
 
     @Override
-    public DomainMessageListenerContainer createSplitAndJoinListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createSplitAndJoinListenerContainer(Domain domain) {
         LOG.debug("Creating the SplitAndJoinListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(SPLIT_AND_JOIN_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(SPLIT_AND_JOIN_CONTAINER, domain);
     }
 
     @Override
-    public DomainMessageListenerContainer createPullReceiptListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createPullReceiptListenerContainer(Domain domain) {
         LOG.debug("Creating the PullReceiptListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(PULL_RECEIPT_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(PULL_RECEIPT_CONTAINER, domain);
     }
 
     @Override
-    public DomainMessageListenerContainer createRetentionListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createRetentionListenerContainer(Domain domain) {
         LOG.debug("Creating the RetentionListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(RETENTION_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(RETENTION_CONTAINER, domain);
     }
 
     @Override
-    public DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createPullMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the PullMessageListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(PULL_MESSAGE_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(PULL_MESSAGE_CONTAINER, domain);
     }
 
     @Override
-    public DomainMessageListenerContainer createEArchiveMessageListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createEArchiveMessageListenerContainer(Domain domain) {
         LOG.debug("Creating the EArchiveMessageListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(EARCHIVE_CONTAINER, domain);
     }
     @Override
-    public DomainMessageListenerContainer createEArchiveNotificationListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createEArchiveNotificationListenerContainer(Domain domain) {
         LOG.debug("Creating the EArchiveNotificationListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_NOTIF_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(EARCHIVE_NOTIF_CONTAINER, domain);
     }
     @Override
-    public DomainMessageListenerContainer createEArchiveNotificationDlqListenerContainer(Domain domain) {
+    public DomainMessageListenerContainerImpl createEArchiveNotificationDlqListenerContainer(Domain domain) {
         LOG.debug("Creating the EArchiveNotificationDlqListenerContainer for domain [{}]", domain);
-        return (DomainMessageListenerContainer) applicationContext.getBean(EARCHIVE_NOTIF_DLQ_CONTAINER, domain);
+        return (DomainMessageListenerContainerImpl) applicationContext.getBean(EARCHIVE_NOTIF_DLQ_CONTAINER, domain);
     }
 
 }

@@ -31,7 +31,7 @@ public class UserSessionsServiceImplTest {
     @Test
     public void invalidateSessions() {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        final DomibusUserDetails domibusUserDetails = new DomibusUserDetails("userName", "password", authorities);
+        final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl("userName", "password", authorities);
 
         User user = new User();
         user.setUserName("userName");

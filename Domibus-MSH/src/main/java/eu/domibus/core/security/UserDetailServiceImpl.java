@@ -10,7 +10,7 @@ import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -63,7 +63,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(msg);
         }
 
-        DomibusUserDetails domibusUserDetails = new DomibusUserDetails(user);
+        DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl(user);
         domibusUserDetails.setDefaultPasswordUsed(isDefaultPasswordUsed(user));
         domibusUserDetails.setDaysTillExpiration(userService.getDaysTillExpiration(userName));
 

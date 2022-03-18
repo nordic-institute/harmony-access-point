@@ -74,4 +74,6 @@ public interface SignalService {
     void signalDomainsAdded(String domainCode);
 
     void signalKeyStoreUpdate(Domain domain);
+
+    void signalDomainsRemoved(String domainCode);
 }

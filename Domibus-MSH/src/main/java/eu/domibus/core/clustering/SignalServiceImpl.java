@@ -12,7 +12,6 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Topic;
@@ -30,17 +29,21 @@ import java.util.Map;
 public class SignalServiceImpl implements SignalService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalServiceImpl.class);
 
-    @Autowired
-    protected JMSManager jmsManager;
+    protected final JMSManager jmsManager;
 
-    @Autowired
-    protected Topic clusterCommandTopic;
+    protected final Topic clusterCommandTopic;
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    protected final DomainContextProvider domainContextProvider;
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected final DomibusConfigurationService domibusConfigurationService;
+
+    public SignalServiceImpl(JMSManager jmsManager, Topic clusterCommandTopic, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+        this.jmsManager = jmsManager;
+
+        this.clusterCommandTopic = clusterCommandTopic;
+        this.domainContextProvider = domainContextProvider;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @Override
     public void signalTrustStoreUpdate(Domain domain) {
@@ -124,13 +127,7 @@ public class SignalServiceImpl implements SignalService {
     public void signalMessageFiltersUpdated() {
         String domainCode = domainContextProvider.getCurrentDomain().getCode();
 
-        LOG.debug("Signaling message filters change [{}] domain", domainCode);
-
-        Map<String, String> commandProperties = new HashMap<>();
-        commandProperties.put(Command.COMMAND, Command.MESSAGE_FILTER_UPDATE);
-        commandProperties.put(MessageConstants.DOMAIN, domainCode);
-
-        sendMessage(commandProperties);
+        signalOperation(domainCode, Command.MESSAGE_FILTER_UPDATE);
     }
 
     @Override
@@ -148,12 +145,7 @@ public class SignalServiceImpl implements SignalService {
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = domain == null ? null : domain.getCode();
 
-        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
-
-        Map<String, String> commandProperties = new HashMap<>();
-        commandProperties.put(Command.COMMAND, Command.EVICT_CACHES);
-        commandProperties.put(MessageConstants.DOMAIN, domainCode);
-        sendMessage(commandProperties);
+        signalOperation(domainCode, Command.EVICT_CACHES);
     }
 
     @Override
@@ -161,27 +153,30 @@ public class SignalServiceImpl implements SignalService {
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         String domainCode = domain == null ? null : domain.getCode();
 
-        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
-
-        Map<String, String> commandProperties = new HashMap<>();
-        commandProperties.put(Command.COMMAND, Command.EVICT_2LC_CACHES);
-        commandProperties.put(MessageConstants.DOMAIN, domainCode);
-        sendMessage(commandProperties);
+        signalOperation(domainCode, Command.EVICT_2LC_CACHES);
     }
 
     @Override
     public void signalTLSTrustStoreUpdate(Domain domain) {
-        Map<String, String> commandProperties = new HashMap<>();
-        commandProperties.put(Command.COMMAND, Command.RELOAD_TLS_TRUSTSTORE);
-        commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
-
-        sendMessage(commandProperties);
+        String domainCode = domain == null ? null : domain.getCode();
+        signalOperation(domainCode, Command.RELOAD_TLS_TRUSTSTORE);
     }
 
     @Override
     public void signalDomainsAdded(String domainCode) {
+        signalOperation(domainCode, Command.DOMAIN_ADDED);
+    }
+
+    @Override
+    public void signalDomainsRemoved(String domainCode) {
+        signalOperation(domainCode, Command.DOMAIN_REMOVED);
+    }
+
+    private void signalOperation(String domainCode, String command) {
+        LOG.debug("Signaling [{}] command on [{}] domain", command, domainCode);
+
         Map<String, String> commandProperties = new HashMap<>();
-        commandProperties.put(Command.COMMAND, Command.DOMAIN_ADDED);
+        commandProperties.put(Command.COMMAND, command);
         commandProperties.put(MessageConstants.DOMAIN, domainCode);
 
         sendMessage(commandProperties);

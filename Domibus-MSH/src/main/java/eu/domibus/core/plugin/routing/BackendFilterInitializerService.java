@@ -14,7 +14,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -78,6 +77,7 @@ public class BackendFilterInitializerService implements DomainsAware {
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        // todo nothing for now; should we?
     }
 
     protected void createBackendFilters(List<Domain> domains) {
@@ -96,5 +96,10 @@ public class BackendFilterInitializerService implements DomainsAware {
         domainTaskExecutor.submit(wrappedCreateBackendFilters, domain, true, 3L, TimeUnit.MINUTES);
 
         LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
+    }
+
+    protected void removeBackendFilters(Domain domain) {
+        Runnable task = () -> authUtils.runWithDomibusSecurityContext(routingService::removeBackendFilters, AuthRole.ROLE_AP_ADMIN, true);
+        domainTaskExecutor.submit(task, domain, true, 3L, TimeUnit.MINUTES);
     }
 }

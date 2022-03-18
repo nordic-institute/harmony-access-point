@@ -140,4 +140,10 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
         domibusPropertyProvider.loadProperties(domibusDomain, propertiesFilePath);
     }
+
+    @Override
+    public void removeProperties(DomainDTO domain, String propertiesFilePath) {
+        final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
+        domibusPropertyProvider.removeProperties(domibusDomain, propertiesFilePath);
+    }
 }

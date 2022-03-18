@@ -216,4 +216,6 @@ public interface CertificateService {
      * @return the list of certificate policy identifiers
      */
     List<String> getCertificatePolicyIdentifiers(X509Certificate cert);
+
+    void removeTruststore(String domibusTruststoreName, Domain domain);
 }

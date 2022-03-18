@@ -18,7 +18,7 @@ import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoginRO;
 import eu.domibus.web.rest.ro.UserRO;
 import eu.domibus.web.security.AuthenticationService;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -102,7 +102,7 @@ public class AuthenticationResourceTest {
         LoginRO loginRO = new LoginRO();
         loginRO.setUsername("user");
         loginRO.setPassword("user");
-        final DomibusUserDetails domibusUserDetails = new DomibusUserDetails(user);
+        final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl(user);
         new Expectations() {{
             userDomainService.getDomainForUser(loginRO.getUsername());
             result = DomainService.DEFAULT_DOMAIN.getCode();
@@ -154,7 +154,7 @@ public class AuthenticationResourceTest {
     }
 
     @Test
-    public void testChangePassword(@Mocked DomibusUserDetails loggedUser, @Mocked ChangePasswordRO changePasswordRO) {
+    public void testChangePassword(@Mocked DomibusUserDetailsImpl loggedUser, @Mocked ChangePasswordRO changePasswordRO) {
 
         new Expectations() {{
             authenticationService.getLoggedUser();
@@ -213,7 +213,7 @@ public class AuthenticationResourceTest {
     }
 
     @Test
-    public void testGetUser(final @Mocked DomibusUserDetails domibusUserDetails) {
+    public void testGetUser(final @Mocked DomibusUserDetailsImpl domibusUserDetails) {
         new Expectations() {{
             authenticationService.getLoggedUser();
             result = domibusUserDetails;

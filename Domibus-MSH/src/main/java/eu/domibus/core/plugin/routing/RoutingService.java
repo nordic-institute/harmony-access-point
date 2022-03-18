@@ -102,8 +102,8 @@ public class RoutingService {
     public void createBackendFilters() {
         LOG.debug("Checking backend filters");
 
-        List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
-        LOG.debug("Found backend filters in database [{}]", backendFilterEntitiesInDB);
+        List<BackendFilterEntity> entitiesInDB = backendFilterDao.findAll();
+        LOG.debug("Found backend filters in database [{}]", entitiesInDB);
 
         List<String> pluginToAdd = backendConnectorProvider.getBackendConnectors()
                 .stream()
@@ -113,27 +113,27 @@ public class RoutingService {
 
         LOG.debug("Checking if any existing database plugins are already removed from the plugin location");
 
-        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = backendFilterEntitiesInDB.stream().filter(
+        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = entitiesInDB.stream().filter(
                 backendFilterEntity -> pluginToAdd.stream().noneMatch(plugin -> StringUtils.equalsIgnoreCase(plugin, backendFilterEntity.getBackendName()))).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(dbFiltersNotInBackendConnectors)) {
             LOG.debug("Deleting backend filters from database as its already removed from the plugin location [{}]", dbFiltersNotInBackendConnectors);
             backendFilterDao.delete(dbFiltersNotInBackendConnectors);
             LOG.debug("Finished deleting backend filters");
 
-            backendFilterEntitiesInDB.removeAll(dbFiltersNotInBackendConnectors);
-            if (!CollectionUtils.isEmpty(backendFilterEntitiesInDB)) {
-                LOG.info("Updating backend filter indices for [{}]", backendFilterEntitiesInDB);
+            entitiesInDB.removeAll(dbFiltersNotInBackendConnectors);
+            if (!CollectionUtils.isEmpty(entitiesInDB)) {
+                LOG.info("Updating backend filter indices for [{}]", entitiesInDB);
 
-                updateFilterIndices(backendFilterEntitiesInDB);
-                backendFilterDao.update(backendFilterEntitiesInDB);
+                updateFilterIndices(entitiesInDB);
+                backendFilterDao.update(entitiesInDB);
 
                 LOG.info("Finished updating backend filter indices");
             }
         }
-        pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
+        pluginToAdd.removeAll(entitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
 
         if (CollectionUtils.isNotEmpty(pluginToAdd)) {
-            List<BackendFilterEntity> backendFilterEntities = buildBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
+            List<BackendFilterEntity> backendFilterEntities = buildBackendFilterEntities(pluginToAdd, getMaxIndex(entitiesInDB) + 1);
             LOG.debug("Creating backend filters [{}]", backendFilterEntities);
 
             backendFilterDao.create(backendFilterEntities);
@@ -293,6 +293,10 @@ public class RoutingService {
         return true;
     }
 
+    public void removeBackendFilters() {
+        List<BackendFilterEntity> entities = backendFilterDao.findAll();
+        entities.forEach(entity -> backendFilterDao.delete(entity));
+    }
 }
 
 

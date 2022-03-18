@@ -105,16 +105,17 @@ public class DynamicDomainManagementServiceImplTest {
     }
 
     @Test
-    public void internalAddDomain(@Injectable List<DomainsAware> domainsAwareList) {
+    public void internalAddDomain(@Injectable List<DomainsAware> domainsAwareList) throws Exception {
         new Expectations() {{
-            domainService.getDomains();
-            result = domains;
             domibusPropertyProvider.loadProperties((Domain) any);
         }};
 
         dynamicDomainManagementService.internalAddDomain(domain2);
 
-        Assert.assertTrue(domainService.getDomains().contains(domain2));
+        new Verifications() {{
+            domainService.addDomain(domain2);
+            dynamicDomainManagementService.notifyInternalBeansOfAddition(domain2);
+        }};
     }
 
     @Test(expected = DomibusDomainException.class)
@@ -132,8 +133,6 @@ public class DynamicDomainManagementServiceImplTest {
         });
 
         new Expectations() {{
-            domainService.getDomains();
-            result = domains;
             domibusPropertyProvider.loadProperties((Domain) any);
         }};
 
@@ -154,7 +153,7 @@ public class DynamicDomainManagementServiceImplTest {
             result = domain1Dto;
         }};
 
-        dynamicDomainManagementService.notifyExternalModules(domain1);
+        dynamicDomainManagementService.notifyExternalModulesOfAddition(domain1);
 
         new Verifications() {{
             externalDomainsAwareList.get(0).onDomainAdded(domain1Dto);

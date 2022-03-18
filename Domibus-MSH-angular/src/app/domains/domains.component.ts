@@ -96,10 +96,10 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
     let active = domain.active;
     try {
       super.isLoading = true;
-      await this.domainService.setActiveState(domain);
-      this.alertService.success(`Successfully added domain ${domain.name}`);
+      await this.domainService.setActiveState(domain, active);
+      this.alertService.success(`Successfully ${active ? 'added' : 'removed'} domain ${domain.name}`);
     } catch (err) {
-      this.alertService.exception(`Operation failed:`, err);
+      this.alertService.exception(`Error while ${active ? 'adding' : 'removing'} domain ${domain.name}`, err);
       setTimeout(() => domain.active = !active, 200);
     } finally {
       super.isLoading = false;

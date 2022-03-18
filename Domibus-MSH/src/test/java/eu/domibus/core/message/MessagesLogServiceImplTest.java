@@ -10,13 +10,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+@RunWith(JMockit.class)
 public class MessagesLogServiceImplTest {
 
     @Tested
