@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,7 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
+@Transactional
 public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceE2EIT.class);
@@ -79,6 +81,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     private String messageId2;
     private String batchId;
 
+    @Transactional
     @Before
     public void setUp() throws Exception {
         // because we must not use DirtyContext do not use common identifiers!

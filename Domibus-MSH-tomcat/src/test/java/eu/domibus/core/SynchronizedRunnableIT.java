@@ -19,7 +19,7 @@ import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_K
  * @author Ion Perpegel
  * @since 5.0
  */
-@Ignore("[EDELIVERY-8739] Improve code coverage")
+@Transactional
 public class SynchronizedRunnableIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);
@@ -28,9 +28,8 @@ public class SynchronizedRunnableIT extends AbstractIT {
     SynchronizedRunnableFactory synchronizedRunnableFactory;
 
     @Test
-    @Transactional
     public void blocksWithTimeout() {
-        AtomicInteger i = new AtomicInteger();
+        AtomicInteger atomicInteger = new AtomicInteger();
         Runnable task1 = () -> {
             LOG.info("Task 1 enter");
             try {
@@ -38,7 +37,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             } catch (Exception e) {
                 LOG.error("SynchronizedRunnableIT stopped", e);
             }
-            i.getAndIncrement();
+            atomicInteger.getAndIncrement();
             LOG.info("Task 1 exit");
         };
 
@@ -53,7 +52,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
             } catch (InterruptedException e) {
                 LOG.error("SynchronizedRunnableIT stopped", e);
             }
-            i.getAndIncrement();
+            atomicInteger.getAndIncrement();
             LOG.info("Task 2 exit");
             Assert.fail();
         };
@@ -68,15 +67,15 @@ public class SynchronizedRunnableIT extends AbstractIT {
         t2.start();
 
         try {
+            t1.join();
             t2.join();
-            Assert.assertEquals(1, i.get());
+            Assert.assertEquals(1, atomicInteger.get());
         } catch (InterruptedException e) {
             LOG.error("SynchronizedRunnableIT stopped", e);
         }
     }
 
     @Test
-    @Transactional
     public void allTasksSucceed() {
         AtomicInteger i = new AtomicInteger();
         Runnable task1 = () -> {
@@ -115,6 +114,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         t2.start();
 
         try {
+            t1.join();
             t2.join();
             Assert.assertEquals(2, i.get());
         } catch (InterruptedException e) {

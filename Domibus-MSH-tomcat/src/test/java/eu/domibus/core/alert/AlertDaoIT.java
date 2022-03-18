@@ -32,6 +32,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Thomas Dussart
  * @since 4.0
  */
+@Transactional
 public class AlertDaoIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);

@@ -16,6 +16,7 @@ import java.util.Date;
  * @author François Gautier
  * @since 5.0
  */
+@Transactional
 public class SignalMessageRawServiceIT extends AbstractIT {
 
     public static final String RAW_XML = "TEST";

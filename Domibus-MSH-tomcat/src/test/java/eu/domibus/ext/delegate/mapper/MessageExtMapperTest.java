@@ -1,15 +1,14 @@
 package eu.domibus.ext.delegate.mapper;
 
+import eu.domibus.AbstractIT;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,9 +17,8 @@ import java.util.List;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = TestMapperContextConfiguration.class)
-public class MessageExtMapperTest {
+@Transactional
+public class MessageExtMapperTest extends AbstractIT {
 
     @Autowired
     private MessageExtMapper messageExtMapper;

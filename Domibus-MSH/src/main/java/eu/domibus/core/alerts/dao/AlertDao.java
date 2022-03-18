@@ -72,7 +72,11 @@ public class AlertDao extends BasicDao<Alert> {
                         builder.equal(treat.get(StringEventProperty_.key), key),
                         builder.equal(treat.get(StringEventProperty_.stringValue), value));
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Add dynamic non date criteria key:[{}] equals:[{}] for alert type:[{}]", key, value, alertCriteria.getAlertType().name());
+                    String alertType = null;
+                    if(alertCriteria != null && alertCriteria.getAlertType() != null) {
+                        alertType = alertCriteria.getAlertType().name();
+                    }
+                    LOG.debug("Add dynamic non date criteria key:[{}] equals:[{}] for alert type:[{}]", key, value, alertType);
                 }
                 predicates.add(parameterPredicate);
             });

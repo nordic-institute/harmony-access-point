@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+
 public class UserMessagePayloadExtResourceIT extends AbstractIT {
 
     public static final String TEST_ENDPOINT_DOWNLOAD_PAYLOAD = "/ext/messages/ids/{messageEntityId}/payloads/{cid}";

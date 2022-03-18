@@ -3,6 +3,7 @@ package eu.domibus;
 import eu.domibus.web.security.AuthenticationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Primary;
 
 /**
@@ -10,6 +11,9 @@ import org.springframework.context.annotation.Primary;
  * @since 4.2
  */
 @Configuration
+@ImportResource({
+        "classpath:config/commonsTestContext.xml"
+})
 public class DomibusTestMocksConfiguration {
 
     @Primary

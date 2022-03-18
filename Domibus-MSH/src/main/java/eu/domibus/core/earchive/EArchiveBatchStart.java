@@ -18,7 +18,7 @@ public class EArchiveBatchStart extends AbstractBaseEntity {
     @Column(name = "LAST_PK_USER_MESSAGE")
     private Long lastPkUserMessage;
 
-    @JoinColumn(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION")
     private String description;
 
     public Long getLastPkUserMessage() {

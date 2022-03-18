@@ -58,7 +58,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@Ignore("EDELIVERY-8918 Failing tests must be ignored (FAILS ON BAMBOO)")
+@Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Configuration
@@ -185,6 +185,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     BackendConnectorMock backendConnector;
     String messageId, filename;
 
+    @Transactional
     @Before
     public void before() throws IOException, XmlProcessingException {
         messageId = UUID.randomUUID() + "@domibus.eu";
@@ -197,6 +198,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
                 .thenReturn(backendConnector);
     }
 
+    @Transactional
     @After
     public void after() {
         backendConnector.clear();
@@ -220,8 +222,6 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
-
-        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
 
         assertEquals(backendConnector.getDeliverMessageEvent().getMessageId(), messageId);
 
@@ -299,18 +299,13 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     public void testNotifyMessageDeleted() throws MessagingProcessingException {
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
 
-        deleteMessages();
+        deleteAllMessages();
 
         assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().size(), 1);
         assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().get(0).getMessageId(), messageId);
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        try {
-            userMessageLogDao.findByMessageId(messageId);
-            Assert.fail();
-        } catch (NoResultException e) {
-            //OK
-        }
+        Assert.assertNull(userMessageLogDao.findByMessageId(messageId));
     }
 
     @Test
@@ -331,15 +326,13 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_ENQUEUED);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
-
         assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
         assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
 
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
 
-        deleteMessages();
+        deleteAllMessages();
     }
 
     @Test
@@ -372,10 +365,9 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         messageSenderErrorHandler.handleError(new Exception());
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.SEND_FAILURE);
         assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
 
-        deleteMessages();
+        deleteAllMessages();
     }
 
 }

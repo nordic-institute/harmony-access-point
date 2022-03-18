@@ -38,10 +38,6 @@ public class DomibusTestDatasourceConfiguration {
     @Bean(name = {DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE}, destroyMethod = "close")
     public DataSource domibusDatasource() {
         HikariDataSource dataSource = createDataSource();
-
-        dataSource.setIdleTimeout(60000);
-        dataSource.setConnectionTimeout(30000);
-
         return dataSource;
     }
 
@@ -53,11 +49,13 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setJdbcUrl(h2DataSource.getUrl());
         dataSource.setUsername(h2DataSource.getUser());
         dataSource.setPassword(h2DataSource.getPassword());
+        dataSource.setAutoCommit(false);
 
-        final int maxPoolSize = 20;
-        dataSource.setMaximumPoolSize(maxPoolSize);
-        final int maxLifetimeInSecs = 10;
-        dataSource.setMaxLifetime(maxLifetimeInSecs * 1000L);
+        dataSource.setConnectionTestQuery("SELECT 1");
+        dataSource.setMaxLifetime(5 * 1000L);
+        dataSource.setConnectionTimeout(5 * 1000L);
+        dataSource.setIdleTimeout(5 * 1000L);
+        dataSource.setMaximumPoolSize(100);
         return dataSource;
     }
 
@@ -67,7 +65,7 @@ public class DomibusTestDatasourceConfiguration {
 
         final String databaseSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_SCHEMA);
         //Enable logs for H2 with ';TRACE_LEVEL_FILE=4' at the end of databaseUrlTemplate
-        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=3000;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'";
+        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=DAY,VALUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_LOCK_TIMEOUT=3000;INIT=runscript from 'classpath:config/database/create_schema.sql'\\;runscript from 'classpath:config/database/domibus-h2.sql'\\;runscript from 'classpath:config/database/domibus-h2-data.sql'\\;runscript from 'classpath:config/database/schema-h2.sql'";
         String databaseUrl = String.format(databaseUrlTemplate, databaseSchema);
 
         LOG.info("Using database URL [{}]", databaseUrl);

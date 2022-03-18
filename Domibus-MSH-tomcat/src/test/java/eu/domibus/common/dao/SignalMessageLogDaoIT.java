@@ -25,6 +25,7 @@ import java.util.stream.Stream;
  * @author Ion Perpegel
  * @since 5.0
  */
+@Transactional
 public class SignalMessageLogDaoIT extends AbstractIT {
 
     @Autowired

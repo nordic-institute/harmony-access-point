@@ -15,12 +15,9 @@ import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.jms.core.JmsOperations;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -51,6 +48,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.0
  */
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptorTest.class);
@@ -76,12 +74,6 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Tested
     TrustSenderInterceptor trustSenderInterceptor;
-
-    @Bean
-    @Qualifier("jmsTemplateCommand")
-    public JmsOperations jmsOperations() {
-        return Mockito.mock(JmsOperations.class);
-    }
 
     PKIUtil pkiUtil = new PKIUtil();
 
