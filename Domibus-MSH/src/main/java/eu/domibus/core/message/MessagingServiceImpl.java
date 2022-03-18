@@ -160,11 +160,6 @@ public class MessagingServiceImpl implements MessagingService {
         return transformer.transformFromMessaging(userMessage, partInfos);
     }
 
-    @Override
-    public void clearFileSystemPayloads(List<PartInfo> partInfos) {
-        partInfoService.clearFileSystemPayloads(partInfos);
-    }
-
     protected void storePayload(UserMessage userMessage, MSHRole mshRole, LegConfiguration legConfiguration, String backendName, PartInfo partInfo) {
         try {
             if (MSHRole.RECEIVING.equals(mshRole)) {

@@ -40,7 +40,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = null;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorization(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
     }
 
     @Test
@@ -50,11 +50,11 @@ public class UserMessageSecurityDefaultServiceTest {
             userMessageService.findByMessageId(messageId);
             result = userMessage;
 
-            userMessageSecurityDefaultService.validateUserAccess(userMessage);
+            userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
             times = 1;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorization(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
     }
 
@@ -120,7 +120,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = originalUser;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = null;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -175,7 +175,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = other;
         }};
 
-        userMessageSecurityDefaultService.validateUserAccess(userMessage);
+        userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
 }

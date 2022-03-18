@@ -68,7 +68,7 @@ public interface MessageAcknowledgeExtService {
      * @throws MessageAcknowledgeExtException Raised in case an exception occurs while trying to register an acknowledgment
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated or the user does not have the permission to access the message
      */
-    MessageAcknowledgementDTO acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException;
+    MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException;
 
 
     /**

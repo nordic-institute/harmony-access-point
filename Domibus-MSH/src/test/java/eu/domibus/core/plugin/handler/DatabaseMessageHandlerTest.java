@@ -727,7 +727,7 @@ public class DatabaseMessageHandlerTest {
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
-            userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
             result = new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
         }};
 
@@ -923,7 +923,7 @@ public class DatabaseMessageHandlerTest {
             authUtils.getOriginalUserFromSecurityContext();
             result = originalUser;
 
-            userMessageSecurityService.validateUserAccess(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
             result = new AccessDeniedException("You are not allowed to handle this message");
         }};
 
@@ -993,7 +993,7 @@ public class DatabaseMessageHandlerTest {
 
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(MESS_ID);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
 
             errorLogService.getErrors(MESS_ID);
             Assert.assertNotNull(results);
@@ -1019,7 +1019,7 @@ public class DatabaseMessageHandlerTest {
         Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
 
         new Verifications(){{
-            userMessageSecurityService.checkMessageAuthorization(MESS_ID);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
             times = 1;
         }};
 
@@ -1029,7 +1029,7 @@ public class DatabaseMessageHandlerTest {
     public void testGetStatusAccessDenied() {
         // Given
         new Expectations() {{
-            userMessageSecurityService.checkMessageAuthorization(MESS_ID);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
             result = new AccessDeniedException("");
         }};
 

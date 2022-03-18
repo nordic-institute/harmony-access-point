@@ -75,11 +75,12 @@ public class PayloadExtDelegate implements PayloadExtService {
 
     protected PartInfoDTO getPartInfoDTO(UserMessage userMessage, String cid) {
         MessageStatus messageStatus = userMessageLogService.getMessageStatus(userMessage.getEntityId());
+
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
+
         if(MessageStatus.DELETED == messageStatus) {
             throw new PayloadExtException(DomibusErrorCode.DOM_005, "The payloads for message [" + userMessage.getMessageId() + "] have been deleted");
         }
-
-        userMessageSecurityService.checkMessageAuthorization(userMessage);
 
         final PartInfo partInfo = partInfoService.findPartInfo(userMessage.getEntityId(), cid);
         return domibusExtMapper.partInfoToDto(partInfo);

@@ -36,7 +36,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     @Override
-    public void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException {
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException {
         try {
             validateUserAccess(userMessage);
         } catch (AccessDeniedException e) {
@@ -75,53 +75,71 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
      * @param userMessage with set of {@link eu.domibus.api.model.MessageProperty}
      * @throws AccessDeniedException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}
      */
-    public void validateUserAccess(UserMessage userMessage) throws AccessDeniedException {
+    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage) throws AccessDeniedException {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
             return;
         }
+        validateUserAccess(userMessage);
+    }
+
+    public void validateUserAccess(UserMessage userMessage) {
         String authOriginalUser = authUtils.getOriginalUserFromSecurityContext();
         List<String> propertyNames = new ArrayList<>();
         propertyNames.add(MessageConstants.ORIGINAL_SENDER);
         propertyNames.add(MessageConstants.FINAL_RECIPIENT);
 
-        if (authOriginalUser != null) {
-            LOG.debug("OriginalUser is [{}]", authOriginalUser);
-            /* check the message belongs to the authenticated user */
-            boolean found = false;
-            for (String propertyName : propertyNames) {
-                String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
-                if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
-                throw new AccessDeniedException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
-            }
+        if (StringUtils.isBlank(authOriginalUser)) {
+            LOG.trace("OriginalUser is [{}] is admin", authOriginalUser);
+            return;
         }
-    }
 
-    public void validateUserAccess(UserMessage userMessage, String authOriginalUser, String propertyName) {
-        if (authOriginalUser != null) {
-            LOG.debug("OriginalUser is [{}]", authOriginalUser);
-            /* check the message belongs to the authenticated user */
+        LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
+
+        /* check the message belongs to the authenticated user */
+        boolean found = false;
+        for (String propertyName : propertyNames) {
             String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
-            if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
-                LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
-                throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
+            if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
+                found = true;
+                break;
             }
+        }
+        if (!found) {
+            LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
+            throw new AccessDeniedException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
         }
     }
 
-    public void checkMessageAuthorization(final Long messageEntityId) {
+    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName) {
+        if (StringUtils.isBlank(authOriginalUser)) {
+            LOG.trace("OriginalUser is [{}] admin", authOriginalUser);
+            return;
+        }
+        LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
+        /* check the message belongs to the authenticated user */
+        String originalUser = userMessageServiceHelper.getProperty(userMessage, propertyName);
+        if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
+            LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
+            throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
+        }
+    }
+
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId) {
         UserMessage userMessage = userMessageService.findByEntityId(messageEntityId);
         if (userMessage == null) {
             throw new AuthenticationException("Usermessage with entityId [" + messageEntityId + "] not found.");
         }
-        validateUserAccess(userMessage);
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    }
+
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
+        UserMessage userMessage = userMessageService.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new AuthenticationException("Usermessage with messageId [" + messageId + "] not found.");
+        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
     public void checkMessageAuthorization(String messageId) {

@@ -17,9 +17,10 @@ public interface UserMessageSecurityService {
      * @param messageId
      * @throws AuthenticationException in case the user doesn't have the permission
      */
+    void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) throws AuthenticationException;
     void checkMessageAuthorization(String messageId) throws AuthenticationException;
 
-    void checkMessageAuthorization(UserMessage userMessage) throws AuthenticationException;
+    void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;
 
     /**
      * Checks it the current user has the permission to access data for the provided finalRecipient
@@ -46,10 +47,10 @@ public interface UserMessageSecurityService {
      */
     String getOriginalUserFromSecurityContext() throws AuthenticationException;
 
-    void validateUserAccess(UserMessage userMessage);
+    void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage);
 
-    void validateUserAccess(UserMessage userMessage, String authOriginalUser, String propertyName);
+    void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName);
 
-    void checkMessageAuthorization(final Long messageEntityId);
+    void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId);
 
 }

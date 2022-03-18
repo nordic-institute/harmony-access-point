@@ -23,5 +23,4 @@ public interface MessagingService {
 
     Submission getSubmission(UserMessage userMessage);
 
-    void clearFileSystemPayloads(List<PartInfo> partInfos);
 }
