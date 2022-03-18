@@ -75,12 +75,6 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
     @Tested
     TrustSenderInterceptor trustSenderInterceptor;
 
-  /*  @Bean
-    @Qualifier("jmsTemplateCommand")
-    public JmsOperations jmsOperations() {
-        return Mockito.mock(JmsOperations.class);
-    }*/
-
     PKIUtil pkiUtil = new PKIUtil();
 
     @Test
