@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2.7</version>
+        <version>4.2.8-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>domibus-db</artifactId>
@@ -193,6 +193,9 @@
                        </configuration>
                    </execution>
                    <!-- 4.2.7 ends here -->
+
+                   <!-- delta 4.2.7 to 4.2.8 starts here -->
+                   <!-- delta 4.2.7 to 4.2.8 ends here -->
 
                    <!-- delta 4.2.6 to 4.2.7 starts here -->
                    <!-- delta 4.2.6 to 4.2.7 ends here -->
