@@ -110,6 +110,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
             LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
             throw new AccessDeniedException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
         }
+        LOG.trace("Could validate originalUser for [{}]", authOriginalUser);
     }
 
     public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName) {
