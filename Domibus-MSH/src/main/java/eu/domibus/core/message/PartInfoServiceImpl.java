@@ -277,13 +277,13 @@ public class PartInfoServiceImpl implements PartInfoService {
      */
     public void checkPartInfoCharset(final UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
         LOG.debug("Checking charset for attachments");
-        if (partInfoList == null) {
+        if (CollectionUtils.isEmpty(partInfoList)) {
             LOG.debug("No partInfo found");
             return;
         }
 
         for (final PartInfo partInfo : partInfoList) {
-            if (partInfo.getPartProperties() == null) {
+            if (CollectionUtils.isEmpty(partInfo.getPartProperties())) {
                 continue;
             }
             for (final Property property : partInfo.getPartProperties()) {
