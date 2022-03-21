@@ -72,6 +72,10 @@ export class PropertiesService {
     return this.getProperty('domibus.ui.csv.rows.max');
   }
 
+  async getMessageLogInitialIntervalProperty(): Promise<PropertyModel> {
+    return this.getProperty('domibus.ui.pages.messageLogs.initialInterval');
+  }
+
   async getResendButtonEnabledReceivedMinutesProperty(): Promise<PropertyModel> {
     return this.getProperty('domibus.ui.resend.action.enabled.received.minutes');
   }
