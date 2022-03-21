@@ -1,5 +1,6 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -80,6 +81,11 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
         return DeletionStrategy.PARTITIONS == DeletionStrategy.valueOf(retentionStrategy);
+    }
+
+    @Override
+    public void deleteAllMessages() {
+        throw new DomibusCoreException("Deleting all messages not supported");
     }
 
     /**

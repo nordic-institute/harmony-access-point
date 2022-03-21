@@ -1,7 +1,9 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -10,11 +12,14 @@ import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * @author Federico Martini
@@ -37,6 +42,12 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Autowired
     private MessagesLogServiceHelper messagesLogServiceHelper;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    NonRepudiationService nonRepudiationService;
+
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
@@ -56,6 +67,8 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> messageCoreConverter.messageLogInfoToMessageLogRO(messageLogInfo))
                 .collect(Collectors.toList());
+
+        setCanDownloadMessageAndEnvelope(convertedList);
         result.setMessageLogEntries(convertedList);
 
         return result;
@@ -93,7 +106,34 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         if (number > 0) {
             resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
         }
+
         return resultList;
+    }
+
+    protected List<MessageLogRO> setCanDownloadMessageAndEnvelope(List<MessageLogRO> resultList) {
+        LOG.debug("Check whether the message's can download or not.");
+        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+        for (MessageLogRO messageLogRO : resultList) {
+            messageLogRO.setCanDownloadMessage(true);
+            long content = messageLogRO.getPartLength();
+            LOG.debug("The message [{}] size is [{}].", messageLogRO.getMessageId(), content);
+            if (content > maxDownLoadSize) {
+                LOG.debug("Couldn't download the message. The message [{}] size exceeds maximum download size limit: [{}].", messageLogRO.getMessageId(), maxDownLoadSize);
+                messageLogRO.setCanDownloadMessage(false);
+            }
+            setCanDownloadEnvelope(messageLogRO);
+        }
+        return resultList;
+    }
+
+    protected void setCanDownloadEnvelope(MessageLogRO messageLogRO) {
+        Map<String, InputStream> envelope = nonRepudiationService.getMessageEnvelopes(messageLogRO.getMessageId());
+        LOG.debug("The message envelope size is [{}].", envelope.size());
+        messageLogRO.setCanDownloadEnvelope(true);
+        if (envelope.isEmpty()) {
+            LOG.debug("Couldn't download the message envelope. The message [{}] envelope is empty.", messageLogRO.getMessageId());
+            messageLogRO.setCanDownloadEnvelope(false);
+        }
     }
 
     protected MessageLogDao getMessageLogDao(MessageType messageType) {

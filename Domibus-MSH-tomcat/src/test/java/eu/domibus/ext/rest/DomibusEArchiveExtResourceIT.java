@@ -47,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * The complete rest endpoint integration tests
  */
+@Transactional
 public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
@@ -70,9 +71,6 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    protected EntityManager em;
 
     private MockMvc mockMvc;
 

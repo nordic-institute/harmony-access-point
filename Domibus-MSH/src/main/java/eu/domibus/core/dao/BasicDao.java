@@ -6,7 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A basic DAO implementation providing the standard CRUD operations,
@@ -75,6 +80,16 @@ public abstract class BasicDao<T extends DomibusBaseEntity> {
 
     public T merge(final T entity) {
         return em.merge(entity);
+    }
+
+    public List<T> findAll() {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(typeOfT);
+        Root<T> rootEntry = cq.from(typeOfT);
+        CriteriaQuery<T> all = cq.select(rootEntry);
+
+        TypedQuery<T> allQuery = em.createQuery(all);
+        return allQuery.getResultList();
     }
 
 }

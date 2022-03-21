@@ -95,4 +95,6 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @param domain
      */
     void loadProperties(DomainDTO domain);
+
+    void removeProperties(DomainDTO domain);
 }

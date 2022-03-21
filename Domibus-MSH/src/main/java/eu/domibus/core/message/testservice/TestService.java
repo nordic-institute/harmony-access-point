@@ -20,6 +20,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
@@ -144,6 +145,8 @@ public class TestService {
         // If no value is included in the 301 submission of the business document to the Access Point,
         // the Access Point MUST set the value of 302 eb:ConversationId to “1” as specified in section 4.3 of [ebMS3CORE].
         submission.setConversationId("1");
+
+        submission.setProcessingType(ProcessingType.PUSH);
 
         return submission;
     }

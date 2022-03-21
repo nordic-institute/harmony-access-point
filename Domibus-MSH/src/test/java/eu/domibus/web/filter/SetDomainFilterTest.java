@@ -2,12 +2,13 @@ package eu.domibus.web.filter;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.api.security.AuthUtils;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,7 +20,7 @@ import java.io.IOException;
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JMockit.class)
 public class SetDomainFilterTest {
 
     @Tested
@@ -31,15 +32,18 @@ public class SetDomainFilterTest {
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    AuthUtils authUtils;
+
     @Test
-    public void doFilter(@Mocked ServletRequest request, @Mocked ServletResponse response,
-                         @Mocked FilterChain chain, @Mocked DomibusUserDetails domibusUserDetails)
+    public void doFilter(@Injectable ServletRequest request, @Injectable ServletResponse response,
+                         @Injectable FilterChain chain, @Injectable DomibusUserDetailsImpl domibusUserDetails)
             throws IOException, ServletException {
 
         String domainCode = "default";
 
         new Expectations(setDomainFilter) {{
-            setDomainFilter.getAuthenticatedUser();
+            authUtils.getUserDetails();
             result = domibusUserDetails;
 
             setDomainFilter.getDomain(domibusUserDetails);
@@ -55,7 +59,7 @@ public class SetDomainFilterTest {
     }
 
     @Test
-    public void getDomain(@Mocked DomibusUserDetails domibusUserDetails) {
+    public void getDomain(@Mocked DomibusUserDetailsImpl domibusUserDetails) {
 
         String domainCode = "default";
 

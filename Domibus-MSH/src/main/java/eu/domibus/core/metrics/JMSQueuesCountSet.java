@@ -95,6 +95,9 @@ public class JMSQueuesCountSet implements MetricSet {
 
     protected List<JMSDestination> getQueueNamesDLQ() {
         List<JMSDestination> lstAllQueues = getQueuesAuthenticated();
+        if(lstAllQueues == null) {
+            return new ArrayList<>();
+        }
         return lstAllQueues.stream().filter(jmsDestination -> StringUtils.containsIgnoreCase(jmsDestination.getName(), "domibus")
                 && StringUtils.containsIgnoreCase(jmsDestination.getName(), "DLQ")).collect(Collectors.toList());
     }

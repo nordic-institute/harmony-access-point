@@ -71,7 +71,7 @@
         <hibernate.validator.version>6.2.2.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.1.210</h2.version>
         <liquibase.version>4.7.1</liquibase.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
@@ -127,6 +127,7 @@
         <opencsv.version>5.5.2</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.13.2</junit.version>
+        <awaitility.version>3.1.0</awaitility.version>
         <jmockit.version>1.22</jmockit.version>
         <org.reflections.version>0.10.2</org.reflections.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
@@ -1290,7 +1291,7 @@
                             </goals>
                             <configuration>
                                 <!-- Sets the VM argument line used when integration tests are run. -->
-                                <argLine>-server -ea -Xms512m -Xmx2048m -Duser.language=en ${failsafeArgLine}
+                                <argLine>-server -ea -Xms512m -Xmx3048m -Duser.language=en ${failsafeArgLine}
                                 </argLine>
                                 <!-- Skips integration tests if the value of skipITs property is true-->
                                 <skipTests>${skipITs}</skipTests>
@@ -1308,7 +1309,7 @@
                             </goals>
                             <configuration>
                                 <!-- Sets the VM argument line used when integration tests are run. -->
-                                <argLine>-server -ea -Xms512m -Xmx2048m -Duser.language=en ${failsafeArgLine}
+                                <argLine>-server -ea -Xms512m -Xmx3048m -Duser.language=en ${failsafeArgLine}
                                 </argLine>
                                 <!-- Skips integration tests if the value of skipITs property is true-->
                                 <skipTests>${skipITs}</skipTests>
@@ -1647,6 +1648,8 @@
                                 Bouncy Castle Licence|
                                 Mozilla Public License Version 2.0|
                                 No Copyright|
+                                EPL 1.0|
+                                MPL 2.0|
                             </includedLicenses>
                             <!-- license validation scope  -->
                             <excludedGroups>^eu.domibus.*</excludedGroups>

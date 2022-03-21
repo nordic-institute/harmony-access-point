@@ -4,10 +4,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +29,7 @@ public class DefaultPasswordInterceptorTest {
     private AuthUtils authUtils;
 
     @Injectable
-    private DomibusUserDetails domibusUserDetails;
+    private DomibusUserDetailsImpl domibusUserDetails;
 
     @Injectable
     private HttpServletRequest request;

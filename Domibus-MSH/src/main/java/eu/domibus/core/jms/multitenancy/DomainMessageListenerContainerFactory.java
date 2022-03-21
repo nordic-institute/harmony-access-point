@@ -10,19 +10,19 @@ import eu.domibus.api.multitenancy.Domain;
  */
 public interface DomainMessageListenerContainerFactory {
 
-    DomainMessageListenerContainer createSendMessageListenerContainer(Domain domain, String selector, String concurrency);
+    DomainMessageListenerContainerImpl createSendMessageListenerContainer(Domain domain, String selector, String concurrency);
 
-    DomainMessageListenerContainer createSendLargeMessageListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createSendLargeMessageListenerContainer(Domain domain);
 
-    DomainMessageListenerContainer createSplitAndJoinListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createSplitAndJoinListenerContainer(Domain domain);
 
-    DomainMessageListenerContainer createPullReceiptListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createPullReceiptListenerContainer(Domain domain);
 
-    DomainMessageListenerContainer createRetentionListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createRetentionListenerContainer(Domain domain);
 
-    DomainMessageListenerContainer createPullMessageListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createPullMessageListenerContainer(Domain domain);
 
-    DomainMessageListenerContainer createEArchiveMessageListenerContainer(Domain domain);
-    DomainMessageListenerContainer createEArchiveNotificationListenerContainer(Domain domain);
-    DomainMessageListenerContainer createEArchiveNotificationDlqListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createEArchiveMessageListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createEArchiveNotificationListenerContainer(Domain domain);
+    DomainMessageListenerContainerImpl createEArchiveNotificationDlqListenerContainer(Domain domain);
 }

@@ -1036,6 +1036,20 @@ public class CertificateServiceImpl implements CertificateService {
                 .map(StringUtils::trim)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void removeTruststore(String truststoreName, Domain domain) {
+        domainTaskExecutor.submit(() -> doRemoveTruststore(truststoreName, domain), domain);
+    }
+
+    private void doRemoveTruststore(String truststoreName, Domain domain) {
+        TruststoreEntity entity = truststoreDao.findByNameSafely(truststoreName);
+        if (entity == null) {
+            LOG.warn("Could not find store named [{}] for domain [{}] to delete", truststoreName, domain);
+            return;
+        }
+        truststoreDao.delete(entity);
+    }
 }
 
 

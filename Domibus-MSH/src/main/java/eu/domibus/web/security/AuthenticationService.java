@@ -1,5 +1,7 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.security.DomibusUserDetails;
+
 /**
  * @author Catalin Enache
  * @since 4.1
@@ -10,5 +12,6 @@ public interface AuthenticationService {
 
     void changeDomain(String domainCode);
 
+    // todo EDELIVERY-9087 - eliminate redundancy with AuthUtils
     DomibusUserDetails getLoggedUser();
 }

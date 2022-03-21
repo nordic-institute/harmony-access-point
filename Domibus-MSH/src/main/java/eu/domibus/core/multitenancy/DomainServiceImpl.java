@@ -3,12 +3,13 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -30,26 +32,41 @@ public class DomainServiceImpl implements DomainService {
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 
     protected final Object generalSchemaLock = new Object();
+
     protected volatile String generalSchema;
+
     protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected DomainDao domainDao;
-
-    @Autowired
-    private DomibusCacheService domibusCacheService;
 
     private List<Domain> domains;
 
+    protected final DomibusPropertyProvider domibusPropertyProvider;
+
+    protected final DomainDao domainDao;
+
+    private final DomibusCacheService domibusCacheService;
+
+    private final AuthUtils authUtils;
+
+    public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider, DomainDao domainDao,
+                             DomibusCacheService domibusCacheService, AuthUtils authUtils) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domainDao = domainDao;
+        this.domibusCacheService = domibusCacheService;
+        this.authUtils = authUtils;
+
+        domains = domainDao.findAll();
+    }
+
     @Override
     public synchronized List<Domain> getDomains() {
-        if (domains == null) {
-            domains = domainDao.findAll();
-        }
+        LOG.debug("Getting active domains.");
         return domains;
+    }
+
+    @Override
+    public List<Domain> getAllDomains() {
+        LOG.debug("Getting all potential domains.");
+        return domainDao.findAll();
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
@@ -136,4 +153,43 @@ public class DomainServiceImpl implements DomainService {
         this.domains = null;
         this.domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
     }
+
+    @Override
+    public void addDomain(Domain domain) {
+        if (domain == null) {
+            LOG.info("Could not add a null domain.");
+            return;
+        }
+        LOG.debug("Adding domain [{}]", domain);
+        domains.add(domain);
+
+        DomibusUserDetails userDetails = authUtils.getUserDetails();
+        if (userDetails == null) {
+            LOG.info("Could not get user details.");
+            return;
+        }
+        userDetails.addDomainCode(domain.getCode());
+    }
+
+    @Override
+    public void removeDomain(String domainCode) {
+        if (StringUtils.isEmpty(domainCode)) {
+            LOG.info("Could not remove an empty domain.");
+            return;
+        }
+        Domain domain = domains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
+        if (domain == null) {
+            LOG.info("Could not find domain [{}] to remove.", domainCode);
+            return;
+        }
+        domains.remove(domain);
+
+        DomibusUserDetails userDetails = authUtils.getUserDetails();
+        if (userDetails == null) {
+            LOG.info("Could not get user details.");
+            return;
+        }
+        userDetails.removeDomainCode(domain.getCode());
+    }
+
 }

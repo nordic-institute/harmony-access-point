@@ -25,6 +25,7 @@ public class MessageClient extends BaseRestClient {
 		switchDomain(domain);
 		HashMap<String, String> par = new HashMap<>();
 		par.put("pageSize", "10000");
+		par.put("receivedFrom", "2022-02-13T17:59:23.709Z");
 		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.MESSAGE_LOG_MESSAGES), par);
 		return clientResponse;
 	}

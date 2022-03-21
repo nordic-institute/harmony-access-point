@@ -1,23 +1,17 @@
 package eu.domibus.api.model;
 
-import eu.domibus.api.datasource.AutoCloseFileDataSource;
 import eu.domibus.api.ebms3.model.Ebms3Property;
-import eu.domibus.api.encryption.DecryptDataSource;
-import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.payload.PartInfoService;
-import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.crypto.Cipher;
-import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
@@ -73,7 +67,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Column(name = "MIME")
     private String mime;
 
-    @Transient
+    @Column(name = "PART_LENGTH")
     private long length = -1;
 
     @Column(name = "PART_ORDER")
@@ -88,8 +82,8 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     @Transient
     public String getMimeProperty() {
         return partProperties.stream()
-                .filter(partProperty -> partProperty.getName().equals(Ebms3Property.MIME_TYPE))
                 .filter(Objects::nonNull)
+                .filter(partProperty -> StringUtils.equalsIgnoreCase(partProperty.getName(), Ebms3Property.MIME_TYPE))
                 .findFirst()
                 .map(Property::getValue)
                 .orElse(null);

@@ -27,6 +27,7 @@ import static org.junit.Assert.assertThat;
  * @author Thomas Dussart
  * @since 4.0
  */
+@Transactional
 public class SequenceGeneratorIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SequenceGeneratorIT.class);

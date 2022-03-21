@@ -18,6 +18,8 @@ public interface DomainService {
 
     List<Domain> getDomains();
 
+    List<Domain> getAllDomains();
+
     Domain getDomain(String code);
 
     Domain getDomainForScheduler(String schedulerName);
@@ -30,4 +32,7 @@ public interface DomainService {
 
     void resetDomains();
 
+    void removeDomain(String domainCode);
+
+    void addDomain(Domain domain);
 }

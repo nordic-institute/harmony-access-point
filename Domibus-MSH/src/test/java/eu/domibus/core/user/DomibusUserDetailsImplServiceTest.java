@@ -10,7 +10,7 @@ import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -20,7 +20,9 @@ import org.junit.runner.RunWith;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
 import static org.junit.Assert.assertEquals;
@@ -31,7 +33,7 @@ import static org.junit.Assert.assertFalse;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class DomibusUserDetailsServiceImplTest {
+public class DomibusUserDetailsImplServiceTest {
 
     @Injectable
     private UserDao userDao;
@@ -55,7 +57,7 @@ public class DomibusUserDetailsServiceImplTest {
     private UserDetailServiceImpl userDetailService;
 
     @Test
-    public void loadUserByUsernameSuccessfully()  {
+    public void loadUserByUsernameSuccessfully() {
         User user = new User() {{
             setUserName("admin");
             setPassword("whateverdifferentthandefaultpasswordhash");
@@ -73,7 +75,7 @@ public class DomibusUserDetailsServiceImplTest {
         }};
 
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals("whateverdifferentthandefaultpasswordhash", admin.getPassword());
         assertEquals("admin", admin.getUsername());
@@ -98,7 +100,7 @@ public class DomibusUserDetailsServiceImplTest {
             result = 90;
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals("$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36", admin.getPassword());
         assertEquals("user", admin.getUsername());
@@ -122,7 +124,7 @@ public class DomibusUserDetailsServiceImplTest {
             result = 90;
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals("$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36", admin.getPassword());
         assertEquals("user", admin.getUsername());
@@ -150,7 +152,7 @@ public class DomibusUserDetailsServiceImplTest {
             this.result = domains;
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("super");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("super");
 
         assertEquals(Sets.newHashSet("red", "yellow", "blue"), admin.getAvailableDomainCodes());
     }
@@ -171,7 +173,7 @@ public class DomibusUserDetailsServiceImplTest {
             this.result = "red";
         }};
 
-        DomibusUserDetails admin = (DomibusUserDetails) userDetailService.loadUserByUsername("admin");
+        DomibusUserDetailsImpl admin = (DomibusUserDetailsImpl) userDetailService.loadUserByUsername("admin");
 
         assertEquals(Collections.singleton("red"), admin.getAvailableDomainCodes());
     }

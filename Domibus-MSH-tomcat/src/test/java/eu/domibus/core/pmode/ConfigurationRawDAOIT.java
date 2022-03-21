@@ -6,8 +6,8 @@ import eu.domibus.common.model.configuration.ConfigurationRaw;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
  * @author François Gautier
  * @since 5.0
  */
+@Transactional
 public class ConfigurationRawDAOIT  extends AbstractIT {
 
     public static final String LAST_DESCRIPTION = "Last and current";

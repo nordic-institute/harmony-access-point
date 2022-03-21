@@ -21,7 +21,7 @@ public class MessagePropertyDao extends BasicDao<MessageProperty> {
         super(MessageProperty.class);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public MessageProperty findOrCreateProperty(final String name, String value, String type) {
         MessageProperty property = findExistingProperty(name, value, type);
         if (property != null) {

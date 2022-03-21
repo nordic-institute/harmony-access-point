@@ -216,6 +216,16 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         domibusPropertyExtService.loadProperties(domain, propFileName.get());
     }
 
+    @Override
+    public void removeProperties(DomainDTO domain) {
+        Optional<String> propFileName = getConfigurationFileName(domain);
+        if (!propFileName.isPresent()) {
+            LOG.info("No property file name provided for domain [{}]. Exiting.", domain);
+            return;
+        }
+        domibusPropertyExtService.removeProperties(domain, propFileName.get());
+    }
+
     /**
      * Method called for a locally stored property; should be overridden by derived classes for all locally stored properties
      *

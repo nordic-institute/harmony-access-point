@@ -19,7 +19,7 @@ import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.web.security.AuthenticationService;
-import eu.domibus.web.security.DomibusUserDetails;
+import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -496,7 +496,7 @@ public class UserPersistenceServiceImplTest {
     }
 
     @Test
-    public void checkCanUpdateIfCurrentUser(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetails loggedUser) {
+    public void checkCanUpdateIfCurrentUser(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName1 = "userName1", userName2 = "userName2";
         new Expectations(userPersistenceService) {{
             authenticationService.getLoggedUser();
@@ -516,7 +516,7 @@ public class UserPersistenceServiceImplTest {
     }
 
     @Test(expected = UserManagementException.class)
-    public void checkCanUpdateIfCurrentUser_ChangeActive(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetails loggedUser) {
+    public void checkCanUpdateIfCurrentUser_ChangeActive(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName = "userName";
         new Expectations() {{
             authenticationService.getLoggedUser();
@@ -535,7 +535,7 @@ public class UserPersistenceServiceImplTest {
     }
 
     @Test(expected = UserManagementException.class)
-    public void checkCanUpdateIfCurrentUser_ChangeRole(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetails loggedUser) {
+    public void checkCanUpdateIfCurrentUser_ChangeRole(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName = "userName";
         new Expectations(userPersistenceService) {{
             authenticationService.getLoggedUser();

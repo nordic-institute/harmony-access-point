@@ -2,6 +2,7 @@ package eu.domibus.web.security;
 
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +37,7 @@ public abstract class AuthenticationServiceBase {
         }
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        DomibusUserDetails securityUser = (DomibusUserDetails) authentication.getPrincipal();
+        DomibusUserDetailsImpl securityUser = (DomibusUserDetailsImpl) authentication.getPrincipal();
         securityUser.setDomain(domainCode);
         refreshSecurityContext(authentication);
     }
@@ -51,8 +52,8 @@ public abstract class AuthenticationServiceBase {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null
                 && !(authentication instanceof AnonymousAuthenticationToken)
-                && (authentication.getPrincipal() instanceof DomibusUserDetails)) {
-            DomibusUserDetails domibusUserDetails = (DomibusUserDetails) authentication.getPrincipal();
+                && (authentication.getPrincipal() instanceof DomibusUserDetailsImpl)) {
+            DomibusUserDetailsImpl domibusUserDetails = (DomibusUserDetailsImpl) authentication.getPrincipal();
             LOG.debug("Principal found on SecurityContextHolder: {}", domibusUserDetails);
             return domibusUserDetails;
         }

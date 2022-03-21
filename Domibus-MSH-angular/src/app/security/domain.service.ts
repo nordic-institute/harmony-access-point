@@ -11,7 +11,8 @@ export class DomainService {
 
   static readonly MULTI_TENANCY_URL: string = 'rest/application/multitenancy';
   static readonly CURRENT_DOMAIN_URL: string = 'rest/security/user/domain';
-  static readonly DOMAIN_LIST_URL: string = 'rest/domains';
+  static readonly APP_DOMAIN_LIST_URL = 'rest/domains';
+  static readonly USER_DOMAIN_LIST_URL = 'rest/userdomains';
 
   private isMultiDomainSubject: Subject<boolean>;
   private domainSubject: Subject<Domain>;
@@ -66,7 +67,8 @@ export class DomainService {
   public get domains(): Observable<Domain[]> {
     if (!this._domains) {
       this._domains = new ReplaySubject<Domain[]>(1);
-      this.getDomains().then(res => this._domains.next(res));
+      this.http.get<Domain[]>(DomainService.USER_DOMAIN_LIST_URL).toPromise()
+        .then(res => this._domains.next(res));
     }
     return this._domains.asObservable();
   }
@@ -74,11 +76,11 @@ export class DomainService {
   getDomains(): Promise<Domain[]> {
     let searchParams = new HttpParams();
     searchParams = searchParams.append('active', 'true');
-    return this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL, {params: searchParams}).toPromise();
+    return this.http.get<Domain[]>(DomainService.APP_DOMAIN_LIST_URL, {params: searchParams}).toPromise();
   }
 
   async getAllDomains(): Promise<Domain[]> {
-    const all = await this.http.get<Domain[]>(DomainService.DOMAIN_LIST_URL).toPromise();
+    const all = await this.http.get<Domain[]>(DomainService.APP_DOMAIN_LIST_URL).toPromise();
     const activeDomains = await this.getDomains();
     all.forEach(el => el.active = activeDomains.some(d => d.code == el.code));
     return all;
@@ -102,13 +104,25 @@ export class DomainService {
     });
   }
 
-  async setActiveState(domain: Domain) {
-    if (!domain.active) {
-      throw new Error('Cannot remove domain ' + domain.name);
-    }
-    // add domain
-    await this.http.post(DomainService.DOMAIN_LIST_URL, domain.code).toPromise();
-    this.getDomains().then(res => this._domains.next(res));
-  }
+  async setActiveState(domain: Domain, active: boolean) {
+    if (active) {
+      await this.http.post(DomainService.APP_DOMAIN_LIST_URL, domain.code).toPromise();
+      this.getDomains().then(res => this._domains.next(res));
+    } else {
+      await this.http.delete(DomainService.APP_DOMAIN_LIST_URL + '/' + domain.code).toPromise();
+      this.getDomains().then(domains => {
+        this._domains.next(domains);
 
+        const subscr = this.getCurrentDomain().subscribe(async (current) => {
+          if (current && current.code == domain.code) {
+            if (domains.length) {
+              this.setCurrentDomain(domains[0]);
+            }
+          }
+        });
+        subscr.unsubscribe();
+
+      });
+    }
+  }
 }

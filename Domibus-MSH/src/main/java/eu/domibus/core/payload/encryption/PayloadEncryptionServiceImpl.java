@@ -61,6 +61,7 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
     @Override
     public void onDomainRemoved(Domain domain) {
+        removePayloadEncryptionKey(domain);
     }
 
     private void createPayloadEncryptionKeyForAllDomainsIfNotExists(List<Domain> domains) {
@@ -104,6 +105,19 @@ public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
         encryptionKeyDao.create(encryptionKeyEntity);
 
         LOG.debug("Finished creating payload encryption key");
+    }
+
+    protected void removePayloadEncryptionKey(Domain domain) {
+        domainTaskExecutor.submit(() -> doRemovePayloadEncryptionKey(domain), domain);
+    }
+
+    private void doRemovePayloadEncryptionKey(Domain domain) {
+        final EncryptionKeyEntity payloadKey = encryptionKeyDao.findByUsage(EncryptionUsage.PAYLOAD);
+        if (payloadKey == null) {
+            LOG.debug("Payload encryption key for domain [{}] does not exist.", domain);
+            return;
+        }
+        encryptionKeyDao.delete(payloadKey);
     }
 
     @Override
