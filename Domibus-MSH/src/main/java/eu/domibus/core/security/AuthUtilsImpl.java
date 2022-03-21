@@ -47,13 +47,22 @@ public class AuthUtilsImpl implements AuthUtils {
      * null value when the user has the role ROLE_ADMIN or unsecured authorization is allowed
      */
     @Override
-    public String getOriginalUserFromSecurityContext() throws AuthenticationException {
+    public String getOriginalUserWithUnsecureLoginAllowed() throws AuthenticationException {
         /* unsecured login allowed */
         if (isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
             return null;
         }
 
+        return getOriginalUser();
+    }
+
+    /**
+     * Returns the original user passed via the security context OR
+     * null value when the user has the role ROLE_ADMIN
+     */
+    @Override
+    public String getOriginalUser() {
         if (SecurityContextHolder.getContext() == null || SecurityContextHolder.getContext().getAuthentication() == null) {
             LOG.error("Authentication is missing from the security context. Unsecured login is not allowed");
             throw new AuthenticationException("Authentication is missing from the security context. Unsecured login is not allowed");
@@ -124,7 +133,7 @@ public class AuthUtilsImpl implements AuthUtils {
             return;
         }
         // USER_ROLE - verify the ORIGINAL_USER is configured
-        String originalUser = getOriginalUserFromSecurityContext();
+        String originalUser = getOriginalUserWithUnsecureLoginAllowed();
         if (StringUtils.isEmpty(originalUser)) {
             throw new AuthenticationException("User " + getAuthenticatedUser() + " has USER_ROLE but is missing the ORIGINAL_USER in the db");
         }

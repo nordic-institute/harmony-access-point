@@ -61,11 +61,6 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
     }
 
     @Override
-    public MessageAcknowledgementDTO acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        return acknowledgeMessageProcessed(messageId, acknowledgeTimestamp, null);
-    }
-
-    @Override
     public List<MessageAcknowledgementDTO> getAcknowledgedMessages(String messageId) throws AuthenticationExtException, MessageAcknowledgeExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
 

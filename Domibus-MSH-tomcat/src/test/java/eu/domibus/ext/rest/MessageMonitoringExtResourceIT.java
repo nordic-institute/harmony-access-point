@@ -49,8 +49,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_DELETE_ID = TEST_ENDPOINT_RESOURCE + "/delete/{messageId}";
     public static final String TEST_ENDPOINT_RESTORE = TEST_ENDPOINT_RESOURCE + "/failed/restore";
     public static final String TEST_ENDPOINT_ATTEMPTS = TEST_ENDPOINT_RESOURCE + "/{messageId}/attempts";
-    public static final String TEST_PLUGIN_USERNAME = "admin";
-    public static final String TEST_PLUGIN_PASSWORD = "123456";
 
     public ObjectMapper objectMapper = new ObjectMapper();
 

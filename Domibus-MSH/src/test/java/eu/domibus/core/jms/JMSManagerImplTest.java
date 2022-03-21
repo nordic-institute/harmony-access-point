@@ -439,7 +439,7 @@ public class JMSManagerImplTest {
         String queueName = "mysqueue";
         String originalUser = "C1";
         new Expectations(jmsManager) {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = originalUser;
 
             authUtils.isUnsecureLoginAllowed();

@@ -196,7 +196,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             authUtils.hasUserOrAdminRole();
         }
 
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = originalUser == null ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
@@ -322,7 +322,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             authUtils.hasUserOrAdminRole();
         }
 
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = (originalUser == null) ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 

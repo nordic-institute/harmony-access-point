@@ -70,7 +70,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     @Override
     public String getFinalRecipient(String messageId) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
         return userMessageCoreService.getFinalRecipient(messageId);
     }
@@ -78,7 +78,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     @Override
     public String getOriginalSender(String messageId) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
         return userMessageCoreService.getOriginalSender(messageId);
     }

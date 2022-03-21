@@ -62,7 +62,7 @@ public class UserMessageSecurityDefaultServiceTest {
     public void testCheckAuthorizationWithAdminRole(final @Capturing DomibusLogger log) {
         final String finalRecipient = "C4";
         new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUser();
             result = null;
         }};
 
@@ -80,7 +80,7 @@ public class UserMessageSecurityDefaultServiceTest {
         final String originalUserFromSecurityContext = "differentRecipient";
 
         new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUser();
             result = originalUserFromSecurityContext;
         }};
 
@@ -93,7 +93,7 @@ public class UserMessageSecurityDefaultServiceTest {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUser();
             result = originalUserFromSecurityContext;
         }};
 
@@ -110,7 +110,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUser();
             result = originalUser;
 
             userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
@@ -132,7 +132,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUser();
             result = originalUser;
 
             userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
@@ -149,7 +149,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUser();
             result = null;
         }};
 
@@ -165,7 +165,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUser();
             result = originalUser;
 
             userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);

@@ -497,7 +497,7 @@ public class JMSManagerImpl implements JMSManager {
             authUtils.hasUserOrAdminRole();
         }
 
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         LOG.info("Authorized as [{}]", originalUser == null ? "super user" : originalUser);
 
 

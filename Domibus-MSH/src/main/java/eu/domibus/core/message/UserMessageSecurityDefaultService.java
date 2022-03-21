@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
@@ -52,7 +53,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
             return;
         }
 
-        final String originalUserFromSecurityContext = authUtils.getOriginalUserFromSecurityContext();
+        final String originalUserFromSecurityContext = authUtils.getOriginalUser();
         if (StringUtils.isEmpty(originalUserFromSecurityContext)) {
             LOG.debug("finalRecipient from the security context is empty, user has permission to access finalRecipient [{}]", finalRecipient);
             return;
@@ -68,7 +69,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     @Override
     public String getOriginalUserFromSecurityContext() throws AuthenticationException {
-        return authUtils.getOriginalUserFromSecurityContext();
+        return authUtils.getOriginalUserWithUnsecureLoginAllowed();
     }
 
     /**
@@ -85,7 +86,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     public void validateUserAccess(UserMessage userMessage) {
-        String authOriginalUser = authUtils.getOriginalUserFromSecurityContext();
+        String authOriginalUser = authUtils.getOriginalUser();
         List<String> propertyNames = new ArrayList<>();
         propertyNames.add(MessageConstants.ORIGINAL_SENDER);
         propertyNames.add(MessageConstants.FINAL_RECIPIENT);
@@ -130,7 +131,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId) {
         UserMessage userMessage = userMessageService.findByEntityId(messageEntityId);
         if (userMessage == null) {
-            throw new AuthenticationException("Usermessage with entityId [" + messageEntityId + "] not found.");
+            throw new MessageNotFoundException(messageEntityId);
         }
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
@@ -138,7 +139,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
         UserMessage userMessage = userMessageService.findByMessageId(messageId);
         if (userMessage == null) {
-            throw new AuthenticationException("Usermessage with messageId [" + messageId + "] not found.");
+            throw new MessageNotFoundException(messageId);
         }
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
@@ -146,9 +147,13 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     public void checkMessageAuthorization(String messageId) {
         UserMessage userMessage = userMessageService.findByMessageId(messageId);
         if (userMessage == null) {
-            throw new AuthenticationException("Usermessage with messageId [" + messageId + "] not found.");
+            throw new MessageNotFoundException(messageId);
         }
-        validateUserAccess(userMessage);
+        try {
+            validateUserAccess(userMessage);
+        } catch (AccessDeniedException e) {
+            throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
+        }
     }
 
 }
