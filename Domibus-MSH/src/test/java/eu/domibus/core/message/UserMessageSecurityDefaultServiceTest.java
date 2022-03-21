@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
@@ -32,7 +33,7 @@ public class UserMessageSecurityDefaultServiceTest {
     UserMessageServiceHelper userMessageServiceHelper;
 
 
-    @Test(expected = AuthenticationException.class)
+    @Test(expected = MessageNotFoundException.class)
     public void testCheckMessageAuthorizationWithNonExistingMessage() {
         final String messageId = "1";
         new Expectations() {{
