@@ -3,6 +3,7 @@ package eu.domibus.core.plugin.handler;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
@@ -61,7 +62,7 @@ import static org.junit.Assert.assertTrue;
  * <p>
  * in the Verifications() the execution "times" is by default 1.
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
 public class DatabaseMessageHandlerTest {
 
@@ -80,7 +81,7 @@ public class DatabaseMessageHandlerTest {
     private static final String ACTION = "TC2Leg1";
     private static final String LEG = "pushTestcase1tc2Action";
 
-    private String pModeKey = GREEN + PModeConstants.PMODEKEY_SEPARATOR +
+    private final String pModeKey = GREEN + PModeConstants.PMODEKEY_SEPARATOR +
             RED + PModeConstants.PMODEKEY_SEPARATOR +
             SERVICE + PModeConstants.PMODEKEY_SEPARATOR +
             ACTION + PModeConstants.PMODEKEY_SEPARATOR +
@@ -195,15 +196,18 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     protected PartyEndpointProvider partyEndpointProvider;
 
-    protected static MessageProperty createProperty(String name, String value, String type) {
+    @Injectable
+    protected UserMessageSecurityService userMessageSecurityService;
+
+    protected static MessageProperty createStringProperty(String name, String value) {
         MessageProperty aProperty = new MessageProperty();
         aProperty.setValue(value);
         aProperty.setName(name);
-        aProperty.setType(type);
+        aProperty.setType(DatabaseMessageHandlerTest.STRING_TYPE);
         return aProperty;
     }
 
-    protected static UserMessage createUserMessage() {
+    public static UserMessage createUserMessage() {
         UserMessage userMessage = new UserMessage();
         ActionEntity action = new ActionEntity();
         action.setValue("TC2Leg1");
@@ -219,8 +223,8 @@ public class DatabaseMessageHandlerTest {
         userMessage.setService(service1);
 
         HashSet<MessageProperty> messageProperties1 = new HashSet<>();
-        messageProperties1.add(createProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1", STRING_TYPE));
-        messageProperties1.add(createProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4", STRING_TYPE));
+        messageProperties1.add(createStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"));
+        messageProperties1.add(createStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"));
         userMessage.setMessageProperties(messageProperties1);
 
         PartyInfo partyInfo = new PartyInfo();
@@ -261,7 +265,7 @@ public class DatabaseMessageHandlerTest {
                                              @Injectable MessageStatusEntity messageStatus) throws Exception {
         final UserMessage userMessage = new UserMessage();
         new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
             transformer.transformFromSubmission(messageData);
@@ -295,7 +299,7 @@ public class DatabaseMessageHandlerTest {
         assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             messageIdGenerator.generateMessageId();
             pModeProvider.getLegConfiguration(pModeKey);
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
@@ -307,7 +311,7 @@ public class DatabaseMessageHandlerTest {
                                                  @Injectable MessageStatusEntity messageStatus) throws Exception {
         new Expectations() {{
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
             UserMessage userMessage = createUserMessage();
@@ -321,8 +325,7 @@ public class DatabaseMessageHandlerTest {
             result = ProcessingType.PULL;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, messageData.getProcessingType());
-            MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
-            result = messageExchangeConfiguration;
+            result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
 
             Party sender = new Party();
             sender.setName(GREEN);
@@ -334,10 +337,8 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getReceiverParty(pModeKey);
             result = receiver;
 
-            Configuration conf = new Configuration();
             Party confParty = new Party();
             confParty.setName(GREEN);
-            conf.setParty(confParty);
 
             pModeProvider.getGatewayParty();
             result = confParty;
@@ -346,8 +347,6 @@ public class DatabaseMessageHandlerTest {
             mpc.setName(Ebms3Constants.DEFAULT_MPC);
 
             LegConfiguration legConfiguration = new LegConfiguration();
-            final Map<Party, Mpc> mpcMap = new HashMap<>();
-            mpcMap.put(receiver, mpc);
             legConfiguration.setDefaultMpc(mpc);
             legConfiguration.setErrorHandling(new ErrorHandling());
 
@@ -359,10 +358,9 @@ public class DatabaseMessageHandlerTest {
         assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             messageIdGenerator.generateMessageId();
             pModeProvider.getLegConfiguration(anyString);
-            UserMessage message;
             messagingService.storeMessagePayloads(withAny(new UserMessage()), null, MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
             times = 0;
@@ -394,7 +392,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new FullVerifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             times = 1;
 
             authUtils.isUnsecureLoginAllowed();
@@ -435,7 +433,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new FullVerifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
@@ -494,7 +492,6 @@ public class DatabaseMessageHandlerTest {
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message("The initiator party's name [" + GREEN + "] does not correspond to the access point's name [" + BLUE + "]")
                     .build();
-            ;
 
         }};
 
@@ -508,7 +505,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
@@ -589,7 +586,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
@@ -631,7 +628,6 @@ public class DatabaseMessageHandlerTest {
                     .message("PMode could not be found. Are PModes configured in the database?")
                     .refToMessageId(MESS_ID)
                     .build();
-            ;
         }};
 
         try {
@@ -644,7 +640,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             times = 1;
             authUtils.isUnsecureLoginAllowed();
             times = 1;
@@ -693,7 +689,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             messageIdGenerator.generateMessageId();
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PULL);
         }};
@@ -715,7 +711,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
         }};
     }
 
@@ -725,13 +721,13 @@ public class DatabaseMessageHandlerTest {
 
         String originalUser = "mycorner";
         new Expectations(databaseMessageHandler) {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = originalUser;
 
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
-            databaseMessageHandler.validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
             result = new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + originalUser + "]");
         }};
 
@@ -744,7 +740,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
         }};
     }
 
@@ -756,7 +752,7 @@ public class DatabaseMessageHandlerTest {
             messageData.getProcessingType();
             result = ProcessingType.PUSH;
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
             UserMessage userMessage = createUserMessage();
@@ -801,7 +797,7 @@ public class DatabaseMessageHandlerTest {
         }
 
         new Verifications() {{
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             messageIdGenerator.generateMessageId();
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING, false, ProcessingType.PUSH);
             pModeProvider.getLegConfiguration(anyString);
@@ -814,7 +810,7 @@ public class DatabaseMessageHandlerTest {
                                            @Injectable MessageStatusEntity messageStatus) throws EbMS3Exception {
         new Expectations() {{
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
             UserMessage userMessage = createUserMessage();
@@ -845,15 +841,11 @@ public class DatabaseMessageHandlerTest {
             pModeProvider.getReceiverParty(pModeKey);
             result = receiver;
 
-            Party confParty = new Party();
-            confParty.setName(GREEN);
-
             Mpc mpc = new Mpc();
             mpc.setName(Ebms3Constants.DEFAULT_MPC);
 
             LegConfiguration legConfiguration = new LegConfiguration();
-            final Map<Party, Mpc> mpcMap = new HashMap<>();
-            mpcMap.put(receiver, mpc);
+
             legConfiguration.setDefaultMpc(mpc);
             legConfiguration.setErrorHandling(new ErrorHandling());
 
@@ -872,45 +864,6 @@ public class DatabaseMessageHandlerTest {
 
     }
 
-    @Test
-    public void testValidateOriginalUserOK(@Injectable final UserMessage userMessage) {
-        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-
-        new Expectations() {{
-            userMessageServiceHelper.getOriginalUser(userMessage, MessageConstants.ORIGINAL_SENDER);
-            result = originalUser;
-            authUtils.getOriginalUserFromSecurityContext();
-            result = originalUser;
-        }};
-
-        databaseMessageHandler.validateOriginalUser(userMessage);
-    }
-
-    @Test(expected = AccessDeniedException.class)
-    public void testValidateOriginalUserNoFR() {
-        String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
-
-        final UserMessage userMessage = createUserMessage();
-        new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
-            result = originalUser;
-        }};
-
-        databaseMessageHandler.validateOriginalUser(userMessage);
-    }
-
-    @Test(expected = AccessDeniedException.class)
-    public void testValidateOriginalUserNoMatch() {
-        String originalUser = "nobodywho";
-        new Expectations() {{
-            authUtils.getOriginalUserFromSecurityContext();
-            result = originalUser;
-        }};
-
-        final UserMessage userMessage = createUserMessage();
-
-        databaseMessageHandler.validateOriginalUser(userMessage);
-    }
 
     @Test
     public void testDownloadMessageOK(@Injectable UserMessage userMessage,
@@ -918,7 +871,7 @@ public class DatabaseMessageHandlerTest {
                                       @Injectable Submission submission,
                                       @Injectable Messaging messaging) throws Exception {
 
-        new Expectations(databaseMessageHandler) {{
+        new Expectations() {{
 
             userMessageService.getByMessageId(MESS_ID);
             result = userMessage;
@@ -927,7 +880,7 @@ public class DatabaseMessageHandlerTest {
 
         }};
 
-        final Submission sub = databaseMessageHandler.downloadMessage(MESS_ID);
+        databaseMessageHandler.downloadMessage(MESS_ID);
 
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
@@ -967,10 +920,10 @@ public class DatabaseMessageHandlerTest {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = originalUser;
 
-            databaseMessageHandler.validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
             result = new AccessDeniedException("You are not allowed to handle this message");
         }};
 
@@ -984,7 +937,7 @@ public class DatabaseMessageHandlerTest {
 
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
-            authUtils.getOriginalUserFromSecurityContext();
+            authUtils.getOriginalUserWithUnsecureLoginAllowed();
         }};
 
     }
@@ -1015,15 +968,12 @@ public class DatabaseMessageHandlerTest {
 
 
         new Expectations() {{
-            authUtils.isUnsecureLoginAllowed();
-            result = false;
 
             EbMS3Exception ex = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0008)
                     .message("MessageId value is too long (over 255 characters)")
                     .refToMessageId(MESS_ID)
                     .build();
-            ;
             List<ErrorResult> list = new ArrayList<>();
             ErrorResultImpl errorLogEntry = new ErrorResultImpl();
 
@@ -1043,7 +993,8 @@ public class DatabaseMessageHandlerTest {
 
 
         new Verifications() {{
-            authUtils.hasUserOrAdminRole();
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
+
             errorLogService.getErrors(MESS_ID);
             Assert.assertNotNull(results);
             ErrorResult errRes = results.iterator().next();
@@ -1056,8 +1007,7 @@ public class DatabaseMessageHandlerTest {
     public void testGetStatus() {
         // Given
         new Expectations() {{
-            authUtils.isUnsecureLoginAllowed();
-            result = false;
+
 
             userMessageLogService.getMessageStatus(MESS_ID);
             result = MessageStatus.ACKNOWLEDGED;
@@ -1066,21 +1016,20 @@ public class DatabaseMessageHandlerTest {
         // When
         final eu.domibus.common.MessageStatus status = databaseMessageHandler.getStatus(MESS_ID);
 
-        // Then
-        new Verifications() {{
-            authUtils.hasUserOrAdminRole();
-            Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
+        Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
+
+        new Verifications(){{
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
+            times = 1;
         }};
+
     }
 
     @Test
     public void testGetStatusAccessDenied() {
         // Given
-        new Expectations(databaseMessageHandler) {{
-            authUtils.isUnsecureLoginAllowed();
-            result = false;
-
-            databaseMessageHandler.validateOriginalUser((UserMessage) any);
+        new Expectations() {{
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
             result = new AccessDeniedException("");
         }};
 
@@ -1093,11 +1042,8 @@ public class DatabaseMessageHandlerTest {
             // ok
         }
 
-        eu.domibus.common.MessageStatus finalStatus = status;
-        new Verifications() {{
-            authUtils.hasUserOrAdminRole();
-            Assert.assertNull(finalStatus);
-        }};
+        Assert.assertNull(status);
+
     }
 
     @Test
@@ -1122,7 +1068,7 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     public void browseMessage(@Injectable UserMessage userMessage,
-                              @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException {
+                              @Injectable UserMessageLog userMessageLog)  {
         String messageId = "123";
 
         new Expectations(databaseMessageHandler) {{

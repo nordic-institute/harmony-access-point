@@ -22,4 +22,5 @@ public interface MessagingService {
     void storePayloads(UserMessage userMessage, List<PartInfo> partInfoList, MSHRole mshRole, LegConfiguration legConfiguration, String backendName);
 
     Submission getSubmission(UserMessage userMessage);
+
 }

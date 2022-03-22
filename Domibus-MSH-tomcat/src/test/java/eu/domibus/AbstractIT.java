@@ -77,6 +77,10 @@ public abstract class AbstractIT {
 
     protected static final int SERVICE_PORT = 8892;
 
+    public static final String TEST_PLUGIN_USERNAME = "admin";
+
+    public static final String TEST_PLUGIN_PASSWORD = "123456";
+
     @Autowired
     protected DomibusContextRefreshedListener domibusContextRefreshedListener;
 

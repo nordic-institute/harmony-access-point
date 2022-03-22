@@ -21,12 +21,12 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getOriginalSender(UserMessage userMessage) {
-        return getOriginalUser(userMessage, MessageConstants.ORIGINAL_SENDER);
+        return getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
     }
 
     @Override
     public String getFinalRecipient(UserMessage userMessage) {
-        return getOriginalUser(userMessage, MessageConstants.FINAL_RECIPIENT);
+        return getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
     @Override
@@ -45,49 +45,13 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
 
     @Override
-    public boolean isSameOriginalSender(UserMessage userMessage, String providedOriginalSender) {
-        final String messageId = userMessage.getMessageId();
-        LOG.debug("Checking for message [{}] if the provided original sender [{}] is the same as the message original sender", messageId, providedOriginalSender);
-
-        if (StringUtils.isEmpty(providedOriginalSender)) {
-            LOG.debug("Provided original user is empty");
-            return false;
-        }
-
-        String messageOriginalSender = getOriginalSender(userMessage);
-        if (StringUtils.equalsIgnoreCase(messageOriginalSender, providedOriginalSender)) {
-            LOG.debug("For message [{}] the provided original sender [{}] is the same as the message original sender", messageId, providedOriginalSender);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isSameFinalRecipient(UserMessage userMessage, String providedFinalRecipient) {
-        final String messageId = userMessage.getMessageId();
-        LOG.debug("Checking for message [{}] if the provided final recipient [{}] is the same as the message final recipient", messageId, providedFinalRecipient);
-
-        if (StringUtils.isEmpty(providedFinalRecipient)) {
-            LOG.debug("Provided final recipient is empty");
-            return false;
-        }
-
-        String messageOriginalSender = getFinalRecipient(userMessage);
-        if (StringUtils.equalsIgnoreCase(messageOriginalSender, providedFinalRecipient)) {
-            LOG.debug("For message [{}] the provided final recipient [{}] is the same as the message final recipient", messageId, providedFinalRecipient);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public String getOriginalUser(UserMessage userMessage, String type) {
+    public String getProperty(UserMessage userMessage, String propertyName) {
         if (userMessage == null || userMessage.getMessageProperties() == null) {
             return null;
         }
         String originalUser = null;
         for (Property property : userMessage.getMessageProperties()) {
-            if (property.getName() != null && property.getName().equalsIgnoreCase(type)) {
+            if (StringUtils.equalsIgnoreCase(property.getName(), propertyName)) {
                 originalUser = property.getValue();
                 break;
             }
@@ -125,15 +89,5 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
             result.put(property.getName(), property.getValue());
         }
         return result;
-    }
-
-    @Override
-    public String getConversationId(UserMessage userMessage){
-        return userMessage.getConversationId();
-    }
-
-    @Override
-    public String getRefToMessageId (UserMessage userMessage) {
-        return userMessage.getRefToMessageId();
     }
 }

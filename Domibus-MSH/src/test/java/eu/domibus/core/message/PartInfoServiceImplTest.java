@@ -1,10 +1,10 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.PartProperty;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.usermessage.domain.PartProperties;
-import eu.domibus.api.usermessage.domain.PayloadInfo;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
@@ -17,10 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.fail;
@@ -115,5 +112,45 @@ public class PartInfoServiceImplTest {
 
         new FullVerifications() {{
         }};
+    }
+
+    @Test
+    public void testCheckCharset_HappyFlow() throws EbMS3Exception {
+        UserMessage userMessage = new UserMessage();
+        PartInfo partInfo = getPartInfo("MimeType", "text/xml", null);
+
+        partInfoService.checkPartInfoCharset(userMessage, Collections.singletonList(partInfo));
+    }
+
+    @Test
+    public void testCheckCharset_InvalidCharset() {
+        UserMessage userMessage = new UserMessage();
+        PartInfo partInfo = getPartInfo("CharacterSet", "!#InvalidCharSet");
+        try {
+            partInfoService.checkPartInfoCharset(userMessage, Collections.singletonList(partInfo));
+            fail("EBMS3Exception was expected!!");
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    private PartInfo getPartInfo(String name, String value) {
+        return getPartInfo(name, value, null);
+    }
+
+    public static PartInfo getPartInfo(String name, String value, String href) {
+        PartInfo partInfo = new PartInfo();
+
+        Set<PartProperty> partProperties1 = new HashSet<>();
+        PartProperty partProperty = new PartProperty();
+        partProperty.setName(name);
+        partProperty.setValue(value);
+        partProperties1.add(partProperty);
+        partInfo.setPartProperties(partProperties1);
+        partInfo.setHref(href);
+        return partInfo;
     }
 }

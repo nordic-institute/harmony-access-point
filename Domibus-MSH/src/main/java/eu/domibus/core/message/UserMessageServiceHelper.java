@@ -18,11 +18,7 @@ public interface UserMessageServiceHelper {
 
     String getPartyFrom(UserMessage userMessage);
 
-    boolean isSameOriginalSender(UserMessage userMessage, String originalSender);
-
-    boolean isSameFinalRecipient(UserMessage userMessage, String originalSender);
-
-    String getOriginalUser(UserMessage userMessage, String type);
+    String getProperty(UserMessage userMessage, String type);
 
     String getService(UserMessage userMessage);
 
@@ -30,7 +26,4 @@ public interface UserMessageServiceHelper {
 
     Map<String, String> getProperties(UserMessage userMessage);
 
-    String getConversationId(UserMessage userMessage);
-
-    String getRefToMessageId(UserMessage userMessage);
 }

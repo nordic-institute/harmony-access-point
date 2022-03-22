@@ -334,7 +334,7 @@ public class WebServicePluginImpl implements BackendInterface {
         ebMSHeaderInfo.value = messagingMapper.messagingFromEntity(messagingWs);
 
         try {
-            messageAcknowledgeExtService.acknowledgeMessageDelivered(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
+            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
         } catch (AuthenticationExtException | MessageAcknowledgeExtException e) {
             //if an error occurs related to the message acknowledgement do not block the download message operation
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
