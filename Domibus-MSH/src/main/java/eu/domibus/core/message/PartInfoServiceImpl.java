@@ -270,10 +270,10 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     /**
-     * Required for AS4_TA_12
      *
      * @param userMessage the UserMessage received
      * @throws EbMS3Exception if an attachment with an invalid charset is received
+     * (not {@link Property#CHARSET} or not matching {@link Property#CHARSET_PATTERN})
      */
     public void checkPartInfoCharset(final UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
         LOG.debug("Checking charset for attachments");
