@@ -44,7 +44,7 @@ public class AuthUtilsImpl implements AuthUtils {
 
     /**
      * Returns the original user passed via the security context OR
-     * null value when the user has the role ROLE_ADMIN or unsecured authorization is allowed
+     * null value when the user has the role ROLE_ADMIN / ROLE_AP_ADMIN or unsecured authorization is allowed
      */
     @Override
     public String getOriginalUserWithUnsecureLoginAllowed() throws AuthenticationException {
