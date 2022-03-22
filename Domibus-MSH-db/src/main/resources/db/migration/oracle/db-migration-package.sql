@@ -416,6 +416,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     failure_in_forall EXCEPTION;
     PRAGMA EXCEPTION_INIT (failure_in_forall, -24381);
 
+    /** -- Dummy TB_USER_MESSAGE.ID_PK (because of the new NOT NULL constraints introduced with partitioning) -*/
+    DUMMY_USER_MESSAGE_ID_PK CONSTANT NUMBER := 19700101;
+
     /** -- Helper procedures and functions start -*/
     FUNCTION check_table_exists(tab_name VARCHAR2) RETURN BOOLEAN IS
         v_table_exists INT;
@@ -852,6 +855,24 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     END clob_to_blob;
 
     /**-- TB_USER_MESSAGE migration --*/
+    PROCEDURE prepare_user_message IS
+        v_user_message_exists INT;
+    BEGIN
+        BEGIN
+            SELECT COUNT(*) INTO v_user_message_exists FROM TB_USER_MESSAGE WHERE ID_PK = DUMMY_USER_MESSAGE_ID_PK;
+
+            IF v_user_message_exists > 0 THEN
+                RAISE_APPLICATION_ERROR(-20001, 'TB_USER_MESSAGE entry having ID_PK = ' || DUMMY_USER_MESSAGE_ID_PK
+                    || ' already exists in your old user schema. This has a special meaning in the new user schema: please either remove it or update its value.');
+            ELSE
+                INSERT INTO MIGR_TB_USER_MESSAGE (ID_PK)
+                VALUES (DUMMY_USER_MESSAGE_ID_PK);
+
+                COMMIT;
+            END IF;
+        END;
+    END;
+
     PROCEDURE migrate_user_message IS
         v_tab        VARCHAR2(30) := 'TB_USER_MESSAGE';
         v_tab_new    VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
@@ -915,7 +936,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
             FOR i IN user_message.FIRST .. user_message.LAST
                 LOOP
-                    v_id_pk := generate_scalable_seq(user_message(i).ID_PK, user_message(i).CREATION_TIME);
+                    IF user_message(i).ID_PK = DUMMY_USER_MESSAGE_ID_PK THEN
+                        -- migrate the dummy entry as-is (its ID_PK doesn't need to change)
+                        v_id_pk := DUMMY_USER_MESSAGE_ID_PK;
+                    ELSE
+                        v_id_pk := generate_scalable_seq(user_message(i).ID_PK, user_message(i).CREATION_TIME);
+                    END IF;
 
                     migr_pks_user_message(i).OLD_ID := user_message(i).ID_PK;
                     migr_pks_user_message(i).NEW_ID := v_id_pk;
@@ -1214,6 +1240,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     migr_message_group(i).MODIFICATION_TIME := message_group(i).MODIFICATION_TIME;
                     migr_message_group(i).MODIFIED_BY := message_group(i).MODIFIED_BY;
                     migr_message_group(i).SOURCE_MESSAGE_ID_FK := get_tb_user_message_rec(message_group(i).SOURCE_MESSAGE_ID);
+
+                    IF migr_message_group(i).SOURCE_MESSAGE_ID_FK IS NULL THEN
+                        log_verbose('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                        migr_message_group(i).SOURCE_MESSAGE_ID_FK := DUMMY_USER_MESSAGE_ID_PK;
+                    END IF;
                 END LOOP;
 
             v_start := 1;
@@ -2185,6 +2216,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     migr_part_info(i).CREATED_BY := part_info(i).CREATED_BY;
                     migr_part_info(i).MODIFICATION_TIME := part_info(i).MODIFICATION_TIME;
                     migr_part_info(i).MODIFIED_BY := part_info(i).MODIFIED_BY;
+
+                    IF migr_part_info(i).USER_MESSAGE_ID_FK IS NULL THEN
+                        log_verbose('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                        migr_part_info(i).USER_MESSAGE_ID_FK := DUMMY_USER_MESSAGE_ID_PK;
+                    END IF;
                 END LOOP;
 
             v_start := 1;
@@ -2423,6 +2459,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     migr_error_log(i).CREATED_BY := error_log(i).CREATED_BY;
                     migr_error_log(i).MODIFICATION_TIME := error_log(i).MODIFICATION_TIME;
                     migr_error_log(i).MODIFIED_BY := error_log(i).MODIFIED_BY;
+
+                    IF migr_error_log(i).USER_MESSAGE_ID_FK IS NULL THEN
+                        log_verbose('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                        migr_error_log(i).USER_MESSAGE_ID_FK := DUMMY_USER_MESSAGE_ID_PK;
+                    END IF;
                 END LOOP;
 
             v_start := 1;
@@ -2552,6 +2593,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     migr_message_acknw(i).CREATED_BY := message_acknw(i).CREATED_BY;
                     migr_message_acknw(i).MODIFICATION_TIME := message_acknw(i).MODIFICATION_TIME;
                     migr_message_acknw(i).MODIFIED_BY := message_acknw(i).MODIFIED_BY;
+
+                    IF migr_message_acknw(i).USER_MESSAGE_ID_FK IS NULL THEN
+                        log_verbose('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                        migr_message_acknw(i).USER_MESSAGE_ID_FK := DUMMY_USER_MESSAGE_ID_PK;
+                    END IF;
                 END LOOP;
 
             v_start := 1;
@@ -10588,6 +10634,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     BEGIN
         -- keep it in this order
         prepare_timezone_offset;
+        prepare_user_message;
 
         -- START migrate to the new schema (including primary keys to the new format)
         migrate_user_message;
