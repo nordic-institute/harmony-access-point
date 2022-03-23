@@ -1685,7 +1685,7 @@ class Domibus{
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users?pageSize=10000",
                              "--cookie", context.expand( '${projectDir}')+ File.separator + "cookie.txt",
                              "-H", 'Content-Type: application/json',
-                             "-H", "\"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\"",
+                             "-H", "X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) ,
                              "-v"]
         def commandResult = runCommandInShell(commandString, log)
         assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")),"Error:getPluginUsers: Error while trying to connect to domibus."
