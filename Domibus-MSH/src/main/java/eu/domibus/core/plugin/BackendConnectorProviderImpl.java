@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin;
 
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -51,6 +52,7 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
         List<EnableAware> plugins = getEnableAwares();
 
         if (CollectionUtils.isEmpty(plugins)) {
+            LOG.info("No plugins found that can be disabled. Exiting");
             return;
         }
 
@@ -58,7 +60,11 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
             if (plugins.stream().allMatch(plugin -> !plugin.isEnabled(domain.getCode()))) {
                 EnableAware plugin = plugins.get(0);
                 LOG.warn("Cannot let all plugins to be disabled on domain [{}]. Enabling [{}].", domain, plugin.getName());
-                plugin.setEnabled(domain.getCode(), true);
+                try {
+                    plugin.setEnabled(domain.getCode(), true);
+                } catch (DomibusPropertyException ex) {
+                    LOG.error("Could not enable plugin [{}] on domain [{}]", plugin.getName(), domain);
+                }
             }
         });
 
@@ -68,6 +74,7 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
     public void validateConfiguration(String backendName, String domainCode) {
         BackendConnector<?, ?> plugin = getBackendConnector(backendName);
         if (!(plugin instanceof EnableAware)) {
+            LOG.info("Plugin [{}] cannot be enabled or disabled. Exiting", backendName);
             return;
         }
 

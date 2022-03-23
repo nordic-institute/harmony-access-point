@@ -1,12 +1,12 @@
 package eu.domibus.ext.delegate.services.backend;
 
-import eu.domibus.plugin.BackendConnectorProvider;
 import eu.domibus.ext.services.BackendConnectorExtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.plugin.BackendConnectorProvider;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
- * Service used for operations related with plugins that delegated to BackendConnectorProvider
+ * Service used for operations related with plugins that delegate to BackendConnectorProvider
  *
  * @author Ion Perpegel
  * @since 5.0
@@ -14,8 +14,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class BackendConnectorExtServiceDelegate implements BackendConnectorExtService {
 
-    @Autowired
-    BackendConnectorProvider backendConnectorProvider;
+    private final BackendConnectorProvider backendConnectorProvider;
+
+    public BackendConnectorExtServiceDelegate(@Lazy BackendConnectorProvider backendConnectorProvider) {
+        this.backendConnectorProvider = backendConnectorProvider;
+    }
 
     @Override
     public void ensureValidConfiguration() {

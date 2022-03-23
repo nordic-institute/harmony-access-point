@@ -10,6 +10,7 @@ import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
+import eu.domibus.plugin.BackendConnectorProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -63,6 +64,9 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     DomibusPropertyValidatorService domibusPropertyValidatorService;
+
+    @Injectable
+    BackendConnectorProvider backendConnectorProvider;
 
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,
@@ -126,6 +130,9 @@ public class DomibusContextRefreshedListenerTest {
             times = 1;
 
             gatewayConfigurationValidator.validateConfiguration();
+            times = 1;
+
+            backendConnectorProvider.ensureValidConfiguration();
             times = 1;
         }};
     }
