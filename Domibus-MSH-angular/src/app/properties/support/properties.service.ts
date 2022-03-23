@@ -73,7 +73,7 @@ export class PropertiesService {
   }
 
   async getMessageLogInitialIntervalProperty(): Promise<PropertyModel> {
-    return this.getProperty('domibus.ui.pages.messageLogs.initialInterval');
+    return this.getProperty('domibus.ui.pages.messageLogs.interval.default');
   }
 
   async getResendButtonEnabledReceivedMinutesProperty(): Promise<PropertyModel> {
