@@ -16,7 +16,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
@@ -106,7 +106,7 @@ public class BackendNotificationService {
     protected SubmissionValidatorService submissionValidatorService;
 
     @Autowired
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
 
     @Autowired
     protected BackendConnectorDelegate backendConnectorDelegate;

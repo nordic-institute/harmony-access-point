@@ -19,10 +19,10 @@ public class BackendConnectorService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorService.class);
 
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
-    public BackendConnectorService(BackendConnectorProvider backendConnectorProvider, AsyncNotificationConfigurationService asyncNotificationConfigurationService) {
+    public BackendConnectorService(BackendConnectorProviderImpl backendConnectorProvider, AsyncNotificationConfigurationService asyncNotificationConfigurationService) {
         this.backendConnectorProvider = backendConnectorProvider;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
     }

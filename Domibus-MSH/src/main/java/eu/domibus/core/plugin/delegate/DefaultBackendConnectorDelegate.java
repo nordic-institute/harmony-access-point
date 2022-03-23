@@ -2,13 +2,12 @@ package eu.domibus.core.plugin.delegate;
 
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.*;
-import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,12 +22,12 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
 
     protected ClassUtil classUtil;
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
     protected BackendConnectorService backendConnectorService;
 
     public DefaultBackendConnectorDelegate(ClassUtil classUtil,
                                            AsyncNotificationConfigurationService asyncNotificationConfigurationService,
-                                           BackendConnectorProvider backendConnectorProvider,
+                                           BackendConnectorProviderImpl backendConnectorProvider,
                                            BackendConnectorService backendConnectorService) {
         this.classUtil = classUtil;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;

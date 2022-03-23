@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
+import eu.domibus.ext.services.BackendConnectorExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -9,6 +10,7 @@ import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
 
 /**
@@ -26,10 +28,12 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     final protected DomibusSchedulerExtService domibusSchedulerExt;
     final protected FSPluginProperties fsPluginProperties;
+    final protected BackendConnectorExtService backendConnectorExtService;
 
-    public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties) {
+    public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties, BackendConnectorExtService backendConnectorExtService) {
         this.domibusSchedulerExt = domibusSchedulerExt;
         this.fsPluginProperties = fsPluginProperties;
+        this.backendConnectorExtService = backendConnectorExtService;
     }
 
     @Override
@@ -39,6 +43,8 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
+        backendConnectorExtService.validateConfiguration(PLUGIN_NAME, domainCode);
+
         boolean enable = fsPluginProperties.getDomainEnabled(domainCode);
         LOG.info("Setting fs-plugin to: [{}] for domain: [{}]...", enable ? "enabled" : "disabled", domainCode);
 

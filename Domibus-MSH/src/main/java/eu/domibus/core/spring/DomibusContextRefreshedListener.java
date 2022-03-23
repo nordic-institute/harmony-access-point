@@ -4,10 +4,11 @@ import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -64,6 +65,9 @@ public class DomibusContextRefreshedListener {
     @Autowired
     DomibusPropertyValidatorService domibusPropertyValidatorService;
 
+    @Autowired
+    protected BackendConnectorProviderImpl backendConnectorProvider;
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -108,6 +112,7 @@ public class DomibusContextRefreshedListener {
      */
     protected void executeNonSynchronized() {
         gatewayConfigurationValidator.validateConfiguration();
+        backendConnectorProvider.ensureValidConfiguration();
     }
 
     // TODO: below code to be moved to a separate service EDELIVERY-7462.
