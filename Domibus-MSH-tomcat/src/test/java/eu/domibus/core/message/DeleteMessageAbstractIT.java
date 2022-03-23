@@ -4,7 +4,7 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
+import eu.domibus.plugin.BackendConnectorProvider;
 import eu.domibus.test.common.MessageDBUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.BeforeClass;
@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class DeleteMessageAbstractIT extends AbstractIT {
 
     @Autowired
-    protected BackendConnectorProviderImpl backendConnectorProvider;
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
     protected MessageRetentionDefaultService messageRetentionService;

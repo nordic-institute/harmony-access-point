@@ -6,13 +6,13 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.BackendConnectorProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -66,7 +66,7 @@ public class DomibusContextRefreshedListener {
     DomibusPropertyValidatorService domibusPropertyValidatorService;
 
     @Autowired
-    protected BackendConnectorProviderImpl backendConnectorProvider;
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener

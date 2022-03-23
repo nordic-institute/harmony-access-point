@@ -13,13 +13,13 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.BackendConnectorProvider;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +47,8 @@ public class MshWebServiceTestIT extends AbstractIT {
     static class ContextConfiguration {
         @Primary
         @Bean
-        public BackendConnectorProviderImpl backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorProviderImpl.class);
+        public BackendConnectorProvider backendConnectorProvider() {
+            return Mockito.mock(BackendConnectorProvider.class);
         }
     }
 
@@ -56,7 +56,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
-    BackendConnectorProviderImpl backendConnectorProvider;
+    BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
     MessagingService messagingService;
