@@ -24,7 +24,6 @@ import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -81,9 +80,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected PartInfoDao partInfoDao;
-
-    @Autowired
-    protected PartyEndpointProvider partyEndpointProvider;
 
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
@@ -159,7 +155,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             getLog().debug("PMode found : [{}]", pModeKey);
             final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
 
-            String receiverUrl = partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, userMessageServiceHelper.getFinalRecipient(userMessage));
+            String receiverUrl = pModeProvider.getReceiverPartyEndpoint(receiverParty, userMessageServiceHelper.getFinalRecipient(userMessage));
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverUrl, policy, legConfiguration, pModeKey);
 
             requestRawXMLMessage = soapUtil.getRawXMLMessage(requestSoapMessage);

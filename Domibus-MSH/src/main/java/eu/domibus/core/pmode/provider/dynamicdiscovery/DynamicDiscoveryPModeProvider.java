@@ -15,7 +15,6 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
-import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -85,10 +84,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     @Autowired
     protected PartyIdDictionaryService partyIdDictionaryService;
-
-    @Autowired
-
-    protected PartyEndpointProvider partyEndpointProvider;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
@@ -211,7 +206,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             Property finalRecipient = getFinalRecipient(userMessage);
             final String finalRecipientValue = finalRecipient.getValue();
             final String receiverURL = endpointInfo.getAddress();
-            partyEndpointProvider.setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
+            setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
         }
     }
 

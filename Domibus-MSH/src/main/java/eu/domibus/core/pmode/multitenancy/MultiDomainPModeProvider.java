@@ -166,6 +166,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public String getReceiverPartyEndpoint(Party party, String finalRecipient) {
+        return getCurrentPModeProvider().getReceiverPartyEndpoint(party, finalRecipient);
+    }
+
+    @Override
     public Party getPartyByIdentifier(String partyIdentifier) {
         return getCurrentPModeProvider().getPartyByIdentifier(partyIdentifier);
     }
