@@ -8,7 +8,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.plugin.BackendConnector;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -39,7 +39,7 @@ public class BackendFilterInitializerServiceTest {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
 
     @Injectable
     protected AuthUtils authUtils;
@@ -114,7 +114,7 @@ public class BackendFilterInitializerServiceTest {
     }
 
     @Test
-    public void testInit_noNotificationListenerBeanMap(@Injectable BackendConnectorProvider backendConnectorProvider,
+    public void testInit_noNotificationListenerBeanMap(@Injectable BackendConnectorProviderImpl backendConnectorProvider,
                                                        @Injectable CriteriaFactory routingCriteriaFactory,
                                                        @Injectable BackendFilterEntity backendFilterEntity) {
 

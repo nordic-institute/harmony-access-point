@@ -5,7 +5,7 @@ import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.MessagesLogServiceImpl;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -34,8 +34,8 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     static class ContextConfiguration {
         @Primary
         @Bean
-        public BackendConnectorProvider backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorProvider.class);
+        public BackendConnectorProviderImpl backendConnectorProvider() {
+            return Mockito.mock(BackendConnectorProviderImpl.class);
         }
     }
 
@@ -43,7 +43,7 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     protected SubmissionUtil submissionUtil;
 
     @Autowired
-    BackendConnectorProvider backendConnectorProvider;
+    BackendConnectorProviderImpl backendConnectorProvider;
 
     @Autowired
     DatabaseMessageHandler databaseMessageHandler;

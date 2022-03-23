@@ -23,7 +23,7 @@ public class BackendConnectorServiceTest {
     BackendConnectorService backendConnectorService;
 
     @Injectable
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
 
     @Injectable
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;

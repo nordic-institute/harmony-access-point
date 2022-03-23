@@ -14,7 +14,7 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.routing.RoutingService;
@@ -43,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.jms.Queue;
-import javax.persistence.NoResultException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -65,8 +64,8 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     static class ContextConfiguration {
         @Primary
         @Bean
-        public BackendConnectorProvider backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorProvider.class);
+        public BackendConnectorProviderImpl backendConnectorProvider() {
+            return Mockito.mock(BackendConnectorProviderImpl.class);
         }
 
         @Primary
@@ -116,7 +115,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     protected MessageExchangeService messageExchangeService;
 
     @Autowired
-    BackendConnectorProvider backendConnectorProvider;
+    BackendConnectorProviderImpl backendConnectorProvider;
 
     @Autowired
     RoutingService routingService;
