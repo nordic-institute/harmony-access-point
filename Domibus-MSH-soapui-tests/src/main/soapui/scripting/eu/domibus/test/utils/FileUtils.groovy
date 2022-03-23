@@ -15,7 +15,7 @@ class FileUtils {
      * @param maxRetries - number of max retries to check (def: 20)
      * @param waitForNextRetry - wait in ms for next retry (def: 5_000 ms)
      */
-    static void waitForExpectedLineCount(File textFile, int expectedLineCount, def maxRetries = 20, def waitForNextRetry = 5_000) {
+    static void waitForExpectedLineCount(File textFile, int expectedLineCount, def maxRetries = 40, def waitForNextRetry = 5_000) {
         def numberOfLines = 0;
         for (int i = 0; i < maxRetries; i++) {
             if (textFile.exists()) {
