@@ -73,7 +73,7 @@ public class MessageAcknowledgeServiceDelegateTest {
             messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
         }};
 
-        messageAcknowledgeServiceDelegate.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp);
+        messageAcknowledgeServiceDelegate.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(messageId, acknowledgeTimestamp);
     }
 
     @Test

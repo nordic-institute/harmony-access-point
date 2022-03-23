@@ -49,7 +49,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
     @Override
     public Authentication basicAuthenticate(String user, String password) {
-        LOG.debug("Authenticating user using basic authentication", user);
+        LOG.debug("Authenticating user [{}] using basic authentication", user);
         final String domainForUser = userDomainService.getDomainForUser(user);
         if (domainForUser == null) {
             throw new ConfigurationException("Could not find domain for user [" + user + "].");
@@ -151,7 +151,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
         if (authenticationResult.isAuthenticated()) {
             LOG.debug("Request authenticated. Storing the authentication result in the security context");
-            LOG.debug("Authentication result: " + authenticationResult);
+            LOG.debug("Authentication result: [{}]", authenticationResult);
             SecurityContextHolder.getContext().setAuthentication(authenticationResult);
             LOG.putMDC(DomibusLogger.MDC_USER, authenticationResult.getName());
         } else {

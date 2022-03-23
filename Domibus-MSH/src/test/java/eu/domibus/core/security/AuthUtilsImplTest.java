@@ -61,7 +61,7 @@ public class AuthUtilsImplTest {
             authentication.getName();
             result = "authenticationName";
         }};
-        assertEquals(STRING, authUtilsImpl.getOriginalUserFromSecurityContext());
+        assertEquals(STRING, authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
         new FullVerifications() {
         };
     }
@@ -83,7 +83,7 @@ public class AuthUtilsImplTest {
             authentication.getName();
             result = "authenticationName";
         }};
-        assertNull(authUtilsImpl.getOriginalUserFromSecurityContext());
+        assertNull(authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
         new FullVerifications() {
         };
     }
@@ -105,7 +105,7 @@ public class AuthUtilsImplTest {
             authentication.getName();
             result = "authenticationName";
         }};
-        assertNull(authUtilsImpl.getOriginalUserFromSecurityContext());
+        assertNull(authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
         new FullVerifications() {
         };
     }
@@ -120,7 +120,7 @@ public class AuthUtilsImplTest {
             SecurityContextHolder.getContext().getAuthentication();
             result = null;
         }};
-        authUtilsImpl.getOriginalUserFromSecurityContext();
+        authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed();
         new FullVerifications() {
         };
     }
@@ -135,7 +135,7 @@ public class AuthUtilsImplTest {
             SecurityContextHolder.getContext();
             result = null;
         }};
-        authUtilsImpl.getOriginalUserFromSecurityContext();
+        authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed();
         new FullVerifications() {
         };
     }
@@ -146,7 +146,7 @@ public class AuthUtilsImplTest {
             authUtilsImpl.isUnsecureLoginAllowed();
             result = true;
         }};
-        assertNull(authUtilsImpl.getOriginalUserFromSecurityContext());
+        assertNull(authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
         new FullVerifications() {
         };
     }
@@ -285,7 +285,7 @@ public class AuthUtilsImplTest {
             result = false;
             authUtilsImpl.isSuperAdmin();
             result = false;
-            authUtilsImpl.getOriginalUserFromSecurityContext();
+            authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed();
             result = "TEST_USER";
         }};
 
@@ -303,7 +303,7 @@ public class AuthUtilsImplTest {
             result = false;
             authUtilsImpl.isSuperAdmin();
             result = false;
-            authUtilsImpl.getOriginalUserFromSecurityContext();
+            authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed();
             result = "";
         }};
 

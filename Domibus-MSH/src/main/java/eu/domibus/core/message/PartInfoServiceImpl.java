@@ -3,18 +3,25 @@ package eu.domibus.core.message;
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
 import eu.domibus.api.encryption.DecryptDataSource;
 import eu.domibus.api.message.compression.DecompressionDataSource;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.Property;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.spring.SpringContextProvider;
+import eu.domibus.common.ErrorCode;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +53,7 @@ public class PartInfoServiceImpl implements PartInfoService {
 
     public static final String PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD;
 
-    protected static Long BYTES_IN_MB = 1048576L;
+    protected static final Long BYTES_IN_MB = 1048576L;
 
     @Autowired
     private PartInfoDao partInfoDao;
@@ -242,7 +249,7 @@ public class PartInfoServiceImpl implements PartInfoService {
             fsDataSource = new DecryptDataSource(fsDataSource, decryptCipher);
         }
 
-        if (partInfo.getCompressed()) {
+        if (BooleanUtils.isTrue(partInfo.getCompressed())) {
             LOG.debug("Setting the decompressing handler on the the payload [{}]", href);
             fsDataSource = new DecompressionDataSource(fsDataSource, partInfo.getMime());
         }
@@ -254,6 +261,43 @@ public class PartInfoServiceImpl implements PartInfoService {
         LOG.debug("Getting decrypt cipher for payload [{}]", partInfo.getHref());
         final PayloadEncryptionService encryptionService = SpringContextProvider.getApplicationContext().getBean("EncryptionServiceImpl", PayloadEncryptionService.class);
         return encryptionService.getDecryptCipherForPayload();
+    }
+
+    public void validatePayloadSizeBeforeSchedulingSave(LegConfiguration legConfiguration, List<PartInfo> partInfos) {
+        for (PartInfo partInfo : partInfos) {
+            payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength(), true);
+        }
+    }
+
+    /**
+     *
+     * @param userMessage the UserMessage received
+     * @throws EbMS3Exception if an attachment with an invalid charset is received
+     * (not {@link Property#CHARSET} or not matching {@link Property#CHARSET_PATTERN})
+     */
+    public void checkPartInfoCharset(final UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
+        LOG.debug("Checking charset for attachments");
+        if (CollectionUtils.isEmpty(partInfoList)) {
+            LOG.debug("No partInfo found");
+            return;
+        }
+
+        for (final PartInfo partInfo : partInfoList) {
+            if (CollectionUtils.isEmpty(partInfo.getPartProperties())) {
+                continue;
+            }
+            for (final Property property : partInfo.getPartProperties()) {
+                if (Property.CHARSET.equalsIgnoreCase(property.getName()) && !Property.CHARSET_PATTERN.matcher(property.getValue()).matches()) {
+                    LOG.businessError(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, property.getValue(), userMessage.getMessageId());
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                            .message(property.getValue() + " is not a valid Charset")
+                            .refToMessageId( userMessage.getMessageId())
+                            .mshRole(MSHRole.RECEIVING)
+                            .build();
+                }
+            }
+        }
     }
 
 }

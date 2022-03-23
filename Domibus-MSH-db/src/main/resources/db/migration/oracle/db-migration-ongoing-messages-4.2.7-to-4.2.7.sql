@@ -6,7 +6,7 @@
 -- Parameters to be adjusted:
 -- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
 -- ********************************************************************************************************
-CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES IS
+CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES_427 IS
     -- limit loading a high number of records into memory
     BULK_COLLECT_LIMIT CONSTANT NUMBER := 100;
 
@@ -21,12 +21,12 @@ CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES IS
         endDate             TIMESTAMP            := DEFAULT_MIGRATION_END_DATE
     );
 
-    PROCEDURE migrate(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS);
+    PROCEDURE migrate(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS DEFAULT T_MIGRATION_DETAILS());
 
-END MIGRATE_ONGOING_MESSAGES;
+END MIGRATE_ONGOING_MESSAGES_427;
 /
 
-CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
+CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_427 IS
 
     TYPE T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS TABLE OF NUMBER INDEX BY BINARY_INTEGER;
 
@@ -741,7 +741,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
         CLOSE c_messaging_lock;
     END migrate_messaging_lock;
 
-    PROCEDURE migrate(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
+    PROCEDURE migrate(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS DEFAULT T_MIGRATION_DETAILS()) IS
         messageInfoLookupTable T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
         userMessageLookupTable T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
         partInfoLookupTable T_LOCAL_TO_REMOTE_PRIMARY_KEYS;
@@ -764,5 +764,5 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES IS
         dbms_output.put_line('Please review the changes and either COMMIT them or ROLLBACK!');
     END migrate;
 
-END MIGRATE_ONGOING_MESSAGES;
+END MIGRATE_ONGOING_MESSAGES_427;
 /

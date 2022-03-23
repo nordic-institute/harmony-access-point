@@ -6,7 +6,6 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.ext.domain.archive.BatchDTO;
@@ -32,8 +31,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.time.ZoneOffset;
 import java.util.*;
 
@@ -63,9 +60,6 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_CONTINUOUS_DATE = TEST_ENDPOINT_RESOURCE + "/continuous-mechanism/start-date";
     public static final String TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES = TEST_ENDPOINT_EXPORTED + "/{batchId}/messages";
     public static final String TEST_ENDPOINT_BATCH_CLOSE = TEST_ENDPOINT_EXPORTED + "/{batchId}/close";
-
-    public static final String TEST_PLUGIN_USERNAME = "admin";
-    public static final String TEST_PLUGIN_PASSWORD = "123456";
 
     public ObjectMapper objectMapper = new ObjectMapper();
 

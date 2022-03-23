@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -60,10 +59,10 @@ public class AuditServiceImplTest {
 
 
     @Test
-    public void listAuditTarget() throws Exception {
+    public void listAuditTarget() {
         when(domibusConfigurationService.isExtAuthProviderEnabled()).thenReturn(false);
         List<String> targets = auditService.listAuditTarget();
-        targets.stream().forEach(System.out::println);
+        targets.forEach(System.out::println);
         assertEquals(10, targets.size()); // maybe it is better to delete
         assertTrue(targets.contains("User"));
         assertTrue(targets.contains("Pmode"));
@@ -77,10 +76,10 @@ public class AuditServiceImplTest {
     }
 
     @Test
-    public void listAuditTarget_ExtAuthProvider() throws Exception {
+    public void listAuditTarget_ExtAuthProvider() {
         when(domibusConfigurationService.isExtAuthProviderEnabled()).thenReturn(true);
         List<String> targets = auditService.listAuditTarget();
-        targets.stream().forEach(System.out::println);
+        targets.forEach(System.out::println);
         assertEquals(9, targets.size()); // maybe it is better to delete
         assertFalse(targets.contains("User"));
         assertTrue(targets.contains("Pmode"));
@@ -116,7 +115,7 @@ public class AuditServiceImplTest {
                 from,
                 0,
                 10, true);
-        verify(auditLogCoreMapper, times(1)).auditLogListToAuditList(eq(audits));
+        verify(auditLogCoreMapper, times(1)).auditLogListToAuditList(audits);
 
     }
 
