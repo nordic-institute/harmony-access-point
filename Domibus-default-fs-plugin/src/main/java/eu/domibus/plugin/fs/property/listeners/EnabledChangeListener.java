@@ -30,7 +30,8 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
     final protected FSPluginProperties fsPluginProperties;
     final protected BackendConnectorExtService backendConnectorExtService;
 
-    public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties, BackendConnectorExtService backendConnectorExtService) {
+    public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties,
+                                 BackendConnectorExtService backendConnectorExtService) {
         this.domibusSchedulerExt = domibusSchedulerExt;
         this.fsPluginProperties = fsPluginProperties;
         this.backendConnectorExtService = backendConnectorExtService;

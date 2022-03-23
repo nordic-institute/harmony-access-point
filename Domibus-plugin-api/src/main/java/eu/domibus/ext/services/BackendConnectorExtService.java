@@ -1,10 +1,10 @@
 package eu.domibus.ext.services;
 
 /**
- * Service used for operations related with plugins
- *
  * @author Ion Perpegel
  * @since 5.0
+ *
+ * Interface needed by plugins
  */
 public interface BackendConnectorExtService {
 

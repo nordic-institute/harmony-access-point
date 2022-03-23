@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
- * Service used for operations related with plugins that delegate to BackendConnectorProvider
+ * Service used by plugins that delegate to BackendConnectorProvider
  *
  * @author Ion Perpegel
  * @since 5.0
