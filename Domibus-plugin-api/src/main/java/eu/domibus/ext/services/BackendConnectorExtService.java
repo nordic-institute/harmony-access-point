@@ -10,5 +10,5 @@ public interface BackendConnectorExtService {
 
     void ensureValidConfiguration();
 
-    void validateConfiguration(String backendName, final String domainCode);
+    void validateConfiguration(final String domainCode);
 }

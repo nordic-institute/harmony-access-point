@@ -71,19 +71,12 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
     }
 
     @Override
-    public void validateConfiguration(String backendName, String domainCode) {
-        BackendConnector<?, ?> plugin = getBackendConnector(backendName);
-        if (!(plugin instanceof EnableAware)) {
-            LOG.info("Plugin [{}] cannot be enabled or disabled. Exiting", backendName);
-            return;
-        }
-
+    public void validateConfiguration(String domainCode) {
         List<EnableAware> plugins = getEnableAwares();
 
         if (plugins.stream().allMatch(plugin1 -> !plugin1.isEnabled(domainCode))) {
-            throw new ConfigurationException(String.format("Plugin [%s] cannot be disabled on domain [%s]", backendName, domainCode));
+            throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
         }
-
     }
 
     private List<EnableAware> getEnableAwares() {

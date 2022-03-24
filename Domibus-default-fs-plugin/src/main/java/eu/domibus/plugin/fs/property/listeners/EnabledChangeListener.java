@@ -10,7 +10,6 @@ import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
-import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
 
 /**
@@ -44,7 +43,12 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        backendConnectorExtService.validateConfiguration(PLUGIN_NAME, domainCode);
+        try {
+            backendConnectorExtService.validateConfiguration(domainCode);
+        } catch (Exception ex) {
+            throw new DomibusPropertyExtException(String.format("Cannot change the property [%s] of fs-plugin to [%s] because there would be no enabled plugin on domain [%s]"
+                    , propertyName, propertyValue, domainCode));
+        }
 
         boolean enable = fsPluginProperties.getDomainEnabled(domainCode);
         LOG.info("Setting fs-plugin to: [{}] for domain: [{}]...", enable ? "enabled" : "disabled", domainCode);

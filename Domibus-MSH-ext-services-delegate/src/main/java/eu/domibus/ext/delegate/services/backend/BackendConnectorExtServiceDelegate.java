@@ -26,7 +26,7 @@ public class BackendConnectorExtServiceDelegate implements BackendConnectorExtSe
     }
 
     @Override
-    public void validateConfiguration(String backendName, String domainCode) {
-        backendConnectorProvider.validateConfiguration(backendName, domainCode);
+    public void validateConfiguration(String domainCode) {
+        backendConnectorProvider.validateConfiguration(domainCode);
     }
 }
