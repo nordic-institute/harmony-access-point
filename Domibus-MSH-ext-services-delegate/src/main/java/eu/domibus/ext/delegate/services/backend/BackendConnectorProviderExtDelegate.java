@@ -29,4 +29,9 @@ public class BackendConnectorProviderExtDelegate implements BackendConnectorProv
     public void validateConfiguration(String domainCode) {
         backendConnectorProvider.validateConfiguration(domainCode);
     }
+
+    @Override
+    public boolean canDisableBackendConnector(String backendName, String domainCode) {
+        return backendConnectorProvider.canDisableBackendConnector(backendName, domainCode);
+    }
 }

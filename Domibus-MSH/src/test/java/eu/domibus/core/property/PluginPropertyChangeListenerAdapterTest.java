@@ -33,8 +33,8 @@ public class PluginPropertyChangeListenerAdapterTest extends TestCase {
     }
 
     @Test
-    public void propertyValueChanged_error(@Mocked String domainCode, @Mocked String propertyName, @Mocked String propertyValue,
-                                           @Mocked DomibusPropertyExtException exception) {
+    public void propertyValueChanged_error(@Injectable String domainCode, @Injectable String propertyName,
+                                           @Injectable String propertyValue, @Injectable DomibusPropertyExtException exception) {
         String errorMessage = "errorMessage";
         new Expectations() {{
             exception.getMessage();

@@ -79,6 +79,34 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
         }
     }
 
+    @Override
+    public boolean canDisableBackendConnector(String backendName, String domainCode) {
+        BackendConnector<?, ?> plugin = getBackendConnector(backendName);
+        if (plugin == null) {
+            LOG.info("Could not find backend connector with the name [{}]; returning false; ", backendName);
+            return false;
+        }
+        if (!(plugin instanceof EnableAware)) {
+            LOG.info("Backend connector with the name [{}] is not domain aware; returning false; ", backendName);
+            return false;
+        }
+        EnableAware enableAware = (EnableAware) plugin;
+        if (!enableAware.isEnabled(domainCode)) {
+            LOG.info("Cannot disable backend connector with the name [{}] since it is already disabled; returning false; ", backendName);
+            return false;
+        }
+
+        List<EnableAware> enabled = getEnableAwares().stream().filter(item -> item.isEnabled(domainCode)).collect(Collectors.toList());
+        if (enabled.size() > 1) {
+            LOG.debug("Backend connector with the name [{}] can be disabled on domain [{}]; returning true; ", backendName, domainCode);
+            return true;
+        }
+
+        LOG.info("Cannot disable backend connector with the name [{}] since it is the only one enabled on domain [{}]; returning false; ",
+                backendName, domainCode);
+        return false;
+    }
+
     private List<EnableAware> getEnableAwares() {
         return getBackendConnectors()
                 .stream()
