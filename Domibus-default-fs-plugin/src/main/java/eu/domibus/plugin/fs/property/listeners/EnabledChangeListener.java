@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
@@ -43,16 +44,17 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        try {
-            backendConnectorProviderExt.validateConfiguration(domainCode);
-        } catch (Exception ex) {
-            throw new DomibusPropertyExtException(String.format("Cannot change the property [%s] of fs-plugin to [%s] because there would be no enabled plugin on domain [%s]"
-                    , propertyName, propertyValue, domainCode));
+        boolean enable = fsPluginProperties.getDomainEnabled(domainCode);
+        if(!enable) {
+            try {
+                backendConnectorProviderExt.validateConfiguration(domainCode);
+            } catch (Exception ex) {
+                throw new DomibusPropertyExtException(String.format("Cannot change the property [%s] of fs-plugin to [%s] because there would be no enabled plugin on domain [%s]"
+                        , propertyName, propertyValue, domainCode));
+            }
         }
 
-        boolean enable = fsPluginProperties.getDomainEnabled(domainCode);
         LOG.info("Setting fs-plugin to: [{}] for domain: [{}]...", enable ? "enabled" : "disabled", domainCode);
-
         if (enable) {
             domibusSchedulerExt.resumeJobs(domainCode, FSPLUGIN_JOB_NAMES);
         } else {
