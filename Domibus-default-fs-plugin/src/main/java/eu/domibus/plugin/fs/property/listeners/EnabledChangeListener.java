@@ -1,7 +1,7 @@
 package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.ext.services.BackendConnectorExtService;
+import eu.domibus.ext.services.BackendConnectorProviderExt;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,13 +27,13 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     final protected DomibusSchedulerExtService domibusSchedulerExt;
     final protected FSPluginProperties fsPluginProperties;
-    final protected BackendConnectorExtService backendConnectorExtService;
+    final protected BackendConnectorProviderExt backendConnectorProviderExt;
 
     public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties,
-                                 BackendConnectorExtService backendConnectorExtService) {
+                                 BackendConnectorProviderExt backendConnectorProviderExt) {
         this.domibusSchedulerExt = domibusSchedulerExt;
         this.fsPluginProperties = fsPluginProperties;
-        this.backendConnectorExtService = backendConnectorExtService;
+        this.backendConnectorProviderExt = backendConnectorProviderExt;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
         try {
-            backendConnectorExtService.validateConfiguration(domainCode);
+            backendConnectorProviderExt.validateConfiguration(domainCode);
         } catch (Exception ex) {
             throw new DomibusPropertyExtException(String.format("Cannot change the property [%s] of fs-plugin to [%s] because there would be no enabled plugin on domain [%s]"
                     , propertyName, propertyValue, domainCode));
