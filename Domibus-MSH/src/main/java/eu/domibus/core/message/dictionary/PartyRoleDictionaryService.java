@@ -3,6 +3,7 @@ package eu.domibus.core.message.dictionary;
 import eu.domibus.api.model.PartyRole;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Callable;
 
@@ -19,6 +20,7 @@ public class PartyRoleDictionaryService extends AbstractDictionaryService {
         this.partyRoleDao = partyRoleDao;
     }
 
+    @Transactional
     public PartyRole findOrCreateRole(String value) {
         if (StringUtils.isBlank(value)) {
             return null;

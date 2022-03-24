@@ -2,6 +2,7 @@ package eu.domibus.core.message.dictionary;
 
 import eu.domibus.api.model.MessageProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Callable;
 
@@ -17,6 +18,7 @@ public class MessagePropertyDictionaryService extends AbstractDictionaryService{
         this.messagePropertyDao = messagePropertyDao;
     }
 
+    @Transactional
     public MessageProperty findOrCreateMessageProperty(final String name, String value, String type) {
         Callable<MessageProperty> findTask = () -> messagePropertyDao.findExistingProperty(name, value, type);
         Callable<MessageProperty> findOrCreateTask = () -> messagePropertyDao.findOrCreateProperty(name, value, type);

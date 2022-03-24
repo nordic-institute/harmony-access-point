@@ -3,6 +3,7 @@ package eu.domibus.core.time;
 import eu.domibus.api.model.TimezoneOffset;
 import eu.domibus.core.message.dictionary.AbstractDictionaryService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Callable;
 
@@ -28,6 +29,7 @@ public class TimezoneOffsetService extends AbstractDictionaryService {
      *
      * @return an existing timezone offset dictionary entry or a newly created one.
      */
+    @Transactional
     public TimezoneOffset getTimezoneOffset(String timezoneId, int offsetSeconds) {
         Callable<TimezoneOffset> findTask = () -> timezoneOffsetDao.findTimezoneOffsetByTimezoneIdAndOffsetSeconds(timezoneId, offsetSeconds);
         Callable<TimezoneOffset> findOrCreateTask = () -> timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);
