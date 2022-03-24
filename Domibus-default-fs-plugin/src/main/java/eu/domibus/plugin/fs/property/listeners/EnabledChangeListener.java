@@ -1,7 +1,7 @@
 package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.ext.services.BackendConnectorProviderExt;
+import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -28,13 +28,13 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     final protected DomibusSchedulerExtService domibusSchedulerExt;
     final protected FSPluginProperties fsPluginProperties;
-    final protected BackendConnectorProviderExt backendConnectorProviderExt;
+    final protected BackendConnectorProviderExtService backendConnectorProviderExtService;
 
     public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties,
-                                 BackendConnectorProviderExt backendConnectorProviderExt) {
+                                 BackendConnectorProviderExtService backendConnectorProviderExtService) {
         this.domibusSchedulerExt = domibusSchedulerExt;
         this.fsPluginProperties = fsPluginProperties;
-        this.backendConnectorProviderExt = backendConnectorProviderExt;
+        this.backendConnectorProviderExtService = backendConnectorProviderExtService;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
         boolean enable = fsPluginProperties.getDomainEnabled(domainCode);
         if (!enable) {
-            if (!backendConnectorProviderExt.canDisableBackendConnector(PLUGIN_NAME, domainCode)) {
+            if (!backendConnectorProviderExtService.canDisableBackendConnector(PLUGIN_NAME, domainCode)) {
                 throw new DomibusPropertyExtException(String.format("Cannot change the property [%s] of fs-plugin to [%s] because there would be no enabled plugin on domain [%s]"
                         , propertyName, propertyValue, domainCode));
             }

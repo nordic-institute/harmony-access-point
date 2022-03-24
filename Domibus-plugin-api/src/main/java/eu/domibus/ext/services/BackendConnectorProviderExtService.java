@@ -6,13 +6,7 @@ package eu.domibus.ext.services;
  *
  * Interface needed by plugins to access the domibus BackendConnectorProvider
  */
-public interface BackendConnectorProviderExt {
-
-    /**
-     * Checks that at least one plugin is enabled on each domain; if not, takes one and enables it
-     * At this point, only default plugins are enable-aware and only the FSPlugin can actually be disabled
-     */
-    void ensureValidConfiguration();
+public interface BackendConnectorProviderExtService {
 
     /**
      * Checks that at least one plugin is enabled on the specified domain; if not, throws a ConfigurationException

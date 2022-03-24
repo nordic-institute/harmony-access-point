@@ -1,6 +1,6 @@
 package eu.domibus.ext.delegate.services.backend;
 
-import eu.domibus.ext.services.BackendConnectorProviderExt;
+import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.plugin.BackendConnectorProvider;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -12,17 +12,12 @@ import org.springframework.stereotype.Service;
  * @since 5.0
  */
 @Service
-public class BackendConnectorProviderExtDelegate implements BackendConnectorProviderExt {
+public class BackendConnectorProviderExtServiceDelegate implements BackendConnectorProviderExtService {
 
     private final BackendConnectorProvider backendConnectorProvider;
 
-    public BackendConnectorProviderExtDelegate(@Lazy BackendConnectorProvider backendConnectorProvider) {
+    public BackendConnectorProviderExtServiceDelegate(@Lazy BackendConnectorProvider backendConnectorProvider) {
         this.backendConnectorProvider = backendConnectorProvider;
-    }
-
-    @Override
-    public void ensureValidConfiguration() {
-        backendConnectorProvider.ensureValidConfiguration();
     }
 
     @Override
