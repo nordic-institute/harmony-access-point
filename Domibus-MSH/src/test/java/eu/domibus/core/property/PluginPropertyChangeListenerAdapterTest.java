@@ -34,7 +34,7 @@ public class PluginPropertyChangeListenerAdapterTest extends TestCase {
 
     @Test
     public void propertyValueChanged_error(@Mocked String domainCode, @Mocked String propertyName, @Mocked String propertyValue,
-                                           @Mocked DomibusPropertyException exception) {
+                                           @Mocked DomibusPropertyExtException exception) {
         String errorMessage = "errorMessage";
         new Expectations() {{
             exception.getMessage();
@@ -46,7 +46,7 @@ public class PluginPropertyChangeListenerAdapterTest extends TestCase {
         try {
             pluginPropertyChangeListenerAdapter.propertyValueChanged(domainCode, propertyName, propertyValue);
             Assert.fail();
-        } catch (DomibusPropertyExtException ex) {
+        } catch (DomibusPropertyException ex) {
             Assert.assertEquals(ex.getCause(), exception);
             Assert.assertTrue(ex.getMessage().contains(errorMessage));
         }
