@@ -2,7 +2,7 @@
 package eu.domibus.plugin.ws;
 
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -29,19 +29,23 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
     @Autowired
     MshRoleDao mshRoleDao;
 
+    @Autowired
+    MessageDaoTestUtil messageDaoTestUtil;
+
     /**
      * Tests that the list of errors is not empty for a certain message.
      */
     @Test
     public void testGetMessageErrorsOk() {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId);
+
         ErrorLogEntry logEntry = new ErrorLogEntry();
         logEntry.setMessageInErrorId(messageId);
         logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         logEntry.setErrorCode(ErrorCode.EBMS_0004);
-        UserMessage um = new UserMessage();
-        um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
-        logEntry.setUserMessage(um);
+
+        logEntry.setUserMessage(testMessage.getUserMessage());
         logEntry.setTimestamp(new Date());
         errorLogDao.create(logEntry);
 

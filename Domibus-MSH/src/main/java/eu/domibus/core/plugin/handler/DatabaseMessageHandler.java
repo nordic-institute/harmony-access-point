@@ -207,14 +207,24 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return eu.domibus.common.MessageStatus.NOT_FOUND;
+        }
         final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageEntityId);
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageEntityId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return eu.domibus.common.MessageStatus.NOT_FOUND;
+        }
         final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
@@ -222,7 +232,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return new ArrayList<>();
+        }
         return errorLogService.getErrors(messageId);
     }
 

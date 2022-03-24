@@ -149,8 +149,18 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
 
     super.filter = {testMessage: false};
-    this.messageInterval = this.messageIntervals[1];
+    this.messageInterval = await this.getMessageLogInitialInterval();
     this.filterData();
+  }
+
+  private async getMessageLogInitialInterval(): Promise<DateInterval> {
+    const res = await this.propertiesService.getMessageLogInitialIntervalProperty();
+    const val = +res.value;
+    let interval = this.messageIntervals.find(el => el.value == val * 60);
+    if (!interval) {
+      interval = this.messageIntervals[1];
+    }
+    return interval;
   }
 
   async ngAfterViewInit() {
@@ -458,6 +468,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
       && !this.isSplitAndJoinMessage(row) && row.canDownloadEnvelope;
   }
+
   downloadAction(row) {
     this.downloadMessage(row);
   }
