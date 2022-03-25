@@ -14,6 +14,7 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.routing.RoutingService;
@@ -23,7 +24,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.BackendConnectorProvider;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.test.common.BackendConnectorMock;
@@ -118,7 +119,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     protected MessageExchangeService messageExchangeService;
 
     @Autowired
-    BackendConnectorProvider backendConnectorProvider;
+    BackendConnectorProviderImpl backendConnectorProvider;
 
     @Autowired
     RoutingService routingService;

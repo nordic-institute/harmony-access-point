@@ -1,7 +1,7 @@
 package eu.domibus.ext.delegate.services.backend;
 
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
-import eu.domibus.plugin.BackendConnectorProvider;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 

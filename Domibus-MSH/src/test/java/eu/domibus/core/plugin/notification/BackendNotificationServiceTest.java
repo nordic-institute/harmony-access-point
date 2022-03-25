@@ -19,6 +19,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
@@ -26,7 +27,7 @@ import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.BackendConnectorProvider;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -123,7 +124,7 @@ public class BackendNotificationServiceTest {
     protected DomainService domainService;
 
     @Injectable
-    BackendConnectorProvider backendConnectorProvider;
+    BackendConnectorProviderImpl backendConnectorProvider;
 
     @Injectable
     BackendConnectorDelegate backendConnectorDelegate;

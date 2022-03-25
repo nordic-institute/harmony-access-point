@@ -16,7 +16,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.BackendConnectorProvider;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -49,7 +49,7 @@ public class RoutingServiceTest {
     public static final String MESSAGE_ID = "MessageId";
 
     @Injectable
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
 
     @Injectable
     protected BackendFilterCoreMapper backendFilterCoreMapper;
@@ -605,7 +605,7 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void createBackendFilters_emptyDbEntities(@Injectable BackendConnectorProvider backendConnectorProvider,
+    public void createBackendFilters_emptyDbEntities(@Injectable BackendConnectorProviderImpl backendConnectorProvider,
                                                      @Injectable BackendConnector backendConnector,
                                                      @Injectable BackendFilterEntity dbBackendFilterEntity) {
         RoutingService routingService = new RoutingService();
@@ -822,7 +822,7 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void createBackendFiltersWithDbEntities(@Injectable BackendConnectorProvider backendConnectorProvider,
+    public void createBackendFiltersWithDbEntities(@Injectable BackendConnectorProviderImpl backendConnectorProvider,
                                                    @Injectable BackendConnector backendConnector,
                                                    @Injectable BackendFilterEntity dbBackendFilterEntity,
                                                    @Injectable BackendFilterEntity dbBackendFilterEntity1) {

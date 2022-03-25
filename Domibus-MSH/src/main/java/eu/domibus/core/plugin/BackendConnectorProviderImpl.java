@@ -6,7 +6,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.BackendConnectorProvider;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.annotation.Lazy;
@@ -34,6 +34,12 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
         this.domainService = domainService;
     }
 
+    /**
+     * Retrieves the backend connector (plugin) with the specified name
+     *
+     * @param backendName the name of the backend connector
+     * @return the backend connector, if exists, or null
+     */
     public BackendConnector<?, ?> getBackendConnector(String backendName) {
         for (final BackendConnector<?, ?> backendConnector : backendConnectors) {
             if (backendConnector.getName().equalsIgnoreCase(backendName)) {
@@ -43,6 +49,10 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
         return null;
     }
 
+    /**
+     * Retrieves the list of all backend connectors (plugins)
+     * @return the list mentioned above
+     */
     public List<BackendConnector<?, ?>> getBackendConnectors() {
         return backendConnectors;
     }

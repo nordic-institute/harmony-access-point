@@ -13,13 +13,14 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.BackendConnectorProvider;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
-    BackendConnectorProvider backendConnectorProvider;
+    BackendConnectorProviderImpl backendConnectorProvider;
 
     @Autowired
     MessagingService messagingService;

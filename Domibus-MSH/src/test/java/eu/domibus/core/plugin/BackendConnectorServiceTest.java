@@ -3,7 +3,7 @@ package eu.domibus.core.plugin;
 import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.BackendConnectorProvider;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
