@@ -60,8 +60,7 @@ public class CacheTTLChangeListener implements DomibusPropertyChangeListener {
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         LOG.debug("Change cache ttl for property:[{}] to value [{}]!", propertyName, propertyValue);
         if (!propertyCacheMapping.containsKey(propertyName)){
-            LOG.error("Property: [{}] is not supported!", propertyName);
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
+            throw new IllegalArgumentException("TTL cache property: ["+propertyName+"] is not supported!");
         }
         String cacheKey = propertyCacheMapping.get(propertyName);
 
@@ -72,7 +71,6 @@ public class CacheTTLChangeListener implements DomibusPropertyChangeListener {
         CacheRuntimeConfiguration<Long, String> runtimeConfiguration = eh107Configuration.unwrap(CacheRuntimeConfiguration.class);
 
         if (!(runtimeConfiguration.getExpiryPolicy() instanceof DomibusCacheDynamicExpiryPolicy)){
-            LOG.error("Can not update TTL for cache [{}] and property: [{}], because cache is not configured with DomibusCacheDynamicExpiryPolicy!", cacheKey, propertyName);
             throw new IllegalArgumentException("Cache: [" + cacheKey+"] is not configured with DomibusCacheDynamicExpiryPolicy! Property ["+propertyName+"] can not be updated!");
         }
 
