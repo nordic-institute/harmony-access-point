@@ -20,7 +20,6 @@ public class MpcDictionaryService extends AbstractDictionaryService {
         this.mpcDao = mpcDao;
     }
 
-    @Transactional
     public MpcEntity findOrCreateMpc(String value) {
         if (StringUtils.isBlank(value)) {
             return null;

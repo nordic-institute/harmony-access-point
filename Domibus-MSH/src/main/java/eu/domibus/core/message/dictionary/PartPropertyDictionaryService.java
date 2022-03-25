@@ -20,7 +20,6 @@ public class PartPropertyDictionaryService extends AbstractDictionaryService {
         this.partPropertyDao = partPropertyDao;
     }
 
-    @Transactional
     public PartProperty findOrCreatePartProperty(final String name, String value, String type) {
         if (StringUtils.isBlank(value)) {
             return null;

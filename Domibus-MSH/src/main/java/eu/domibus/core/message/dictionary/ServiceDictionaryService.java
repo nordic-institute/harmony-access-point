@@ -20,7 +20,6 @@ public class ServiceDictionaryService extends AbstractDictionaryService {
         this.serviceDao = serviceDao;
     }
 
-    @Transactional
     public ServiceEntity findOrCreateService(String value, String type) {
         if (StringUtils.isBlank(value)) {
             return null;

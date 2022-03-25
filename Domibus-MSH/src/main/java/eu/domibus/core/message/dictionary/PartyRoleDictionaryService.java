@@ -20,7 +20,6 @@ public class PartyRoleDictionaryService extends AbstractDictionaryService {
         this.partyRoleDao = partyRoleDao;
     }
 
-    @Transactional
     public PartyRole findOrCreateRole(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
