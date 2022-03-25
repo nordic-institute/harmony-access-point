@@ -224,6 +224,40 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the VM argument line used when integration tests are run. -->
+                            <argLine>-server -ea -Xms512m -Xmx1024m -Duser.language=en ${failsafeArgLine}
+                            </argLine>
+                            <!-- Skips integration tests if the value of skipITs property is true-->
+                            <skipTests>${skipITs}</skipTests>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>integration-tests-database</id>
+                        <phase>none</phase>
+                        <configuration combine.self="override"/>
+                    </execution>
+                    <execution>
+                        <id>integration-tests-filesystem</id>
+                        <phase>none</phase>
+                        <configuration combine.self="override"/>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>${maven-failsafe-plugin.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
