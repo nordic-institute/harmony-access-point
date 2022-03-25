@@ -29,7 +29,6 @@ public class TimezoneOffsetService extends AbstractDictionaryService {
      *
      * @return an existing timezone offset dictionary entry or a newly created one.
      */
-    @Transactional
     public TimezoneOffset getTimezoneOffset(String timezoneId, int offsetSeconds) {
         Callable<TimezoneOffset> findTask = () -> timezoneOffsetDao.findTimezoneOffsetByTimezoneIdAndOffsetSeconds(timezoneId, offsetSeconds);
         Callable<TimezoneOffset> findOrCreateTask = () -> timezoneOffsetDao.findOrCreateTimezoneOffset(timezoneId, offsetSeconds);

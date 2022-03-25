@@ -20,7 +20,6 @@ public class ActionDictionaryService extends AbstractDictionaryService {
         this.actionDao = actionDao;
     }
 
-    @Transactional
     public ActionEntity findOrCreateAction(String value) {
         if (StringUtils.isBlank(value)) {
             return null;

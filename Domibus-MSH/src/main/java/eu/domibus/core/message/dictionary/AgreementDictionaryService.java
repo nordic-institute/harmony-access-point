@@ -3,7 +3,6 @@ package eu.domibus.core.message.dictionary;
 import eu.domibus.api.model.AgreementRefEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Callable;
 
@@ -12,7 +11,7 @@ import java.util.concurrent.Callable;
  * @since 5.0
  */
 @Service
-public class AgreementDictionaryService extends AbstractDictionaryService{
+public class AgreementDictionaryService extends AbstractDictionaryService {
 
     protected AgreementDao agreementDao;
 
@@ -20,7 +19,6 @@ public class AgreementDictionaryService extends AbstractDictionaryService{
         this.agreementDao = agreementDao;
     }
 
-    @Transactional
     public AgreementRefEntity findOrCreateAgreement(String value, String type) {
         if (StringUtils.isEmpty(value)) {
             return null;

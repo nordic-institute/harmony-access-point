@@ -19,7 +19,6 @@ public class PartyIdDictionaryService extends AbstractDictionaryService {
         this.partyIdDao = partyIdDao;
     }
 
-    @Transactional
     public PartyId findOrCreateParty(String value, String type) {
         Callable<PartyId> findTask = () -> partyIdDao.findExistingPartyId(value, type);
         Callable<PartyId> findOrCreateTask = () -> partyIdDao.findOrCreateParty(value, type);
