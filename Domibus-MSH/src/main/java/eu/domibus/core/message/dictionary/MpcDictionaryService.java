@@ -3,6 +3,7 @@ package eu.domibus.core.message.dictionary;
 import eu.domibus.api.model.MpcEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Callable;
 
@@ -11,8 +12,8 @@ import java.util.concurrent.Callable;
  * @since 5.0
  */
 @Service
-public class MpcDictionaryService extends AbstractDictionaryService{  
-    
+public class MpcDictionaryService extends AbstractDictionaryService {
+
     protected MpcDao mpcDao;
 
     public MpcDictionaryService(MpcDao mpcDao) {

@@ -10,7 +10,7 @@ import java.util.concurrent.Callable;
  * @since 5.0
  */
 @Service
-public class MessagePropertyDictionaryService extends AbstractDictionaryService{
+public class MessagePropertyDictionaryService extends AbstractDictionaryService {
     protected MessagePropertyDao messagePropertyDao;
 
     public MessagePropertyDictionaryService(MessagePropertyDao messagePropertyDao) {
