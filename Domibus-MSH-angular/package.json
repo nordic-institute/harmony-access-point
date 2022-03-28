@@ -4,7 +4,6 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "resolve-install": "npx npm-force-resolutions && npm install",
     "ng": "ng",
     "start": "ng serve --proxy-config proxy-config.js --serve-path domibus",
     "build": "ng build --base-href /domibus/",
@@ -12,10 +11,6 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
-  },
-  "resolutions": {
-    "tar": "4.4.18",
-    "ansi-regex": "4.1.1"
   },
   "private": true,
   "dependencies": {
@@ -39,11 +34,16 @@
     "minimist": "^1.2.5",
     "moment": "^2.27.0",
     "node-pre-gyp": "^0.14.0",
+    "npm-force-resolutions": "^0.0.10",
     "rxjs": "^6.6.0",
     "rxjs-compat": "^6.6.0",
     "ts-helpers": "^1.1.1",
     "tslib": "^1.13.0",
     "zone.js": "~0.9.1"
+  },
+  "overrides": {
+    "tar": "4.4.18",
+    "ansi-regex": "4.1.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.803.29",
