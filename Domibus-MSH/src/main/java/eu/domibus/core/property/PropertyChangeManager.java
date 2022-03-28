@@ -93,7 +93,8 @@ public class PropertyChangeManager {
             try {
                 // revert to old value
                 doSetPropertyValue(domain, propertyName, oldValue);
-                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
+                // the original property set failed likely due to the change listener validation so, there is no side effect produced and no need to call the listener again
+//                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
                 throw ex;
             } catch (DomibusPropertyException ex2) {
                 LOG.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);

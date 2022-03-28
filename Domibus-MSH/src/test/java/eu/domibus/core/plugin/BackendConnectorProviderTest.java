@@ -22,7 +22,7 @@ public class BackendConnectorProviderTest {
 
     @Test
     public void getBackendConnector_empty() {
-        BackendConnectorProvider backendConnectorProvider = new BackendConnectorProvider(new ArrayList<>());
+        BackendConnectorProviderImpl backendConnectorProvider = new BackendConnectorProviderImpl(new ArrayList<>(), null);
 
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector("mybackend");
 
@@ -33,7 +33,7 @@ public class BackendConnectorProviderTest {
     public void getBackendConnector(@Injectable BackendConnector<?, ?> b1,
                                     @Injectable BackendConnector<?, ?> b2,
                                     @Injectable BackendConnector<?, ?> b3) {
-        BackendConnectorProvider backendConnectorProvider = new BackendConnectorProvider(asList(b1, b2, b3));
+        BackendConnectorProviderImpl backendConnectorProvider = new BackendConnectorProviderImpl(asList(b1, b2, b3), null);
         String backendName = "mybackend";
 
         new Expectations() {{

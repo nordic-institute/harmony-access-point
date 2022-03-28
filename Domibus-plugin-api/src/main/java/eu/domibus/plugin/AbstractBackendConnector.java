@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @author Christian Koch, Stefan Mueller
  */
-public abstract class AbstractBackendConnector<U, T> implements BackendConnector<U, T> {
+public abstract class AbstractBackendConnector<U, T> implements BackendConnector<U, T>, EnableAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendConnector.class);
 
@@ -212,7 +212,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public Mode getMode() {
-        if(mode != null) {
+        if (mode != null) {
             LOG.trace("Using configured plugin mode [{}]", mode);
             return mode;
         }
@@ -227,12 +227,21 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public List<NotificationType> getRequiredNotifications() {
-        if(requiredNotifications != null) {
+        if (requiredNotifications != null) {
             LOG.trace("Using notifications [{}] from the plugin", requiredNotifications);
             return requiredNotifications;
         }
         List<NotificationType> defaultNotifications = BackendConnector.super.getRequiredNotifications();
         LOG.trace("Using default notifications [{}]", defaultNotifications);
         return defaultNotifications;
+    }
+
+    @Override
+    public boolean isEnabled(final String domainCode) {
+        return true;
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
     }
 }
