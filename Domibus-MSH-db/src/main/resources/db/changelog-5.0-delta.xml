@@ -458,7 +458,7 @@
 
     <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
         <insert tableName="TB_LOCK">
-            <column name="ID_PK" value="1" type="BIGINT"/>
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
         </insert>
     </changeSet>
@@ -617,6 +617,7 @@
             </column>
         </addColumn>
     </changeSet>
+
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

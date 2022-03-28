@@ -94,6 +94,9 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_get_tb_d_part_property_rec
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_prepare_timezone_offset
 //
 
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_prepare_user_message
+//
+
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_message
 //
 
@@ -589,7 +592,8 @@ CREATE TABLE MIGR_TB_PKS_USER_ROLE (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NU
 CREATE TABLE MIGR_TB_PKS_REV_INFO (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NULL, CONSTRAINT PK_MIGR_PKS_REV_INFO PRIMARY KEY (OLD_ID))
 //
 
-/** -- Helper procedures and functions start -*/
+/** -- Helper variables, procedures and functions start -*/
+
 CREATE FUNCTION MIGRATE_42_TO_50_check_table_exists(in_tab_name VARCHAR(64))
 RETURNS BOOLEAN
 READS SQL DATA
@@ -1111,6 +1115,24 @@ CREATE PROCEDURE MIGRATE_42_TO_50_prepare_timezone_offset()
 //
 
 /**-- TB_USER_MESSAGE migration --*/
+CREATE PROCEDURE MIGRATE_42_TO_50_prepare_user_message()
+    BEGIN
+        DECLARE v_user_message_exists BIGINT;
+
+        SELECT COUNT(*) INTO v_user_message_exists FROM TB_USER_MESSAGE WHERE ID_PK = 19700101;
+
+        IF v_user_message_exists > 0 THEN
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'TB_USER_MESSAGE entry having ID_PK = 19700101 already exists in your old user schema. This has a special meaning in the new user schema: please either remove it or update its value.';
+        ELSE
+            INSERT INTO MIGR_TB_USER_MESSAGE (ID_PK)
+            VALUES (19700101);
+
+            COMMIT;
+        END IF;
+    END
+//
+
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message()
     BEGIN
         DECLARE action VARCHAR(255);
@@ -1206,7 +1228,13 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message()
                     LEAVE read_loop;
                 END IF;
 
-                SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
+                IF id_pk = 19700101 THEN
+                    -- migrate the dummy entry as-is (its ID_PK doesn't need to change)
+                    SET calculated_id_pk := 19700101;
+                ELSE
+                    SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
+                END IF;
+
 
                 INSERT INTO MIGR_TB_PKS_USER_MESSAGE (OLD_ID, NEW_ID)
                 VALUES (id_pk, calculated_id_pk);
@@ -1447,6 +1475,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group()
 
                 CALL MIGRATE_42_TO_50_get_tb_d_msh_role_rec(msh_role, calculated_msh_role_id_fk);
                 CALL MIGRATE_42_TO_50_get_tb_user_message_rec(source_message_id, calculated_source_message_id_fk);
+
+                IF calculated_source_message_id_fk IS NULL THEN
+                    CALL MIGRATE_42_TO_50_trace('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                    SET calculated_source_message_id_fk := 19700101;
+                END IF;
 
                 INSERT INTO MIGR_TB_SJ_MESSAGE_GROUP (ID_PK, GROUP_ID, MESSAGE_SIZE, FRAGMENT_COUNT, SENT_FRAGMENTS,
                         RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM, COMPRESSED_MESSAGE_SIZE, SOAP_ACTION, REJECTED,
@@ -2197,6 +2230,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
                     LEAVE read_loop;
                 END IF;
 
+                IF user_message_id_fk IS NULL THEN
+                    CALL MIGRATE_42_TO_50_trace('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                    SET user_message_id_fk := 19700101;
+                END IF;
+
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
 
                 INSERT INTO MIGR_TB_PKS_PART_INFO (OLD_ID, NEW_ID)
@@ -2402,6 +2440,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log()
                     LEAVE read_loop;
                 END IF;
 
+                IF user_message_id_fk IS NULL THEN
+                    CALL MIGRATE_42_TO_50_trace('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                    SET user_message_id_fk := 19700101;
+                END IF;
+
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
                 CALL MIGRATE_42_TO_50_get_tb_d_msh_role_rec(msh_role, calculated_msh_role_id_fk);
 
@@ -2505,6 +2548,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw()
 
                 IF done THEN
                     LEAVE read_loop;
+                END IF;
+
+                IF user_message_id_fk IS NULL THEN
+                    CALL MIGRATE_42_TO_50_trace('Encountered NULL value for mandatory user message FK value: setting its value to the dummy user message ID_PK 19700101');
+                    SET user_message_id_fk := 19700101;
                 END IF;
 
                 SET calculated_id_pk := MIGRATE_42_TO_50_generate_scalable_seq(id_pk, creation_time);
@@ -9147,6 +9195,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
     BEGIN
         -- keep it in this order
         CALL MIGRATE_42_TO_50_prepare_timezone_offset();
+        CALL MIGRATE_42_TO_50_prepare_user_message();
 
         -- START migrate to the new schema (including primary keys to the new format)
         CALL MIGRATE_42_TO_50_migrate_user_message();

@@ -231,6 +231,9 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_get_tb_d_part_property_rec
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_prepare_timezone_offset
 //
 
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_prepare_user_message
+//
+
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_migrate_user_message
 //
 
