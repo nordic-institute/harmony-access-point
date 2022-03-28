@@ -4,15 +4,15 @@ import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -34,35 +34,57 @@ public class DomibusContextRefreshedListener {
 
     public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
-    @Autowired
-    protected EncryptionService encryptionService;
 
-    @Autowired
-    protected BackendFilterInitializerService backendFilterInitializerService;
+    protected final EncryptionService encryptionService;
 
-    @Autowired
-    protected StaticDictionaryService messageDictionaryService;
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected final BackendFilterInitializerService backendFilterInitializerService;
 
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
 
-    @Autowired
-    GatewayConfigurationValidator gatewayConfigurationValidator;
+    protected final StaticDictionaryService messageDictionaryService;
 
-    @Autowired
-    MultiDomainCryptoService multiDomainCryptoService;
 
-    @Autowired
-    TLSCertificateManager tlsCertificateManager;
+    protected final DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    UserManagementServiceImpl userManagementService;
 
-    @Autowired
-    DomibusPropertyValidatorService domibusPropertyValidatorService;
+    protected final DomainTaskExecutor domainTaskExecutor;
+
+
+    final GatewayConfigurationValidator gatewayConfigurationValidator;
+
+
+    final MultiDomainCryptoService multiDomainCryptoService;
+
+
+    final TLSCertificateManager tlsCertificateManager;
+
+
+    final UserManagementServiceImpl userManagementService;
+
+
+    final DomibusPropertyValidatorService domibusPropertyValidatorService;
+
+
+    final protected BackendConnectorProvider backendConnectorProvider;
+
+    public DomibusContextRefreshedListener(EncryptionService encryptionService, BackendFilterInitializerService backendFilterInitializerService,
+                                           StaticDictionaryService messageDictionaryService, DomibusConfigurationService domibusConfigurationService,
+                                           DomainTaskExecutor domainTaskExecutor, GatewayConfigurationValidator gatewayConfigurationValidator,
+                                           MultiDomainCryptoService multiDomainCryptoService, TLSCertificateManager tlsCertificateManager,
+                                           UserManagementServiceImpl userManagementService, DomibusPropertyValidatorService domibusPropertyValidatorService,
+                                           BackendConnectorProvider backendConnectorProvider) {
+        this.encryptionService = encryptionService;
+        this.backendFilterInitializerService = backendFilterInitializerService;
+        this.messageDictionaryService = messageDictionaryService;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.domainTaskExecutor = domainTaskExecutor;
+        this.gatewayConfigurationValidator = gatewayConfigurationValidator;
+        this.multiDomainCryptoService = multiDomainCryptoService;
+        this.tlsCertificateManager = tlsCertificateManager;
+        this.userManagementService = userManagementService;
+        this.domibusPropertyValidatorService = domibusPropertyValidatorService;
+        this.backendConnectorProvider = backendConnectorProvider;
+    }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
@@ -108,6 +130,7 @@ public class DomibusContextRefreshedListener {
      */
     protected void executeNonSynchronized() {
         gatewayConfigurationValidator.validateConfiguration();
+        backendConnectorProvider.ensureValidConfiguration();
     }
 
     // TODO: below code to be moved to a separate service EDELIVERY-7462.

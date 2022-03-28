@@ -20,7 +20,7 @@ public class PluginPropertyChangeListenerAdapterTest extends TestCase {
     PluginPropertyChangeListener pluginPropertyChangeListener;
 
     @Test
-    public void handlesProperty(@Mocked String propertyName) {
+    public void handlesProperty(@Injectable String propertyName) {
         Boolean handles = true;
         new Expectations() {{
             pluginPropertyChangeListener.handlesProperty(propertyName);
@@ -33,8 +33,8 @@ public class PluginPropertyChangeListenerAdapterTest extends TestCase {
     }
 
     @Test
-    public void propertyValueChanged_error(@Mocked String domainCode, @Mocked String propertyName, @Mocked String propertyValue,
-                                           @Mocked DomibusPropertyException exception) {
+    public void propertyValueChanged_error(@Injectable String domainCode, @Injectable String propertyName,
+                                           @Injectable String propertyValue, @Injectable DomibusPropertyExtException exception) {
         String errorMessage = "errorMessage";
         new Expectations() {{
             exception.getMessage();
@@ -46,14 +46,14 @@ public class PluginPropertyChangeListenerAdapterTest extends TestCase {
         try {
             pluginPropertyChangeListenerAdapter.propertyValueChanged(domainCode, propertyName, propertyValue);
             Assert.fail();
-        } catch (DomibusPropertyExtException ex) {
+        } catch (DomibusPropertyException ex) {
             Assert.assertEquals(ex.getCause(), exception);
             Assert.assertTrue(ex.getMessage().contains(errorMessage));
         }
     }
 
     @Test
-    public void propertyValueChanged_ok(@Mocked String domainCode, @Mocked String propertyName, @Mocked String propertyValue) {
+    public void propertyValueChanged_ok(@Injectable String domainCode, @Injectable String propertyName, @Injectable String propertyValue) {
         pluginPropertyChangeListenerAdapter.propertyValueChanged(domainCode, propertyName, propertyValue);
 
         new Verifications() {{

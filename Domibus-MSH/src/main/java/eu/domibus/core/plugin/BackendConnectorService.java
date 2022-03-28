@@ -6,6 +6,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -3,11 +3,12 @@ package eu.domibus.core.plugin.delegate;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.MessageDeletedBatchEvent;
 import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -15,8 +16,6 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Cosmin Baciu
@@ -32,7 +31,7 @@ public class DefaultBackendConnectorDelegateTest {
     protected RoutingService routingService;
 
     @Injectable
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
 
     @Injectable
     protected BackendConnectorService backendConnectorService;
@@ -55,7 +54,7 @@ public class DefaultBackendConnectorDelegateTest {
 
     @Test
     public void messageDeletedBatchEvent(@Injectable MessageDeletedBatchEvent event,
-                                    @Injectable BackendConnector backendConnector) {
+                                         @Injectable BackendConnector backendConnector) {
         String backend = "mybackend";
 
         new Expectations(defaultBackendConnectorDelegate) {{
