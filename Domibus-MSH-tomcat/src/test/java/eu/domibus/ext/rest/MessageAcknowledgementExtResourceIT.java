@@ -115,7 +115,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ACK, uml1.getUserMessage().getMessageId())
                         .with(httpBasic("user", TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().isUnauthorized())
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();

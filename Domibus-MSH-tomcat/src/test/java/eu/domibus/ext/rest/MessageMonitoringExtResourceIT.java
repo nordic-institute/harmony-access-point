@@ -47,6 +47,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/monitoring/messages";
     public static final String TEST_ENDPOINT_DELETE = TEST_ENDPOINT_RESOURCE + "/delete";
     public static final String TEST_ENDPOINT_DELETE_ID = TEST_ENDPOINT_RESOURCE + "/delete/{messageId}";
+
+    public static final String TEST_ENDPOINT_FAILED = TEST_ENDPOINT_RESOURCE + "/failed";
     public static final String TEST_ENDPOINT_RESTORE = TEST_ENDPOINT_RESOURCE + "/failed/restore";
     public static final String TEST_ENDPOINT_ATTEMPTS = TEST_ENDPOINT_RESOURCE + "/{messageId}/attempts";
 
@@ -200,7 +202,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
-    public void delete_id_ok() throws Exception {
+    public void failed_id_ok() throws Exception {
 
         // when
         MvcResult result = mockMvc.perform(delete(TEST_ENDPOINT_DELETE_ID, uml1.getUserMessage().getMessageId())
@@ -211,6 +213,55 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         UserMessageLog byMessageId = userMessageLogDao.findByMessageId(uml1.getUserMessage().getMessageId());
         Assert.assertNotNull(byMessageId.getDeleted());
+    }
+
+    @Test
+    public void listFailedMessages_finalRecipient_id_ok() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_FAILED)
+                        .param("finalRecipient", "finalRecipient2")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        List<?> resultList = objectMapper.readValue(content, List.class);
+        Assert.assertEquals(1, resultList.size());
+        Assert.assertEquals(uml1.getUserMessage().getMessageId(), resultList.get(0));
+    }
+
+    @Test
+    public void listFailedMessages_finalRecipient_id_nok() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_FAILED)
+                        .param("finalRecipient", "finalRecipient3")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        List<?> resultList = objectMapper.readValue(content, List.class);
+        Assert.assertEquals(0, resultList.size());
+    }
+
+    @Test
+    public void listFailedMessages_id_ok() throws Exception {
+
+        // when
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_FAILED)
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        List<?> resultList = objectMapper.readValue(content, List.class);
+        Assert.assertEquals(1, resultList.size());
+        Assert.assertEquals(uml1.getUserMessage().getMessageId(), resultList.get(0));
     }
 
     @Ignore("EDELIVERY-8892")

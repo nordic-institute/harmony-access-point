@@ -18,7 +18,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.io.IOException;
 
 public class GetStatusIT extends AbstractBackendWSIT {
@@ -42,6 +41,11 @@ public class GetStatusIT extends AbstractBackendWSIT {
     public void before() throws IOException, XmlProcessingException {
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
         pModeUtil.uploadPmode(wireMockRule.port());
+    }
+
+    @Test
+    public void name() {
+        throw new RuntimeException();
     }
 
     @Test

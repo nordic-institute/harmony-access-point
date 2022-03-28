@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.PartInfoDTO;
 import eu.domibus.ext.domain.PartPropertiesDTO;
 import eu.domibus.ext.domain.PropertyDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
+import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.exceptions.PayloadExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PayloadExtService;
@@ -19,7 +20,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,10 +51,10 @@ public class UserMessagePayloadExtResource {
     @Autowired
     ExtExceptionHelper extExceptionHelper;
 
-    @ExceptionHandler(PayloadExtException.class)
-    public ResponseEntity<ErrorDTO> handleUserMessageExtException(PayloadExtException e) {
+    @ExceptionHandler(DomibusServiceExtException.class)
+    public ResponseEntity<ErrorDTO> handleUserMessageExtException(DomibusServiceExtException e) {
         LOG.error(e.getMessage(), e);
-        return extExceptionHelper.createResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return extExceptionHelper.handleExtException(e);
     }
 
     @Operation(summary = "Validates a payload using the configured validator SPI extension", description = "Validates a payload using the configured validator SPI extension",

@@ -14,7 +14,7 @@ public enum DomibusCoreErrorCode {
     DOM_001("001"),
 
     /**
-     * Authentication error
+     * Authentication or Authorization error
      */
     DOM_002("002"),
     /**

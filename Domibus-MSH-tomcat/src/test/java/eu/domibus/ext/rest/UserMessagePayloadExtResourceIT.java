@@ -35,7 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class UserMessagePayloadExtResourceIT extends AbstractIT {
 
-    public static final String TEST_ENDPOINT_DOWNLOAD_PAYLOAD = "/ext/messages/ids/{messageEntityId}/payloads/{cid}";
+    public static final String TEST_ENDPOINT_DOWNLOAD_PAYLOAD_IDS = "/ext/messages/ids/{messageEntityId}/payloads/{cid}";
+    public static final String TEST_ENDPOINT_DOWNLOAD_PAYLOAD_MESSAGE_IDS = "/ext/messages/{messageId}/payloads/{cid}";
 
     @Autowired
     UserMessageValidatorSpi userMessageValidatorSpi;
@@ -88,6 +89,47 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
 
     @Test
     @Transactional
+    public void testDownloadPayload_messageIds() throws Exception {
+        // when
+        String cid = "message";
+        String content = "hello world";
+
+        final UserMessageLog userMessageLog = messageDaoTestUtil.createUserMessageLog("myMessage", new Date());
+        UserMessage userMessage = userMessageService.getByMessageEntityId(userMessageLog.getEntityId());
+
+        PartInfo partInfo = new PartInfo();
+        partInfo.setHref("cid:" + cid);
+        partInfo.setBinaryData(content.getBytes(StandardCharsets.UTF_8));
+        partInfo.setMime("application/text");
+        partInfo.loadBinary();
+        partInfoService.create(partInfo, userMessage);
+
+
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD_MESSAGE_IDS, userMessage.getMessageId(), cid)
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String resultContent = result.getResponse().getContentAsString();
+        Assert.assertEquals(content, resultContent);
+    }
+
+    @Test
+    @Transactional
+    public void testDownloadPayload_messageIds_messageNotFound() throws Exception {
+        // when
+        String cid = "message";
+
+        mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD_MESSAGE_IDS, "notFound", cid)
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                )
+                .andExpect(status().isNotFound())
+                .andReturn();
+    }
+
+    @Test
+    @Transactional
     public void testDownloadPayload() throws Exception {
         // when
         String cid = "message";
@@ -104,7 +146,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
         partInfoService.create(partInfo, userMessage);
 
 
-        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD, userMessage.getEntityId(), cid)
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD_IDS, userMessage.getEntityId(), cid)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                 )
                 .andExpect(status().is2xxSuccessful())
@@ -112,6 +154,19 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
         // then
         String resultContent = result.getResponse().getContentAsString();
         Assert.assertEquals(content, resultContent);
+    }
+
+    @Test
+    @Transactional
+    public void testDownloadPayload_messageNotFound() throws Exception {
+        // when
+        String cid = "message";
+
+        mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD_IDS, 16546546L, cid)
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                )
+                .andExpect(status().isNotFound())
+                .andReturn();
     }
 
     @Test
@@ -132,7 +187,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
         partInfoService.create(partInfo, userMessage);
 
 
-        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD, userMessage.getEntityId(), cid)
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_DOWNLOAD_PAYLOAD_IDS, userMessage.getEntityId(), cid)
                         .with(httpBasic("user", TEST_PLUGIN_PASSWORD))
                 )
                 .andExpect(status().is4xxClientError())
@@ -140,8 +195,6 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
         // then
         String contentResult = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(contentResult, Exception.class);
-        Assert.assertEquals("[DOM_001]:[DOM_002]:You are not allowed to access message [myMessage]. Reason: [You are not allowed to handle this message [myMessage]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]]", resultList.getMessage());
+        Assert.assertEquals("[DOM_002]:You are not allowed to access message [myMessage]. Reason: [You are not allowed to handle this message [myMessage]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]]", resultList.getMessage());
     }
-
-
 }
