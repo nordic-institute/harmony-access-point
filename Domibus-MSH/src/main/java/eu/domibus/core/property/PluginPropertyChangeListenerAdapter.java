@@ -29,8 +29,8 @@ public class PluginPropertyChangeListenerAdapter implements DomibusPropertyChang
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         try {
             pluginPropertyChangeListener.propertyValueChanged(domainCode, propertyName, propertyValue);
-        } catch (DomibusPropertyException ex) {
-            throw new DomibusPropertyExtException(ex.getMessage(), ex);
+        } catch (DomibusPropertyExtException ex) {
+            throw new DomibusPropertyException(ex.getMessage(), ex);
         }
     }
 }

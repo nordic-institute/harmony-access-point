@@ -148,7 +148,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private void initializeChildren(UserMessageLog userMessageLog) {
         //initialize values from the second level cache
         userMessageLog.getMessageStatus();
-        userMessageLog.getMshRole();
+        userMessageLog.getMshRole().getRole();
         userMessageLog.getNotificationStatus();
     }
 
