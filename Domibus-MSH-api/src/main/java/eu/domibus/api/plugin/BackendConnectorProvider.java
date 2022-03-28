@@ -8,14 +8,6 @@ package eu.domibus.api.plugin;
  */
 public interface BackendConnectorProvider {
 
-//    /**
-//     * Retrieves the backend connector (plugin) with the specified name
-//     *
-//     * @param backendName the name of the backend connector
-//     * @return the backend connector, if exists, or null
-//     */
-//    Object getBackendConnector(String backendName);
-
     /**
      * Checks that at least one plugin is enabled on each domain; if not, takes one and enables it
      * At this point, only default plugins are enable-aware and only the FSPlugin can actually be disabled
