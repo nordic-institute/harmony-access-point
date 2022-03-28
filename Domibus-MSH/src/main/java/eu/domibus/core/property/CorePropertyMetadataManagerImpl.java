@@ -90,6 +90,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_EMAIL, Type.EMAIL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_CSV_MAX_ROWS, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL, Type.NUMERIC, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_LOCATION, Type.URI, true, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_TYPE, Type.STRING, true, Usage.DOMAIN, false),

@@ -68,7 +68,7 @@ public interface MessageAcknowledgeExtService {
      * @throws MessageAcknowledgeExtException Raised in case an exception occurs while trying to register an acknowledgment
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated or the user does not have the permission to access the message
      */
-    MessageAcknowledgementDTO acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException;
+    MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException;
 
 
     /**
@@ -82,18 +82,6 @@ public interface MessageAcknowledgeExtService {
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated or the user does not have the permission to access the message
      */
     MessageAcknowledgementDTO acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws AuthenticationExtException, MessageAcknowledgeExtException;
-
-
-    /**
-     * Acknowledges that a message has been processed by the backend
-     *
-     * @param messageId            The message id for which the acknowledgement is registered
-     * @param acknowledgeTimestamp Timestamp of the acknowledged time
-     * @return The newly created message acknowledgement
-     * @throws MessageAcknowledgeExtException Raised in case an exception occurs while trying to register an acknowledgment
-     * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated or the user does not have the permission to access the message
-     */
-    MessageAcknowledgementDTO acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException;
 
     /**
      * Gets all acknowledgments associated to a message id

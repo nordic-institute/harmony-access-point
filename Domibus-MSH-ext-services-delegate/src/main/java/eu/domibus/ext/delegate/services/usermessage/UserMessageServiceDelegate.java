@@ -43,8 +43,8 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     public UserMessageDTO getMessage(String messageId) throws MessageNotFoundException {
         LOG.debug("Getting message with messageId[{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
-
         final UserMessage userMessage = userMessageCoreService.getMessage(messageId);
+
         if (userMessage == null) {
             throw new MessageNotFoundException(String.format("Message [%s] was not found", messageId));
         }
@@ -70,7 +70,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     @Override
     public String getFinalRecipient(String messageId) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
         return userMessageCoreService.getFinalRecipient(messageId);
     }
@@ -78,7 +78,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     @Override
     public String getOriginalSender(String messageId) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
         return userMessageCoreService.getOriginalSender(messageId);
     }

@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
  * @since 5.0
  */
 @Service
-public class AgreementDictionaryService extends AbstractDictionaryService{
+public class AgreementDictionaryService extends AbstractDictionaryService {
 
     protected AgreementDao agreementDao;
 

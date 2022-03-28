@@ -17,6 +17,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import javax.ws.rs.HttpMethod;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_CSV_MAX_ROWS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL;
 
 /**
  * Abstract class for Domibus security configuration
@@ -140,12 +141,15 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .antMatchers("/rest/testservice/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/logging/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_CSV_MAX_ROWS).authenticated()
+                .antMatchers(HttpMethod.GET, "/rest/configuration/properties/" + DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL).authenticated()
                 .antMatchers("/rest/configuration/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/metrics/**").hasAnyAuthority(AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .antMatchers("/rest/**").authenticated()
                 .and()
                 .exceptionHandling().and()
-                .headers().addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions().and().xssProtection().xssProtectionEnabled(true).and()
+                .headers().addHeaderWriter(serverHeaderWriter).frameOptions().deny().contentTypeOptions()
+                .and().xssProtection().xssProtectionEnabled(true)
+                .and().contentSecurityPolicy("default-src 'self'; script-src 'self'; child-src 'none'; connect-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self';").and()
                 .and()
                 .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
                 .and()

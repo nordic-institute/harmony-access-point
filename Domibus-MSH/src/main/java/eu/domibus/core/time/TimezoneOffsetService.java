@@ -3,6 +3,7 @@ package eu.domibus.core.time;
 import eu.domibus.api.model.TimezoneOffset;
 import eu.domibus.core.message.dictionary.AbstractDictionaryService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Callable;
 

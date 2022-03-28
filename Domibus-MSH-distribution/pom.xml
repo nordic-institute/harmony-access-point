@@ -317,7 +317,7 @@
                                         <containerId>wildfly20x</containerId>
                                         <zipUrlInstaller>
                                             <url>
-                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
+                                                https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
                                             </url>
                                             <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
                                             <extractDir>${project.basedir}/cargo/installs</extractDir>

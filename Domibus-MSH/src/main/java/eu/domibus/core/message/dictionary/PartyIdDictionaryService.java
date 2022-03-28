@@ -2,6 +2,7 @@ package eu.domibus.core.message.dictionary;
 
 import eu.domibus.api.model.PartyId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.Callable;
 
@@ -10,7 +11,7 @@ import java.util.concurrent.Callable;
  * @since 5.0
  */
 @Service
-public class PartyIdDictionaryService extends AbstractDictionaryService{
+public class PartyIdDictionaryService extends AbstractDictionaryService {
 
     protected PartyIdDao partyIdDao;
 

@@ -21,7 +21,7 @@ public class AgreementDao extends BasicDao<AgreementRefEntity> {
         super(AgreementRefEntity.class);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AgreementRefEntity findOrCreateAgreement(String value, String type) {
         if (StringUtils.isEmpty(value)) {
             return null;

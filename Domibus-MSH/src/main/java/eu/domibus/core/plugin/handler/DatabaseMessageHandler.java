@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
@@ -26,7 +27,6 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
@@ -47,7 +47,6 @@ import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,9 +106,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private PModeProvider pModeProvider;
 
     @Autowired
-    private PartyEndpointProvider partyEndpointProvider;
-
-    @Autowired
     private MessageIdGenerator messageIdGenerator;
 
     @Autowired
@@ -127,17 +123,18 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected MpcDictionaryService mpcDictionaryService;
 
-    @Autowired
-    protected PartInfoService partInfoService;
-
-    @Autowired
-    protected UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
     protected UserMessageHandlerServiceImpl userMessageHandlerService;
 
     @Autowired
     protected UserMessageValidatorSpiService userMessageValidatorSpiService;
+
+    @Autowired
+    protected UserMessageSecurityService userMessageSecurityService;
+
+    @Autowired
+    protected PartInfoService partInfoService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -159,18 +156,17 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         return getSubmission(userMessage, messageLog);
     }
 
-    protected Submission getSubmission(final UserMessage userMessage, final UserMessageLog messageLog) throws MessageNotFoundException{
+    protected Submission getSubmission(final UserMessage userMessage, final UserMessageLog messageLog) {
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
             return messagingService.getSubmission(userMessage);
         }
         checkMessageAuthorization(userMessage);
 
-        List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
 
         userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
 
-        return transformer.transformFromMessaging(userMessage, partInfos);
+        return messagingService.getSubmission(userMessage);
     }
 
     @Override
@@ -200,80 +196,35 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             authUtils.hasUserOrAdminRole();
         }
 
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = originalUser == null ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
         // Authorization check
-        validateOriginalUser(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
     }
 
-    protected void validateOriginalUser(UserMessage userMessage) {
-        String authOriginalUser = authUtils.getOriginalUserFromSecurityContext();
-        List<String> recipients = new ArrayList<>();
-        recipients.add(MessageConstants.ORIGINAL_SENDER);
-        recipients.add(MessageConstants.FINAL_RECIPIENT);
-
-        if (authOriginalUser != null) {
-            LOG.debug("OriginalUser is [{}]", authOriginalUser);
-            /* check the message belongs to the authenticated user */
-            boolean found = false;
-            for (String recipient : recipients) {
-                String originalUser = userMessageServiceHelper.getOriginalUser(userMessage, recipient);
-                if (originalUser != null && originalUser.equalsIgnoreCase(authOriginalUser)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
-                throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
-            }
-        }
-    }
-
-    protected void validateOriginalUser(UserMessage userMessage, String authOriginalUser, String recipient) {
-        if (authOriginalUser != null) {
-            LOG.debug("OriginalUser is [{}]", authOriginalUser);
-            /* check the message belongs to the authenticated user */
-            String originalUser = userMessageServiceHelper.getOriginalUser(userMessage, recipient);
-            if (originalUser != null && !originalUser.equalsIgnoreCase(authOriginalUser)) {
-                LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
-                throw new AccessDeniedException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
-            }
-        }
-    }
-
-    protected void validateAccessToStatusAndErrors(final Long messageEntityId) {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
-        }
-
-        // check if user can get the status/errors of that message (only admin or original users are authorized to do that)
-        UserMessage userMessage = userMessageService.findByEntityId(messageEntityId);
-        validateOriginalUser(userMessage);
-    }
-
-    protected void validateAccessToStatusAndErrors(String messageId) {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
-        }
-
-        // check if user can get the status/errors of that message (only admin or original users are authorized to do that)
-        UserMessage userMessage = userMessageService.findByMessageId(messageId);
-        validateOriginalUser(userMessage);
-    }
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        validateAccessToStatusAndErrors(messageId);
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return eu.domibus.common.MessageStatus.NOT_FOUND;
+        }
         final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
-        validateAccessToStatusAndErrors(messageEntityId);
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageEntityId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return eu.domibus.common.MessageStatus.NOT_FOUND;
+        }
         final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
@@ -281,7 +232,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        validateAccessToStatusAndErrors(messageId);
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return new ArrayList<>();
+        }
         return errorLogService.getErrors(messageId);
     }
 
@@ -316,21 +272,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             fillMpc(userMessage, legConfiguration, to);
 
-            try {
-                messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-                messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
-                messageFragmentEntity.setUserMessage(userMessage);
-                messageFragmentDao.create(messageFragmentEntity);
-            } catch (CompressionException exc) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                        .message(exc.getMessage())
-                        .refToMessageId(messageId)
-                        .cause(exc)
-                        .mshRole(MSHRole.SENDING)
-                        .build();
-            }
+            saveMessageFragment(userMessage, messageFragmentEntity, backendName, messageId, partInfos, legConfiguration);
             MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
@@ -350,6 +292,24 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage(), MSHRole.SENDING, userMessage);
             throw new PModeMismatchException(p.getMessage(), p);
+        }
+    }
+
+    private void saveMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, String backendName, String messageId, List<PartInfo> partInfos, LegConfiguration legConfiguration) throws EbMS3Exception {
+        try {
+            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+            messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+            messageFragmentEntity.setUserMessage(userMessage);
+            messageFragmentDao.create(messageFragmentEntity);
+        } catch (CompressionException exc) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message(exc.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(exc)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
     }
 
@@ -377,7 +337,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             authUtils.hasUserOrAdminRole();
         }
 
-        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = (originalUser == null) ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
@@ -399,7 +359,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             messageId = userMessage.getMessageId();
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
-            validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
@@ -446,34 +406,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                         .build();
             }
 
-            try {
-                messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-
-                userMessageHandlerService.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
-            } catch (CompressionException exc) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
-                        .message(exc.getMessage())
-                        .refToMessageId(messageId)
-                        .cause(exc)
-                        .mshRole(MSHRole.SENDING)
-                        .build();
-            } catch (InvalidPayloadSizeException e) {
-                if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
-                    //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
-                    //to internal storage folder so we will not delete them
-                    partInfoService.clearFileSystemPayloads(partInfos);
-                }
-                LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
-                        .message(e.getMessage())
-                        .refToMessageId(messageId)
-                        .cause(e)
-                        .mshRole(MSHRole.SENDING)
-                        .build();
-            }
+            saveMessage(backendName, messageId, userMessage, partInfos, messageStatus, pModeKey, legConfiguration);
             LOG.info("Message with id: [{}] submitted", messageId);
             return messageId;
         } catch (EbMS3Exception ebms3Ex) {
@@ -488,6 +421,37 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ex);
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, ex.getMessage(), MSHRole.SENDING, null);
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
+        }
+    }
+
+    private void saveMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
+        try {
+            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+
+            userMessageHandlerService.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
+        } catch (CompressionException exc) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message(exc.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(exc)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        } catch (InvalidPayloadSizeException e) {
+            if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
+                //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
+                //to internal storage folder so we will not delete them
+                partInfoService.clearFileSystemPayloads(partInfos);
+            }
+            LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message(e.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(e)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
         }
     }
 

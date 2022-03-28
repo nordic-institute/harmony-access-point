@@ -20,6 +20,7 @@ import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -39,6 +40,7 @@ import java.io.OutputStream;
 import java.util.*;
 
 import static eu.domibus.common.MessageStatus.*;
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
 
 /**
  * File system backend integration plugin.
@@ -523,4 +525,13 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         fsxmlHelper.writeXML(outputStream, UserMessage.class, userMessage);
     }
 
+    @Override
+    public boolean isEnabled(final String domainCode) {
+        return fsPluginProperties.getDomainEnabled(domainCode);
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
+        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, BooleanUtils.toStringTrueFalse(enabled));
+    }
 }

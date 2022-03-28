@@ -8,7 +8,6 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -19,7 +18,6 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -48,10 +46,7 @@ public class MessagingServiceImpl implements MessagingService {
     public static final String MIME_TYPE_APPLICATION_UNKNOWN = "application/unknown";
 
     @Autowired
-    private PartInfoService partInfoService;
-
-    @Autowired
-    protected PartInfoHelper partInfoHelper;
+    private PartInfoServiceImpl partInfoService;
 
     @Autowired
     private SubmissionAS4Transformer transformer;
@@ -78,9 +73,6 @@ public class MessagingServiceImpl implements MessagingService {
     protected UserMessageService userMessageService;
 
     @Autowired
-    protected BackendNotificationService backendNotificationService;
-
-    @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
     @Override
@@ -98,7 +90,7 @@ public class MessagingServiceImpl implements MessagingService {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
             if (partInfoService.scheduleSourceMessagePayloads(partInfoList)) {
-                partInfoHelper.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
+               partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
 
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(

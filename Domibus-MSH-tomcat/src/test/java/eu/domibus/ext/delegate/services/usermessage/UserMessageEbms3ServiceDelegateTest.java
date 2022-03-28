@@ -115,7 +115,7 @@ public class UserMessageEbms3ServiceDelegateTest {
         }
         Assert.assertNull(message);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID);
             times = 1;
         }};
@@ -132,7 +132,7 @@ public class UserMessageEbms3ServiceDelegateTest {
         String finalRecipient = userMessageServiceDelegate.getFinalRecipient(MESSAGE_ID);
         Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
         new FullVerifications() {{
-            userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESSAGE_ID);
             times = 1;
         }};
     }

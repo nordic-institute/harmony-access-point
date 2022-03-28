@@ -4,7 +4,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,9 +38,6 @@ public class UserMessageDefaultServiceHelperTest {
 
     private Set<MessageProperty> messageProperties = new HashSet<>();
 
-    private boolean sameOriginalSender;
-
-    private boolean sameFinalRecipient;
 
     @Test
     public void getProperties_noMsgProps() {
@@ -189,82 +185,12 @@ public class UserMessageDefaultServiceHelperTest {
         assertEquals("The receiving party should have been found when the user message has party identifiers for the receiving party", "first", partyTo);
     }
 
-    @Test
-    public void returnsFalseIfTheProvidedOriginalSenderIsEmptyWhenCheckingWhetherTheUserMessageContainsTheOriginalSender() {
-        givenUserMessageHavingMessageInfo();
-        givenEmptyOriginalSender();
-
-        whenCheckingTheUserMessageForContainingTheOriginalSender();
-
-        Assert.assertFalse("Should have returned false when checking if an empty original sender is contained inside the user message", sameOriginalSender);
-    }
-
-    @Test
-    public void returnsFalseIfTheProvidedOriginalSenderDoesNotMatchTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheOriginalSender() {
-        givenUserMessageHavingMessageInfo();
-        givenOriginalSender("notMatchingSender");
-        givenUserMessageOriginalSender();
-
-        whenCheckingTheUserMessageForContainingTheOriginalSender();
-
-        Assert.assertFalse("Should have returned false when checking if a non-matching original sender is contained inside the user message", sameOriginalSender);
-    }
-
-    @Test
-    public void returnsTrueIfTheProvidedOriginalSenderMatchesTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheOriginalSender() {
-        givenUserMessageHavingMessageInfo();
-        givenOriginalSender(ORIGINAL_SENDER);
-        givenUserMessageOriginalSender();
-
-        whenCheckingTheUserMessageForContainingTheOriginalSender();
-
-        Assert.assertTrue("Should have returned true when checking if a matching original sender is contained inside the user message", sameOriginalSender);
-    }
-
-    @Test
-    public void returnsFalseIfTheProvidedFinalRecipientIsEmptyWhenCheckingWhetherTheUserMessageContainsTheFinalRecipient() {
-        givenUserMessageHavingMessageInfo();
-        givenEmptyFinalRecipient();
-
-        whenCheckingTheUserMessageForContainingTheFinalRecipient();
-
-        Assert.assertFalse("Should have returned false when checking if an empty final recipient is contained inside the user message", sameFinalRecipient);
-    }
-
-    @Test
-    public void returnsFalseIfTheProvidedFinalRecipientDoesNotMatchTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheFinalRecipient() {
-        givenUserMessageHavingMessageInfo();
-        givenFinalRecipient("notMatchingReceiver");
-        givenUserMessageFinalRecipient();
-
-        whenCheckingTheUserMessageForContainingTheFinalRecipient();
-
-        Assert.assertFalse("Should have returned false when checking if a non-matching final recipient is contained inside the user message", sameFinalRecipient);
-    }
-
-    @Test
-    public void returnsTrueIfTheProvidedFinalRecipientMatchesTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheFinalRecipient() {
-        givenUserMessageHavingMessageInfo();
-        givenFinalRecipient(FINAL_RECIPIENT);
-        givenUserMessageFinalRecipient();
-
-        whenCheckingTheUserMessageForContainingTheFinalRecipient();
-
-        Assert.assertTrue("Should have returned true when checking if a matching final recipient is contained inside the user message", sameFinalRecipient);
-    }
-
     private void givenNullUserMessage() {
         this.userMessage = null;
     }
 
     private void givenUserMessage() {
         this.userMessage = new UserMessage();
-    }
-
-    private void givenUserMessageHavingMessageInfo() {
-        UserMessage userMessage = new UserMessage();
-//        userMessage.setMessageInfo(new MessageInfo());
-        this.userMessage = userMessage;
     }
 
     private void givenNullMessageProperties() {
@@ -304,33 +230,6 @@ public class UserMessageDefaultServiceHelperTest {
         userMessage.setPartyInfo(partyInfo);
     }
 
-    private void givenEmptyOriginalSender() {
-        givenOriginalSender("");
-    }
-
-    private void givenOriginalSender(String originalSender) {
-        this.originalSender = originalSender;
-    }
-
-    private void givenUserMessageOriginalSender() {
-        new Expectations(userMessageDefaultServiceHelper) {{
-            userMessageDefaultServiceHelper.getOriginalSender(userMessage); result = ORIGINAL_SENDER;
-        }};
-    }
-
-    private void givenEmptyFinalRecipient() {
-        givenFinalRecipient("");
-    }
-
-    private void givenFinalRecipient(String finalRecipient) {
-        this.finalRecipient = finalRecipient;
-    }
-
-    private void givenUserMessageFinalRecipient() {
-        new Expectations(userMessageDefaultServiceHelper) {{
-            userMessageDefaultServiceHelper.getFinalRecipient(userMessage); result = FINAL_RECIPIENT;
-        }};
-    }
 
     private void whenRetrievingTheOriginalSender() {
         originalSender = userMessageDefaultServiceHelper.getOriginalSender(userMessage);
@@ -342,14 +241,6 @@ public class UserMessageDefaultServiceHelperTest {
 
     private void whenRetrievingTheToParty() {
         partyTo = userMessageDefaultServiceHelper.getPartyTo(userMessage);
-    }
-
-    private void whenCheckingTheUserMessageForContainingTheOriginalSender() {
-        sameOriginalSender = userMessageDefaultServiceHelper.isSameOriginalSender(userMessage, originalSender);
-    }
-
-    private void whenCheckingTheUserMessageForContainingTheFinalRecipient() {
-        sameFinalRecipient = userMessageDefaultServiceHelper.isSameFinalRecipient(userMessage, finalRecipient);
     }
 
     private void thenOriginalSenderIsNull(String message) {
@@ -387,7 +278,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    public void getAction(@Mocked UserMessage userMessage) {
+    public void getAction(@Injectable UserMessage userMessage) {
         String action = "my action";
 
         new Expectations() {{

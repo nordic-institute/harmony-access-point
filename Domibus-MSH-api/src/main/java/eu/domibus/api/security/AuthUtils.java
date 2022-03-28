@@ -10,9 +10,15 @@ import eu.domibus.api.security.functions.AuthenticatedProcedure;
 public interface AuthUtils {
     /**
      * Returns the original user passed via the security context OR
-     * null when the user has the role ROLE_ADMIN or unsecured authorizations is allowed
+     * null when the user has the role ROLE_ADMIN / ROLE_AP_ADMIN or unsecured authorizations is allowed
      */
-    String getOriginalUserFromSecurityContext() throws AuthenticationException;
+    String getOriginalUserWithUnsecureLoginAllowed() throws AuthenticationException;
+
+    /**
+     * Returns the original user passed via the security context OR
+     * null when the user has the role ROLE_ADMIN
+     */
+    String getOriginalUser();
 
     String getAuthenticatedUser();
 

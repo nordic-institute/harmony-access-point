@@ -8,12 +8,13 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.BackendConnectorProviderImpl;
 import eu.domibus.core.plugin.notification.BackendPluginEnum;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
+import eu.domibus.api.plugin.BackendConnectorProvider;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class RoutingService {
     protected BackendFilterDao backendFilterDao;
 
     @Autowired
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorProviderImpl backendConnectorProvider;
 
     @Autowired
     protected BackendFilterCoreMapper backendFilterCoreMapper;

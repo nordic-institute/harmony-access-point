@@ -21,7 +21,7 @@ public class PartPropertyDao extends BasicDao<PartProperty> {
         super(PartProperty.class);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PartProperty findOrCreateProperty(final String name, String value, String type) {
         if(StringUtils.isBlank(value)) {
             return null;
