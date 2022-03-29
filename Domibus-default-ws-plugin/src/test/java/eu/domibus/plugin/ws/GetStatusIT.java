@@ -44,11 +44,6 @@ public class GetStatusIT extends AbstractBackendWSIT {
     }
 
     @Test
-    public void name() {
-        throw new RuntimeException();
-    }
-
-    @Test
     public void testGetStatusReceived() throws StatusFault, IOException, SOAPException, SAXException, ParserConfigurationException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";

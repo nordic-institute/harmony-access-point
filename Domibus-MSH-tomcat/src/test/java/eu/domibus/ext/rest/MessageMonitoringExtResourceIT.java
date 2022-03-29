@@ -129,7 +129,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(failedMessagesCriteriaRO)))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andReturn();
     }
 
@@ -144,7 +144,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(failedMessagesCriteriaRO)))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andReturn();
 
     }
@@ -181,7 +181,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(failedMessagesCriteriaRO)))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andReturn();
     }
 
@@ -196,7 +196,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(failedMessagesCriteriaRO)))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().is4xxClientError())
                 .andReturn();
 
     }

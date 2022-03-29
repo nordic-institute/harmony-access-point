@@ -120,6 +120,6 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
         String content = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(content, Exception.class);
-        Assert.assertEquals("You are not allowed to handle this message [" + uml1.getUserMessage().getMessageId() + "]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]", resultList.getMessage());
+        Assert.assertEquals("[DOM_002]:You are not allowed to access message [" + uml1.getUserMessage().getMessageId() + "]. Reason: [You are not allowed to handle this message [" + uml1.getUserMessage().getMessageId() + "]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]]", resultList.getMessage());
     }
 }

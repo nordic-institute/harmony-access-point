@@ -46,7 +46,7 @@ public class ExtExceptionHelperTest {
         new FullVerifications(extExceptionHelper) {{
             HttpStatus httpStatusActual;
             extExceptionHelper.createResponseFromCoreException((Throwable) any, httpStatusActual = withCapture());
-            Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, httpStatusActual);
+            Assert.assertEquals(HttpStatus.BAD_REQUEST, httpStatusActual);
         }};
     }
 
