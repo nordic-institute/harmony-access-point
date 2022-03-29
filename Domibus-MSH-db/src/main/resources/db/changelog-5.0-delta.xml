@@ -86,6 +86,9 @@
     <!-- Start UI Replication Tables -->
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-temporary-drop-ui-replication-objects">
         <dropTable tableName="TB_MESSAGE_UI" cascadeConstraints="true" />
+        <sql dbms="mysql">
+            CREATE OR REPLACE VIEW V_MESSAGE_UI_DIFF AS SELECT 'Recreate view to prevent issues when dropping below caused by the old definer value of root@localhost';
+        </sql>
         <dropView viewName="V_MESSAGE_UI_DIFF" />
     </changeSet>
 

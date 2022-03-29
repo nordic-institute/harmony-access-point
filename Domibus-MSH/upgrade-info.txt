@@ -94,10 +94,19 @@ Domibus 5.0 (from 4.2.7)
                             - general schema: oracle-4.2.7-to-5.0-multi-tenancy-migration.ddl
                             - domain schemas: oracle-4.2.7-to-5.0-migration.ddl
                     o [Mysql only]
-                        - single tenancy: mysql-4.2.7-to-5.0-migration.ddl
-                        - multitenancy:
-                            - general database: mysql-4.2.7-to-5.0-multi-tenancy-migration.ddl
-                            - domain databases: mysql-4.2.7-to-5.0-migration.ddl
+                        The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
+                            - the root user, specifying the target databases as part of the command. For example, for single tenancy:
+                                    mysql -u root -p domibus < mysql-4.2.7-to-5.0-migration.ddl
+                                or, for multitenancy:
+                                    mysql -u root -p domibus_general < mysql-4.2.7-to-5.0-multi-tenancy-migration.ddl
+                                    mysql -u root -p domibus_domain_1 < mysql-4.2.7-to-5.0-migration.ddl
+                            - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
+                                    GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
+                              and then specifying the target databases as part of the command. For example, for single tenancy:
+                                     mysql -u edelivery -p domibus < mysql-4.2.7-to-5.0-migration.ddl
+                                 or, for multitenancy:
+                                     mysql -u edelivery -p domibus_general < mysql-4.2.7-to-5.0-multi-tenancy-migration.ddl
+                                     mysql -u edelivery -p domibus_domain_1 < mysql-4.2.7-to-5.0-migration.ddl.
                 - Data migration scripts should be run in order to migrate data from old tables to the new tables:
                     o [Oracle only]
                         Domibus application (.war) should be stopped while running these:
@@ -131,11 +140,20 @@ Domibus 5.0 (from 4.2.7)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - grant privileges to the general schema using oracle10g-5.0-multi-tenancy-rights.sql, updating the schema names before execution
                     o [Mysql only]
-                    	The scripts below must be run using the root user, specifying the target databases as part of the command. For example, for single tenancy:
-                            	mysql -u root -p domibus < mysql-4.2.7-to-5.0-data-migration-step1.ddl
-                            or, for multitenancy:
-                            	mysql -u root -p domibus_general < mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step1.ddl
-                            	mysql -u root -p domibus_domain_1 < mysql-4.2.7-to-5.0-data-migration-step1.ddl
+                        The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
+                    	    - the root user, specifying the target databases as part of the command. For example, for single tenancy:
+                                    mysql -u root -p domibus < mysql-4.2.7-to-5.0-data-migration-step1.ddl
+                                or, for multitenancy:
+                                    mysql -u root -p domibus_general < mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step1.ddl
+                                    mysql -u root -p domibus_domain_1 < mysql-4.2.7-to-5.0-data-migration-step1.ddl
+                            - or the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
+                                    GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
+                              and then specifying the target databases as part of the command. For example, for single tenancy:
+                                     mysql -u edelivery -p domibus < mysql-4.2.7-to-5.0-data-migration-step1.ddl
+                                 or, for multitenancy:
+                                     mysql -u edelivery -p domibus_general < mysql-4.2.7-to-5.0-data-migration-multi-tenancy-step1.ddl
+                                     mysql -u edelivery -p domibus_domain_1 < mysql-4.2.7-to-5.0-data-migration-step1.ddl.
+
                         Domibus application (.war) should be stopped while running these:
                             - single tenancy:
                                 - step 1: mysql-4.2.7-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
