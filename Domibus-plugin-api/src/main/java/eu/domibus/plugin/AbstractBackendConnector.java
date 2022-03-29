@@ -31,7 +31,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendConnector.class);
 
     protected final String name;
-    protected BackendConnector.Mode mode;
     protected List<NotificationType> requiredNotifications;
 
     @Autowired
@@ -168,7 +167,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
-        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+        throw new UnsupportedOperationException("Plugins must implement this method");
     }
 
     @Override
@@ -178,17 +177,17 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void deliverMessage(final DeliverMessageEvent event) {
-        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+        throw new UnsupportedOperationException("Plugins must implement this method");
     }
 
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
-        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+        throw new UnsupportedOperationException("Plugins must implement this method");
     }
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
-        throw new UnsupportedOperationException("Plugins using " + Mode.PUSH.name() + " must implement this method");
+        throw new UnsupportedOperationException("Plugins must implement this method");
     }
 
     @Override
@@ -204,21 +203,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Override
     public String getName() {
         return name;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
-
-    @Override
-    public Mode getMode() {
-        if (mode != null) {
-            LOG.trace("Using configured plugin mode [{}]", mode);
-            return mode;
-        }
-        Mode mode = BackendConnector.super.getMode();
-        LOG.trace("Using default plugin mode [{}]", mode);
-        return mode;
     }
 
     public void setRequiredNotifications(List<NotificationType> requiredNotifications) {

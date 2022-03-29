@@ -321,9 +321,6 @@ public class BackendNotificationServiceTest {
             backendConnectorService.getRequiredNotificationTypeList(backendConnector);
             result = null;
 
-            backendConnector.getMode();
-            result = BackendConnector.Mode.PUSH;
-
             userMessage.getMessageId();
             result = MESSAGE_ID;
 
@@ -363,9 +360,6 @@ public class BackendNotificationServiceTest {
 
             backendConnectorService.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
-
-            backendConnector.getMode();
-            result = BackendConnector.Mode.PUSH;
 
             userMessage.getMessageId();
             result = MESSAGE_ID;
