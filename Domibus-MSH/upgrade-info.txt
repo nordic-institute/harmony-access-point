@@ -251,7 +251,8 @@ Domibus 5.0 (from 4.2.7)
                             - in the file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                                     - remove the <xa-datasource jndi-name="java:/jdbc/cipaeDeliveryDs"...> datasource
                                     - clone the <datasource jndi-name="java:/jdbc/cipaeDeliveryNonXADs"...> datasource and set the jndi-name attribute to "java:/jdbc/cipaeDeliveryDs" and the pool-name attribute to either "eDeliveryMysqlDS" or "eDeliveryOracleDS"
-                - Removed deprecated API:
+                - Custom 4.2.x plugins are no longer compatible with Domibus 5.0 and must be adapted to use the new plugin api. For more details please check the Plugin Cookbook.
+                  The following API has been removed:
                     o classes: eu.domibus.submission.WeblogicNotificationListenerService, eu.domibus.plugin.NotificationListener, eu.domibus.plugin.NotificationListenerService, eu.domibus.common.JMSConstants,
                                eu.domibus.plugin.QueueMessageLister, eu.domibus.plugin.MessageLister, eu.domibus.core.plugin.notification.QueueMessageListerConfiguration
                     o methods: eu.domibus.plugin.BackendConnector.listPendingMessages(), eu.domibus.plugin.AbstractBackendConnector.listPendingMessages()
