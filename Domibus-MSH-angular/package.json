@@ -34,7 +34,6 @@
     "minimist": "^1.2.5",
     "moment": "^2.27.0",
     "node-pre-gyp": "^0.14.0",
-    "npm-force-resolutions": "^0.0.10",
     "rxjs": "^6.6.0",
     "rxjs-compat": "^6.6.0",
     "ts-helpers": "^1.1.1",
