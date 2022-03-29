@@ -41,7 +41,7 @@ export class PageHelperComponent implements OnInit {
 
   private async setHelpPages() {
     const domibusInfo = await this.domibusInfoService.getDomibusInfo();
-    const MAIN_HELP_PAGE = `https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus+v${domibusInfo.versionNumber}+Admin+Console+Help`;
+    const MAIN_HELP_PAGE = `https://ec.europa.eu/digital-building-blocks/wikis/display/CEFDIGITAL/Domibus+v${domibusInfo.versionNumber}+Admin+Console+Help`;
     const VERSION_SPECIFIC_PAGE = `#Domibusv${domibusInfo.versionNumber}AdminConsoleHelp-`;
 
     const routes = this.router.config;
