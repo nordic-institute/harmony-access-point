@@ -469,6 +469,8 @@ public abstract class PModeProvider {
 
     public abstract Party getReceiverParty(String pModeKey);
 
+    public abstract String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient);
+
     public abstract Service getService(String pModeKey);
 
     public abstract Action getAction(String pModeKey);

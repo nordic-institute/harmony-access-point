@@ -24,7 +24,6 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -94,8 +93,6 @@ public class AbstractEbms3UserMessageSenderTest {
     @Injectable
     SoapUtil soapUtil;
 
-    @Injectable
-    protected PartyEndpointProvider partyEndpointProvider;
 
     @Injectable
     protected UserMessageServiceHelper userMessageServiceHelper;
@@ -170,7 +167,7 @@ public class AbstractEbms3UserMessageSenderTest {
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
-            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            pModeProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
             result = receiverURL;
 
             mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
@@ -368,7 +365,7 @@ public class AbstractEbms3UserMessageSenderTest {
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
-            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            pModeProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
             result = receiverURL;
 
             mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
@@ -481,7 +478,7 @@ public class AbstractEbms3UserMessageSenderTest {
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
-            partyEndpointProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
+            pModeProvider.getReceiverPartyEndpoint(receiverParty, finalRecipient);
             result = receiverURL;
 
             mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
