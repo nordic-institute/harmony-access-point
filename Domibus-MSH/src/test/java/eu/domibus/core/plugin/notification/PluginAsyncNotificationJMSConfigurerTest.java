@@ -72,9 +72,6 @@ public class PluginAsyncNotificationJMSConfigurerTest {
             asyncNotificationConfiguration.getBackendConnector();
             result = backendConnector;
 
-            backendConnector.getMode();
-            result = BackendConnector.Mode.PUSH;
-
             asyncNotificationConfiguration.getBackendNotificationQueue();
             result = queue;
 

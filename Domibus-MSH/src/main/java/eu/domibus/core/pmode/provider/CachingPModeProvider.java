@@ -253,7 +253,7 @@ public class CachingPModeProvider extends PModeProvider {
                 ONE_WAY_PULL.getUri(), senderParty, receiverParty);
         List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
         processes = processes.stream().filter(process -> matchAgreement(process, agreementName))
-                .filter(process -> process.getMepBinding() != null && matchMepBinding(process.getMepBinding().getValue(), BackendConnector.Mode.PULL.getFileMapping()))
+                .filter(process -> process.getMepBinding() != null && matchMepBinding(process.getMepBinding().getValue(), MessageExchangePattern.ONE_WAY_PULL.getUri()))
                 .filter(process -> matchRole(process.getInitiatorRole(), initiatorRole))
                 .filter(process -> matchRole(process.getResponderRole(), responderRole))
                 .filter(process -> ONE_WAY_PULL.getUri().equals(process.getMepBinding().getValue()))
@@ -959,7 +959,7 @@ public class CachingPModeProvider extends PModeProvider {
         if (process.getMepBinding() == null) {
             return false;
         }
-        return StringUtils.equals(BackendConnector.Mode.PULL.getFileMapping(), process.getMepBinding().getValue());
+        return StringUtils.equals(MessageExchangePattern.ONE_WAY_PULL.getUri(), process.getMepBinding().getValue());
     }
 
     protected boolean hasLeg(Process process, String legName) {

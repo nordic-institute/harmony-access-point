@@ -334,7 +334,7 @@ public class BackendNotificationService {
         List<NotificationType> requiredNotificationTypeList = backendConnectorService.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
         if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
-            LOG.debug("No plugin notification sent for message [{}]. Notification type [{}], mode [{}]", messageId, notificationType, backendConnector.getMode());
+            LOG.debug("No plugin notification sent for message [{}]. Notification type [{}]]", messageId, notificationType);
             return;
         }
 

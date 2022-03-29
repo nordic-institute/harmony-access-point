@@ -24,10 +24,6 @@ public enum NotificationType {
     MESSAGE_STATUS_CHANGE,
     MESSAGE_FRAGMENT_STATUS_CHANGE;
 
-    public static final List<NotificationType> DEFAULT_PULL_NOTIFICATIONS = unmodifiableList(asList(
-            MESSAGE_RECEIVED,
-            MESSAGE_SEND_FAILURE,
-            MESSAGE_RECEIVED_FAILURE));
     public static final List<NotificationType> DEFAULT_PUSH_NOTIFICATIONS = unmodifiableList(asList(
             MESSAGE_RECEIVED,
             MESSAGE_SEND_FAILURE,

@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
@@ -46,7 +47,7 @@ public class ProcessDaoImpl extends BasicDao<Process> implements ProcessDao {
         processQuery.setParameter(LEG, messageExchangeConfiguration.getLeg());
         processQuery.setParameter(RESPONDER_NAME, messageExchangeConfiguration.getSenderParty());
         processQuery.setParameter(INITIATOR_NAME, messageExchangeConfiguration.getReceiverParty());
-        processQuery.setParameter(MEP_BINDING, BackendConnector.Mode.PULL.getFileMapping());
+        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
         return processQuery.getResultList();
     }
 
@@ -56,7 +57,7 @@ public class ProcessDaoImpl extends BasicDao<Process> implements ProcessDao {
     @Override
     public List<Process> findPullProcessesByInitiator(final Party party) {
         TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_TO_INITIATE, Process.class);
-        processQuery.setParameter(MEP_BINDING, BackendConnector.Mode.PULL.getFileMapping());
+        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
         processQuery.setParameter(INITIATOR, party);
         return processQuery.getResultList();
     }
@@ -68,7 +69,7 @@ public class ProcessDaoImpl extends BasicDao<Process> implements ProcessDao {
     @Override
     public List<Process> findPullProcessByMpc(final String mpc) {
         TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_FROM_MPC, Process.class);
-        processQuery.setParameter(MEP_BINDING, BackendConnector.Mode.PULL.getFileMapping());
+        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
         processQuery.setParameter(MPC_NAME, mpc);
         return processQuery.getResultList();
     }
@@ -80,7 +81,7 @@ public class ProcessDaoImpl extends BasicDao<Process> implements ProcessDao {
     public List<Process> findPullProcessByLegName(final String legName) {
         final TypedQuery<Process> processQuery = this.entityManager.createNamedQuery(Process.FIND_PULL_PROCESS_FROM_LEG_NAME, Process.class);
         processQuery.setParameter("legName", legName);
-        processQuery.setParameter(MEP_BINDING, BackendConnector.Mode.PULL.getFileMapping());
+        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
         return processQuery.getResultList();
     }
 
