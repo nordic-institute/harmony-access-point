@@ -5,7 +5,7 @@
     "description" : "In order to fully integrate with the Domibus, an archiving client MUST implement the REST API message notification methods. Domibus will notify the archiving client each time it will export or delete a batch. The REST endpoint URLs that Domibus will use to notify the archiving client must be statically configured in the Domibus properties.",
     "contact" : {
       "name" : "Domibus",
-      "url" : "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus"
+      "url" : "https://ec.europa.eu/digital-building-blocks/wikis/display/CEFDIGITAL/Domibus"
     },
     "license" : {
       "name" : "EUPL 1.2",
@@ -15,7 +15,7 @@
   },
   "externalDocs" : {
     "description" : "Domibus page",
-    "url" : "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus"
+    "url" : "https://ec.europa.eu/digital-building-blocks/wikis/display/CEFDIGITAL/Domibus"
   },
   "tags" : [ {
     "name" : "archive-webhook",

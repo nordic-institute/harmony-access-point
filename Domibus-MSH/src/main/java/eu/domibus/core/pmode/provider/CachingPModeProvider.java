@@ -66,6 +66,8 @@ public class CachingPModeProvider extends PModeProvider {
 
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
 
+    protected Map<String, String> finalRecipientAccessPointUrls = new HashMap<>();
+
     private Object configurationLock = new Object();
 
     public CachingPModeProvider(Domain domain) {
@@ -251,7 +253,7 @@ public class CachingPModeProvider extends PModeProvider {
                 ONE_WAY_PULL.getUri(), senderParty, receiverParty);
         List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
         processes = processes.stream().filter(process -> matchAgreement(process, agreementName))
-                .filter(process -> process.getMepBinding() != null && matchMepBinding(process.getMepBinding().getValue(), BackendConnector.Mode.PULL.getFileMapping()))
+                .filter(process -> process.getMepBinding() != null && matchMepBinding(process.getMepBinding().getValue(), MessageExchangePattern.ONE_WAY_PULL.getUri()))
                 .filter(process -> matchRole(process.getInitiatorRole(), initiatorRole))
                 .filter(process -> matchRole(process.getResponderRole(), responderRole))
                 .filter(process -> ONE_WAY_PULL.getUri().equals(process.getMepBinding().getValue()))
@@ -695,6 +697,25 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
+    public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
+        final String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
+        if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
+            LOG.debug("Determined endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
+            return finalRecipientAPUrl;
+        }
+
+        final String receiverPartyEndpoint = receiverParty.getEndpoint();
+        LOG.debug("Determined endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
+        return receiverPartyEndpoint;
+    }
+
+
+    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientAPUrl) {
+        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientAPUrl, finalRecipient);
+        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
+    }
+
+    @Override
     public Service getService(final String pModeKey) {
         final String serviceKey = this.getServiceNameFromPModeKey(pModeKey);
         for (final Service service : this.getConfiguration().getBusinessProcesses().getServices()) {
@@ -889,6 +910,7 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
+            this.finalRecipientAccessPointUrls.clear();
 
             this.init(); //reloads the config
         }
@@ -937,7 +959,7 @@ public class CachingPModeProvider extends PModeProvider {
         if (process.getMepBinding() == null) {
             return false;
         }
-        return StringUtils.equals(BackendConnector.Mode.PULL.getFileMapping(), process.getMepBinding().getValue());
+        return StringUtils.equals(MessageExchangePattern.ONE_WAY_PULL.getUri(), process.getMepBinding().getValue());
     }
 
     protected boolean hasLeg(Process process, String legName) {

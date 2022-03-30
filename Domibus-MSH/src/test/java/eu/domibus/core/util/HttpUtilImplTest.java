@@ -103,7 +103,7 @@ public class HttpUtilImplTest {
     public void testDownloadCRLHttps() throws Exception {
         String url = "http://onsitecrl.verisign.com/offlineca/NATIONALITANDTELECOMAGENCYPEPPOLRootCA.crl";
         /* Added this crl file to git so we have it on https and use it for testing */
-        String urlSSL = "https://ec.europa.eu/cefdigital/code/projects/EDELIVERY/repos/domibus/browse/Domibus-MSH-test/src/main/resources/crls/NATIONALITANDTELECOMAGENCYPEPPOLRootCA.crl?at=3c7eae7c00e7425593436a1f469ba269834ece90&raw";
+        String urlSSL = "https://ec.europa.eu/digital-building-blocks/code/projects/EDELIVERY/repos/domibus/browse/Domibus-MSH-test/src/main/resources/crls/NATIONALITANDTELECOMAGENCYPEPPOLRootCA.crl?at=3c7eae7c00e7425593436a1f469ba269834ece90&raw";
 
         /* Local SoapUI mock endpoints for http and https, EDELIVERY-4830 */
         //String url = "https://localhost:8555/crltest";

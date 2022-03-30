@@ -40,12 +40,12 @@ import javax.ws.rs.PathParam;
                         "Domibus will notify the archiving client each time it will export or delete a batch. The REST endpoint URLs that Domibus will use to notify the archiving client " +
                         "must be statically configured in the Domibus properties.",
                 license = @License(name = "EUPL 1.2", url = "https://www.eupl.eu/"),
-                contact = @Contact(url = "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus", name = "Domibus")
+                contact = @Contact(url = "https://ec.europa.eu/digital-building-blocks/wikis/display/CEFDIGITAL/Domibus", name = "Domibus")
         ),
         tags = {
                 @Tag(name = "archive-webhook", description = "The REST endpoint URLs that Domibus will use to notify the archiving client each time it will export a batch.")
         },
-        externalDocs = @ExternalDocumentation(description = "Domibus page", url = "https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Domibus")
+        externalDocs = @ExternalDocumentation(description = "Domibus page", url = "https://ec.europa.eu/digital-building-blocks/wikis/display/CEFDIGITAL/Domibus")
 )
 @SecurityScheme(
         name = "basicAuth",

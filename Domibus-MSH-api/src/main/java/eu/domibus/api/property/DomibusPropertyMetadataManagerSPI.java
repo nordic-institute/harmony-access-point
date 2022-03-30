@@ -350,6 +350,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS = "domibus.errorlog.cleaner.older.days";
     String DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE = "domibus.errorlog.cleaner.batch.size";
 
+    String DOMIBUS_CACHE_DDC_LOOKUP ="domibus.cache.ddc.lookup.ttl";
+
     String DOMIBUS_EARCHIVE_ACTIVE = "domibus.earchive.active";
     String DOMIBUS_EARCHIVE_EXPORT_EMPTY = "domibus.earchive.export.empty";
     String DOMIBUS_EARCHIVE_STORAGE_LOCATION = "domibus.earchive.storage.location";

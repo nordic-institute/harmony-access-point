@@ -112,9 +112,7 @@ public interface BackendConnector<U, T> {
     List<ErrorResult> getErrorsForMessage(final String messageId);
 
     /**
-     * Delivers the message with the associated messageId to the backend application. Plugins working in Mode.PUSH mode
-     * MUST OVERRIDE this method. For plugins working in Mode.PULL this method never gets called. The message can be
-     * retrieved by a subclass by calling super.downloadMessage(messageId, target)
+     * Delivers the message with the associated messageId to the backend application. Plugins MUST OVERRIDE this method.
      *
      * @param event containing details about the deliver message event
      */
@@ -133,15 +131,6 @@ public interface BackendConnector<U, T> {
      * @return the name of the plugin
      */
     String getName();
-
-    /**
-     * Get the plugin mode. See also {@link eu.domibus.plugin.BackendConnector.Mode}
-     *
-     * @return the plugin mode
-     */
-    default BackendConnector.Mode getMode() {
-        return Mode.PUSH;
-    }
 
     /**
      * Configured notifications sent to the plugin, depending on their MODE (PULL or PUSH)
@@ -198,45 +187,21 @@ public interface BackendConnector<U, T> {
     void payloadProcessedEvent(PayloadProcessedEvent event);
 
     /**
-     * This method gets called when an outgoing message associated with a Mode.PUSH plugin and an associated
+     * This method gets called when an outgoing message associated with an associated
      * PMode[1].errorHandling.Report.ProcessErrorNotifyProducer=true has finally failed to be delivered. The error details
-     * are provided by #getErrorsForMessage. This is only called for messages that have no rerty attempts left.
+     * are provided by #getErrorsForMessage. This is only called for messages that have no retry attempts left.
      *
      * @param event The event containing the details of the send failed event
      */
     void messageSendFailed(MessageSendFailedEvent event);
 
     /**
-     * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
+     * This method gets called when an outgoing message has been successfully sent
      * to the intended receiving MSH
      *
      * @param event The event containing the details of the message send success event
      */
     void messageSendSuccess(final MessageSendSuccessEvent event);
-
-    /**
-     * Describes the behaviour of the plugin regarding message delivery to the backend application
-     */
-    enum Mode {
-        /**
-         * Messages and notifications are actively pushed to the backend application (i.e. via a JMS queue)
-         */
-        PUSH("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"),
-        /**
-         * Messages and notifications are actively pulled by the backend application (i.e. via a webservice)
-         */
-        PULL("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull");
-
-        private final String fileMapping;
-
-        Mode(String fileMapping) {
-            this.fileMapping = fileMapping;
-        }
-
-        public String getFileMapping() {
-            return fileMapping;
-        }
-    }
 
     /**
      * Describes the message exchange protocol
