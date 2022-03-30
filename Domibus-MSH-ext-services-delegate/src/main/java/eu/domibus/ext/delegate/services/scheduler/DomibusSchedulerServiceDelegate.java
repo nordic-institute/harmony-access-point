@@ -7,6 +7,7 @@ import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,7 +23,9 @@ public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtServi
 
     protected final DomainService domainService;
 
-    DomibusSchedulerServiceDelegate(DomibusScheduler domibusScheduler, DomainService domainService) {
+    //Lazy loading of DomibusScheduler and DomainService to avoid the circular dependency and the jobs are not created in the database
+    DomibusSchedulerServiceDelegate(@Lazy DomibusScheduler domibusScheduler,
+                                    @Lazy DomainService domainService) {
         LOG.debug("creating DomibusSchedulerServiceDelegate");
         this.domibusScheduler = domibusScheduler;
         this.domainService = domainService;
