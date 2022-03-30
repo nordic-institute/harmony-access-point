@@ -211,8 +211,7 @@ Domibus 5.0 (from 4.2.7)
                                 .............................
                     - [Tomcat only]
                         o [Mysql only]
-                            o update the "domibus.datasource.xa.property.url" and the "domibus.datasource.url" properties:
-                                domibus.datasource.xa.property.url=jdbc:mysql://${domibus.database.serverName}:${domibus.database.port}/${domibus.database.schema}?pinGlobalTxToPhysicalConnection=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+                            o update the "domibus.datasource.url" properties:
                                 domibus.datasource.url=jdbc:mysql://${domibus.database.serverName}:${domibus.database.port}/${domibus.database.schema}?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
 
                         o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
