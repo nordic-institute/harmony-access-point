@@ -47,7 +47,7 @@ DROP FUNCTION IF EXISTS MIGRATE_42_TO_50_generate_id
 DROP FUNCTION IF EXISTS MIGRATE_42_TO_50_generate_new_id
 //
 
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_lookup_migration_pk_tz_offset
+DROP FUNCTION IF EXISTS MIGRATE_42_TO_50_lookup_migration_pk_tz_offset
 //
 
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_get_tb_d_mpc_rec
@@ -621,12 +621,10 @@ BEGIN
         END;
 
     BEGIN
-        SET @q := CONCAT('SELECT * FROM ', in_tab_name);
+        SET @q := CONCAT('SELECT CONCAT(\'Table \', \'', in_tab_name, '\', \' exists and has \', COUNT(*), \' entries\') AS trace FROM ', in_tab_name);
         PREPARE stmt FROM @q;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt;
-
-        CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name, ' dropped'));
     END;
 END
 //
@@ -971,6 +969,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_party_rec(in_party_type VARCHAR(255),
     END
 //
 
+SET GLOBAL log_bin_trust_function_creators = 1
+//
+
 CREATE FUNCTION MIGRATE_42_TO_50_get_msg_subtype(in_msg_subtype VARCHAR(255))
 RETURNS BOOLEAN
 DETERMINISTIC
@@ -981,6 +982,9 @@ DETERMINISTIC
         END IF;
         RETURN test_message;
     END
+//
+
+SET GLOBAL log_bin_trust_function_creators = @saved_log_bin_trust_function_creators
 //
 
 CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_notif_status_rec(in_status VARCHAR(255), OUT out_id_pk BIGINT)
@@ -1689,7 +1693,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt()
             CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab_signal, ' migration'));
 
         /** migrate old columns and add data into dictionary tables */
-        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_signal, ' ,', @v_tab_receipt, ' and', @v_tab_receipt_data, ' migration started...'));
+        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_signal, ', ', @v_tab_receipt, ' and ', @v_tab_receipt_data, ' migration started...'));
 
         OPEN c_signal_message_receipt;
         read_loop: LOOP
