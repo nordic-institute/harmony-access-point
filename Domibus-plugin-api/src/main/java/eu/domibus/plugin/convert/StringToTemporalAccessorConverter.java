@@ -1,5 +1,6 @@
 package eu.domibus.plugin.convert;
 
+import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.convert.converter.Converter;
@@ -56,12 +57,10 @@ public class StringToTemporalAccessorConverter implements Converter<String, Temp
                 LOG.debug("Unmarshalling a local time without zone offset");
             }
         } catch (IllegalArgumentException | DateTimeParseException exception) {
-            LOG.error("Exception occurred during parsing of date time", exception);
-            throw new IllegalArgumentException("Invalid date time value [" + source + "]", exception);
-
+            throw new DomibusDateTimeExtException("Invalid date time value [" + source + "]", exception);
         }
+
         LOG.info("Returning temporal [{}]", result);
         return result;
-
     }
 }
