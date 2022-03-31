@@ -1,4 +1,5 @@
 Domibus 5.0
+- WS Plugin getErrorMessages Request will returns an exception in case message ID is not found
 - Added a property domibus.ui.pages.messageLogs.interval.default=24 for configuring the initial time interval for filtering message logs
 - Improved overall performance including refactoring of the database to allow partitioning
 - Optimized pull locking for Oracle
