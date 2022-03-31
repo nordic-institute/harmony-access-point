@@ -3,8 +3,6 @@ package eu.domibus.core.security.configuration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.security.UserDetailServiceImpl;
-import eu.domibus.web.security.AuthenticationService;
-import eu.domibus.web.security.AuthenticationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -54,11 +52,6 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
         return super.authenticationManagerBean();
     }
 
-//    @Bean(name = "authenticationService")
-//    public AuthenticationService authenticationService() {
-//        return new AuthenticationServiceImpl();
-//    }
-
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -72,20 +65,20 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
         httpSecurity
                 .authorizeRequests()
                 .antMatchers("/rest/security/user/domain")
-                    .hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
+                .hasAnyAuthority(AuthRole.ROLE_USER.name(), AuthRole.ROLE_ADMIN.name(), AuthRole.ROLE_AP_ADMIN.name())
                 .and()
                 .sessionManagement()
-                    .maximumSessions(10)
-                    .maxSessionsPreventsLogin(false)
-                    .expiredSessionStrategy(expiredSessionStrategy)
-                    .sessionRegistry(sessionRegistry);
+                .maximumSessions(10)
+                .maxSessionsPreventsLogin(false)
+                .expiredSessionStrategy(expiredSessionStrategy)
+                .sessionRegistry(sessionRegistry);
 
         Long maxAge = domibusPropertyProvider.getLongProperty(DOMIBUS_HTTP_SECURITY_STRICT_TRANSPORT_SECURITY);
         httpSecurity
                 .headers()
-                    .httpStrictTransportSecurity()
-                    .includeSubDomains(true)
-                    .maxAgeInSeconds(maxAge);
+                .httpStrictTransportSecurity()
+                .includeSubDomains(true)
+                .maxAgeInSeconds(maxAge);
     }
 
     @Override

@@ -9,14 +9,13 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 /**
- *
+ * Spin-off from SecurityAdminConsoleConfiguration to avoid cyclic dependency due to authenticationService
  *
  * @author Ion Perpegel
  * @since 5.0
  */
 @Conditional(SecurityInternalAuthProviderCondition.class)
 @Configuration
-//@EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class DomibusAuthenticationConfiguration {
 
