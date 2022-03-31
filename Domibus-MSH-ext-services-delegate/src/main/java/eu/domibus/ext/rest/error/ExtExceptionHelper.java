@@ -54,7 +54,10 @@ public class ExtExceptionHelper {
             if (((DomibusCoreException) cause).getError() == DomibusCoreErrorCode.DOM_009) {
                 return createResponse(cause, HttpStatus.NOT_FOUND, true);
             }
-            return createResponseFromCoreException(cause, HttpStatus.INTERNAL_SERVER_ERROR);
+            if (((DomibusCoreException) cause).getError() == DomibusCoreErrorCode.DOM_002) {
+                return createResponse(cause, HttpStatus.UNAUTHORIZED, true);
+            }
+            return createResponseFromCoreException(cause, HttpStatus.BAD_REQUEST);
         }
 
         //other exceptions wrapped by interceptors

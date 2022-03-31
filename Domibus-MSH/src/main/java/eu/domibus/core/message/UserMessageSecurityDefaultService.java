@@ -47,12 +47,6 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     @Override
     public void checkAuthorization(String finalRecipient) throws AuthenticationException {
-        /* unsecured login allowed */
-        if (authUtils.isUnsecureLoginAllowed()) {
-            LOG.debug("Unsecured login is allowed");
-            return;
-        }
-
         final String originalUserFromSecurityContext = authUtils.getOriginalUser();
         if (StringUtils.isEmpty(originalUserFromSecurityContext)) {
             LOG.debug("finalRecipient from the security context is empty, user has permission to access finalRecipient [{}]", finalRecipient);

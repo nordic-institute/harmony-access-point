@@ -35,6 +35,7 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns("/rest/security/authentication")
                 .excludePathPatterns("/rest/security/user/domain")
                 .excludePathPatterns("/rest/security/user/password")
+                .excludePathPatterns("/rest/userdomains")
                 .excludePathPatterns("/rest/application/**");
 
         registry.addInterceptor(restQueryParamsValidationInterceptor())

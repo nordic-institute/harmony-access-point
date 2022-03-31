@@ -19,7 +19,8 @@ SET @BATCH_SIZE := 100
 SET @VERBOSE_LOGS := FALSE
 //
 
-DROP FUNCTION IF EXISTS MIGRATE_42_TO_50_check_table_exists
+-- save the current value of log_bin_trust_function_creators
+SET @saved_log_bin_trust_function_creators = @@log_bin_trust_function_creators
 //
 
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_trace
@@ -28,10 +29,10 @@ DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_trace
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_log_verbose
 //
 
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_drop_table_if_exists
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_ensure_table_exists
 //
 
-DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_truncate_or_create_table
+DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_drop_table_if_exists
 //
 
 DROP PROCEDURE IF EXISTS MIGRATE_42_TO_50_check_counts
@@ -593,17 +594,6 @@ CREATE TABLE MIGR_TB_PKS_REV_INFO (OLD_ID BIGINT NOT NULL, NEW_ID BIGINT NOT NUL
 //
 
 /** -- Helper variables, procedures and functions start -*/
-
-CREATE FUNCTION MIGRATE_42_TO_50_check_table_exists(in_tab_name VARCHAR(64))
-RETURNS BOOLEAN
-READS SQL DATA
-    BEGIN
-        DECLARE v_table_exists INT;
-        SELECT COUNT(*) INTO v_table_exists FROM information_schema.TABLES WHERE UPPER(table_name) = UPPER(in_tab_name);
-        RETURN v_table_exists > 0;
-    END
-//
-
 CREATE PROCEDURE MIGRATE_42_TO_50_trace(in_message MEDIUMTEXT)
     BEGIN
         SELECT in_message AS trace;
@@ -618,52 +608,46 @@ CREATE PROCEDURE MIGRATE_42_TO_50_log_verbose(in_message MEDIUMTEXT)
     END
 //
 
+CREATE PROCEDURE MIGRATE_42_TO_50_ensure_table_exists(in_tab_name VARCHAR(64), in_message VARCHAR(1000))
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            GET DIAGNOSTICS CONDITION 1
+                @p2 = MESSAGE_TEXT;
+            CALL MIGRATE_42_TO_50_trace(CONCAT('check_table_exists for ', in_tab_name, ' -> execute error: ', @p2));
+
+            SIGNAL SQLSTATE '45002'
+                SET MESSAGE_TEXT = in_message;
+        END;
+
+    BEGIN
+        SET @q := CONCAT('SELECT * FROM ', in_tab_name);
+        PREPARE stmt FROM @q;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+
+        CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name, ' dropped'));
+    END;
+END
+//
+
 CREATE PROCEDURE MIGRATE_42_TO_50_drop_table_if_exists(in_tab_name VARCHAR(64))
     BEGIN
         DECLARE EXIT HANDLER FOR SQLEXCEPTION
             BEGIN
                  GET DIAGNOSTICS CONDITION 1
                      @p2 = MESSAGE_TEXT;
-                CALL MIGRATE_42_TO_50_trace(CONCAT('drop_table_if_exists for ', in_tab_name, ' -> execute immediate error: ', @p2));
+                CALL MIGRATE_42_TO_50_trace(CONCAT('drop_table_if_exists for ', in_tab_name, ' -> execute error: ', @p2));
             END;
 
-        IF MIGRATE_42_TO_50_check_table_exists(in_tab_name) THEN
-            BEGIN
-                SET @q := CONCAT('DROP TABLE ', in_tab_name);
-                PREPARE stmt FROM @q;
-                EXECUTE stmt;
-                DEALLOCATE PREPARE stmt;
-
-                CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name, ' dropped'));
-            END;
-        END IF;
-    END
-//
-
-CREATE PROCEDURE MIGRATE_42_TO_50_truncate_or_create_table(in_tab_name VARCHAR(64), in_create_sql MEDIUMTEXT)
-    BEGIN
-        DECLARE EXIT HANDLER FOR SQLEXCEPTION
-            BEGIN
-                GET DIAGNOSTICS CONDITION 1
-                    @p2 = MESSAGE_TEXT;
-                CALL MIGRATE_42_TO_50_trace(CONCAT('Execute immediate error: ', @p2));
-            END;
-
-        IF MIGRATE_42_TO_50_check_table_exists(in_tab_name) THEN
-            SET @q := CONCAT('TRUNCATE TABLE ', in_tab_name);
+        BEGIN
+            SET @q := CONCAT('DROP TABLE IF EXISTS ', in_tab_name);
             PREPARE stmt FROM @q;
             EXECUTE stmt;
             DEALLOCATE PREPARE stmt;
 
-            CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name, ' truncated'));
-        ELSE
-            SET @q := in_create_sql;
-            PREPARE stmt FROM @q;
-            EXECUTE stmt;
-            DEALLOCATE PREPARE stmt;
-
-            CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name, ' created'));
-        END IF;
+            CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name, ' dropped'));
+        END;
     END
 //
 
@@ -676,7 +660,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_check_counts(in_tab_name1 VARCHAR(64), in_tab_
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                         @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('check_counts -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('check_counts -> execute error: ', @p2));
                 END;
 
             SET @q := CONCAT('SELECT COUNT(*) INTO @v_count_tab1 FROM ', in_tab_name1);
@@ -701,6 +685,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_check_counts(in_tab_name1 VARCHAR(64), in_tab_
     END
 //
 
+SET GLOBAL log_bin_trust_function_creators = 1
+//
+
 CREATE FUNCTION MIGRATE_42_TO_50_generate_scalable_seq(incr BIGINT, creation_time DATETIME)
 RETURNS BIGINT
 READS SQL DATA
@@ -712,8 +699,14 @@ READS SQL DATA
     END
 //
 
+SET GLOBAL log_bin_trust_function_creators = @saved_log_bin_trust_function_creators
+//
+
+SET GLOBAL log_bin_trust_function_creators = 1
+//
+
 -- This function generates a sequence id based on DOMIBUS_SCALABLE_SEQUENCE for a new entry
-CREATE FUNCTION MIGRATE_42_TO_50_generate_id(sequence_name VARCHAR(255))
+CREATE FUNCTION MIGRATE_42_TO_50_generate_id(in_sequence_name VARCHAR(255))
 RETURNS BIGINT
 READS SQL DATA
     BEGIN
@@ -723,12 +716,18 @@ READS SQL DATA
         SELECT NEXT_VAL
         INTO next_val
         FROM DOMIBUS_SCALABLE_SEQUENCE
-        WHERE UPPER(SEQUENCE_NAME) = UPPER(sequence_name);
+        WHERE UPPER(SEQUENCE_NAME) = UPPER(in_sequence_name);
 
         SELECT MIGRATE_42_TO_50_generate_scalable_seq(next_val, SYSDATE())
         INTO seq_id;
         RETURN seq_id;
     END
+//
+
+SET GLOBAL log_bin_trust_function_creators = @saved_log_bin_trust_function_creators
+//
+
+SET GLOBAL log_bin_trust_function_creators = 1
 //
 
 -- This function generates a new sequence id based on DOMIBUS_SCALABLE_SEQUENCE for an old entry based on old id_pk and old creation_time
@@ -743,17 +742,26 @@ READS SQL DATA
     END
 //
 
+SET GLOBAL log_bin_trust_function_creators = @saved_log_bin_trust_function_creators
+//
+
+SET GLOBAL log_bin_trust_function_creators = 1
+//
+
 CREATE FUNCTION MIGRATE_42_TO_50_lookup_migration_pk_tz_offset()
-    RETURNS BIGINT
-    READS SQL DATA
-BEGIN
-    DECLARE new_id BIGINT;
-    SELECT MPKSTO.NEW_ID
-    FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSTO
-    WHERE MPKSTO.OLD_ID = 1
-    INTO new_id;
-    RETURN new_id;
-END
+RETURNS BIGINT
+READS SQL DATA
+    BEGIN
+        DECLARE new_id BIGINT;
+        SELECT MPKSTO.NEW_ID
+        FROM MIGR_TB_PKS_TIMEZONE_OFFSET MPKSTO
+        WHERE MPKSTO.OLD_ID = 1
+        INTO new_id;
+        RETURN new_id;
+    END
+//
+
+SET GLOBAL log_bin_trust_function_creators = @saved_log_bin_trust_function_creators
 //
 
 CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_mpc_rec(in_mpc VARCHAR(255), OUT out_id_pk BIGINT)
@@ -1122,7 +1130,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_prepare_user_message()
         SELECT COUNT(*) INTO v_user_message_exists FROM TB_USER_MESSAGE WHERE ID_PK = 19700101;
 
         IF v_user_message_exists > 0 THEN
-            SIGNAL SQLSTATE '45000'
+            SIGNAL SQLSTATE '45001'
                 SET MESSAGE_TEXT = 'TB_USER_MESSAGE entry having ID_PK = 19700101 already exists in your old user schema. This has a special meaning in the new user schema: please either remove it or update its value.';
         ELSE
             INSERT INTO MIGR_TB_USER_MESSAGE (ID_PK)
@@ -1216,7 +1224,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_message -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_message -> execute error: ', @p2));
                     END;
 
                 FETCH c_user_message INTO id_pk, message_id, ref_to_message_id, conversation_id, source_message,
@@ -1333,9 +1341,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment()
         SET @v_tab_new := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
         SET @v_tab_user_message := 'TB_USER_MESSAGE';
 
-        IF NOT MIGRATE_42_TO_50_check_table_exists(@v_tab_user_message) THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab, ' migration'));
-        END IF;
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_user_message,
+            CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab, ' migration'));
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
@@ -1346,7 +1353,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_fragment -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_fragment -> execute error: ', @p2));
                     END;
 
                 FETCH c_message_fragment INTO id_pk, group_id, fragment_number, creation_time, created_by,
@@ -1444,9 +1451,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group()
         SET @v_tab_new := 'MIGR_TB_SJ_MESSAGE_GROUP';
         SET @v_tab_user_message_new  := 'MIGR_TB_USER_MESSAGE';
 
-        IF NOT MIGRATE_42_TO_50_check_table_exists(@v_tab_user_message_new) THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_user_message_new, ' should exists before starting ', @v_tab, ' migration'));
-        END IF;
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_user_message_new,
+            CONCAT(@v_tab_user_message_new, ' should exists before starting ', @v_tab, ' migration'));
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
@@ -1457,7 +1463,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_group -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_group -> execute error: ', @p2));
                     END;
 
                 FETCH c_message_group INTO id_pk, group_id, message_size, fragment_count, sent_fragments,
@@ -1562,9 +1568,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header()
         SET @v_tab_new := 'MIGR_TB_SJ_MESSAGE_HEADER';
         SET @v_tab_message_group := 'TB_MESSAGE_GROUP';
 
-        IF NOT MIGRATE_42_TO_50_check_table_exists(@v_tab_message_group) THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_message_group, ' should exists before starting ', @v_tab, ' migration'));
-        END IF;
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_message_group,
+            CONCAT(@v_tab_message_group, ' should exists before starting ', @v_tab, ' migration'));
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
@@ -1575,7 +1580,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_header -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_header -> execute error: ', @p2));
                     END;
 
                 FETCH c_message_header INTO id_pk, boundary, start, creation_time, created_by, modification_time,
@@ -1678,12 +1683,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt()
         SET @v_tab_receipt_data := 'TB_RECEIPT_DATA';
         SET @v_tab_receipt_new := 'MIGR_TB_RECEIPT';
 
-        IF NOT MIGRATE_42_TO_50_check_table_exists(@v_tab_messaging) THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_messaging, ' should exists before starting ', @v_tab_signal, ' migration'));
-        END IF;
-        IF NOT MIGRATE_42_TO_50_check_table_exists(@v_tab_user_message) THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab_signal, ' migration'));
-        END IF;
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_messaging,
+            CONCAT(@v_tab_messaging, ' should exists before starting ', @v_tab_signal, ' migration'));
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_user_message,
+            CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab_signal, ' migration'));
 
         /** migrate old columns and add data into dictionary tables */
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_signal, ' ,', @v_tab_receipt, ' and', @v_tab_receipt_data, ' migration started...'));
@@ -1695,7 +1698,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_signal_receipt()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_signal_receipt -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_signal_receipt -> execute error: ', @p2));
                     END;
 
                 FETCH c_signal_message_receipt INTO id_pk, signal_message_id, ref_to_message_id, ebms3_timestamp,
@@ -1814,12 +1817,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log()
         SET @v_tab_user_message := 'TB_USER_MESSAGE';
         SET @v_tab_messaging := 'TB_MESSAGING';
 
-        IF NOT MIGRATE_42_TO_50_check_table_exists(@v_tab_messaging) THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_messaging, ' should exists before starting ', @v_tab, ' migration'));
-        END IF;
-        IF NOT MIGRATE_42_TO_50_check_table_exists(@v_tab_user_message) THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab, ' migration'));
-        END IF;
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_messaging,
+            CONCAT(@v_tab_messaging, ' should exists before starting ', @v_tab, ' migration'));
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_user_message,
+            CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab, ' migration'));
 
         CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
 
@@ -1837,7 +1838,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log()
                         BEGIN
                             GET DIAGNOSTICS CONDITION 1
                                 @p2 = MESSAGE_TEXT;
-                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_raw_envelope_log for ', @v_tab_user_new, '-> execute immediate error: ', @p2));
+                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_raw_envelope_log for ', @v_tab_user_new, '-> execute error: ', @p2));
                         END;
 
                     SET @v_count_user := @v_count_user + 1;
@@ -1857,7 +1858,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log()
                         BEGIN
                             GET DIAGNOSTICS CONDITION 1
                                 @p2 = MESSAGE_TEXT;
-                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_raw_envelope_log for ', @v_tab_signal_new, '-> execute immediate error: ', @p2));
+                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_raw_envelope_log for ', @v_tab_signal_new, '-> execute error: ', @p2));
                         END;
 
                     SET @v_count_signal := @v_count_signal + 1;
@@ -1979,7 +1980,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_log()
                         BEGIN
                             GET DIAGNOSTICS CONDITION 1
                                 @p2 = MESSAGE_TEXT;
-                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_log for ', @v_tab_user_new, '-> execute immediate error: ', @p2));
+                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_log for ', @v_tab_user_new, '-> execute error: ', @p2));
                         END;
 
                     SET @v_count_user := @v_count_user + 1;
@@ -2019,7 +2020,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_log()
                         BEGIN
                             GET DIAGNOSTICS CONDITION 1
                                 @p2 = MESSAGE_TEXT;
-                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_log for ', @v_tab_signal_new, '-> execute immediate error: ', @p2));
+                            CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_log for ', @v_tab_signal_new, '-> execute error: ', @p2));
                         END;
 
                     SET @v_count_signal := @v_count_signal + 1;
@@ -2114,7 +2115,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_property -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_property -> execute error: ', @p2));
                     END;
 
                 FETCH c_property INTO user_message_id_fk, name, value, type, creation_time, created_by,
@@ -2219,7 +2220,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_user()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_part_info_user -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_part_info_user -> execute error: ', @p2));
                     END;
 
                 FETCH c_part_info INTO id_pk, binary_data, description_lang, description_value, href, in_body, filename,
@@ -2328,7 +2329,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_part_info_property for ', @v_tab_new, ' -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_part_info_property for ', @v_tab_new, ' -> execute error: ', @p2));
                     END;
 
                 FETCH c_part_prop INTO name, value, type, part_info_id_fk, creation_time, created_by, modification_time,
@@ -2429,7 +2430,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_error_log()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_error_log -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_error_log -> execute error: ', @p2));
                     END;
 
                 FETCH c_error_log INTO id_pk, error_code, error_detail, error_signal_message_id, message_in_error_id,
@@ -2540,7 +2541,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw()
                     BEGIN
                         GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_acknw -> execute immediate error: ', @p2));
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_acknw -> execute error: ', @p2));
                     END;
 
                 FETCH c_message_acknw INTO id_pk, from_value, to_value, acknowledge_date, creation_time, created_by,
@@ -2650,7 +2651,7 @@ BEGIN
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                         @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_send_attempt -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_send_attempt -> execute error: ', @p2));
                 END;
 
             FETCH c_send_attempt INTO id_pk, start_date, end_date, status, error, creation_time, created_by,
@@ -2750,7 +2751,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_action_audit()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_action_audit -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_action_audit -> execute error: ', @p2));
                 END;
 
                 FETCH c_action_audit INTO id_pk, audit_type, entity_id, modification_type, revision_date, user_name,
@@ -2863,7 +2864,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_alert()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_alert -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_alert -> execute error: ', @p2));
                 END;
 
                 FETCH c_alert INTO id_pk, alert_type, attempts_number, max_attempts_number, processed, processed_time,
@@ -2965,7 +2966,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_event -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_event -> execute error: ', @p2));
                 END;
 
                 FETCH c_event INTO id_pk, event_type, reporting_time, last_alert_date, creation_time, created_by,
@@ -3054,7 +3055,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_alert()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_event_alert -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_event_alert -> execute error: ', @p2));
                 END;
 
                 FETCH c_event_alert INTO fk_event, fk_alert, creation_time, created_by, modification_time, modified_by;
@@ -3142,7 +3143,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_event_property()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_event_property -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_event_property -> execute error: ', @p2));
                 END;
 
                 FETCH c_event_property INTO id_pk, property_type, fk_event, dtype, string_value, date_value,
@@ -3248,7 +3249,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_authentication_entry -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_authentication_entry -> execute error: ', @p2));
                 END;
 
                 FETCH c_authentication_entry INTO id_pk, certificate_id, username, passwd, auth_roles, original_user,
@@ -3353,7 +3354,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_plugin_user_passwd_history()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_plugin_user_passwd_history -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_plugin_user_passwd_history -> execute error: ', @p2));
                 END;
 
                 FETCH c_plugin_user_passwd_history INTO id_pk, user_id, user_password, password_change_date,
@@ -3440,7 +3441,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_backend_filter -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_backend_filter -> execute error: ', @p2));
                 END;
 
                 FETCH c_backend_filter INTO id_pk, backend_name, priority, creation_time, created_by,
@@ -3534,7 +3535,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_routing_criteria -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_routing_criteria -> execute error: ', @p2));
                 END;
 
                 FETCH c_routing_criteria INTO id_pk, expression, name, fk_backend_filter, priority, creation_time,
@@ -3636,7 +3637,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_certificate -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_certificate -> execute error: ', @p2));
                 END;
 
                 FETCH c_certificate INTO id_pk, certificate_alias, not_valid_before_date, not_valid_after_date,
@@ -3733,7 +3734,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_command -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_command -> execute error: ', @p2));
                 END;
 
                 FETCH c_command INTO id_pk, server_name, command_name, creation_time, created_by, modification_time,
@@ -3821,7 +3822,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_command_property()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_command_property -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_command_property -> execute error: ', @p2));
                 END;
 
                 FETCH c_command_property INTO property_name, property_value, fk_command, creation_time, created_by,
@@ -3906,7 +3907,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_encryption_key()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_encryption_key -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_encryption_key -> execute error: ', @p2));
                 END;
 
                 FETCH c_encryption_key INTO id_pk, key_usage, secret_key, init_vector, creation_time, created_by,
@@ -3996,7 +3997,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_acknw_prop()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_acknw_prop -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_acknw_prop -> execute error: ', @p2));
                 END;
 
                 FETCH c_message_acknw_prop INTO id_pk, property_name, property_value, fk_msg_acknowledge,
@@ -4101,7 +4102,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_messaging_lock()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_messaging_lock -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_messaging_lock -> execute error: ', @p2));
                 END;
 
                 FETCH c_messaging_lock INTO id_pk, message_type, message_received, message_state, message_id,
@@ -4194,7 +4195,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_business_process()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_business_process -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_business_process -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_business_process INTO id_pk, creation_time, created_by, modification_time, modified_by;
@@ -4283,7 +4284,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_action()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_action -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_action -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_action INTO id_pk, name, value, fk_businessprocess, creation_time, created_by,
@@ -4378,7 +4379,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_agreement()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_agreement -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_agreement -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_agreement INTO id_pk, name, type, value, fk_businessprocess, creation_time, created_by,
@@ -4478,7 +4479,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_error_handling()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_error_handling -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_error_handling -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_error_handling INTO id_pk, business_error_notify_consumer, business_error_notify_producer,
@@ -4579,7 +4580,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_mep -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_mep -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_mep INTO id_pk, leg_count, name, value, fk_businessprocess, creation_time, created_by,
@@ -4673,7 +4674,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mep_binding()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_mep_binding -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_mep_binding -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_mep_binding INTO id_pk, name, value, fk_businessprocess, creation_time, created_by,
@@ -4770,7 +4771,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_message_property -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_message_property -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_message_property INTO id_pk, datatype, key_, name, required_, fk_businessprocess,
@@ -4863,7 +4864,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_message_property_set()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_message_property_set -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_message_property_set -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_message_property_set INTO id_pk, name, fk_businessprocess, creation_time, created_by,
@@ -4953,7 +4954,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_property_set()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_property_set -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_property_set -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_join_property_set INTO property_fk, set_fk, creation_time, created_by, modification_time,
@@ -5043,7 +5044,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_party INTO id_pk, endpoint, name, password, username, fk_businessprocess, creation_time,
@@ -5138,7 +5139,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_configuration INTO id_pk, fk_businessprocesses, fk_party, creation_time, created_by,
@@ -5244,7 +5245,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_mpc()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_mpc -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_mpc -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_mpc INTO id_pk, default_mpc, is_enabled, name, qualified_name, retention_downloaded,
@@ -5347,7 +5348,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_id_type -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_id_type -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_party_id_type INTO id_pk, name, value, fk_businessprocess, creation_time, created_by,
@@ -5442,7 +5443,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_identifier -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_identifier -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_party_identifier INTO id_pk, party_id, fk_party_id_type, fk_party, creation_time,
@@ -5545,7 +5546,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_payload -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_payload -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_payload INTO id_pk, cid, in_body, max_size, mime_type, name, required_, schema_file,
@@ -5644,7 +5645,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_payload_profile()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_payload_profile -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_payload_profile -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_payload_profile INTO id_pk, max_size, name, fk_businessprocess, creation_time, created_by,
@@ -5735,7 +5736,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_payload_profile()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_payload_profile -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_payload_profile -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_join_payload_profile INTO fk_payload, fk_profile, creation_time, created_by,
@@ -5827,7 +5828,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reception_awareness()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_reception_awareness -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_reception_awareness -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_reception_awareness INTO id_pk, duplicate_detection, name, retry_count, retry_timeout,
@@ -5926,7 +5927,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_reliability()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_reliability -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_reliability -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_reliability INTO id_pk, name, non_repudiation, reply_pattern, fk_businessprocess,
@@ -6020,7 +6021,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_role()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_role -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_role -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_role INTO id_pk, name, value, fk_businessprocess, creation_time, created_by, modification_time,
@@ -6115,7 +6116,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_security()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_security -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_security -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_security INTO id_pk, name, policy, signature_method, fk_businessprocess, creation_time,
@@ -6211,7 +6212,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_service()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_service -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_service -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_service INTO id_pk, name, service_type, value, fk_businessprocess, creation_time,
@@ -6311,7 +6312,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_splitting()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_splitting -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_splitting -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_splitting INTO id_pk, name, fragment_size, compression, compression_algorithm, join_interval,
@@ -6448,7 +6449,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_leg -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_leg -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_leg INTO id_pk, compress_payloads, name, fk_action, fk_mpc, fk_error_handling,
@@ -6555,7 +6556,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_leg_mpc()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_leg_mpc -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_leg_mpc -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_leg_mpc INTO legconfiguration_id_pk, partympcmap_id_pk, partympcmap_key, creation_time,
@@ -6664,7 +6665,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_process()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_process -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_process -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_process INTO id_pk, name, fk_agreement, fk_initiator_role, fk_mep, fk_mep_binding,
@@ -6762,7 +6763,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_init_party()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_process_init_party -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_process_init_party -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_join_process_init_party INTO process_fk, party_fk, creation_time, created_by,
@@ -6844,7 +6845,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_leg()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_process_leg -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_process_leg -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_join_process_leg INTO process_fk, leg_fk, creation_time, created_by, modification_time,
@@ -6926,7 +6927,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_join_process_resp_party()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_process_resp_party -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_join_process_resp_party -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_join_process_resp_party INTO process_fk, party_fk, creation_time, created_by,
@@ -7010,7 +7011,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_raw -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_raw -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_configuration_raw INTO id_pk, configuration_date, xml, description, creation_time,
@@ -7101,7 +7102,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_domain()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                                     @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_domain -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_domain -> execute error: ', @p2));
                 END;
 
                 FETCH c_user_domain INTO id_pk, user_name, domain, preferred_domain, creation_time, created_by, modification_time, modified_by;
@@ -7202,7 +7203,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user -> execute error: ', @p2));
                 END;
 
                 FETCH c_user INTO id_pk, user_email, user_enabled, user_password, user_name, optlock, attempt_count,
@@ -7304,7 +7305,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_password_history()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_password_history -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_password_history -> execute error: ', @p2));
                 END;
 
                 FETCH c_user_password_history INTO id_pk, user_id, user_password, password_change_date, creation_time,
@@ -7388,7 +7389,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_role -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_role -> execute error: ', @p2));
                 END;
 
                 FETCH c_user_role INTO id_pk, role_name, creation_time, created_by, modification_time, modified_by;
@@ -7474,7 +7475,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_roles -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_roles -> execute error: ', @p2));
                 END;
 
                 FETCH c_user_roles INTO user_id, role_id, creation_time, created_by, modification_time, modified_by;
@@ -7557,7 +7558,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_ws_plugin_tb_message_log()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_ws_plugin_message_log -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_ws_plugin_message_log -> execute error: ', @p2));
                 END;
 
                 FETCH c_ws_plugin_message_log INTO id_pk, message_id, conversation_id, ref_to_message_id,
@@ -7637,7 +7638,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_info()
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_rev_info -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_rev_info -> execute error: ', @p2));
                 END;
 
                 FETCH c_rev_info INTO id, timestamp, revision_date, user_name;
@@ -7829,7 +7830,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_rev_changes(missing_entity_date_prefix
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_rev_changes -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_rev_changes -> execute error: ', @p2));
                 END;
 
                 FETCH c_rev_changes INTO id_pk, rev, audit_order, entity_name, group_name, entity_id,
@@ -7973,7 +7974,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_authentication_entry_aud(missing_entit
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_authentication_entry_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_authentication_entry_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_authentication_entry_aud INTO id_pk, original_id_pk, rev, revtype, certificate_id,
@@ -8085,7 +8086,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_back_rcriteria_aud(missing_entity_date
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_back_rcriteria_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_back_rcriteria_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_back_rcriteria_aud INTO id_pk, original_id_pk, rev, revtype, fk_backend_filter,
@@ -8176,7 +8177,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_backend_filter_aud(missing_entity_date
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_backend_filter_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_backend_filter_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_backend_filter_aud INTO id_pk, original_id_pk, rev, revtype, backend_name, backendname_mod,
@@ -8276,7 +8277,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_certificate_aud(missing_entity_date_pr
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_certificate_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_certificate_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_certificate_aud INTO id_pk, original_id_pk, rev, revtype, certificate_alias,
@@ -8374,7 +8375,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_aud(missing_entity_da
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_configuration_aud INTO id_pk, original_id_pk, rev, revtype, expression, expression_mod, name,
@@ -8469,7 +8470,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(missing_entit
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_raw_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_configuration_raw_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_configuration_raw_aud INTO id_pk, original_id_pk, rev, revtype, configuration_date,
@@ -8571,7 +8572,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_aud(missing_entity_date_prefi
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_party_aud INTO id_pk, original_id_pk, rev, revtype, endpoint, endpoint_mod, name, name_mod,
@@ -8666,7 +8667,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(missing_entity_da
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_id_type_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_id_type_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_party_id_type_aud INTO id_pk, original_id_pk, rev, revtype, name, name_mod, value, value_mod;
@@ -8754,7 +8755,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(missing_entity
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_identifier_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_pm_party_identifier_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_pm_party_identifier_aud INTO id_pk, original_id_pk, rev, revtype, fk_party, original_fk_party;
@@ -8841,7 +8842,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_routing_criteria_aud(missing_entity_da
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_routing_criteria_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_routing_criteria_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_routing_criteria_aud INTO id_pk, original_id_pk, rev, revtype, expression, expression_mod, name,
@@ -8958,7 +8959,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_aud(missing_entity_date_prefix DA
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_user_aud INTO id_pk, original_id_pk, rev, revtype, user_enabled, active_mod, user_deleted,
@@ -9064,7 +9065,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_role_aud(missing_entity_date_pref
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_role_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_role_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_user_role_aud INTO id_pk, original_id_pk, rev, revtype, role_name, name_mod, users_mod;
@@ -9151,7 +9152,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_roles_aud(missing_entity_date_pre
                 BEGIN
                     GET DIAGNOSTICS CONDITION 1
                             @p2 = MESSAGE_TEXT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_roles_aud -> execute immediate error: ', @p2));
+                    CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_user_roles_aud -> execute error: ', @p2));
                 END;
 
                 FETCH c_user_roles_aud INTO rev, revtype, user_id, original_user_id, role_id, original_role_id;
@@ -9332,3 +9333,4 @@ BEGIN
     -- END migrate primary keys to new format
 END
 //
+
