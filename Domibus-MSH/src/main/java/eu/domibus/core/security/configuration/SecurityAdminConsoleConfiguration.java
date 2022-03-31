@@ -54,10 +54,10 @@ public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfig
         return super.authenticationManagerBean();
     }
 
-    @Bean(name = "authenticationService")
-    public AuthenticationService authenticationService() {
-        return new AuthenticationServiceImpl();
-    }
+//    @Bean(name = "authenticationService")
+//    public AuthenticationService authenticationService() {
+//        return new AuthenticationServiceImpl();
+//    }
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
