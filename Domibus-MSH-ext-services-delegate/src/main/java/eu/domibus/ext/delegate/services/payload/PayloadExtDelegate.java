@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.payload;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
@@ -59,7 +60,7 @@ public class PayloadExtDelegate implements PayloadExtService {
     public PartInfoDTO getPayload(Long messageEntityId, String cid) throws PayloadExtException {
         final UserMessage userMessage = userMessageService.getMessageEntity(messageEntityId);
         if (userMessage == null) {
-            throw new PayloadExtException(DomibusErrorCode.DOM_009, "Could not find message with entity id [" + messageEntityId + "]");
+            throw new MessageNotFoundException(messageEntityId);
         }
         return getPartInfoDTO(userMessage, cid);
     }
@@ -68,7 +69,7 @@ public class PayloadExtDelegate implements PayloadExtService {
     public PartInfoDTO getPayload(String messageId, String cid) throws PayloadExtException {
         final UserMessage userMessage = userMessageService.getMessageEntity(messageId);
         if (userMessage == null) {
-            throw new PayloadExtException(DomibusErrorCode.DOM_009, "Could not find message with message id [" + messageId + "]");
+            throw new MessageNotFoundException(messageId);
         }
         return getPartInfoDTO(userMessage, cid);
     }
@@ -78,7 +79,7 @@ public class PayloadExtDelegate implements PayloadExtService {
 
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
 
-        if(MessageStatus.DELETED == messageStatus) {
+        if (MessageStatus.DELETED == messageStatus) {
             throw new PayloadExtException(DomibusErrorCode.DOM_005, "The payloads for message [" + userMessage.getMessageId() + "] have been deleted");
         }
 

@@ -11,6 +11,8 @@ import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.security.AuthUtilsImpl;
 import eu.domibus.messaging.XmlProcessingException;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -115,11 +117,11 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ACK, uml1.getUserMessage().getMessageId())
                         .with(httpBasic("user", TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().isUnauthorized())
                 .andReturn();
 
         String content = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(content, Exception.class);
-        Assert.assertEquals("You are not allowed to handle this message [" + uml1.getUserMessage().getMessageId() + "]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]", resultList.getMessage());
+        MatcherAssert.assertThat(resultList.getMessage(), CoreMatchers.containsString("[DOM_002]:You are not allowed to access message [" + uml1.getUserMessage().getMessageId()));
     }
 }

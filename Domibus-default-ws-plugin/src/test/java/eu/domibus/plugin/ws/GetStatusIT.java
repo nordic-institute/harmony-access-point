@@ -18,7 +18,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.Provider;
 import java.io.IOException;
 
 public class GetStatusIT extends AbstractBackendWSIT {
