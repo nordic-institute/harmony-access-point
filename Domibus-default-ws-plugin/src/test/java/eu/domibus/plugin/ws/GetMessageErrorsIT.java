@@ -1,6 +1,7 @@
 
 package eu.domibus.plugin.ws;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.ErrorCode;
@@ -60,10 +61,15 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
     @Test
     public void testGetEmptyMessageErrorsList() {
 
-        String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
+        String messageId = "notFound";
         GetErrorsRequest errorsRequest = createMessageErrorsRequest(messageId);
-        ErrorResultImplArray response = webServicePluginInterface.getMessageErrors(errorsRequest);
-        Assert.assertTrue(response.getItem().isEmpty());
+        ErrorResultImplArray response = null;
+        try {
+            response = webServicePluginInterface.getMessageErrors(errorsRequest);
+            Assert.fail();
+        } catch (MessageNotFoundException e) {
+            //OK
+        }
     }
 
     private GetErrorsRequest createMessageErrorsRequest(final String messageId) {
