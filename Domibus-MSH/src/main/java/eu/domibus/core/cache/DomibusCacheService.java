@@ -15,7 +15,6 @@ public interface DomibusCacheService {
     String DOMAIN_BY_CODE_CACHE = "domainByCode";
     String DOMAIN_BY_SCHEDULER_CACHE = "domainByScheduler";
     String DYNAMIC_DISCOVERY_ENDPOINT = "lookupInfo";
-    String DYNAMIC_DISCOVERY_PARTY_ID = "dynamicDiscoveryPartyId";
     String DISPATCH_CLIENT = "dispatchClient";
     String CRL_BY_CERT = "crlByCert";
     String DOMIBUS_PROPERTY_CACHE = "domibusProperties";
@@ -27,5 +26,13 @@ public interface DomibusCacheService {
     void clearAllCaches(boolean notification) throws DomibusCoreException;
 
     void clear2LCCaches(boolean notification) throws DomibusCoreException;
+
+    /**
+     * Method validates if cache for key exists in the cache object with given name.
+     * @param key:  key for object in cache
+     * @param cacheName: name of the cache
+     * @return true if the key exists in the cache with the given name. If the cache object with cachename or key does not exist in the object, returns false.
+     */
+    boolean containsCacheForKey(String key, String cacheName);
 
 }

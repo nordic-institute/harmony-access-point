@@ -12,15 +12,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CACHE_DDC_LOOKUP;
 import static eu.domibus.core.cache.DomibusCacheConfiguration.CACHE_MANAGER;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
-import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_PARTY_ID;
+import static java.util.Collections.singletonList;
 
 /**
  * Class enables dynamic update of the cache TTL for ehcache 3.x provider for the properties:
@@ -51,7 +48,7 @@ public class CacheTTLChangeListener implements DomibusPropertyChangeListener {
         this.cacheManager = cacheManager;
         // initialize property to cache mapping
         propertyCacheMapping = new HashMap<>();
-        propertyCacheMapping.put(DOMIBUS_CACHE_DDC_LOOKUP, Arrays.asList(DYNAMIC_DISCOVERY_ENDPOINT,DYNAMIC_DISCOVERY_PARTY_ID) );
+        propertyCacheMapping.put(DOMIBUS_CACHE_DDC_LOOKUP, singletonList(DYNAMIC_DISCOVERY_ENDPOINT) );
     }
 
     @Override

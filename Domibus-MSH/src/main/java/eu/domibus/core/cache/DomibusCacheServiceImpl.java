@@ -90,6 +90,16 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
         return null;
     }
 
+    @Override
+    public boolean containsCacheForKey(String key, String cacheName) {
+        final Cache cache = getCacheByName(cacheName);
+        if (cache == null) {
+            LOG.debug("Cache with name [{}] does not exist!");
+            return false;
+        }
+        return ((javax.cache.Cache)cache.getNativeCache()).containsKey(key);
+    }
+
     protected void notifyClearAllCaches() {
         LOG.debug("Notifying cache subscribers about clear all caches event");
         domibusCacheServiceNotifierList
