@@ -94,7 +94,7 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     public boolean containsCacheForKey(String key, String cacheName) {
         final Cache cache = getCacheByName(cacheName);
         if (cache == null) {
-            LOG.debug("Cache with name [{}] does not exist!");
+            LOG.debug("Cache with name [{}] does not exist!", cacheName);
             return false;
         }
         return ((javax.cache.Cache)cache.getNativeCache()).containsKey(key);

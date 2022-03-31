@@ -206,7 +206,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             String cacheKey = getCacheKeyForDynamicDiscovery(userMessage);
             PartyId partyId = cachedToPartyId.get(cacheKey);
             if (partyId!=null && domibusCacheService.containsCacheForKey(cacheKey, DYNAMIC_DISCOVERY_ENDPOINT)){
-                LOG.debug("Skip ddc lookup and add cached PartyID for the key [{}]", cacheKey);
+                LOG.debug("Skip ddc lookup and add to UserMessage 'To Party' the cached PartyID object for the key [{}]", cacheKey);
                 userMessage.getPartyInfo().getTo().setToPartyId(partyId);
                 if (userMessage.getPartyInfo().getTo().getToRole() == null) {
                     String responderRoleValue = dynamicDiscoveryService.getResponderRole();
