@@ -1,4 +1,5 @@
 Domibus 5.0
+- Added a property domibus.cache.ddc.lookup.ttl=3600 to define seconds for caching dynamic discovery data.
 - Added a property domibus.ui.pages.messageLogs.interval.default=24 for configuring the initial time interval for filtering message logs
 - Improved overall performance including refactoring of the database to allow partitioning
 - Optimized pull locking for Oracle
