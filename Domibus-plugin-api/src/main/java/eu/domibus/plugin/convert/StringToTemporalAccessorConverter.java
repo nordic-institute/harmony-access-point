@@ -6,6 +6,7 @@ import org.springframework.core.convert.converter.Converter;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 
 /**
@@ -37,24 +38,30 @@ public class StringToTemporalAccessorConverter implements Converter<String, Temp
             LOG.info("Returning null temporal for null input string");
             return null;
         }
+        TemporalAccessor result;
+        try {
+            result = formatter.parseBest(source,
+                    OffsetDateTime::from, OffsetTime::from, LocalDateTime::from, LocalDate::from, LocalTime::from);
+            if (result instanceof OffsetDateTime) {
+                LOG.debug("Unmarshalling an offset date time");
+                result = ((OffsetDateTime) result).withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();
+            } else if (result instanceof OffsetTime) {
+                LOG.debug("Unmarshalling a local date time with timezone offset");
+                result = ((OffsetTime) result).withOffsetSameInstant(ZoneOffset.UTC).toLocalTime();
+            } else if (result instanceof LocalDateTime) {
+                LOG.debug("Unmarshalling a local date time without timezone offset");
+            } else if (result instanceof LocalDate) {
+                LOG.debug("Unmarshalling a local date with or without timezone offset");
+            } else if (result instanceof LocalTime) {
+                LOG.debug("Unmarshalling a local time without zone offset");
+            }
+        } catch (IllegalArgumentException | DateTimeParseException exception) {
+            LOG.error("Exception occurred during parsing of date time", exception);
+            throw new IllegalArgumentException("Invalid date time value [" + source + "]", exception);
 
-        TemporalAccessor result = formatter.parseBest(source,
-                OffsetDateTime::from, OffsetTime::from, LocalDateTime::from, LocalDate::from, LocalTime::from);
-        if (result instanceof OffsetDateTime) {
-            LOG.debug("Unmarshalling an offset date time");
-            result = ((OffsetDateTime) result).withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();
-        } else  if (result instanceof OffsetTime) {
-            LOG.debug("Unmarshalling a local date time with timezone offset");
-            result = ((OffsetTime) result).withOffsetSameInstant(ZoneOffset.UTC).toLocalTime();
-        } else if (result instanceof LocalDateTime) {
-            LOG.debug("Unmarshalling a local date time without timezone offset");
-        } else if (result instanceof LocalDate) {
-            LOG.debug("Unmarshalling a local date with or without timezone offset");
-        } else if (result instanceof LocalTime) {
-            LOG.debug("Unmarshalling a local time without zone offset");
         }
-
         LOG.info("Returning temporal [{}]", result);
         return result;
+
     }
 }
