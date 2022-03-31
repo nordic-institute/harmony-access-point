@@ -1,13 +1,13 @@
 
 package eu.domibus.plugin.ws;
 
-import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.plugin.ws.generated.GetMessageErrorsFault;
 import eu.domibus.plugin.ws.generated.body.ErrorResultImplArray;
 import eu.domibus.plugin.ws.generated.body.GetErrorsRequest;
 import org.junit.Assert;
@@ -37,7 +37,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is not empty for a certain message.
      */
     @Test
-    public void testGetMessageErrorsOk() {
+    public void testGetMessageErrorsOk() throws GetMessageErrorsFault {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
         UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId);
 
@@ -67,7 +67,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         try {
             response = webServicePluginInterface.getMessageErrors(errorsRequest);
             Assert.fail();
-        } catch (MessageNotFoundException e) {
+        } catch (GetMessageErrorsFault e) {
             //OK
         }
     }

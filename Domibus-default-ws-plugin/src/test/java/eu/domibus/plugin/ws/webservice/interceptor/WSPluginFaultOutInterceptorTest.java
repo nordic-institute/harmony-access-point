@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice.interceptor;
 
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
+import eu.domibus.plugin.ws.webservice.ErrorCode;
 import eu.domibus.plugin.ws.webservice.WebServiceExceptionFactory;
 import eu.domibus.plugin.ws.webservice.WebServiceImpl;
 import eu.domibus.plugin.ws.webservice.WebServiceOperation;
@@ -198,7 +199,7 @@ public class WSPluginFaultOutInterceptorTest {
             exception.getSuppressed();
             result = null;
 
-            webServicePluginExceptionFactory.createFault("Error retrieving message");
+            webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0001, "Error retrieving message");
             result = WebServiceImpl.WEBSERVICE_OF.createFaultDetail();
         }};
 

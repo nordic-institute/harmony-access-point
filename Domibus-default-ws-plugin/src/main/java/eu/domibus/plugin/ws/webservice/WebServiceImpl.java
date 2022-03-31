@@ -16,10 +16,7 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
-import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
-import eu.domibus.plugin.ws.generated.StatusFault;
-import eu.domibus.plugin.ws.generated.SubmitMessageFault;
-import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
+import eu.domibus.plugin.ws.generated.*;
 import eu.domibus.plugin.ws.generated.body.*;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
@@ -201,7 +198,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         final LargePayloadType bodyload = submitRequest.getBodyload();
         if (bodyload == null) {
             // in this case the payload referenced in the partInfo was neither an external payload nor a bodyload
-            throw new SubmitMessageFault("No Payload or Bodyload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
+            throw new SubmitMessageFault("No Payload or Bodyload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0001, extendedPartInfo.getHref()));
         }
         // It can only be in body load, href MAY be null!
         if (href == null && bodyload.getPayloadId() == null || href != null && StringUtils.equalsIgnoreCase(href, bodyload.getPayloadId())) {
@@ -210,19 +207,19 @@ public class WebServiceImpl implements WebServicePluginInterface {
             LOG.debug("sendMessage - bodyload Content Type: " + bodyload.getContentType());
             extendedPartInfo.setPayloadDatahandler(bodyload.getValue());
         } else {
-            throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
+            throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0001, extendedPartInfo.getHref()));
         }
     }
 
     protected void validateSubmitRequest(SubmitRequest submitRequest) throws SubmitMessageFault {
         for (final LargePayloadType payload : submitRequest.getPayload()) {
             if (StringUtils.isBlank(payload.getPayloadId())) {
-                throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail("Attribute 'payloadId' of the 'payload' element must not be empty"));
+                throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "Attribute 'payloadId' of the 'payload' element must not be empty"));
             }
         }
         final LargePayloadType bodyload = submitRequest.getBodyload();
         if (bodyload != null && StringUtils.isNotBlank(bodyload.getPayloadId())) {
-            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail("Attribute 'payloadId' must not appear on element 'bodyload'"));
+            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "Attribute 'payloadId' must not appear on element 'bodyload'"));
         }
     }
 
@@ -233,9 +230,9 @@ public class WebServiceImpl implements WebServicePluginInterface {
         return fd;
     }
 
-    private FaultDetail generateDefaultFaultDetail(String message) {
+    private FaultDetail generateDefaultFaultDetail(ErrorCode errorCode, String message) {
         FaultDetail fd = WEBSERVICE_OF.createFaultDetail();
-        fd.setCode(ErrorCode.EBMS_0004.name());
+        fd.setCode(errorCode.name());
         fd.setMessage(message);
         return fd;
     }
@@ -282,7 +279,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
         LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
-        String finalRecipient =  listPendingMessagesRequest.getFinalRecipient();
+        String finalRecipient = listPendingMessagesRequest.getFinalRecipient();
         if (!authenticationExtService.isUnsecureLoginAllowed()) {
             String originalUser = authenticationExtService.getOriginalUser();
             if (StringUtils.isNotEmpty(finalRecipient)) {
@@ -323,14 +320,14 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
         if (!isMessageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
-            throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
+            throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-        WSMessageLogEntity wsMessageLogEntity =  wsMessageLogService.findByMessageId(trimmedMessageId);
+        WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
         if (wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0001, "No message with id [" + trimmedMessageId + "] pending for download"));
         }
 
         userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
@@ -366,12 +363,12 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
             }
             LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
 
         if (userMessage == null) {
             LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
         return userMessage;
     }
@@ -420,22 +417,29 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
         if (!isMessageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
-            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
+            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
     }
 
     @Override
-    public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) {
-        return transformFromErrorResults(wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID()));
+    public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws GetMessageErrorsFault {
+        List<? extends ErrorResult> errorsForMessage = null;
+        try {
+            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
+        } catch (Exception e) {
+            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
+            throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));
+        }
+        return transformFromErrorResults(errorsForMessage);
     }
 
     public ErrorResultImplArray transformFromErrorResults(List<? extends ErrorResult> errors) {
         ErrorResultImplArray errorList = new ErrorResultImplArray();
         for (ErrorResult errorResult : errors) {
             ErrorResultImpl errorResultImpl = new ErrorResultImpl();
-            errorResultImpl.setErrorCode(ErrorCode.fromValue(errorResult.getErrorCode().name()));
+            errorResultImpl.setDomibusErrorCode(eu.domibus.plugin.ws.generated.body.DomibusErrorCode.fromValue(errorResult.getErrorCode().name()));
             errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
             errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
             errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
