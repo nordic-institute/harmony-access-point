@@ -15,6 +15,7 @@ public interface DomibusCacheService {
     String DOMAIN_BY_CODE_CACHE = "domainByCode";
     String DOMAIN_BY_SCHEDULER_CACHE = "domainByScheduler";
     String DYNAMIC_DISCOVERY_ENDPOINT = "lookupInfo";
+    String DYNAMIC_DISCOVERY_PARTY_ID = "dynamicDiscoveryPartyId";
     String DISPATCH_CLIENT = "dispatchClient";
     String CRL_BY_CERT = "crlByCert";
     String DOMIBUS_PROPERTY_CACHE = "domibusProperties";

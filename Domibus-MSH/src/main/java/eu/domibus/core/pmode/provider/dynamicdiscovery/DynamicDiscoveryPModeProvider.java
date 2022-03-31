@@ -24,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
+import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_PARTY_ID;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *
@@ -197,17 +199,40 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             updateInitiatorPartiesInPmode(candidates, configurationParty);
 
         } else {//MSHRole.SENDING
-            EndpointInfo endpointInfo = lookupByFinalRecipient(userMessage);
-            updateToParty(userMessage, endpointInfo.getCertificate());
-            PartyId toPartyId = getToPartyId(userMessage);
-            Party configurationParty = updateConfigurationParty(toPartyId.getValue(), toPartyId.getType(), endpointInfo.getAddress());
-            updateResponderPartiesInPmode(candidates, configurationParty);
 
-            Property finalRecipient = getFinalRecipient(userMessage);
-            final String finalRecipientValue = finalRecipient.getValue();
-            final String receiverURL = endpointInfo.getAddress();
-            setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
+            String cacheKey = getCacheKeyForDynamicDiscovery(userMessage);
+            PartyId partyId = lookupAndUpdateConfigurationForToPartyId(cacheKey, userMessage, candidates);
+            if (userMessage.getPartyInfo().getTo() ==null) {
+                userMessage.getPartyInfo().getTo().setToPartyId(partyId);
+            }
         }
+    }
+
+    /**
+     * Current implementation adds Certificate and party id to PMode until PMode is refreshed or Server restarted.
+     * cached methods 'lookupAndUpdateConfigurationForToPartyId '
+     * prevents reinitialize PMode data and truststore from the cached lookup data.
+     *
+     * @param cacheKey cached key matches the key for lookup data
+     * @param userMessage - user message which triggered the dynamic discovery search
+     * @param candidates
+     * @return "cached" TO PartyId
+     * @throws EbMS3Exception
+     */
+    @Cacheable(value = DYNAMIC_DISCOVERY_PARTY_ID, key = "#cacheKey")
+    public PartyId lookupAndUpdateConfigurationForToPartyId(String cacheKey, UserMessage userMessage, Collection<eu.domibus.common.model.configuration.Process> candidates) throws EbMS3Exception {
+        EndpointInfo endpointInfo = lookupByFinalRecipient(userMessage);
+        updateToParty(userMessage, endpointInfo.getCertificate());
+        PartyId toPartyId = getToPartyId(userMessage);
+
+        Party configurationParty = updateConfigurationParty(toPartyId.getValue(), toPartyId.getType(), endpointInfo.getAddress());
+        updateResponderPartiesInPmode(candidates, configurationParty);
+
+        Property finalRecipient = getFinalRecipient(userMessage);
+        final String finalRecipientValue = finalRecipient.getValue();
+        final String receiverURL = endpointInfo.getAddress();
+        setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
+        return toPartyId;
     }
 
     protected PartyId getToPartyId(UserMessage userMessage) throws EbMS3Exception {
@@ -227,6 +252,26 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
 
         return to;
+    }
+
+    /**
+     * Method returns cache key for dynamic discovery lookup.
+     *
+     * @param userMessage
+     * @return cache key string with format: #domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme";
+     */
+    protected String getCacheKeyForDynamicDiscovery(UserMessage userMessage) {
+        //"
+        Property finalRecipient = getFinalRecipient(userMessage);
+        // create key
+        //"#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme";
+        String cacheKey = domainProvider.getCurrentDomain().getCode() +
+                finalRecipient.getValue() +
+                finalRecipient.getType() +
+                userMessage.getActionValue() +
+                userMessage.getService().getValue() +
+                userMessage.getService().getType();
+        return cacheKey;
     }
 
     protected PartyId getFromPartyId(UserMessage userMessage) throws EbMS3Exception {
@@ -483,4 +528,5 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
         return null;
     }
+
 }
