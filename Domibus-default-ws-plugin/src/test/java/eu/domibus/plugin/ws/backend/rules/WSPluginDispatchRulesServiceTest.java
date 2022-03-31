@@ -153,7 +153,7 @@ public class WSPluginDispatchRulesServiceTest {
     }
 
     @Test
-    public void getRulesByRecipient(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+    public void getRulesByRecipient(@Injectable WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations(rulesService) {{
             rulesService.getRules();
             result = Collections.singletonList(wsPluginDispatchRule);
@@ -218,7 +218,7 @@ public class WSPluginDispatchRulesServiceTest {
     }
 
     @Test
-    public void getOneRule_found(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+    public void getOneRule_found(@Injectable WSPluginDispatchRule wsPluginDispatchRule) {
         WSPluginDispatchRule rule1 = new WSPluginDispatchRuleBuilder(RULE_NAME_1).build();
 
         new Expectations(rulesService) {{
@@ -244,34 +244,6 @@ public class WSPluginDispatchRulesServiceTest {
 
         assertNotNull(ruleFound);
         assertNotNull(StringUtils.EMPTY, ruleFound.getRuleName());
-    }
-
-    @Test
-    public void getStrategy_found() {
-        WSPluginDispatchRule rule1 = new WSPluginDispatchRuleBuilder(RULE_NAME_1)
-                .withRetryStrategy(WSPluginRetryStrategyType.CONSTANT)
-                .build();
-
-        new Expectations(rulesService) {{
-            rulesService.getRulesByName(RULE_NAME_1);
-            result = rule1;
-            times = 1;
-        }};
-        WSPluginRetryStrategyType ruleFound = rulesService.getStrategy(RULE_NAME_1);
-
-        assertEquals(WSPluginRetryStrategyType.CONSTANT, ruleFound);
-    }
-
-    @Test
-    public void getStrategy_noRules() {
-        new Expectations(rulesService) {{
-            rulesService.getRulesByName(RULE_NAME_1);
-            result = new ArrayList<>();
-            times = 1;
-        }};
-        WSPluginRetryStrategyType strategyFound = rulesService.getStrategy(RULE_NAME_1);
-
-        assertNull(strategyFound);
     }
 
     @Test
