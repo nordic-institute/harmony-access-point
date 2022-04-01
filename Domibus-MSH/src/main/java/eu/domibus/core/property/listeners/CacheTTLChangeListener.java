@@ -41,14 +41,14 @@ public class CacheTTLChangeListener implements DomibusPropertyChangeListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CacheTTLChangeListener.class);
 
     final CacheManager cacheManager;
-    final Map<String, List<String>> propertyCacheMapping;
+    final Map<String, String> propertyCacheMapping;
 
 
     public CacheTTLChangeListener(@Qualifier(value = CACHE_MANAGER) CacheManager cacheManager) {
         this.cacheManager = cacheManager;
         // initialize property to cache mapping
         propertyCacheMapping = new HashMap<>();
-        propertyCacheMapping.put(DOMIBUS_CACHE_DDC_LOOKUP, singletonList(DYNAMIC_DISCOVERY_ENDPOINT) );
+        propertyCacheMapping.put(DOMIBUS_CACHE_DDC_LOOKUP, DYNAMIC_DISCOVERY_ENDPOINT );
     }
 
     @Override
@@ -62,9 +62,21 @@ public class CacheTTLChangeListener implements DomibusPropertyChangeListener {
         if (!propertyCacheMapping.containsKey(propertyName)){
             throw new IllegalArgumentException("TTL cache property: ["+propertyName+"] is not supported!");
         }
-        List<String> cacheNames = propertyCacheMapping.get(propertyName);
-        Long value = Long.parseLong(propertyValue);
-        cacheNames.forEach(cacheName-> updateCacheTTL(cacheName, value, propertyName));
+        Long value;
+        if (StringUtils.isBlank(propertyValue)){
+            LOG.debug("Because value is empty, set default cache ttl [{}] for property:[{}]!",propertyValue,  propertyName, propertyValue);
+            value = 3600L;
+        } else {
+            try {
+                value = Long.parseLong(propertyValue);
+            }catch (NumberFormatException ex){
+                throw new IllegalArgumentException("Illegal value ["+propertyValue+"] TTL cache property: ["+propertyName+"]! Value is not a number!");
+            }
+        }
+
+        String cacheName = propertyCacheMapping.get(propertyName);
+
+        updateCacheTTL(cacheName, value, propertyName);
     }
 
     private void updateCacheTTL(String cacheName, Long newTtlValue, String propertyName){
