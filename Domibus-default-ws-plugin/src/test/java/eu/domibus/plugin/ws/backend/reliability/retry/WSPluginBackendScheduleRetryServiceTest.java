@@ -73,7 +73,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
     }
 
     @Test
-    public void sendNotification(@Mocked WSPluginDispatchRule rule) {
+    public void sendNotification(@Injectable WSPluginDispatchRule rule) {
 
         //Since we are making a capture of WSBackendMessageLogEntity, we can not use a Mock object here
         new Expectations() {{
@@ -117,7 +117,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
     }
 
     @Test
-    public void sendNotifications(@Mocked WSBackendMessageLogEntity entity1, @Mocked WSBackendMessageLogEntity entity2) throws JMSException {
+    public void sendNotifications(@Injectable WSBackendMessageLogEntity entity1, @Injectable WSBackendMessageLogEntity entity2) throws JMSException {
         List<WSBackendMessageLogEntity> entities = Arrays.asList(entity1, entity2);
         new Expectations(retryService) {{
             retryService.getMessagesNotAlreadyScheduled();
@@ -168,8 +168,8 @@ public class WSPluginBackendScheduleRetryServiceTest {
     }
 
     @Test
-    public void send(@Mocked WSPluginDispatchRule rule,
-                     @Mocked WSBackendMessageLogEntity backendMessage) {
+    public void send(@Injectable WSPluginDispatchRule rule,
+                     @Injectable WSBackendMessageLogEntity backendMessage) {
         new Expectations(retryService) {{
             retryService.createWsBackendMessageLogEntity("1;2", WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, rule);
             result = backendMessage;

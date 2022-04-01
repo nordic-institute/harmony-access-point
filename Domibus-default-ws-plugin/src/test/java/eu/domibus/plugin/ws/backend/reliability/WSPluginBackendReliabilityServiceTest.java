@@ -84,9 +84,9 @@ public class WSPluginBackendReliabilityServiceTest {
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
     @Test
-    public void updateNextAttempt(@Mocked WSBackendMessageLogEntity backendMessage,
-                                  @Mocked WSPluginDispatchRule rule,
-                                  @Mocked WSPluginRetryStrategy retryStrategy) {
+    public void updateNextAttempt(@Injectable WSBackendMessageLogEntity backendMessage,
+                                  @Injectable WSPluginDispatchRule rule,
+                                  @Injectable WSPluginRetryStrategy retryStrategy) {
         new Expectations() {{
             backendMessage.getEntityId();
             result = 1L;
@@ -132,9 +132,9 @@ public class WSPluginBackendReliabilityServiceTest {
 
     @Test(expected = WSPluginException.class)
     public void updateNextAttempt_noStrategy(
-            @Mocked WSBackendMessageLogEntity backendMessage,
-            @Mocked WSPluginDispatchRule rule,
-            @Mocked WSPluginRetryStrategy retryStrategy) {
+            @Injectable WSBackendMessageLogEntity backendMessage,
+            @Injectable WSPluginDispatchRule rule,
+            @Injectable WSPluginRetryStrategy retryStrategy) {
         new Expectations() {{
             backendMessage.getNextAttempt();
             result = A_DATE;
@@ -156,7 +156,7 @@ public class WSPluginBackendReliabilityServiceTest {
     }
 
     @Test
-    public void hasAttemptsLeft_true(@Mocked WSBackendMessageLogEntity backendMessage) {
+    public void hasAttemptsLeft_true(@Injectable WSBackendMessageLogEntity backendMessage) {
         new Expectations() {{
             backendMessage.getSendAttempts();
             result = ATTEMPTS;
@@ -169,7 +169,7 @@ public class WSPluginBackendReliabilityServiceTest {
     }
 
     @Test
-    public void hasAttemptsLeft_false(@Mocked WSBackendMessageLogEntity backendMessage) {
+    public void hasAttemptsLeft_false(@Injectable WSBackendMessageLogEntity backendMessage) {
         new Expectations() {{
             backendMessage.getSendAttempts();
             result = ATTEMPTS;
@@ -182,7 +182,7 @@ public class WSPluginBackendReliabilityServiceTest {
     }
 
     @Test
-    public void hasAttemptsLeft_outOfAttempt(@Mocked WSBackendMessageLogEntity backendMessage) {
+    public void hasAttemptsLeft_outOfAttempt(@Injectable WSBackendMessageLogEntity backendMessage) {
         new Expectations() {{
             backendMessage.getSendAttempts();
             result = 15;
@@ -207,8 +207,8 @@ public class WSPluginBackendReliabilityServiceTest {
     }
 
     @Test
-    public void handleReliability_hasAttemptsLeft(@Mocked WSBackendMessageLogEntity backendMessage,
-                                                  @Mocked WSPluginDispatchRule rule) {
+    public void handleReliability_hasAttemptsLeft(@Injectable WSBackendMessageLogEntity backendMessage,
+                                                  @Injectable WSPluginDispatchRule rule) {
 
         new Expectations(reliabilityService) {{
             backendMessage.getSendAttempts();
@@ -247,8 +247,8 @@ public class WSPluginBackendReliabilityServiceTest {
     }
 
     @Test
-    public void handleReliability_noAttemptsLeft(@Mocked WSBackendMessageLogEntity backendMessage,
-                                                 @Mocked WSPluginDispatchRule rule) {
+    public void handleReliability_noAttemptsLeft(@Injectable WSBackendMessageLogEntity backendMessage,
+                                                 @Injectable WSPluginDispatchRule rule) {
 
         new Expectations(reliabilityService) {{
             backendMessage.getSendAttempts();
@@ -292,8 +292,8 @@ public class WSPluginBackendReliabilityServiceTest {
     }
 
     @Test
-    public void createEventForAlert(@Mocked WSBackendMessageLogEntity backendMessage,
-                                    @Mocked WSPluginDispatchRule rule) {
+    public void createEventForAlert(@Injectable WSBackendMessageLogEntity backendMessage,
+                                    @Injectable WSPluginDispatchRule rule) {
         new Expectations(reliabilityService) {{
             wsPluginPropertyManager.getKnownBooleanPropertyValue(PUSH_ALERT_ACTIVE);
             result = IS_ACTIVE;
@@ -320,8 +320,8 @@ public class WSPluginBackendReliabilityServiceTest {
     }
 
     @Test
-    public void getEmailBody(@Mocked WSBackendMessageLogEntity backendMessage,
-                             @Mocked WSPluginDispatchRule rule) {
+    public void getEmailBody(@Injectable WSBackendMessageLogEntity backendMessage,
+                             @Injectable WSPluginDispatchRule rule) {
         new Expectations(reliabilityService) {{
             rule.getRuleName();
             result = "ruleName";

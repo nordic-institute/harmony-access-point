@@ -28,10 +28,10 @@ public class WSPluginPropertyManagerTest extends TestCase {
     @Injectable
     WSPluginPropertyManager wsPluginPropertyManager;
 
-    @Mocked
+    @Injectable
     SchemaValidationEnabledChangeListener schemaValidationEnabledChangeListener;
 
-    @Mocked
+    @Injectable
     MtomEnabledChangeListener mtomEnabledChangeListener;
 
     @Injectable

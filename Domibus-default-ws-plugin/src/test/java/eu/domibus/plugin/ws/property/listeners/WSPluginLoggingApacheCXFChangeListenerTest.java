@@ -3,7 +3,6 @@ package eu.domibus.plugin.ws.property.listeners;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import mockit.FullVerifications;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.junit.Assert;
@@ -23,7 +22,7 @@ public class WSPluginLoggingApacheCXFChangeListenerTest {
     @Injectable
     private LoggingFeature loggingFeature;
 
-    @Mocked
+    @Injectable
     private WSPluginLoggingEventSender loggingSender;
 
     protected WSPluginLoggingApacheCXFChangeListener listener;
