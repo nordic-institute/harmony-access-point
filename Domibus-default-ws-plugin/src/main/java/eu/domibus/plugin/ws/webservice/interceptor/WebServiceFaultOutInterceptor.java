@@ -3,6 +3,7 @@ package eu.domibus.plugin.ws.webservice.interceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
+import eu.domibus.plugin.ws.webservice.ErrorCode;
 import eu.domibus.plugin.ws.webservice.WebServiceExceptionFactory;
 import eu.domibus.plugin.ws.webservice.WebServiceOperation;
 import org.apache.cxf.binding.soap.SoapFault;
@@ -86,7 +87,7 @@ public class WebServiceFaultOutInterceptor extends AbstractSoapInterceptor {
 
         String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
         String retrieveMessageErrorMessage = getRetrieveMessageErrorMessage(cause, messageId);
-        RetrieveMessageFault retrieveMessageFault = new RetrieveMessageFault(retrieveMessageErrorMessage, webServiceExceptionFactory.createFault("Error retrieving message"));
+        RetrieveMessageFault retrieveMessageFault = new RetrieveMessageFault(retrieveMessageErrorMessage, webServiceExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0001, "Error retrieving message"));
         message.setContent(Exception.class, new Fault(retrieveMessageFault));
     }
 

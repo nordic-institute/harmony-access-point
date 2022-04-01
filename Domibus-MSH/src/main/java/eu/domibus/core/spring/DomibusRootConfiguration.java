@@ -1,6 +1,7 @@
 package eu.domibus.core.spring;
 
 import eu.domibus.core.property.listeners.PropertyListenersConfiguration;
+import eu.domibus.core.security.configuration.DomibusAuthenticationConfiguration;
 import eu.domibus.core.security.configuration.SecurityAdminConsoleConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
@@ -31,6 +32,6 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_H
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
-@Import({SecurityAdminConsoleConfiguration.class, PropertyListenersConfiguration.class})
+@Import({SecurityAdminConsoleConfiguration.class, DomibusAuthenticationConfiguration.class, PropertyListenersConfiguration.class})
 public class DomibusRootConfiguration {
 }

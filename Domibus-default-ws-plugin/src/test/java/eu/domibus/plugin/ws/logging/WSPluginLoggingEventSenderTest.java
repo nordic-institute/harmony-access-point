@@ -23,7 +23,7 @@ public class WSPluginLoggingEventSenderTest {
     WSPluginLoggingEventSender wsPluginLoggingEventSender;
 
     @Test
-    public void test_getLogMessage_StripHeadersPayload(final @Mocked LogEvent logEvent) {
+    public void test_getLogMessage_StripHeadersPayload(final @Injectable LogEvent logEvent) {
         new Expectations(wsPluginLoggingEventSender) {{
             wsPluginLoggingEventSender.isCxfLoggingInfoEnabled();
             result = true;
@@ -42,7 +42,7 @@ public class WSPluginLoggingEventSenderTest {
     }
 
     @Test
-    public void test_checkIfApacheCxfLoggingInfoEnabled(final @Mocked Logger logger) {
+    public void test_checkIfApacheCxfLoggingInfoEnabled(final @Injectable Logger logger) {
         new Expectations() {{
             new MockUp<LoggerFactory>() {
                 @Mock
@@ -59,7 +59,7 @@ public class WSPluginLoggingEventSenderTest {
     }
 
     @Test
-    public void test_checkIfStripPayloadPossible(final @Mocked Logger logger) {
+    public void test_checkIfStripPayloadPossible(final @Injectable Logger logger) {
         new Expectations() {{
             Deencapsulation.setField(wsPluginLoggingEventSender, "printPayload", true);
         }};

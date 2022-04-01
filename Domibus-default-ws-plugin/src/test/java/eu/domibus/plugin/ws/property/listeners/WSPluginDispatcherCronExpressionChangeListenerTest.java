@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.property.listeners;
 
 import eu.domibus.ext.services.DomibusSchedulerExtService;
 import mockit.FullVerifications;
-import mockit.Mocked;
+import mockit.Injectable;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +21,7 @@ public class WSPluginDispatcherCronExpressionChangeListenerTest {
 
     public static final String DEFAULT = "default";
     public static final String REGEX = "*";
-    @Mocked
+    @Injectable
     private DomibusSchedulerExtService domibusSchedulerExtService;
 
     protected WSPluginDispatcherCronExpressionChangeListener listener;

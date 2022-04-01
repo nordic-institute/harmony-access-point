@@ -24,10 +24,16 @@ public class WebServiceExceptionFactory {
         return detail;
     }
 
-    public FaultDetail createFault(String message) {
+    public FaultDetail createFault(ErrorCode errorCode, String message) {
         FaultDetail detail = WebServiceImpl.WEBSERVICE_OF.createFaultDetail();
-        detail.setCode(eu.domibus.common.ErrorCode.EBMS_0004.getErrorCodeName());
+        detail.setCode(errorCode.getCode());
         detail.setMessage(message);
+        return detail;
+    }
+    public FaultDetail createFaultMessageIdNotFound(String messageId) {
+        FaultDetail detail = WebServiceImpl.WEBSERVICE_OF.createFaultDetail();
+        detail.setCode(ErrorCode.WS_PLUGIN_0009.getCode());
+        detail.setMessage(String.format(ErrorCode.WS_PLUGIN_0009.getMessage(),messageId));
         return detail;
     }
 }
