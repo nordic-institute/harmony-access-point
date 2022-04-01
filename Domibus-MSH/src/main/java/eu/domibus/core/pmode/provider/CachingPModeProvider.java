@@ -911,7 +911,6 @@ public class CachingPModeProvider extends PModeProvider {
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
             this.finalRecipientAccessPointUrls.clear();
-
             this.init(); //reloads the config
         }
     }
