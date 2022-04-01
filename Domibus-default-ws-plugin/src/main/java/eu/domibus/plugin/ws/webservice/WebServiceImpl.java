@@ -207,7 +207,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             LOG.debug("sendMessage - bodyload Content Type: " + bodyload.getContentType());
             extendedPartInfo.setPayloadDatahandler(bodyload.getValue());
         } else {
-            throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0001, extendedPartInfo.getHref()));
+            throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, extendedPartInfo.getHref()));
         }
     }
 
@@ -327,7 +327,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
         if (wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0001, "No message with id [" + trimmedMessageId + "] pending for download"));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
 
         userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
