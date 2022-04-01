@@ -154,7 +154,7 @@ public class JMSMessageTransformerTest {
         assertEquals("true", messageMap.getStringProperty(P1_IN_BODY));
 
         File file = new File(FILENAME_TEST);
-        assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_1_FILENAME));
+        assertEquals(file.getName(), messageMap.getStringProperty(PAYLOAD_2_FILENAME));
 
     }
 
