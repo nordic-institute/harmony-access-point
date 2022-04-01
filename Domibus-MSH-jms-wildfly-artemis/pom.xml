@@ -5,7 +5,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <artemis.version>2.10.1</artemis.version>
+        <artemis.version>2.19.0</artemis.version>
     </properties>
 
     <parent>
