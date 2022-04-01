@@ -107,11 +107,11 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             messageOut.setStringProperty(REF_TO_MESSAGE_ID, submission.getRefToMessageId());
 
             // save the first payload (payload_1) for the bodyload (if exists)
-            int counter = 0;
+            int counter = 1;
             for (final Submission.Payload p : submission.getPayloads()) {
                 if (p.isInBody()) {
                     counter++;
-                    if (counter > 1) {
+                    if (counter > 2) {
                         throw new DefaultJmsPluginException("Multiple bodyload's are not allowed in the message");
                     }
                 }
