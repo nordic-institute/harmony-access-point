@@ -41,13 +41,13 @@ public class BackendWebservice implements BackendInterface {
     }
 
     @Override
-    public void submitMessage(SubmitMessage submitMessage) throws SubmitMessageFault {
-        String messageID = submitMessage.getMessageID();
+    public void submitMessage(SubmitRequest submitRequest, Messaging headerInfo) throws SubmitMessageFault {
+        String messageID = headerInfo.getUserMessage().getMessageInfo().getMessageId();
         LOG.info("SubmitMessage received for id [{}]. Bodyload [{}]. [{}] Payload(s)",
                 messageID,
-                submitMessage.getBodyload(),
-                submitMessage.getPayload().size());
-        for (LargePayloadType entry : submitMessage.getPayload()) {
+                submitRequest.getBodyload(),
+                submitRequest.getPayload().size());
+        for (LargePayloadType entry : submitRequest.getPayload()) {
             DataHandler dataHandler = entry.getValue();
             String mimeType = entry.getMimeType();
             String fileName = entry.getPayloadName();

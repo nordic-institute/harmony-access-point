@@ -14,7 +14,8 @@
     </wsdl:types>
 
     <wsdl:message name="submitMessage">
-        <wsdl:part element="tns:submitMessage" name="submitMessage"/>
+        <wsdl:part element="tns:submitRequest" name="submitRequest"/>
+        <wsdl:part element="tns:Messaging" name="headerInfo"/>
     </wsdl:message>
     <wsdl:message name="submitMessageResponse"/>
     <wsdl:message name="submitMessageFault">
@@ -78,7 +79,7 @@
 
     <wsdl:portType name="BackendInterface">
         <wsdl:operation name="submitMessage">
-            <wsdl:input message="tns:submitMessage" name="submitMessage">
+            <wsdl:input message="tns:submitMessage" name="submitRequest">
             </wsdl:input>
             <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse">
             </wsdl:output>
@@ -148,7 +149,8 @@
         <wsdl:operation name="submitMessage">
             <soap12:operation soapAction="" style="document"/>
             <wsdl:input name="submitMessage">
-                <soap12:body parts="submitMessage" use="literal"/>
+                <soap12:header message="tns:submitMessage" part="headerInfo" use="literal"/>
+                <soap12:body parts="submitRequest" use="literal"/>
             </wsdl:input>
             <wsdl:output name="submitMessageResponse">
                 <soap12:body use="literal"/>
