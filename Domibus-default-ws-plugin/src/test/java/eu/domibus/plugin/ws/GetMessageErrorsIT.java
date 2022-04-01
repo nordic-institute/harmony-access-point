@@ -7,6 +7,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.plugin.ws.generated.GetMessageErrorsFault;
 import eu.domibus.plugin.ws.generated.body.ErrorResultImplArray;
 import eu.domibus.plugin.ws.generated.body.GetErrorsRequest;
 import org.junit.Assert;
@@ -36,7 +37,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is not empty for a certain message.
      */
     @Test
-    public void testGetMessageErrorsOk() {
+    public void testGetMessageErrorsOk() throws GetMessageErrorsFault {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
         UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId);
 
@@ -60,10 +61,15 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
     @Test
     public void testGetEmptyMessageErrorsList() {
 
-        String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
+        String messageId = "notFound";
         GetErrorsRequest errorsRequest = createMessageErrorsRequest(messageId);
-        ErrorResultImplArray response = webServicePluginInterface.getMessageErrors(errorsRequest);
-        Assert.assertTrue(response.getItem().isEmpty());
+        ErrorResultImplArray response = null;
+        try {
+            response = webServicePluginInterface.getMessageErrors(errorsRequest);
+            Assert.fail();
+        } catch (GetMessageErrorsFault e) {
+            //OK
+        }
     }
 
     private GetErrorsRequest createMessageErrorsRequest(final String messageId) {

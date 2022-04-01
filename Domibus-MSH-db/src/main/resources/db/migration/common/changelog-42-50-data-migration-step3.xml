@@ -8,6 +8,12 @@
     <!-- properties - to be used in column definitions -->
     <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
+    <!-- leave as the first instruction to not trigger an error about not recognizing the DELIMITER statement when running as non-root -->
+    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-common" author="Soumya">
+        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-utc-conversion.sql" endDelimiter="\n//"
+                 dbms="mysql"/>
+    </changeSet>
+
     <!-- drop any previously created index, UQ, etc to avoid name collision -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7970-drop-indexes-uq-common">
         <dropForeignKeyConstraint baseTableName="TB_COMMAND_PROPERTY" constraintName="FK_COMMAND_PROPERTY_ID" />
@@ -167,11 +173,6 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
         <sql dbms="oracle">
             ALTER SEQUENCE HIBERNATE_SEQUENCE INCREMENT BY 20 CACHE 1000 NOORDER;
         </sql>
-    </changeSet>
-
-    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-common" author="Soumya">
-        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-utc-conversion.sql" endDelimiter="\n//"
-                 dbms="mysql"/>
     </changeSet>
 
 </databaseChangeLog>

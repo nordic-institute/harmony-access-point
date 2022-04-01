@@ -27,4 +27,12 @@ public interface DomibusCacheService {
 
     void clear2LCCaches(boolean notification) throws DomibusCoreException;
 
+    /**
+     * Method validates if cache for key exists in the cache object with given name.
+     * @param key:  key for object in cache
+     * @param cacheName: name of the cache
+     * @return true if the key exists in the cache with the given name. If the cache object with cachename or key does not exist in the object, returns false.
+     */
+    boolean containsCacheForKey(String key, String cacheName);
+
 }

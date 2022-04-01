@@ -39,10 +39,10 @@ public class WSSendMessageListenerTest {
     private DomainContextExtService domainContextExtService;
     @Injectable
     private AuthUtils authUtils;
-    @Mocked
+    @Injectable
     private Message message;
 
-    @Mocked
+    @Injectable
     private WSBackendMessageLogEntity backendMessage;
 
     @Test

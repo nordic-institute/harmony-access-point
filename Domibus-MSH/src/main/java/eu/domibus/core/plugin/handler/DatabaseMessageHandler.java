@@ -232,12 +232,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        try {
-            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
-        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
-            LOG.debug(e.getMessage());
-            return new ArrayList<>();
-        }
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
         return errorLogService.getErrors(messageId);
     }
 

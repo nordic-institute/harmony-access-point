@@ -5,7 +5,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <cargo-maven2-plugin.version>1.7.14</cargo-maven2-plugin.version>
+        <cargo-maven3-plugin.version>1.9.9</cargo-maven3-plugin.version>
         <replacer.version>1.5.3</replacer.version>
     </properties>
 
@@ -100,14 +100,14 @@
             </activation>
 
             <properties>
-                <tomcat.version>9.0.50</tomcat.version>
+                <tomcat.version>9.0.59</tomcat.version>
             </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>${cargo-maven2-plugin.version}</version>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>${cargo-maven3-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>build-tomcat</id>
@@ -297,14 +297,14 @@
         <profile>
             <id>wildfly</id>
             <properties>
-                <wildfly.version>20.0.1.Final</wildfly.version>
+                <wildfly.version>26.0.1.Final</wildfly.version>
             </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>${cargo-maven2-plugin.version}</version>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>${cargo-maven3-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>build-wildfly</id>
@@ -314,7 +314,7 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <container>
-                                        <containerId>wildfly20x</containerId>
+                                        <containerId>wildfly26x</containerId>
                                         <zipUrlInstaller>
                                             <url>
                                                 https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip

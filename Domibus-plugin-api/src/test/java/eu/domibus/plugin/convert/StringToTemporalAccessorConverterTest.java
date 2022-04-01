@@ -1,5 +1,6 @@
 package eu.domibus.plugin.convert;
 
+import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -10,7 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 
 /**
@@ -162,7 +162,7 @@ public class StringToTemporalAccessorConverterTest {
     }
 
     private void givenDateTimeParseExceptionExpected(String source) {
-        thrown.expect(DateTimeParseException.class);
-        thrown.expectMessage(new StringContains("Text '" + source + "' could not be parsed at index"));
+        thrown.expect(DomibusDateTimeExtException.class);
+        thrown.expectMessage(new StringContains("Invalid date time value [" + source + "]"));
     }
 }

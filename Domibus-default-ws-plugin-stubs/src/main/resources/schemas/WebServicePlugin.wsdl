@@ -43,6 +43,14 @@
         <wsdl:part element="tns:FaultDetail" name="RetrieveMessageFault">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="listPendingMessagesFault">
+        <wsdl:part element="tns:FaultDetail" name="listPendingMessagesFault">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getMessageErrorsFault">
+        <wsdl:part element="tns:FaultDetail" name="getMessageErrorsFault">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="retrieveMessageResponse">
         <wsdl:part element="tns:retrieveMessageResponse" name="retrieveMessageResponse">
         </wsdl:part>
@@ -109,12 +117,16 @@
             </wsdl:input>
             <wsdl:output message="tns:listPendingMessagesResponse" name="listPendingMessagesResponse">
             </wsdl:output>
+            <wsdl:fault message="tns:listPendingMessagesFault" name="listPendingMessagesFault">
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getMessageErrors">
             <wsdl:input message="tns:getMessageErrors" name="getMessageErrors">
             </wsdl:input>
             <wsdl:output message="tns:getMessageErrorsResponse" name="getMessageErrorsResponse">
             </wsdl:output>
+            <wsdl:fault message="tns:getMessageErrorsFault" name="getMessageErrorsFault">
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="retrieveMessage">
             <wsdl:input message="tns:retrieveMessage" name="retrieveMessage">
@@ -161,6 +173,9 @@
             <wsdl:output name="getMessageErrorsResponse">
                 <soap12:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="getMessageErrorsFault">
+                <soap12:fault name="getMessageErrorsFault" use="literal"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="listPendingMessages">
             <soap12:operation soapAction="" style="document"/>
@@ -170,6 +185,9 @@
             <wsdl:output name="listPendingMessagesResponse">
                 <soap12:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="listPendingMessagesFault">
+                <soap12:fault name="listPendingMessagesFault" use="literal"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="retrieveMessage">
             <soap12:operation soapAction="" style="document"/>
