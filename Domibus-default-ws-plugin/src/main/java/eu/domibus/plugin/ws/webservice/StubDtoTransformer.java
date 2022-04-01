@@ -243,9 +243,16 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
             return;
         }
         LOG.debug("Populating PayloadInfo");
+        int bodyloadCount =0;
         for (final PartInfo partInfo : payloadInfo.getPartInfo()) {
             ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
             final Collection<Submission.TypedProperty> properties = new ArrayList<>();
+            if (extPartInfo.isInBody()) {
+                bodyloadCount++;
+                if (bodyloadCount > 1) {
+                    throw new WSPluginException("Multiple bodyload's are not allowed in the message");
+                }
+            }
             if (extPartInfo.getPartProperties() != null) {
                 for (final Property property : extPartInfo.getPartProperties().getProperty()) {
                     String propertyName = trim(property.getName());
