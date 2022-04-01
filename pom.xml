@@ -6,7 +6,7 @@
 
     <groupId>eu.domibus</groupId>
     <artifactId>domibus</artifactId>
-    <version>4.2.8</version>
+    <version>4.2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
@@ -27,8 +27,8 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.5</cxf.version>
         <wss4j.ws.security.version>2.3.3</wss4j.ws.security.version>
-        <spring.version>5.3.15</spring.version>
-        <spring.security.version>5.6.1</spring.security.version>
+        <spring.version>5.3.18</spring.version>
+        <spring.security.version>5.6.2</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
         <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
@@ -49,9 +49,9 @@
         <quartz.version>2.3.2</quartz.version>
         <c3p0.version>0.9.5.4</c3p0.version>
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
-        <jackson.version>2.9.10</jackson.version>
+        <jackson.version>2.13.2</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.9.10.8</jackson-databind.version>
+        <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
         <freemarker.version>2.3.29</freemarker.version>
         <mail.version>1.6.2</mail.version>

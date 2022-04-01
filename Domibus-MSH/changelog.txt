@@ -1,3 +1,5 @@
+Domibus 4.2.9
+- Updated several libraries
 Domibus 4.2.8
 - Fixed issue when MessageProperties is missing in ebMS3 message
 - Upgraded Tomcat 9 to the latest version 9.0.59
