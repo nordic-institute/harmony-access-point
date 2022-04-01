@@ -124,7 +124,7 @@ public class WSPluginDispatchRulesService {
 
     /**
      * @param finalRecipient of a message
-     * @return order set of rules for a given {@param recipient}
+     * @return order set of rules for a given {@param finalRecipient}
      */
     public List<WSPluginDispatchRule> getRulesByRecipient(String finalRecipient) {
         return getRules()
