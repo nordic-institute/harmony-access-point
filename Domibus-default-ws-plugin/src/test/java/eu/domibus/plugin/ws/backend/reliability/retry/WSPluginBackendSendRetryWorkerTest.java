@@ -32,8 +32,8 @@ public class WSPluginBackendSendRetryWorkerTest {
     protected WSPluginBackendSendRetryWorker retryWorker;
 
     @Test
-    public void executeJob(@Mocked WSBackendMessageLogEntity entity1,
-                           @Mocked WSBackendMessageLogEntity entity2) {
+    public void executeJob(@Injectable WSBackendMessageLogEntity entity1,
+                           @Injectable WSBackendMessageLogEntity entity2) {
 
         retryWorker.executeJob(null, null);
 

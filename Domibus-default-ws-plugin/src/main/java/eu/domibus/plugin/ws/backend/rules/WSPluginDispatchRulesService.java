@@ -123,14 +123,24 @@ public class WSPluginDispatchRulesService {
     }
 
     /**
-     * @param recipient of a message
-     * @return order set of rules for a given {@param recipient}
+     * @param finalRecipient of a message
+     * @return order set of rules for a given {@param finalRecipient}
      */
-    public List<WSPluginDispatchRule> getRulesByRecipient(String recipient) {
+    public List<WSPluginDispatchRule> getRulesByRecipient(String finalRecipient) {
         return getRules()
                 .stream()
-                .filter(wsPluginDispatchRule -> equalsAnyIgnoreCase(recipient, wsPluginDispatchRule.getRecipient()))
+                .filter(wsPluginDispatchRule -> isAMatch(finalRecipient, wsPluginDispatchRule.getRecipient()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     *
+     * @param finalRecipient recipient of the message.
+     * @param recipientRule recipient defined in the rule (if empty, sends to all recipient)
+     * @return true if the {@param finalRecipient} matches the {@param recipientRule} or if {@param recipientRule} is empty
+     */
+    private boolean isAMatch(String finalRecipient, String recipientRule) {
+        return StringUtils.isBlank(recipientRule) || equalsAnyIgnoreCase(finalRecipient, recipientRule);
     }
 
     protected List<WSPluginDispatchRule> getRulesByName(String ruleName) {
@@ -161,9 +171,5 @@ public class WSPluginDispatchRulesService {
                             "is incorrect :[" + property + "]. " +
                             "Format: retryTimeout;retryCount;(CONSTANT - SEND_ONCE) (ex: 4;12;CONSTANT)", e);
         }
-    }
-
-    public WSPluginRetryStrategyType getStrategy(String ruleName) {
-        return getRulesByName(ruleName).stream().findAny().map(WSPluginDispatchRule::getRetryStrategy).orElse(null);
     }
 }

@@ -111,7 +111,7 @@
 
     <xsd:complexType name="errorResultImpl">
         <xsd:sequence>
-            <xsd:element minOccurs="0" name="errorCode" type="tns:errorCode"/>
+            <xsd:element minOccurs="0" name="domibusErrorCode" type="tns:domibusErrorCode"/>
             <xsd:element minOccurs="0" name="errorDetail" type="xsd:string"/>
             <xsd:element minOccurs="0" name="messageInErrorId" type="xsd:string"/>
             <xsd:element minOccurs="0" name="mshRole" type="tns:mshRole"/>
@@ -149,7 +149,7 @@
         </xsd:restriction>
     </xsd:simpleType>
 
-    <xsd:simpleType name="errorCode">
+    <xsd:simpleType name="domibusErrorCode">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="EBMS_0001"/>
             <xsd:enumeration value="EBMS_0002"/>
@@ -194,6 +194,19 @@
             <xsd:enumeration value="EBMS_0055"/>
             <xsd:enumeration value="EBMS_0060"/>
             <xsd:enumeration value="EBMS_0065"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="errorCode">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="WS_PLUGIN:0001"/>
+            <xsd:enumeration value="WS_PLUGIN:0002"/>
+            <xsd:enumeration value="WS_PLUGIN:0003"/>
+            <xsd:enumeration value="WS_PLUGIN:0004"/>
+            <xsd:enumeration value="WS_PLUGIN:0005"/>
+            <xsd:enumeration value="WS_PLUGIN:0006"/>
+            <xsd:enumeration value="WS_PLUGIN:0007"/>
+            <xsd:enumeration value="WS_PLUGIN:0008"/>
+            <xsd:enumeration value="WS_PLUGIN:0009"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="mshRole">

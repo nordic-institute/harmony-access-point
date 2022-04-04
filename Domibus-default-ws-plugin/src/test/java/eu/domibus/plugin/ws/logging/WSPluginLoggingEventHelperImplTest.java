@@ -32,7 +32,7 @@ public class WSPluginLoggingEventHelperImplTest {
     WSPluginLoggingEventHelperImpl wsPluginLoggingEventHelper;
 
     @Test
-    public void test_stripPayload_SubmitMessage(final @Mocked LogEvent logEvent) throws Exception {
+    public void test_stripPayload_SubmitMessage(final @Injectable LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_SubmitMessage.xml");
 
@@ -61,7 +61,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_stripPayload_SubmitMessage_MultipleValues(final @Mocked LogEvent logEvent) throws Exception {
+    public void test_stripPayload_SubmitMessage_MultipleValues(final @Injectable LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_SubmitMessage_MultiplePayloads.xml");
 
@@ -94,7 +94,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_stripPayload_SubmitMessage_MTOM(final @Mocked LogEvent logEvent) throws Exception {
+    public void test_stripPayload_SubmitMessage_MTOM(final @Injectable LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_SubmitMessage_MTOM_Attachments.xml");
 
@@ -130,7 +130,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_stripPayload_RetrieveMessage(final @Mocked LogEvent logEvent) throws Exception {
+    public void test_stripPayload_RetrieveMessage(final @Injectable LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_RetrieveMessage.xml");
 
@@ -160,7 +160,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_stripPayload_RetrieveMessage_2Attachments(final @Mocked LogEvent logEvent) throws Exception {
+    public void test_stripPayload_RetrieveMessage_2Attachments(final @Injectable LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_RetrieveMessage_2Attachments.xml");
 
@@ -193,7 +193,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_stripPayload_SubmitMessage_NoContent(final @Mocked LogEvent logEvent) throws Exception {
+    public void test_stripPayload_SubmitMessage_NoContent(final @Injectable LogEvent logEvent) throws Exception {
 
         final String payload = readPayload("payload_SubmitMessage_no_content.xml");
 
@@ -227,7 +227,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_checkIfOperationIsAllowed_Submit(final @Mocked LogEvent logEvent) {
+    public void test_checkIfOperationIsAllowed_Submit(final @Injectable LogEvent logEvent) {
         new Expectations() {{
             logEvent.getOperationName();
             result = WebServiceOperation.SUBMIT_MESSAGE;
@@ -241,7 +241,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_checkIfOperationIsAllowed_Retrieve(final @Mocked LogEvent logEvent) {
+    public void test_checkIfOperationIsAllowed_Retrieve(final @Injectable LogEvent logEvent) {
         new Expectations() {{
             logEvent.getOperationName();
             result = WebServiceOperation.RETRIEVE_MESSAGE;
@@ -255,7 +255,7 @@ public class WSPluginLoggingEventHelperImplTest {
     }
 
     @Test
-    public void test_stripHeaders(final @Mocked LogEvent event) {
+    public void test_stripHeaders(final @Injectable LogEvent event) {
         Map<String, String> headers = new HashMap<>();
         headers.put(WSPluginLoggingEventHelperImpl.HEADERS_AUTHORIZATION, "Basic test 123");
         String HOST_KEY = "host";

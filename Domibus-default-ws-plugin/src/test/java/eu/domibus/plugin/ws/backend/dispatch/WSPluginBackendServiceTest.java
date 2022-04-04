@@ -58,7 +58,7 @@ public class WSPluginBackendServiceTest {
     private WSPluginPropertyManager wsPluginPropertyManager;
 
     @Test
-    public void sendSuccess(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+    public void sendSuccess(@Injectable WSPluginDispatchRule wsPluginDispatchRule) {
         MessageSendSuccessEvent messageSendSuccessEvent = getMessageSendSuccessEvent(FINAL_RECIPIENT);
         new Expectations() {{
             wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
@@ -137,7 +137,7 @@ public class WSPluginBackendServiceTest {
     }
 
     @Test
-    public void sendNotificationsForOneRule_empty(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+    public void sendNotificationsForOneRule_empty(@Injectable WSPluginDispatchRule wsPluginDispatchRule) {
         List<WSBackendMessageType> types = new ArrayList<>();
         new Expectations() {{
             wsPluginDispatchRule.getTypes();
@@ -155,7 +155,7 @@ public class WSPluginBackendServiceTest {
     }
 
     @Test
-    public void sendNotificationsForOneRule_1notification(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+    public void sendNotificationsForOneRule_1notification(@Injectable WSPluginDispatchRule wsPluginDispatchRule) {
         List<WSBackendMessageType> types = Arrays.asList(WSBackendMessageType.DELETED, DELETED_BATCH);
         ArrayList<String> messageIds = new ArrayList<>();
 
@@ -177,9 +177,9 @@ public class WSPluginBackendServiceTest {
     }
 
     @Test
-    public void sendNotificationsForOneRecipient(@Mocked WSPluginDispatchRule rule1,
-                                                 @Mocked WSPluginDispatchRule rule2,
-                                                 @Mocked WSBackendMessageType wsBackendMessageType) {
+    public void sendNotificationsForOneRecipient(@Injectable WSPluginDispatchRule rule1,
+                                                 @Injectable WSPluginDispatchRule rule2,
+                                                 @Injectable WSBackendMessageType wsBackendMessageType) {
         List<String> messageIds = new ArrayList<>();
         new Expectations(wsPluginBackendService) {{
             wsPluginBackendService.sendNotificationsForOneRule(FINAL_RECIPIENT, messageIds, wsBackendMessageType, rule1);
@@ -194,9 +194,9 @@ public class WSPluginBackendServiceTest {
     }
 
     @Test
-    public void getRulesForFinalRecipients(@Mocked WSPluginDispatchRule rule1,
-                                           @Mocked WSPluginDispatchRule rule2,
-                                           @Mocked WSPluginDispatchRule rule3) {
+    public void getRulesForFinalRecipients(@Injectable WSPluginDispatchRule rule1,
+                                           @Injectable WSPluginDispatchRule rule2,
+                                           @Injectable WSPluginDispatchRule rule3) {
         Map<String, List<String>> messageIdsPerRecipient = new HashMap<>();
         messageIdsPerRecipient.put(FINAL_RECIPIENT, Arrays.asList("1", "2"));
         messageIdsPerRecipient.put(FINAL_RECIPIENT2, Arrays.asList("1", "2"));
@@ -285,9 +285,9 @@ public class WSPluginBackendServiceTest {
     }
 
     @Test
-    public void send(@Mocked WSPluginDispatchRule rule1,
-                     @Mocked WSPluginDispatchRule rule2,
-                     @Mocked WSPluginDispatchRule rule3) {
+    public void send(@Injectable WSPluginDispatchRule rule1,
+                     @Injectable WSPluginDispatchRule rule2,
+                     @Injectable WSPluginDispatchRule rule3) {
         MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
         Stream<String> stringStream = Stream
                 .of("1", "2", "3");

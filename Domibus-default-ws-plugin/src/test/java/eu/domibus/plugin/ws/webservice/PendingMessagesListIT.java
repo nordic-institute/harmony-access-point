@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
+import eu.domibus.plugin.ws.generated.ListPendingMessagesFault;
 import eu.domibus.plugin.ws.generated.body.ListPendingMessagesRequest;
 import eu.domibus.plugin.ws.generated.body.ListPendingMessagesResponse;
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,7 +29,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
     @Test
     @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
-    public void testListPendingMessagesOk() {
+    public void testListPendingMessagesOk() throws ListPendingMessagesFault {
         Random random = new Random();
         List<Pair<Long, String>> messageIds = new ArrayList<>();
         messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID() + "@domibus.eu"));
@@ -53,7 +54,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
     @Test
     @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
-    public void testListPendingMessagesNOk() {
+    public void testListPendingMessagesNOk() throws ListPendingMessagesFault {
 
         ListPendingMessagesRequest request = new ListPendingMessagesRequest();
         ListPendingMessagesResponse response = webServicePluginInterface.listPendingMessages(request);

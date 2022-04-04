@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.property.listeners;
 
 import mockit.Expectations;
 import mockit.FullVerifications;
-import mockit.Mocked;
+import mockit.Injectable;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,10 +19,10 @@ import java.util.HashMap;
 @RunWith(JMockit.class)
 public class SchemaValidationEnabledChangeListenerTest {
 
-    @Mocked
+    @Injectable
     private Endpoint backendInterfaceEndpoint;
 
-    @Mocked
+    @Injectable
     private Endpoint backendInterfaceEndpointDeprecated;
 
     private SchemaValidationEnabledChangeListener listener;

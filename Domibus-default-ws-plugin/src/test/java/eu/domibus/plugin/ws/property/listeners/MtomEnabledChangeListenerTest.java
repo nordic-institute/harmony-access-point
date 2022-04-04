@@ -1,6 +1,8 @@
 package eu.domibus.plugin.ws.property.listeners;
 
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,7 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.soap.SOAPBinding;
 import java.util.HashMap;
 
 /**
@@ -18,10 +19,10 @@ import java.util.HashMap;
 @RunWith(JMockit.class)
 public class MtomEnabledChangeListenerTest {
 
-    @Mocked
+    @Injectable
     private Endpoint backendInterfaceEndpoint;
 
-    @Mocked
+    @Injectable
     private Endpoint backendInterfaceEndpointDeprecated;
 
     private MtomEnabledChangeListener listener;

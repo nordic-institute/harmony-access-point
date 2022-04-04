@@ -12,12 +12,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CACHE_DDC_LOOKUP;
 import static eu.domibus.core.cache.DomibusCacheConfiguration.CACHE_MANAGER;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static java.util.Collections.singletonList;
 
 /**
  * Class enables dynamic update of the cache TTL for ehcache 3.x provider for the properties:
@@ -48,7 +48,7 @@ public class CacheTTLChangeListener implements DomibusPropertyChangeListener {
         this.cacheManager = cacheManager;
         // initialize property to cache mapping
         propertyCacheMapping = new HashMap<>();
-        propertyCacheMapping.put(DOMIBUS_CACHE_DDC_LOOKUP,DYNAMIC_DISCOVERY_ENDPOINT );
+        propertyCacheMapping.put(DOMIBUS_CACHE_DDC_LOOKUP, DYNAMIC_DISCOVERY_ENDPOINT );
     }
 
     @Override
@@ -62,20 +62,37 @@ public class CacheTTLChangeListener implements DomibusPropertyChangeListener {
         if (!propertyCacheMapping.containsKey(propertyName)){
             throw new IllegalArgumentException("TTL cache property: ["+propertyName+"] is not supported!");
         }
-        String cacheKey = propertyCacheMapping.get(propertyName);
+        Long value;
+        if (StringUtils.isBlank(propertyValue)){
+            LOG.debug("Because value is empty, set default cache ttl [{}] for property:[{}]!",propertyValue,  propertyName, propertyValue);
+            value = 3600L;
+        } else {
+            try {
+                value = Long.parseLong(propertyValue);
+            }catch (NumberFormatException ex){
+                throw new IllegalArgumentException("Illegal value ["+propertyValue+"] TTL cache property: ["+propertyName+"]! Value is not a number!");
+            }
+        }
 
+        String cacheName = propertyCacheMapping.get(propertyName);
+
+        updateCacheTTL(cacheName, value, propertyName);
+    }
+
+    private void updateCacheTTL(String cacheName, Long newTtlValue, String propertyName){
         JCacheCacheManager jCacheManager = (JCacheCacheManager) cacheManager;
         javax.cache.CacheManager cacheManager = jCacheManager.getCacheManager();
-        javax.cache.Cache cache = cacheManager.getCache(cacheKey);
+        javax.cache.Cache cache = cacheManager.getCache(cacheName);
         Eh107Configuration<Long, String> eh107Configuration = (Eh107Configuration) cache.getConfiguration(Eh107Configuration.class);
         CacheRuntimeConfiguration<Long, String> runtimeConfiguration = eh107Configuration.unwrap(CacheRuntimeConfiguration.class);
 
         if (!(runtimeConfiguration.getExpiryPolicy() instanceof DomibusCacheDynamicExpiryPolicy)){
-            throw new IllegalArgumentException("Cache: [" + cacheKey+"] is not configured with DomibusCacheDynamicExpiryPolicy! Property ["+propertyName+"] can not be updated!");
+            throw new IllegalArgumentException("Cache: [" + cacheName+"] is not configured with DomibusCacheDynamicExpiryPolicy! Property ["+propertyName+"] can not be updated!");
         }
 
         DomibusCacheDynamicExpiryPolicy expiryPolicy = (DomibusCacheDynamicExpiryPolicy) runtimeConfiguration.getExpiryPolicy();
-        expiryPolicy.setTTLInSeconds(Long.parseLong(propertyValue));
-        LOG.info("TTL for cache [{}] for property: [{}] was updated to [{}] seconds!", cacheKey, propertyName, propertyValue);
+        expiryPolicy.setTTLInSeconds(newTtlValue);
+        LOG.info("TTL for cache [{}] for property: [{}] was updated to [{}] seconds!", cacheName, propertyName, newTtlValue);
+
     }
 }

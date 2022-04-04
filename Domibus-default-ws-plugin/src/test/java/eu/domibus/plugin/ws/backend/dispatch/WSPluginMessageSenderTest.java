@@ -51,7 +51,7 @@ public class WSPluginMessageSenderTest {
     protected WSPluginImpl wsPlugin;
 
     @Test(expected = WSPluginException.class)
-    public void sendSubmitMessage_noRule(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity) {
+    public void sendSubmitMessage_noRule(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity) {
         new Expectations() {{
 
             wsBackendMessageLogEntity.getRuleName();
@@ -74,9 +74,9 @@ public class WSPluginMessageSenderTest {
     }
 
     @Test
-    public void sendSubmitMessage(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
-                                   @Mocked SOAPMessage soapMessage,
-                                   @Mocked WSPluginDispatchRule wsPluginDispatchRule) throws MessageNotFoundException {
+    public void sendSubmitMessage(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
+                                   @Injectable SOAPMessage soapMessage,
+                                   @Injectable WSPluginDispatchRule wsPluginDispatchRule) throws MessageNotFoundException {
         new Expectations() {{
 
             wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
@@ -116,9 +116,9 @@ public class WSPluginMessageSenderTest {
     }
 
     @Test
-    public void sendMessageSuccess(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
-                                   @Mocked SOAPMessage soapMessage,
-                                   @Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+    public void sendMessageSuccess(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
+                                   @Injectable SOAPMessage soapMessage,
+                                   @Injectable WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations() {{
 
             wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
@@ -158,9 +158,9 @@ public class WSPluginMessageSenderTest {
 
     @Test
     public void sendMessageSuccess_exception(
-            @Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
-            @Mocked SOAPMessage soapMessage,
-            @Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+            @Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
+            @Injectable SOAPMessage soapMessage,
+            @Injectable WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations() {{
             wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
             result = soapMessage;

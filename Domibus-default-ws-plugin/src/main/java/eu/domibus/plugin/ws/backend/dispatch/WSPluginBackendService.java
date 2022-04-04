@@ -82,8 +82,7 @@ public class WSPluginBackendService {
 
         Map<String, List<String>> messageIdsPerRecipient = sortMessageIdsPerFinalRecipients(batchEvents);
 
-        List<RulesPerRecipient> rulesForRecipients =
-                getRulesForFinalRecipients(messageIdsPerRecipient);
+        List<RulesPerRecipient> rulesForRecipients = getRulesForFinalRecipients(messageIdsPerRecipient);
         for (RulesPerRecipient rulesForOneRecipient : rulesForRecipients) {
             String finalRecipient = rulesForOneRecipient.getFinalRecipient();
             List<String> messagesIdsForRecipient = messageIdsPerRecipient.get(finalRecipient);
