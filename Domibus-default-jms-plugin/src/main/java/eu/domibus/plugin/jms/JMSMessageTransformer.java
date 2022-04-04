@@ -110,10 +110,13 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             int counter = 1;
             for (final Submission.Payload p : submission.getPayloads()) {
                 if (p.isInBody()) {
-                    counter = 2;
-                    break;
+                    counter++;
+                    if (counter > 2) {
+                        throw new DefaultJmsPluginException("Multiple bodyload's are not allowed in the message");
+                    }
                 }
             }
+
 
             final boolean putAttachmentsInQueue = Boolean.parseBoolean(getProperty(PUT_ATTACHMENTS_IN_QUEUE));
             for (final Submission.Payload p : submission.getPayloads()) {

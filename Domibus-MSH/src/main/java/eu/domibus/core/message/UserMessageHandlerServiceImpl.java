@@ -780,6 +780,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
     protected String getFinalRecipientName(UserMessage userMessage) {
+        if (CollectionUtils.isEmpty(userMessage.getMessageProperties())) {
+            LOG.debug("Empty property set");
+            return null;
+        }
         for (Property property : userMessage.getMessageProperties()) {
             if (property.getName() != null && property.getName().equalsIgnoreCase(MessageConstants.FINAL_RECIPIENT)) {
                 return property.getValue();
