@@ -30,7 +30,7 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.6</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
-        <spring.version>5.3.15</spring.version>
+        <spring.version>5.3.18</spring.version>
         <spring.security.version>5.6.1</spring.security.version>
         <spring.session.core.version>2.6.1</spring.session.core.version>
         <spring.session.jdbc.version>2.6.1</spring.session.jdbc.version>
