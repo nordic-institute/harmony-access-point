@@ -621,7 +621,7 @@ BEGIN
         END;
 
     BEGIN
-        SET @q := CONCAT('SELECT CONCAT(\'Table \', \'', in_tab_name, '\', \' exists and has \', COUNT(*), \' entries\') AS trace FROM ', in_tab_name);
+        SET @q := CONCAT('SELECT CONCAT(\'Table \', \'', in_tab_name, '\', \' exists and has \', COUNT(*), \' records\') AS trace FROM ', in_tab_name);
         PREPARE stmt FROM @q;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt;
@@ -677,8 +677,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_check_counts(in_tab_name1 VARCHAR(64), in_tab_
             CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name1, ' has same number of records as table ',
                                 in_tab_name2, ' records=', @v_count_tab1));
         ELSE
-            CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name1,
-                ' has different number of records as table ', in_tab_name2));
+            CALL MIGRATE_42_TO_50_trace(CONCAT('Table ', in_tab_name1, ' has different number of records - ',
+                                    @v_count_tab1, ' - than table ', in_tab_name2,' - ', @v_count_tab2, ' -' ));
         END IF;
     END
 //
@@ -1298,9 +1298,15 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message()
         CLOSE c_user_message;
 
         -- check counts
-        CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_new, migration_status);
-        IF migration_status THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));
+        CALL MIGRATE_42_TO_50_trace('The count of TB_USER_MESSAGE should be equal to the count value for MIGR_TB_USER_MESSAGE minus 1 for the dummy user message record');
+        SELECT COUNT(*) INTO @count_user_message FROM TB_USER_MESSAGE;
+        SELECT COUNT(*) INTO @count_migr_user_message FROM MIGR_TB_USER_MESSAGE;
+        IF @count_user_message = @count_migr_user_message - 1 THEN
+            CALL MIGRATE_42_TO_50_trace('TB_USER_MESSAGE migration is done');
+        ELSE
+            CALL MIGRATE_42_TO_50_trace(CONCAT('Table TB_USER_MESSAGE has different number of records - ',
+                                               @count_user_message, ' (should be one less) - than table MIGR_TB_USER_MESSAGE - ',
+                                               @count_migr_user_message, ' -'));
         END IF;
     END
 //
@@ -2084,7 +2090,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
         DECLARE calculated_message_property_fk BIGINT;
 
         DECLARE done INT DEFAULT FALSE;
-        DECLARE migration_status BOOLEAN;
 
         DECLARE c_property CURSOR FOR
             SELECT (SELECT MPKSUM.NEW_ID
@@ -2153,11 +2158,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_property()
         CALL MIGRATE_42_TO_50_trace(CONCAT('Migrated ', @i, ' records in total into ', @v_tab_properties_new));
         CLOSE c_property;
 
-        -- check counts
-        CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_properties_new, migration_status);
-        IF migration_status THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));
-        END IF;
     END
 //
 
@@ -2368,6 +2368,20 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_part_info_property()
 
         CALL MIGRATE_42_TO_50_trace(CONCAT('Migrated ', @i, ' records in total into ', @v_tab_new));
         CLOSE c_part_prop;
+
+        -- check counts
+        CALL MIGRATE_42_TO_50_trace('The count of TB_PROPERTY should be equal to the sum of count values for MIGR_TB_MESSAGE_PROPERTIES and MIGR_TB_PART_PROPERTIES');
+        SELECT COUNT(*) INTO @count_property FROM TB_PROPERTY;
+        SELECT COUNT(*) INTO @count_migr_message_properties FROM MIGR_TB_MESSAGE_PROPERTIES;
+        SELECT COUNT(*) INTO @count_migr_part_properties FROM MIGR_TB_PART_PROPERTIES;
+        IF @count_property = @count_migr_message_properties + @count_migr_part_properties THEN
+            CALL MIGRATE_42_TO_50_trace('TB_PROPERTY migration between the MIGR_TB_MESSAGE_PROPERTIES and MIGR_TB_PART_PROPERTIES tables is done');
+        ELSE
+            CALL MIGRATE_42_TO_50_trace(CONCAT('Table TB_PROPERTY has different number of records - ',
+                                @count_property, ' - than tables MIGR_TB_MESSAGE_PROPERTIES - ',
+                                @count_migr_message_properties, ' - and MIGR_TB_PART_PROPERTIES - ',
+                                @count_migr_part_properties, ' - together'));
+        END IF;
     END
 //
 
