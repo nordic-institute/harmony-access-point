@@ -44,13 +44,13 @@ To run this procedure, the user could use a similar anonymous block, with the st
 
     declare
         DB_LINK VARCHAR2(4000);
-        MIGRATION MIGRATE_ONGOING_MESSAGES_427.T_MIGRATION_DETAILS;
+        MIGRATION MIGRATE_ONGOING_MESSAGES_429.T_MIGRATION_DETAILS;
     begin
         DB_LINK := 'DATABASE_LINK_NAME_v427';
         MIGRATION.startDate := TIMESTAMP '2021-03-11 00:00:00.01';
         MIGRATION.endDate := TIMESTAMP '2021-03-11 23:59:59.99';
     
-        MIGRATE_ONGOING_MESSAGES_427.MIGRATE(
+        MIGRATE_ONGOING_MESSAGES_429.MIGRATE(
             DB_LINK => DB_LINK,
             MIGRATION => MIGRATION
         );
