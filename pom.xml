@@ -160,12 +160,17 @@
         <swagger-maven-plugin.version>2.1.12</swagger-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.31</swagger-codegen-maven-plugin.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
+        
+        <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
+        <commons-compress.version>1.21</commons-compress.version>
+        <commons-configuration2.version>2.7</commons-configuration2.version>
+        <httpmime.version>4.5.13</httpmime.version>
+        <jdom2.version>2.0.6.1</jdom2.version> 
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
-        <commons-ip2.version>2.0.0-alpha1</commons-ip2.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -708,7 +713,31 @@
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>dom4j</groupId>
+                        <artifactId>dom4j</artifactId>
+                    </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>${commons-configuration2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${httpmime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom2</artifactId>
+                <version>${jdom2.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
