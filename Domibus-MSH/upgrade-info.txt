@@ -250,13 +250,15 @@ Domibus 5.0 (from 4.2.9)
                                                  .............................
                                              </redeliveryPolicyEntries>
                                              .............................
-                - Non-XA performance improvement:
+                - Domibus properties changes:
                         o Modify the Domibus properties file "\conf\domibus\domibus.properties":
                                   - rename the "domibus.jms.XAConnectionFactory.maxPoolSize" property to "domibus.jms.connectionFactory.maxPoolSize" (if present)
                                   - remove these properties:
                                             - domibus.datasource.xa.*
                                             - domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class
                                             - domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform
+                                            - all properties starting with domibus.ui.replication.enabled
+                                            - domibus.jms.queue.ui.replication
                                   - replace the value of the "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class" property as follows:
                                             - set the value to "com.mysql.cj.jdbc.Driver" if it was "com.mysql.cj.jdbc.MysqlXADataSource"
                                             - set the value to "oracle.jdbc.driver.OracleDriver" if it was "oracle.jdbc.xa.client.OracleXADataSource"

@@ -39,7 +39,6 @@ import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
@@ -146,9 +145,6 @@ public class UserMessageHandlerServiceImplTest {
 
     @Injectable
     UserMessageRawEnvelopeDao rawEnvelopeLogDao;
-
-    @Injectable
-    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     protected MessageUtil messageUtil;

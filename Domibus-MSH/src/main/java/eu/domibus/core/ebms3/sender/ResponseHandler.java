@@ -16,7 +16,6 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -36,7 +35,6 @@ public class ResponseHandler {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ResponseHandler.class);
 
     private final SignalMessageLogDefaultService signalMessageLogDefaultService;
-    private final UIReplicationSignalService uiReplicationSignalService;
     private final NonRepudiationService nonRepudiationService;
     private final SignalMessageDao signalMessageDao;
     protected final MessageUtil messageUtil;
@@ -45,7 +43,6 @@ public class ResponseHandler {
     protected UserMessageDao userMessageDao;
 
     public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
-                           UIReplicationSignalService uiReplicationSignalService,
                            NonRepudiationService nonRepudiationService,
                            SignalMessageDao signalMessageDao,
                            MessageUtil messageUtil,
@@ -53,7 +50,6 @@ public class ResponseHandler {
                            Ebms3Converter ebms3Converter,
                            UserMessageDao userMessageDao) {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
-        this.uiReplicationSignalService = uiReplicationSignalService;
         this.nonRepudiationService = nonRepudiationService;
         this.signalMessageDao = signalMessageDao;
         this.messageUtil = messageUtil;
@@ -110,9 +106,6 @@ public class ResponseHandler {
         signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
 
         createWarningEntries(ebms3MessagingResponse.getSignalMessage(), userMessage);
-
-        //UI replication
-        uiReplicationSignalService.signalMessageReceived(signalMessage.getSignalMessageId());
     }
 
     protected void createWarningEntries(Ebms3SignalMessage signalMessage, UserMessage userMessage) {

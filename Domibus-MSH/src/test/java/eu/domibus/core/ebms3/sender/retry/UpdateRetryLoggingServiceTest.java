@@ -16,7 +16,6 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -57,9 +56,6 @@ public class UpdateRetryLoggingServiceTest {
 
     @Injectable
     private UserMessageLogDefaultService messageLogService;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private UserMessageRawEnvelopeDao rawEnvelopeLogDao;

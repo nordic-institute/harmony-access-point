@@ -21,14 +21,12 @@ import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -93,9 +91,6 @@ public class BackendNotificationService {
 
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
-
-    @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -392,8 +387,6 @@ public class BackendNotificationService {
 
         notify(userMessage, backendName, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
-
-        uiReplicationSignalService.messageChange(messageId);
     }
 
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
@@ -408,8 +401,6 @@ public class BackendNotificationService {
 
         notify(userMessage, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
-
-        uiReplicationSignalService.messageChange(messageId);
     }
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})

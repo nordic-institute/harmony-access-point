@@ -5,7 +5,6 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -43,9 +42,6 @@ public class UserMessageLogDefaultServiceTest {
 
     @Injectable
     BackendNotificationService backendNotificationService;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     protected MessageStatusDao messageStatusDao;
@@ -109,9 +105,6 @@ public class UserMessageLogDefaultServiceTest {
             times = 1;
 
             signalMessageLog.setMessageStatus(messageStatusEntity);
-            times = 1;
-
-            uiReplicationSignalService.messageChange(messageId);
             times = 1;
         }};
     }
@@ -198,9 +191,6 @@ public class UserMessageLogDefaultServiceTest {
 
             userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.DELETED);
             times = 1;
-
-            uiReplicationSignalService.messageChange("messageId");
-            times = 1;
         }};
     }
 
@@ -221,9 +211,6 @@ public class UserMessageLogDefaultServiceTest {
 
             userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.DOWNLOADED);
             times = 1;
-
-            uiReplicationSignalService.messageChange("messageId");
-            times = 1;
         }};
     }
 
@@ -243,9 +230,6 @@ public class UserMessageLogDefaultServiceTest {
             times = 1;
 
             userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED);
-            times = 1;
-
-            uiReplicationSignalService.messageChange("messageId");
             times = 1;
         }};
     }
@@ -268,9 +252,6 @@ public class UserMessageLogDefaultServiceTest {
 
             userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.ACKNOWLEDGED_WITH_WARNING);
             times = 1;
-
-            uiReplicationSignalService.messageChange("messageId");
-            times = 1;
         }};
     }
 
@@ -290,9 +271,6 @@ public class UserMessageLogDefaultServiceTest {
             times = 1;
 
             userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.SEND_FAILURE);
-            times = 1;
-
-            uiReplicationSignalService.messageChange("messageId");
             times = 1;
         }};
     }

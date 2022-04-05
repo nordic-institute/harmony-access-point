@@ -274,8 +274,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     backendName);
             prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
 
-            userMessageLogService.replicationUserMessageSubmitted(messageId);
-
             LOG.info("Message fragment submitted");
             return messageId;
 

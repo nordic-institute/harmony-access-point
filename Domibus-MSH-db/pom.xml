@@ -38,20 +38,12 @@
                                     <destinationFile>${project.build.directory}/db/scripts/mysql-${project.version}-delete-db.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql-VERSION-uireplication-insert.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/mysql-${project.version}-uireplication-insert.sql</destinationFile>
-                                </fileSet>
-                                <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql</sourceFile>
                                     <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-multi-tenancy-rights.sql</sourceFile>
                                     <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-multi-tenancy-rights.sql</destinationFile>
-                                </fileSet>
-                                <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-uireplication-insert.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-uireplication-insert.sql</destinationFile>
                                 </fileSet>
                             </fileSets>
                         </configuration>

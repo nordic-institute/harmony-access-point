@@ -36,7 +36,6 @@ public class DomibusPropertyMetadata {
 
     /**
      * The name of the property, corresponds to the value in the domibus.properties files
-     * ex: domibus.ui.replication.sync.cron, domibus.ui.replication.sync.cron.max.rows
      */
     private String name;
 
