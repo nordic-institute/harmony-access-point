@@ -52,57 +52,58 @@ public class PropertyProfileValidator {
 
         Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
         final List<Property> modifiablePropertyList = new ArrayList<>(propSet.getProperties());
-        if (userMessage.getMessageProperties() != null) {
+        if (messageProperties != null) {
             checkDuplicateMessageProperties(modifiablePropertyList, messageProperties);
-        }
 
-        for (final eu.domibus.api.model.Property property : messageProperties) {
-            Property profiled = null;
-            for (final Property profiledProperty : modifiablePropertyList) {
-                if (profiledProperty.getKey().equalsIgnoreCase(property.getName())) {
-                    profiled = profiledProperty;
-                    break;
+            for (final eu.domibus.api.model.Property property : messageProperties) {
+                Property profiled = null;
+                for (final Property profiledProperty : modifiablePropertyList) {
+                    if (profiledProperty.getKey().equalsIgnoreCase(property.getName())) {
+                        profiled = profiledProperty;
+                        break;
+                    }
                 }
-            }
-            modifiablePropertyList.remove(profiled);
-            if (profiled == null) {
-                LOG.businessError(DomibusMessageCode.BUS_PROPERTY_MISSING, property.getName());
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
-                        .message("Property profiling for this exchange does not include a property named [" + property.getName() + "]")
-                        .refToMessageId(userMessage.getMessageId())
-                        .build();
-            }
-
-            switch (profiled.getDatatype().toLowerCase()) {
-                case "string":
-                    break;
-                case "int":
-                    try {
-                        Integer.parseInt(property.getValue()); //NOSONAR: Validation is done via exception
-                        break;
-                    } catch (final NumberFormatException e) {
-                        throw EbMS3ExceptionBuilder.getInstance()
-                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
-                                .message("Property profiling for this exchange requires a INTEGER datatype for property named: " + property.getName() + ", but got " + property.getValue())
-                                .refToMessageId(userMessage.getMessageId())
-                                .build();
-                    }
-                case "boolean":
-                    if (property.getValue().equalsIgnoreCase("false") || property.getValue().equalsIgnoreCase("true")) {
-                        break;
-                    }
+                modifiablePropertyList.remove(profiled);
+                if (profiled == null) {
+                    LOG.businessError(DomibusMessageCode.BUS_PROPERTY_MISSING, property.getName());
                     throw EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
-                            .message("Property profiling for this exchange requires a BOOLEAN datatype for property named: " + property.getName() + ", but got " + property.getValue())
+                            .message("Property profiling for this exchange does not include a property named [" + property.getName() + "]")
                             .refToMessageId(userMessage.getMessageId())
                             .build();
-                default:
-                    PropertyProfileValidator.LOG.warn("Validation for Datatype " + profiled.getDatatype() + " not possible. This type is not known by the validator. The value will be accepted unchecked");
+                }
+
+                switch (profiled.getDatatype().toLowerCase()) {
+                    case "string":
+                        break;
+                    case "int":
+                        try {
+                            Integer.parseInt(property.getValue()); //NOSONAR: Validation is done via exception
+                            break;
+                        } catch (final NumberFormatException e) {
+                            throw EbMS3ExceptionBuilder.getInstance()
+                                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                                    .message("Property profiling for this exchange requires a INTEGER datatype for property named: " + property.getName() + ", but got " + property.getValue())
+                                    .refToMessageId(userMessage.getMessageId())
+                                    .build();
+                        }
+                    case "boolean":
+                        if (property.getValue().equalsIgnoreCase("false") || property.getValue().equalsIgnoreCase("true")) {
+                            break;
+                        }
+                        throw EbMS3ExceptionBuilder.getInstance()
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                                .message("Property profiling for this exchange requires a BOOLEAN datatype for property named: " + property.getName() + ", but got " + property.getValue())
+                                .refToMessageId(userMessage.getMessageId())
+                                .build();
+                    default:
+                        PropertyProfileValidator.LOG.warn("Validation for Datatype " + profiled.getDatatype() + " not possible. This type is not known by the validator. The value will be accepted unchecked");
+                }
+
+
             }
-
-
         }
+
         for (final Property property : modifiablePropertyList) {
             if (property.isRequired()) {
                 LOG.businessError(DomibusMessageCode.BUS_PROPERTY_MISSING, property.getName());

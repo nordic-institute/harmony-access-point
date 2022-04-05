@@ -92,6 +92,30 @@ public class PropertyProfileValidatorTest {
         propertyProfileValidator.validate(userMessage, "anyKey");
     }
 
+    @Test
+    public void validateWithMissingUserMessageProperties(@Injectable UserMessage userMessage,
+                             @Injectable eu.domibus.api.model.MessageProperty property1,
+                             @Injectable eu.domibus.api.model.MessageProperty property2,
+                             @Injectable LegConfiguration legConfiguration,
+                             @Injectable PropertySet propertySet) throws EbMS3Exception {
+
+        Set<eu.domibus.common.model.configuration.Property> properties = new HashSet<>();
+        properties.add(createProperty(MessageConstants.ORIGINAL_SENDER));
+        properties.add(createProperty(MessageConstants.FINAL_RECIPIENT));
+        new Expectations() {{
+            legConfiguration.getPropertySet();
+            result = propertySet;
+
+            propertySet.getProperties();
+            result = properties;
+
+            userMessage.getMessageProperties();
+            result = null;
+        }};
+
+        propertyProfileValidator.validate(userMessage, "anyKey");
+    }
+
 
     @Test
     public void validateMissingPropertyTest(@Injectable UserMessage userMessage,
