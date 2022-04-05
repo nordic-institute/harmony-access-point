@@ -10,44 +10,11 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: spring-security-core-5.1.5.RELEASE.jar
-   ]]></notes>
-        <gav regex="true">^org\.springframework\.security:spring-.*:.*$</gav>
-        <!-- Affects Spring Framework 5.0.5 -->
-        <cve>CVE-2018-1258</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: activemq-jaas-5.15.13.jar
-   ]]></notes>
-        <gav regex="true">^org\.apache\.activemq:activemq-.*:.*$</gav>
-                <cve>CVE-2015-5182</cve>
-                <!-- Hawtio console not used -->
-                <cve>CVE-2015-5183</cve>
-                <cve>CVE-2015-5184</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: activemq-protobuf-1.1.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.activemq\.protobuf/activemq\-protobuf@.*$</packageUrl>
         <!-- we are suppressing all references to activemq-protobuf 1.1 as is the only one used from activemq 1.1 libraries -->
         <cpe>cpe:/a:apache:activemq:1.1</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: commons-collections-3.2.jar
-   ]]></notes>
-        <gav regex="true">^commons-collections:commons-collections:.*$</gav>
-        <!-- Affected users should update the system Apache commons-collections library to at least version 3.2.2.
-             In Domibus, we have version 3.2.2-->
-        <cve>CVE-2015-6420</cve>
-        <!-- In Apache Synapse, by default no authentication is required for Java Remote Method Invocation (RMI).
-             To mitigate the issue, we need to limit RMI access to trusted users only.
-             In Domibus, RMI is not used. -->
-        <cve>CVE-2017-15708</cve>
-        <!-- Transitive dependency from OpenCSV - Export CSV feature is only available to logged in users -->
-        <vulnerabilityName>Remote code execution</vulnerabilityName>
     </suppress>
 
     <suppress>
@@ -69,31 +36,6 @@
          -->
         <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>
         <cpe>cpe:/a:google:guava</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-session-jdbc-2.3.1.RELEASE.jar
-   ]]></notes>
-        <!-- we are using spring-core and spring-security 5.x versions while spring-session is 2.3.x
-        -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>
-        <cpe>cpe:/a:pivotal_software:spring_security</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: spring-xxx-5.xx.RELEASE.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
-        <!-- we don't have a WebFlux application -->
-        <cve>CVE-2021-22118</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: wss4j-xxx-2.3.1.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.wss4j/wss4j\-.*@.*$</packageUrl>
-        <!-- wss4j-ws-security-common has transitive dependency on opensaml library but not on velocity so we are not impacted -->
-        <cve>CVE-2020-13936</cve>
     </suppress>
 
     <!-- test modules exclusions start here -->
