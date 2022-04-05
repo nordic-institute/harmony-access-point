@@ -75,6 +75,7 @@
         <liquibase.version>4.7.1</liquibase.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
+        <handlebars.version>4.3.0</handlebars.version>
         <dropwizard.metrics.version>4.2.8</dropwizard.metrics.version>
         <owasp.dependency.check.version>6.5.3</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
@@ -1165,6 +1166,12 @@
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jknack</groupId>
+                <artifactId>handlebars</artifactId>
+                <version>${handlebars.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
