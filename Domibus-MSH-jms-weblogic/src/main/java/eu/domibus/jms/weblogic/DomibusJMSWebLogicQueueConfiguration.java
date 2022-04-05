@@ -130,14 +130,6 @@ public class DomibusJMSWebLogicQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean(UI_REPLICATION_QUEUE)
-    public JndiObjectFactoryBean uiReplicationQueue() {
-        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-        jndiObjectFactoryBean.setJndiName("jms/domibus.internal.ui.replication.queue");
-        jndiObjectFactoryBean.setExpectedType(Queue.class);
-        return jndiObjectFactoryBean;
-    }
-
     @Bean(NOTIFY_BACKEND_QUEUE)
     public JndiObjectFactoryBean notifyBackendQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();

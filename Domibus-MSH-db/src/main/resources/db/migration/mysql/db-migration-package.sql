@@ -9258,7 +9258,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
         --
         CALL MIGRATE_42_TO_50_migrate_message_acknw_prop();
         --
-        -- CALL MIGRATE_42_TO_50_migrate_message_ui; -- not part of this task (UI replication to be fixed later)
+        -- CALL MIGRATE_42_TO_50_migrate_message_ui;
         --
         CALL MIGRATE_42_TO_50_migrate_messaging_lock();
         --

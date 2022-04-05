@@ -42,8 +42,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PROXY_PREFIX = "domibus.proxy.";
 
     String DOMIBUS_UI_TITLE_NAME = "domibus.UI.title.name";
-    String DOMIBUS_UI_REPLICATION_ENABLED = "domibus.ui.replication.enabled";
-    String DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY = "domibus.ui.replication.queue.concurency";
     String DOMIBUS_UI_SUPPORT_TEAM_NAME = "domibus.ui.support.team.name";
     String DOMIBUS_UI_SUPPORT_TEAM_EMAIL = "domibus.ui.support.team.email";
     String DOMIBUS_UI_CSV_MAX_ROWS = "domibus.ui.csv.rows.max";
@@ -134,7 +132,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PROXY_USER = DOMIBUS_PROXY_PREFIX + "user";
     String DOMIBUS_PROXY_PASSWORD = DOMIBUS_PROXY_PREFIX + "password"; //NOSONAR:
     String DOMIBUS_PROXY_NON_PROXY_HOSTS = DOMIBUS_PROXY_PREFIX + "nonProxyHosts";
-    String DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS = "domibus.ui.replication.sync.cron.max.rows";
     String DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE = "domibus.plugin.notification.active";
     String DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE = "domibus.nonrepudiation.audit.active";
     String DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD = "domibus.sendMessage.failure.delete.payload";
@@ -166,7 +163,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PULL_RETRY_CRON = "domibus.pull.retry.cron";
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
     String DOMIBUS_ALERT_RETRY_CRON = "domibus.alert.retry.cron";
-    String DOMIBUS_UI_REPLICATION_SYNC_CRON = "domibus.ui.replication.sync.cron";
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
     String DOMIBUS_MONITORING_CONNECTION_CRON = "domibus.monitoring.connection.cron";
     String DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED = "domibus.monitoring.connection.party.enabled";
@@ -290,7 +286,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";//NOSONAR
     String DOMIBUS_JMS_QUEUE_PULL = "domibus.jms.queue.pull";
-    String DOMIBUS_JMS_QUEUE_UI_REPLICATION = "domibus.jms.queue.ui.replication";
     String DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.connectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
 

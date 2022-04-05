@@ -17,7 +17,6 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -52,8 +51,6 @@ public class UpdateRetryLoggingService {
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
-    private final UIReplicationSignalService uiReplicationSignalService;
-
     private final UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     private final UserMessageService userMessageService;
@@ -75,7 +72,6 @@ public class UpdateRetryLoggingService {
                                      UserMessageLogDao userMessageLogDao,
                                      UserMessageLogDefaultService userMessageLogService,
                                      DomibusPropertyProvider domibusPropertyProvider,
-                                     UIReplicationSignalService uiReplicationSignalService,
                                      UserMessageRawEnvelopeDao rawEnvelopeLogDao,
                                      UserMessageService userMessageService,
                                      MessageAttemptService messageAttemptService,
@@ -88,7 +84,6 @@ public class UpdateRetryLoggingService {
         this.userMessageLogDao = userMessageLogDao;
         this.userMessageLogService = userMessageLogService;
         this.domibusPropertyProvider = domibusPropertyProvider;
-        this.uiReplicationSignalService = uiReplicationSignalService;
         this.rawEnvelopeLogDao = rawEnvelopeLogDao;
         this.userMessageService = userMessageService;
         this.messageAttemptService = messageAttemptService;
@@ -193,7 +188,6 @@ public class UpdateRetryLoggingService {
         } else { // max retries reached, mark message as ultimately failed (the message may be pushed back to the send queue by an administrator but this send completely failed)
             setMessageFailed(userMessage, userMessageLog);
         }
-        uiReplicationSignalService.messageChange(userMessage.getMessageId());
 
         if (messageAttempt != null) {
             messageAttempt.setUserMessageEntityId(userMessage.getEntityId());

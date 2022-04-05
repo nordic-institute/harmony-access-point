@@ -10,7 +10,6 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -39,9 +38,6 @@ public class PullMessageStateServiceImplTest {
 
     @Injectable
     protected BackendNotificationService backendNotificationService;
-
-    @Injectable
-    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     protected UserMessageDao userMessageDao;
@@ -134,7 +130,6 @@ public class PullMessageStateServiceImplTest {
             userMessageLog.setMessageStatus(readyToPull);
             userMessageLogDao.update(userMessageLog);
             times = 1;
-            uiReplicationSignalService.messageChange(messageId);
             times = 1;
             backendNotificationService.notifyOfMessageStatusChange(messageId, userMessageLog, MessageStatus.READY_TO_PULL, (Timestamp) any);
             times = 1;

@@ -11,8 +11,6 @@ import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.core.replication.UIMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -73,20 +71,14 @@ public class MessageLogResource extends BaseResource {
 
     private final DateUtil dateUtil;
 
-    private final UIMessageService uiMessageService;
-
     private final MessagesLogService messagesLogService;
-
-    private final UIReplicationSignalService uiReplicationSignalService;
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    public MessageLogResource(TestService testService, DateUtil dateUtil, UIMessageService uiMessageService, MessagesLogService messagesLogService, UIReplicationSignalService uiReplicationSignalService, DomibusConfigurationService domibusConfigurationService) {
+    public MessageLogResource(TestService testService, DateUtil dateUtil, MessagesLogService messagesLogService, DomibusConfigurationService domibusConfigurationService) {
         this.testService = testService;
         this.dateUtil = dateUtil;
-        this.uiMessageService = uiMessageService;
         this.messagesLogService = messagesLogService;
-        this.uiReplicationSignalService = uiReplicationSignalService;
         this.domibusConfigurationService = domibusConfigurationService;
     }
 
@@ -99,16 +91,8 @@ public class MessageLogResource extends BaseResource {
 
         setDefaultFilters(request, filters);
 
-        MessageLogResultRO result;
-        if (uiReplicationSignalService.isReplicationEnabled()) {
-            /** use TB_MESSAGE_UI table instead */
-            result = uiMessageService.countAndFindPaged(request.getPageSize() * request.getPage(), request.getPageSize(),
-                    request.getOrderBy(), request.getAsc(), filters);
-        } else {
-            //old, fashioned way
-            result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
-                    request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
-        }
+        MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
+                request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
 
         // return also the current messageType to be shown in GUI
         filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
@@ -160,16 +144,8 @@ public class MessageLogResource extends BaseResource {
         filters.put(PROPERTY_RECEIVED_TO, dateUtil.fromString(request.getReceivedTo()));
 
         int maxNumberRowsToExport = getCsvService().getPageSizeForExport();
-        List<MessageLogInfo> resultList;
-        if (uiReplicationSignalService.isReplicationEnabled()) {
-            /** use TB_MESSAGE_UI table instead */
-            filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
-            resultList = uiMessageService.findPaged(0, maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
-            getCsvService().validateMaxRows(resultList.size(), () -> uiMessageService.countMessages(filters));
-        } else {
-            resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
-            getCsvService().validateMaxRows(resultList.size(), () -> messagesLogService.countMessages(request.getMessageType(), filters));
-        }
+        List<MessageLogInfo> resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
+        getCsvService().validateMaxRows(resultList.size(), () -> messagesLogService.countMessages(request.getMessageType(), filters));
 
         return exportToCSV(resultList,
                 MessageLogInfo.class,

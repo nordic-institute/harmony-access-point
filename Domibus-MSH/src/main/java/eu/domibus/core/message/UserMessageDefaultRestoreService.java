@@ -16,7 +16,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -41,8 +40,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private BackendNotificationService backendNotificationService;
 
-    private UIReplicationSignalService uiReplicationSignalService;
-
     private UserMessageLogDao userMessageLogDao;
 
     private PModeProvider pModeProvider;
@@ -57,10 +54,9 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private UserMessageDao userMessageDao;
 
-    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UIReplicationSignalService uiReplicationSignalService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService, PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao) {
+    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService, PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
-        this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageLogDao = userMessageLogDao;
         this.pModeProvider = pModeProvider;
         this.pullMessageService = pullMessageService;
@@ -96,8 +92,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         userMessageLog.setSendAttemptsMax(newMaxAttempts);
 
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageChange(userMessage.getMessageId());
-
 
         if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
             userMessageService.scheduleSending(userMessage, userMessageLog);

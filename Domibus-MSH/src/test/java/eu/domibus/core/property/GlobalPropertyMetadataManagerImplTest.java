@@ -68,7 +68,6 @@ public class GlobalPropertyMetadataManagerImplTest {
     public void setUp() {
         props1 = Arrays.stream(new DomibusPropertyMetadataDTO[]{
                 new DomibusPropertyMetadataDTO(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-                new DomibusPropertyMetadataDTO(DOMIBUS_UI_REPLICATION_ENABLED, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
                 new DomibusPropertyMetadataDTO(DOMIBUS_PLUGIN_PASSWORD_POLICY_PATTERN, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));

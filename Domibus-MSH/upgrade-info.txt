@@ -1,4 +1,4 @@
-Domibus 5.0 (from 4.2.7)
+Domibus 5.0 (from 4.2.9)
                 [Multitenancy only]
                     - domibus.security.keystore.* and domibus.security.truststore.* properties are used only the first time domibus starts and persisted in the DB to be used from there on;
                     - Create a folder named "domains" in "conf/domibus" and, inside it, create a new folder for every domain (e.g. conf/domibus/domains/domain1)

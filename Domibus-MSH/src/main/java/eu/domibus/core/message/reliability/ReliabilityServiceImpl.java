@@ -17,7 +17,6 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -63,9 +62,6 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
     @Autowired
     protected ResponseHandler responseHandler;
-
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
@@ -135,8 +131,6 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 }
                 break;
         }
-        //call ui replication sync service
-        uiReplicationSignalService.messageChange(userMessage.getMessageId());
 
         LOG.debug("Finished handling reliability");
     }

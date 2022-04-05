@@ -6,7 +6,6 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -38,9 +37,6 @@ public class UserMessageLogDefaultServiceParameterizedTest {
 
     @Injectable
     private BackendNotificationService backendNotificationService;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private MessageStatusDao messageStatusDao;

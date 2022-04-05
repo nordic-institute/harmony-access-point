@@ -55,7 +55,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Test
     public void testCacheNoDomain() {
-        String propertyName = DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY;
+        String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         //not in cache now
         String cachedValue = getCachedValue(propertyName);

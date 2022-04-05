@@ -51,6 +51,8 @@ of the following values point to the same instant - the 21st of July 2021, 12:27
 - FSPlugin - in multitenancy mode:
     - added specific domain property file e.g domain1-fs-plugin.properties
     - a domain could be disabled - by setting a property e.g. domain1.fsplugin.domain.enabled (default to true) in the specific domain domain1-fs-plugin.properties file
+- Removed UI replication mechanism
+
 Domibus 4.2.6
 - Upgrade DSS library to version 5.8.
 - The following properties have been added into the authentication-dss-extension.properties file to configure DSS 5.8 data loader:

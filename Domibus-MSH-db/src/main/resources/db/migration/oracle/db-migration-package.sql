@@ -10705,7 +10705,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         --
         migrate_message_acknw_prop;
         --
-        -- migrate_message_ui; -- not part of this task (UI replication to be fixed later)
         --
         migrate_messaging_lock;
         --

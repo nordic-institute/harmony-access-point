@@ -11,7 +11,6 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -44,9 +43,6 @@ public class UserMessageDefaultRestoreServiceTest {
 
     @Injectable
     private BackendNotificationService backendNotificationService;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private UserMessageLogDao userMessageLogDao;
@@ -167,7 +163,6 @@ public class UserMessageDefaultRestoreServiceTest {
             userMessageLog.setSendAttemptsMax(newMaxAttempts);
 
             userMessageLogDao.update(userMessageLog);
-            uiReplicationSignalService.messageChange(anyString);
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
 
         }};

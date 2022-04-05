@@ -6,7 +6,6 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +37,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     @Autowired
     protected BackendNotificationService backendNotificationService;
-
-    @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected MessageStatusDao messageStatusDao;
@@ -96,8 +92,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
-
-        uiReplicationSignalService.messageChange(userMessage.getMessageId());
     }
 
     public void setMessageAsDeleted(final UserMessage userMessage, final UserMessageLog messageLog) {
@@ -106,7 +100,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     /**
      * Find the {@link SignalMessageLog} and set to {@link MessageStatus#DELETED}
-     * Propagate the change to the UiReplication
      */
     public boolean setSignalMessageAsDeleted(final SignalMessage signalMessage) {
 
@@ -132,7 +125,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.DELETED);
         signalMessageLog.setDeleted(new Date());
         signalMessageLog.setMessageStatus(messageStatusEntity);
-        uiReplicationSignalService.messageChange(signalMessageId);
     }
 
     public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {
@@ -149,10 +141,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     public void setMessageAsSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
-    }
-
-    public void replicationUserMessageSubmitted(String messageId) {
-        uiReplicationSignalService.userMessageSubmitted(messageId);
     }
 
     public UserMessageLog findByMessageId(String messageId) {

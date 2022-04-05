@@ -67,11 +67,6 @@ public class DomibusJMSActiveMQQueueConfiguration {
         return new ActiveMQQueue("domibus.internal.earchive.notification.dlq");
     }
 
-    @Bean(InternalJMSConstants.UI_REPLICATION_QUEUE)
-    public ActiveMQQueue uiReplicationQueue() {
-        return new ActiveMQQueue("domibus.internal.ui.replication.queue");
-    }
-
     @Bean(InternalJMSConstants.NOTIFY_BACKEND_QUEUE)
     public ActiveMQQueue notifyBackendQueue() {
         return new ActiveMQQueue("domibus.internal.notification.queue");
