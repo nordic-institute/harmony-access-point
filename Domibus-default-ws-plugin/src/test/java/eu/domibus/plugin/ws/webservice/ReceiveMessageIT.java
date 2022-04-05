@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -29,6 +30,9 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     @Autowired
     SoapSampleUtil soapSampleUtil;
 
+    @Autowired
+    MessageRetentionDefaultService messageRetentionDefaultService;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
@@ -50,6 +54,8 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         mshWebserviceTest.invoke(soapMessage);
 
         waitUntilMessageIsReceived(messageId);
+
+        messageRetentionDefaultService.deleteAllMessages();
     }
 
     @Test
@@ -60,6 +66,8 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
 
         mshWebserviceTest.invoke(soapMessage);
         waitUntilMessageIsReceived(messageId);
+
+        messageRetentionDefaultService.deleteAllMessages();
     }
 
 }

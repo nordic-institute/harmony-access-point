@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
@@ -21,13 +22,14 @@ import java.util.UUID;
  * @author venugar
  * @since 3.3
  */
-@DirtiesContext
-@Rollback
 public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
 
 
     @Autowired
     JMSManager jmsManager;
+
+    @Autowired
+    MessageRetentionService messageRetentionService;
 
     @Before
     public void updatePMode() throws IOException, XmlProcessingException {
@@ -40,7 +42,6 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      *
      */
     @Test
-    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
@@ -53,5 +54,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
 
         SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, messaging);
         verifySendMessageAck(response);
+
+        messageRetentionService.deleteAllMessages();
     }
 }

@@ -16,7 +16,7 @@ import eu.domibus.plugin.webService.generated.RetrieveMessageResponse;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
-import eu.domibus.test.UserMessageSampleUtil;
+import eu.domibus.test.common.UserMessageSampleUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;

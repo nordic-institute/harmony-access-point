@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
 
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
@@ -11,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +26,9 @@ import static org.junit.Assert.assertNotNull;
  * Created by draguio on 17/02/2016.
  */
 public class SubmitMessageIT extends AbstractBackendWSIT {
+
+    @Autowired
+    MessageRetentionDefaultService messageRetentionDefaultService;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -56,5 +61,7 @@ public class SubmitMessageIT extends AbstractBackendWSIT {
                 .withRequestBody(containing("MGF xmlns:xenc11=\"http://www.w3.org/2009/xmlenc11#\" Algorithm=\"http://www.w3.org/2009/xmlenc11#mgf1sha256"))
                 .withRequestBody(containing("DigestMethod xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\" Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256"))
                 .withHeader("Content-Type", containing("application/soap+xml")));
+
+        messageRetentionDefaultService.deleteAllMessages();
     }
 }

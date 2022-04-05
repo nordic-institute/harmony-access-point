@@ -210,16 +210,6 @@
         <!--        END TEST        -->
     </dependencies>
     <build>
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-            <testResource>
-                <directory>${project.basedir}/../Domibus-MSH-db/target/test-sql-scripts</directory>
-                <targetPath>config/database</targetPath>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
