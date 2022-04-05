@@ -1,19 +1,21 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property;
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.plugin.ws.webservice.ExtendedPartInfo;
 import eu.domibus.webservice.backend.generated.*;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,6 +58,9 @@ public class WSPluginMessageBuilderTest {
 
     @Injectable
     private WSPluginImpl wsPlugin;
+
+    @Injectable
+    private UserMessageMapper userMessageMapper;
 
     @Test
     public void getJaxbElement_MessageStatusChange(@Injectable WSBackendMessageLogEntity messageLogEntity) {
@@ -165,24 +170,6 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void getJaxbElement_submitMessage(@Injectable WSBackendMessageLogEntity messageLogEntity) {
-        new Expectations(wsPluginMessageBuilder) {{
-            messageLogEntity.getType();
-            result = WSBackendMessageType.SUBMIT_MESSAGE;
-
-            wsPluginMessageBuilder.getSubmitMessage(messageLogEntity);
-            result = new SubmitRequest();
-        }};
-
-        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
-
-        assertEquals(SubmitRequest.class, jaxbElement.getClass());
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void getJaxbElement_sendFailure(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();
@@ -235,6 +222,7 @@ public class WSPluginMessageBuilderTest {
         new FullVerifications() {
         };
     }
+
     @Test(expected = WSPluginException.class)
     public void getDeleteBatch_empty(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
@@ -256,43 +244,6 @@ public class WSPluginMessageBuilderTest {
         };
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    public void getSubmitMessage(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
-
-        List<SubmitRequest> capturedSubmitMessages = new ArrayList<>();
-        List<UserMessage> capturedUserMessages = new ArrayList<>();
-
-        new Expectations(wsPluginMessageBuilder) {{
-            messageLogEntity.getMessageId();
-            result = MESSAGE_ID;
-            messageLogEntity.getFinalRecipient();
-            result = FINAL_RECIPIENT;
-            messageLogEntity.getOriginalSender();
-            result = ORIGINAL_SENDER;
-
-            wsPlugin.browseMessage(MESSAGE_ID, (UserMessage) any);
-            result = new UserMessage();
-
-            wsPluginMessageBuilder.fillInfoPartsForLargeFiles(
-                    withCapture(capturedSubmitMessages),
-                    withCapture(capturedUserMessages));
-        }};
-
-        SubmitRequest sendFailure = wsPluginMessageBuilder.getSubmitMessage(messageLogEntity);
-//        assertEquals(MESSAGE_ID, sendFailure.getMessageID());
-        assertEquals(1, capturedSubmitMessages.size());
-//        assertEquals(MESSAGE_ID, capturedSubmitMessages.get(0).getMessageID());
-//        assertEquals(FINAL_RECIPIENT, capturedSubmitMessages.get(0).getFinalRecipient());
-//        assertEquals(ORIGINAL_SENDER, capturedSubmitMessages.get(0).getOriginalSender());
-
-        assertEquals(1, capturedUserMessages.size());
-        Assert.assertNotNull(capturedUserMessages.get(0));
-
-        new FullVerifications() {
-        };
-    }
-
     @Test(expected = WSPluginException.class)
     public void getSubmitMessage_MessageNotFoundException(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
         new Expectations() {{
@@ -303,7 +254,7 @@ public class WSPluginMessageBuilderTest {
             result = new MessageNotFoundException();
         }};
 
-        wsPluginMessageBuilder.getSubmitMessage(messageLogEntity);
+        wsPluginMessageBuilder.buildSOAPMessageSubmit(messageLogEntity);
 
         new FullVerifications() {
         };
@@ -359,7 +310,8 @@ public class WSPluginMessageBuilderTest {
         }};
         wsPluginMessageBuilder.fillInfoPartsForLargeFiles(submitMessage, userMessage);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -373,7 +325,8 @@ public class WSPluginMessageBuilderTest {
         }};
         wsPluginMessageBuilder.fillInfoPartsForLargeFiles(submitMessage, userMessage);
 
-        new FullVerifications(wsPluginMessageBuilder) {};
+        new FullVerifications(wsPluginMessageBuilder) {
+        };
     }
 
     @Test
@@ -581,5 +534,19 @@ public class WSPluginMessageBuilderTest {
         new FullVerifications() {
         };
 
+    }
+
+    @Test
+    public void createSOAPMessage(@Injectable UserMessage userMessage,
+                                  @Injectable eu.domibus.webservice.backend.generated.UserMessage userMessageBack) {
+
+        new Expectations() {{
+            userMessageMapper.userMessageDTOToUserMessage(userMessage);
+            result = userMessageBack;
+        }};
+
+        SOAPMessage soapMessage = wsPluginMessageBuilder.createSOAPMessage(
+                wsPluginMessageBuilder.getSubmitMessage(userMessage),
+                wsPluginMessageBuilder.getMessaging(userMessage));
     }
 }

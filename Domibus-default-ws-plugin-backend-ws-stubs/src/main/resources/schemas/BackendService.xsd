@@ -65,7 +65,6 @@
         <xsd:sequence>
             <xsd:element name="UserMessage" type="tns:UserMessage" minOccurs="0"/>
         </xsd:sequence>
-        <xsd:attribute name="mustUnderstand" type="xsd:boolean" use="optional"/>
     </xsd:complexType>
 
     <xsd:complexType name="UserMessage">

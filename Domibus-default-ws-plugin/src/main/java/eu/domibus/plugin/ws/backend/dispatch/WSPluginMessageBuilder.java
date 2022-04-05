@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo;
@@ -19,7 +20,6 @@ import org.springframework.util.CollectionUtils;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.ByteArrayOutputStream;
@@ -58,15 +58,32 @@ public class WSPluginMessageBuilder {
         this.userMessageMapper = userMessageMapper;
     }
 
-    public SOAPMessage buildSOAPMessage(final WSBackendMessageLogEntity messageLogEntity) {
-        Object jaxbElementBody = getBody(messageLogEntity);
-        Object jaxbElementHeader = getHeader(messageLogEntity);
-        SOAPMessage soapMessage = createSOAPMessage(jaxbElementBody, jaxbElementHeader);
+    public SOAPMessage buildSOAPMessageOther(final WSBackendMessageLogEntity messageLogEntity) {
+        SOAPMessage soapMessage = createSOAPMessage(getBody(messageLogEntity), null);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Getting message for class [{}]: [{}]", jaxbElementBody.getClass(), getXML(soapMessage));
+            LOG.debug("Getting message for class [{}]: [{}]", getBody(messageLogEntity).getClass(), getXML(soapMessage));
         }
         return soapMessage;
+    }
+
+    public SOAPMessage buildSOAPMessage(final WSBackendMessageLogEntity messageLogEntity) {
+
+        if (messageLogEntity.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
+            return buildSOAPMessageSubmit(messageLogEntity);
+        }
+
+        return buildSOAPMessageOther(messageLogEntity);
+    }
+
+    public SOAPMessage buildSOAPMessageSubmit(final WSBackendMessageLogEntity messageLogEntity) {
+        UserMessage userMessage = new UserMessage();
+        try {
+            userMessage = wsPlugin.browseMessage(messageLogEntity.getMessageId(), userMessage);
+        } catch (MessageNotFoundException e) {
+            throw new WSPluginException("Domibus message could not be found with message id: [" + messageLogEntity.getMessageId() + "]", e);
+        }
+        return createSOAPMessage(getSubmitMessage(userMessage), getMessaging(userMessage));
     }
 
     protected Object getBody(WSBackendMessageLogEntity messageLogEntity) {
@@ -79,30 +96,13 @@ public class WSPluginMessageBuilder {
                 return getReceiveSuccess(messageLogEntity);
             case RECEIVE_FAIL:
                 return getReceiveFailure(messageLogEntity);
-            case SUBMIT_MESSAGE:
-                return getSubmitMessage(messageLogEntity);
             case DELETED_BATCH:
                 return getDeleteBatch(messageLogEntity);
             case DELETED:
                 return getDelete(messageLogEntity);
             case MESSAGE_STATUS_CHANGE:
                 return getChangeStatus(messageLogEntity);
-            default:
-                throw new IllegalArgumentException("Unexpected value: " + messageLogEntity.getType());
-        }
-    }
-    protected Object getHeader(WSBackendMessageLogEntity messageLogEntity) {
-        switch (messageLogEntity.getType()) {
             case SUBMIT_MESSAGE:
-                return getMessaging(messageLogEntity);
-            case SEND_SUCCESS:
-            case SEND_FAILURE:
-            case RECEIVE_SUCCESS:
-            case RECEIVE_FAIL:
-            case DELETED_BATCH:
-            case DELETED:
-            case MESSAGE_STATUS_CHANGE:
-                return null;
             default:
                 throw new IllegalArgumentException("Unexpected value: " + messageLogEntity.getType());
         }
@@ -115,36 +115,18 @@ public class WSPluginMessageBuilder {
         return messageStatusChange;
     }
 
-    protected SubmitRequest getSubmitMessage(WSBackendMessageLogEntity messageLogEntity) {
-        String messageId = messageLogEntity.getMessageId();
+    protected SubmitRequest getSubmitMessage(UserMessage userMessage) {
 
-        UserMessage userMessage = new UserMessage();
-        try {
-            userMessage = wsPlugin.browseMessage(messageId, userMessage);
-        } catch (MessageNotFoundException e) {
-            throw new WSPluginException("Domibus message could not be found with message id: [" + messageId + "]", e);
-        }
         SubmitRequest submitMessage = new ObjectFactory().createSubmitRequest();
 
         fillInfoPartsForLargeFiles(submitMessage, userMessage);
         return submitMessage;
     }
 
-    protected JAXBElement<Messaging> getMessaging(WSBackendMessageLogEntity messageLogEntity) {
-        String messageId = messageLogEntity.getMessageId();
-
-        UserMessage userMessage = new UserMessage();
-        try {
-            userMessage = wsPlugin.browseMessage(messageId, userMessage);
-        } catch (MessageNotFoundException e) {
-            throw new WSPluginException("Domibus message could not be found with message id: [" + messageId + "]", e);
-        }
+    protected JAXBElement<Messaging> getMessaging(UserMessage userMessage) {
         Messaging messaging = new ObjectFactory().createMessaging();
         messaging.setUserMessage(userMessageMapper.userMessageDTOToUserMessage(userMessage));
-        messaging.setMustUnderstand(true);
-        return new JAXBElement<>(new QName("domibus.eu", "headerInfo"),
-                Messaging.class,
-                messaging);
+        return new ObjectFactory().createMessaging(messaging);
     }
 
     protected void fillInfoPartsForLargeFiles(SubmitRequest submitMessage, UserMessage userMessage) {
@@ -240,12 +222,12 @@ public class WSPluginMessageBuilder {
         }
     }
 
-    protected SOAPMessage createSOAPMessage(final Object messaging, final Object header) {
+    protected SOAPMessage createSOAPMessage(final Object body, final Object header) {
         final SOAPMessage message;
         try {
             message = xmlUtilExtService.getMessageFactorySoap12().createMessage();
 
-            jaxbContextWebserviceBackend.createMarshaller().marshal(messaging, message.getSOAPBody());
+            jaxbContextWebserviceBackend.createMarshaller().marshal(body, message.getSOAPBody());
             if (header != null) {
                 jaxbContextWebserviceBackend.createMarshaller().marshal(header, message.getSOAPHeader());
             }
