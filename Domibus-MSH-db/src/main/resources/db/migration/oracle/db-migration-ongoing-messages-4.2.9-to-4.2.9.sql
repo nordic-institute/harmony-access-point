@@ -1,12 +1,12 @@
 -- ********************************************************************************************************
--- Domibus 4.2.7 to 4.2.7 ongoing messages data migration package
+-- Domibus 4.2.9 to 4.2.9 ongoing messages data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
 -- Parameters to be adjusted:
 -- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
 -- ********************************************************************************************************
-CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES_427 IS
+CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES_429 IS
     -- limit loading a high number of records into memory
     BULK_COLLECT_LIMIT CONSTANT NUMBER := 100;
 
@@ -23,10 +23,10 @@ CREATE OR REPLACE PACKAGE MIGRATE_ONGOING_MESSAGES_427 IS
 
     PROCEDURE migrate(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS DEFAULT T_MIGRATION_DETAILS());
 
-END MIGRATE_ONGOING_MESSAGES_427;
+END MIGRATE_ONGOING_MESSAGES_429;
 /
 
-CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_427 IS
+CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
 
     TYPE T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS TABLE OF NUMBER INDEX BY BINARY_INTEGER;
 
@@ -764,5 +764,5 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_427 IS
         dbms_output.put_line('Please review the changes and either COMMIT them or ROLLBACK!');
     END migrate;
 
-END MIGRATE_ONGOING_MESSAGES_427;
+END MIGRATE_ONGOING_MESSAGES_429;
 /

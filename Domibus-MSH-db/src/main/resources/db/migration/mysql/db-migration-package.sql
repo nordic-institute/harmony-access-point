@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.7 to 5.0 data migration subprograms
+-- Domibus 4.2 to 5.0 data migration subprograms
 --
 -- Main entry point is the procedure 'MIGRATE_42_TO_50_migrate'.
 --
