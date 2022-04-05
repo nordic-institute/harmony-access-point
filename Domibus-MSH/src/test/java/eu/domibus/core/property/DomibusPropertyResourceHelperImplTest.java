@@ -117,7 +117,7 @@ public class DomibusPropertyResourceHelperImplTest {
         filter.setType(testValue);
         List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllProperties(filter);
 
-        Assert.assertEquals(4, actual.size());
+        Assert.assertEquals(3, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
         Assert.assertEquals(testValue, actual.stream().filter(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)).findFirst().get().getValue());
     }
@@ -189,14 +189,13 @@ public class DomibusPropertyResourceHelperImplTest {
 
         List<DomibusProperty> actual = configurationPropertyResourceHelper.getPropertyValues(propertiesMetadataList);
 
-        Assert.assertEquals(4, actual.size());
+        Assert.assertEquals(3, actual.size());
         Assert.assertEquals("val1", actual.get(0).getValue());
 
         new Verifications() {{
             domibusPropertyProvider.getProperty(propertiesMetadataList.get(0).getName());
             domibusPropertyProvider.getProperty(propertiesMetadataList.get(1).getName());
             domibusPropertyProvider.getProperty(propertiesMetadataList.get(2).getName());
-            domibusPropertyProvider.getProperty(propertiesMetadataList.get(3).getName());
         }};
     }
 
@@ -246,7 +245,7 @@ public class DomibusPropertyResourceHelperImplTest {
 
         List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, filter);
 
-        Assert.assertEquals(2, actual.size());
+        Assert.assertEquals(1, actual.size());
         Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
     }
 
@@ -267,7 +266,7 @@ public class DomibusPropertyResourceHelperImplTest {
 
         List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, filter);
 
-        Assert.assertEquals(2, actual.size());
+        Assert.assertEquals(1, actual.size());
         Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
     }
 
