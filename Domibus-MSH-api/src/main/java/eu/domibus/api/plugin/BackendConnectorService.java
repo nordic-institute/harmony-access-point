@@ -6,7 +6,7 @@ package eu.domibus.api.plugin;
  * @author Ion Perpegel
  * @since 5.0
  */
-public interface BackendConnectorProvider {
+public interface BackendConnectorService {
 
     /**
      * Checks that at least one plugin is enabled on each domain; if not, takes one and enables it

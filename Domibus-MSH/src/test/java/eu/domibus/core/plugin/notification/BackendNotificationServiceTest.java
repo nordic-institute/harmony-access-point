@@ -19,15 +19,14 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
-import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.BackendConnectorHelper;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -124,13 +123,13 @@ public class BackendNotificationServiceTest {
     protected DomainService domainService;
 
     @Injectable
-    BackendConnectorProviderImpl backendConnectorProvider;
+    BackendConnectorProvider backendConnectorProvider;
 
     @Injectable
     BackendConnectorDelegate backendConnectorDelegate;
 
     @Injectable
-    BackendConnectorService backendConnectorService;
+    BackendConnectorHelper backendConnectorHelper;
 
     @Injectable
     MessagingModuleConfiguration messageCommunicationConfiguration;
@@ -206,7 +205,7 @@ public class BackendNotificationServiceTest {
             backendConnectorProvider.getBackendConnector(BACKEND_NAME);
             result = backendConnector;
 
-            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
             asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
@@ -242,7 +241,7 @@ public class BackendNotificationServiceTest {
             backendConnectorProvider.getBackendConnector(BACKEND_NAME);
             result = backendConnector;
 
-            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
             asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
@@ -283,7 +282,7 @@ public class BackendNotificationServiceTest {
             backendConnectorProvider.getBackendConnector(BACKEND_NAME);
             result = backendConnector;
 
-            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
             asyncNotificationConfigurationService.getAsyncPluginConfiguration(BACKEND_NAME);
@@ -318,7 +317,7 @@ public class BackendNotificationServiceTest {
             backendConnectorProvider.getBackendConnector(BACKEND_NAME);
             result = backendConnector;
 
-            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
             result = null;
 
             userMessage.getMessageId();
@@ -358,7 +357,7 @@ public class BackendNotificationServiceTest {
             backendConnectorProvider.getBackendConnector(BACKEND_NAME);
             result = backendConnector;
 
-            backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+            backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
             result = requiredNotifications;
 
             userMessage.getMessageId();

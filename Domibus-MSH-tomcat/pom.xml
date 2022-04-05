@@ -434,18 +434,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>integration-tests-database</id>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <configuration>
-                            <skipTests>${skipTomcatIT}</skipTests>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>integration-tests-filesystem</id>
+                        <id>integration-tests</id>
                         <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>

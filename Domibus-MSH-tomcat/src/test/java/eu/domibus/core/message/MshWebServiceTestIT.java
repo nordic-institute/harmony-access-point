@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
@@ -13,14 +14,13 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,8 +48,8 @@ public class MshWebServiceTestIT extends AbstractIT {
     static class ContextConfiguration {
         @Primary
         @Bean
-        public BackendConnectorProvider backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorProvider.class);
+        public BackendConnectorService backendConnectorProvider() {
+            return Mockito.mock(BackendConnectorService.class);
         }
     }
 
@@ -57,7 +57,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
-    BackendConnectorProviderImpl backendConnectorProvider;
+    BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
     MessagingService messagingService;

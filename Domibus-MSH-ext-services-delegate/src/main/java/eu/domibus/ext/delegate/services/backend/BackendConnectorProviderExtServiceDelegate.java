@@ -1,7 +1,7 @@
 package eu.domibus.ext.delegate.services.backend;
 
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -14,19 +14,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class BackendConnectorProviderExtServiceDelegate implements BackendConnectorProviderExtService {
 
-    private final BackendConnectorProvider backendConnectorProvider;
+    private final BackendConnectorService backendConnectorService;
 
-    public BackendConnectorProviderExtServiceDelegate(@Lazy BackendConnectorProvider backendConnectorProvider) {
-        this.backendConnectorProvider = backendConnectorProvider;
+    public BackendConnectorProviderExtServiceDelegate(@Lazy BackendConnectorService backendConnectorService) {
+        this.backendConnectorService = backendConnectorService;
     }
 
     @Override
     public void validateConfiguration(String domainCode) {
-        backendConnectorProvider.validateConfiguration(domainCode);
+        backendConnectorService.validateConfiguration(domainCode);
     }
 
     @Override
     public boolean canDisableBackendConnector(String backendName, String domainCode) {
-        return backendConnectorProvider.canDisableBackendConnector(backendName, domainCode);
+        return backendConnectorService.canDisableBackendConnector(backendName, domainCode);
     }
 }

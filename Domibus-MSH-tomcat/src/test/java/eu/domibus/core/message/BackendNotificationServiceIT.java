@@ -14,8 +14,8 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
-import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.BackendConnectorHelper;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
@@ -24,7 +24,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.test.common.BackendConnectorMock;
@@ -66,11 +65,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Configuration
     static class ContextConfiguration {
-        @Primary
-        @Bean
-        public BackendConnectorProvider backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorProvider.class);
-        }
+
 
         @Primary
         @Bean
@@ -80,8 +75,8 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         @Primary
         @Bean
-        public BackendConnectorService backendConnectorService() {
-            return Mockito.mock(BackendConnectorService.class);
+        public BackendConnectorHelper backendConnectorHelper() {
+            return Mockito.mock(BackendConnectorHelper.class);
         }
 
         @Primary
@@ -119,7 +114,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     protected MessageExchangeService messageExchangeService;
 
     @Autowired
-    BackendConnectorProviderImpl backendConnectorProvider;
+    BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
     RoutingService routingService;
@@ -134,7 +129,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     MessageUtil messageUtil;
 
     @Autowired
-    protected BackendConnectorService backendConnectorService;
+    protected BackendConnectorHelper backendConnectorHelper;
 
     @Autowired
     PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration;
@@ -220,7 +215,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
-        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
@@ -245,7 +240,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         Mockito.when(pluginAsyncNotificationConfiguration.getBackendConnector()).thenReturn(backendConnector);
         Mockito.when(pluginAsyncNotificationConfiguration.getBackendNotificationQueue()).thenReturn(notifyBackendWebServiceQueue);
 
-        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
@@ -264,7 +259,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
-        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         filename = "InvalidBodyloadCidSOAPMessage.xml";
@@ -354,7 +349,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         Mockito.when(reliabilityChecker.check(Mockito.any(SOAPMessage.class), Mockito.any(SOAPMessage.class), Mockito.any(ResponseResult.class), Mockito.any(LegConfiguration.class)))
                 .thenReturn(ReliabilityChecker.CheckResult.OK);
 
-        Mockito.when(backendConnectorService.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.WAITING_FOR_RETRY);
