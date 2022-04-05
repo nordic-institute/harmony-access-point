@@ -18,7 +18,7 @@ import java.util.List;
  * @since 5.0
  */
 @Transactional
-public class PModeExtMapperTest extends AbstractIT {
+public class PModeExtMapperTestIT extends AbstractIT {
 
     @Autowired
     private PModeExtMapper pModeExtMapper;
