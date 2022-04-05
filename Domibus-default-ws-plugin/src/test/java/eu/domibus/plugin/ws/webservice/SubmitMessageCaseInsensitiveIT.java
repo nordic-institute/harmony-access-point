@@ -1,7 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.api.jms.JMSManager;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
@@ -9,11 +8,8 @@ import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -24,12 +20,8 @@ import java.util.UUID;
  */
 public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
 
-
     @Autowired
-    JMSManager jmsManager;
-
-    @Autowired
-    MessageRetentionService messageRetentionService;
+    MessageRetentionDefaultService messageRetentionService;
 
     @Before
     public void updatePMode() throws IOException, XmlProcessingException {
