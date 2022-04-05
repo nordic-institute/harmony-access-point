@@ -1,20 +1,20 @@
 # Domibus Ongoing Messages Database Migration
 
 Concerns the following scripts inside this directory:
-* _db-migration-ongoing-messages-4.2.7-to-4.2.7.sql_
+* _db-migration-ongoing-messages-4.2.9-to-4.2.9.sql_
 * _db-migration-ongoing-messages-5.0-to-5.0.sql_
 
 These scripts are meant for the migration of ongoing Domibus messages (i.e. messages having one of the _SEND_ENQUEUED_,
-_WAITING_FOR_RETRY_, _READY_TO_PULL_ and _WAITING_FOR_RECEIPT_ statuses) from a source Domibus **v4.2.7** application
-to a destination Domibus **v4.2.7** application or from a source Domibus **v5.0** application to a destination Domibus
+_WAITING_FOR_RETRY_, _READY_TO_PULL_ and _WAITING_FOR_RECEIPT_ statuses) from a source Domibus **v4.2.9** application
+to a destination Domibus **v4.2.9** application or from a source Domibus **v5.0** application to a destination Domibus
 **v5.0** application. All the Domibus source and destination applications are running on Weblogic 12.2/Oracle 19c.
 
-## 1. From v4.2.7 to v4.2.7
+## 1. From v4.2.9 to v4.2.9
 
 The PL/SQL package for migrating ongoing messages between the source and destination databases is located in 
-_Domibus-MSH-db/src/main/resources/db/migration/oracle/db-migration-ongoing-messages-4.2.7-to-4.2.7.sql_.
+_Domibus-MSH-db/src/main/resources/db/migration/oracle/db-migration-ongoing-messages-4.2.9-to-4.2.9.sql_.
 
-It must be compiled on the source database (v4.2.7 schema). It is intended to be only run using a few ongoing 
+It must be compiled on the source database (v4.2.9 schema). It is intended to be only run using a few ongoing 
 messages at a time (hundreds or a few thousands), something to be decided by the DBA. In case of a large result
 set of ongoing messages, these need to be split into multiple batches according to the concept of time 
 windows. These time windows are to be organised in such manner that they will capture the correct number of

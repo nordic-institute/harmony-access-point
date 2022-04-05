@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.7 to 4.2.7 ongoing messages data migration package
+-- Domibus 4.2.9 to 4.2.9 ongoing messages data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --

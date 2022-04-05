@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.7 to 5.0 data migration package
+-- Domibus 4.2 to 5.0 data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
