@@ -9,7 +9,7 @@
         <version>5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-MSH-weblogic-ecas</artifactId>
+    <artifactId>domibus-MSH-weblogic-eu-login</artifactId>
     <packaging>war</packaging>
     <name>Domibus MSH WebLogic ECAS</name>
 
