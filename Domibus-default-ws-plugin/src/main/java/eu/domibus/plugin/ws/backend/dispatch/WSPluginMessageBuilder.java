@@ -58,7 +58,7 @@ public class WSPluginMessageBuilder {
         this.userMessageMapper = userMessageMapper;
     }
 
-    public SOAPMessage buildSOAPMessageOther(final WSBackendMessageLogEntity messageLogEntity) {
+    public SOAPMessage buildSOAPMessageNotifications(final WSBackendMessageLogEntity messageLogEntity) {
         SOAPMessage soapMessage = createSOAPMessage(getBody(messageLogEntity), null);
 
         if (LOG.isDebugEnabled()) {
@@ -73,7 +73,7 @@ public class WSPluginMessageBuilder {
             return buildSOAPMessageSubmit(messageLogEntity);
         }
 
-        return buildSOAPMessageOther(messageLogEntity);
+        return buildSOAPMessageNotifications(messageLogEntity);
     }
 
     public SOAPMessage buildSOAPMessageSubmit(final WSBackendMessageLogEntity messageLogEntity) {
