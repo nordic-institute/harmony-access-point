@@ -23,12 +23,10 @@ public interface UserMessageSecurityService {
     void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;
 
     /**
-     * Checks it the current user has the permission to access data for the provided finalRecipient
      *
-     * @param finalRecipient
-     * @throws AuthenticationException in case the user doesn't have the permission
+     * @return true if admin or super admin
      */
-    void checkAuthorization(String finalRecipient) throws AuthenticationException;
+    boolean isAdminMultiAware();
 
     /**
      * Returns the original user passed via the security context OR

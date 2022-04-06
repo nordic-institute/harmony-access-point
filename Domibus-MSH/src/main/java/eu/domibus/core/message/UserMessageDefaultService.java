@@ -46,10 +46,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -237,9 +237,9 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public List<String> getFailedMessages(String finalRecipient) {
+    public List<String> getFailedMessages(String finalRecipient, String originalUser) {
         LOG.debug("Provided finalRecipient is [{}]", finalRecipient);
-        return userMessageLogDao.findFailedMessages(finalRecipient);
+        return userMessageLogDao.findFailedMessages(finalRecipient, originalUser);
     }
 
     @Override
@@ -491,9 +491,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Transactional
     @Override
-    public List<String> restoreFailedMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
-        final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
-        if (failedMessages == null) {
+    public List<String> restoreFailedMessagesDuringPeriod(Long start, Long end, String finalRecipient, String originalUser) {
+        final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, originalUser, start, end);
+        if (CollectionUtils.isEmpty(failedMessages)) {
             return null;
         }
         LOG.debug("Found failed messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);

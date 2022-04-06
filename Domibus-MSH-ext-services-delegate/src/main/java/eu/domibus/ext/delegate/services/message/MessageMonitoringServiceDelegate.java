@@ -8,10 +8,12 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.services.MessageMonitorExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,17 +51,18 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<String> getFailedMessages() throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
-        return userMessageService.getFailedMessages(originalUserFromSecurityContext);
+        return getFailedMessages(null);
     }
 
     @Override
     public List<String> getFailedMessages(String finalRecipient) throws AuthenticationExtException, MessageMonitorExtException {
         LOG.debug("Getting failed messages with finalRecipient [{}]", finalRecipient);
-        userMessageSecurityService.checkAuthorization(finalRecipient);
-        return userMessageService.getFailedMessages(finalRecipient);
+        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
+        if(StringUtils.isBlank(originalUserFromSecurityContext) && !userMessageSecurityService.isAdminMultiAware()) {
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
+        }
+        return userMessageService.getFailedMessages(finalRecipient, originalUserFromSecurityContext);
     }
-
 
     @Override
     public Long getFailedMessageInterval(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
@@ -82,7 +85,10 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
         String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
-        return userMessageService.restoreFailedMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+        if(StringUtils.isBlank(originalUserFromSecurityContext) && !userMessageSecurityService.isAdminMultiAware()) {
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
+        }
+        return userMessageService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUserFromSecurityContext);
     }
 
     @Override

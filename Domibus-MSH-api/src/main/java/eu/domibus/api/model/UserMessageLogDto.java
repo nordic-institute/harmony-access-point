@@ -18,14 +18,14 @@ public class UserMessageLogDto {
     public static final String PROP_VALUE = "p_value";
     public static final String PROP_NAME = "p_name";
 
-    protected long entityId;
+    protected Long entityId;
     protected String messageId;
     protected Boolean testMessage;
     protected String backend;
 
     private Map<String, String> properties = new HashMap<>();
 
-    public UserMessageLogDto(long entityId, String messageId, Boolean testMessage, String backend) {
+    public UserMessageLogDto(Long entityId, String messageId, Boolean testMessage, String backend) {
         this.entityId = entityId;
         this.messageId = messageId;
         this.testMessage = testMessage;
@@ -33,13 +33,21 @@ public class UserMessageLogDto {
     }
 
     public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
-        this.entityId = (long) tuple[aliasToIndexMap.get(ENTITY_ID)];
-        this.messageId = (String) tuple[aliasToIndexMap.get(MESSAGE_ID)];
-        Object subtype = tuple[aliasToIndexMap.get(TEST_MESSAGE)];
+        this.entityId = (Long) getObjectNullSafe(tuple, aliasToIndexMap, ENTITY_ID);
+        this.messageId = (String) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ID);
+        Object subtype = getObjectNullSafe(tuple, aliasToIndexMap, TEST_MESSAGE);
         if(subtype != null) {
             this.testMessage = (Boolean) subtype;
         }
-        this.backend = (String) tuple[aliasToIndexMap.get(MESSAGE_BACKEND)];
+        this.backend = (String) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_BACKEND);
+    }
+
+    private Object getObjectNullSafe(Object[] tuple, Map<String, Integer> aliasToIndexMap, String entityId) {
+        Integer integer = aliasToIndexMap.get(entityId);
+        if(integer == null) {
+            return null;
+        }
+        return tuple[integer];
     }
 
     public String getMessageId() {
@@ -70,11 +78,11 @@ public class UserMessageLogDto {
         return properties;
     }
 
-    public long getEntityId() {
+    public Long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(long entityId) {
+    public void setEntityId(Long entityId) {
         this.entityId = entityId;
     }
 }

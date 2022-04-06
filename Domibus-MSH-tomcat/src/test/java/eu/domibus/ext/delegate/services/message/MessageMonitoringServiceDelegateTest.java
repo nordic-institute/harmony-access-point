@@ -23,6 +23,7 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class MessageMonitoringServiceDelegateTest {
 
+    public static final String ORIGINAL_USER = "originalUser";
     @Tested
     MessageMonitoringServiceDelegate messageMonitoringServiceDelegate;
 
@@ -42,7 +43,7 @@ public class MessageMonitoringServiceDelegateTest {
     UserMessageRestoreService restoreService;
 
     @Test
-    public void testGetFailedMessages()  {
+    public void testGetFailedMessages() {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(messageMonitoringServiceDelegate) {{
@@ -53,24 +54,28 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getFailedMessages();
 
         new Verifications() {{
-            userMessageService.getFailedMessages(originalUserFromSecurityContext);
+            userMessageService.getFailedMessages(null, originalUserFromSecurityContext);
         }};
     }
 
     @Test
-    public void testGetFailedMessagesForFinalRecipient()  {
+    public void testGetFailedMessagesForFinalRecipient() {
         final String finalRecipient = "C4";
+
+        new Expectations() {{
+            userMessageSecurityService.getOriginalUserFromSecurityContext();
+            result = ORIGINAL_USER;
+        }};
 
         messageMonitoringServiceDelegate.getFailedMessages(finalRecipient);
 
         new Verifications() {{
-            userMessageSecurityService.checkAuthorization(finalRecipient);
-            userMessageService.getFailedMessages(finalRecipient);
+            userMessageService.getFailedMessages(finalRecipient, ORIGINAL_USER);
         }};
     }
 
     @Test
-    public void testGetFailedMessageInterval()  {
+    public void testGetFailedMessageInterval() {
         final String messageId = "1";
 
         messageMonitoringServiceDelegate.getFailedMessageInterval(messageId);
@@ -82,7 +87,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testRestoreFailedMessagesDuringPeriod()  {
+    public void testRestoreFailedMessagesDuringPeriod() {
 
         final String originalUserFromSecurityContext = "C4";
 
@@ -94,7 +99,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.restoreFailedMessagesDuringPeriod(1L, 2L);
 
         new Verifications() {{
-            userMessageService.restoreFailedMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+            userMessageService.restoreFailedMessagesDuringPeriod(1L, 2L, null, originalUserFromSecurityContext);
         }};
     }
 
@@ -111,7 +116,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testDeleteFailedMessage()  {
+    public void testDeleteFailedMessage() {
         final String messageId = "1";
 
         messageMonitoringServiceDelegate.deleteFailedMessage(messageId);
