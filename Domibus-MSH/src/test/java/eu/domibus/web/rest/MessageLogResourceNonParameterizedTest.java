@@ -7,9 +7,6 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.party.PartyDao;
-import eu.domibus.core.replication.UIMessageDao;
-import eu.domibus.core.replication.UIMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -39,16 +36,7 @@ public class MessageLogResourceNonParameterizedTest {
     CsvServiceImpl csvServiceImpl;
 
     @Injectable
-    private UIMessageService uiMessageService;
-
-    @Injectable
-    private UIMessageDao uiMessageDao;
-
-    @Injectable
     private MessagesLogService messagesLogService;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;

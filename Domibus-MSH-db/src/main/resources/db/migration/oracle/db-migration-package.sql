@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.7 to 5.0 data migration package
+-- Domibus 4.2 to 5.0 data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
@@ -482,7 +482,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                  ' records=' || v_count_tab1);
         ELSE
             v_count_match := FALSE;
-            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has different number of records as table ' || tab_name2);
+            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has different number of records - ' || v_count_tab1 ||
+                                 ' - than table '|| tab_name2 || ' - ' || v_count_tab2 || ' -');
         END IF;
         RETURN v_count_match;
     END check_counts;
@@ -923,6 +924,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_last PLS_INTEGER;
         v_start PLS_INTEGER;
         v_end PLS_INTEGER;
+
+        v_count_user_message INT;
+        v_count_migr_user_message INT;
     BEGIN
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
         OPEN c_user_message;
@@ -1044,8 +1048,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         CLOSE c_user_message;
 
         -- check counts
-        IF check_counts(v_tab, v_tab_new) THEN
-            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        DBMS_OUTPUT.PUT_LINE('The count of TB_USER_MESSAGE should be equal to the count value for MIGR_TB_USER_MESSAGE minus 1 for the dummy user message record');
+        SELECT COUNT(*) INTO v_count_user_message FROM TB_USER_MESSAGE;
+        SELECT COUNT(*) INTO v_count_migr_user_message FROM MIGR_TB_USER_MESSAGE;
+        IF v_count_user_message = v_count_migr_user_message - 1 THEN
+            DBMS_OUTPUT.PUT_LINE('TB_USER_MESSAGE migration is done');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Table TB_USER_MESSAGE has different number of records - ' || v_count_user_message ||
+                    ' (should be one less) - than table MIGR_TB_USER_MESSAGE - ' || v_count_migr_user_message || ' -');
         END IF;
 
     END migrate_user_message;
@@ -2327,6 +2337,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_last PLS_INTEGER;
         v_start PLS_INTEGER;
         v_end PLS_INTEGER;
+
+        v_count_property INT;
+        v_count_migr_msg_property INT;
+        v_count_migr_part_property INT;
     BEGIN
         DBMS_OUTPUT.PUT_LINE(v_tab_info || ' and ' || v_tab_property || ' migration started...');
         OPEN c_part_prop;
@@ -2395,6 +2409,19 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         COMMIT;
         CLOSE c_part_prop;
+
+        -- check counts
+        DBMS_OUTPUT.PUT_LINE('The count of TB_PROPERTY should be equal to the sum of count values for MIGR_TB_MESSAGE_PROPERTIES and MIGR_TB_PART_PROPERTIES');
+        SELECT COUNT(*) INTO v_count_property FROM TB_PROPERTY;
+        SELECT COUNT(*) INTO v_count_migr_msg_property FROM MIGR_TB_MESSAGE_PROPERTIES;
+        SELECT COUNT(*) INTO v_count_migr_part_property FROM MIGR_TB_PART_PROPERTIES;
+        IF v_count_property = v_count_migr_msg_property + v_count_migr_part_property THEN
+             DBMS_OUTPUT.PUT_LINE('TB_PROPERTY migration between the MIGR_TB_MESSAGE_PROPERTIES and MIGR_TB_PART_PROPERTIES tables is done');
+        ELSE
+             DBMS_OUTPUT.PUT_LINE('Table TB_PROPERTY has different number of records - ' || v_count_property
+                    || ' - than tables MIGR_TB_MESSAGE_PROPERTIES - ' || v_count_migr_msg_property
+                    || ' - and MIGR_TB_PART_PROPERTIES - ' || v_count_migr_part_property || ' - together');
+        END IF;
     END migrate_part_info_property;
 
     /**- TB_ERROR_LOG data migration --*/
@@ -10678,7 +10705,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         --
         migrate_message_acknw_prop;
         --
-        -- migrate_message_ui; -- not part of this task (UI replication to be fixed later)
         --
         migrate_messaging_lock;
         --

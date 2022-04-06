@@ -1320,21 +1320,6 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         </createIndex>
     </changeSet>
 
-<!-- FIXME when the UI replication works -->
-<!--    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-7822-single-tenancy">-->
-<!--        <addColumn tableName="TB_MESSAGE_UI">-->
-<!--            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>-->
-<!--        </addColumn>-->
-<!---->
-<!--        <createIndex indexName="IDX_MESSAGE_UI_TZ_OFFSET" tableName="TB_MESSAGE_UI">-->
-<!--            <column name="FK_TIMEZONE_OFFSET" />-->
-<!--        </createIndex>-->
-<!---->
-<!--        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGE_UI"-->
-<!--                                 constraintName="FK_MESSAGE_UI_TZ_OFFSET" deferrable="false" initiallyDeferred="false"-->
-<!--                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"-->
-<!--                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>-->
-<!--    </changeSet>-->
 
     <changeSet author="idragusa" id="EDELIVERY-8049-single-tenancy">
         <dropForeignKeyConstraint baseTableName="TB_MESSAGE_ACKNW_PROP"

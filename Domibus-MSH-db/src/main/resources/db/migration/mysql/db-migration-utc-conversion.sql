@@ -1,5 +1,5 @@
 -- *****************************************************************************************************
--- Domibus 4.2.7 to 5.0 data time migration to UTC procedures
+-- Domibus 4.2 to 5.0 data time migration to UTC procedures
 --
 -- Parameters to be provided:
 --  TIMEZONE: the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels')

@@ -7,8 +7,6 @@ import eu.domibus.api.model.To;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
-import eu.domibus.core.replication.UIMessageDiffEntity;
-import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,31 +38,6 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
         final MessageLogRO convertedBack = messageCoreMapper.messageLogInfoToMessageLogRO(converted);
         convertedBack.setCanDownloadMessage(toConvert.getCanDownloadMessage());
         convertedBack.setCanDownloadEnvelope(toConvert.getCanDownloadEnvelope());
-        objectService.assertObjects(convertedBack, toConvert);
-    }
-
-    @Test
-    public void convertUIMessageEntity() {
-        UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
-        final UIMessageDiffEntity converted = messageCoreMapper.uiMessageEntityToUIMessageDiffEntity(toConvert);
-        final UIMessageEntity convertedBack = messageCoreMapper.uiMessageDiffEntityToUIMessageEntity(converted);
-        convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setEntityId(toConvert.getEntityId());
-        convertedBack.setAction(toConvert.getAction());
-        convertedBack.setServiceType(toConvert.getServiceType());
-        convertedBack.setServiceValue(toConvert.getServiceValue());
-        convertedBack.setMessageType(toConvert.getMessageType());
-        objectService.assertObjects(convertedBack, toConvert);
-    }
-
-    @Test
-    public void convertUIMessageEntityMessageLog() {
-        UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
-        final MessageLogRO converted = messageCoreMapper.uiMessageEntityToMessageLogRO(toConvert);
-        final UIMessageEntity convertedBack = messageCoreMapper.messageLogROToUIMessageEntity(converted);
-        convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setEntityId(toConvert.getEntityId());
-        convertedBack.getTimezoneOffset().setEntityId(toConvert.getTimezoneOffset().getEntityId());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -112,20 +85,6 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException("Should not produce an NPE"));
-    }
-
-    @Test
-    public void convertUIMessageEntityMessageLogInfo() {
-        UIMessageEntity toConvert = (UIMessageEntity) objectService.createInstance(UIMessageEntity.class);
-        final MessageLogInfo converted = messageCoreMapper.uiMessageEntityToMessageLogInfo(toConvert);
-        final UIMessageEntity convertedBack = messageCoreMapper.messageLogInfoToUIMessageEntity(converted);
-        convertedBack.setLastModified(toConvert.getLastModified());
-        convertedBack.setEntityId(toConvert.getEntityId());
-        convertedBack.setToScheme(toConvert.getToScheme());
-        convertedBack.setFromScheme(toConvert.getFromScheme());
-        convertedBack.getTimezoneOffset().setEntityId(toConvert.getTimezoneOffset().getEntityId());
-
-        objectService.assertObjects(convertedBack, toConvert);
     }
 
 }

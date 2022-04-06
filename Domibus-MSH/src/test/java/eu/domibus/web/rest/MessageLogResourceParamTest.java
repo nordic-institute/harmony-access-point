@@ -13,9 +13,6 @@ import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.party.PartyDao;
-import eu.domibus.core.replication.UIMessageDao;
-import eu.domibus.core.replication.UIMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
@@ -58,16 +55,7 @@ public class MessageLogResourceParamTest {
     CsvServiceImpl csvServiceImpl;
 
     @Injectable
-    private UIMessageService uiMessageService;
-
-    @Injectable
-    private UIMessageDao uiMessageDao;
-
-    @Injectable
     private MessagesLogService messagesLogService;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;

@@ -6,8 +6,6 @@ import eu.domibus.api.usermessage.domain.PartProperties;
 import eu.domibus.api.usermessage.domain.Service;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
-import eu.domibus.core.replication.UIMessageDiffEntity;
-import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.mapstruct.BeanMapping;
@@ -40,44 +38,6 @@ public interface MessageCoreMapper {
     @Mapping(target = "canDownloadMessage", ignore = true)
     @Mapping(target = "canDownloadEnvelope", ignore = true)
     MessageLogRO messageLogInfoToMessageLogRO(MessageLogInfo messageLogInfo);
-
-    UIMessageDiffEntity uiMessageEntityToUIMessageDiffEntity(UIMessageEntity uiMessageEntity);
-
-    @WithoutAuditAndEntityId
-    @Mapping(ignore = true, target = "lastModified")
-    UIMessageEntity uiMessageDiffEntityToUIMessageEntity(UIMessageDiffEntity uiMessageEntity);
-
-    @Mapping(target = "fromPartyId", source = "fromId")
-    @Mapping(target = "toPartyId", source = "toId")
-    @Mapping(target = "originalSender", source = "fromScheme")
-    @Mapping(target = "finalRecipient", source = "toScheme")
-    @Mapping(target = "messageFragment", ignore = true)
-    @Mapping(target = "sourceMessage", ignore = true)
-    @Mapping(source = "timezoneOffset.nextAttemptTimezoneId", target = "nextAttemptTimezoneId")
-    @Mapping(source = "timezoneOffset.nextAttemptOffsetSeconds", target = "nextAttemptOffsetSeconds")
-    MessageLogRO uiMessageEntityToMessageLogRO(UIMessageEntity uiMessageEntity);
-
-    @WithoutAuditAndEntityId
-    @InheritInverseConfiguration
-    @Mapping(target = "lastModified", ignore = true)
-    UIMessageEntity messageLogROToUIMessageEntity(MessageLogRO messageLogRO);
-
-    @Mapping(source = "fromId", target = "fromPartyId")
-    @Mapping(source = "toId", target = "toPartyId")
-    @Mapping(ignore = true, target = "originalSender")
-    @Mapping(ignore = true, target = "finalRecipient")
-    @Mapping(ignore = true, target = "messageFragment")
-    @Mapping(ignore = true, target = "sourceMessage")
-    @Mapping(source = "timezoneOffset.nextAttemptTimezoneId", target = "nextAttemptTimezoneId")
-    @Mapping(source = "timezoneOffset.nextAttemptOffsetSeconds", target = "nextAttemptOffsetSeconds")
-    MessageLogInfo uiMessageEntityToMessageLogInfo(UIMessageEntity uiMessageEntity);
-
-    @WithoutAuditAndEntityId
-    @InheritInverseConfiguration
-    @Mapping(ignore = true, target = "fromScheme")
-    @Mapping(ignore = true, target = "toScheme")
-    @Mapping(ignore = true, target = "lastModified")
-    UIMessageEntity messageLogInfoToUIMessageEntity(MessageLogInfo uiMessageEntity);
 
     @InheritInverseConfiguration
     @Mapping(target = "collaborationInfo.agreementRef.pmode", ignore = true)

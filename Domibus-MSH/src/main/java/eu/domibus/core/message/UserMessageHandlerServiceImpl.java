@@ -41,7 +41,6 @@ import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -129,9 +128,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected NonRepudiationService nonRepudiationService;
 
     @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
     protected MessageUtil messageUtil;
 
     @Autowired
@@ -198,7 +194,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         if (!sourceMessage) {
             prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
         }
-        userMessageLogService.replicationUserMessageSubmitted(userMessage.getMessageId());
     }
 
     private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
@@ -526,7 +521,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         userMessagePersistenceService.saveIncomingMessage(userMessage, partInfoList, notificationStatus, backendName, userMessageRaw, signalMessageResult);
 
-        uiReplicationSignalService.userMessageReceived(userMessage.getMessageId());
         return userMessage.getMessageId();
     }
 
@@ -780,6 +774,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
     protected String getFinalRecipientName(UserMessage userMessage) {
+        if (CollectionUtils.isEmpty(userMessage.getMessageProperties())) {
+            LOG.debug("Empty property set");
+            return null;
+        }
         for (Property property : userMessage.getMessageProperties()) {
             if (property.getName() != null && property.getName().equalsIgnoreCase(MessageConstants.FINAL_RECIPIENT)) {
                 return property.getValue();

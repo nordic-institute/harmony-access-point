@@ -50,7 +50,6 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, "retentionWorkerJob"},
             {DOMIBUS_MSH_PULL_CRON, "pullRequestWorkerJob"},
             {DOMIBUS_PULL_RETRY_CRON, "pullRetryWorkerJob"},
-            {DOMIBUS_UI_REPLICATION_SYNC_CRON, "uiReplicationJob"},
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
             {DOMIBUS_MONITORING_CONNECTION_CRON, "connectionMonitoringJob"},
             {DOMIBUS_ERRORLOG_CLEANER_CRON, "errorLogCleanerJob"},

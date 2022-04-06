@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.xml.bind.annotation.*;
 
@@ -50,7 +51,7 @@ public class Ebms3UserMessage {
     @XmlElement(name = "CollaborationInfo", required = true)
     protected Ebms3CollaborationInfo collaborationInfo; //NOSONAR
 
-    @XmlElement(name = "MessageProperties")
+    @XmlTransient
     protected Ebms3MessageProperties messageProperties; //NOSONAR
 
     @XmlElement(name = "PayloadInfo")
@@ -132,7 +133,12 @@ public class Ebms3UserMessage {
      *
      * @return possible object is {@link Ebms3MessageProperties }
      */
+    @XmlElement(name = "MessageProperties")
     public Ebms3MessageProperties getMessageProperties() {
+        if (this.messageProperties != null && CollectionUtils.isEmpty(this.messageProperties.getProperty())) {
+            return null;
+        }
+
         return this.messageProperties;
     }
 

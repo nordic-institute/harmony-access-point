@@ -549,7 +549,6 @@
                 <address-setting name="jms.queue.DomibusEArchiveNotificationDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="0"/>
                 <address-setting name="jms.queue.DomibusRetentionMessageQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="10000" max-delivery-attempts="0"/>
                 <address-setting name="jms.queue.DomibusAlertMessageQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="1"/>
-                <address-setting name="jms.queue.DomibusUIReplicationQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="10000" max-delivery-attempts="1"/>
                 <address-setting name="jms.queue.DomibusBusinessMessageOutQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="300000" max-delivery-attempts="10"/>
                 <address-setting name="jms.queue.DomibusNotifyBackendJmsQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="300000" max-delivery-attempts="10"/>
                 <address-setting name="jms.queue.DomibusErrorNotifyConsumerQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="300000" max-delivery-attempts="10"/>
@@ -596,7 +595,6 @@
                 <jms-queue name="DomibusEArchiveQueue" entries="java:/jms/domibus.internal.earchive.queue java:/jms/queue/DomibusEArchiveQueue" durable="true"/>
                 <jms-queue name="DomibusEArchiveNotificationQueue" entries="java:/jms/domibus.internal.earchive.notification.queue java:/jms/queue/DomibusEArchiveNotificationQueue" durable="true"/>
                 <jms-queue name="DomibusEArchiveNotificationDLQ" entries="java:/jms/domibus.internal.earchive.notification.dlq java:/jms/queue/DomibusEArchiveNotificationDLQ" durable="true"/>
-                <jms-queue name="DomibusUIReplicationQueue" entries="java:/jms/domibus.internal.ui.replication.queue java:/jms/queue/DomibusUIReplicationQueue" durable="true"/>
                 <jms-queue name="DomibusNotifyBackendWebServiceQueue" entries="java:/jms/domibus.notification.webservice java:/jms/queue/DomibusNotifyBackendWebServiceQueue" durable="true"/>
                 <jms-queue name="DomibusNotifyBackendFileSystemQueue" entries="java:/jms/domibus.notification.filesystem java:/jms/queue/DomibusNotifyBackendFileSystemQueue" durable="true"/>
                 <jms-queue name="DomibusUnknownReceiverQueue" entries="java:/jms/domibus.internal.notification.unknown java:/jms/queue/DomibusUnknownReceiverQueue" durable="true"/>

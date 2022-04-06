@@ -1,5 +1,5 @@
 -- ********************************************************************************************************
--- Domibus 4.2.7 to 5.0 data migration package
+-- Domibus 4.2 to 5.0 data migration package
 --
 -- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
 --
@@ -245,7 +245,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                  ' records=' || v_count_tab1);
         ELSE
             v_count_match := FALSE;
-            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has different number of records as table ' || tab_name2);
+            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has different number of records - ' || v_count_tab1 ||
+                                 ' - than table '|| tab_name2 || ' - ' || v_count_tab2 || ' -');
         END IF;
         RETURN v_count_match;
     END check_counts;

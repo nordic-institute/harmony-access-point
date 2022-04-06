@@ -23,7 +23,6 @@ import eu.domibus.core.message.retention.RetentionWorker;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
-import eu.domibus.core.replication.UIReplicationJob;
 import eu.domibus.core.user.multitenancy.ActivateSuspendedSuperUsersJob;
 import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
 import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
@@ -411,27 +410,6 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(saveCertificateAndLogRevocationJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_CERTIFICATE_CHECK_CRON));
-        return obj;
-    }
-
-    @Bean
-    public JobDetailFactoryBean uiReplicationJob() {
-        JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(UIReplicationJob.class);
-        obj.setDurability(true);
-        return obj;
-    }
-
-    @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public CronTriggerFactoryBean uiReplicationTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null) {
-            return null;
-        }
-        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
-        obj.setJobDetail(uiReplicationJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_UI_REPLICATION_SYNC_CRON));
-        obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }
 

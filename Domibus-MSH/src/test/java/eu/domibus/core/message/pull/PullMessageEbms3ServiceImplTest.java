@@ -17,7 +17,6 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -65,10 +64,6 @@ public class PullMessageEbms3ServiceImplTest {
 
     @Injectable
     protected MpcService mpcService;
-
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private UserMessageLogDefaultService userMessageLogDefaultService;
@@ -318,7 +313,6 @@ public class PullMessageEbms3ServiceImplTest {
             userMessageLog.setMessageStatus(messageStatusEntity);
             messagingLockDao.save(lock);
             userMessageLogDao.update(userMessageLog);
-            uiReplicationSignalService.messageChange(anyString);
             backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT, withAny(timestamp));
         }};
     }
