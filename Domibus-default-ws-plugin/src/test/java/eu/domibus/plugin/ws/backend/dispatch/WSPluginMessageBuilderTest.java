@@ -1,19 +1,21 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property;
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.plugin.ws.webservice.ExtendedPartInfo;
 import eu.domibus.webservice.backend.generated.*;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -57,6 +59,9 @@ public class WSPluginMessageBuilderTest {
     @Injectable
     private WSPluginImpl wsPlugin;
 
+    @Injectable
+    private UserMessageMapper userMessageMapper;
+
     @Test
     public void getJaxbElement_MessageStatusChange(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
@@ -67,7 +72,7 @@ public class WSPluginMessageBuilderTest {
             result = new MessageStatusChange();
         }};
 
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
 
         assertEquals(MessageStatusChange.class, jaxbElement.getClass());
 
@@ -85,7 +90,7 @@ public class WSPluginMessageBuilderTest {
             result = new SendSuccess();
         }};
 
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
 
         assertEquals(SendSuccess.class, jaxbElement.getClass());
 
@@ -103,7 +108,7 @@ public class WSPluginMessageBuilderTest {
             result = new DeleteBatch();
         }};
 
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
 
         assertEquals(DeleteBatch.class, jaxbElement.getClass());
 
@@ -120,7 +125,7 @@ public class WSPluginMessageBuilderTest {
             result = new Delete();
         }};
 
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
 
         assertEquals(Delete.class, jaxbElement.getClass());
 
@@ -138,7 +143,7 @@ public class WSPluginMessageBuilderTest {
             result = new ReceiveSuccess();
         }};
 
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
 
         assertEquals(ReceiveSuccess.class, jaxbElement.getClass());
 
@@ -156,27 +161,9 @@ public class WSPluginMessageBuilderTest {
             result = new ReceiveFailure();
         }};
 
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
 
         assertEquals(ReceiveFailure.class, jaxbElement.getClass());
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void getJaxbElement_submitMessage(@Injectable WSBackendMessageLogEntity messageLogEntity) {
-        new Expectations(wsPluginMessageBuilder) {{
-            messageLogEntity.getType();
-            result = WSBackendMessageType.SUBMIT_MESSAGE;
-
-            wsPluginMessageBuilder.getSubmitMessage(messageLogEntity);
-            result = new SubmitMessage();
-        }};
-
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
-
-        assertEquals(SubmitMessage.class, jaxbElement.getClass());
 
         new FullVerifications() {
         };
@@ -192,7 +179,7 @@ public class WSPluginMessageBuilderTest {
             result = new SendFailure();
         }};
 
-        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        Object jaxbElement = wsPluginMessageBuilder.getBody(messageLogEntity);
 
         assertEquals(SendFailure.class, jaxbElement.getClass());
 
@@ -235,6 +222,7 @@ public class WSPluginMessageBuilderTest {
         new FullVerifications() {
         };
     }
+
     @Test(expected = WSPluginException.class)
     public void getDeleteBatch_empty(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
@@ -256,43 +244,6 @@ public class WSPluginMessageBuilderTest {
         };
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @Test
-    public void getSubmitMessage(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
-
-        List<SubmitMessage> capturedSubmitMessages = new ArrayList<>();
-        List<UserMessage> capturedUserMessages = new ArrayList<>();
-
-        new Expectations(wsPluginMessageBuilder) {{
-            messageLogEntity.getMessageId();
-            result = MESSAGE_ID;
-            messageLogEntity.getFinalRecipient();
-            result = FINAL_RECIPIENT;
-            messageLogEntity.getOriginalSender();
-            result = ORIGINAL_SENDER;
-
-            wsPlugin.browseMessage(MESSAGE_ID, (UserMessage) any);
-            result = new UserMessage();
-
-            wsPluginMessageBuilder.fillInfoPartsForLargeFiles(
-                    withCapture(capturedSubmitMessages),
-                    withCapture(capturedUserMessages));
-        }};
-
-        SubmitMessage sendFailure = wsPluginMessageBuilder.getSubmitMessage(messageLogEntity);
-        assertEquals(MESSAGE_ID, sendFailure.getMessageID());
-        assertEquals(1, capturedSubmitMessages.size());
-        assertEquals(MESSAGE_ID, capturedSubmitMessages.get(0).getMessageID());
-        assertEquals(FINAL_RECIPIENT, capturedSubmitMessages.get(0).getFinalRecipient());
-        assertEquals(ORIGINAL_SENDER, capturedSubmitMessages.get(0).getOriginalSender());
-
-        assertEquals(1, capturedUserMessages.size());
-        Assert.assertNotNull(capturedUserMessages.get(0));
-
-        new FullVerifications() {
-        };
-    }
-
     @Test(expected = WSPluginException.class)
     public void getSubmitMessage_MessageNotFoundException(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
         new Expectations() {{
@@ -303,7 +254,7 @@ public class WSPluginMessageBuilderTest {
             result = new MessageNotFoundException();
         }};
 
-        wsPluginMessageBuilder.getSubmitMessage(messageLogEntity);
+        wsPluginMessageBuilder.buildSOAPMessageSubmit(messageLogEntity);
 
         new FullVerifications() {
         };
@@ -334,7 +285,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPayloadInfo(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPayloadInfo(@Injectable SubmitRequest submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo();
             result = null;
@@ -349,7 +300,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPartInfo_empty(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPartInfo_empty(@Injectable SubmitRequest submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo().getPartInfo();
             result = new ArrayList<>();
@@ -359,11 +310,12 @@ public class WSPluginMessageBuilderTest {
         }};
         wsPluginMessageBuilder.fillInfoPartsForLargeFiles(submitMessage, userMessage);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPartInfo_empty2(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPartInfo_empty2(@Injectable SubmitRequest submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo().getPartInfo();
             result = new ArrayList<>();
@@ -373,11 +325,12 @@ public class WSPluginMessageBuilderTest {
         }};
         wsPluginMessageBuilder.fillInfoPartsForLargeFiles(submitMessage, userMessage);
 
-        new FullVerifications(wsPluginMessageBuilder) {};
+        new FullVerifications(wsPluginMessageBuilder) {
+        };
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles_noPartInfo_null(@Injectable SubmitMessage submitMessage, @Injectable UserMessage userMessage) {
+    public void fillInfoPartsForLargeFiles_noPartInfo_null(@Injectable SubmitRequest submitMessage, @Injectable UserMessage userMessage) {
         new Expectations() {{
             userMessage.getPayloadInfo().getPartInfo();
             result = null;
@@ -392,7 +345,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInfoPartsForLargeFiles(@Injectable SubmitMessage submitMessage,
+    public void fillInfoPartsForLargeFiles(@Injectable SubmitRequest submitMessage,
                                            @Injectable UserMessage userMessage,
                                            @Injectable ExtendedPartInfo partInfo1,
                                            @Injectable ExtendedPartInfo partInfo2) {
@@ -414,7 +367,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInPart_inBody(@Injectable SubmitMessage submitMessage,
+    public void fillInPart_inBody(@Injectable SubmitRequest submitMessage,
                                   @Injectable ExtendedPartInfo partInfo) {
 
         new Expectations(wsPluginMessageBuilder) {{
@@ -445,7 +398,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    public void fillInPart_notInBody(@Injectable SubmitMessage submitMessage,
+    public void fillInPart_notInBody(@Injectable SubmitRequest submitMessage,
                                      @Injectable ExtendedPartInfo partInfo,
                                      @Injectable DataHandler dataHandler) {
 
@@ -531,9 +484,9 @@ public class WSPluginMessageBuilderTest {
                                  @Injectable SendSuccess jaxbElement,
                                  @Injectable SOAPMessage soapMessage) {
         new Expectations(wsPluginMessageBuilder) {{
-            wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+            wsPluginMessageBuilder.getBody(messageLogEntity);
             result = jaxbElement;
-            wsPluginMessageBuilder.createSOAPMessage(jaxbElement);
+            wsPluginMessageBuilder.createSOAPMessage(jaxbElement, null);
             result = soapMessage;
         }};
         SOAPMessage result = wsPluginMessageBuilder.buildSOAPMessage(messageLogEntity);
@@ -552,7 +505,7 @@ public class WSPluginMessageBuilderTest {
             result = soapBody;
         }};
 
-        wsPluginMessageBuilder.createSOAPMessage(sendSuccess);
+        wsPluginMessageBuilder.createSOAPMessage(sendSuccess, null);
 
         new FullVerifications() {{
             jaxbContextWebserviceBackend.createMarshaller().marshal(sendSuccess, soapBody);
@@ -576,10 +529,24 @@ public class WSPluginMessageBuilderTest {
             result = new SOAPException();
         }};
 
-        wsPluginMessageBuilder.createSOAPMessage(sendSuccess);
+        wsPluginMessageBuilder.createSOAPMessage(sendSuccess, null);
 
         new FullVerifications() {
         };
 
+    }
+
+    @Test
+    public void createSOAPMessage(@Injectable UserMessage userMessage,
+                                  @Injectable eu.domibus.webservice.backend.generated.UserMessage userMessageBack) {
+
+        new Expectations() {{
+            userMessageMapper.userMessageDTOToUserMessage(userMessage);
+            result = userMessageBack;
+        }};
+
+        SOAPMessage soapMessage = wsPluginMessageBuilder.createSOAPMessage(
+                wsPluginMessageBuilder.getSubmitMessage(userMessage),
+                wsPluginMessageBuilder.getMessaging(userMessage));
     }
 }
