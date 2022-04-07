@@ -7,6 +7,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.UserMessageSampleUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,30 +30,29 @@ public class UserMessageService {
 
     @Autowired
     AgreementDictionaryService agreementDictionaryService;
-    @Autowired
-    UserMessageSampleUtil userMessageSampleUtil;
+
     @Autowired
     MpcDictionaryService mpcDictionaryService;
+
     @Autowired
     PartyRoleDictionaryService partyRoleDictionaryService;
+
     @Autowired
     PartyIdDictionaryService partyIdDictionaryService;
+
     @Autowired
     ServiceDictionaryService serviceDictionaryService;
+
     @Autowired
     ActionDictionaryService actionDictionaryService;
+
     @Autowired
     MessagePropertyDictionaryService messagePropertyDictionaryService;
 
     @Transactional
     public UserMessage getUserMessage(){
-        final UserMessage userMessage;
-        try {
-            userMessage = userMessageSampleUtil.getUserMessageTemplate();
-        } catch (IOException e) {
-            LOG.error("Could not create the userMessage", e);
-            return null;
-        }
+        final UserMessage userMessage = UserMessageSampleUtil.createUserMessage();;
+
         userMessage.setAction(actionDictionaryService.findOrCreateAction(userMessage.getActionValue()));
         userMessage.setService(serviceDictionaryService.findOrCreateService(userMessage.getService().getValue(), userMessage.getService().getType()));
         userMessage.setAgreementRef(agreementDictionaryService.findOrCreateAgreement(userMessage.getAgreementRef().getValue(), userMessage.getAgreementRef().getType()));

@@ -2,13 +2,12 @@ package eu.domibus.core.plugin.delegate;
 
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.*;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
-import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.BackendConnectorHelper;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,17 +22,17 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
 
     protected ClassUtil classUtil;
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
-    protected BackendConnectorProviderImpl backendConnectorProvider;
-    protected BackendConnectorService backendConnectorService;
+    protected BackendConnectorProvider backendConnectorProvider;
+    protected BackendConnectorHelper backendConnectorHelper;
 
     public DefaultBackendConnectorDelegate(ClassUtil classUtil,
                                            AsyncNotificationConfigurationService asyncNotificationConfigurationService,
-                                           BackendConnectorProviderImpl backendConnectorProvider,
-                                           BackendConnectorService backendConnectorService) {
+                                           BackendConnectorProvider backendConnectorProvider,
+                                           BackendConnectorHelper backendConnectorHelper) {
         this.classUtil = classUtil;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
         this.backendConnectorProvider = backendConnectorProvider;
-        this.backendConnectorService = backendConnectorService;
+        this.backendConnectorHelper = backendConnectorHelper;
     }
 
     @Override

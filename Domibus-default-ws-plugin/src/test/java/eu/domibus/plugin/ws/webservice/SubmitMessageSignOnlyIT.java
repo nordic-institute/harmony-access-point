@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -33,6 +34,9 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
     @Autowired
     NonRepudiationChecker nonRepudiationChecker;
 
+    @Autowired
+    MessageRetentionDefaultService messageRetentionDefaultService;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
@@ -42,7 +46,6 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
      * Test for the backend sendMessage service with payload profile enabled
      */
     @Test
-    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String msgId = UUID.randomUUID() + "@domibus.eu";
         String refMsgId = UUID.randomUUID() + "@domibus.eu";
@@ -69,5 +72,7 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
         verify(postRequestedFor(urlMatching("/domibus/services/msh"))
                 .withRequestBody(containing("DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\""))
                 .withHeader("Content-Type", notMatching("application/soap+xml")));
+
+        messageRetentionDefaultService.deleteAllMessages();
     }
 }

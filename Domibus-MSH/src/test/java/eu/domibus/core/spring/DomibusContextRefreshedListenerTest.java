@@ -3,6 +3,7 @@ package eu.domibus.core.spring;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
@@ -10,7 +11,6 @@ import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class DomibusContextRefreshedListenerTest {
     DomibusPropertyValidatorService domibusPropertyValidatorService;
 
     @Injectable
-    BackendConnectorProvider backendConnectorProvider;
+    BackendConnectorService backendConnectorService;
 
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,
@@ -132,7 +132,7 @@ public class DomibusContextRefreshedListenerTest {
             gatewayConfigurationValidator.validateConfiguration();
             times = 1;
 
-            backendConnectorProvider.ensureValidConfiguration();
+            backendConnectorService.ensureValidConfiguration();
             times = 1;
         }};
     }

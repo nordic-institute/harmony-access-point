@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
  * @since 5.0
  */
 @Transactional
-public class EArchiveExtMapperTest extends AbstractIT {
+public class EArchiveExtMapperTestIT extends AbstractIT {
 
     @Autowired
     private EArchiveExtMapper archiveExtMapper;

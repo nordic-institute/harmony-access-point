@@ -13,10 +13,9 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -49,7 +48,7 @@ public class RoutingServiceTest {
     public static final String MESSAGE_ID = "MessageId";
 
     @Injectable
-    protected BackendConnectorProviderImpl backendConnectorProvider;
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Injectable
     protected BackendFilterCoreMapper backendFilterCoreMapper;
@@ -605,7 +604,7 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void createBackendFilters_emptyDbEntities(@Injectable BackendConnectorProviderImpl backendConnectorProvider,
+    public void createBackendFilters_emptyDbEntities(@Injectable BackendConnectorProvider backendConnectorProvider,
                                                      @Injectable BackendConnector backendConnector,
                                                      @Injectable BackendFilterEntity dbBackendFilterEntity) {
         RoutingService routingService = new RoutingService();
@@ -822,7 +821,7 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void createBackendFiltersWithDbEntities(@Injectable BackendConnectorProviderImpl backendConnectorProvider,
+    public void createBackendFiltersWithDbEntities(@Injectable BackendConnectorProvider backendConnectorProvider,
                                                    @Injectable BackendConnector backendConnector,
                                                    @Injectable BackendFilterEntity dbBackendFilterEntity,
                                                    @Injectable BackendFilterEntity dbBackendFilterEntity1) {

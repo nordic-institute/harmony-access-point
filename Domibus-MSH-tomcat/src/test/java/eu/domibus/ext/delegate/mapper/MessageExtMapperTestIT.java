@@ -18,7 +18,7 @@ import java.util.List;
  * @since 5.0
  */
 @Transactional
-public class MessageExtMapperTest extends AbstractIT {
+public class MessageExtMapperTestIT extends AbstractIT {
 
     @Autowired
     private MessageExtMapper messageExtMapper;

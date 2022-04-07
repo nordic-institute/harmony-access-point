@@ -16,8 +16,8 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
-import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.BackendConnectorHelper;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
@@ -102,13 +102,13 @@ public class BackendNotificationService {
     protected SubmissionValidatorService submissionValidatorService;
 
     @Autowired
-    protected BackendConnectorProviderImpl backendConnectorProvider;
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
     protected BackendConnectorDelegate backendConnectorDelegate;
 
     @Autowired
-    protected BackendConnectorService backendConnectorService;
+    protected BackendConnectorHelper backendConnectorHelper;
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -326,7 +326,7 @@ public class BackendNotificationService {
         final String messageId = userMessage.getMessageId();
         final long messageEntityId = userMessage.getEntityId();
 
-        List<NotificationType> requiredNotificationTypeList = backendConnectorService.getRequiredNotificationTypeList(backendConnector);
+        List<NotificationType> requiredNotificationTypeList = backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
         if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
             LOG.debug("No plugin notification sent for message [{}]. Notification type [{}]]", messageId, notificationType);
