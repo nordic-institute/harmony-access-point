@@ -44,16 +44,6 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         }
     }
 
-    @Override
-    public boolean isAdminMultiAware() {
-        return authUtils.isAdminMultiAware();
-    }
-
-    @Override
-    public String getOriginalUserFromSecurityContext() throws AuthenticationException {
-        return authUtils.getOriginalUser();
-    }
-
     /**
      * @param userMessage with set of {@link eu.domibus.api.model.MessageProperty}
      * @throws AccessDeniedException if the authOriginalUser is not ORIGINAL_SENDER or FINAL_RECIPIENT of the {@link UserMessage}

@@ -128,24 +128,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
 
     private boolean isAMatch(UserMessageLogDto userMessageLogDto, String finalRecipient, String originalUser) {
-        if (finalRecipient == null && originalUser == null) {
+        if (StringUtils.isBlank(finalRecipient) && StringUtils.isBlank(originalUser)) {
             return true;
         }
         if (finalRecipient != null && !StringUtils.equalsIgnoreCase(userMessageLogDto.getProperties().get(FINAL_RECIPIENT), finalRecipient)) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("It's NOT a match for [{}] with finalRecipient [{}]", userMessageLogDto, finalRecipient);
-            }
+            LOG.trace("It's NOT a match for [{}] with finalRecipient [{}]", userMessageLogDto, finalRecipient);
             return false;
         }
         if (originalUser != null && !StringUtils.equalsIgnoreCase(userMessageLogDto.getProperties().get(ORIGINAL_SENDER), originalUser)) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("It's NOT a match for [{}] with originalUser [{}]", userMessageLogDto, originalUser);
-            }
+            LOG.trace("It's NOT a match for [{}] with originalUser [{}]", userMessageLogDto, originalUser);
             return false;
         }
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("It's a match for [{}] with finalRecipient [{}] and originalUser [{}]", userMessageLogDto, finalRecipient, originalUser);
-        }
+        LOG.trace("It's a match for [{}] with finalRecipient [{}] and originalUser [{}]", userMessageLogDto, finalRecipient, originalUser);
         return true;
     }
 

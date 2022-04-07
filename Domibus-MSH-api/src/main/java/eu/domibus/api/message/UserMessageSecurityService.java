@@ -22,21 +22,6 @@ public interface UserMessageSecurityService {
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;
 
-    /**
-     *
-     * @return true if admin or super admin
-     */
-    boolean isAdminMultiAware();
-
-    /**
-     * Returns the original user passed via the security context OR
-     * null when the user has the role ROLE_ADMIN / ROLE_AP_ADMIN or unsecured authorizations is allowed
-     *
-     * @return original user passed via the security context or null
-     * @throws AuthenticationException in case the user doesn't have the permission
-     */
-    String getOriginalUserFromSecurityContext() throws AuthenticationException;
-
     void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage);
 
     void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName);

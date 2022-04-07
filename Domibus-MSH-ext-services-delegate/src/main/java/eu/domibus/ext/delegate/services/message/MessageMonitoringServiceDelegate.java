@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.delegate.mapper.MessageExtMapper;
@@ -35,17 +36,20 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     protected UserMessageSecurityService userMessageSecurityService;
 
+    private AuthUtils authUtils;
     protected UserMessageRestoreService restoreService;
 
     public MessageMonitoringServiceDelegate(UserMessageService userMessageService,
                                             MessageExtMapper messageExtMapper,
                                             MessageAttemptService messageAttemptService,
                                             UserMessageSecurityService userMessageSecurityService,
+                                            AuthUtils authUtils,
                                             UserMessageRestoreService restoreService) {
         this.userMessageService = userMessageService;
         this.messageExtMapper = messageExtMapper;
         this.messageAttemptService = messageAttemptService;
         this.userMessageSecurityService = userMessageSecurityService;
+        this.authUtils = authUtils;
         this.restoreService = restoreService;
     }
 
@@ -57,10 +61,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public List<String> getFailedMessages(String finalRecipient) throws AuthenticationExtException, MessageMonitorExtException {
         LOG.debug("Getting failed messages with finalRecipient [{}]", finalRecipient);
-        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
-        if(StringUtils.isBlank(originalUserFromSecurityContext) && !userMessageSecurityService.isAdminMultiAware()) {
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
-        }
+        String originalUserFromSecurityContext = getUser();
         return userMessageService.getFailedMessages(finalRecipient, originalUserFromSecurityContext);
     }
 
@@ -84,10 +85,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
-        if(StringUtils.isBlank(originalUserFromSecurityContext) && !userMessageSecurityService.isAdminMultiAware()) {
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
-        }
+        String originalUserFromSecurityContext = getUser();
         return userMessageService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUserFromSecurityContext);
     }
 
@@ -112,7 +110,15 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
-        String originalUserFromSecurityContext = userMessageSecurityService.getOriginalUserFromSecurityContext();
+        String originalUserFromSecurityContext = getUser();
         return userMessageService.deleteMessagesDuringPeriod(begin, end, originalUserFromSecurityContext);
+    }
+
+    private String getUser() {
+        String originalUserFromSecurityContext = authUtils.getOriginalUser();
+        if(StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
+        }
+        return originalUserFromSecurityContext;
     }
 }
