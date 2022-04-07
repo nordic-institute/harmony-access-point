@@ -313,7 +313,8 @@ public class UpdateRetryLoggingService {
         RetryStrategy.AttemptAlgorithm algorithm = legConfiguration.getReceptionAwareness().getStrategy().getAlgorithm();
         int retryCount = legConfiguration.getReceptionAwareness().getRetryCount();
         int retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout();
-        Date newNextAttempt = algorithm.compute(nextAttempt, retryCount, retryTimeout);
+        long delayInMillis = domibusPropertyProvider.getLongProperty(MESSAGE_EXPIRATION_DELAY);
+        Date newNextAttempt = algorithm.compute(nextAttempt, retryCount, retryTimeout, delayInMillis);
         LOG.debug("Updating next attempt from [{}] to [{}]", nextAttempt, newNextAttempt);
         reprogrammableService.setRescheduleInfo(userMessageLog, newNextAttempt);
     }

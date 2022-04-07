@@ -32,7 +32,7 @@ public enum RetryStrategy {
 
         ALGORITHM {
             @Override
-            public Date compute(final Date received, int maxAttempts, final int timeoutInMinutes) {
+            public Date compute(final Date received, int maxAttempts, final int timeoutInMinutes, final long delayInMillis) {
                 int MULTIPLIER_MINUTES_TO_SECONDS = 60000;
                 if(maxAttempts < 0 || timeoutInMinutes < 0 || received == null) {
                     return null;
@@ -42,7 +42,7 @@ public enum RetryStrategy {
                 }
                 final long now = System.currentTimeMillis();
                 long retry = received.getTime();
-                final long stopTime = received.getTime() + ( (long)timeoutInMinutes * MULTIPLIER_MINUTES_TO_SECONDS ) + 5000; // We grant 5 extra seconds to avoid not sending the last attempt
+                final long stopTime = received.getTime() + ( (long)timeoutInMinutes * MULTIPLIER_MINUTES_TO_SECONDS ) + delayInMillis; // We grant some extra time (configured in properties as milliseconds) to avoid not sending the last attempt
                 while (retry <= (stopTime)) {
                     retry += (long)timeoutInMinutes * MULTIPLIER_MINUTES_TO_SECONDS / maxAttempts;
                     if (retry > now && retry < stopTime) {
@@ -58,7 +58,7 @@ public enum RetryStrategy {
 
         ALGORITHM {
             @Override
-            public Date compute(final Date received, final int currentAttempts, final int timeoutInMinutes) {
+            public Date compute(final Date received, final int currentAttempts, final int timeoutInMinutes, final long delayInSeconds) {
 
                 return null;
             }
@@ -69,6 +69,6 @@ public enum RetryStrategy {
      * NOT FINISHED *
      */
     public interface AttemptAlgorithm extends Serializable {
-        Date compute(Date received, int maxAttempts, int timeoutInMinutes);
+        Date compute(Date received, int maxAttempts, int timeoutInMinutes, long delayInMillis);
     }
 }
