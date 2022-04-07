@@ -30,7 +30,7 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.6</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
-        <spring.version>5.3.15</spring.version>
+        <spring.version>5.3.18</spring.version>
         <spring.security.version>5.6.1</spring.security.version>
         <spring.session.core.version>2.6.1</spring.session.core.version>
         <spring.session.jdbc.version>2.6.1</spring.session.jdbc.version>
@@ -75,6 +75,7 @@
         <liquibase.version>4.7.1</liquibase.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
+        <handlebars.version>4.3.0</handlebars.version>
         <dropwizard.metrics.version>4.2.8</dropwizard.metrics.version>
         <owasp.dependency.check.version>6.5.3</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
@@ -160,12 +161,17 @@
         <swagger-maven-plugin.version>2.1.12</swagger-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.31</swagger-codegen-maven-plugin.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
+        
+        <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
+        <commons-compress.version>1.21</commons-compress.version>
+        <commons-configuration2.version>2.7</commons-configuration2.version>
+        <httpmime.version>4.5.13</httpmime.version>
+        <jdom2.version>2.0.6.1</jdom2.version> 
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
-        <commons-ip2.version>2.0.0-alpha1</commons-ip2.version>
     </properties>
 
     <!-- Where to deploy the binaries -->
@@ -700,17 +706,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.roda-project</groupId>
-                <artifactId>commons-ip2</artifactId>
-                <version>${commons-ip2.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>${commons-collections.version}</version>
@@ -973,6 +968,44 @@
             </dependency>
             <!-- End Miscellaneous -->
 
+            <!-- commons-ip2 -->
+            <dependency>
+                <groupId>org.roda-project</groupId>
+                <artifactId>commons-ip2</artifactId>
+                <version>${commons-ip2.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>dom4j</groupId>
+                        <artifactId>dom4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>${commons-configuration2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${httpmime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom2</artifactId>
+                <version>${jdom2.version}</version>
+            </dependency>
+            <!-- End commons-ip2 -->
+
             <!-- DSS dependencies -->
             <dependency>
                 <groupId>eu.domibus</groupId>
@@ -1136,6 +1169,12 @@
                 <groupId>com.github.tomakehurst</groupId>
                 <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jknack</groupId>
+                <artifactId>handlebars</artifactId>
+                <version>${handlebars.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
