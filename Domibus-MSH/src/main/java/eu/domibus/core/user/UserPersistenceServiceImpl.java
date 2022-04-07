@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
@@ -18,7 +19,6 @@ import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,13 +52,16 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     protected final UserSessionsService userSessionsService;
 
-    protected final AuthenticationService authenticationService;
-
     protected final DomainContextProvider domainContextProvider; //NOSONAR: not necessary to be transient or serializable
 
     protected final DomibusConfigurationService domibusConfigurationService;
 
-    public UserPersistenceServiceImpl(UserDao userDao, UserRoleDao userRoleDao, BCryptPasswordEncoder bCryptEncoder, AuthCoreMapper authCoreMapper, UserDomainService userDomainService, ConsoleUserSecurityPolicyManager securityPolicyManager, UserSessionsService userSessionsService, AuthenticationService authenticationService, DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService) {
+    protected final AuthUtils authUtils;
+
+    public UserPersistenceServiceImpl(UserDao userDao, UserRoleDao userRoleDao, BCryptPasswordEncoder bCryptEncoder, AuthCoreMapper authCoreMapper,
+                                      UserDomainService userDomainService, ConsoleUserSecurityPolicyManager securityPolicyManager,
+                                      UserSessionsService userSessionsService, DomainContextProvider domainContextProvider,
+                                      DomibusConfigurationService domibusConfigurationService, AuthUtils authUtils) {
         this.userDao = userDao;
         this.userRoleDao = userRoleDao;
         this.bCryptEncoder = bCryptEncoder;
@@ -66,9 +69,9 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         this.userDomainService = userDomainService;
         this.securityPolicyManager = securityPolicyManager;
         this.userSessionsService = userSessionsService;
-        this.authenticationService = authenticationService;
         this.domainContextProvider = domainContextProvider;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.authUtils = authUtils;
     }
 
     @Override
@@ -140,7 +143,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     }
 
     protected void checkCanUpdateIfCurrentUser(eu.domibus.api.user.User user, User existing) {
-        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
+        DomibusUserDetails loggedUser = authUtils.getUserDetails();
         if (loggedUser == null || !StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
             LOG.debug("No need to validate the permission to update a user if it is different than the logged-in user [{}]; exiting.", user.getUserName());
             return;
