@@ -28,7 +28,9 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ion Perpegel
@@ -124,7 +126,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, false, false);
         assertEquals(2, downloadedUserMessagesOlderThan.size());
-        Assert.assertThat(downloadedUserMessagesOlderThan
+        assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
@@ -326,14 +328,60 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
 
-        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, null, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(1, message.size());
     }
 
     @Test
     @Transactional
+    public void findFailedMessages_all() {
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime startDate = currentDate.minusDays(1);
+        final ZonedDateTime endDate = currentDate.plusDays(1);
+
+        List<String> message = userMessageLogDao.findFailedMessages(null, null, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        assertEquals(2, message.size());
+    }
+
+    @Test
+    @Transactional
+    public void findFailedMessages_unknownFinalRecipient() {
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime startDate = currentDate.minusDays(1);
+        final ZonedDateTime endDate = currentDate.plusDays(1);
+
+        List<String> message = userMessageLogDao.findFailedMessages("unknown", null, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        assertEquals(0, message.size());
+    }
+
+    @Test
+    @Transactional
+    public void findFailedMessages_originalSender() {
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime startDate = currentDate.minusDays(1);
+        final ZonedDateTime endDate = currentDate.plusDays(1);
+        final String finalRecipient = "finalRecipient2";
+
+        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, "originalSender1", dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        assertEquals(1, message.size());
+    }
+
+    @Test
+    @Transactional
+    public void findFailedMessages_originalSender_notFound() {
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime startDate = currentDate.minusDays(1);
+        final ZonedDateTime endDate = currentDate.plusDays(1);
+        final String finalRecipient = "finalRecipient2";
+
+        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, "notExists", dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        assertEquals(0, message.size());
+    }
+
+    @Test
+    @Transactional
     public void findFailedMessagesWithOutDates() {
-        List<String> message = userMessageLogDao.findFailedMessages(null, null, null);
+        List<String> message = userMessageLogDao.findFailedMessages(null,null, null, null);
         assertEquals(2, message.size());
     }
 
@@ -448,7 +496,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findByMessageIdSafely_notfound() {
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely("notFound");
 
-        Assert.assertNull(userMessageLog);
+        assertNull(userMessageLog);
     }
 
     @Test
@@ -472,7 +520,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findByEntityId_notFound() {
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(12234567890L);
 
-        Assert.assertNull(userMessageLog);
+        assertNull(userMessageLog);
     }
 
     @Test
@@ -488,7 +536,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findByEntityIdSafely_notFound() {
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(12234567890L);
 
-        Assert.assertNull(userMessageLog);
+        assertNull(userMessageLog);
     }
 
     @Test
@@ -499,9 +547,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(DELETED, byEntityId.getMessageStatus());
         Assert.assertNotNull(byEntityId.getDeleted());
-        Assert.assertNull(byEntityId.getAcknowledged());
-        Assert.assertNull(byEntityId.getDownloaded());
-        Assert.assertNull(byEntityId.getFailed());
+        assertNull(byEntityId.getAcknowledged());
+        assertNull(byEntityId.getDownloaded());
+        assertNull(byEntityId.getFailed());
     }
     @Test
     @Transactional
@@ -510,10 +558,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(ACKNOWLEDGED, byEntityId.getMessageStatus());
-        Assert.assertNull(byEntityId.getDeleted());
+        assertNull(byEntityId.getDeleted());
         Assert.assertNotNull(byEntityId.getAcknowledged());
-        Assert.assertNull(byEntityId.getDownloaded());
-        Assert.assertNull(byEntityId.getFailed());
+        assertNull(byEntityId.getDownloaded());
+        assertNull(byEntityId.getFailed());
     }
 
     @Test
@@ -523,10 +571,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(ACKNOWLEDGED_WITH_WARNING, byEntityId.getMessageStatus());
-        Assert.assertNull(byEntityId.getDeleted());
+        assertNull(byEntityId.getDeleted());
         Assert.assertNotNull(byEntityId.getAcknowledged());
-        Assert.assertNull(byEntityId.getDownloaded());
-        Assert.assertNull(byEntityId.getFailed());
+        assertNull(byEntityId.getDownloaded());
+        assertNull(byEntityId.getFailed());
     }
 
     @Test
@@ -536,10 +584,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(DOWNLOADED, byEntityId.getMessageStatus());
-        Assert.assertNull(byEntityId.getDeleted());
-        Assert.assertNull(byEntityId.getAcknowledged());
+        assertNull(byEntityId.getDeleted());
+        assertNull(byEntityId.getAcknowledged());
         Assert.assertNotNull(byEntityId.getDownloaded());
-        Assert.assertNull(byEntityId.getFailed());
+        assertNull(byEntityId.getFailed());
     }
 
     @Test
@@ -549,9 +597,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(SEND_FAILURE, byEntityId.getMessageStatus());
-        Assert.assertNull(byEntityId.getDeleted());
-        Assert.assertNull(byEntityId.getAcknowledged());
-        Assert.assertNull(byEntityId.getDownloaded());
+        assertNull(byEntityId.getDeleted());
+        assertNull(byEntityId.getAcknowledged());
+        assertNull(byEntityId.getDownloaded());
         Assert.assertNotNull(byEntityId.getFailed());
     }
 

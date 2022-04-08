@@ -35,7 +35,6 @@ import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.*;
@@ -162,9 +161,6 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     private UserMessageDefaultService userMessageService;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     private UserMessageDao userMessageDao;

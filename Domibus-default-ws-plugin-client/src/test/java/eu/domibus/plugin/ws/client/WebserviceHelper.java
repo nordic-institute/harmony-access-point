@@ -103,7 +103,7 @@ class WebserviceHelper {
             formattedOutput.append(LINE_SEPARATOR);
             formattedOutput.append("==========================================================");
             formattedOutput.append(LINE_SEPARATOR);
-            formattedOutput.append("EBMS3 error code: ").append(errorResult.getErrorCode());
+            formattedOutput.append("EBMS3 error code: ").append(errorResult.getDomibusErrorCode());
             formattedOutput.append(LINE_SEPARATOR);
             formattedOutput.append("Error details: ").append(errorResult.getErrorDetail());
             formattedOutput.append(LINE_SEPARATOR);

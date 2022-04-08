@@ -12,7 +12,6 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -40,8 +39,6 @@ public class ResponseHandlerTest {
     private ResponseHandler responseHandler;
     @Injectable
     private SignalMessageLogDefaultService signalMessageLogDefaultService;
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
     @Injectable
     private NonRepudiationService nonRepudiationService;
     @Injectable

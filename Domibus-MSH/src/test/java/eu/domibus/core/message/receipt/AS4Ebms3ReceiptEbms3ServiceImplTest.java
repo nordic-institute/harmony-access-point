@@ -22,7 +22,6 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
@@ -60,8 +59,6 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
     @Tested
     AS4ReceiptServiceImpl as4ReceiptService;
 
-    @Injectable
-    protected  UIReplicationSignalService uiReplicationSignalService;
     @Injectable
     protected  UserMessageHandlerService userMessageHandlerService;
     @Injectable

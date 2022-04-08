@@ -57,13 +57,20 @@ import java.util.Date;
                         "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
 
         @NamedQuery(name = "UserMessageLog.findFailedMessagesDuringPeriod",
-                query = "SELECT DISTINCT um.messageId                                                                 " +
+                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
+                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
+                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
+                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
                         "WHERE uml.messageStatus.messageStatus = :MESSAGE_STATUS                                      " +
                         "AND uml.deleted IS NULL                                                                      " +
-                        "AND (:FINAL_RECIPIENT is null or (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)) " +
+                        "AND (                                                                                        " +
+                        "       (:FINAL_RECIPIENT is null and :ORIGINAL_USER is null)                                 " +
+                        "       OR (p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT)                         " +
+                        "       OR (p.name = 'originalSender' and p.value = :ORIGINAL_USER)                           " +
+                        ")                                                                                            " +
                         "AND (:START_DATE is null or uml.userMessage.entityId >= :START_DATE)                         " +
                         "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
 

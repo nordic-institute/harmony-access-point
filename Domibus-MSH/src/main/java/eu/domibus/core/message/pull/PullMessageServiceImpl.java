@@ -19,7 +19,6 @@ import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -68,9 +67,6 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     @Autowired
     private PModeProvider pModeProvider;
-
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected MpcService mpcService;
@@ -165,7 +161,6 @@ public class PullMessageServiceImpl implements PullMessageService {
 
                 userMessageLogDao.update(userMessageLog);
 
-                uiReplicationSignalService.messageChange(messageId);
                 return new PullRequestResult(messageId, userMessageLog);
             case PULL_FAILED:
                 return pullFailedOnReceipt(userMessage, legConfiguration, userMessageLog);
@@ -307,7 +302,6 @@ public class PullMessageServiceImpl implements PullMessageService {
         userMessageLog.setMessageStatus(messageStatus);
         messagingLockDao.save(lock);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageChange(userMessage.getMessageId());
         backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, waitingForReceipt, new Timestamp(System.currentTimeMillis()));
     }
 

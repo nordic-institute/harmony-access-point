@@ -3,11 +3,11 @@ package eu.domibus.core.message;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,49 +58,6 @@ public class UserMessageSecurityDefaultServiceTest {
         userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
     }
-
-    @Test
-    public void testCheckAuthorizationWithAdminRole(final @Capturing DomibusLogger log) {
-        final String finalRecipient = "C4";
-        new Expectations() {{
-            authUtils.getOriginalUser();
-            result = null;
-        }};
-
-        userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
-
-        new Verifications() {{
-            log.debug("finalRecipient from the security context is empty, user has permission to access finalRecipient [{}]", finalRecipient);
-            times = 1;
-        }};
-    }
-
-    @Test(expected = AuthenticationException.class)
-    public void testCheckSecurityWhenOriginalUserFromSecurityContextIsDifferent() {
-        final String finalRecipient = "C4";
-        final String originalUserFromSecurityContext = "differentRecipient";
-
-        new Expectations() {{
-            authUtils.getOriginalUser();
-            result = originalUserFromSecurityContext;
-        }};
-
-        userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
-    }
-
-    @Test
-    public void testCheckSecurityWhenOriginalUserFromSecurityContextIsSame() {
-        final String finalRecipient = "C4";
-        final String originalUserFromSecurityContext = "C4";
-
-        new Expectations() {{
-            authUtils.getOriginalUser();
-            result = originalUserFromSecurityContext;
-        }};
-
-        userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
-    }
-
 
     @Test
     public void testValidateOriginalUserOK_finalRecipient(@Injectable final UserMessage userMessage) {

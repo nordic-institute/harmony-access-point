@@ -21,7 +21,6 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -92,9 +91,6 @@ public class BackendNotificationService {
 
     @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
-
-    @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -391,8 +387,6 @@ public class BackendNotificationService {
 
         notify(userMessage, backendName, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
-
-        uiReplicationSignalService.messageChange(messageId);
     }
 
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
@@ -407,8 +401,6 @@ public class BackendNotificationService {
 
         notify(userMessage, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
-
-        uiReplicationSignalService.messageChange(messageId);
     }
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})

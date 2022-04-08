@@ -7,8 +7,6 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
-import eu.domibus.core.replication.UIMessageService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.web.rest.ro.LatestIncomingMessageRequestRO;
 import eu.domibus.web.rest.ro.LatestOutgoingMessageRequestRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
@@ -38,13 +36,7 @@ public class MessageLogResourceTest {
     DateUtil dateUtil;
 
     @Injectable
-    UIMessageService uiMessageService;
-
-    @Injectable
     MessagesLogService messagesLogService;
-
-    @Injectable
-    UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     DomibusConfigurationService domibusConfigurationService;

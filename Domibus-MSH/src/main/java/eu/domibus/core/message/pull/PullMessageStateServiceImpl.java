@@ -11,7 +11,6 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +42,6 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
 
     @Autowired
     protected BackendNotificationService backendNotificationService;
-
-    @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
     protected UserMessageDao userMessageDao;
@@ -99,7 +95,6 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", messageId, userMessageLog.getMessageStatus(), readyToPull);
         userMessageLog.setMessageStatus(readyToPull);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageChange(messageId);
         backendNotificationService.notifyOfMessageStatusChange(messageId, userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
     }
 

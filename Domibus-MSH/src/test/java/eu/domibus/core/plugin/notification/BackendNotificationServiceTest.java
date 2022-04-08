@@ -24,7 +24,6 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
@@ -109,9 +108,6 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     private MessagingConfigurationManager messagingConfigurationManager;
-
-    @Injectable
-    private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
     UserMessageService userMessageService;
@@ -942,9 +938,6 @@ public class BackendNotificationServiceTest {
 
             userMessageLogDao.setAsNotified(userMessageLog);
             times = 1;
-
-            uiReplicationSignalService.messageChange(MESSAGE_ID);
-            times = 1;
         }};
         backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
         new FullVerifications() {
@@ -974,9 +967,6 @@ public class BackendNotificationServiceTest {
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
-            times = 1;
-
-            uiReplicationSignalService.messageChange(MESSAGE_ID);
             times = 1;
         }};
 
@@ -1282,9 +1272,6 @@ public class BackendNotificationServiceTest {
         new FullVerifications() {{
             userMessageLogDao.setAsNotified(userMessageLog);
             times = 1;
-
-            uiReplicationSignalService.messageChange(MESSAGE_ID);
-            times = 1;
         }};
     }
 
@@ -1311,9 +1298,6 @@ public class BackendNotificationServiceTest {
 
         new FullVerifications() {{
             userMessageLogDao.setAsNotified(userMessageLog);
-            times = 1;
-
-            uiReplicationSignalService.messageChange(MESSAGE_ID);
             times = 1;
         }};
     }

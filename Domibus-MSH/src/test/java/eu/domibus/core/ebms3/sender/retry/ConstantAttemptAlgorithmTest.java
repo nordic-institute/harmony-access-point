@@ -32,17 +32,17 @@ public class ConstantAttemptAlgorithmTest {
     }
     @Test
     public void compute_NegativeMaxAttempts_ReturnNull() {
-        Assert.assertNull(retryStrategy.getAlgorithm().compute(new Date(), -1, 20));
+        Assert.assertNull(retryStrategy.getAlgorithm().compute(new Date(), -1, 20, 5000));
     }
 
     @Test
     public void compute_NegativeTimeoutInMinutes_ReturnNull() {
-        Assert.assertNull(retryStrategy.getAlgorithm().compute(new Date(), 2, -1));
+        Assert.assertNull(retryStrategy.getAlgorithm().compute(new Date(), 2, -1, 5000));
     }
 
     @Test
     public void compute_NullForDate_ReturnNull() {
-        Assert.assertNull(retryStrategy.getAlgorithm().compute(null, 2, 1));
+        Assert.assertNull(retryStrategy.getAlgorithm().compute(null, 2, 1, 5000));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ConstantAttemptAlgorithmTest {
 
         Assert.assertEquals("current time in millis is not as expected, maybe mocking of System.currentTimeMillis() does not work?", 1451602799000L, System.currentTimeMillis());
 
-        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FOR_YEAR_TRANSITION), 2, 2);
+        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FOR_YEAR_TRANSITION), 2, 2, 5000);
         Assert.assertNotNull("calculated nextAttempt is null", nextAttempt);
 
         Calendar calendar = Calendar.getInstance();
@@ -68,7 +68,7 @@ public class ConstantAttemptAlgorithmTest {
         new SystemMockFirstOfJanuary2016();
 
 
-        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016), Integer.MAX_VALUE, 1);
+        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016), Integer.MAX_VALUE, 1, 5000);
 
         Assert.assertNotNull(nextAttempt);
     }
@@ -77,7 +77,7 @@ public class ConstantAttemptAlgorithmTest {
     public void compute_TimeInMinutesTill_31_12_3999_ExpectedResult()  {
         new SystemMockFirstOfJanuary2016();
 
-        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016), 1, MINUTES_FROM_01_01_2016_TO_31_12_3999);
+        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016), 1, MINUTES_FROM_01_01_2016_TO_31_12_3999, 5000);
 
         Assert.assertEquals(parseDateString("3999/12/31 23:59:00"), nextAttempt);
     }
@@ -86,7 +86,7 @@ public class ConstantAttemptAlgorithmTest {
     public void compute_TimeInMinutesIntegerMAXVALUE_ValidResult() {
         new SystemMockFirstOfJanuary2016();
 
-        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016), 1, Integer.MAX_VALUE);
+        Date nextAttempt = retryStrategy.getAlgorithm().compute(new Date(SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016), 1, Integer.MAX_VALUE, 5000);
 
         Assert.assertNotNull(nextAttempt);
     }

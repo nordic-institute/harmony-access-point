@@ -21,11 +21,9 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
@@ -66,7 +64,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected Templates templates;
     protected byte[] as4ReceiptXslBytes;
 
-    protected final UIReplicationSignalService uiReplicationSignalService;
     protected final UserMessageHandlerService userMessageHandlerService;
     private final TimestampDateFormatter timestampDateFormatter;
     protected final UserMessageService userMessageService;
@@ -83,8 +80,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected MessageStatusDao messageStatusDao;
     protected ReceiptDao receiptDao;
 
-    public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
-                                 UserMessageHandlerService userMessageHandlerService,
+    public AS4ReceiptServiceImpl(UserMessageHandlerService userMessageHandlerService,
                                  TimestampDateFormatter timestampDateFormatter,
                                  UserMessageService userMessageService,
                                  MessageIdGenerator messageIdGenerator,
@@ -99,7 +95,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                                  MshRoleDao mshRoleDao,
                                  MessageStatusDao messageStatusDao,
                                  ReceiptDao receiptDao) {
-        this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
         this.userMessageService = userMessageService;

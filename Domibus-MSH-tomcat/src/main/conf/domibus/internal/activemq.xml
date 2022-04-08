@@ -62,9 +62,6 @@
             <queue id="unknownReceiverQueue"
                    physicalName="domibus.internal.notification.unknown"/>
 
-            <queue id="uiReplicationQueue"
-                   physicalName="domibus.internal.ui.replication.queue"/>
-
             <!-- Backend plugin notification queues -->
             <queue id="webserviceBackendNotificationQueue"
                    physicalName="domibus.notification.webservice"/>
@@ -167,7 +164,6 @@
                             <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="domibus.internal.earchive.notification.queue" maximumRedeliveries="6" redeliveryDelay="1800000"/>
                             <redeliveryPolicy queue="domibus.internal.earchive.notification.dlq" maximumRedeliveries="0"/>
-                            <redeliveryPolicy queue="domibus.internal.ui.replication.queue" maximumRedeliveries="1" redeliveryDelay="10000"/>
                             <redeliveryPolicy queue="${fsplugin.send.queue:domibus.fsplugin.send.queue}" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="${wsplugin.send.queue:domibus.wsplugin.send.queue}" maximumRedeliveries="0"/>
                         </redeliveryPolicyEntries>

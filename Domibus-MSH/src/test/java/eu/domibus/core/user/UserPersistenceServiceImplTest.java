@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
@@ -18,7 +19,6 @@ import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
-import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -71,7 +71,7 @@ public class UserPersistenceServiceImplTest {
     private AuthCoreMapper authCoreMapper;
 
     @Injectable
-    AuthenticationService authenticationService;
+    AuthUtils authUtils;
 
     @Injectable
     DomainContextProvider domainContextProvider;
@@ -308,7 +308,7 @@ public class UserPersistenceServiceImplTest {
             domainContextProvider.setCurrentDomain(modifiedUser.getDomain());
             times = 1;
             securityPolicyManager.applyLockingPolicyOnUpdate(modifiedUser, updatedUserEntity);
-            times=1;
+            times = 1;
             userDao.update(updatedUserEntity);
             times = 1;
         }};
@@ -499,7 +499,7 @@ public class UserPersistenceServiceImplTest {
     public void checkCanUpdateIfCurrentUser(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName1 = "userName1", userName2 = "userName2";
         new Expectations(userPersistenceService) {{
-            authenticationService.getLoggedUser();
+            authUtils.getUserDetails();
             result = loggedUser;
             loggedUser.getUsername();
             result = userName1;
@@ -519,7 +519,7 @@ public class UserPersistenceServiceImplTest {
     public void checkCanUpdateIfCurrentUser_ChangeActive(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName = "userName";
         new Expectations() {{
-            authenticationService.getLoggedUser();
+            authUtils.getUserDetails();
             result = loggedUser;
             loggedUser.getUsername();
             result = userName;
@@ -538,7 +538,7 @@ public class UserPersistenceServiceImplTest {
     public void checkCanUpdateIfCurrentUser_ChangeRole(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName = "userName";
         new Expectations(userPersistenceService) {{
-            authenticationService.getLoggedUser();
+            authUtils.getUserDetails();
             result = loggedUser;
             loggedUser.getUsername();
             result = userName;

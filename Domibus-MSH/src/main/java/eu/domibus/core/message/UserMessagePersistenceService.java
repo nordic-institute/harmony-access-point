@@ -6,7 +6,6 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -28,9 +27,8 @@ public class UserMessagePersistenceService {
     protected MessageStatusDao messageStatusDao;
     protected MshRoleDao mshRoleDao;
     protected ReceiptDao receiptDao;
-    protected UIReplicationSignalService uiReplicationSignalService;
 
-    public UserMessagePersistenceService(MessagingService messagingService, UserMessageLogDefaultService userMessageLogService, UserMessageRawEnvelopeDao rawEnvelopeLogDao, SignalMessageDao signalMessageDao, SignalMessageLogDao signalMessageLogDao, MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao, ReceiptDao receiptDao, UIReplicationSignalService uiReplicationSignalService) {
+    public UserMessagePersistenceService(MessagingService messagingService, UserMessageLogDefaultService userMessageLogService, UserMessageRawEnvelopeDao rawEnvelopeLogDao, SignalMessageDao signalMessageDao, SignalMessageLogDao signalMessageLogDao, MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao, ReceiptDao receiptDao) {
         this.messagingService = messagingService;
         this.userMessageLogService = userMessageLogService;
         this.rawEnvelopeLogDao = rawEnvelopeLogDao;
@@ -39,7 +37,6 @@ public class UserMessagePersistenceService {
         this.messageStatusDao = messageStatusDao;
         this.mshRoleDao = mshRoleDao;
         this.receiptDao = receiptDao;
-        this.uiReplicationSignalService = uiReplicationSignalService;
     }
 
     @Transactional
@@ -80,8 +77,6 @@ public class UserMessagePersistenceService {
             // Saves an entry of the signal message log
             SignalMessageLog signalMessageLog = smlBuilder.build();
             signalMessageLogDao.create(signalMessageLog);
-
-            uiReplicationSignalService.signalMessageSubmitted(signalMessage.getSignalMessageId());
         }
 
 

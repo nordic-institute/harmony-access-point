@@ -35,8 +35,6 @@ import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIMessageDao;
-import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
@@ -130,9 +128,6 @@ public class UserMessageDefaultServiceTest {
     private PullMessageService pullMessageService;
 
     @Injectable
-    protected UIReplicationSignalService uiReplicationSignalService;
-
-    @Injectable
     MessageGroupDao messageGroupDao;
 
     @Injectable
@@ -170,9 +165,6 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private MessagePropertyDao propertyDao;
-
-    @Injectable
-    private UIMessageDao uiMessageDao;
 
     @Injectable
     private MessageAcknowledgementDao messageAcknowledgementDao;
@@ -293,10 +285,10 @@ public class UserMessageDefaultServiceTest {
     public void testFailedMessages(@Injectable final UserMessage userMessage) {
         final String finalRecipient = "C4";
 
-        userMessageDefaultService.getFailedMessages(finalRecipient);
+        userMessageDefaultService.getFailedMessages(finalRecipient, null);
 
         new Verifications() {{
-            userMessageLogDao.findFailedMessages(finalRecipient);
+            userMessageLogDao.findFailedMessages(finalRecipient, null);
         }};
     }
 
@@ -906,8 +898,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = UUID.randomUUID().toString();
         UserMessage userMessage = new UserMessage();
 
-        new Expectations() {{
-        }};
+        new Expectations() {};
 
         UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
 
