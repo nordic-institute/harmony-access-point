@@ -56,7 +56,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected DomainContextProvider domainContextProvider;
 
-    public static final String DEFAULT_PARTITION_NAME = "P21000000"; // default partition that we never delete
+    public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
     public static final String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
     final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
 
@@ -168,7 +168,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     protected boolean verifyIfAllMessagesAreExpired(String partitionName) {
 
         LOG.info("Verifying if all messages expired on partition [{}]", partitionName);
-        List<String> messageStatuses = MessageStatus.getFinalStatesAsString();
+        List<String> messageStatuses = MessageStatus.getFinalStatesForDroppingPartitionAsString();
 
         LOG.debug("Counting messages in progress for partition [{}]", partitionName);
         // check for messages that are not in final status

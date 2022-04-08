@@ -87,19 +87,14 @@ public enum MessageStatus {
         public static List<MessageStatus> getSuccessfulStates(){
                 return Arrays.asList(
                         ACKNOWLEDGED,
-                        ACKNOWLEDGED_WITH_WARNING,
                         RECEIVED,
-                        RECEIVED_WITH_WARNINGS,
                         DOWNLOADED);
         }
 
         public static List<MessageStatus> getNotFinalStates(){
                 return Arrays.asList(
-                        READY_TO_SEND,
                         READY_TO_PULL,
-                        BEING_PULLED,
                         SEND_ENQUEUED,
-                        SEND_IN_PROGRESS,
                         WAITING_FOR_RECEIPT,
                         SEND_ATTEMPT_FAILED,
                         SEND_FAILURE,
@@ -107,9 +102,17 @@ public enum MessageStatus {
                         WAITING_FOR_RETRY);
         }
 
-        public static List<String> getFinalStatesAsString(){
+        public static List<MessageStatus> getFinalStatesForDroppingPartition(){
+                return Arrays.asList(
+                        ACKNOWLEDGED,
+                        RECEIVED,
+                        DOWNLOADED,
+                        DELETED);
+        }
+
+        public static List<String> getFinalStatesForDroppingPartitionAsString(){
                 List<String> messageStatusNames = new ArrayList<>();
-                getSuccessfulStates().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
+                getFinalStatesForDroppingPartition().forEach(messageStatus -> messageStatusNames.add(messageStatus.name()));
                 return messageStatusNames;
         }
 }
