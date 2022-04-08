@@ -1,16 +1,18 @@
 package eu.domibus.core.message;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
+import eu.domibus.ITTestsService;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -18,6 +20,7 @@ import java.util.HashMap;
  * @author Ion Perpegel
  * @since 5.0
  */
+@Transactional
 public class MessagesLogServiceImplTestIT extends AbstractIT {
 
     @Autowired
@@ -26,6 +29,13 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
 
+    @Autowired
+    ITTestsService itTestsService;
+
+    @Before
+    public void before() throws IOException, XmlProcessingException {
+        uploadPmode();
+    }
 
     @Test
     public void countMessages() {
@@ -48,10 +58,9 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void findUserMessageById() {
-
-        messageDaoTestUtil.createUserMessageLog("msg1", new Date(), MSHRole.RECEIVING, MessageStatus.RECEIVED);
-        messageDaoTestUtil.createUserMessageLog("msg2", new Date(), MSHRole.RECEIVING, MessageStatus.RECEIVED);
+    public void findUserMessageById() throws Exception {
+        itTestsService.receiveMessage("msg1");
+        itTestsService.receiveMessage("msg2");
 
         MessageLogRO result = messagesLogService.findUserMessageById("msg1");
         Assert.assertNotNull(result);

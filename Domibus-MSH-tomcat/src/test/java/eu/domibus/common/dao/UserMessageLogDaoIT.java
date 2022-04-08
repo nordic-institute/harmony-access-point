@@ -36,6 +36,7 @@ import static org.junit.Assert.assertNull;
  * @author Ion Perpegel
  * @since 5.0
  */
+@Ignore("EDELIVERY-8892") //do not create messages manually; use eu.domibus.ITTestsService.receiveMessage and use other Domibus methods to set the UserMessage status
 @Transactional
 public class UserMessageLogDaoIT extends AbstractIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";

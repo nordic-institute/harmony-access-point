@@ -1,6 +1,7 @@
 package eu.domibus;
 
 import eu.domibus.api.model.*;
+import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.*;
@@ -8,6 +9,7 @@ import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.test.common.MessageTestUtility;
+import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,12 @@ public class ITTestsService {
     @Autowired
     protected MessagePropertyDao messagePropertyDao;
 
+    @Autowired
+    SoapSampleUtil soapSampleUtil;
+
+    @Autowired
+    MSHWebservice mshWebserviceTest;
+
     @Transactional
     public String sendMessageWithStatus(MessageStatus endStatus) throws MessagingProcessingException {
 
@@ -106,4 +114,12 @@ public class ITTestsService {
         userMessageDao.create(userMessage);
         return userMessage;
     }
+
+    @Transactional
+    public void receiveMessage(String messageId) throws Exception {
+        String filename = "SOAPMessage2.xml";
+        mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage(filename, messageId));
+    }
+
+
 }
