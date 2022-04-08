@@ -12,6 +12,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -26,7 +27,11 @@ import java.sql.Timestamp;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static eu.domibus.messaging.MessageConstants.FINAL_RECIPIENT;
+import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
@@ -102,20 +107,41 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return query.getResultList();
     }
 
-    public List<String> findFailedMessages(String finalRecipient) {
-        return findFailedMessages(finalRecipient, null, null);
+    public List<String> findFailedMessages(String finalRecipient, String originalUser) {
+        return findFailedMessages(finalRecipient, originalUser, null, null);
     }
 
-    public List<String> findFailedMessages(String finalRecipient, Long failedStartDate, Long failedEndDate) {
+    public List<String> findFailedMessages(String finalRecipient, String originalUser, Long failedStartDate, Long failedEndDate) {
 
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod", String.class);
+        Query query = this.em.createNamedQuery("UserMessageLog.findFailedMessagesDuringPeriod");
         query.setParameter("MESSAGE_STATUS", MessageStatus.SEND_FAILURE);
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
+        query.setParameter("ORIGINAL_USER", originalUser);
         query.setParameter("START_DATE", failedStartDate);
         query.setParameter("END_DATE", failedEndDate);
-        return query.getResultList();
+        query.unwrap(org.hibernate.query.Query.class).setResultTransformer(new UserMessageLogDtoResultTransformer());
+        return ((List<UserMessageLogDto>) query.getResultList()).stream()
+                .filter(userMessageLogDto -> isAMatch(userMessageLogDto, finalRecipient, originalUser))
+                .map(UserMessageLogDto::getMessageId)
+                .collect(Collectors.toList());
     }
 
+
+    private boolean isAMatch(UserMessageLogDto userMessageLogDto, String finalRecipient, String originalUser) {
+        if (StringUtils.isBlank(finalRecipient) && StringUtils.isBlank(originalUser)) {
+            return true;
+        }
+        if (finalRecipient != null && !StringUtils.equalsIgnoreCase(userMessageLogDto.getProperties().get(FINAL_RECIPIENT), finalRecipient)) {
+            LOG.trace("It's NOT a match for [{}] with finalRecipient [{}]", userMessageLogDto, finalRecipient);
+            return false;
+        }
+        if (originalUser != null && !StringUtils.equalsIgnoreCase(userMessageLogDto.getProperties().get(ORIGINAL_SENDER), originalUser)) {
+            LOG.trace("It's NOT a match for [{}] with originalUser [{}]", userMessageLogDto, originalUser);
+            return false;
+        }
+        LOG.trace("It's a match for [{}] with finalRecipient [{}] and originalUser [{}]", userMessageLogDto, finalRecipient, originalUser);
+        return true;
+    }
 
     public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
 

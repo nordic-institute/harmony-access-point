@@ -31,8 +31,8 @@ public class UserMessageLogDtoResultTransformer implements ResultTransformer {
         Object propValue = tuple[aliasToIndexMap.get(UserMessageLogDto.PROP_VALUE)];
         if (propValue != null) {
             userMessageLogDto.getProperties().put(
-                    (String) propValue,
-                    (String) tuple[aliasToIndexMap.get(UserMessageLogDto.PROP_NAME)]
+                    (String) tuple[aliasToIndexMap.get(UserMessageLogDto.PROP_NAME)],
+                    (String) propValue
             );
         }
 
