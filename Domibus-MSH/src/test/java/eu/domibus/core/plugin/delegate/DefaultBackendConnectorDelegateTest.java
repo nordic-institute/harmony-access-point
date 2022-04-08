@@ -3,12 +3,11 @@ package eu.domibus.core.plugin.delegate;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.common.MessageDeletedBatchEvent;
 import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.core.plugin.BackendConnectorProviderImpl;
-import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.core.plugin.BackendConnectorHelper;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.api.plugin.BackendConnectorProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -31,10 +30,10 @@ public class DefaultBackendConnectorDelegateTest {
     protected RoutingService routingService;
 
     @Injectable
-    protected BackendConnectorProviderImpl backendConnectorProvider;
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Injectable
-    protected BackendConnectorService backendConnectorService;
+    protected BackendConnectorHelper backendConnectorHelper;
 
     @Injectable
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;

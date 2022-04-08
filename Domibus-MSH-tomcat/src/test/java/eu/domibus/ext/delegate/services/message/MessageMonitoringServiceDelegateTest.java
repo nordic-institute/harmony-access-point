@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.delegate.mapper.MessageExtMapper;
@@ -23,6 +24,7 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class MessageMonitoringServiceDelegateTest {
 
+    public static final String ORIGINAL_USER = "originalUser";
     @Tested
     MessageMonitoringServiceDelegate messageMonitoringServiceDelegate;
 
@@ -39,38 +41,45 @@ public class MessageMonitoringServiceDelegateTest {
     UserMessageSecurityService userMessageSecurityService;
 
     @Injectable
+    AuthUtils authUtils;
+
+    @Injectable
     UserMessageRestoreService restoreService;
 
     @Test
-    public void testGetFailedMessages()  {
+    public void testGetFailedMessages() {
         final String originalUserFromSecurityContext = "C4";
 
-        new Expectations(messageMonitoringServiceDelegate) {{
-            userMessageSecurityService.getOriginalUserFromSecurityContext();
+        new Expectations() {{
+            authUtils.getOriginalUser();
             result = originalUserFromSecurityContext;
         }};
 
         messageMonitoringServiceDelegate.getFailedMessages();
 
         new Verifications() {{
-            userMessageService.getFailedMessages(originalUserFromSecurityContext);
+            userMessageService.getFailedMessages(null, originalUserFromSecurityContext);
         }};
     }
 
     @Test
-    public void testGetFailedMessagesForFinalRecipient()  {
+    public void testGetFailedMessagesForFinalRecipient() {
         final String finalRecipient = "C4";
+
+        new Expectations() {{
+            authUtils.getOriginalUser();
+            result = ORIGINAL_USER;
+        }};
 
         messageMonitoringServiceDelegate.getFailedMessages(finalRecipient);
 
         new Verifications() {{
-            userMessageSecurityService.checkAuthorization(finalRecipient);
-            userMessageService.getFailedMessages(finalRecipient);
+            userMessageService.getFailedMessages(finalRecipient, ORIGINAL_USER);
         }};
     }
 
     @Test
-    public void testGetFailedMessageInterval()  {
+    public void testGetFailedMessageInterval() {
         final String messageId = "1";
 
         messageMonitoringServiceDelegate.getFailedMessageInterval(messageId);
@@ -82,19 +91,19 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testRestoreFailedMessagesDuringPeriod()  {
+    public void testRestoreFailedMessagesDuringPeriod() {
 
         final String originalUserFromSecurityContext = "C4";
 
-        new Expectations(messageMonitoringServiceDelegate) {{
-            userMessageSecurityService.getOriginalUserFromSecurityContext();
+        new Expectations() {{
+            authUtils.getOriginalUser();
             result = originalUserFromSecurityContext;
         }};
 
         messageMonitoringServiceDelegate.restoreFailedMessagesDuringPeriod(1L, 2L);
 
         new Verifications() {{
-            userMessageService.restoreFailedMessagesDuringPeriod(1L, 2L, originalUserFromSecurityContext);
+            userMessageService.restoreFailedMessagesDuringPeriod(1L, 2L, null, originalUserFromSecurityContext);
         }};
     }
 
@@ -111,7 +120,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testDeleteFailedMessage()  {
+    public void testDeleteFailedMessage() {
         final String messageId = "1";
 
         messageMonitoringServiceDelegate.deleteFailedMessage(messageId);
@@ -126,7 +135,7 @@ public class MessageMonitoringServiceDelegateTest {
     public void testGetAttemptsHistory(@Injectable final List<MessageAttempt> attemptsHistory) {
         final String messageId = "1";
 
-        new Expectations(messageMonitoringServiceDelegate) {{
+        new Expectations() {{
             messageAttemptService.getAttemptsHistory(messageId);
             result = attemptsHistory;
         }};
@@ -144,8 +153,8 @@ public class MessageMonitoringServiceDelegateTest {
 
         final String originalUserFromSecurityContext = "C4";
 
-        new Expectations(messageMonitoringServiceDelegate) {{
-            userMessageSecurityService.getOriginalUserFromSecurityContext();
+        new Expectations() {{
+            authUtils.getOriginalUser();
             result = originalUserFromSecurityContext;
         }};
 

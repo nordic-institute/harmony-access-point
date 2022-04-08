@@ -285,10 +285,10 @@ public class UserMessageDefaultServiceTest {
     public void testFailedMessages(@Injectable final UserMessage userMessage) {
         final String finalRecipient = "C4";
 
-        userMessageDefaultService.getFailedMessages(finalRecipient);
+        userMessageDefaultService.getFailedMessages(finalRecipient, null);
 
         new Verifications() {{
-            userMessageLogDao.findFailedMessages(finalRecipient);
+            userMessageLogDao.findFailedMessages(finalRecipient, null);
         }};
     }
 
@@ -898,8 +898,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = UUID.randomUUID().toString();
         UserMessage userMessage = new UserMessage();
 
-        new Expectations() {{
-        }};
+        new Expectations() {};
 
         UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
 

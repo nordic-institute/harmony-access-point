@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,6 +21,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
 
+@Transactional
 public class GetStatusIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -49,8 +51,6 @@ public class GetStatusIT extends AbstractBackendWSIT {
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
-
-        domibusConditionUtil.waitUntilMessageIsReceived(messageId);
 
         StatusRequest messageStatusRequest = createMessageStatusRequest(messageId);
         MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);

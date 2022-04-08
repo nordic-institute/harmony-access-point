@@ -21,7 +21,7 @@ import java.util.List;
  * @since 5.0
  */
 @Transactional
-public class DomibusExtMapperTest extends AbstractIT {
+public class DomibusExtMapperTestIT extends AbstractIT {
 
     @Autowired
     private DomibusExtMapper domibusExtMapper;

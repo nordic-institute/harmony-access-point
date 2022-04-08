@@ -13,6 +13,7 @@ import eu.domibus.plugin.ws.generated.body.GetErrorsRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -22,6 +23,7 @@ import java.util.Date;
  *
  * @author martifp
  */
+@Transactional
 public class GetMessageErrorsIT extends AbstractBackendWSIT {
 
     @Autowired

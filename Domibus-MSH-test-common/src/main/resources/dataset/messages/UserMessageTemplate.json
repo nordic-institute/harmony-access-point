@@ -2,7 +2,7 @@
   "messageId": "id123456",
   "refToMessageId": "321",
   "conversationId": "123",
-  "timestamp": "May 26, 2021 3:51:08 PM",
+  "timestamp": "2022-12-01",
   "partyInfo": {
     "from": {
       "partyId": {
@@ -60,8 +60,8 @@
     }
   ],
   "entityId": 0,
-  "creationTime": "May 26, 2021 3:51:08 PM",
-  "modificationTime": "May 26, 2021 3:51:08 PM",
+  "creationTime": "2022-12-01",
+  "modificationTime": "2022-12-01",
   "createdBy": "baciuco",
   "modifiedBy": "baciuco"
 }

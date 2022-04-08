@@ -8,7 +8,6 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,27 +42,6 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         } catch (AccessDeniedException e) {
             throw new AuthenticationException("You are not allowed to access message [" + userMessage.getMessageId() + "]. Reason: [" + e.getMessage() + "]", e);
         }
-    }
-
-    @Override
-    public void checkAuthorization(String finalRecipient) throws AuthenticationException {
-        final String originalUserFromSecurityContext = authUtils.getOriginalUser();
-        if (StringUtils.isEmpty(originalUserFromSecurityContext)) {
-            LOG.debug("finalRecipient from the security context is empty, user has permission to access finalRecipient [{}]", finalRecipient);
-            return;
-        }
-
-        if (StringUtils.equals(finalRecipient, originalUserFromSecurityContext)) {
-            LOG.debug("The provided finalRecipient [{}] is the same as the user's finalRecipient", finalRecipient);
-        } else {
-            LOG.securityInfo(DomibusMessageCode.SEC_UNAUTHORIZED_MESSAGE_ACCESS, originalUserFromSecurityContext, finalRecipient);
-            throw new AuthenticationException("You are not allowed to access messages for finalRecipient [" + finalRecipient + "]. You are authorized as [" + originalUserFromSecurityContext + "]");
-        }
-    }
-
-    @Override
-    public String getOriginalUserFromSecurityContext() throws AuthenticationException {
-        return authUtils.getOriginalUserWithUnsecureLoginAllowed();
     }
 
     /**

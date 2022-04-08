@@ -1,6 +1,8 @@
 package eu.domibus;
 
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.web.security.AuthenticationService;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -22,4 +24,9 @@ public class DomibusTestMocksConfiguration {
         return new MockAuthenticationService();
     }
 
+    @Primary
+    @Bean
+    public BackendConnectorProvider backendConnectorProvider() {
+        return Mockito.mock(BackendConnectorProvider.class);
+    }
 }

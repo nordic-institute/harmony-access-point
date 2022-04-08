@@ -70,7 +70,7 @@ public interface UserMessageService {
 
     String getOriginalSender(String messageId);
 
-    List<String> getFailedMessages(String finalRecipient);
+    List<String> getFailedMessages(String finalRecipient, String originalUser);
 
     Long getFailedMessageElapsedTime(String messageId);
 
@@ -84,7 +84,7 @@ public interface UserMessageService {
      */
     void resendFailedOrSendEnqueuedMessage(final String messageId);
 
-    List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
+    List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end, String finalRecipient, String originalUser);
 
     void deleteFailedMessage(String messageId);
 

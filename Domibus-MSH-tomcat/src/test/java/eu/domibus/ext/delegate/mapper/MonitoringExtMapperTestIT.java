@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 5.0
  */
 @Transactional
-public class MonitoringExtMapperTest extends AbstractIT {
+public class MonitoringExtMapperTestIT extends AbstractIT {
 
     @Autowired
     private MonitoringExtMapper monitoringExtMapper;
