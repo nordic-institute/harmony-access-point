@@ -13,6 +13,7 @@ public enum RetryStrategy {
 
     private final String name;
     private final RetryStrategy.AttemptAlgorithm algorithm;
+    private static final int MULTIPLIER_MINUTES_TO_SECONDS = 60000;
 
     RetryStrategy(final String name, final RetryStrategy.AttemptAlgorithm attemptAlgorithm) {
         this.name = name;
@@ -33,7 +34,6 @@ public enum RetryStrategy {
         ALGORITHM {
             @Override
             public Date compute(final Date received, int maxAttempts, final int timeoutInMinutes, final long delayInMillis) {
-                int MULTIPLIER_MINUTES_TO_SECONDS = 60000;
                 if(maxAttempts < 0 || timeoutInMinutes < 0 || received == null) {
                     return null;
                 }
@@ -65,9 +65,6 @@ public enum RetryStrategy {
         }
     }
 
-    /**
-     * NOT FINISHED *
-     */
     public interface AttemptAlgorithm extends Serializable {
         Date compute(Date received, int maxAttempts, int timeoutInMinutes, long delayInMillis);
     }
