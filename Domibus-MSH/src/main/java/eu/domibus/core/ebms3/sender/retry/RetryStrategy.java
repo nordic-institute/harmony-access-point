@@ -58,7 +58,7 @@ public enum RetryStrategy {
 
         ALGORITHM {
             @Override
-            public Date compute(final Date received, final int currentAttempts, final int timeoutInMinutes, final long delayInSeconds) {
+            public Date compute(final Date received, final int currentAttempts, final int timeoutInMinutes, final long delayInMillis) {
 
                 return null;
             }
