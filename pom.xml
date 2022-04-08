@@ -1287,7 +1287,6 @@
                             <phase>integration-test</phase>
                             <goals>
                                 <goal>integration-test</goal>
-                                <goal>verify</goal>
                             </goals>
                             <configuration>
                                 <!-- Sets the VM argument line used when integration tests are run. -->
@@ -1297,14 +1296,14 @@
                                 <skipTests>${skipITs}</skipTests>
                             </configuration>
                         </execution>
+                        <execution>
+                            <id>verify</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
                     </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.surefire</groupId>
-                            <artifactId>surefire-junit47</artifactId>
-                            <version>2.19.1</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
