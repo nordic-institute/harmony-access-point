@@ -23,8 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.HashMap;
 
-import static eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyConstant.MULTIPLIER_MINUTES_TO_MILLIS;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.*;
+import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
 
 /**
  * @author Cosmin Baciu
@@ -127,7 +127,7 @@ public class WSPluginBackendReliabilityService {
                 retryTimeoutInMinute);
         // retries start after the first send attempt
         boolean hasMoreAttempts = backendMessage.getSendAttempts() < backendMessage.getSendAttemptsMax();
-        long retryTimeout = retryTimeoutInMinute * MULTIPLIER_MINUTES_TO_MILLIS;
+        long retryTimeout = retryTimeoutInMinute * MILLIS_PER_MINUTE;
         boolean hasMoreTime = (backendMessage.getCreationTime().getTime() + retryTimeout) > System.currentTimeMillis();
 
         LOG.debug("Verify if has more attempts: [{}] and has more time: [{}]", hasMoreAttempts, hasMoreTime);

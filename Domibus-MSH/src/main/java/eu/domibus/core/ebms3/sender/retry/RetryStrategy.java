@@ -4,6 +4,8 @@ package eu.domibus.core.ebms3.sender.retry;
 import java.io.Serializable;
 import java.util.Date;
 
+import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
+
 /**
  * @author Christian Koch, Stefan Mueller
  */
@@ -13,7 +15,6 @@ public enum RetryStrategy {
 
     private final String name;
     private final RetryStrategy.AttemptAlgorithm algorithm;
-    private static final int MULTIPLIER_MINUTES_TO_SECONDS = 60000;
 
     RetryStrategy(final String name, final RetryStrategy.AttemptAlgorithm attemptAlgorithm) {
         this.name = name;
@@ -37,14 +38,14 @@ public enum RetryStrategy {
                 if(maxAttempts < 0 || timeoutInMinutes < 0 || received == null) {
                     return null;
                 }
-                if(maxAttempts > MULTIPLIER_MINUTES_TO_SECONDS) {
-                    maxAttempts = MULTIPLIER_MINUTES_TO_SECONDS;
+                if(maxAttempts > MILLIS_PER_MINUTE) {
+                    maxAttempts = (int)MILLIS_PER_MINUTE;
                 }
                 final long now = System.currentTimeMillis();
                 long retry = received.getTime();
-                final long stopTime = received.getTime() + ( (long)timeoutInMinutes * MULTIPLIER_MINUTES_TO_SECONDS ) + delayInMillis; // We grant some extra time (configured in properties as milliseconds) to avoid not sending the last attempt
+                final long stopTime = received.getTime() + ( (long)timeoutInMinutes * MILLIS_PER_MINUTE ) + delayInMillis; // We grant some extra time (configured in properties as milliseconds) to avoid not sending the last attempt
                 while (retry <= (stopTime)) {
-                    retry += (long)timeoutInMinutes * MULTIPLIER_MINUTES_TO_SECONDS / maxAttempts;
+                    retry += (long)timeoutInMinutes * MILLIS_PER_MINUTE / maxAttempts;
                     if (retry > now && retry < stopTime) {
                         return new Date(retry);
                     }
