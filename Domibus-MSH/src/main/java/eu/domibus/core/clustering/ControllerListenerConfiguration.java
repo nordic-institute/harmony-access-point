@@ -32,7 +32,7 @@ public class ControllerListenerConfiguration {
     public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  @Qualifier(CLUSTER_COMMAND_TOPIC) Topic destination,
                                                                                  ControllerListenerService messageListener,
-                                                                                 Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                                                 @Qualifier("internalDestinationResolver") Optional<JndiDestinationResolver> internalDestinationResolver,
                                                                                  DomibusPropertyProvider domibusPropertyProvider) {
         DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
         messageListenerContainer.setConnectionFactory(connectionFactory);

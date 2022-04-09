@@ -32,7 +32,7 @@ public class JMSPluginWebLogicConfiguration extends JMSPluginApplicationServerCo
 
     @Bean("mshToBackendTemplate")
     public JmsTemplate mshToBackendTemplate(@Qualifier(JMSMessageConstants.CACHING_CONNECTION_FACTORY_NAME) ConnectionFactory connectionFactory,
-                                            Optional<JndiDestinationResolver> jndiDestinationResolver) {
+                                            @Qualifier("jndiDestinationResolver") Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);
         jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

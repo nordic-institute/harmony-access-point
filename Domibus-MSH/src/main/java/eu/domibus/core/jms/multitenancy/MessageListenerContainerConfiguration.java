@@ -137,6 +137,7 @@ public class MessageListenerContainerConfiguration {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
+    @Qualifier("internalDestinationResolver")
     Optional<JndiDestinationResolver> internalDestinationResolver;
 
     @Qualifier("taskExecutor")

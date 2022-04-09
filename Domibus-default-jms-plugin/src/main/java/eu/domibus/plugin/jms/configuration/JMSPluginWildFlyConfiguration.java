@@ -29,7 +29,7 @@ public class JMSPluginWildFlyConfiguration extends JMSPluginApplicationServerCon
 
     @Bean("mshToBackendTemplate")
     public JmsTemplate mshToBackendTemplate(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                            Optional<JndiDestinationResolver> jndiDestinationResolver) {
+                                            @Qualifier("jndiDestinationResolver") Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);
         jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
