@@ -18,6 +18,5 @@ public interface AuthenticationService {
 
     void removeDomainCode(String domainCode);
 
-    // todo EDELIVERY-9087 - eliminate redundancy with AuthUtils
     DomibusUserDetails getLoggedUser();
 }

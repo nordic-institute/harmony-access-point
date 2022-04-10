@@ -12,7 +12,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,12 +30,10 @@ public abstract class AuthenticationServiceBase implements AuthenticationService
     protected DomainService domainService;
 
     @Autowired
-//    @Lazy
     @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
     private UserService allUserManagementService;
 
     @Autowired
-//    @Lazy
     @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userManagementService;
 
