@@ -58,9 +58,8 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
         }
 
         userService.handleCorrectAuthentication(username);
-        DomibusUserDetailsImpl principal = (DomibusUserDetailsImpl) authentication.getPrincipal();
-        principal.setDomain(domain);
-        refreshSecurityContext(authentication);
-        return principal;
+        executeOnLoggedUser(userDetails -> userDetails.setDomain(domain), authentication);
+
+        return (DomibusUserDetailsImpl) authentication.getPrincipal();
     }
 }

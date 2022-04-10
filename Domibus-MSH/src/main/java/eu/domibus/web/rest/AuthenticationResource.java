@@ -70,18 +70,18 @@ public class AuthenticationResource {
     @Autowired
     protected ErrorHandlerService errorHandlerService;
 
-    @Autowired
-    @Lazy
-    @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
-    private UserService allUserManagementService;
+//    @Autowired
+//    @Lazy
+//    @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
+//    private UserService allUserManagementService;
+//
+//    @Autowired
+//    @Lazy
+//    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
+//    private UserService userManagementService;
 
-    @Autowired
-    @Lazy
-    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
-    private UserService userManagementService;
-
-    @Autowired
-    private AuthUtils authUtils;
+//    @Autowired
+//    private AuthUtils authUtils;
 
     @Autowired
     protected CompositeSessionAuthenticationStrategy sas;
@@ -193,19 +193,21 @@ public class AuthenticationResource {
     @PutMapping(value = "user/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
-        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
-        LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
-        getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
-        loggedUser.setDefaultPasswordUsed(false);
+        authenticationService.changePassword(param.getCurrentPassword(), param.getNewPassword());
+
+//        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
+//        LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
+//        getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
+//        loggedUser.setDefaultPasswordUsed(false);
     }
 
-    UserService getUserService() {
-        if (authUtils.isSuperAdmin()) {
-            return allUserManagementService;
-        } else {
-            return userManagementService;
-        }
-    }
+//    UserService getUserService() {
+//        if (authUtils.isSuperAdmin()) {
+//            return allUserManagementService;
+//        } else {
+//            return userManagementService;
+//        }
+//    }
 
 
     private UserRO createUserRO(DomibusUserDetails principal, String username) {

@@ -12,6 +12,12 @@ public interface AuthenticationService {
 
     void changeDomain(String domainCode);
 
+    void changePassword(String currentPassword, String newPassword);
+
+    void addDomainCode(String domainCode);
+
+    void removeDomainCode(String domainCode);
+
     // todo EDELIVERY-9087 - eliminate redundancy with AuthUtils
     DomibusUserDetails getLoggedUser();
 }

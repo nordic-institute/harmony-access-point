@@ -3,7 +3,11 @@ package eu.domibus.web.security;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
+import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -20,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * @author Catalin Enache
@@ -33,6 +39,17 @@ public class AuthenticationServiceBaseTest {
 
     @Injectable
     DomainService domainService;
+
+    @Injectable
+    @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
+    private UserService allUserManagementService;
+
+    @Injectable
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
+    private UserService userManagementService;
+
+    @Injectable
+    private AuthUtils authUtils;
 
     private List<Domain> domains = new ArrayList<>();
 
@@ -123,7 +140,8 @@ public class AuthenticationServiceBaseTest {
     }
 
     @Test
-    public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
+    public void testExecuteOnLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication,
+                                                        @Mocked Consumer<DomibusUserDetails> domibusUserDetailsConsumer) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         final DomibusUserDetailsImpl domibusUserDetails = new DomibusUserDetailsImpl("username", "password", authorities);
 
@@ -143,14 +161,16 @@ public class AuthenticationServiceBaseTest {
 
         }};
 
-        //tested method
-        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
-        Assert.assertEquals(domibusUserDetails, userDetai1Actual);
+        authenticationServiceBase.executeOnLoggedUser(domibusUserDetailsConsumer);
+
+        new Verifications() {{
+            domibusUserDetailsConsumer.accept((DomibusUserDetails) any);
+            times = 1;
+        }};
     }
 
     @Test
-    public void testGetLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext) {
-
+    public void testExecuteOnLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext, @Mocked Consumer<DomibusUserDetails> domibusUserDetailsConsumer) {
         new Expectations(authenticationServiceBase) {{
             new MockUp<SecurityContextHolder>() {
                 @Mock
@@ -161,11 +181,36 @@ public class AuthenticationServiceBaseTest {
 
             securityContext.getAuthentication();
             result = null;
-
         }};
 
-        //tested method
-        DomibusUserDetails userDetai1Actual = authenticationServiceBase.getLoggedUser();
-        Assert.assertNull(userDetai1Actual);
+        authenticationServiceBase.executeOnLoggedUser(domibusUserDetailsConsumer);
+
+        new Verifications() {{
+            domibusUserDetailsConsumer.accept((DomibusUserDetails) any);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void testChangePassword(@Mocked DomibusUserDetailsImpl loggedUser) {
+        String currentPass = "old", newPass = "new";
+
+        new Expectations(authenticationServiceBase) {{
+            authenticationServiceBase.getLoggedUser();
+            result = loggedUser;
+
+            authUtils.isSuperAdmin();
+            result = false;
+        }};
+
+        authenticationServiceBase.changePassword(currentPass, newPass);
+
+        new Verifications() {{
+            userManagementService.changePassword(loggedUser.getUsername(), currentPass, newPass);
+            times = 1;
+            allUserManagementService.changePassword(loggedUser.getUsername(), currentPass, newPass);
+            times = 0;
+        }};
+
     }
 }
