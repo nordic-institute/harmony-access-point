@@ -13,7 +13,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 
@@ -26,7 +25,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 5.0
  */
 @Configuration
-@EnableJdbcHttpSession
 @Conditional(SecurityInternalAuthProviderCondition.class)
 public class DomibusSessionConfiguration {
 
