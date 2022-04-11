@@ -9,8 +9,10 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -45,14 +47,14 @@ public class DomainServiceImpl implements DomainService {
 
     private final DomibusCacheService domibusCacheService;
 
-    private final AuthUtils authUtils;
+    private final AuthenticationService authenticationService;
 
     public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider, DomainDao domainDao,
-                             DomibusCacheService domibusCacheService, AuthUtils authUtils) {
+                             DomibusCacheService domibusCacheService, @Lazy AuthenticationService authenticationService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
-        this.authUtils = authUtils;
+        this.authenticationService = authenticationService;
 
         domains = domainDao.findAll();
     }
@@ -163,12 +165,7 @@ public class DomainServiceImpl implements DomainService {
         LOG.debug("Adding domain [{}]", domain);
         domains.add(domain);
 
-        DomibusUserDetails userDetails = authUtils.getUserDetails();
-        if (userDetails == null) {
-            LOG.info("Could not get user details.");
-            return;
-        }
-        userDetails.addDomainCode(domain.getCode());
+        authenticationService.addDomainCode(domain.getCode());
     }
 
     @Override
@@ -184,12 +181,7 @@ public class DomainServiceImpl implements DomainService {
         }
         domains.remove(domain);
 
-        DomibusUserDetails userDetails = authUtils.getUserDetails();
-        if (userDetails == null) {
-            LOG.info("Could not get user details.");
-            return;
-        }
-        userDetails.removeDomainCode(domain.getCode());
+        authenticationService.removeDomainCode(domain.getCode());
     }
 
 }

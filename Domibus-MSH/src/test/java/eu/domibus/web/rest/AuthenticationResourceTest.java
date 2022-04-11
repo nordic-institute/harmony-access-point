@@ -154,30 +154,6 @@ public class AuthenticationResourceTest {
     }
 
     @Test
-    public void testChangePassword(@Mocked DomibusUserDetailsImpl loggedUser, @Mocked ChangePasswordRO changePasswordRO) {
-
-        new Expectations() {{
-            authenticationService.getLoggedUser();
-            result = loggedUser;
-
-            authUtils.isSuperAdmin();
-            result = false;
-        }};
-
-        authenticationResource.changePassword(changePasswordRO);
-
-        new Verifications() {{
-            userManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
-            times = 1;
-            allUserManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
-            times = 0;
-        }};
-
-        assertEquals(loggedUser.isDefaultPasswordUsed(), false);
-
-    }
-
-    @Test
     public void testLogout_PrincipalExists(final @Mocked HttpServletRequest request, final @Mocked HttpServletResponse response,
                                            final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication,
                                            final @Mocked CookieClearingLogoutHandler cookieClearingLogoutHandler,

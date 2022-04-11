@@ -3,12 +3,8 @@ package eu.domibus.web.rest;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.core.user.UserService;
-import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
-import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,9 +14,6 @@ import eu.domibus.web.rest.ro.*;
 import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountStatusException;
@@ -55,36 +48,28 @@ public class AuthenticationResource {
 
     public static final String CSRF_COOKIE_NAME = "XSRF-TOKEN";
 
-    @Autowired
-    protected AuthenticationService authenticationService;
+    protected final AuthenticationService authenticationService;
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    protected final DomainContextProvider domainContextProvider;
 
-    @Autowired
-    protected UserDomainService userDomainService;
+    protected final UserDomainService userDomainService;
 
-    @Autowired
-    protected DomibusCoreMapper coreMapper;
+    protected final DomibusCoreMapper coreMapper;
 
-    @Autowired
-    protected ErrorHandlerService errorHandlerService;
+    protected final ErrorHandlerService errorHandlerService;
 
-    @Autowired
-    @Lazy
-    @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
-    private UserService allUserManagementService;
+    protected final CompositeSessionAuthenticationStrategy sas;
 
-    @Autowired
-    @Lazy
-    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
-    private UserService userManagementService;
-
-    @Autowired
-    private AuthUtils authUtils;
-
-    @Autowired
-    protected CompositeSessionAuthenticationStrategy sas;
+    public AuthenticationResource(AuthenticationService authenticationService, DomainContextProvider domainContextProvider,
+                                  UserDomainService userDomainService, DomibusCoreMapper coreMapper,
+                                  ErrorHandlerService errorHandlerService, CompositeSessionAuthenticationStrategy sas) {
+        this.authenticationService = authenticationService;
+        this.domainContextProvider = domainContextProvider;
+        this.userDomainService = userDomainService;
+        this.coreMapper = coreMapper;
+        this.errorHandlerService = errorHandlerService;
+        this.sas = sas;
+    }
 
     @ExceptionHandler({AccountStatusException.class})
     public ResponseEntity<ErrorRO> handleAccountStatusException(AccountStatusException ex) {
@@ -193,20 +178,8 @@ public class AuthenticationResource {
     @PutMapping(value = "user/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
-        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
-        LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
-        getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
-        loggedUser.setDefaultPasswordUsed(false);
+        authenticationService.changePassword(param.getCurrentPassword(), param.getNewPassword());
     }
-
-    UserService getUserService() {
-        if (authUtils.isSuperAdmin()) {
-            return allUserManagementService;
-        } else {
-            return userManagementService;
-        }
-    }
-
 
     private UserRO createUserRO(DomibusUserDetails principal, String username) {
         //Parse Granted authorities to a list of string authorities
