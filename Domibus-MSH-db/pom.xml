@@ -92,7 +92,7 @@
 
                    <execution>
                        <id>generate-h2-script-full</id>
-                       <phase>pre-integration-test</phase>
+                       <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>

@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -53,6 +54,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         Assert.assertEquals(actualValue, cachedValue);
     }
 
+    @Ignore("EDELIVERY-8892")
     @Test
     public void testCacheNoDomain() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;

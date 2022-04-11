@@ -8,6 +8,7 @@ import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,6 +34,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      * The message components should be case insensitive from the PMode data
      *
      */
+    @Ignore("EDELIVERY-8892")
     @Test
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";

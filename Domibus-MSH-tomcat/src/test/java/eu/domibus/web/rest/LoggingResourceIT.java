@@ -11,6 +11,7 @@ import eu.domibus.core.logging.LoggingService;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import org.apache.commons.lang3.BooleanUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author François Gautier
  * @since 4.2
  */
+@Ignore("EDELIVERY-8892")
 public class LoggingResourceIT extends AbstractIT {
 
     @Autowired
