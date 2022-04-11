@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
@@ -22,6 +23,7 @@ import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
@@ -71,6 +73,9 @@ public class JMSManagerWeblogicTest {
 
     @Injectable
     private JmsDestinationCache jmsDestinationCache;
+
+    @Injectable
+    private XMLUtil xmlUtil;
 
     @Test
     public void testGetQueueName() throws Exception {
@@ -288,9 +293,10 @@ public class JMSManagerWeblogicTest {
         final String jmsMessageXML = IOUtils.toString(xmlStream);
 
         new Expectations() {{
+            xmlUtil.getDocumentBuilderFactoryNamespaceAware();
+            result = DocumentBuilderFactory.newInstance();
             data.get("MessageXMLText");
             result = jmsMessageXML;
-
         }};
 
         InternalJmsMessage internalJmsMessage = jmsManagerWeblogic.convertMessage(data);
@@ -554,9 +560,9 @@ public class JMSManagerWeblogicTest {
 
     @Test
     public void lookupDestination() throws NamingException {
-        final String jndiName="destinationJndiName";
+        final String jndiName = "destinationJndiName";
         jmsManagerWeblogic.lookupDestination(jndiName);
-        new Verifications(){{
+        new Verifications() {{
             jmsDestinationCache.getByJndiName(jndiName);
         }};
     }

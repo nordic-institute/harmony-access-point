@@ -37,6 +37,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
@@ -94,7 +97,6 @@ public class ReliabilityChecker {
         return checkReliability(request, response, responseResult, legConfiguration.getReliability(), matcher);
     }
 
-
     protected CheckResult checkReliability(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, Reliability reliability, final ReliabilityMatcher matcher) throws EbMS3Exception {
         String messageId = null;
 
@@ -118,9 +120,14 @@ public class ReliabilityChecker {
 
                 try {
                     if (!reliability.isNonRepudiation()) {
-                        final Ebms3UserMessage ebms3UserMessage = this.jaxbContext.createUnmarshaller().unmarshal(new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes())), Ebms3UserMessage.class).getValue();
+                        XMLInputFactory inputFactory = xmlUtil.getXmlInputFactory();
+                        StreamSource source = new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes()));
+                        XMLStreamReader streamReader = inputFactory.createXMLStreamReader(source);
+                        final Ebms3UserMessage ebms3UserMessage = this.jaxbContext.createUnmarshaller().unmarshal(streamReader, Ebms3UserMessage.class).getValue();
 
-                        final Ebms3UserMessage ebms3UserMessageInRequest = this.jaxbContext.createUnmarshaller().unmarshal((Node) request.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next(), Ebms3Messaging.class).getValue().getUserMessage();
+                        Node node = (Node) request.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
+                        XMLStreamReader reader = xmlUtil.getXmlStreamReaderFromNode(node);
+                        final Ebms3UserMessage ebms3UserMessageInRequest = this.jaxbContext.createUnmarshaller().unmarshal(reader, Ebms3Messaging.class).getValue().getUserMessage();
                         if (!ebms3UserMessage.equals(ebms3UserMessageInRequest)) {
                             ReliabilityChecker.LOG.warn("Reliability check failed, the user message in the request does not match the user message in the response.");
                             return matcher.fails();
@@ -196,9 +203,7 @@ public class ReliabilityChecker {
 
                     LOG.businessInfo(DomibusMessageCode.BUS_RELIABILITY_SUCCESSFUL, messageId);
                     return CheckResult.OK;
-                } catch (final JAXBException e) {
-                    ReliabilityChecker.LOG.error("", e);
-                } catch (final SOAPException e) {
+                } catch (final JAXBException | XMLStreamException | SOAPException | TransformerException e) {
                     ReliabilityChecker.LOG.error("", e);
                 }
 

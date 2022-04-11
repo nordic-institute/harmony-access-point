@@ -2,11 +2,15 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -31,7 +35,7 @@ public class FSXMLHelperImpl implements FSXMLHelper {
     }
 
     @Override
-    public <T> T parseXML(InputStream inputStream, Class<T> clazz) throws JAXBException {
+    public <T> T parseXML(InputStream inputStream, Class<T> clazz) throws JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
         try {
@@ -42,7 +46,9 @@ public class FSXMLHelperImpl implements FSXMLHelper {
         }
 
         StreamSource streamSource = new StreamSource(inputStream);
-        JAXBElement<T> jaxbElement = unmarshaller.unmarshal(streamSource, clazz);
+        XMLStreamReader streamReader = getXmlInputFactory().createXMLStreamReader(streamSource);
+
+        JAXBElement<T> jaxbElement = unmarshaller.unmarshal(streamReader, clazz);
 
         return jaxbElement.getValue();
     }
@@ -71,7 +77,18 @@ public class FSXMLHelperImpl implements FSXMLHelper {
 
     protected Schema loadSchema(InputStream inputStream) throws SAXException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
+
         StreamSource schemaSource = new StreamSource(inputStream);
         return schemaFactory.newSchema(schemaSource);
+    }
+
+    protected XMLInputFactory getXmlInputFactory() {
+        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return inputFactory;
     }
 }

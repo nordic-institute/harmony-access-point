@@ -25,6 +25,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerException;
 import java.util.*;
 
@@ -61,17 +63,20 @@ public class MessageUtilTest {
 
     @Test
     public void getMessaging(@Injectable SOAPMessage soapMessage,
+                             @Injectable XMLStreamReader reader,
                              @Injectable Node node,
                              @Injectable Unmarshaller unmarshaller,
                              @Injectable JAXBElement<Messaging> root
-    ) throws SOAPException, JAXBException {
+    ) throws SOAPException, JAXBException, XMLStreamException, TransformerException {
         Ebms3Messaging expectedMessaging = new Ebms3Messaging();
         new Expectations() {{
             soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME);
             result = node;
+            xmlUtil.getXmlStreamReaderFromNode(node);
+            result = reader;
             jaxbContextEBMS.createUnmarshaller();
             result = unmarshaller;
-            unmarshaller.unmarshal(node);
+            unmarshaller.unmarshal(reader);
             result = root;
             root.getValue();
             result = expectedMessaging;
@@ -791,7 +796,7 @@ public class MessageUtilTest {
 
     @Test
     public void getNonRepudiationInformationFromReceipt_null(@Injectable Node nonRepudiationInformationNode,
-                                                             @Injectable Node receiptNode) throws  SOAPException {
+                                                             @Injectable Node receiptNode) throws SOAPException {
 
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
@@ -935,14 +940,16 @@ public class MessageUtilTest {
 
     @Test
     public void getMessageFragment(@Injectable SOAPMessage soapMessage,
-                                   @Injectable QName qName,
+                                   @Injectable XMLStreamReader reader,
                                    @Injectable Iterator iterator,
                                    @Injectable Node messagingXml,
                                    @Injectable Unmarshaller unmarshaller,
-                                   @Injectable JAXBElement<Ebms3MessageFragmentType> root) throws SOAPException, JAXBException {
+                                   @Injectable JAXBElement<Ebms3MessageFragmentType> root) throws SOAPException, JAXBException, XMLStreamException, TransformerException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
 
         new Expectations(messageUtil) {{
+            xmlUtil.getXmlStreamReaderFromNode(messagingXml);
+            result = reader;
             soapMessage.getSOAPHeader().getChildElements(_MessageFragment_QNAME);
             result = iterator;
             iterator.hasNext();
@@ -951,7 +958,7 @@ public class MessageUtilTest {
             result = messagingXml;
             jaxbContextMessageFragment.createUnmarshaller();
             result = unmarshaller;
-            unmarshaller.unmarshal(messagingXml);
+            unmarshaller.unmarshal(reader);
             result = root;
             root.getValue();
             result = new Ebms3MessageFragmentType();
@@ -963,8 +970,8 @@ public class MessageUtilTest {
 
     @Test
     public void getMessageFragment_null(@Injectable SOAPMessage soapMessage,
-                                   @Injectable QName qName,
-                                   @Injectable Iterator iterator) throws SOAPException {
+                                        @Injectable QName qName,
+                                        @Injectable Iterator iterator) throws SOAPException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
 
         new Expectations(messageUtil) {{
@@ -981,8 +988,8 @@ public class MessageUtilTest {
 
     @Test
     public void getMessageFragment_exception(@Injectable SOAPMessage soapMessage,
-                                   @Injectable QName qName,
-                                   @Injectable Iterator iterator) throws SOAPException {
+                                             @Injectable QName qName,
+                                             @Injectable Iterator iterator) throws SOAPException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
 
         new Expectations(messageUtil) {{
@@ -1002,7 +1009,7 @@ public class MessageUtilTest {
 
     @Test
     public void getMessage_exception(@Injectable SOAPMessage request,
-                                     @Injectable Messaging messaging) throws SOAPException, JAXBException {
+                                     @Injectable Messaging messaging) throws SOAPException, JAXBException, XMLStreamException, TransformerException {
 
         new Expectations(messageUtil) {{
             messageUtil.getMessaging(request);
@@ -1022,7 +1029,7 @@ public class MessageUtilTest {
 
     @Test
     public void getMessage_ok(@Injectable SOAPMessage request,
-                              @Injectable Ebms3Messaging messaging) throws SOAPException, JAXBException {
+                              @Injectable Ebms3Messaging messaging) throws SOAPException, JAXBException, XMLStreamException, TransformerException {
 
         new Expectations(messageUtil) {{
             messageUtil.getMessaging(request);
@@ -1050,6 +1057,7 @@ public class MessageUtilTest {
 
         new FullVerifications() {};
     }
+
     @Test
     public void getFirstChildValue_null(@Injectable Node parent) {
         String childName = "child1";
@@ -1068,7 +1076,7 @@ public class MessageUtilTest {
 
     @Test
     public void getFirstChild_ok(@Injectable Node parent,
-                                   @Injectable Node firstChild) {
+                                 @Injectable Node firstChild) {
         String childName = "child1";
 
         ArrayList<Node> nodes = new ArrayList<>();
@@ -1124,8 +1132,8 @@ public class MessageUtilTest {
 
     @Test
     public void getChildren_empty(@Injectable Node parent,
-                               @Injectable Node child,
-                               @Injectable NodeList nodeList) {
+                                  @Injectable Node child,
+                                  @Injectable NodeList nodeList) {
         String childName = "child1";
 
         new Expectations(messageUtil) {{

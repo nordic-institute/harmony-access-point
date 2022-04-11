@@ -1,5 +1,6 @@
 package eu.domibus.api.util.xml;
 
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -7,7 +8,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import java.io.InputStream;
 
@@ -30,4 +34,7 @@ public interface XMLUtil {
 
     byte[] marshal(JAXBContext jaxbContext, Object input, InputStream xsdStream) throws SAXException, JAXBException, ParserConfigurationException, XMLStreamException;
 
+    XMLInputFactory getXmlInputFactory();
+
+    XMLStreamReader getXmlStreamReaderFromNode(Node messagingXml) throws TransformerException, XMLStreamException;
 }

@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.ws.handler;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.soap.Node;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.TransformerException;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.util.NoSuchElementException;
@@ -30,6 +34,9 @@ public abstract class AbstractFaultHandler implements SOAPHandler<SOAPMessageCon
     @Autowired
     protected JAXBContext jaxbContext;
 
+    @Autowired
+    protected XMLUtil xmlUtil;
+
     /**
      * This method extracts a ebMS3 messaging header {@link Ebms3Messaging} from a {@link javax.xml.soap.SOAPMessage}
      * It is possible that the Messaging header is missing:
@@ -45,8 +52,11 @@ public abstract class AbstractFaultHandler implements SOAPHandler<SOAPMessageCon
     protected Ebms3Messaging extractMessaging(final SOAPMessage soapMessage) {
         Ebms3Messaging ebms3Messaging = null;
         try {
-            ebms3Messaging = ((JAXBElement<Ebms3Messaging>) this.jaxbContext.createUnmarshaller().unmarshal((Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next())).getValue();
-        } catch (JAXBException | SOAPException | NoSuchElementException e) {
+            Node node = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
+            XMLStreamReader reader = xmlUtil.getXmlStreamReaderFromNode(node);
+
+            ebms3Messaging = ((JAXBElement<Ebms3Messaging>) this.jaxbContext.createUnmarshaller().unmarshal(reader)).getValue();
+        } catch (JAXBException | SOAPException | NoSuchElementException | XMLStreamException | TransformerException e) {
             LOG.warn("Could not extract Messaging header from Soap Message.");
         }
 

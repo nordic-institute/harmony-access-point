@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.validation.XmlValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -17,17 +18,21 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
@@ -52,11 +57,16 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal =
-            ThreadLocal.withInitial(DocumentBuilderFactory::newInstance);
+            ThreadLocal.withInitial(() -> {
+                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                makeSafe(documentBuilderFactory);
+                return documentBuilderFactory;
+            });
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryNamespaceAwareThreadLocal = ThreadLocal.withInitial(() -> {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
+        makeSafe(documentBuilderFactory);
         return documentBuilderFactory;
     });
 
@@ -112,9 +122,7 @@ public class XMLUtilImpl implements XMLUtil {
         XmlValidationEventHandler jaxbValidationEventHandler = new XmlValidationEventHandler();
         unmarshaller.setEventHandler(jaxbValidationEventHandler);
 
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        XMLInputFactory inputFactory = getXmlInputFactory();
 
         XMLEventReader eventReader = inputFactory.createXMLEventReader(xmlStream);
         if (ignoreWhitespaces) {
@@ -126,6 +134,15 @@ public class XMLUtilImpl implements XMLUtil {
         result.setValid(!jaxbValidationEventHandler.hasErrors());
         result.setErrors(jaxbValidationEventHandler.getErrors());
         return result;
+    }
+
+    @Override
+    public XMLInputFactory getXmlInputFactory() {
+        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return inputFactory;
     }
 
     @Override
@@ -141,6 +158,21 @@ public class XMLUtilImpl implements XMLUtil {
         ByteArrayOutputStream xmlStream = new ByteArrayOutputStream();
         marshaller.marshal(input, xmlStream);
         return xmlStream.toByteArray();
+    }
+
+    @Override
+    public XMLStreamReader getXmlStreamReaderFromNode(Node messagingXml) throws TransformerException, XMLStreamException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Source xmlSource = new DOMSource(messagingXml);
+        Result outputTarget = new StreamResult(outputStream);
+        final Transformer transformer = getTransformerFactory().newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.transform(xmlSource, outputTarget);
+        InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
+
+        XMLInputFactory inputFactory = getXmlInputFactory();
+        XMLStreamReader reader = inputFactory.createXMLStreamReader(is);
+        return reader;
     }
 
     private Schema getSchema(InputStream xsdStream) throws SAXException {
@@ -162,4 +194,32 @@ public class XMLUtilImpl implements XMLUtil {
         return SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     }
 
+    private static void makeSafe(DocumentBuilderFactory dbf) {
+        String FEATURE = null;
+        try {
+            FEATURE = "http://apache.org/xml/features/disallow-doctype-decl";
+            dbf.setFeature(FEATURE, true);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            dbf.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            dbf.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            dbf.setFeature(FEATURE, false);
+        } catch (ParserConfigurationException e) {
+            throw new DomibusXMLException(String.format("The feature [%s] is probably not supported by your XML processor", FEATURE), e);
+        }
+
+        try {
+            dbf.setXIncludeAware(false);
+            dbf.setExpandEntityReferences(false);
+
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, StringUtils.EMPTY);
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, StringUtils.EMPTY);
+        } catch (Exception ex) {
+            throw new DomibusXMLException("Could not secure the XML processor", ex);
+        }
+    }
 }
