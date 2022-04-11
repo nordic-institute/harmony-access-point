@@ -1,0 +1,33 @@
+{
+    "title": "Domains",
+    "filters": [],
+    "grid": {
+        "columnsControls": false,
+        "rowsControls": false,
+        "exportCSV": false,
+        "defaultSort": "",
+        "columns": [{
+                "name": "Domain Code",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Domain Name",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Active",
+                "type": "BOOLEAN",
+                "sortable": false,
+                "visibleByDefault": true
+            }
+        ],
+        "pagination": {
+            "showSelectedNo": false,
+            "showTotalNo": false,
+            "showPageControls": false
+        }
+    },
+    "buttons": []
+}

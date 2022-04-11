@@ -31,7 +31,6 @@ public class MessagesPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
 
-
 	/* EDELIVERY-5053 - MSG-1 - Login as super admin and open Messages page */
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openMessagesPage() throws Exception {

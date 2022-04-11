@@ -62,11 +62,7 @@ public class RestServicePaths {
 	
 	public static final String LOGGING = "/rest/logging/loglevel";
 	public static final String LOGGING_RESET = "rest/logging/reset";
-	
-	
-	public static final String UI_REPLICATION_COUNT = "/rest/uireplication/count";
-	public static final String UI_REPLICATION_SYNC = "/rest/uireplication/sync";
-	
+
 	public static final String PASSWORD = "/rest/security/user/password";
 	
 	

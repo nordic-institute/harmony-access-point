@@ -134,10 +134,6 @@ public class TestRunData {
 		return System.getProperty("runBrowser");
 	}
 	
-	public Integer getUiReplicationcronTime() {
-		return Integer.valueOf(prop.getProperty("UIReplication_CronTime"));
-	}
-	
 	public String fromUIToWidgetFormat(String uiDate) throws ParseException {
 		Date date = UI_DATE_FORMAT.parse(uiDate);
 		return DATEWIDGET_DATE_FORMAT.format(date);

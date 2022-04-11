@@ -27,16 +27,7 @@ public class DomibusRestClient extends BaseRestClient {
 	public DomibusRestClient() {
 		super();
 	}
-	
-	// -------------------------------------------- UI Replication -----------------------------------------------------------
-	public void syncRecord() throws Exception {
-		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
-		if (response.getStatus() != 200) {
-			throw new DomibusRestException("Data is not sync now ", response);
-		} else {
-			log.info("Data is synchronized now with response code:" + response.getStatus());
-		}
-	}
+
 	
 	// -------------------------------------------- get clients -----------------------------------------------------------
 	public PmodePartiesClient pmodeParties() {
@@ -95,10 +86,7 @@ public class DomibusRestClient extends BaseRestClient {
 	public LoggingClient logging() {
 		return new LoggingClient(username, password);
 	}
-	
-	public UIReplicationClient uiReplication() {
-		return new UIReplicationClient(username, password);
-	}
+
 	
 	
 	public String getUsername(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {

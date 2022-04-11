@@ -1,0 +1,89 @@
+{
+    "title": "Message Filter",
+    "filters": [],
+    "grid": {
+        "columnsControls": false,
+        "rowsControls": false,
+        "exportCSV": true,
+        "defaultSort": "",
+        "columns": [{
+                "name": "Plugin",
+                "type": "TEXT",
+                "sortable": false,
+                "visibleByDefault": true
+            }, {
+                "name": "From",
+                "type": "TEXT",
+                "sortable": false,
+                "visibleByDefault": true
+            }, {
+                "name": "To",
+                "type": "TEXT",
+                "sortable": false,
+                "visibleByDefault": true
+            }, {
+                "name": "Action",
+                "type": "TEXT",
+                "sortable": false,
+                "visibleByDefault": true
+            }, {
+                "name": "Service",
+                "type": "TEXT",
+                "sortable": false,
+                "visibleByDefault": true
+            }, {
+                "name": "Persisted",
+                "type": "BOOLEAN",
+                "sortable": false,
+                "visibleByDefault": true
+            }, {
+                "name": "Actions",
+                "type": "ACTION",
+                "sortable": false,
+                "visibleByDefault": true
+            }
+        ],
+        "pagination": {
+            "showSelectedNo": true,
+            "showTotalNo": true,
+            "showPageControls": false
+        }
+    },
+    "buttons": [{
+            "name": "moveUpBtn",
+            "label": "Move Up",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }, {
+            "name": "moveDownBtn",
+            "label": "Move Down",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }, {
+            "name": "cancelBtn",
+            "label": "Cancel",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }, {
+            "name": "saveBtn",
+            "label": "Save",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }, {
+            "name": "newBtn",
+            "label": "New",
+            "enabledByDefault": true,
+            "visibleByDefault": true
+        }, {
+            "name": "editBtn",
+            "label": "Edit",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }, {
+            "name": "deleteBtn",
+            "label": "Delete",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }
+    ]
+}
