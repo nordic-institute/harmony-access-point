@@ -12,4 +12,5 @@ public interface DomainDao {
 
     List<Domain> findAll();
 
+    void refreshDomain(Domain domain);
 }
