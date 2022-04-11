@@ -60,7 +60,7 @@ public class JMSPluginConfiguration {
                                               @Qualifier(value = "mshToBackendTemplate") JmsOperations mshToBackendTemplate,
                                               JMSMessageTransformer jmsMessageTransformer,
                                               DomibusPropertyExtService domibusPropertyExtService,
-                                              Optional<JndiDestinationResolver> jndiDestinationResolver) {
+                                              @Qualifier("jndiDestinationResolver") Optional<JndiDestinationResolver> jndiDestinationResolver) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(JMSMessageConstants.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
         JMSPluginImpl jmsPlugin = new JMSPluginImpl(metricRegistry, jmsExtService, domainContextExtService, JMSPluginQueueService, mshToBackendTemplate, jmsMessageTransformer, jndiDestinationResolver.orElse(null));
@@ -85,7 +85,7 @@ public class JMSPluginConfiguration {
     @Bean("backendJmsListenerContainerFactory")
     public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  JmsPluginPropertyManager jmsPluginPropertyManager,
-                                                                                 Optional<JndiDestinationResolver> jndiDestinationResolver,
+                                                                                 @Qualifier("jndiDestinationResolver") Optional<JndiDestinationResolver> jndiDestinationResolver,
                                                                                  @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
@@ -106,7 +106,7 @@ public class JMSPluginConfiguration {
 
     @Bean("mshToBackendTemplate")
     public JmsTemplate mshToBackendTemplate(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                            Optional<JndiDestinationResolver> jndiDestinationResolver) {
+                                            @Qualifier("jndiDestinationResolver") Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);
         jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

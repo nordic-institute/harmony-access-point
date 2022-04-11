@@ -33,7 +33,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
     public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                   DomibusPropertyProvider domibusPropertyProvider,
                                                                                   @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
-                                                                                  Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                                                  @Qualifier("internalDestinationResolver") Optional<JndiDestinationResolver> internalDestinationResolver,
                                                                                   @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
