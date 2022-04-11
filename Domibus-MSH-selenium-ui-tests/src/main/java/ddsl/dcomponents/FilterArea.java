@@ -18,6 +18,9 @@ public class FilterArea extends DComponent {
 	WebElement basicLink;
 	@FindBy(id = "searchbutton_id")
 	WebElement searchButton;
+
+	@FindBy(id = "resetButton_id")
+	WebElement resetButton;
 	
 	public FilterArea(WebDriver driver) {
 		super(driver);
@@ -48,6 +51,11 @@ public class FilterArea extends DComponent {
 	public void clickSearch() throws Exception {
 		log.info("clicking search");
 		weToDButton(searchButton).click();
+	}
+
+	public void clickReset() throws Exception {
+		log.info("clicking reset filters");
+		weToDButton(resetButton).click();
 	}
 	
 	

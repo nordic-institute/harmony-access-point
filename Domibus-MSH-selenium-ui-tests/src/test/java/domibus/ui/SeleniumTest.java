@@ -3,34 +3,30 @@ package domibus.ui;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.FilterArea;
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dobjects.DButton;
-import ddsl.dobjects.DObject;
+import ddsl.dobjects.*;
 import domibus.BaseTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.testng.ITestContext;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;
+import utils.Gen;
 import utils.driver.DriverManager;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 public class SeleniumTest extends BaseTest {
 
 
@@ -46,8 +42,8 @@ public class SeleniumTest extends BaseTest {
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
 
-		deleteAllPluginUsers();
-		generateTestData();
+//		deleteAllPluginUsers();
+//		generateTestData();
 	}
 
 	public void deleteAllPluginUsers() throws Exception {
@@ -194,7 +190,6 @@ public class SeleniumTest extends BaseTest {
 					log.info(String.format("Evaluating filter with description %s", currentNode.toString()));
 
 					WebElement element = (WebElement) field.get(filtersArea);
-//					DObject object = new DObject(filtersArea.getDriver(), element);
 					DObject object = new DObject(driver, element);
 
 					soft.assertEquals(object.isPresent(), currentNode.getBoolean("isDefault"),
@@ -209,6 +204,38 @@ public class SeleniumTest extends BaseTest {
 				}
 			}
 
+		}
+	}
+
+	protected void filterValuesTrimm(SoftAssert soft) throws Exception {
+
+		String term = "  "+Gen.randomAlphaNumeric(5)+"  ";
+		DomibusPage page = new DomibusPage(driver);
+		page.waitForPageToLoad();
+
+		try {
+			WebElement filterFrom  = driver.findElement(By.name("filterForm"));
+
+			try {
+				filterFrom.findElement(By.id("advancedlink_id")).click();
+			} catch (Exception e) {	}
+
+			List<WebElement> inputs = filterFrom.findElements(By.cssSelector("input:not(input.md2-datepicker-value, input.mat-checkbox-input"));
+			for (WebElement input : inputs) {
+				new DInput(driver, input).fill(term);
+			}
+
+			driver.findElement(By.id("searchbutton_id")).click();
+
+			page.waitForPageToLoad();
+
+			for (WebElement input : inputs) {
+				String newTerm = new DInput(driver, input).getText();
+				soft.assertEquals(newTerm, term.trim(), "Input not properly trimmed in page " + page.getTitle());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

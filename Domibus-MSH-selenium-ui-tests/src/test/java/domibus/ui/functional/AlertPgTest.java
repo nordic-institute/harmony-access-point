@@ -27,7 +27,6 @@ public class AlertPgTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);
 
-	// EDELIVERY-5283 - ALRT-1 - Login as super admin and open Alerts page
 	/* EDELIVERY-5283 - ALRT-1 - Login as super admin and open Alerts page */
 	@Test(description = "ALRT-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openAlertsPage() throws Exception {
@@ -64,7 +63,6 @@ public class AlertPgTest extends SeleniumTest {
 	}
 
 
-	//This method will do Search using Basic filters
 	/* EDELIVERY-5287 - ALRT-5 - Filter alerts using basic filters */
 	@Test(description = "ALRT-5", groups = {"multiTenancy", "singleTenancy"})
 	public void searchBasicFilters() throws Exception {

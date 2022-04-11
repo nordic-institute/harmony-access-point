@@ -27,7 +27,7 @@
         <jersey-client_version>1.19.4</jersey-client_version>
         <jersey-multipart_version>1.19.4</jersey-multipart_version>
         <json_version>20190722</json_version>
-        <jackson_version>2.11.0</jackson_version>
+        <jackson_version>2.13.2</jackson_version>
         <javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
         <domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
     </properties>
@@ -57,6 +57,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.0.0-M4</version>
                         <configuration>
+                            <enableProcessChecker>all</enableProcessChecker>
+                            <shutdown>kill</shutdown>
                             <systemPropertyVariables>
                                 <propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
                                 <runBrowser>firefox</runBrowser>
@@ -97,6 +99,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.0.0-M4</version>
                         <configuration>
+                            <enableProcessChecker>all</enableProcessChecker>
+                            <shutdown>kill</shutdown>
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng.xml</suiteXmlFile>
@@ -133,6 +137,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>3.0.0-M4</version>
                         <configuration>
+                            <enableProcessChecker>all</enableProcessChecker>
+                            <shutdown>kill</shutdown>
                             <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng_rest.xml</suiteXmlFile>
@@ -256,7 +262,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>2.11.0</version>
+            <version>${jackson_version}</version>
         </dependency>
         <!-- *********************************************************************************** -->
 

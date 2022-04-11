@@ -1,5 +1,6 @@
 {
   "title": "TLS TrustStore",
+  "filters" : [],
   "grid": {
 	"columnsControls": true,
 	"rowsControls": true,
@@ -8,31 +9,31 @@
 	"columns": [
 	  {
 		"name": "Name",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Subject",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Issuer",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Valid from",
-		"type": "datetime",
+		"type": "DATETIME",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Valid until",
-		"type": "datetime",
+		"type": "DATETIME",
 		"sortable": true,
 		"visibleByDefault": true
 	  }

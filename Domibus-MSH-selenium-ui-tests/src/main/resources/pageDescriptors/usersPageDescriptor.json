@@ -1,52 +1,73 @@
 {
-  "title": "Users",
-  "grid": {
-	"columnsControls": true,
-	"rowsControls": true,
-	"exportCSV": true,
-	"defaultSort": "Username",
-	"columns": [
-	  {
-		"name": "Username",
-		"type": "text",
-		"sortable": true,
-		"visibleByDefault": true
-	  },
-	  {
-		"name": "Role",
-		"type": "text",
-		"sortable": true,
-		"visibleByDefault": true
-	  },
-	  {
-		"name": "Email",
-		"type": "text",
-		"sortable": true,
-		"visibleByDefault": false
-	  },
-	  {
-		"name": "Active",
-		"type": "boolean",
-		"sortable": false,
-		"visibleByDefault": true
-	  },
-	  {
-		"name": "Deleted",
-		"type": "boolean",
-		"sortable": true,
-		"visibleByDefault": false
-	  },
-	  {
-		"name": "Expiration Date",
-		"type": "datetime",
-		"sortable": true,
-		"visibleByDefault": false
-	  }
-	],
-	"pagination": {
-	  "showSelectedNo": false,
-	  "showTotalNo": true,
-	  "showPageControls": true
-	}
-  }
+    "title": "Users",
+    "filters": [{
+            "name": "userRoleSelect",
+            "placeholder": "User role",
+            "isDefault": true,
+            "type": "SELECT"
+        }, {
+            "name": "usernameInput",
+            "placeholder": "Username",
+            "isDefault": true,
+            "type": "input"
+        }, {
+            "name": "deletedChk",
+            "placeholder": "",
+            "isDefault": true,
+            "type": "CHECKBOX"
+        }
+    ],
+    "grid": {
+        "columnsControls": true,
+        "rowsControls": true,
+        "exportCSV": true,
+        "defaultSort": "Username",
+        "columns": [{
+                "name": "Username",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Role",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            },{
+                "name": "Domain",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Email",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Active",
+                "type": "BOOLEAN",
+                "sortable": false,
+                "visibleByDefault": true
+            }, {
+                "name": "Deleted",
+                "type": "BOOLEAN",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Expiration Date",
+                "type": "DATETIME",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Actions",
+                "type": "ACTION",
+                "sortable": true,
+                "visibleByDefault": false
+            }
+        ],
+        "pagination": {
+            "showSelectedNo": false,
+            "showTotalNo": true,
+            "showPageControls": true
+        }
+    }
 }

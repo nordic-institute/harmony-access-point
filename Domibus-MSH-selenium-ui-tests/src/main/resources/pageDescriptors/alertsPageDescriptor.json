@@ -4,52 +4,62 @@
     {
       "name": "processedContainer",
       "placeholder": "Processed",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "SELECT"
     },
     {
       "name": "alertTypeContainer",
       "placeholder": "Alert Type",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "SELECT"
     },
     {
       "name": "alertStatusContainer",
       "placeholder": "Alert Status",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "SELECT"
     },
     {
       "name": "alertLevelContainer",
       "placeholder": "Alert Level",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "SELECT"
     },
     {
       "name": "creationFromContainer",
       "placeholder": "Creation From:",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "DATE"
     },
     {
       "name": "creationToContainer",
       "placeholder": "Creation To:",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "DATE"
     },
     {
       "name": "alertIdInput",
       "placeholder": "Alert Id",
-      "isDefault": false
+      "isDefault": false,
+	  "type": "INPUT"
     },
     {
       "name": "reportingFromContainer",
       "placeholder": "Reporting From:",
-      "isDefault": false
+      "isDefault": false,
+	  "type": "DATE"
     },
     {
       "name": "reportingToContainer",
       "placeholder": "Reporting To:",
-      "isDefault": false
+      "isDefault": false,
+	  "type": "DATE"
     },
     {
       "name": "showDomainAlertsChk",
       "placeholder": "",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "CHECKBOX"
     }
   ],
   "extraFilters": {
@@ -156,26 +166,31 @@
     "defaultSort": "Creation Time",
     "columns": [
       {
+        "name": "Processed",
+        "type": "BOOLEAN",
+        "sortable": true,
+        "visibleByDefault": false
+      }, {
         "name": "Alert Id",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Alert Status",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": true
       },
       {
         "name": "Alert Level",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": true
       },
       {
         "name": "Creation Time",
-        "type": "datetime",
+        "type": "DATETIME",
         "sortable": true,
         "visibleByDefault": true
       },
@@ -187,37 +202,43 @@
       },
       {
         "name": "Reporting Time",
-        "type": "datetime",
+        "type": "DATETIME",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Sent Attempts",
-        "type": "number",
+        "type": "NUMBER",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Max Attempts",
-        "type": "number",
+        "type": "NUMBER",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Next Attempt",
-        "type": "datetime",
+        "type": "DATETIME",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Reporting Time Failure",
-        "type": "datetime",
+        "type": "DATETIME",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Parameters",
-        "type": "text",
+        "type": "TEXT",
+        "sortable": false,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Actions",
+        "type": "ACTION",
         "sortable": false,
         "visibleByDefault": true
       }
@@ -238,6 +259,12 @@
     {
       "name": "Save",
       "label": "Save",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    },
+    {
+      "name": "Delete",
+      "label": "Delete",
       "enabledByDefault": false,
       "visibleByDefault": true
     }

@@ -1,231 +1,227 @@
 {
-  "title": "Messages",
-  "filters": [
-    {
-      "name": "messageIDInput",
-      "placeholder": "Message Id",
-      "isDefault": true
-    },
-    {
-      "name": "messageStatusContainer",
-      "placeholder": "Message Status",
-      "isDefault": true
-    },
-    {
-      "name": "fromPartyInput",
-      "placeholder": "From Party Id",
-      "isDefault": true
-    },
-    {
-      "name": "toPartyInput",
-      "placeholder": "To Party Id",
-      "isDefault": true
-    },
-    {
-      "name": "conversationIDInput",
-      "placeholder": "Conversation Id",
-      "isDefault": false
-    },
-    {
-      "name": "apRoleContainer",
-      "placeholder": "AP Role",
-      "isDefault": false
-    },
-    {
-      "name": "messageTypeContainer",
-      "placeholder": "Message Type",
-      "isDefault": false
-    },
-    {
-      "name": "notificationStatusContainer",
-      "placeholder": "Notification Status",
-      "isDefault": false
-    },
-    {
-      "name": "referenceMessageIDInput",
-      "placeholder": "Reference Message Id",
-      "isDefault": false
-    },
-    {
-      "name": "originalSenderInput",
-      "placeholder": "Original Sender",
-      "isDefault": false
-    },
-    {
-      "name": "finalRecipientInput",
-      "placeholder": "Final Recipient",
-      "isDefault": false
-    },
-    {
-      "name": "receivedFromContainer",
-      "placeholder": "Received From:",
-      "isDefault": false
-    },
-    {
-      "name": "receivedToContainer",
-      "placeholder": "Received Up To:",
-      "isDefault": false
-    },
-    {
-      "name": "actionInput",
-      "placeholder": "Action",
-      "isDefault": false
-    },
-    {
-      "name": "serviceTypeInput",
-      "placeholder": "Service Type",
-      "isDefault": false
-    },
-    {
-      "name": "serviceValueInput",
-      "placeholder": "Service Value",
-      "isDefault": false
-    },
-    {
-      "name": "showTestMessagesChk",
-      "placeholder": "",
-      "isDefault": false
-    }
-  ],
-  "grid": {
-    "columnsControls": true,
-    "rowsControls": true,
-    "exportCSV": true,
-    "defaultSort": "Received",
-    "columns": [
-      {
-        "name": "Message Id",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": true
-      },
-      {
-        "name": "From Party Id",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": true
-      },
-      {
-        "name": "To Party Id",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": true
-      },
-      {
-        "name": "Message Status",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": true
-      },
-      {
-        "name": "Received",
-        "type": "datetime",
-        "sortable": true,
-        "visibleByDefault": true
-      },
-      {
-        "name": "AP Role",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": true
-      },
-      {
-        "name": "Message Type",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": true
-      },
-      {
-        "name": "Actions",
-        "type": "action",
-        "sortable": false,
-        "visibleByDefault": true
-      },
-      {
-        "name": "Notification Status",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Send Attempts",
-        "type": "integer",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Send Attempts Max",
-        "type": "integer",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Next Attempt",
-        "type": "datetime",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Conversation Id",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Deleted",
-        "type": "datetime",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Original Sender",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Final Recipient",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Ref To Message Id",
-        "type": "text",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Failed",
-        "type": "datetime",
-        "sortable": true,
-        "visibleByDefault": false
-      },
-      {
-        "name": "Restored",
-        "type": "datetime",
-        "sortable": true,
-        "visibleByDefault": false
-      }
+    "title": "Messages",
+    "filters": [{
+            "name": "messageIDInput",
+            "placeholder": "Message Id",
+            "isDefault": true,
+            "type": "INPUT"
+        }, {
+            "name": "messageStatusContainer",
+            "placeholder": "Message Status",
+            "isDefault": true,
+            "type": "SELECT"
+        }, {
+            "name": "fromPartyInput",
+            "placeholder": "From Party Id",
+            "isDefault": true,
+            "type": "INPUT"
+        }, {
+            "name": "toPartyInput",
+            "placeholder": "To Party Id",
+            "isDefault": true,
+            "type": "INPUT"
+        }, {
+            "name": "conversationIDInput",
+            "placeholder": "Conversation Id",
+            "isDefault": false,
+            "type": "INPUT"
+        }, {
+            "name": "apRoleContainer",
+            "placeholder": "AP Role",
+            "isDefault": false,
+            "type": "SELECT"
+        }, {
+            "name": "messageTypeContainer",
+            "placeholder": "Message Type",
+            "isDefault": false,
+            "type": "SELECT"
+        }, {
+            "name": "notificationStatusContainer",
+            "placeholder": "Notification Status",
+            "isDefault": false,
+            "type": "SELECT"
+        }, {
+            "name": "referenceMessageIDInput",
+            "placeholder": "Reference Message Id",
+            "isDefault": false,
+            "type": "INPUT"
+        }, {
+            "name": "originalSenderInput",
+            "placeholder": "Original Sender",
+            "isDefault": false,
+            "type": "INPUT"
+        }, {
+            "name": "finalRecipientInput",
+            "placeholder": "Final Recipient",
+            "isDefault": false,
+            "type": "INPUT"
+        }, {
+            "name": "receivedFromContainer",
+            "placeholder": "Received From:",
+            "isDefault": false,
+            "type": "DATE"
+        }, {
+            "name": "receivedToContainer",
+            "placeholder": "Received Up To:",
+            "isDefault": false,
+            "type": "DATE"
+        }, {
+            "name": "actionInput",
+            "placeholder": "Action",
+            "isDefault": false,
+            "type": "INPUT"
+        }, {
+            "name": "serviceTypeInput",
+            "placeholder": "Service Type",
+            "isDefault": false,
+            "type": "INPUT"
+        }, {
+            "name": "serviceValueInput",
+            "placeholder": "Service Value",
+            "isDefault": false,
+            "type": "INPUT"
+        }, {
+            "name": "showTestMessagesChk",
+            "placeholder": "",
+            "isDefault": false,
+            "type": "CHECKBOX"
+        }
     ],
-    "pagination": {
-      "showSelectedNo": true,
-      "showTotalNo": true,
-      "showPageControls": true
-    }
-  },
-  "buttons": [
-    {
-      "name": "downloadBtn",
-      "label": "Download",
-      "enabledByDefault": false,
-      "visibleByDefault": true
+    "grid": {
+        "columnsControls": true,
+        "rowsControls": true,
+        "exportCSV": true,
+        "defaultSort": "Received",
+        "columns": [{
+                "name": "Message Id",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "From Party Id",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "To Party Id",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Message Status",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Notification Status",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Received",
+                "type": "DATETIME",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "AP Role",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Send Attempts",
+                "type": "INTEGER",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Send Attempts Max",
+                "type": "INTEGER",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Next Attempt",
+                "type": "DATETIME",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Conversation Id",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Message Type",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": true
+            }, {
+                "name": "Deleted",
+                "type": "DATETIME",
+                "sortable": true,
+                "visibleByDefault": false
+            },
+            {
+                "name": "Action",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Service Type",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Service Value",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            },
+            {
+                "name": "Original Sender",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Final Recipient",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Ref To Message Id",
+                "type": "TEXT",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Failed",
+                "type": "DATETIME",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Restored",
+                "type": "DATETIME",
+                "sortable": true,
+                "visibleByDefault": false
+            }, {
+                "name": "Actions",
+                "type": "ACTION",
+                "sortable": false,
+                "visibleByDefault": true
+            }
+        ],
+        "pagination": {
+            "showSelectedNo": true,
+            "showTotalNo": true,
+            "showPageControls": true
+        }
     },
-    {
-      "name": "resendBtn",
-      "label": "Resend",
-      "enabledByDefault": false,
-      "visibleByDefault": true
-    }
-  ]
+    "buttons": [{
+            "name": "downloadBtn",
+            "label": "Download",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }, {
+            "name": "resendBtn",
+            "label": "Resend",
+            "enabledByDefault": false,
+            "visibleByDefault": true
+        }
+    ]
 }

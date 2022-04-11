@@ -4,27 +4,38 @@
 	{
 	  "name": "tableFilterContainer",
 	  "placeholder": "Table",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "SELECT"
 	},
 	{
 	  "name": "userFilterContainer",
 	  "placeholder": "User",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "SELECT"
 	},
 	{
 	  "name": "actionFilterContainer",
 	  "placeholder": "Action",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "SELECT"
 	},
 	{
 	  "name": "changedFrom",
 	  "placeholder": "Changed from:",
-	  "isDefault": false
+	  "isDefault": false,
+	  "type": "DATE"
 	},
 	{
 	  "name": "changedTo",
 	  "placeholder": "Changed to:",
-	  "isDefault": false
+	  "isDefault": false,
+	  "type": "DATE"
+	},
+	{
+	  "name": "domainChk",
+	  "placeholder": "",
+	  "isDefault": true,
+	  "type": "CHECKBOX"
 	}
   ],
   "buttons": [],
@@ -36,31 +47,31 @@
 	"columns": [
 	  {
 		"name": "Table",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "User",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Action",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Changed",
-		"type": "datetime",
+		"type": "DATETIME",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Id",
-		"type": "numeric",
+		"type": "NUMBER",
 		"sortable": false,
 		"visibleByDefault": true
 	  }
