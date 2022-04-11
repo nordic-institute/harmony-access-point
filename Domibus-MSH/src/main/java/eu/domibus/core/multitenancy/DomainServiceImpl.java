@@ -158,7 +158,7 @@ public class DomainServiceImpl implements DomainService {
         }
         Domain domain = domains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
         if (domain == null) {
-            LOG.info("Could not find domain [{}] to refresh.", domainCode);
+            LOG.warn("Could not find domain [{}] to refresh.", domainCode);
             return;
         }
         domainDao.refreshDomain(domain);
@@ -185,7 +185,7 @@ public class DomainServiceImpl implements DomainService {
         }
         Domain domain = domains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
         if (domain == null) {
-            LOG.info("Could not find domain [{}] to remove.", domainCode);
+            LOG.warn("Could not find domain [{}] to remove.", domainCode);
             return;
         }
         domains.remove(domain);
