@@ -28,6 +28,6 @@ public class DomainTitleChangeListener implements DomibusPropertyChangeListener 
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        this.domainService.resetDomains();
+        this.domainService.refreshDomain(domainCode);
     }
 }

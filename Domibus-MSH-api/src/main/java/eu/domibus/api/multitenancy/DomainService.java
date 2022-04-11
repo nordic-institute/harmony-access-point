@@ -30,9 +30,9 @@ public interface DomainService {
 
     String getSchedulerName(Domain domain);
 
-    void resetDomains();
-
     void removeDomain(String domainCode);
 
     void addDomain(Domain domain);
+
+    void refreshDomain(String domainCode);
 }
