@@ -5444,7 +5444,54 @@ testRunner.testCase.testSteps['Delete plugin users'].run(testRunner, context);
 
 Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>usernameC4</con:name><con:value>userPlOUC423153343</con:value></con:property><con:property><con:name>usernameC1</con:name><con:value>userPlOUC123153344</con:value></con:property><con:property><con:name>adminUsername</con:name><con:value>userPlAdmin23153344</con:value></con:property><con:property><con:name>jmsplugin.putAttachmentInQueue</con:name><con:value>true</con:value></con:property><con:property><con:name>jmsplugin.attachment.reference.type</con:name><con:value>URL</con:value></con:property><con:property><con:name>domibus.attachment.storage.location</con:name><con:value>C:/domibus/1-mainBranch/receiver/domibus/payloads</con:value></con:property><con:property><con:name>jmsplugin.attachment.reference.context</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>jmsplugin.attachment.reference.url</con:name><con:value>/ext/messages/ids/MESSAGE_ENTITY_ID/payloads/message</con:value></con:property></con:properties>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="56622746-a47f-4bf8-af90-c884725e3fb1" name="JMS-oneway Push-Manual test cases"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS055-Manual-EDELIVERY-1706-JMS Monitoring: empty messages are not displayed" searchProperties="true" id="afb24ea2-e853-4fc2-9790-e18c1c36617c">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="751ae03e-7297-4e76-972b-ed257d799d76" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS072-Submit Message-2 bodyloads" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set logs starting line number" id="32b1652c-4aa6-43ff-99e2-2e6e35a18dcb"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="e12ceaba-9d86-4966-98fd-8ed3b8dce576"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc20")
+messageMap.setStringProperty("action", "TC20Leg1")
+messageMap.setStringProperty("agreementRef", "DummyAgr");
+messageMap.setStringProperty("agreementRefType", "DUM");
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCSeven")
+messageMap.setStringProperty("protocol", "AS4")
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+messageMap.setStringProperty("messageId", "-DomJMS072-")
+messageMap.setStringProperty("p1InBody", "true");
+messageMap.setStringProperty("totalNumberOfPayloads", "2")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "&lt;test>test1&lt;/test>";
+byte[] payload1 = pay1.getBytes()
+messageMap.setBytes("payload_1", payload1)
+messageMap.setStringProperty("payload_2_mimeContentId", "cid:attachment")
+messageMap.setStringProperty("payload_2_mimeType", "text/xml")
+messageMap.setStringProperty("payload_2_description", "message")
+String pay2 = "&lt;test>test2&lt;/test>";
+byte[] payload2 = pay2.getBytes()
+messageMap.setBytes("payload_2", payload2)
+
+
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="Delay" id="ea7377d8-c38d-48c0-ae22-0d2cc2588343"><con:settings/><con:config><delay>10000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file" id="0dd52b24-1bbd-4aaf-a50a-323891b4a32b"><con:settings/><con:config><script>def logValueList =  ["multiple bodyload.*are not allowed"];
+Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.cleanDBMessageID("-DomJMS050-")
+test.finalize()
+Domibus.reportTestCaseCsv(testRunner, log)
+</con:tearDownScript><con:properties/><con:reportParameters/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="56622746-a47f-4bf8-af90-c884725e3fb1" name="JMS-oneway Push-Manual test cases"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS055-Manual-EDELIVERY-1706-JMS Monitoring: empty messages are not displayed" searchProperties="true" id="afb24ea2-e853-4fc2-9790-e18c1c36617c">
             <con:settings/>
 
 
