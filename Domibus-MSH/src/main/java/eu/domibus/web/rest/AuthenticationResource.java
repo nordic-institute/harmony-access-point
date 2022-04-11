@@ -179,21 +179,7 @@ public class AuthenticationResource {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
         authenticationService.changePassword(param.getCurrentPassword(), param.getNewPassword());
-
-//        DomibusUserDetails loggedUser = authenticationService.getLoggedUser();
-//        LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
-//        getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
-//        loggedUser.setDefaultPasswordUsed(false);
     }
-
-//    UserService getUserService() {
-//        if (authUtils.isSuperAdmin()) {
-//            return allUserManagementService;
-//        } else {
-//            return userManagementService;
-//        }
-//    }
-
 
     private UserRO createUserRO(DomibusUserDetails principal, String username) {
         //Parse Granted authorities to a list of string authorities
