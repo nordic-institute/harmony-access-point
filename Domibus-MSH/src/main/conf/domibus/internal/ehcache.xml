@@ -21,7 +21,12 @@
 
     <cache alias="crlByCert" uses-template="ttl-3600-heap-5000"/>
 
-    <cache alias="lookupInfo" uses-template="ttl-3600-heap-5000"/>
+     <cache alias="lookupInfo">
+        <expiry>
+            <class>eu.domibus.core.cache.DomibusCacheDynamicExpiryPolicy</class>
+        </expiry>
+        <heap>5000</heap>
+    </cache>
 
     <cache alias="dispatchClient" uses-template="ttl-3600-heap-5000"/>
 

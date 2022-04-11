@@ -140,6 +140,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, Type.HYPHENED_NAME, Usage.DOMAIN, true),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_DYNAMICDISCOVERY_LOOKUP_CACHE_TTL, Type.NUMERIC),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE, Type.NUMERIC), //there is one place at init time where it is not refreshed
@@ -214,7 +215,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST, Type.REGEXP),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_LENGTH_MAX, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED, Type.BOOLEAN),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CACHE_DDC_LOOKUP, Type.NUMERIC),
+
 
             new DomibusPropertyMetadata(DOMIBUS_ACCOUNT_UNLOCK_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_CHECK_CRON, Type.CRON, Usage.DOMAIN, true),

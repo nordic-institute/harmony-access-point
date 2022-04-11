@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
+import static eu.domibus.api.property.DomibusPropertyProvider.SPRING_BEAN_NAME;
 
 /**
  * The single entry point for getting and setting internal and external domibus properties;
@@ -34,7 +35,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_T
  * @author Ion Perpegel
  * @since 4.0
  */
-@Service
+@Service(SPRING_BEAN_NAME)
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
