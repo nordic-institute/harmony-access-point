@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyException;
@@ -24,11 +25,13 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorServiceImpl.class);
 
     protected final DomainService domainService;
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected final BackendConnectorProvider backendConnectorProvider;
+    protected final DomainContextProvider domainContextProvider;
 
-    public BackendConnectorServiceImpl(DomainService domainService, BackendConnectorProvider backendConnectorProvider) {
+    public BackendConnectorServiceImpl(DomainService domainService, BackendConnectorProvider backendConnectorProvider, DomainContextProvider domainContextProvider) {
         this.domainService = domainService;
         this.backendConnectorProvider = backendConnectorProvider;
+        this.domainContextProvider = domainContextProvider;
     }
 
     @Override
@@ -41,15 +44,17 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
         }
 
         domainService.getDomains().forEach(domain -> {
+            domainContextProvider.setCurrentDomain(domain);
             if (plugins.stream().allMatch(plugin -> !plugin.isEnabled(domain.getCode()))) {
                 EnableAware plugin = plugins.get(0);
                 LOG.warn("Cannot let all plugins to be disabled on domain [{}]. Enabling [{}].", domain, plugin.getName());
                 try {
                     plugin.setEnabled(domain.getCode(), true);
                 } catch (DomibusPropertyException ex) {
-                    LOG.error("Could not enable plugin [{}] on domain [{}]", plugin.getName(), domain);
+                    LOG.error("Could not enable plugin [{}] on domain [{}]", plugin.getName(), domain, ex);
                 }
             }
+            domainContextProvider.clearCurrentDomain();
         });
 
     }
