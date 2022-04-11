@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_HTTP_SECURITY_STRICT_TRANSPORT_SECURITY;
 
@@ -28,6 +29,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Conditional(SecurityInternalAuthProviderCondition.class)
 @Configuration
 @EnableWebSecurity
+@EnableJdbcHttpSession
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfigurerAdapter {
 
