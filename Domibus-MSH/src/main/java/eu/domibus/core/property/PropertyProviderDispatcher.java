@@ -128,10 +128,6 @@ public class PropertyProviderDispatcher {
 
     //this method needs to be public for the ehCache to be able to call it
     public String getCacheKeyValue(Domain domain, String propertyName) {
-        // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
-        // for global properties but it is acceptable since they are not going to mess with super properties
-        String domainCode = domain != null ? domain.getCode()
-                : propertyProviderHelper.getCurrentDomainCode() == null ? "global" : propertyProviderHelper.getCurrentDomainCode();
-        return domainCode + ':' + propertyName;
+        return propertyProviderHelper.getCacheKeyValue(domain, propertyName);
     }
 }

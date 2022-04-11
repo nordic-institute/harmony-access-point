@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.core.cache.DomibusCacheService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -44,6 +45,9 @@ public class PropertyChangeManagerTest {
     @Injectable
     @Qualifier("domibusProperties")
     protected Properties domibusProperties;
+
+    @Injectable
+    DomibusCacheService domibusCacheService;
 
     Map<String, DomibusPropertyMetadata> props;
     String domainCode = "domain1";

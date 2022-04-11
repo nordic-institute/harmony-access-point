@@ -172,7 +172,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         loadProperties(domain, domibusConfigurationService.getConfigurationFileName(domain));
 
         //need this eviction since the load properties puts an empty value to domain title
-        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderDispatcher.getCacheKeyValue(domain, DOMAIN_TITLE));
+        domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, DOMAIN_TITLE));
         domain.setName(getDomainTitle(domain));
     }
 
