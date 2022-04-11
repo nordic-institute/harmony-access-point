@@ -2,8 +2,10 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -109,11 +111,13 @@ public class PropertyProviderHelper {
         return isMultiTenantAware;
     }
 
-    public String getCacheKeyValue(Domain domain, String propertyName) {
-        // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
-        // for global properties but it is acceptable since they are not going to mess with super properties
-        String domainCode = domain != null ? domain.getCode()
-                : getCurrentDomainCode() == null ? "global" : getCurrentDomainCode();
-        return domainCode + ':' + propertyName;
+    public String getCacheKeyValue(Domain domain, DomibusPropertyMetadata propMeta) {
+        String domainCode;
+        if (propMeta.isDomain()) {
+            domainCode = domain != null ? domain.getCode() : Strings.EMPTY;
+        } else {
+            domainCode = "global";
+        }
+        return domainCode + ":" + propMeta.getName();
     }
 }

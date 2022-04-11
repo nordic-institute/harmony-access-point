@@ -128,6 +128,6 @@ public class PropertyProviderDispatcher {
 
     //this method needs to be public for the ehCache to be able to call it
     public String getCacheKeyValue(Domain domain, String propertyName) {
-        return propertyProviderHelper.getCacheKeyValue(domain, propertyName);
+        return propertyProviderHelper.getCacheKeyValue(domain, globalPropertyMetadataManager.getPropertyMetadata(propertyName));
     }
 }
