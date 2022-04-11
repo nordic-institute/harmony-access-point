@@ -97,6 +97,7 @@ public class DomibusTestDatasourceConfiguration {
         try {
             scriptFullPath = domibusScript.getCanonicalPath();
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             fail("Could not the full path for script [" + domibusScript + "]");
         }
 
@@ -106,6 +107,7 @@ public class DomibusTestDatasourceConfiguration {
             final byte[] data = IOUtils.toByteArray(inputStream);
             FileUtils.writeByteArrayToFile(domibusScript, data);
         } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
             fail("Could not write script from classpath [" + sourceScriptPath + "] to the local file [" + domibusScript + "]");
         }
         return scriptFullPath;
