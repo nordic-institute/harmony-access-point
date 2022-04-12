@@ -20,10 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 
@@ -59,10 +59,10 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
     public static final String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
-    final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
+    final protected SimpleDateFormat sdf;
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
-                                             UserMessageDao userMessageDao,
+                                          UserMessageDao userMessageDao,
                                              UserMessageLogDao userMessageLogDao,
                                              DomibusPropertyProvider domibusPropertyProvider,
                                              EventService eventService,
@@ -77,6 +77,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainService = domainService;
         this.domainContextProvider = domainContextProvider;
+
+        sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     @Override
@@ -102,7 +105,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
         LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
-        Date newestPartitionToCheckDate = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(maxRetention).toInstant());
+        Date newestPartitionToCheckDate = DateUtils.addMinutes(new Date(), maxRetention * -1);;
         String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.info("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = getExpiredPartitions(newestPartitionName);
