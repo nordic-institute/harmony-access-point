@@ -250,7 +250,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 prop.setValue(property.getValue());
                 partProperties.getProperty().add(prop);
             }
-        }else{
+        } else {
             throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties must not be empty. It should have MimeType property"));
         }
 
