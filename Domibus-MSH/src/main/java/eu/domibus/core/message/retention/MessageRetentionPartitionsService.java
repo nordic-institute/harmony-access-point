@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
@@ -78,7 +77,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domainService = domainService;
         this.domainContextProvider = domainContextProvider;
 
-        sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
+        sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
@@ -262,7 +261,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             }
         }
 
-        LOG.info("Max retention for all MPCs and message statuses is [{}]", maxRetention);
+        LOG.debug("Max retention for all MPCs and message statuses is [{}]", maxRetention);
         return maxRetention;
     }
 }

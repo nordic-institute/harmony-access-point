@@ -84,7 +84,7 @@ public class MessageRetentionPartitionsServiceTest {
     @Test
     public void dateUTCTest() {
         String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
-        final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH);
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
 
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date newDate = DateUtils.addMinutes(new Date(), 10);
