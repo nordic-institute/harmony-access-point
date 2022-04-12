@@ -753,6 +753,7 @@ public class CertificateServiceImpl implements CertificateService {
                 throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", name));
             }
 
+            LOG.debug("Loading [{}] from [{}]", name, filePath.get());
             byte[] content = getTruststoreContentFromFile(filePath.get());
 
             TruststoreEntity entity = new TruststoreEntity();
