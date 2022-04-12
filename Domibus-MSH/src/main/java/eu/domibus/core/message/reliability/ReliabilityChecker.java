@@ -124,10 +124,13 @@ public class ReliabilityChecker {
                         StreamSource source = new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes()));
                         XMLStreamReader streamReader = inputFactory.createXMLStreamReader(source);
                         final Ebms3UserMessage ebms3UserMessage = this.jaxbContext.createUnmarshaller().unmarshal(streamReader, Ebms3UserMessage.class).getValue();
+                        streamReader.close();
 
                         Node node = (Node) request.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
                         XMLStreamReader reader = xmlUtil.getXmlStreamReaderFromNode(node);
                         final Ebms3UserMessage ebms3UserMessageInRequest = this.jaxbContext.createUnmarshaller().unmarshal(reader, Ebms3Messaging.class).getValue().getUserMessage();
+                        reader.close();
+
                         if (!ebms3UserMessage.equals(ebms3UserMessageInRequest)) {
                             ReliabilityChecker.LOG.warn("Reliability check failed, the user message in the request does not match the user message in the response.");
                             return matcher.fails();

@@ -117,7 +117,9 @@ public class MessageUtil {
 
         final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller(); //Those are not thread-safe, therefore a new one is created each call
         final JAXBElement<Ebms3Messaging> root = (JAXBElement<Ebms3Messaging>) unmarshaller.unmarshal(reader);
-        return root.getValue();
+        final Ebms3Messaging ebms3Messaging = root.getValue();
+        reader.close();
+        return ebms3Messaging;
     }
 
     /**
@@ -682,7 +684,9 @@ public class MessageUtil {
 
             final Unmarshaller unmarshaller = jaxbContextMessageFragment.createUnmarshaller(); //Those are not thread-safe, therefore a new one is created each call
             final JAXBElement<Ebms3MessageFragmentType> root = (JAXBElement<Ebms3MessageFragmentType>) unmarshaller.unmarshal(reader);
-            return root.getValue();
+            final Ebms3MessageFragmentType ebms3MessageFragmentType = root.getValue();
+            reader.close();
+            return ebms3MessageFragmentType;
         } catch (SOAPException | JAXBException | XMLStreamException | TransformerException e) {
             throw new MessagingException("Not possible to get the MessageFragmentType", e);
         }

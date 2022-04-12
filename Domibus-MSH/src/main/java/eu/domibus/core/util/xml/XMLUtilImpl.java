@@ -195,21 +195,21 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
     private static void makeSafe(DocumentBuilderFactory dbf) {
-        String FEATURE = null;
+        String feature = null;
         try {
-            FEATURE = "http://apache.org/xml/features/disallow-doctype-decl";
-            dbf.setFeature(FEATURE, true);
+            feature = "http://apache.org/xml/features/disallow-doctype-decl";
+            dbf.setFeature(feature, true);
 
-            FEATURE = "http://xml.org/sax/features/external-general-entities";
-            dbf.setFeature(FEATURE, false);
+            feature = "http://xml.org/sax/features/external-general-entities";
+            dbf.setFeature(feature, false);
 
-            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
-            dbf.setFeature(FEATURE, false);
+            feature = "http://xml.org/sax/features/external-parameter-entities";
+            dbf.setFeature(feature, false);
 
-            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
-            dbf.setFeature(FEATURE, false);
+            feature = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            dbf.setFeature(feature, false);
         } catch (ParserConfigurationException e) {
-            throw new DomibusXMLException(String.format("The feature [%s] is probably not supported by your XML processor", FEATURE), e);
+            throw new DomibusXMLException(String.format("The feature [%s] is probably not supported by your XML processor", feature), e);
         }
 
         try {

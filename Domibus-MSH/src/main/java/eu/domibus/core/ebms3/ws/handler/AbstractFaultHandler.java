@@ -56,6 +56,8 @@ public abstract class AbstractFaultHandler implements SOAPHandler<SOAPMessageCon
             XMLStreamReader reader = xmlUtil.getXmlStreamReaderFromNode(node);
 
             ebms3Messaging = ((JAXBElement<Ebms3Messaging>) this.jaxbContext.createUnmarshaller().unmarshal(reader)).getValue();
+
+            reader.close();
         } catch (JAXBException | SOAPException | NoSuchElementException | XMLStreamException | TransformerException e) {
             LOG.warn("Could not extract Messaging header from Soap Message.");
         }
