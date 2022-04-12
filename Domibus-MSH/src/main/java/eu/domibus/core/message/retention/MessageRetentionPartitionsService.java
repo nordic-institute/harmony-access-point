@@ -107,17 +107,17 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.info("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = getExpiredPartitions(newestPartitionName);
         for (String partitionName : partitionNames) {
-            LOG.info("   Verify partition [{}]", partitionName);
+            LOG.info("Verify partition [{}]", partitionName);
             // To avoid SQL injection issues, check the partition name used in the next checks, inside native SQL queries
             if(!partitionName.matches(PARTITION_NAME_REGEXP)) {
-                LOG.error("      Partition [{}] has invalid name", partitionName);
+                LOG.error("Partition [{}] has invalid name", partitionName);
                 continue;
             }
 
             // Verify if all messages were archived
             boolean toDelete = verifyIfAllMessagesAreArchived(partitionName);
             if (toDelete == false) {
-                LOG.info("      Partition [{}] will not be deleted because not all messages are archived", partitionName);
+                LOG.info("Partition [{}] will not be deleted because not all messages are archived", partitionName);
                 eventService.enqueuePartitionExpirationEvent(partitionName);
                 continue;
             }
@@ -126,12 +126,12 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             // Verify if all messages expired
             toDelete = verifyIfAllMessagesAreExpired(partitionName);
             if (toDelete == false) {
-                LOG.info("      Partition [{}] will not be deleted because there are still ongoing messages", partitionName);
+                LOG.info("Partition [{}] will not be deleted because there are still ongoing messages", partitionName);
                 eventService.enqueuePartitionExpirationEvent(partitionName);
                 continue;
             }
 
-            LOG.info("   Delete partition [{}]", partitionName);
+            LOG.info("Delete partition [{}]", partitionName);
             userMessageDao.dropPartition(partitionName);
         }
     }
