@@ -240,22 +240,13 @@ public class WebServiceImpl implements WebServicePluginInterface {
     private void copyPartProperties(final String payloadContentType, final ExtendedPartInfo partInfo) throws SubmitMessageFault {
         final PartProperties partProperties = new PartProperties();
         Property prop;
-
+        
         // add all partproperties WEBSERVICE_OF the backend message
-        if (partInfo.getPartProperties() != null && CollectionUtils.isNotEmpty(partInfo.getPartProperties().getProperty())) {
-            for (final Property property : partInfo.getPartProperties().getProperty()) {
-                prop = new Property();
-
-                prop.setName(property.getName());
-                prop.setValue(property.getValue());
-                partProperties.getProperty().add(prop);
-            }
-        } else {
+        if (partInfo.getPartProperties() == null && CollectionUtils.isEmpty(partInfo.getPartProperties().getProperty())) {
             throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties must not be empty. It should have MimeType property"));
         }
-
         boolean mimeTypePropFound = false;
-        for (final Property property : partProperties.getProperty()) {
+        for (final Property property : partInfo.getPartProperties().getProperty()) {
             if (MIME_TYPE.equals(property.getName())) {
                 mimeTypePropFound = true;
                 break;
@@ -263,6 +254,12 @@ public class WebServiceImpl implements WebServicePluginInterface {
         }
         if (!mimeTypePropFound && payloadContentType != null) {
             throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should have MimeType property"));
+        }
+        for (final Property property : partInfo.getPartProperties().getProperty()) {
+            prop = new Property();
+            prop.setName(property.getName());
+            prop.setValue(property.getValue());
+            partProperties.getProperty().add(prop);
         }
         partInfo.setPartProperties(partProperties);
     }
