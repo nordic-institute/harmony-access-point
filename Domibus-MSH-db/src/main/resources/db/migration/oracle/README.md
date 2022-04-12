@@ -28,7 +28,7 @@ The main entrypoint of the procedure is the _migrate_ procedure:
 The _migrate_ procedure expect a database link to the destination database to be created in the source 
 database (usually done by the DBA):
     
-    CREATE PUBLIC DATABASE LINK DATABASE_LINK_NAME_v427
+    CREATE PUBLIC DATABASE LINK DATABASE_LINK_NAME_v429
     CONNECT TO domibus IDENTIFIED BY domibus
     using
     '(DESCRIPTION=
@@ -46,7 +46,7 @@ To run this procedure, the user could use a similar anonymous block, with the st
         DB_LINK VARCHAR2(4000);
         MIGRATION MIGRATE_ONGOING_MESSAGES_429.T_MIGRATION_DETAILS;
     begin
-        DB_LINK := 'DATABASE_LINK_NAME_v427';
+        DB_LINK := 'DATABASE_LINK_NAME_v429';
         MIGRATION.startDate := TIMESTAMP '2021-03-11 00:00:00.01';
         MIGRATION.endDate := TIMESTAMP '2021-03-11 23:59:59.99';
     
