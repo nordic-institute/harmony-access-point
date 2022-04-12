@@ -4,27 +4,38 @@
     {
       "name": "nameInputLct",
       "placeholder": "Property Name...",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "INPUT"
     },
     {
       "name": "writableChkLct",
       "placeholder": "",
-      "isDefault": true
+      "isDefault": true,
+	  "type": "CHECKBOX"
+    },
+    {
+      "name": "domainChkLct",
+      "placeholder": "",
+      "isDefault": true,
+	  "type": "CHECKBOX"
     },
     {
       "name": "typeInputLct",
       "placeholder": "Property Type...",
-      "isDefault": false
+      "isDefault": false,
+	  "type": "INPUT"
     },
     {
       "name": "moduleInputLct",
       "placeholder": "Property Module...",
-      "isDefault": false
+      "isDefault": false,
+	  "type": "INPUT"
     },
     {
       "name": "valueInputLct",
       "placeholder": "Property Value...",
-      "isDefault": false
+      "isDefault": false,
+	  "type": "INPUT"
     }
   ],
   "grid": {
@@ -35,13 +46,13 @@
     "columns": [
       {
         "name": "Property Name",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": true
       },
       {
         "name": "Type",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": true
       },
@@ -53,49 +64,49 @@
       },
       {
         "name": "Module",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Section",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Usage",
-        "type": "text",
+        "type": "TEXT",
         "sortable": true,
         "visibleByDefault": true
       },
       {
         "name": "With Fallback",
-        "type": "boolean",
+        "type": "BOOLEAN",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Is Writable",
-        "type": "boolean",
+        "type": "BOOLEAN",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Is Encrypted",
-        "type": "boolean",
+        "type": "BOOLEAN",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Is Composable",
-        "type": "boolean",
+        "type": "BOOLEAN",
         "sortable": true,
         "visibleByDefault": false
       },
       {
         "name": "Property Value",
-        "type": "boolean",
+        "type": "BOOLEAN",
         "sortable": true,
         "visibleByDefault": true
       }

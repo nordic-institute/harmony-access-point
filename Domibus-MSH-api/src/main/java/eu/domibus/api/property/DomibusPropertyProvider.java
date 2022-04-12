@@ -13,6 +13,8 @@ import java.util.function.Predicate;
  */
 public interface DomibusPropertyProvider {
 
+    String SPRING_BEAN_NAME = "domibusPropertyProvider";
+
     String DOMIBUS_PROPERTY_FILE = "domibus.properties";
 
     /**

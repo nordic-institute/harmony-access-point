@@ -4,47 +4,56 @@
 	{
 	  "name": "signalMessIDInput",
 	  "placeholder": "Signal Message Id",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "INPUT"
 	},
 	{
 	  "name": "messageIDInput",
 	  "placeholder": "Message Id",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "INPUT"
 	},
 	{
 	  "name": "errFromContainer",
 	  "placeholder": "Error From:",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "DATE"
 	},
 	{
 	  "name": "errToContainer",
 	  "placeholder": "Error To:",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "DATE"
 	},
 	{
 	  "name": "errordetailInput",
 	  "placeholder": "Error Detail",
-	  "isDefault": false
+	  "isDefault": false,
+	  "type": "INPUT"
 	},
 	{
 	  "name": "apRole",
 	  "placeholder": "AP Role",
-	  "isDefault": false
+	  "isDefault": false,
+	  "type": "SELECT"
 	},
 	{
 	  "name": "errorCode",
 	  "placeholder": "Error Code",
-	  "isDefault": false
+	  "isDefault": false,
+	  "type": "SELECT"
 	},
 	{
 	  "name": "notifiedFrom",
 	  "placeholder": "Notified From:",
-	  "isDefault": false
+	  "isDefault": false,
+	  "type": "DATE"
 	},
 	{
 	  "name": "notifiedto",
 	  "placeholder": "Notified To:",
-	  "isDefault": false
+	  "isDefault": false,
+	  "type": "DATE"
 	}
   ],
   "grid": {
@@ -55,43 +64,43 @@
 	"columns": [
 	  {
 		"name": "Message Id",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Error Code",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Timestamp",
-		"type": "datetime",
+		"type": "DATETIME",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Signal Message Id",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": false
 	  },
 	  {
 		"name": "AP Role",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": false
 	  },
 	  {
 		"name": "Error Detail",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": false
 	  },
 	  {
 		"name": "Notified",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": false
 	  }

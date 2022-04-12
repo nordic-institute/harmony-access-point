@@ -5,6 +5,7 @@
     <groups>
         <run>
             <include name="multiTenancy"/>
+<!--            <exclude name="singleTenancy"/>-->
         </run>
     </groups>
 
@@ -167,6 +168,7 @@
                 <methods>
                     <!--                    need fixes -->
                     <exclude name="updateAndSave"/>
+                    <exclude name="changeDomain"/>
 
                     <!--depends on a cron running and it is unreliable -->
                     <exclude name="updateSuspensionTime"/>
@@ -174,6 +176,7 @@
             </class>
             <class name="domibus.ui.functional.Properties2PgTest">
                 <methods>
+                    <exclude name="domainTitle"/>
                     <!--                    need fixes -->
                     <exclude name="checkDefaultPassword"/>
                     <exclude name="dontReuseLastPass"/>

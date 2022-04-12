@@ -108,4 +108,12 @@ public class PropertyProviderHelper {
         }
         return isMultiTenantAware;
     }
+
+    public String getCacheKeyValue(Domain domain, String propertyName) {
+        // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
+        // for global properties but it is acceptable since they are not going to mess with super properties
+        String domainCode = domain != null ? domain.getCode()
+                : getCurrentDomainCode() == null ? "global" : getCurrentDomainCode();
+        return domainCode + ':' + propertyName;
+    }
 }

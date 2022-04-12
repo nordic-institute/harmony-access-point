@@ -9,25 +9,25 @@
 	"columns": [
 	  {
 		"name": "Configuration Date",
-		"type": "datetime",
+		"type": "DATETIME",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Username",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Description",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Actions",
-		"type": "action",
+		"type": "ACTION",
 		"sortable": false,
 		"visibleByDefault": true
 	  }

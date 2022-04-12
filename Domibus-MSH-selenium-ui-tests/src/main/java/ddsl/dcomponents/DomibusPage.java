@@ -93,6 +93,7 @@ public class DomibusPage extends DComponent {
 	
 	public void waitForPageToLoad() throws Exception {
 		wait.forElementToBeVisible(getSidebar().sideBar);
+		waitForProgressBar();
 	}
 	
 	public void waitForPageTitle() throws Exception {
@@ -150,8 +151,26 @@ public class DomibusPage extends DComponent {
 
 		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
 	}
-	
-	
+
+	public void waitForProgressBar() {
+
+		log.info("waiting for rows to load");
+		try {
+			wait.forXMillis(500);
+			int bars = 1;
+			int waits = 0;
+			while (bars > 0 && waits < 30) {
+				Object tmp = ((JavascriptExecutor) driver).executeScript("return document.querySelectorAll('datatable-progress').length;");
+				bars = Integer.valueOf(tmp.toString());
+				waits++;
+				wait.forXMillis(200);
+			}
+			log.debug("waited for rows to load for ms = 200*" + waits);
+			wait.forXMillis(200);
+		} catch (Exception e) {
+		}
+
+	}
 	
 	
 }

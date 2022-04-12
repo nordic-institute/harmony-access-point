@@ -4,27 +4,32 @@
 	{
 	  "name": "jmsQueueSelect",
 	  "placeholder": "Source",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "SELECT"
 	},
 	{
 	  "name": "jmsFromDatePicker",
 	  "placeholder": "Received From:",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "DATE"
 	},
 	{
 	  "name": "jmsToDatePicker",
 	  "placeholder": "Received Up To:",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "DATE"
 	},
 	{
 	  "name": "jmsSelectorInput",
 	  "placeholder": "Selector",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "INPUT"
 	},
 	{
 	  "name": "jmsTypeInput",
 	  "placeholder": "JMS Type",
-	  "isDefault": true
+	  "isDefault": true,
+	  "type": "INPUT"
 	}
   ],
   "grid": {
@@ -35,37 +40,37 @@
 	"columns": [
 	  {
 		"name": "ID",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "JMS Type",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": true,
 		"visibleByDefault": false
 	  },
 	  {
 		"name": "Time",
-		"type": "datetime",
+		"type": "DATETIME",
 		"sortable": true,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Custom prop",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "JMS prop",
-		"type": "text",
+		"type": "TEXT",
 		"sortable": false,
 		"visibleByDefault": true
 	  },
 	  {
 		"name": "Actions",
-		"type": "action",
+		"type": "ACTION",
 		"sortable": false,
 		"visibleByDefault": true
 	  }
@@ -98,6 +103,12 @@
 	{
 	  "name": "deleteButton",
 	  "label": "Delete",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "deleteAllButton",
+	  "label": "Delete All",
 	  "enabledByDefault": false,
 	  "visibleByDefault": true
 	}
