@@ -113,7 +113,7 @@ public class PropertyProviderHelper {
     public String getCacheKeyValue(Domain domain, DomibusPropertyMetadata propMeta) {
         String domainCode;
         if (propMeta.isDomain()) {
-            domainCode = domain != null ? domain.getCode() : StringUtils.EMPTY;
+            domainCode = domain != null ? domain.getCode() : getCurrentDomainCode();
         } else {
             domainCode = "global";
         }
