@@ -261,12 +261,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 break;
             }
         }
-        // in case there was no property with name {@value Property.MIME_TYPE} and xmime:contentType attribute was set noinspection SuspiciousMethodCalls
         if (!mimeTypePropFound && payloadContentType != null) {
-            prop = new Property();
-            prop.setName(MIME_TYPE);
-            prop.setValue(payloadContentType);
-            partProperties.getProperty().add(prop);
+            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should have MimeType property"));
         }
         partInfo.setPartProperties(partProperties);
     }
