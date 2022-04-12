@@ -44,7 +44,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     Domain defaultDomain = new Domain("default", "Default");
 
     @Before
-    void prepare() {
+    public void prepare() {
+        cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).clear();
         domainContextProvider.setCurrentDomain(defaultDomain);
     }
 
@@ -64,7 +65,6 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         Assert.assertEquals(actualValue, cachedValue);
     }
 
-    //    @Ignore("EDELIVERY-8892")
     @Test
     public void testCacheNoDomain() {
         //test a global property here
