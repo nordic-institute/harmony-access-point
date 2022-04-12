@@ -240,7 +240,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     private void copyPartProperties(final String payloadContentType, final ExtendedPartInfo partInfo) throws SubmitMessageFault {
         final PartProperties partProperties = new PartProperties();
         Property prop;
-        
+
         // add all partproperties WEBSERVICE_OF the backend message
         if (partInfo.getPartProperties() == null && CollectionUtils.isEmpty(partInfo.getPartProperties().getProperty())) {
             throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties must not be empty. It should have MimeType property"));
