@@ -5,7 +5,6 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -114,7 +113,7 @@ public class PropertyProviderHelper {
     public String getCacheKeyValue(Domain domain, DomibusPropertyMetadata propMeta) {
         String domainCode;
         if (propMeta.isDomain()) {
-            domainCode = domain != null ? domain.getCode() : Strings.EMPTY;
+            domainCode = domain != null ? domain.getCode() : StringUtils.EMPTY;
         } else {
             domainCode = "global";
         }
