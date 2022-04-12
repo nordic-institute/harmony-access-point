@@ -107,7 +107,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
         Date newestPartitionToCheckDate = DateUtils.addMinutes(new Date(), maxRetention * -1);;
         String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
-        LOG.info("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
+        LOG.debug("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = getExpiredPartitions(newestPartitionName);
         for (String partitionName : partitionNames) {
             LOG.info("Verify partition [{}]", partitionName);
