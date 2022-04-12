@@ -23,8 +23,8 @@ import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.eb
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -242,7 +242,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         Property prop;
 
         // add all partproperties WEBSERVICE_OF the backend message
-        if (partInfo.getPartProperties() != null && !CollectionUtils.isEmpty(partInfo.getPartProperties().getProperty())) {
+        if (partInfo.getPartProperties() != null && CollectionUtils.isNotEmpty(partInfo.getPartProperties().getProperty())) {
             for (final Property property : partInfo.getPartProperties().getProperty()) {
                 prop = new Property();
 
