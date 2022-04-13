@@ -33,11 +33,10 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 public class DateUtilImpl implements DateUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
-    protected SimpleDateFormat sdf;
 
     @Override
     public String getIdPkDateHourPrefix(Date value) {
-        sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
+        SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(value).substring(0, 8);
     }
