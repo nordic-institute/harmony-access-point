@@ -1,8 +1,8 @@
 package eu.domibus.plugin.validation;
 
-import eu.domibus.plugin.Submission;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.Submission;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
 
@@ -26,6 +26,7 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
 
     protected JAXBContext jaxbContext;
     protected Resource schema;
+    protected XMLInputFactory inputFactory;
 
     @Override
     public void validate(Submission submission) throws SubmissionValidationException {
@@ -54,7 +55,7 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
             unmarshaller.setSchema(schema);
             unmarshaller.setEventHandler(jaxbValidationEventHandler);
             InputStream payloadStream = payload.getPayloadDatahandler().getInputStream();
-            XMLStreamReader streamReader = getXmlInputFactory().createXMLStreamReader(payloadStream);
+            XMLStreamReader streamReader = inputFactory.createXMLStreamReader(payloadStream);
             unmarshaller.unmarshal(streamReader);
             if (jaxbValidationEventHandler.hasErrors()) {
                 throw new SubmissionValidationException("Error validating payload [" + payload.getContentId() + "]:" + jaxbValidationEventHandler.getErrorMessage());
@@ -72,6 +73,7 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
 
     public void setJaxbContext(JAXBContext jaxbContext) {
         this.jaxbContext = jaxbContext;
+        this.inputFactory = getXmlInputFactory();
     }
 
     public void setSchema(Resource schema) {
