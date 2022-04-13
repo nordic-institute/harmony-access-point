@@ -252,8 +252,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 break;
             }
         }
-        if (!mimeTypePropFound || payloadContentType == null) {
-            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "MimeType property or payload contentType is missing"));
+        if (!mimeTypePropFound) {
+            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should have MimeType property"));
         }
         for (final Property property : partInfo.getPartProperties().getProperty()) {
             prop = new Property();
