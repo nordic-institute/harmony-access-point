@@ -634,7 +634,7 @@ public class UserMessageDefaultService implements UserMessageService {
         em.flush();
     }
 
-    protected void deleteMessages(List<Long> ids, List<String> userMessageIds) {
+    public void deleteMessages(List<Long> ids, List<String> userMessageIds) {
 
         LOG.debug("Deleting [{}] user messages", ids.size());
         LOG.trace("Deleting user messages [{}]", ids);
