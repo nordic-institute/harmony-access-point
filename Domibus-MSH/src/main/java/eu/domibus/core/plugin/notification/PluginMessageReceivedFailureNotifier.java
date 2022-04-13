@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+import static eu.domibus.messaging.MessageConstants.FINAL_RECIPIENT;
+import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -38,6 +41,8 @@ public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier
         ErrorResultImpl errorResult = getErrorResult(messageId, properties);
 
         MessageReceiveFailureEvent event = new MessageReceiveFailureEvent();
+        event.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
+        event.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
         event.setMessageId(messageId);
         event.setMessageEntityId(messageEntityId);
         String service = properties.get(MessageConstants.SERVICE);
