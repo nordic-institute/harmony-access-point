@@ -179,6 +179,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
                 setMessagingId(responseMessage, userMessage);
 
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_GENERATED, nonRepudiation);
             } catch (TransformerConfigurationException | SOAPException | IOException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RECEIPT_FAILURE);
