@@ -705,21 +705,30 @@ SET GLOBAL log_bin_trust_function_creators = 1
 
 -- This function generates a sequence id based on DOMIBUS_SCALABLE_SEQUENCE for a new entry
 CREATE FUNCTION MIGRATE_42_TO_50_generate_id(in_sequence_name VARCHAR(255))
-RETURNS BIGINT
-READS SQL DATA
-    BEGIN
-        DECLARE next_val BIGINT;
-        DECLARE seq_id BIGINT;
+    RETURNS BIGINT
+    READS SQL DATA
+BEGIN
+    DECLARE next_value BIGINT;
+    DECLARE seq_id BIGINT;
 
-        SELECT NEXT_VAL
-        INTO next_val
-        FROM DOMIBUS_SCALABLE_SEQUENCE
-        WHERE UPPER(SEQUENCE_NAME) = UPPER(in_sequence_name);
+    SELECT NEXT_VAL
+    INTO next_value
+    FROM DOMIBUS_SCALABLE_SEQUENCE
+    WHERE UPPER(SEQUENCE_NAME) = UPPER(in_sequence_name);
 
-        SELECT MIGRATE_42_TO_50_generate_scalable_seq(next_val, SYSDATE())
-        INTO seq_id;
-        RETURN seq_id;
-    END
+    IF next_value IS NULL THEN
+        SET next_value := 1;
+    END IF;
+
+    INSERT INTO DOMIBUS_SCALABLE_SEQUENCE (SEQUENCE_NAME, NEXT_VAL)
+    VALUES (in_sequence_name, next_value + 1)
+    ON DUPLICATE KEY UPDATE NEXT_VAL = next_value + 1;
+
+    SELECT MIGRATE_42_TO_50_generate_scalable_seq(next_value, SYSDATE())
+    INTO seq_id;
+
+    RETURN seq_id;
+END
 //
 
 SET GLOBAL log_bin_trust_function_creators = @saved_log_bin_trust_function_creators
@@ -774,11 +783,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_mpc_rec(in_mpc VARCHAR(255), OUT out_
                 BEGIN
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_MPC: ', in_mpc));
 
-                    -- create new record
-                    INSERT INTO TB_D_MPC (VALUE) VALUES (in_mpc);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_MPC');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_MPC (ID_PK, VALUE) VALUES (out_id_pk, in_mpc);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_MPC WHERE VALUE = in_mpc;
@@ -798,11 +807,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_role_rec(in_role VARCHAR(255), OUT ou
                 BEGIN
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_ROLE: ', in_role));
 
-                    -- create new record
-                    INSERT INTO TB_D_ROLE(ROLE) VALUES (in_role);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_ROLE');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_ROLE(ID_PK, ROLE) VALUES (out_id_pk, in_role);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_ROLE WHERE ROLE = in_role;
@@ -823,10 +832,10 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_msh_role_rec(in_role VARCHAR(255), OU
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_MSH_ROLE: ', in_role));
 
                     -- create new record
-                    INSERT INTO TB_D_MSH_ROLE(ROLE) VALUES (in_role);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_MSH_ROLE');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    INSERT INTO TB_D_MSH_ROLE(ID_PK, ROLE) VALUES (out_id_pk, in_role);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_MSH_ROLE WHERE ROLE = in_role;
@@ -847,11 +856,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_service_rec(in_service_type VARCHAR(2
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_SERVICE: ',
                             COALESCE(in_service_type, ''), ' , ', COALESCE(in_service_value, '')));
 
-                    -- create new record
-                    INSERT INTO TB_D_SERVICE(TYPE, VALUE) VALUES (in_service_type, in_service_value);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_SERVICE');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_SERVICE(ID_PK, TYPE, VALUE) VALUES (out_id_pk, in_service_type, in_service_value);
+                    COMMIT;
                 END;
 
             IF in_service_type IS NULL THEN
@@ -877,11 +886,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_msg_status_rec(in_message_status VARC
                 BEGIN
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_MESSAGE_STATUS: ', in_message_status));
 
-                    -- create new record
-                    INSERT INTO TB_D_MESSAGE_STATUS(STATUS) VALUES (in_message_status);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_MESSAGE_STATUS');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_MESSAGE_STATUS(ID_PK, STATUS) VALUES (out_id_pk, in_message_status);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_MESSAGE_STATUS WHERE STATUS = in_message_status;
@@ -902,11 +911,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_agreement_rec(in_agreement_type VARCH
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_AGREEMENT: ',
                             COALESCE(in_agreement_type, ''), ' , ', COALESCE(in_agreement_value, '')));
 
-                    -- create new record
-                    INSERT INTO TB_D_AGREEMENT(TYPE, VALUE) VALUES (in_agreement_type, in_agreement_value);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_AGREEMENT');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_AGREEMENT(ID_PK, TYPE, VALUE) VALUES (out_id_pk, in_agreement_type, in_agreement_value);
+                    COMMIT;
                 END;
 
             IF in_agreement_type IS NULL THEN
@@ -932,11 +941,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_action_rec(in_action VARCHAR(255), OU
                 BEGIN
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_ACTION: ', in_action));
 
-                    -- create new record
-                    INSERT INTO TB_D_ACTION(ACTION) VALUES (in_action);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_ACTION');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_ACTION(ID_PK, ACTION) VALUES (out_id_pk, in_action);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_ACTION WHERE ACTION = in_action;
@@ -957,11 +966,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_party_rec(in_party_type VARCHAR(255),
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_PARTY: ',
                             COALESCE(in_party_type, ''), ' , ', COALESCE(in_party_value, '')));
 
-                    -- create new record
-                    INSERT INTO TB_D_PARTY(TYPE, VALUE) VALUES (in_party_type, in_party_value);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_PARTY');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_PARTY(ID_PK, TYPE, VALUE) VALUES (out_id_pk, in_party_type, in_party_value);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_PARTY WHERE TYPE = in_party_type AND VALUE = in_party_value;
@@ -999,11 +1008,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_notif_status_rec(in_status VARCHAR(25
                 BEGIN
                     CALL MIGRATE_42_TO_50_trace(CONCAT('Add new record into TB_D_NOTIFICATION_STATUS: ', in_status));
 
-                    -- create new record
-                    INSERT INTO TB_D_NOTIFICATION_STATUS(STATUS) VALUES (in_status);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_NOTIFICATION_STATUS');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_NOTIFICATION_STATUS(ID_PK, STATUS) VALUES (out_id_pk, in_status);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_NOTIFICATION_STATUS WHERE STATUS = in_status;
@@ -1062,11 +1071,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_msg_property_rec(in_prop_name VARCHAR
                             COALESCE(in_prop_name, ''), ' , ', COALESCE(in_prop_value, ''), ' , ',
                             COALESCE(in_prop_type, '')));
 
-                    -- create new record
-                    INSERT INTO TB_D_MESSAGE_PROPERTY(NAME, VALUE, TYPE) VALUES (in_prop_name, in_prop_value, in_prop_type);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_MESSAGE_PROPERTY');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_MESSAGE_PROPERTY(ID_PK, NAME, VALUE, TYPE) VALUES (out_id_pk, in_prop_name, in_prop_value, in_prop_type);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_MESSAGE_PROPERTY WHERE (NAME = in_prop_name AND TYPE = in_prop_type
@@ -1090,11 +1099,11 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_part_property_rec(in_prop_name VARCHA
                             COALESCE(in_prop_name, ''), ' , ', COALESCE(in_prop_value, ''), ' , ',
                             COALESCE(in_prop_type, '')));
 
-                    -- create new record
-                    INSERT INTO TB_D_PART_PROPERTY(NAME, VALUE, TYPE) VALUES (in_prop_name, in_prop_value, in_prop_type);
-                    COMMIT;
+                    SET out_id_pk := MIGRATE_42_TO_50_generate_id('TB_D_PART_PROPERTY');
 
-                    SET out_id_pk := LAST_INSERT_ID();
+                    -- create new record
+                    INSERT INTO TB_D_PART_PROPERTY(ID_PK, NAME, VALUE, TYPE) VALUES (out_id_pk, in_prop_name, in_prop_value, in_prop_type);
+                    COMMIT;
                 END;
 
             SELECT ID_PK INTO out_id_pk FROM TB_D_PART_PROPERTY WHERE (NAME = in_prop_name AND VALUE = in_prop_value
