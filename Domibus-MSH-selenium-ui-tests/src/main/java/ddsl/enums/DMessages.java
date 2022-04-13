@@ -91,7 +91,7 @@ public class DMessages {
 		public static final String TLS_TRUSTSTORE_UPLOAD="Error updating truststore file (%s) Could not find client authentication file for domain [%s]";
 		public static final String TLS_TRUSTSTORE_SUCCESS_UPLOAD="TLS truststore file has been successfully replaced.";
 		public static final String TLS_TRUSTSTORE_REMOVE_CERT="Certificate [%s] has been successfully removed from the TLS truststore.";
-		public static final String TLS_TRUSTSTORE_WRONGFILE_UPLOAD= "Error updating truststore file (%s) Store file type (xml) should match the configured truststore type (JKS).";
+		public static final String TLS_TRUSTSTORE_WRONGFILE_UPLOAD= "Error updating truststore file (%s) Could not load store: Invalid keystore format";
 		public static final String TLS_TRUSTSTOE_WRONGFILE_ADD="Error updating truststore file (%s) Could not generate certificate";
 	}
 

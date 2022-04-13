@@ -57,10 +57,6 @@ public class AlertPgUXTest extends SeleniumTest {
 
 	}
 
-
-// EDELIVERY-6959 - ALRT-35 - Delete domain alert as super
-// EDELIVERY-8455- jira issue reported for delete operation
-
 	/*  ALRT-35 - Delete domain alert as super  */
 	@Test(description = "ALRT-35", groups = {"multiTenancy"})
 	public void delDomainAlertbySuperAdmin() throws Exception {
@@ -92,8 +88,6 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 	// EDELIVERY-6960 - ALRT-36 - Delete SUPER alert as super
-// EDELIVERY-8455- jira issue reported for delete operation
-	/*  ALRT-36 - Delete SUPER alert as super  */
 	@Test(description = "ALRT-36", groups = {"multiTenancy"}, enabled = false)
 	public void delSuperAlert() throws Exception {
 
