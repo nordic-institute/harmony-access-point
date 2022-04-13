@@ -181,10 +181,18 @@ public class CertificateServiceImplTest {
 
     @Test
     public void testGenerateBackupName() {
+        // given
         String name = "TestName";
+         // when
         String result = certificateService.generateBackupName(name);
+        String result2 = certificateService.generateBackupName(name);
+        // then
         assertNotNull(result);
+        assertNotNull(result2);
         assertNotEquals(name, result);
+        assertNotEquals(name, result2);
+        // each new generated name must be different
+        assertNotEquals(result, result2);
     }
 
     @Test
