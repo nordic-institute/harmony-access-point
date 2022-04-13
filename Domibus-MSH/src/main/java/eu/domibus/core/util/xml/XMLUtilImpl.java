@@ -81,6 +81,15 @@ public class XMLUtilImpl implements XMLUtil {
         }
     });
 
+    private static final ThreadLocal<XMLInputFactory> xmlInputFactoryThreadLocal =
+            ThreadLocal.withInitial(() -> {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+                inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                return inputFactory;
+            });
+
     public DocumentBuilderFactory getDocumentBuilderFactory() {
         return documentBuilderFactoryThreadLocal.get();
     }
@@ -100,7 +109,6 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
 
-
     @Override
     public MessageFactory getMessageFactorySoap12() {
         return messageFactoryThreadLocal.get();
@@ -112,7 +120,8 @@ public class XMLUtilImpl implements XMLUtil {
     }
 
     @Override
-    public UnmarshallerResult unmarshal(boolean ignoreWhitespaces, JAXBContext jaxbContext, InputStream xmlStream, InputStream xsdStream) throws SAXException, JAXBException, XMLStreamException {
+    public UnmarshallerResult unmarshal(boolean ignoreWhitespaces, JAXBContext jaxbContext, InputStream xmlStream, InputStream xsdStream)
+            throws SAXException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         if (xsdStream != null) {
             Schema schema = getSchema(xsdStream);
@@ -138,11 +147,7 @@ public class XMLUtilImpl implements XMLUtil {
 
     @Override
     public XMLInputFactory getXmlInputFactory() {
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-        inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        return inputFactory;
+        return xmlInputFactoryThreadLocal.get();
     }
 
     @Override

@@ -28,6 +28,15 @@ public class FSXMLHelperImpl implements FSXMLHelper {
     private static final String XSD_FILES_LOCATION = "xsd";
     private static final String DEFAULT_SCHEMA = "fs-plugin.xsd";
 
+    private static final ThreadLocal<XMLInputFactory> xmlInputFactoryThreadLocal =
+            ThreadLocal.withInitial(() -> {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+                inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                return inputFactory;
+            });
+
     protected JAXBContext jaxbContext;
 
     public FSXMLHelperImpl(JAXBContext jaxbContext) {
@@ -85,10 +94,6 @@ public class FSXMLHelperImpl implements FSXMLHelper {
     }
 
     protected XMLInputFactory getXmlInputFactory() {
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-        inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        return inputFactory;
+        return xmlInputFactoryThreadLocal.get();
     }
 }

@@ -24,9 +24,17 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
 
     protected static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaPayloadSubmissionValidator.class);
 
+    private static final ThreadLocal<XMLInputFactory> xmlInputFactoryThreadLocal =
+            ThreadLocal.withInitial(() -> {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+                inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                return inputFactory;
+            });
+
     protected JAXBContext jaxbContext;
     protected Resource schema;
-    protected XMLInputFactory inputFactory;
 
     @Override
     public void validate(Submission submission) throws SubmissionValidationException {
@@ -55,7 +63,7 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
             unmarshaller.setSchema(schema);
             unmarshaller.setEventHandler(jaxbValidationEventHandler);
             InputStream payloadStream = payload.getPayloadDatahandler().getInputStream();
-            XMLStreamReader streamReader = inputFactory.createXMLStreamReader(payloadStream);
+            XMLStreamReader streamReader = getXmlInputFactory().createXMLStreamReader(payloadStream);
             unmarshaller.unmarshal(streamReader);
             if (jaxbValidationEventHandler.hasErrors()) {
                 throw new SubmissionValidationException("Error validating payload [" + payload.getContentId() + "]:" + jaxbValidationEventHandler.getErrorMessage());
@@ -73,7 +81,6 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
 
     public void setJaxbContext(JAXBContext jaxbContext) {
         this.jaxbContext = jaxbContext;
-        this.inputFactory = getXmlInputFactory();
     }
 
     public void setSchema(Resource schema) {
@@ -81,10 +88,6 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
     }
 
     private XMLInputFactory getXmlInputFactory() {
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-        inputFactory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        return inputFactory;
+        return xmlInputFactoryThreadLocal.get();
     }
 }
