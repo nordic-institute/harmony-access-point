@@ -61,5 +61,10 @@ public interface DateUtil {
      */
     Long getIdPkDateHour(String date);
 
+    /**
+     * Parse a date to an ID_PK prefix
+     *
+     * @return string of format YYMMDDHH
+     */
     String getIdPkDateHourPrefix(Date value);
 }
