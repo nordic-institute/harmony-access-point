@@ -171,8 +171,9 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
 		page.uploadTruststore(absolutePath, "test123");
 
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(
-				String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_WRONGFILE_UPLOAD, certFileName)), "Error message is shown");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(),
+				String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_WRONGFILE_UPLOAD, certFileName),
+				"Error message is shown");
 
 		soft.assertAll();
 	}
@@ -189,7 +190,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
 		page.addCertificate(absolutePath, "test123");
 
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTOE_WRONGFILE_ADD, certFileName)), "Correct error message is shown");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.TlsTruststore.TLS_TRUSTSTOE_WRONGFILE_ADD, certFileName), "Correct error message is shown");
 		soft.assertAll();
 	}
 
