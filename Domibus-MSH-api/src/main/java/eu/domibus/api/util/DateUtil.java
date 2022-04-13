@@ -16,6 +16,7 @@ import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 public interface DateUtil {
 
     DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
 
     String REST_FORMATTER_PATTERNS_MESSAGE = "[yyyy-MM-dd'T'HH'H'] or [yyyy-MM-dd]";
 
@@ -59,4 +60,6 @@ public interface DateUtil {
      * @return date of format YYMMDDHH0000000000
      */
     Long getIdPkDateHour(String date);
+
+    String getIdPkDateHourPrefix(Date value);
 }

@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -12,13 +13,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author idragusa
@@ -54,6 +53,9 @@ public class MessageRetentionPartitionsServiceTest {
     @Injectable
     DomainContextProvider domainContextProvider;
 
+    @Injectable
+    DateUtil dateUtil;
+
     @Test
     public void deleteExpiredMessagesTest() {
 
@@ -79,20 +81,5 @@ public class MessageRetentionPartitionsServiceTest {
 
         messageRetentionPartitionsService.deleteExpiredMessages();
 
-    }
-
-    @Test
-    public void dateUTCTest() {
-        String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
-        final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
-
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date newDate = DateUtils.addMinutes(new Date(), 10);
-        Integer partitionNameUTC = new Integer(sdf.format(newDate).substring(0, 8));
-
-        sdf.setTimeZone(TimeZone.getTimeZone("EST"));
-        Integer partitionNameEES = new Integer(sdf.format(newDate).substring(0, 8));
-
-        Assert.assertTrue(partitionNameUTC - partitionNameEES > 0);
     }
 }

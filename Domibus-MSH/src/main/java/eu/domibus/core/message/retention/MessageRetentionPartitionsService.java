@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -19,10 +20,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 
@@ -56,9 +55,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected DomainContextProvider domainContextProvider;
 
+    protected DateUtil dateUtil;
+
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
-    public static final String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
-    final protected SimpleDateFormat sdf;
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
                                           UserMessageDao userMessageDao,
@@ -67,7 +66,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              EventService eventService,
                                              DomibusConfigurationService domibusConfigurationService,
                                              DomainService domainService,
-                                             DomainContextProvider domainContextProvider) {
+                                             DomainContextProvider domainContextProvider, DateUtil dateUtil) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
@@ -76,9 +75,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainService = domainService;
         this.domainContextProvider = domainContextProvider;
-
-        sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        this.dateUtil = dateUtil;
     }
 
     @Override
@@ -104,7 +101,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
         LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
-        Date newestPartitionToCheckDate = DateUtils.addMinutes(new Date(), maxRetention * -1);;
+        Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);;
         String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.debug("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = getExpiredPartitions(newestPartitionName);
@@ -216,7 +213,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected String getPartitionNameFromDate(Date partitionDate) {
-        String partitionName = 'P' + sdf.format(partitionDate).substring(0, 8);
+        String partitionName = 'P' + dateUtil.getIdPkDateHourPrefix(partitionDate);
         LOG.debug("Get partition name from date, PartitionDate [{}], partitionName [{}]", partitionDate, partitionName);
         return partitionName;
     }
