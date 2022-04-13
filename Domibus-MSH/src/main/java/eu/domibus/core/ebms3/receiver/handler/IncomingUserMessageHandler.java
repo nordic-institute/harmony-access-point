@@ -46,6 +46,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         LOG.debug("Processing UserMessage");
 
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
         Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
         partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));
