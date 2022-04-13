@@ -98,7 +98,7 @@ public class PropertyChangeManager {
                 // revert to old value
                 doSetPropertyValue(domain, propertyName, oldValue);
                 //clear the cache manually here since we are not calling the set method through dispatcher class
-                domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, propertyName));
+                domibusCacheService.evict(DomibusCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, propMeta));
                 // the original property set failed likely due to the change listener validation so, there is no side effect produced and no need to call the listener again
 //                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
                 throw ex;

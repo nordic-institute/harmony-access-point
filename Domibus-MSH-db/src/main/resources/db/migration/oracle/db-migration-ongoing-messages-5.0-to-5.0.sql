@@ -6,89 +6,175 @@
 -- Parameters to be adjusted:
 -- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
 -- ********************************************************************************************************
+
+-- prepare migration PKs tables
 DECLARE
     table_does_not_exist exception;
     PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
 BEGIN
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MESSAGE_STATUS';
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MESSAGE_STATUS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MESSAGE_STATUS: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_PARTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_PARTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_PART_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_PART_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MPC';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MPC: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_ROLE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_ROLE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_SERVICE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_SERVICE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_AGREEMENT';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_AGREEMENT: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_ACTION';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_ACTION: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MSH_ROLE';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MSH_ROLE: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_TIMEZONE_OFFSET';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_TIMEZONE_OFFSET: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_NOTIFIC_STATUS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_NOTIFIC_STATUS: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MESSAGE_PROPERTY';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MESSAGE_PROPERTY: table does not exist');
+    END;
+
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MESSAGE_STATUS CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MESSAGE_STATUS: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_PARTY';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_PARTY CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_PARTY: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_PART_PROPERTY';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_PART_PROPERTY CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_PART_PROPERTY: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MPC';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MPC CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MPC: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_ROLE';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_ROLE CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_ROLE: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_SERVICE';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_SERVICE CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_SERVICE: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_AGREEMENT';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_AGREEMENT CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_AGREEMENT: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_ACTION';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_ACTION CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_ACTION: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MSH_ROLE';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MSH_ROLE CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MSH_ROLE: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_TIMEZONE_OFFSET';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_TIMEZONE_OFFSET CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_TIMEZONE_OFFSET: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_NOTIFIC_STATUS';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_NOTIFIC_STATUS CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_NOTIFIC_STATUS: table does not exist');
     END;
 
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MESSAGE_PROPERTY';
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MESSAGE_PROPERTY CASCADE CONSTRAINTS';
     EXCEPTION
         WHEN table_does_not_exist THEN
             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MESSAGE_PROPERTY: table does not exist');
@@ -1107,10 +1193,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
             FROM TB_MESSAGE_PROPERTIES
             WHERE USER_MESSAGE_ID_FK IN (
                 SELECT ID_PK
-                FROM TB_SIGNAL_MESSAGE
+                FROM TB_USER_MESSAGE
                 WHERE ID_PK IN (
                     SELECT ID_PK
-                    FROM TB_SIGNAL_MESSAGE_LOG
+                    FROM TB_USER_MESSAGE_LOG
                     WHERE MESSAGE_STATUS_ID_FK IN (
                         SELECT ID_PK
                         FROM TB_D_MESSAGE_STATUS
@@ -1601,3 +1687,203 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
 
 END MIGRATE_ONGOING_MESSAGES_50;
 /
+
+--
+-- Uncomment trailing line to execute the MIGRATE_ONGOING_MESSAGES_50.MIGRATE(..) procedure and to clean up the temporary tables
+-- Note: COMMIT or ROLLBACK at the end or immediately after invoking it (if you uncomment the automatic COMMIT)
+--
+--declare
+--     DB_LINK VARCHAR2(4000);
+--     MIGRATION MIGRATE_ONGOING_MESSAGES_50.T_MIGRATION_DETAILS;
+-- begin
+--     -- Use the correct database link
+--     DB_LINK := 'DATABASE_LINK_NAME_v50';
+--
+--     -- Uncomment to use custom start and end date values
+--     --MIGRATION.startDate := TIMESTAMP '2021-03-11 00:00:00.01';
+--     --MIGRATION.endDate := TIMESTAMP '2021-03-11 23:59:59.99';
+--
+--     MIGRATE_ONGOING_MESSAGES_50.MIGRATE(
+--             DB_LINK => DB_LINK,
+--             MIGRATION => MIGRATION
+--     );
+--
+--     -- Uncomment to automatically COMMIT
+-- --     COMMIT;
+-- end;
+-- /
+--
+-- -- clean migration PKs tables
+-- DECLARE
+--     table_does_not_exist exception;
+--     PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
+-- BEGIN
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MESSAGE_STATUS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MESSAGE_STATUS: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_PARTY';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_PARTY: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_PART_PROPERTY';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_PART_PROPERTY: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MPC';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MPC: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_ROLE';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_ROLE: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_SERVICE';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_SERVICE: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_AGREEMENT';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_AGREEMENT: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_ACTION';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_ACTION: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MSH_ROLE';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MSH_ROLE: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_TIMEZONE_OFFSET';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_TIMEZONE_OFFSET: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_NOTIFIC_STATUS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_NOTIFIC_STATUS: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'TRUNCATE TABLE MIGR_TB_PKS_MESSAGE_PROPERTY';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot truncate table MIGR_TB_PKS_MESSAGE_PROPERTY: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MESSAGE_STATUS CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MESSAGE_STATUS: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_PARTY CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_PARTY: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_PART_PROPERTY CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_PART_PROPERTY: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MPC CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MPC: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_ROLE CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_ROLE: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_SERVICE CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_SERVICE: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_AGREEMENT CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_AGREEMENT: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_ACTION CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_ACTION: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MSH_ROLE CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MSH_ROLE: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_TIMEZONE_OFFSET CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_TIMEZONE_OFFSET: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_NOTIFIC_STATUS CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_NOTIFIC_STATUS: table does not exist');
+--     END;
+--
+--     BEGIN
+--         EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_PKS_MESSAGE_PROPERTY CASCADE CONSTRAINTS';
+--     EXCEPTION
+--         WHEN table_does_not_exist THEN
+--             DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_PKS_MESSAGE_PROPERTY: table does not exist');
+--     END;
+-- END;
+-- /

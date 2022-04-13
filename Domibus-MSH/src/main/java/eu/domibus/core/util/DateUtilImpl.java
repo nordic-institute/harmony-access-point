@@ -10,13 +10,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.time.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
@@ -29,6 +33,13 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 public class DateUtilImpl implements DateUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
+
+    @Override
+    public String getIdPkDateHourPrefix(Date value) {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(value).substring(0, 8);
+    }
 
     @Override
     public Date fromString(String value) {

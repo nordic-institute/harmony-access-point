@@ -3,6 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -10,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -63,6 +65,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     }
 
     @Override
+    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_METADATA_CACHE, key = "#propertyName")
     public DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
         loadPropertiesIfNotFound(propertyName);
 

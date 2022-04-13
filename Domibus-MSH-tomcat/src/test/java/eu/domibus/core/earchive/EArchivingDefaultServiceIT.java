@@ -8,6 +8,7 @@ import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.message.UserMessageDefaultService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,6 +22,7 @@ import javax.persistence.PersistenceContext;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
@@ -53,6 +55,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
+
+    @Autowired
+    UserMessageDefaultService userMessageDefaultService;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -260,6 +265,33 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         // messages and
         Assert.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
+    }
+
+    @Test
+    @Transactional
+    public void testExecuteBatchIsArchivedDelete() {
+        // given
+        List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
+        Assert.assertEquals(3, messageList.size());
+        Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
+
+        // when
+        eArchivingService.executeBatchIsArchived(batch1, messageList);
+
+        //then
+        EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
+        // messages and
+        Assert.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
+
+        //delete messages
+        List<Long> entityIds = new ArrayList<>();
+        messageList.stream().forEach(ml -> entityIds.add(ml.getUserMessageEntityId()));
+
+        List<String> messageIds =  new ArrayList<>();
+        messageList.stream().forEach(ml -> messageIds.add(ml.getMessageId()));
+
+        userMessageDefaultService.deleteMessages(entityIds, messageIds);
+
     }
 
     @Test

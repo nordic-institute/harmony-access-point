@@ -30,7 +30,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.DateTime;
@@ -41,10 +40,10 @@ import org.mockito.internal.matchers.GreaterThan;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.*;
-import java.security.cert.CertificateEncodingException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -178,6 +177,22 @@ public class CertificateServiceImplTest {
         System.out.println(certificateChain);
 
         Assert.assertFalse(certificateService.isCertificateChainValid(certificateChain));
+    }
+
+    @Test
+    public void testGenerateBackupName() {
+        // given
+        String name = "TestName";
+         // when
+        String result = certificateService.generateBackupName(name);
+        String result2 = certificateService.generateBackupName(name);
+        // then
+        assertNotNull(result);
+        assertNotNull(result2);
+        assertNotEquals(name, result);
+        assertNotEquals(name, result2);
+        // each new generated name must be different
+        assertNotEquals(result, result2);
     }
 
     @Test
@@ -868,7 +883,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass", JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -895,7 +910,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(new byte[]{}, "pass",JKS, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(new byte[]{}, "pass", JKS, DOMIBUS_TRUSTSTORE_NAME);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -927,7 +942,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -954,7 +969,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceStore(store, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
+        certificateService.replaceStore(store, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
     }
 
     @Test
@@ -1490,7 +1505,7 @@ public class CertificateServiceImplTest {
 
         new Verifications() {{
             certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD,JKS, DOMIBUS_TRUSTSTORE_NAME);
+            certificateService.replaceStore(fileContent, TRUST_STORE_PASSWORD, JKS, DOMIBUS_TRUSTSTORE_NAME);
         }};
     }
 
