@@ -84,7 +84,9 @@ public class MessageUtilTest {
 
         Assert.assertEquals(expectedMessaging, messageUtil.getMessaging(soapMessage));
 
-        new FullVerifications() {};
+        new FullVerifications() {{
+            reader.close();
+        }};
     }
 
     @Test
@@ -965,7 +967,10 @@ public class MessageUtilTest {
         }};
 
         assertNotNull(messageUtil.getMessageFragment(soapMessage));
-        new FullVerifications() {};
+
+        new FullVerifications() {{
+            reader.close();
+        }};
     }
 
     @Test
