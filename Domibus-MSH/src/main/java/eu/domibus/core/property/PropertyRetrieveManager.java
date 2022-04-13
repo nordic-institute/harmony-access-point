@@ -70,7 +70,7 @@ public class PropertyRetrieveManager {
             LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
             return getSuperOrDefaultValue(prop);
         }
-        LOG.error("Property [{}] is not applicable for global or super usages, so null was returned (as current domain is null).", propertyName);
+        LOG.error("Property [{}] is not applicable for global or super usage, so null was returned (as current domain is null).", propertyName);
         return null;
     }
 
