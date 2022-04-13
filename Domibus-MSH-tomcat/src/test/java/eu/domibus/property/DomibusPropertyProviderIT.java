@@ -7,8 +7,9 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
+import eu.domibus.core.property.PropertyProviderDispatcher;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,6 +33,9 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
+    PropertyProviderDispatcher propertyProviderDispatcher;
+
+    @Autowired
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
@@ -39,8 +43,15 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     Domain defaultDomain = new Domain("default", "Default");
 
+    @Before
+    public void prepare() {
+        cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).clear();
+        domainContextProvider.setCurrentDomain(defaultDomain);
+    }
+
     @Test
     public void testCacheDomain() {
+        //test a domain property here
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         //not in cache now
@@ -54,10 +65,12 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         Assert.assertEquals(actualValue, cachedValue);
     }
 
-    @Ignore("EDELIVERY-8892")
     @Test
     public void testCacheNoDomain() {
-        String propertyName = DOMIBUS_UI_TITLE_NAME;
+        //test a global property here
+        String propertyName = DOMIBUS_PROPERTY_LENGTH_MAX;
+
+        domainContextProvider.clearCurrentDomain();
 
         //not in cache now
         String cachedValue = getCachedValue(propertyName);
@@ -71,7 +84,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     @Test
-    public void testCacheEvict() {
+    public void testCacheEvictDomainProperty() {
         String propertyName = DOMIBUS_UI_SUPPORT_TEAM_NAME;
 
         String cachedValue = getCachedValue(defaultDomain, propertyName);
@@ -97,18 +110,33 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         Assert.assertEquals(newValue, actualValue);
     }
 
-    private String getCachedValue(Domain domain, String propertyName) {
-        if (domain == null) {
-            domain = domainContextProvider.getCurrentDomainSafely();
-        }
-        String domainCode = domain == null ? "global" : domain.getCode();
+    @Test
+    public void testCacheEvictGlobalProperty() {
+        String propertyName = DOMIBUS_PROPERTY_LENGTH_MAX;
 
-        String key = domainCode + ":" + propertyName;
-        return cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).get(key, String.class);
-    }
+        domainContextProvider.clearCurrentDomain();
 
-    private String getCachedValue(String propertyName) {
-        return getCachedValue(null, propertyName);
+        String cachedValue = getCachedValue(propertyName);
+        Assert.assertNull(cachedValue);
+        //add to cache
+        String actualValue = domibusPropertyProvider.getProperty(propertyName);
+        //gets the cached value now
+        cachedValue = getCachedValue(propertyName);
+        Assert.assertNotNull(cachedValue);
+        Assert.assertEquals(cachedValue, actualValue);
+
+        String newValue = actualValue + "MODIFIED";
+        //evicts from cache
+        domibusPropertyProvider.setProperty(propertyName, newValue);
+        //so not in cache
+        cachedValue = getCachedValue(propertyName);
+        Assert.assertNull(cachedValue);
+
+        //add to cache again
+        actualValue = domibusPropertyProvider.getProperty(propertyName);
+        //finds it there
+        cachedValue = getCachedValue(propertyName);
+        Assert.assertEquals(newValue, actualValue);
     }
 
     @Test
@@ -182,5 +210,14 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         //Domibus property configuration set the encoding to UTF8-8 . So we get same string with utf8 characters.
         Assert.assertEquals(uft8MailSubject, utf8String);
         input.close();
+    }
+
+    private String getCachedValue(Domain domain, String propertyName) {
+        String key = propertyProviderDispatcher.getCacheKeyValue(domain, propertyName);
+        return cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).get(key, String.class);
+    }
+
+    private String getCachedValue(String propertyName) {
+        return getCachedValue(null, propertyName);
     }
 }

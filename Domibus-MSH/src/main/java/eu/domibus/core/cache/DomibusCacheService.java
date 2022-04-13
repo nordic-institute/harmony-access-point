@@ -17,6 +17,7 @@ public interface DomibusCacheService {
     String DISPATCH_CLIENT = "dispatchClient";
     String CRL_BY_CERT = "crlByCert";
     String DOMIBUS_PROPERTY_CACHE = "domibusProperties";
+    String DOMIBUS_PROPERTY_METADATA_CACHE = "domibusPropertyMetadata";
 
     void clearCache(String refreshCacheName);
 

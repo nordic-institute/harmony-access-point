@@ -64,6 +64,8 @@
 
     <cache alias="domibusProperties" uses-template="ttl-3600-heap-5000"/>
 
+    <cache alias="domibusPropertyMetadata" uses-template="ttl-3600-heap-5000"/>
+
     <cache-template name="ttl-3600-heap-5000">
         <expiry>
             <ttl>3600</ttl>
