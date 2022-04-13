@@ -3,13 +3,16 @@ package eu.domibus.core.util;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -176,4 +179,21 @@ public class DateUtilImplTest {
             //OK
         }
     }
+
+
+    @Test
+    public void getIdPkDateHourPrefixTest() {
+        String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
+        sdf.setTimeZone(TimeZone.getTimeZone("EST"));
+
+        Date currentDate = dateUtilImpl.getUtcDate();
+        Date newDate = DateUtils.addMinutes(currentDate, 10);
+        Integer partitionNameEES = new Integer(sdf.format(newDate).substring(0, 8));
+        
+        Integer partitionNameUTC = new Integer(dateUtilImpl.getIdPkDateHourPrefix(currentDate));
+
+        Assert.assertTrue(partitionNameUTC - partitionNameEES > 0);
+    }
+    
 }
