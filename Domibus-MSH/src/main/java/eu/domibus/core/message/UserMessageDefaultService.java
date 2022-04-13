@@ -628,6 +628,13 @@ public class UserMessageDefaultService implements UserMessageService {
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList());
 
+        deleteMessages(ids, userMessageIds);
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogs);
+        em.flush();
+    }
+
+    protected void deleteMessages(List<Long> ids, List<String> userMessageIds) {
 
         LOG.debug("Deleting [{}] user messages", ids.size());
         LOG.trace("Deleting user messages [{}]", ids);
@@ -661,8 +668,6 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteResult = userMessageDao.deleteMessages(ids);
         LOG.info("Deleted [{}] userMessages.", deleteResult);
 
-        backendNotificationService.notifyMessageDeleted(userMessageLogs);
-        em.flush();
     }
 
     @Override
