@@ -33,6 +33,17 @@
             <useDefaultExcludes>true</useDefaultExcludes>
             <filtered>false</filtered>
         </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/example/</directory>
+            <useDefaultExcludes>false</useDefaultExcludes>
+            <outputDirectory>example</outputDirectory>
+            <!-- excludes/-->
+            <fileMode>0444</fileMode>
+            <directoryMode>0555</directoryMode>
+            <!-- directory/-->
+            <lineEnding>unix</lineEnding>
+            <filtered>false</filtered>
+        </fileSet>
     </fileSets>
 
     <files>
