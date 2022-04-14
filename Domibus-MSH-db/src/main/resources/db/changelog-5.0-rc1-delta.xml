@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet author="idragusa" id="EDELIVERY-8966">
+        <dropForeignKeyConstraint baseTableName="TB_EARCHIVEBATCH_UM"
+                                  constraintName="FK_USER_MESSAGE_ID_FTR"/>
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
