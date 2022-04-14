@@ -88,6 +88,7 @@ public class CertificateServiceImpl implements CertificateService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateServiceImpl.class);
 
     public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
+    private static final DateTimeFormatter BACKUP_SUFFIX_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     private final CRLService crlService;
 
@@ -710,7 +711,7 @@ public class CertificateServiceImpl implements CertificateService {
         TruststoreEntity entity = truststoreDao.findByNameSafely(trustName);
         if (entity != null) {
             TruststoreEntity backup = new TruststoreEntity();
-            backup.setName(entity.getName() + ".backup." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            backup.setName(generateBackupName(entity.getName()));
             backup.setType(entity.getType());
             backup.setPassword(entity.getPassword());
             backup.setContent(entity.getContent());
@@ -719,6 +720,17 @@ public class CertificateServiceImpl implements CertificateService {
         } else {
             LOG.info("Could not find a store with the name [{}] so no backup performed.", trustName);
         }
+    }
+
+    /**
+     * Method returns backup name for the truststore.
+     * @param name - the initial name
+     * @return returns the backup name with timestamp
+     */
+    protected String generateBackupName(String name){
+        return name + ".backup."
+                + LocalDateTime.now().format(BACKUP_SUFFIX_DATETIME_FORMATTER)
+                + "-" + (int)(Math.random() * 1000);
     }
 
     @Override
@@ -753,6 +765,7 @@ public class CertificateServiceImpl implements CertificateService {
                 throw new DomibusCertificateException(String.format("Truststore with type [%s] is missing and is not optional.", name));
             }
 
+            LOG.debug("Loading [{}] from [{}]", name, filePath.get());
             byte[] content = getTruststoreContentFromFile(filePath.get());
 
             TruststoreEntity entity = new TruststoreEntity();

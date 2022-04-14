@@ -62,7 +62,8 @@ public class AlertsRestTest extends RestTest {
 		
 		soft.assertAll();
 	}
-	
+
+	/*EDELIVERY-6405 - ALRT-33 - Mark alert as processed/unprocessed for domain specific alerts*/
 	@Test(description = "ALRT-33")
 	public void markAlertAsProcessedTest() throws Exception {
 		SoftAssert soft = new SoftAssert();

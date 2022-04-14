@@ -21,7 +21,8 @@ Domibus 5.0 (from 4.2.9)
                         to a domain specific property file (e.g. conf/domibus/plugins/config/domains/domain1/domain1-jms-plugin.properties)
                     Please note that these changes need to be done for the "default" domain too, and that the properties in the properties files are still prefixed with the domain name.
                 - [Tomcat only]
-                         o in file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml":
+                         o If you use custom queues please update the following in the file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml".
+                           If you don't use custom queues just replace the old file with the new file version:
                              - in the policies section add the following:
                               .............................
                                             <policyEntries>
@@ -51,7 +52,7 @@ Domibus 5.0 (from 4.2.9)
                                              <redeliveryPolicyEntries>
                                                  .............................
                                                  <redeliveryPolicy queue="domibus.internal.earchive.queue" maximumRedeliveries="0"/>
-                                                 <redeliveryPolicy queue="domibus.internal.earchive.notification.queue" maximumRedeliveries="6" redeliveryDelay="1800000"/>/>
+                                                 <redeliveryPolicy queue="domibus.internal.earchive.notification.queue" maximumRedeliveries="6" redeliveryDelay="1800000"/>
                                                  <redeliveryPolicy queue="domibus.internal.earchive.notification.dlq" maximumRedeliveries="0"/>
                               -  in the discardingDLQBrokerPlugin update the dropOnly parameter value as below:
                                             - original:
@@ -81,7 +82,8 @@ Domibus 5.0 (from 4.2.9)
                                               .............................
                                           </address-settings>
                                           .............................
-                - The minimum password length for users has increased to 16 and it is recomended to change them for the existing users
+                - Add a new cache key named "domibusPropertyMetadata"
+                - The minimum password length for users has increased to 16 and it is recommended to change them for the existing users
                 - FS Plugin multitenancy installation: move any domain specific properties from fs-plugin.properties
                 to domain specific property file e.g. domain1-fs-plugin.properties
                 - Replace the Domibus war

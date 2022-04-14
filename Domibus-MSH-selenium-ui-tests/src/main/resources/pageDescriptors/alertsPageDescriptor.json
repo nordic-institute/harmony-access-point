@@ -168,8 +168,8 @@
       {
         "name": "Processed",
         "type": "BOOLEAN",
-        "sortable": true,
-        "visibleByDefault": false
+        "sortable": false,
+        "visibleByDefault": true
       }, {
         "name": "Alert Id",
         "type": "TEXT",

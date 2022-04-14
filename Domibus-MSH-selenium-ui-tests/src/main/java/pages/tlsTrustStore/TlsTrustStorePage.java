@@ -93,12 +93,12 @@ public class TlsTrustStorePage extends DomibusPage {
         getOkButton().click();
     }
 
-    public void addCertificate(String filePath, String password) throws Exception {
+    public void addCertificate(String filePath, String alias) throws Exception {
 
         log.debug("adding certificate");
         getAddCertButton().click();
         chooseFileButton.sendKeys(filePath);
-        getPassInputField().fill(password);
+        getAliasInputField().fill(alias);
 
         wait.forElementToBeClickable(okButton);
         getOkButton().click();

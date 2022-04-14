@@ -576,7 +576,6 @@ public class UsersPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	// This test case verifies user name in edit pop up opened after sorting data by username
 	/* EDELIVERY-6374 - USR-42 - Verify user name in edit pop up opened after sorting data by username */
 	@Test(description = "USR-42", groups = {"multiTenancy", "singleTenancy"})
 	public void checkUserName() throws Exception {
