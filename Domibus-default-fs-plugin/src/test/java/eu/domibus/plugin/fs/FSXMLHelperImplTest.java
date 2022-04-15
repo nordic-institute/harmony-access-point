@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -43,7 +44,7 @@ public class FSXMLHelperImplTest {
     }
 
     @Test
-    public void testParseXML() throws IOException, JAXBException {
+    public void testParseXML() throws IOException, JAXBException, XMLStreamException {
         FileObject metadataFile;
         final String partyIdType = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
 

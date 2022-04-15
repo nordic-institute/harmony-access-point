@@ -141,10 +141,9 @@ public class SoapUtil {
         DocumentBuilderFactory dbFactory = xmlUtil.getDocumentBuilderFactoryNamespaceAware();
         DocumentBuilder builder = dbFactory.newDocumentBuilder();
 
-        try (StringReader stringReader = new StringReader(rawXml); InputStream targetStream =
-                new ByteArrayInputStream(CharStreams.toString(stringReader)
-                        .getBytes(StandardCharsets.UTF_8.name()))) {
-
+        try (StringReader stringReader = new StringReader(rawXml);
+             InputStream targetStream = new ByteArrayInputStream(CharStreams.toString(stringReader).getBytes(StandardCharsets.UTF_8.name()))
+        ) {
             LOG.debug("Parsing SOAPMessage document");
             Document document = builder.parse(targetStream);
             LOG.debug("Finished parsing SOAPMessage document");

@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.jms.spi.*;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
@@ -123,6 +124,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     private JmsDestinationCache jmsDestinationCache;
+
+    @Autowired
+    XMLUtil xmlUtil;
 
     /**
      * {@inheritDoc}
@@ -844,9 +848,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
     }
 
     protected Document parseXML(String xml) throws ParserConfigurationException, IOException, SAXException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = xmlUtil.getDocumentBuilderFactoryNamespaceAware();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        factory.setNamespaceAware(true);
         InputSource is = new InputSource(new StringReader(xml));
         return builder.parse(is);
     }
