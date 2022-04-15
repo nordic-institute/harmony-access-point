@@ -23,8 +23,8 @@ import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.eb
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -237,33 +237,28 @@ public class WebServiceImpl implements WebServicePluginInterface {
         return fd;
     }
 
-    private void copyPartProperties(final String payloadContentType, final ExtendedPartInfo partInfo) {
+    private void copyPartProperties(final String payloadContentType, final ExtendedPartInfo partInfo) throws SubmitMessageFault {
         final PartProperties partProperties = new PartProperties();
         Property prop;
 
         // add all partproperties WEBSERVICE_OF the backend message
-        if (partInfo.getPartProperties() != null) {
-            for (final Property property : partInfo.getPartProperties().getProperty()) {
-                prop = new Property();
-
-                prop.setName(property.getName());
-                prop.setValue(property.getValue());
-                partProperties.getProperty().add(prop);
-            }
+        if (partInfo.getPartProperties() == null || CollectionUtils.isEmpty(partInfo.getPartProperties().getProperty())) {
+            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties must not be empty. It should have MimeType property"));
         }
-
         boolean mimeTypePropFound = false;
-        for (final Property property : partProperties.getProperty()) {
+        for (final Property property : partInfo.getPartProperties().getProperty()) {
             if (MIME_TYPE.equals(property.getName())) {
                 mimeTypePropFound = true;
                 break;
             }
         }
-        // in case there was no property with name {@value Property.MIME_TYPE} and xmime:contentType attribute was set noinspection SuspiciousMethodCalls
-        if (!mimeTypePropFound && payloadContentType != null) {
+        if (!mimeTypePropFound) {
+            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should have MimeType property"));
+        }
+        for (final Property property : partInfo.getPartProperties().getProperty()) {
             prop = new Property();
-            prop.setName(MIME_TYPE);
-            prop.setValue(payloadContentType);
+            prop.setName(property.getName());
+            prop.setValue(property.getValue());
             partProperties.getProperty().add(prop);
         }
         partInfo.setPartProperties(partProperties);
