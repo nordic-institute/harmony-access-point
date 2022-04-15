@@ -173,8 +173,8 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     protected eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property createPropertyWs(String name, String value, String type) {
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property aProperty = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property();
-        aProperty.setValue(value);
         aProperty.setName(name);
+        aProperty.setValue(value);
         aProperty.setType(type);
         return aProperty;
     }
@@ -229,7 +229,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         partInfo.setHref(payloadHref);
         if (mimeType != null) {
             PartProperties partProperties = new PartProperties();
-            partProperties.getProperty().add(createProperty(mimeType, "MimeType", STRING_TYPE));
+            partProperties.getProperty().add(createProperty("MimeType", mimeType, STRING_TYPE));
             partInfo.setPartProperties(partProperties);
         }
 
@@ -245,8 +245,8 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     @Deprecated
     protected Property createProperty(String name, String value, String type) {
         Property aProperty = new Property();
-        aProperty.setValue(value);
         aProperty.setName(name);
+        aProperty.setValue(value);
         aProperty.setType(type);
         return aProperty;
     }
