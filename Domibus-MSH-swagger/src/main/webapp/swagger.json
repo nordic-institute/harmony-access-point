@@ -639,8 +639,8 @@
           "type" : "string",
           "format" : "uri"
         },
-        "readable" : {
-          "type" : "boolean"
+        "filename" : {
+          "type" : "string"
         },
         "url" : {
           "type" : "string",
@@ -652,8 +652,8 @@
         "open" : {
           "type" : "boolean"
         },
-        "filename" : {
-          "type" : "string"
+        "readable" : {
+          "type" : "boolean"
         }
       }
     },

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>domibus</artifactId>
         <groupId>eu.domibus</groupId>
-        <version>4.2.4</version>
+        <version>4.2.9</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -61,35 +61,11 @@
         </dependency>
         <!-- Utils dependencies -->
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
+            <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.santuario</groupId>
-            <artifactId>xmlsec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.wss4j</groupId>
             <artifactId>wss4j-ws-security-dom</artifactId>
@@ -112,78 +88,132 @@
         </dependency>
         <!-- CXF dependencies -->
 
-        <!-- DSS dependencies -->
+        <!-- DSS Modules -->
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-document</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-tsl-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-utils-apache-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-policy-jaxb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>validation-policy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-xades</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-simple-report-jaxb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-detailed-report-jaxb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-enumerations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-spi</artifactId>
+        </dependency>
+        <!-- DSS Libraries -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
             <exclusions>
+                <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                 bcprov-jdk15to18 version instead -->
                 <exclusion>
                     <groupId>org.bouncycastle</groupId>
                     <artifactId>bcprov-jdk15on</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-tsl-validation</artifactId>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-utils-google-guava</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-service</artifactId>
+            <groupId>org.apache.santuario</groupId>
+            <artifactId>xmlsec</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-utils</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-policy-jaxb</artifactId>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-model</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>validation-policy</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-xades</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-simple-report-jaxb</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-detailed-report-jaxb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-enumerations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-crl-parser-x509crl</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <scope>provided</scope>
         </dependency>
         <!--Test dependencies-->
         <dependency>
@@ -201,6 +231,13 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <artifactId>dss-token</artifactId>
+            <version>5.8</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

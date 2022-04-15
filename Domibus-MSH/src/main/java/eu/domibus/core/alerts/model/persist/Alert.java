@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -23,10 +24,10 @@ import java.util.Set;
 @Table(name = "TB_ALERT")
 @NamedQueries({
         @NamedQuery(name = "Alert.findRetry", query = "SELECT a FROM Alert a where a.alertStatus='RETRY' and a.nextAttempt < CURRENT_TIMESTAMP()"),
-        @NamedQuery(name = "Alert.findAlertToClean", query = "SELECT a FROM Alert a where a.creationTime<:ALERT_LIMIT_DATE"),
-        @NamedQuery(name = "Alert.updateProcess", query = "UPDATE Alert a set a.processed=:PROCESSED where a.entityId=:ALERT_ID")
+        @NamedQuery(name = "Alert.updateProcess", query = "UPDATE Alert a set a.processed=:PROCESSED where a.entityId=:ALERT_ID"),
+        @NamedQuery(name = "Alert.deleteAlerts", query = "DELETE FROM Alert a where  a.creationTime<:ALERT_LIMIT_DATE")
 })
-public class Alert extends AbstractBaseEntity{
+public class Alert extends AbstractBaseEntity {
 
     @Column(name = "PROCESSED")
     private boolean processed;
@@ -59,8 +60,8 @@ public class Alert extends AbstractBaseEntity{
     @Temporal(TemporalType.TIMESTAMP)
     private Date reportingTimeFailure;
 
-    @Size(min=1)
-    @ManyToMany(mappedBy = "alerts",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REMOVE})
+    @Size(min = 1)
+    @ManyToMany(mappedBy = "alerts", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<Event> events = new HashSet<>();
 
     @Column(name = "ALERT_STATUS")

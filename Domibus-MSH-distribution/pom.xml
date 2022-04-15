@@ -11,7 +11,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2.4</version>
+        <version>4.2.9</version>
     </parent>
     <packaging>pom</packaging>
     <artifactId>domibus-distribution</artifactId>
@@ -99,7 +99,7 @@
             </activation>
 
             <properties>
-                <tomcat.version>9.0.50</tomcat.version>
+                <tomcat.version>9.0.59</tomcat.version>
             </properties>
             <build>
                 <plugins>
@@ -120,7 +120,7 @@
                                         <containerId>tomcat9x</containerId>
                                         <zipUrlInstaller>
                                             <url>
-                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
+                                                https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
                                             </url>
                                             <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
                                             <extractDir>${project.basedir}/cargo/installs</extractDir>
@@ -247,7 +247,7 @@
                                         <containerId>wildfly20x</containerId>
                                         <zipUrlInstaller>
                                             <url>
-                                                https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
+                                                https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
                                             </url>
                                             <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
                                             <extractDir>${project.basedir}/cargo/installs</extractDir>

@@ -1,9 +1,6 @@
 package eu.domibus.core.message.testservice;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.security.ExplicitTypePermission;
-import com.thoughtworks.xstream.security.NoTypePermission;
-import com.thoughtworks.xstream.security.PrimitiveTypePermission;
+import com.google.gson.Gson;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
@@ -23,6 +20,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -33,6 +31,7 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.NoResultException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -104,13 +103,11 @@ public class TestService {
     }
 
     protected Submission createSubmission(String sender) throws IOException {
-        Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.xml");
-        XStream xstream = new XStream();
-        xstream.addPermission(NoTypePermission.NONE);
-        xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
-        xstream.addPermission(new ExplicitTypePermission(new Class[]{List.class, Submission.class, Submission.TypedProperty.class, Submission.Party.class}));
+        Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
+        String jsonStr = new String(IOUtils.toByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
 
-        Submission submission = (Submission) xstream.fromXML(testServiceFile.getInputStream());
+        Submission submission = new Gson().fromJson(jsonStr, Submission.class);
+
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
         Submission.TypedProperty objTypedProperty = new Submission.TypedProperty("MimeType", "text/xml");
         Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();

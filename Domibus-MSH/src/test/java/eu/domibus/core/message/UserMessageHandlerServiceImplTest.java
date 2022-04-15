@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -1060,6 +1061,8 @@ public class UserMessageHandlerServiceImplTest {
             pModeProvider.getSenderParty(pmodeKey);
             result = senderParty;
 
+            domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE);
+            result = true;
         }};
 
         //tested method
@@ -1085,6 +1088,8 @@ public class UserMessageHandlerServiceImplTest {
             pModeProvider.getSenderParty(pmodeKey);
             result = senderParty;
 
+            domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE);
+            result = true;
         }};
 
         //tested method
@@ -1110,6 +1115,9 @@ public class UserMessageHandlerServiceImplTest {
 
             pModeProvider.getSenderParty(pmodeKey);
             result = senderParty;
+
+            domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE);
+            result = true;
         }};
 
         //tested method

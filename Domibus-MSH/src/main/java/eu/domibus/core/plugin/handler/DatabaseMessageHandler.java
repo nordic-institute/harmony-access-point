@@ -20,10 +20,10 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.party.PartyEndpointProvider;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -112,7 +112,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private MessagingService messagingService;
 
     @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
+    private PartyEndpointProvider partyEndpointProvider;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
@@ -445,10 +445,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             if (messageStatus == null) {
                 messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
             }
+            final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
+            final String receiverPartyEndpoint = partyEndpointProvider.getReceiverPartyEndpoint(to, finalRecipient);
+
             final boolean sourceMessage = userMessage.isSourceMessage();
             final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
-                    backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
+                    backendName, receiverPartyEndpoint, messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
                 prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);

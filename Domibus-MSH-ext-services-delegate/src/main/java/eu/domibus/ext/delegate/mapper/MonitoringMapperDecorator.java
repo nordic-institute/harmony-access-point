@@ -32,7 +32,10 @@ public abstract class MonitoringMapperDecorator implements MonitoringMapper {
         MonitoringInfoDTO monitoringInfoDTO = delegate.monitoringInfoToMonitoringInfoDTO(monitoringInfo);
         List<ServiceInfoDTO> servicesList = new ArrayList<>();
         for (ServiceInfo serviceInfo : monitoringInfo.getServices()) {
-            servicesList.add(convert(serviceInfo));
+            final ServiceInfoDTO serviceInfoDTO = convert(serviceInfo);
+            if(serviceInfoDTO != null) {
+                servicesList.add(serviceInfoDTO);
+            }
         }
         monitoringInfoDTO.setServices(servicesList);
         return monitoringInfoDTO;
@@ -50,6 +53,10 @@ public abstract class MonitoringMapperDecorator implements MonitoringMapper {
     }
 
     protected ServiceInfoDTO convert(ServiceInfo serviceInfo) {
+        if(serviceInfo == null) {
+            return null;
+        }
+
         LOG.debug("ServiceInfo convert: [{}]", serviceInfo.getClass());
         if (serviceInfo instanceof DataBaseInfo) {
             return delegate.dataBaseInfoToDataBaseInfoDTO((DataBaseInfo) serviceInfo);

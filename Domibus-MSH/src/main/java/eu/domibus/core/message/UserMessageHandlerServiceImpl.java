@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -16,6 +17,8 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.*;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -32,8 +35,6 @@ import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -155,6 +156,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
+
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
@@ -283,6 +285,11 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     @Override
     public Boolean checkSelfSending(String pmodeKey) {
+        if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE)) {
+            LOG.debug("Self sending check is deactivated");
+            return false;
+        }
+
         final Party receiver = pModeProvider.getReceiverParty(pmodeKey);
         final Party sender = pModeProvider.getSenderParty(pmodeKey);
 
@@ -621,6 +628,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
     protected String getFinalRecipientName(UserMessage userMessage) {
+        if (userMessage.getMessageProperties() == null ||
+                userMessage.getMessageProperties().getProperty().isEmpty()) {
+            LOG.debug("Empty property set");
+            return null;
+        }
+
         for (Property property : userMessage.getMessageProperties().getProperty()) {
             if (property.getName() != null && property.getName().equalsIgnoreCase(MessageConstants.FINAL_RECIPIENT)) {
                 return property.getValue();

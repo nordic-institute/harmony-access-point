@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dss-domibus</artifactId>
+        <groupId>eu.domibus</groupId>
+        <version>4.2.9</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>validation-policy</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <artifactId>validation-policy</artifactId>
+            <version>${dss.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>dss-utils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>dss-policy-jaxb</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>dss-diagnostic-jaxb</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>dss-simple-report-jaxb</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>dss-simple-certificate-report-jaxb</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>dss-detailed-report-jaxb</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>specs-validation-report</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                    <artifactId>dss-i18n</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-policy-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-diagnostic-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-simple-report-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-simple-certificate-report-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-detailed-report-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>specs-validation-report</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-i18n</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

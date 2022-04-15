@@ -9,7 +9,7 @@
         <!-- DOWNLOADED USER MESSAGES -->
         <sql endDelimiter="\n/">
             create or replace PROCEDURE del_expired_downloaded_msgs (
-            mpc                       IN VARCHAR2,
+            delmpc                    IN VARCHAR2,
             startdate                 IN DATE,
             enddate                   IN DATE,
             maxcount   IN NUMBER DEFAULT 1000
@@ -22,7 +22,7 @@
             tb_message_log usermessag0_
             WHERE
             usermessag0_.message_status = 'DOWNLOADED'
-            AND usermessag0_.mpc = mpc
+            AND usermessag0_.mpc = delmpc
             AND ( usermessag0_.downloaded IS NOT NULL )
             AND usermessag0_.downloaded >= startdate
             AND usermessag0_.downloaded &lt; enddate
@@ -160,10 +160,10 @@
         <!-- SENT USER MESSAGES -->
         <sql endDelimiter="\n/">
             create or replace PROCEDURE del_expired_sent_msgs (
-            mpc IN VARCHAR2,
-            startdate IN DATE,
-            enddate IN DATE,
-            maxcount IN NUMBER DEFAULT 1000
+            delmpc          IN VARCHAR2,
+            startdate       IN DATE,
+            enddate         IN DATE,
+            maxcount        IN NUMBER DEFAULT 1000
             ) AS
             BEGIN
             FOR user_mess_rec IN (
@@ -175,7 +175,7 @@
             ( usermessag0_.message_status = 'ACKNOWLEDGED'
             OR usermessag0_.message_status = 'SEND_FAILURE' )
             AND usermessag0_.message_type = 'USER_MESSAGE'
-            AND usermessag0_.mpc = mpc
+            AND usermessag0_.mpc = delmpc
             AND usermessag0_.modification_time >= startdate
             AND usermessag0_.modification_time &lt; enddate
             AND ROWNUM &lt;= maxcount

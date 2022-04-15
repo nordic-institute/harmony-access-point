@@ -6,10 +6,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
-import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
-import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
-import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
+import eu.domibus.plugin.webService.impl.*;
 import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.cxf.Bus;
@@ -80,6 +77,7 @@ public class WSPluginConfiguration {
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                              WebServicePluginImpl backendWebService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
+                                             HttpMethodAuthorizationInInterceptor httpMethodAuthorizationInInterceptor,
                                              CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
@@ -88,7 +86,7 @@ public class WSPluginConfiguration {
         Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
         endpoint.setProperties(endpointProperties);
         endpoint.setSchemaLocations(getSchemaLocations());
-        endpoint.setInInterceptors(Collections.singletonList(customAuthenticationInterceptor));
+        endpoint.setInInterceptors(Arrays.asList(httpMethodAuthorizationInInterceptor, customAuthenticationInterceptor));
         endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
         endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));

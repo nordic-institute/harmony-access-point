@@ -558,4 +558,9 @@ public class JMSManagerImpl implements JMSManager {
         LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
 
     }
+
+    @Override
+    public void isJMSBrokerAlive() {
+        internalJmsManager.isJMSBrokerAlive();
+    }
 }
