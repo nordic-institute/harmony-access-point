@@ -18,6 +18,7 @@ import javax.persistence.ParameterMode;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.TypedQuery;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +36,6 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public UserMessageDao() {
         super(UserMessage.class);
     }
-
 
     @Transactional(readOnly = true)
     public UserMessage findByEntityId(Long entityId) {
@@ -154,4 +154,23 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
+
+    public Boolean checkPartitionExists(String partitionName)  {
+        Query q = em.createNamedQuery("UserMessage.verifyPartitionExistsByName");
+        q.setParameter("PNAME", partitionName);
+        LOG.debug("Find partition [{}]", partitionName);
+
+        try {
+            Integer result = ((BigDecimal)  DataAccessUtils.singleResult(q.getResultList())).intValue();
+            if (result > 0) {
+                LOG.debug("Partition exists [{}]", partitionName);
+                return true;
+            }
+        } catch (Exception exp) {
+            LOG.warn("Could not verify partition exists [{}]", partitionName, exp);
+        }
+
+        return false;
+    }
+
 }

@@ -13,11 +13,11 @@ public class PartitionsModuleConfiguration extends AlertModuleConfigurationBase 
     private Integer eventFrequency;
 
     public PartitionsModuleConfiguration() {
-        super(AlertType.PARTITION_EXPIRATION);
+        super(AlertType.PARTITION_CHECK);
     }
 
     public PartitionsModuleConfiguration(AlertLevel alertLevel, String emailSubject, Integer eventFrequency) {
-        super(AlertType.PARTITION_EXPIRATION, alertLevel, emailSubject);
+        super(AlertType.PARTITION_CHECK, alertLevel, emailSubject);
         this.eventFrequency = eventFrequency;
     }
 

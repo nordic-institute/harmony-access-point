@@ -1,7 +1,6 @@
 package eu.domibus.core.alerts.configuration.partitions;
 
 import eu.domibus.api.alerts.AlertLevel;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -12,16 +11,10 @@ import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.stream.IntStream;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_PARTITION_CHECK_PREFIX_FREQUENCY_DAYS;
 
 /**
  * Manages the reading of partition alerts configuration
@@ -54,7 +47,7 @@ public class PartitionsConfigurationManager
 
     @Override
     public AlertType getAlertType() {
-        return AlertType.PARTITION_EXPIRATION;
+        return AlertType.PARTITION_CHECK;
     }
 
     @Override
@@ -66,7 +59,7 @@ public class PartitionsConfigurationManager
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
             final Boolean alertActive = alertConfigurationService.isAlertModuleEnabled();
-            final Integer frequency = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PARTITION_EXPIRATION_PREFIX_FREQUENCY_DAYS));
+            final Integer frequency = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_PARTITION_CHECK_PREFIX_FREQUENCY_DAYS));
             if (BooleanUtils.isFalse(alertActive)) {
                 return new PartitionsModuleConfiguration();
             }

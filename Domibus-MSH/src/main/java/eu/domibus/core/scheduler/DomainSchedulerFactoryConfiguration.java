@@ -19,6 +19,7 @@ import eu.domibus.core.ebms3.sender.retry.SendRetryWorker;
 import eu.domibus.core.error.ErrorLogCleanerJob;
 import eu.domibus.core.message.pull.MessagePullerJob;
 import eu.domibus.core.message.pull.PullRetryWorker;
+import eu.domibus.core.message.retention.PartitionWorker;
 import eu.domibus.core.message.retention.RetentionWorker;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
@@ -134,6 +135,15 @@ public class DomainSchedulerFactoryConfiguration {
         return obj;
     }
 
+    //partitions
+    @Bean
+    public JobDetailFactoryBean partitionsWorkerJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(PartitionWorker.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean retentionWorkerTrigger() {
@@ -143,6 +153,20 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retentionWorkerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    //partitions
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean partitionsWorkerTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null)
+            return null;
+
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(partitionsWorkerJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PARTITIONS_WORKER_CRON_EXPRESSION));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }

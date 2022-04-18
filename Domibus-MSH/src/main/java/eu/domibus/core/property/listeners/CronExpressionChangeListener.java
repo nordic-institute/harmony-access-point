@@ -7,7 +7,6 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
-import eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +47,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, "temporaryPayloadRetentionJob"},
             {DOMIBUS_MSH_RETRY_CRON, "retryWorkerJob"},
             {DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, "retentionWorkerJob"},
+            {DOMIBUS_PARTITIONS_WORKER_CRON_EXPRESSION, "partitionsWorkerJob"},
             {DOMIBUS_MSH_PULL_CRON, "pullRequestWorkerJob"},
             {DOMIBUS_PULL_RETRY_CRON, "pullRetryWorkerJob"},
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},

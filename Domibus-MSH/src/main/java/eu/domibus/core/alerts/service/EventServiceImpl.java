@@ -64,7 +64,7 @@ public class EventServiceImpl implements EventService {
 
     public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
-    public static final String PARTITION_EXPIRATION = "PARTITION_EXPIRATION";
+    public static final String PARTITION_CHECK = "PARTITION_CHECK";
 
     @Autowired
     private EventDao eventDao;
@@ -167,10 +167,10 @@ public class EventServiceImpl implements EventService {
      * {@inheritDoc}
      */
     @Override
-    public void enqueuePartitionExpirationEvent(String partitionName) {
-        Event event = new Event(EventType.PARTITION_EXPIRATION);
-        event.addStringKeyValue(PartitionExpirationEvent.PARTITION_NAME.name(), partitionName);
-        enqueueEvent(PARTITION_EXPIRATION, event);
+    public void enqueuePartitionCheckEvent(String partitionName) {
+        Event event = new Event(EventType.PARTITION_CHECK);
+        event.addStringKeyValue(PartitionCheckEvent.PARTITION_NAME.name(), partitionName);
+        enqueueEvent(PARTITION_CHECK, event);
     }
 
     /**
