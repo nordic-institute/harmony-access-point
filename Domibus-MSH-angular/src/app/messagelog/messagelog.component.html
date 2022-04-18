@@ -149,11 +149,11 @@
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)" button-click-behaviour
+    <button mat-icon-button color="primary" [disabled]="!row.canDownloadMessage" button-click-behaviour
             (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
       <mat-icon>file_download</mat-icon>
     </button>
-    <button mat-icon-button color="primary"  [disabled]="!isDownloadEnvelopeEnabledAction(row)" button-click-behaviour
+    <button mat-icon-button color="primary"  [disabled]="!row.canDownloadEnvelope" button-click-behaviour
             (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id"
             tooltip="Download Envelopes">
       <mat-icon>local_post_office</mat-icon>

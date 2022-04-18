@@ -314,4 +314,7 @@ public class MessageLogRO implements Serializable {
         this.canDownloadEnvelope = canDownloadEnvelope;
     }
 
+    public boolean isSplitAndJoin() {
+        return this.messageFragment || this.sourceMessage;
+    }
 }

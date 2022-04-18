@@ -102,6 +102,8 @@ public class MessageLogInfo {
         this.finalRecipient = finalRecipient;
         this.refToMessageId = refToMessageId;
         this.testMessage = testMessage;
+
+        this.partLength = 0L;
     }
 
     //constructor for user messages
