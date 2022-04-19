@@ -136,12 +136,15 @@ public class PartyResourceTest {
 
         ProcessRo firstProcess = new ProcessRo();
         firstProcess.setName("tc1");
+        firstProcess.setEntityId("tc1");
 
         ProcessRo secondProcess = new ProcessRo();
         secondProcess.setName("tc2");
+        secondProcess.setEntityId("tc2");
 
         ProcessRo thirdProcess = new ProcessRo();
         thirdProcess.setName("tc3");
+        thirdProcess.setEntityId("tc3");
 
         partyResponseRo.setProcessesWithPartyAsInitiator(Lists.newArrayList(firstProcess, thirdProcess));
         partyResponseRo.setProcessesWithPartyAsResponder(Lists.newArrayList(secondProcess, thirdProcess));
