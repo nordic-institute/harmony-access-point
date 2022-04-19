@@ -73,29 +73,5 @@
 				<leg name="pushTestcase1tc1Action"/>
 			</legs>
 		</process>	
-		<process name="tc3Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<responderParties>
-				<responderParty name="receiver_dyn_oasis"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase3tc1Action"/>
-			</legs>
-		</process>
-		<process name="tc4Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<responderParties>
-				<responderParty name="receiver_dyn_oasis"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase4tc1Action"/>
-			</legs>
-		</process>
-		<process name="tc5Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<responderParties>
-				<responderParty name="receiver_dyn_oasis"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase5tc1Action"/>
-			</legs>
-		</process>
 	</businessProcesses>
 </db:configuration>

@@ -161,7 +161,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         partInfo.setHref(payloadHref);
         if (mimeType != null) {
             eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartProperties partProperties = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartProperties();
-            partProperties.getProperty().add(createPropertyWs(mimeType, "MimeType", STRING_TYPE));
+            partProperties.getProperty().add(createPropertyWs("MimeType", mimeType, STRING_TYPE));
             partInfo.setPartProperties(partProperties);
         }
 

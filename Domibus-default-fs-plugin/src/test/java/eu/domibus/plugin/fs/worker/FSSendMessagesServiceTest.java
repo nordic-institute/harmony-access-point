@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -482,7 +483,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void processFileSafelyWithJAXBExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+    public void processFileSafelyWithJAXBExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException, XMLStreamException {
         String domain = "default";
 
         new Expectations(instance) {{
@@ -498,7 +499,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void processFileSafelyWithMessagingProcessingExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+    public void processFileSafelyWithMessagingProcessingExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException, XMLStreamException {
         String domain = "default";
 
         new Expectations(instance) {{
@@ -514,7 +515,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void processFileSafelyWithRuntimeExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+    public void processFileSafelyWithRuntimeExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException, XMLStreamException {
         String domain = "default";
 
         new Expectations(instance) {{

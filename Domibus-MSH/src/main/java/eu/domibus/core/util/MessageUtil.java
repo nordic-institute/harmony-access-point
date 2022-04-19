@@ -26,9 +26,9 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
@@ -108,13 +108,18 @@ public class MessageUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public Ebms3Messaging getMessaging(final SOAPMessage soapMessage) throws SOAPException, JAXBException {
+    public Ebms3Messaging getMessaging(final SOAPMessage soapMessage) throws SOAPException, JAXBException, XMLStreamException, TransformerException {
         LOG.debug("Unmarshalling the Messaging instance from the SOAPMessage");
 
         final Node messagingXml = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
+
+        XMLStreamReader reader = xmlUtil.getXmlStreamReaderFromNode(messagingXml);
+
         final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller(); //Those are not thread-safe, therefore a new one is created each call
-        final JAXBElement<Ebms3Messaging> root = (JAXBElement<Ebms3Messaging>) unmarshaller.unmarshal(messagingXml);
-        return root.getValue();
+        final JAXBElement<Ebms3Messaging> root = (JAXBElement<Ebms3Messaging>) unmarshaller.unmarshal(reader);
+        final Ebms3Messaging ebms3Messaging = root.getValue();
+        reader.close();
+        return ebms3Messaging;
     }
 
     /**
@@ -675,10 +680,14 @@ public class MessageUtil {
             }
 
             final Node messagingXml = (Node) iterator.next();
+            XMLStreamReader reader = xmlUtil.getXmlStreamReaderFromNode(messagingXml);
+
             final Unmarshaller unmarshaller = jaxbContextMessageFragment.createUnmarshaller(); //Those are not thread-safe, therefore a new one is created each call
-            final JAXBElement<Ebms3MessageFragmentType> root = (JAXBElement<Ebms3MessageFragmentType>) unmarshaller.unmarshal(messagingXml);
-            return root.getValue();
-        } catch (SOAPException | JAXBException e) {
+            final JAXBElement<Ebms3MessageFragmentType> root = (JAXBElement<Ebms3MessageFragmentType>) unmarshaller.unmarshal(reader);
+            final Ebms3MessageFragmentType ebms3MessageFragmentType = root.getValue();
+            reader.close();
+            return ebms3MessageFragmentType;
+        } catch (SOAPException | JAXBException | XMLStreamException | TransformerException e) {
             throw new MessagingException("Not possible to get the MessageFragmentType", e);
         }
     }
@@ -687,7 +696,7 @@ public class MessageUtil {
         Ebms3Messaging ebms3Messaging;
         try {
             ebms3Messaging = getMessaging(request);
-        } catch (SOAPException | JAXBException e) {
+        } catch (SOAPException | JAXBException | XMLStreamException | TransformerException e) {
             throw new MessagingException("Not possible to getMessage", e);
         }
         return ebms3Messaging;
