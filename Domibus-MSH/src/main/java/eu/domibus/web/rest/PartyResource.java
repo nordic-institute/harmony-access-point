@@ -176,16 +176,20 @@ public class PartyResource extends BaseResource {
                     List<ProcessRo> processesWithPartyAsInitiator = partyResponseRo.getProcessesWithPartyAsInitiator();
                     List<ProcessRo> processesWithPartyAsResponder = partyResponseRo.getProcessesWithPartyAsResponder();
 
-                    List<ProcessRo> processesWithPartyAsInitiatorAndResponder = processesWithPartyAsInitiator.stream()
-                            .filter(init -> processesWithPartyAsResponder.stream().anyMatch(resp -> resp.getEntityId().equals(init.getEntityId())))
+                    List<ProcessRo> processesWithPartyAsInitiatorAndResponder
+                            = processesWithPartyAsInitiator.
+                            stream().
+                            filter(processesWithPartyAsResponder::contains).
+                            collect(Collectors.toList());
+
+                    List<ProcessRo> processWithPartyAsInitiatorOnly = processesWithPartyAsInitiator
+                            .stream()
+                            .filter(processRo -> !processesWithPartyAsInitiatorAndResponder.contains(processRo))
                             .collect(Collectors.toList());
 
-                    List<ProcessRo> processWithPartyAsInitiatorOnly = processesWithPartyAsInitiator.stream()
-                            .filter(init -> !processesWithPartyAsInitiatorAndResponder.stream().anyMatch(initResp -> initResp.getEntityId().equals(init.getEntityId())))
-                            .collect(Collectors.toList());
-
-                    List<ProcessRo> processWithPartyAsResponderOnly = processesWithPartyAsResponder.stream()
-                            .filter(resp -> !processesWithPartyAsInitiatorAndResponder.stream().anyMatch(initResp -> initResp.getEntityId().equals(resp.getEntityId())))
+                    List<ProcessRo> processWithPartyAsResponderOnly = processesWithPartyAsResponder
+                            .stream()
+                            .filter(processRo -> !processesWithPartyAsInitiatorAndResponder.contains(processRo))
                             .collect(Collectors.toList());
 
                     String joinedProcessesWithMeAsInitiatorOnly = processWithPartyAsInitiatorOnly.
