@@ -135,15 +135,6 @@ public class DomainSchedulerFactoryConfiguration {
         return obj;
     }
 
-    //partitions
-    @Bean
-    public JobDetailFactoryBean partitionsWorkerJob() {
-        JobDetailFactoryBean obj = new JobDetailFactoryBean();
-        obj.setJobClass(PartitionWorker.class);
-        obj.setDurability(true);
-        return obj;
-    }
-
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean retentionWorkerTrigger() {
@@ -158,6 +149,14 @@ public class DomainSchedulerFactoryConfiguration {
     }
 
     //partitions
+    @Bean
+    public JobDetailFactoryBean partitionsWorkerJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(PartitionWorker.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean partitionsWorkerTrigger() {

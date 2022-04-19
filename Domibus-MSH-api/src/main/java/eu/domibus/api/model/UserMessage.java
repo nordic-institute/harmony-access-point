@@ -36,7 +36,7 @@ import java.util.Set;
         ),
         @NamedNativeQuery(
                 name    =   "UserMessage.verifyPartitionExistsByName",
-                query   =   "SELECT count(*) FROM user_tab_partitions WHERE partition_name = :PNAME"
+                query   =   "SELECT count(*) FROM user_tab_partitions WHERE partition_name >= :PNAME"
         )
 })
 @Entity

@@ -37,7 +37,7 @@ public class PartitionWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
-        LOG.debug("PartitionWorker executed");
+        LOG.debug("PartitionWorker to be executed");
         authUtils.runWithSecurityContext(this::executeJob, "retention_user", "retention_password");
     }
 

@@ -10,6 +10,7 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
@@ -47,7 +48,7 @@ public class PartitionCheckListener {
     }
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'PARTITION_CHECK'")
+            selector = "selector ='" + EventServiceImpl.PARTITION_CHECK +"'")
     public void onDeleteExpiredPartitionEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
     }
