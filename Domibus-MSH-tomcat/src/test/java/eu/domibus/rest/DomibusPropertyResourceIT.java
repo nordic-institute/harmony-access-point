@@ -63,7 +63,7 @@ public class DomibusPropertyResourceIT extends AbstractIT {
     @Test
     public void testSetCronExpressionPartitions() {
 
-        String name = DOMIBUS_PARTITIONS_WORKER_CRON_EXPRESSION;
+        String name = DOMIBUS_PARTITIONS_WORKER_CRON;
         String newValue = "0 9 * * * ?"; // every morning
 
         DomibusPropertiesFilter filter = new DomibusPropertiesFilter();

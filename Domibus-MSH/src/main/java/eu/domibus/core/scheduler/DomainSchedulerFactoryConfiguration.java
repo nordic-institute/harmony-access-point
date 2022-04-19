@@ -165,7 +165,7 @@ public class DomainSchedulerFactoryConfiguration {
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(partitionsWorkerJob().getObject());
-        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PARTITIONS_WORKER_CRON_EXPRESSION));
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_PARTITIONS_WORKER_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }

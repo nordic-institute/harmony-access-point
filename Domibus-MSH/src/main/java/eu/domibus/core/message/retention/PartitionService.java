@@ -1,5 +1,6 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
@@ -10,6 +11,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK;
 
 /**
  * This service class is responsible for the handling of partitions
@@ -22,25 +25,29 @@ public class PartitionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionService.class);
 
-    public static final Integer DAYS_TO_CHECK_PARTITIONS = 7;
-
     protected UserMessageDao userMessageDao;
 
     protected EventService eventService;
 
     protected DateUtil dateUtil;
 
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+
     public PartitionService(UserMessageDao userMessageDao,
                             EventService eventService,
-                            DateUtil dateUtil) {
+                            DateUtil dateUtil,
+                            DomibusPropertyProvider domibusPropertyProvider) {
         this.userMessageDao = userMessageDao;
         this.eventService = eventService;
         this.dateUtil = dateUtil;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     public void verifyPartitionsInAdvance() {
+        Integer daysToCheckPartitions = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK);
         LOG.debug("Verify if partitions were created properly");
-        Date latestPartitionToCheckDate = DateUtils.addDays(dateUtil.getUtcDate(), DAYS_TO_CHECK_PARTITIONS);
+        Date latestPartitionToCheckDate = DateUtils.addDays(dateUtil.getUtcDate(), daysToCheckPartitions);
         String partitionName = getPartitionNameFromDate(latestPartitionToCheckDate);
         Boolean partitionExists = userMessageDao.checkPartitionExists(partitionName);
         if (BooleanUtils.isFalse(partitionExists)) {
