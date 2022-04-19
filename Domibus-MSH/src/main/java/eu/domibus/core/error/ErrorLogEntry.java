@@ -158,7 +158,10 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     }
 
     public MSHRole getMshRole() {
-        return this.mshRole.getRole();
+        if (this.mshRole != null) {
+            return this.mshRole.getRole();
+        }
+        return null;
     }
 
     public String getMessageInErrorId() {
