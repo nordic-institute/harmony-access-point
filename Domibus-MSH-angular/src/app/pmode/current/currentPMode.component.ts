@@ -8,8 +8,8 @@ import {DirtyOperations} from 'app/common/dirty-operations';
 import {DateFormatService} from 'app/common/customDate/dateformat.service';
 import {DialogsService} from '../../common/dialogs/dialogs.service';
 import {ApplicationContextService} from '../../common/application-context.service';
-import {DomainService} from "../../security/domain.service";
-import {Domain} from "../../security/domain";
+import {DomainService} from '../../security/domain.service';
+import {Domain} from '../../security/domain';
 
 @Component({
   moduleId: module.id,
