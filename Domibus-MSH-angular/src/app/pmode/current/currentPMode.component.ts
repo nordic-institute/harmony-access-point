@@ -8,6 +8,8 @@ import {DirtyOperations} from 'app/common/dirty-operations';
 import {DateFormatService} from 'app/common/customDate/dateformat.service';
 import {DialogsService} from '../../common/dialogs/dialogs.service';
 import {ApplicationContextService} from '../../common/application-context.service';
+import {DomainService} from '../../security/domain.service';
+import {Domain} from '../../security/domain';
 
 @Component({
   moduleId: module.id,
@@ -33,6 +35,8 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
 
   deleteList = [];
 
+  currentDomain: Domain;
+
   /**
    * Constructor
    * @param {Http} http Http object used for the requests
@@ -40,7 +44,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * @param {MatDialog} dialog Object used for opening dialogs
    */
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
-              public dialog: MatDialog, private dialogsService: DialogsService) {
+              public dialog: MatDialog, private dialogsService: DialogsService, private domainService: DomainService) {
   }
 
   /**
@@ -48,6 +52,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    */
   ngOnInit() {
     this.getCurrentEntry();
+    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
   }
 
   /**
@@ -105,7 +110,7 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
     if (this.pModeExists) {
       this.http.get(CurrentPModeComponent.PMODE_URL + '/' + pmode.id, {observe: 'response', responseType: 'text'}).subscribe(res => {
         const uploadDateStr = DateFormatService.format(new Date(pmode.configurationDate));
-        CurrentPModeComponent.downloadFile(res.body, uploadDateStr);
+        CurrentPModeComponent.downloadFile(res.body, uploadDateStr, this.currentDomain.name);
       }, err => {
         this.alertService.exception('Error downloading PMode:', err);
       });
@@ -189,10 +194,15 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Downloader for the XML file
    * @param data
+   * @param date
+   * @param domain
    */
-  private static downloadFile(data: any, date: string) {
+  private static downloadFile(data: any, date: string, domain: string) {
     const blob = new Blob([data], {type: 'text/xml'});
     let filename = 'PMode';
+    if (domain) {
+          filename += '-' + domain;
+        }
     if (date !== '') {
       filename += '-' + date;
     }
