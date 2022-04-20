@@ -243,7 +243,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
         final PartProperties partProperties = new PartProperties();
         Property prop;
 
-
         // Add mimetype property if there are no part properties
         if (partInfo.getPartProperties() == null) {
             setMimeTypeProperty(payloadContentType, partProperties);
@@ -277,7 +276,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
             }
         }
         partInfo.setPartProperties(partProperties);
-
     }
 
     private void setMimeTypeProperty(String payloadContentType, PartProperties partProperties) {
@@ -293,194 +291,194 @@ public class WebServiceImpl implements WebServicePluginInterface {
     }
 
     @Override
-        @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
-        public ListPendingMessagesResponse listPendingMessages (ListPendingMessagesRequest listPendingMessagesRequest){
-            DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
-            LOG.info("ListPendingMessages for domain [{}]", domainDTO);
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
+    public ListPendingMessagesResponse listPendingMessages(ListPendingMessagesRequest listPendingMessagesRequest) {
+        DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
+        LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
-            final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
-            final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
-            LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
+        final ListPendingMessagesResponse response = WEBSERVICE_OF.createListPendingMessagesResponse();
+        final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
+        LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
-            String finalRecipient = listPendingMessagesRequest.getFinalRecipient();
-            if (!authenticationExtService.isUnsecureLoginAllowed()) {
-                String originalUser = authenticationExtService.getOriginalUser();
-                if (StringUtils.isNotEmpty(finalRecipient)) {
-                    LOG.warn("finalRecipient [{}] provided in listPendingMessagesRequest is overridden by authenticated user [{}]", finalRecipient, originalUser);
-                }
-                finalRecipient = originalUser;
+        String finalRecipient = listPendingMessagesRequest.getFinalRecipient();
+        if (!authenticationExtService.isUnsecureLoginAllowed()) {
+            String originalUser = authenticationExtService.getOriginalUser();
+            if (StringUtils.isNotEmpty(finalRecipient)) {
+                LOG.warn("finalRecipient [{}] provided in listPendingMessagesRequest is overridden by authenticated user [{}]", finalRecipient, originalUser);
             }
-            LOG.info("Final Recipient is [{}]", finalRecipient);
+            finalRecipient = originalUser;
+        }
+        LOG.info("Final Recipient is [{}]", finalRecipient);
 
-            List<WSMessageLogEntity> pending = wsMessageLogService.findAllWithFilter(
-                    listPendingMessagesRequest.getMessageId(),
-                    listPendingMessagesRequest.getFromPartyId(),
-                    listPendingMessagesRequest.getConversationId(),
-                    listPendingMessagesRequest.getRefToMessageId(),
-                    listPendingMessagesRequest.getOriginalSender(),
-                    finalRecipient,
-                    listPendingMessagesRequest.getReceivedFrom(),
-                    listPendingMessagesRequest.getReceivedTo(),
-                    intMaxPendingMessagesRetrieveCount);
+        List<WSMessageLogEntity> pending = wsMessageLogService.findAllWithFilter(
+                listPendingMessagesRequest.getMessageId(),
+                listPendingMessagesRequest.getFromPartyId(),
+                listPendingMessagesRequest.getConversationId(),
+                listPendingMessagesRequest.getRefToMessageId(),
+                listPendingMessagesRequest.getOriginalSender(),
+                finalRecipient,
+                listPendingMessagesRequest.getReceivedFrom(),
+                listPendingMessagesRequest.getReceivedTo(),
+                intMaxPendingMessagesRetrieveCount);
 
-            final Collection<String> ids = pending.stream()
-                    .map(WSMessageLogEntity::getMessageId).collect(Collectors.toList());
-            response.getMessageID().addAll(ids);
-            return response;
+        final Collection<String> ids = pending.stream()
+                .map(WSMessageLogEntity::getMessageId).collect(Collectors.toList());
+        response.getMessageID().addAll(ids);
+        return response;
+    }
+
+    /**
+     * Add support for large files using DataHandler instead of byte[]
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
+                                Holder<RetrieveMessageResponse> retrieveMessageResponse,
+                                Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
+        UserMessage userMessage;
+        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
+
+        if (!isMessageIdNotEmpty) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
 
-        /**
-         * Add support for large files using DataHandler instead of byte[]
-         */
-        @Override
-        @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
-        @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
-        public void retrieveMessage (RetrieveMessageRequest retrieveMessageRequest,
-                Holder < RetrieveMessageResponse > retrieveMessageResponse,
-                Holder < Messaging > ebMSHeaderInfo) throws RetrieveMessageFault {
-            UserMessage userMessage;
-            boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
-
-            if (!isMessageIdNotEmpty) {
-                LOG.error(MESSAGE_ID_EMPTY);
-                throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
-            }
-
-            String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-            WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
-            if (wsMessageLogEntity == null) {
-                LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-                throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
-            }
-
-            userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
-
-            // To avoid blocking errors during the Header's response validation
-            if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
-                userMessage.getCollaborationInfo().setAgreementRef(null);
-            }
-            Messaging messaging = EBMS_OBJECT_FACTORY.createMessaging();
-            messaging.setUserMessage(userMessage);
-            ebMSHeaderInfo.value = messaging;
-            retrieveMessageResponse.value = WEBSERVICE_OF.createRetrieveMessageResponse();
-
-            fillInfoPartsForLargeFiles(retrieveMessageResponse, messaging);
-
-            try {
-                messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
-            } catch (AuthenticationExtException | MessageAcknowledgeExtException e) {
-                //if an error occurs related to the message acknowledgement do not block the download message operation
-                LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
-            }
-
-            // remove downloaded message from the plugin table containing the pending messages
-            wsMessageLogService.delete(wsMessageLogEntity);
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
+        WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
+        if (wsMessageLogEntity == null) {
+            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
 
-        private UserMessage getUserMessage (RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws
-        RetrieveMessageFault {
-            UserMessage userMessage;
-            try {
-                userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
-            } catch (final MessageNotFoundException mnfEx) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
-                }
-                LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-                throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
-            }
+        userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
 
-            if (userMessage == null) {
-                LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-                throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
-            }
-            return userMessage;
+        // To avoid blocking errors during the Header's response validation
+        if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
+            userMessage.getCollaborationInfo().setAgreementRef(null);
+        }
+        Messaging messaging = EBMS_OBJECT_FACTORY.createMessaging();
+        messaging.setUserMessage(userMessage);
+        ebMSHeaderInfo.value = messaging;
+        retrieveMessageResponse.value = WEBSERVICE_OF.createRetrieveMessageResponse();
+
+        fillInfoPartsForLargeFiles(retrieveMessageResponse, messaging);
+
+        try {
+            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
+        } catch (AuthenticationExtException | MessageAcknowledgeExtException e) {
+            //if an error occurs related to the message acknowledgement do not block the download message operation
+            LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
         }
 
-        private void fillInfoPartsForLargeFiles (Holder < RetrieveMessageResponse > retrieveMessageResponse, Messaging
-        messaging){
-            if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
-                LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
-                return;
-            }
+        // remove downloaded message from the plugin table containing the pending messages
+        wsMessageLogService.delete(wsMessageLogEntity);
+    }
 
-            for (final PartInfo partInfo : getPartInfo(messaging)) {
-                ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
-                LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
-                if (extPartInfo.getPayloadDatahandler() != null) {
-                    LOG.debug("payloadDatahandler Content Type: [{}]", extPartInfo.getPayloadDatahandler().getContentType());
-                    payloadType.setValue(extPartInfo.getPayloadDatahandler());
-                }
-                if (extPartInfo.isInBody()) {
-                    retrieveMessageResponse.value.setBodyload(payloadType);
-                } else {
-                    payloadType.setPayloadId(partInfo.getHref());
-                    retrieveMessageResponse.value.getPayload().add(payloadType);
-                }
+    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws
+            RetrieveMessageFault {
+        UserMessage userMessage;
+        try {
+            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
             }
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
 
-        private PayloadInfo getPayloadInfo (Messaging messaging){
-            if (messaging.getUserMessage() == null) {
-                return null;
-            }
-            return messaging.getUserMessage().getPayloadInfo();
+        if (userMessage == null) {
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
+        }
+        return userMessage;
+    }
+
+    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging
+            messaging) {
+        if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
+            LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
+            return;
         }
 
-        private List<PartInfo> getPartInfo (Messaging messaging){
-            PayloadInfo payloadInfo = getPayloadInfo(messaging);
-            if (payloadInfo == null) {
-                return new ArrayList<>();
+        for (final PartInfo partInfo : getPartInfo(messaging)) {
+            ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
+            LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
+            if (extPartInfo.getPayloadDatahandler() != null) {
+                LOG.debug("payloadDatahandler Content Type: [{}]", extPartInfo.getPayloadDatahandler().getContentType());
+                payloadType.setValue(extPartInfo.getPayloadDatahandler());
             }
-            return payloadInfo.getPartInfo();
-        }
-
-
-        @Override
-        public MessageStatus getStatus ( final StatusRequest statusRequest) throws StatusFault {
-            boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(statusRequest.getMessageID());
-
-            if (!isMessageIdNotEmpty) {
-                LOG.error(MESSAGE_ID_EMPTY);
-                throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
+            if (extPartInfo.isInBody()) {
+                retrieveMessageResponse.value.setBodyload(payloadType);
+            } else {
+                payloadType.setPayloadId(partInfo.getHref());
+                retrieveMessageResponse.value.getPayload().add(payloadType);
             }
-            String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
-            return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
-        }
-
-        @Override
-        public ErrorResultImplArray getMessageErrors ( final GetErrorsRequest messageErrorsRequest) throws
-        GetMessageErrorsFault {
-            List<? extends ErrorResult> errorsForMessage = null;
-            try {
-                errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
-            } catch (Exception e) {
-                LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
-                throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));
-            }
-            return transformFromErrorResults(errorsForMessage);
-        }
-
-        public ErrorResultImplArray transformFromErrorResults (List < ? extends ErrorResult > errors){
-            ErrorResultImplArray errorList = new ErrorResultImplArray();
-            for (ErrorResult errorResult : errors) {
-                ErrorResultImpl errorResultImpl = new ErrorResultImpl();
-                errorResultImpl.setDomibusErrorCode(eu.domibus.plugin.ws.generated.body.DomibusErrorCode.fromValue(errorResult.getErrorCode().name()));
-                errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
-                errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
-                errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
-                LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
-
-                if (errorResult.getNotified() != null) {
-                    dateTime = errorResult.getNotified().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
-                }
-                errorResultImpl.setNotified(dateTime);
-                if (errorResult.getTimestamp() != null) {
-                    dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
-                }
-                errorResultImpl.setTimestamp(dateTime);
-                errorList.getItem().add(errorResultImpl);
-            }
-            return errorList;
         }
     }
+
+    private PayloadInfo getPayloadInfo(Messaging messaging) {
+        if (messaging.getUserMessage() == null) {
+            return null;
+        }
+        return messaging.getUserMessage().getPayloadInfo();
+    }
+
+    private List<PartInfo> getPartInfo(Messaging messaging) {
+        PayloadInfo payloadInfo = getPayloadInfo(messaging);
+        if (payloadInfo == null) {
+            return new ArrayList<>();
+        }
+        return payloadInfo.getPartInfo();
+    }
+
+
+    @Override
+    public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
+        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(statusRequest.getMessageID());
+
+        if (!isMessageIdNotEmpty) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
+        }
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
+        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+    }
+
+    @Override
+    public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws
+            GetMessageErrorsFault {
+        List<? extends ErrorResult> errorsForMessage = null;
+        try {
+            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
+        } catch (Exception e) {
+            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
+            throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));
+        }
+        return transformFromErrorResults(errorsForMessage);
+    }
+
+    public ErrorResultImplArray transformFromErrorResults(List<? extends ErrorResult> errors) {
+        ErrorResultImplArray errorList = new ErrorResultImplArray();
+        for (ErrorResult errorResult : errors) {
+            ErrorResultImpl errorResultImpl = new ErrorResultImpl();
+            errorResultImpl.setDomibusErrorCode(eu.domibus.plugin.ws.generated.body.DomibusErrorCode.fromValue(errorResult.getErrorCode().name()));
+            errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
+            errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
+            errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
+            LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
+
+            if (errorResult.getNotified() != null) {
+                dateTime = errorResult.getNotified().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
+            }
+            errorResultImpl.setNotified(dateTime);
+            if (errorResult.getTimestamp() != null) {
+                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
+            }
+            errorResultImpl.setTimestamp(dateTime);
+            errorList.getItem().add(errorResultImpl);
+        }
+        return errorList;
+    }
+}
