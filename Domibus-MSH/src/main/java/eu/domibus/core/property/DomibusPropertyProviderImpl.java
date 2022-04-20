@@ -190,7 +190,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         try (FileInputStream fis = new FileInputStream(configFile)) {
             Properties properties = new Properties();
             properties.load(fis);
-            String propertySourceName = new File(configFile).getName();
+            String propertySourceName = getSourceName(configFile);
             DomibusPropertiesPropertySource newPropertySource = new DomibusPropertiesPropertySource(propertySourceName, properties);
             propertySources.addFirst(newPropertySource);
         } catch (IOException ex) {
@@ -213,9 +213,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         MutablePropertySources propertySources = configurableEnvironment.getPropertySources();
         String configFile = domibusConfigurationService.getConfigLocation() + File.separator + propertiesFilePath;
         LOG.debug("Removing properties file for domain [{}]: [{}].", domain, configFile);
-        String propertySourceName = new File(configFile).getName();
+        String propertySourceName = getSourceName(configFile);
         propertySources.remove(propertySourceName);
         domibusCacheService.clearCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE);
+    }
+
+    private String getSourceName(String configFile) {
+        return new File(configFile).getName();
     }
 
     protected String getPropertyValue(String propertyName, Domain domain) {
