@@ -61,6 +61,26 @@ public class DomibusPropertyResourceIT extends AbstractIT {
     }
 
     @Test
+    public void testSetCronExpressionPartitions() {
+
+        String name = DOMIBUS_PARTITIONS_WORKER_CRON;
+        String newValue = "0 9 * * * ?"; // every morning
+
+        DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
+        filter.setName(name);
+        filter.setShowDomain(true);
+        filter.setWritable(true);
+
+        domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
+
+        List<DomibusProperty> list = domibusPropertyResourceHelper.getAllProperties(filter);
+        Assert.assertEquals(1, list.size());
+
+        String actualValue = list.get(0).getValue();
+        Assert.assertEquals(newValue, actualValue);
+    }
+
+    @Test
     public void testSetCronExpression() {
 
         String name = DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;

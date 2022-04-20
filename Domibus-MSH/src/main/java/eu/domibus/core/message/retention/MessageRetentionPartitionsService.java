@@ -57,6 +57,8 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected DateUtil dateUtil;
 
+    protected PartitionService partitionService;
+
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
@@ -66,7 +68,8 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              EventService eventService,
                                              DomibusConfigurationService domibusConfigurationService,
                                              DomainService domainService,
-                                             DomainContextProvider domainContextProvider, DateUtil dateUtil) {
+                                             DomainContextProvider domainContextProvider, DateUtil dateUtil,
+                                             PartitionService partitionService) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
@@ -76,6 +79,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domainService = domainService;
         this.domainContextProvider = domainContextProvider;
         this.dateUtil = dateUtil;
+        this.partitionService = partitionService;
     }
 
     @Override
@@ -102,7 +106,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         int maxRetention = getMaxRetention();
         LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
         Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);;
-        String newestPartitionName = getPartitionNameFromDate(newestPartitionToCheckDate);
+        String newestPartitionName = partitionService.getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.debug("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = getExpiredPartitions(newestPartitionName);
         for (String partitionName : partitionNames) {
@@ -117,7 +121,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             boolean toDelete = verifyIfAllMessagesAreArchived(partitionName);
             if (toDelete == false) {
                 LOG.info("Partition [{}] will not be deleted because not all messages are archived", partitionName);
-                eventService.enqueuePartitionExpirationEvent(partitionName);
+                eventService.enqueuePartitionCheckEvent(partitionName);
                 continue;
             }
 
@@ -126,7 +130,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             toDelete = verifyIfAllMessagesAreExpired(partitionName);
             if (toDelete == false) {
                 LOG.info("Partition [{}] will not be deleted because there are still ongoing messages", partitionName);
-                eventService.enqueuePartitionExpirationEvent(partitionName);
+                eventService.enqueuePartitionCheckEvent(partitionName);
                 continue;
             }
 
@@ -210,12 +214,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         }
         LOG.info("All [{}] messages are older than retention [{}] on partition [{}]", messageStatus, retention, partitionName);
         return true;
-    }
-
-    protected String getPartitionNameFromDate(Date partitionDate) {
-        String partitionName = 'P' + dateUtil.getIdPkDateHourPrefix(partitionDate);
-        LOG.debug("Get partition name from date, PartitionDate [{}], partitionName [{}]", partitionDate, partitionName);
-        return partitionName;
     }
 
     protected int getRetention(String mpc, MessageStatus messageStatus) {

@@ -33,6 +33,10 @@ import java.util.Set;
         @NamedNativeQuery(
                 name    =   "UserMessage.findPartitions_ORACLE",
                 query   =   "SELECT partition_name FROM user_tab_partitions WHERE table_name = :TNAME and partition_name <= :PNAME"
+        ),
+        @NamedNativeQuery(
+                name    =   "UserMessage.verifyPartitionExistsByName",
+                query   =   "SELECT count(*) FROM user_tab_partitions WHERE partition_name >= :PNAME"
         )
 })
 @Entity

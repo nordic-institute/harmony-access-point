@@ -28,7 +28,7 @@ public enum AlertType {
     ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl"),
     ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl"),
     ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl"),
-    PARTITION_EXPIRATION("partition_expiration.ftl", DOMIBUS_ALERT_PARTITION_EXPIRATION_PREFIX, "Partition could not be deleted.");
+    PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification.");
 
     private final String template;
     private final String configurationProperty;

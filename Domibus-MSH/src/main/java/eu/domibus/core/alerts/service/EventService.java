@@ -40,7 +40,7 @@ public interface EventService {
      *
      * @param partitionName   the partition name that could not be deleted
      */
-    void enqueuePartitionExpirationEvent(String partitionName);
+    void enqueuePartitionCheckEvent(String partitionName);
 
     /**
      * Will create a account disabled event and enqueue it to the alert/event monitoring queue.

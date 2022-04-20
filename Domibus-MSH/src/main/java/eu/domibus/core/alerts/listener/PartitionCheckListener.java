@@ -5,11 +5,12 @@ import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
 import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
-import eu.domibus.core.alerts.model.common.PartitionExpirationEvent;
+import eu.domibus.core.alerts.model.common.PartitionCheckEvent;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
@@ -23,9 +24,9 @@ import java.time.LocalDate;
  * @since 5.0
  */
 @Component
-public class PartitionExpirationListener {
+public class PartitionCheckListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionExpirationListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionCheckListener.class);
     private AlertService alertService;
     private DomainContextProvider domainContextProvider;
     private EventDao eventDao;
@@ -34,11 +35,11 @@ public class PartitionExpirationListener {
     private PartitionsConfigurationManager partitionsConfigurationManager;
 
 
-    public PartitionExpirationListener(AlertService alertService,
-                                       DomainContextProvider domainContextProvider,
-                                       EventDao eventDao, DatabaseUtil databaseUtil,
-                                       EventService eventService,
-                                       PartitionsConfigurationManager partitionsConfigurationManager) {
+    public PartitionCheckListener(AlertService alertService,
+                                  DomainContextProvider domainContextProvider,
+                                  EventDao eventDao, DatabaseUtil databaseUtil,
+                                  EventService eventService,
+                                  PartitionsConfigurationManager partitionsConfigurationManager) {
         this.alertService = alertService;
         this.domainContextProvider = domainContextProvider;
         this.eventDao = eventDao;
@@ -47,7 +48,7 @@ public class PartitionExpirationListener {
     }
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'PARTITION_EXPIRATION'")
+            selector = "selector ='" + EventServiceImpl.PARTITION_CHECK +"'")
     public void onDeleteExpiredPartitionEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
     }
@@ -55,7 +56,7 @@ public class PartitionExpirationListener {
     private void saveEventAndTriggerAlert(Event event, @Header(name = "DOMAIN") String domain) {
         domainContextProvider.setCurrentDomain(domain);
         PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
-        final String name = PartitionExpirationEvent.PARTITION_NAME.name();
+        final String name = PartitionCheckEvent.PARTITION_NAME.name();
         eu.domibus.core.alerts.model.persist.Event persistedEvent = eventDao.findWithTypeAndPropertyValue(event.getType(), name, event.findStringProperty(name).orElse(null));
 
         if (!eventService.shouldCreateAlert(persistedEvent, partitionsModuleConfiguration.getEventFrequency())) {
