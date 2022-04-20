@@ -80,9 +80,6 @@ public class SetPolicyInServerInterceptorTest {
             ebms3Converter.convertFromEbms3(ebms3UserMessage);
             result = userMessage;
 
-            ebms3Converter.convertPartInfoFromEbms3(ebms3UserMessage);
-            result = partInfos;
-
             userMessageHandlerService.checkTestMessage(userMessage);
             result = false;
 
