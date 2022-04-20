@@ -29,18 +29,73 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         return getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
     }
 
-    @Override
-    public String getPartyTo(UserMessage userMessage) {
-        PartyId partyId = userMessage.getPartyInfo().getTo().getToPartyId();
-        if (partyId == null) {
+    protected To getTo(UserMessage userMessage) {
+        if (userMessage == null
+                || userMessage.getPartyInfo() == null) {
             return null;
         }
-        return partyId.getValue();
+        return userMessage.getPartyInfo().getTo();
     }
 
     @Override
-    public String getPartyFrom(UserMessage userMessage) {
-        return userMessage.getPartyInfo().getFrom().getFromPartyId().getValue();
+    public PartyId getPartyTo(UserMessage userMessage) {
+        final To to = getTo(userMessage);
+        if (to == null) {
+            return null;
+        }
+        return to.getToPartyId();
+    }
+
+    @Override
+    public String getPartyToValue(UserMessage userMessage) {
+        final PartyId partyTo = getPartyTo(userMessage);
+        if (partyTo == null) {
+            return null;
+        }
+        return partyTo.getValue();
+    }
+
+    @Override
+    public String getPartyToRole(UserMessage userMessage) {
+        final To to = getTo(userMessage);
+        if (to == null) {
+            return null;
+        }
+        return to.getRoleValue();
+    }
+
+    protected From getFrom(UserMessage userMessage) {
+        if (userMessage == null
+                || userMessage.getPartyInfo() == null) {
+        }
+        return userMessage.getPartyInfo().getFrom();
+    }
+
+    @Override
+    public String getPartyFromRole(UserMessage userMessage) {
+        final From from = getFrom(userMessage);
+        if (from == null) {
+            return null;
+        }
+        return from.getRoleValue();
+    }
+
+    @Override
+    public PartyId getPartyFrom(UserMessage userMessage) {
+        final From from = getFrom(userMessage);
+        if (from == null) {
+            return null;
+        }
+        return from.getFromPartyId();
+    }
+
+    @Override
+    public String getPartyFromValue(UserMessage userMessage) {
+        final PartyId partyFrom = getPartyFrom(userMessage);
+        if (partyFrom == null) {
+            return null;
+        }
+        return partyFrom.getValue();
     }
 
 

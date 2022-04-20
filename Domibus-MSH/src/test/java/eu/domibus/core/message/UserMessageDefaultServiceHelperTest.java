@@ -240,7 +240,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     private void whenRetrievingTheToParty() {
-        partyTo = userMessageDefaultServiceHelper.getPartyTo(userMessage);
+        partyTo = userMessageDefaultServiceHelper.getPartyToValue(userMessage);
     }
 
     private void thenOriginalSenderIsNull(String message) {

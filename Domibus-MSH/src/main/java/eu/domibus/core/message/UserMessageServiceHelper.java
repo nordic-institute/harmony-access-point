@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.UserMessage;
 
 import java.util.Map;
@@ -14,9 +15,17 @@ public interface UserMessageServiceHelper {
 
     String getFinalRecipient(UserMessage userMessage);
 
-    String getPartyTo(UserMessage userMessage);
+    PartyId getPartyTo(UserMessage userMessage);
 
-    String getPartyFrom(UserMessage userMessage);
+    String getPartyToRole(UserMessage userMessage);
+
+    String getPartyToValue(UserMessage userMessage);
+
+    PartyId getPartyFrom(UserMessage userMessage);
+
+    String getPartyFromValue(UserMessage userMessage);
+
+    String getPartyFromRole(UserMessage userMessage);
 
     String getProperty(UserMessage userMessage, String type);
 

@@ -113,7 +113,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     }
 
     protected String getLocalAccessPointId(UserMessage userMessage) {
-        return userMessageServiceHelper.getPartyTo(userMessage);
+        return userMessageServiceHelper.getPartyToValue(userMessage);
     }
 
 }

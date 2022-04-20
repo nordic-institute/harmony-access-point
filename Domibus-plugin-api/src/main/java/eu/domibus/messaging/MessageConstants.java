@@ -31,6 +31,11 @@ public final class MessageConstants {
     public static final String CONVERSATION_ID = "conversationId";
     public static final String REF_TO_MESSAGE_ID = "refToMessageId";
     public static final String FROM_PARTY_ID = "fromPartyId";
+    public static final String FROM_PARTY_TYPE = "fromPartyType";
+    public static final String FROM_PARTY_ROLE = "fromPartyRole";
+    public static final String TO_PARTY_ID = "toPartyId";
+    public static final String TO_PARTY_TYPE = "toPartyType";
+    public static final String TO_PARTY_ROLE = "toPartyRole";
 
     public static final String COMPRESSION_PROPERTY_KEY = "CompressionType";
     public static final String COMPRESSION_PROPERTY_VALUE = "application/gzip";

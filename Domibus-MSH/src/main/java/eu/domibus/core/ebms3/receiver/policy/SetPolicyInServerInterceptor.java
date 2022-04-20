@@ -134,7 +134,6 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             return;
         }
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-        final List<PartInfo> partInfos = ebms3Converter.convertPartInfoFromEbms3(ebms3Messaging.getUserMessage());
 
         final String messageId = userMessage.getMessageId();
         if (legConfiguration == null) {

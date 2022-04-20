@@ -51,7 +51,6 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class BackendNotificationServiceTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
@@ -135,59 +134,15 @@ public class BackendNotificationServiceTest {
         String backendName = "backendName";
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         new Expectations(backendNotificationService) {{
-            userMessage.getMessageId();
-            result = "messageId";
-
             backendNotificationService.notify(userMessage, backendName, notificationType, null);
         }};
 
-        backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, null);
+        backendNotificationService.notify(userMessage, backendName, notificationType, null);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
-    @Test
-    public void testValidateAndNotify(@Mocked final UserMessage userMessage) {
-        Map<String, String> properties = new HashMap<>();
-        properties.put(MessageConstants.FINAL_RECIPIENT, FINAL_RECIPIENT);
-
-        String backendName = "backendName";
-        NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
-        new Expectations(backendNotificationService) {{
-            userMessage.getMessageId();
-            result = "messageId";
-
-            backendNotificationService.notify(userMessage, backendName, notificationType, properties);
-        }};
-
-
-        backendNotificationService.validateAndNotify(userMessage, backendName, notificationType, properties);
-
-        assertThat(properties.size(), is(1));
-        assertThat(properties.get(MessageConstants.FINAL_RECIPIENT), is(FINAL_RECIPIENT));
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void notifyParent(@Mocked NotificationType notificationType,
-                             @Mocked UserMessage userMessage) {
-        Map<String, String> props = new HashMap<>();
-
-        new Expectations(backendNotificationService) {{
-            backendNotificationService.getPropertiesAsMap(userMessage);
-            result = props;
-
-            backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType, props);
-            times = 1;
-        }};
-
-        backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType);
-
-        new FullVerifications() {
-        };
-    }
 
     @Test
     public void testNotifyWithNoConfiguredNotificationListener(@Mocked final BackendConnector<?, ?> backendConnector,
@@ -339,7 +294,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -869,7 +824,7 @@ public class BackendNotificationServiceTest {
         assertEquals(serviceType, propertiesList.get(0).get(MessageConstants.SERVICE_TYPE));
         assertEquals(action, propertiesList.get(0).get(MessageConstants.ACTION));
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -921,10 +876,6 @@ public class BackendNotificationServiceTest {
             result = false;
             times = 1;
 
-            userMessage.getMessageId();
-            result = MESSAGE_ID;
-            times = 1;
-
             userMessage.isMessageFragment();
             result = false;
             times = 1;
@@ -933,14 +884,14 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_SEND_SUCCESS);
+            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_SEND_SUCCESS, (Map<String, String>) any);
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
             times = 1;
         }};
         backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -951,10 +902,6 @@ public class BackendNotificationServiceTest {
             result = false;
             times = 1;
 
-            userMessage.getMessageId();
-            result = MESSAGE_ID;
-            times = 1;
-
             userMessage.isMessageFragment();
             result = true;
             times = 1;
@@ -963,7 +910,7 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
+            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS, (Map<String, String>) any);
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
@@ -971,7 +918,7 @@ public class BackendNotificationServiceTest {
         }};
 
         backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -1011,7 +958,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -1035,7 +982,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -1093,7 +1040,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -1151,7 +1098,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
 
-        new FullVerifications() {
+        new Verifications() {
         };
 
     }
@@ -1166,9 +1113,6 @@ public class BackendNotificationServiceTest {
         new Expectations() {{
             routingService.getMatchingBackendFilter(userMessage);
             result = null;
-
-            userMessageServiceHelper.getProperties(userMessage);
-            result = new HashMap<>();
 
             userMessage.getMessageId();
             result = MESSAGE_ID;
@@ -1193,26 +1137,13 @@ public class BackendNotificationServiceTest {
             matchingBackendFilter.getBackendName();
             result = BACKEND_NAME;
 
-            userMessageServiceHelper.getProperties(userMessage);
-            result = new HashMap<>();
-
-            userMessage.getRefToMessageId();
-            result = "refToMessageId";
-
-            userMessage.getConversationId();
-            result = "conversationId";
-
-            userMessageServiceHelper.getPartyFrom(userMessage);
-            result = "domibus-blue";
-
-
-            backendNotificationService.validateAndNotify(userMessage, BACKEND_NAME, notificationType, properties);
+            backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType, properties);
             times = 1;
         }};
 
         backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
 
-        new FullVerifications() {{
+        new Verifications() {{
             routingService.getMatchingBackendFilter(userMessage);
         }};
     }
@@ -1255,21 +1186,18 @@ public class BackendNotificationServiceTest {
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
-            userMessage.getMessageId();
-            result = MESSAGE_ID;
-
             userMessageLog.getBackend();
             result = BACKEND_NAME;
 
             userMessage.isMessageFragment();
             result = true;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE);
+            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE, (Map<String, String>) any);
         }};
 
         backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
 
-        new FullVerifications() {{
+        new Verifications() {{
             userMessageLogDao.setAsNotified(userMessageLog);
             times = 1;
         }};
@@ -1281,22 +1209,19 @@ public class BackendNotificationServiceTest {
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
-            userMessage.getMessageId();
-            result = MESSAGE_ID;
-
             userMessageLog.getBackend();
             result = BACKEND_NAME;
 
             userMessage.isMessageFragment();
             result = false;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
+            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE, (Map<String, String>) any);
             times = 1;
         }};
 
         backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
 
-        new FullVerifications() {{
+        new Verifications() {{
             userMessageLogDao.setAsNotified(userMessageLog);
             times = 1;
         }};
@@ -1312,9 +1237,6 @@ public class BackendNotificationServiceTest {
         new Expectations() {{
             messageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
-
-            userMessage.getMessageId();
-            result = MESSAGE_ID;
 
             userMessage.getService().getValue();
             result = "CollabInfoValue";
@@ -1332,7 +1254,7 @@ public class BackendNotificationServiceTest {
 
         Map<String, String> messageProperties = backendNotificationService.getMessageProperties(messageLog, userMessage, newStatus, TIMESTAMP);
 
-        assertThat(messageProperties.size(), is(8));
+        assertThat(messageProperties.size(), is(16));
         assertThat(messageProperties.get(MessageConstants.STATUS_FROM), is(MessageStatus.SEND_ENQUEUED.toString()));
         assertThat(messageProperties.get(MessageConstants.STATUS_TO), is(MessageStatus.ACKNOWLEDGED.toString()));
         assertThat(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP), is(String.valueOf(TIMESTAMP.getTime())));
@@ -1342,7 +1264,7 @@ public class BackendNotificationServiceTest {
         assertThat(messageProperties.get(MessageConstants.FINAL_RECIPIENT), is(FINAL_RECIPIENT));
         assertThat(messageProperties.get(MessageConstants.ORIGINAL_SENDER), is(ORIGINAL_SENDER));
 
-        new FullVerifications() {
+        new Verifications() {
         };
 
     }
@@ -1375,7 +1297,7 @@ public class BackendNotificationServiceTest {
         }};
 
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
-        new FullVerifications() {
+        new Verifications() {
         };
 
     }

@@ -33,7 +33,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
- */
+*/
 public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginImpl.class);
@@ -143,7 +143,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         String messageId = event.getMessageId();
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
-        final String queueValue = jmsPluginQueueService.getJMSQueue(event.getMessageEntityId(), messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
+        QueueContext queueContext = createQueueContext(event);
+        final String queueValue = jmsPluginQueueService.getJMSQueue(queueContext, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
         LOG.info("Sending message to queue [{}]", queueValue);
         mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(event.getMessageEntityId(), queueValue));
     }
@@ -154,22 +155,36 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(messageReceiveFailureEvent.getErrorResult(),
                 messageReceiveFailureEvent.getEndpoint(),
                 NotificationType.MESSAGE_RECEIVED_FAILURE).createMessage();
-        QueueContext queueContext = new QueueContext(messageReceiveFailureEvent.getMessageId(), messageReceiveFailureEvent.getService(), messageReceiveFailureEvent.getAction());
+
+        QueueContext queueContext = createQueueContext(messageReceiveFailureEvent);
         sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING);
     }
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
-        List<ErrorResult> errors = super.getErrorsForMessage(event.getMessageId());
+        final String messageId = event.getMessageId();
+        List<ErrorResult> errors = super.getErrorsForMessage(messageId);
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errors.get(errors.size() - 1), null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
-        sendJmsMessage(jmsMessageDTO, event.getMessageEntityId(), event.getMessageId(), JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
+
+        QueueContext queueContext = createQueueContext(event);
+        sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
+    }
+
+    private QueueContext createQueueContext(MessageEvent event) {
+        final String service = event.getProps().get(MessageConstants.SERVICE);
+        final String action = event.getProps().get(MessageConstants.ACTION);
+        final String messageId = event.getMessageId();
+        QueueContext queueContext = new QueueContext(messageId, service, action);
+        return queueContext;
     }
 
     @Override
     public void messageSendSuccess(MessageSendSuccessEvent event) {
         LOG.debug("Handling messageSendSuccess");
         final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageEntityId(), event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
-        sendJmsMessage(jmsMessageDTO, event.getMessageEntityId(), event.getMessageId(), JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
+
+        QueueContext queueContext = createQueueContext(event);
+        sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
     @Override
@@ -180,13 +195,6 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Override
     public void messageDeletedEvent(final MessageDeletedEvent event) {
         LOG.info("Message delete event [{}]", event.getMessageId());
-    }
-
-    protected void sendJmsMessage(JmsMessageDTO message, long messageEntityId, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        String queueValue = jmsPluginQueueService.getJMSQueue(messageEntityId, messageId, defaultQueueProperty, routingQueuePrefixProperty);
-
-        LOG.info("Sending message [{}] to queue [{}]", message, queueValue);
-        jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
