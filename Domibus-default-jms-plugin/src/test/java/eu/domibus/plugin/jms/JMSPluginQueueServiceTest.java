@@ -27,7 +27,7 @@ import java.util.List;
 public class JMSPluginQueueServiceTest {
 
     @Tested
-    JMSPluginQueueService JMSPluginQueueService;
+    JMSPluginQueueService jmsPluginQueueService;
 
     @Injectable
     DomibusPropertyExtService domibusPropertyExtService;
@@ -50,24 +50,16 @@ public class JMSPluginQueueServiceTest {
         String defaultQueueProperty = "domibus.defaultQueue";
         String routingQueuePrefixProperty = "domibus.defaultQueue.routing.";
 
-        new Expectations(JMSPluginQueueService) {{
-            messageRetriever.browseMessage(messageEntityId);
-            result = submission;
-
-            submission.getService();
-            result = service;
-
-            submission.getAction();
-            result = action;
-
-            JMSPluginQueueService.getJMSQueue((QueueContext) any, anyString, anyString);
+        new Expectations(jmsPluginQueueService) {{
+            jmsPluginQueueService.getJMSQueue((QueueContext) any, anyString, anyString);
         }};
 
-        JMSPluginQueueService.getJMSQueue(messageEntityId, messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        final QueueContext queueContext = new QueueContext(messageId, service, action);
+        jmsPluginQueueService.getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
 
         new Verifications() {{
             QueueContext queueContext = null;
-            JMSPluginQueueService.getJMSQueue(queueContext = withCapture(), defaultQueueProperty, routingQueuePrefixProperty);
+            jmsPluginQueueService.getJMSQueue(queueContext = withCapture(), defaultQueueProperty, routingQueuePrefixProperty);
 
             Assert.assertEquals(messageId, queueContext.getMessageId());
             Assert.assertEquals(service, queueContext.getService());
@@ -87,18 +79,18 @@ public class JMSPluginQueueServiceTest {
         List<String> routingQueuePrefixNameList = new ArrayList<>();
         routingQueuePrefixNameList.add("routing.rule1");
 
-        new Expectations(JMSPluginQueueService) {{
+        new Expectations(jmsPluginQueueService) {{
             domainContextExtService.getCurrentDomain();
             result = domainDTO;
 
             domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
             result = routingQueuePrefixNameList;
 
-            JMSPluginQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
+            jmsPluginQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
             result = routingQueueValue;
         }};
 
-        String queueValue = JMSPluginQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
+        String queueValue = jmsPluginQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
         Assert.assertEquals(queueValue, routingQueueValue);
     }
 
@@ -114,21 +106,21 @@ public class JMSPluginQueueServiceTest {
         List<String> routingQueuePrefixNameList = new ArrayList<>();
         routingQueuePrefixNameList.add("routing.rule1");
 
-        new Expectations(JMSPluginQueueService) {{
+        new Expectations(jmsPluginQueueService) {{
             domainContextExtService.getCurrentDomain();
             result = domainDTO;
 
             domibusPropertyExtService.getNestedProperties(routingQueuePrefixProperty);
             result = routingQueuePrefixNameList;
 
-            JMSPluginQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
+            jmsPluginQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
             result = null;
 
             domibusPropertyExtService.getProperty(domainDTO, defaultQueueProperty);
             result = defaultQueueValue;
         }};
 
-        String queueValue = JMSPluginQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
+        String queueValue = jmsPluginQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
         Assert.assertEquals(queueValue, defaultQueueValue);
     }
 
@@ -141,12 +133,12 @@ public class JMSPluginQueueServiceTest {
         String routingQueuePrefixProperty = "domibus.defaultQueue.routing.";
         String queueValue = "domibus.myQueue";
 
-        new Expectations(JMSPluginQueueService) {{
-            JMSPluginQueueService.getRoutingQueue(routingQueuePrefixProperty, prefix, queueContext, domainDTO);
+        new Expectations(jmsPluginQueueService) {{
+            jmsPluginQueueService.getRoutingQueue(routingQueuePrefixProperty, prefix, queueContext, domainDTO);
             result = queueValue;
         }};
 
-        String routingQueueValue = JMSPluginQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
+        String routingQueueValue = jmsPluginQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
         Assert.assertEquals(queueValue, routingQueueValue);
     }
 
@@ -167,30 +159,30 @@ public class JMSPluginQueueServiceTest {
         String actionProperty = "actionProperty";
         String actionValue = "actionValue";
 
-        new Expectations(JMSPluginQueueService) {{
-            JMSPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "service");
+        new Expectations(jmsPluginQueueService) {{
+            jmsPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "service");
             result = serviceProperty;
 
             domibusPropertyExtService.getProperty(domainDTO, serviceProperty);
             result = serviceValue;
 
-            JMSPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "action");
+            jmsPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "action");
             result = actionProperty;
 
             domibusPropertyExtService.getProperty(domainDTO, actionProperty);
             result = actionValue;
 
-            JMSPluginQueueService.matchesQueueContext(serviceValue, actionValue, queueContext);
+            jmsPluginQueueService.matchesQueueContext(serviceValue, actionValue, queueContext);
             result = true;
 
-            JMSPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "queue");
+            jmsPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, "queue");
             result = queueProperty;
 
             domibusPropertyExtService.getProperty(domainDTO, queueProperty);
             result = queueValue;
         }};
 
-        String routingQueue = JMSPluginQueueService.getRoutingQueue(routingQueuePrefixProperty, routingQueuePrefixName, queueContext, domainDTO);
+        String routingQueue = jmsPluginQueueService.getRoutingQueue(routingQueuePrefixProperty, routingQueuePrefixName, queueContext, domainDTO);
         Assert.assertEquals(routingQueue, queueValue);
     }
 
@@ -200,7 +192,7 @@ public class JMSPluginQueueServiceTest {
         String routingQueuePrefixName = "rule1";
 
         String suffix = "queue";
-        String queue = JMSPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, suffix);
+        String queue = jmsPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, suffix);
         Assert.assertEquals(routingQueuePrefixProperty + "." + routingQueuePrefixName + "." + suffix, queue);
     }
 
@@ -217,7 +209,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertTrue(JMSPluginQueueService.matchesQueueContext(service, action, queueContext));
+        Assert.assertTrue(jmsPluginQueueService.matchesQueueContext(service, action, queueContext));
     }
 
     @Test
@@ -233,7 +225,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertFalse(JMSPluginQueueService.matchesQueueContext(service, "myAction", queueContext));
+        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext(service, "myAction", queueContext));
     }
 
     @Test
@@ -245,7 +237,7 @@ public class JMSPluginQueueServiceTest {
             result = service;
         }};
 
-        Assert.assertTrue(JMSPluginQueueService.matchesQueueContext(service, null, queueContext));
+        Assert.assertTrue(jmsPluginQueueService.matchesQueueContext(service, null, queueContext));
 
         new Verifications() {{
             queueContext.getAction();
@@ -262,7 +254,7 @@ public class JMSPluginQueueServiceTest {
             result = service;
         }};
 
-        Assert.assertFalse(JMSPluginQueueService.matchesQueueContext("differentService", null, queueContext));
+        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext("differentService", null, queueContext));
 
         new Verifications() {{
             queueContext.getAction();
@@ -279,7 +271,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertTrue(JMSPluginQueueService.matchesQueueContext(null, action, queueContext));
+        Assert.assertTrue(jmsPluginQueueService.matchesQueueContext(null, action, queueContext));
 
         new Verifications() {{
             queueContext.getService();
@@ -296,7 +288,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertFalse(JMSPluginQueueService.matchesQueueContext(null, "differentAction", queueContext));
+        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext(null, "differentAction", queueContext));
 
         new Verifications() {{
             queueContext.getService();
@@ -306,6 +298,6 @@ public class JMSPluginQueueServiceTest {
 
     @Test
     public void matchesSubmissionWithNoServiceAndNoAction(@Injectable QueueContext queueContext) {
-        Assert.assertFalse(JMSPluginQueueService.matchesQueueContext(null, null, queueContext));
+        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext(null, null, queueContext));
     }
 }

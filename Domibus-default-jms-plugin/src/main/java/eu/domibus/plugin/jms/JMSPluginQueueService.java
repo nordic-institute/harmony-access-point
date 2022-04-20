@@ -38,26 +38,6 @@ public class JMSPluginQueueService {
     /**
      * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
      *
-     * @param messageId                  The message id for which the queue is determined
-     * @param defaultQueueProperty       The property name used to get the default queue
-     * @param routingQueuePrefixProperty The property prefix used to get the routing queue
-     * @return the default or the routing queue
-     * @throws DefaultJmsPluginException in case the queue could not be determined or the message is not found
-     */
-    public String getJMSQueue(long messageEntityId, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        Submission submission;
-        try {
-            submission = messageRetriever.browseMessage(messageEntityId);
-        } catch (MessageNotFoundException e) {
-            throw new DefaultJmsPluginException("Could not find message with id [" + messageId + "]", e);
-        }
-        QueueContext queueContext = new QueueContext(messageId, submission.getService(), submission.getAction());
-        return getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
-    }
-
-    /**
-     * Tries to get first the configured queue using routing properties. Returns the default queue in case no routing queue is found.
-     *
      * @param queueContext               The queue context used for determining the queue
      * @param defaultQueueProperty       The property name used to get the default queue
      * @param routingQueuePrefixProperty The property prefix used to get the routing queue
