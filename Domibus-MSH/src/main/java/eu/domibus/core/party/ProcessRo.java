@@ -1,5 +1,7 @@
 package eu.domibus.core.party;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -33,7 +35,9 @@ public class ProcessRo {
 
         ProcessRo processRo = (ProcessRo) o;
 
-        if (entityId != processRo.entityId) return false;
+        if (!StringUtils.equalsIgnoreCase(entityId, processRo.entityId)) {
+            return false;
+        }
         return name != null ? name.equalsIgnoreCase(processRo.name) : processRo.name == null;
     }
 
