@@ -444,9 +444,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
     try {
       const downloadUrl = MessageLogComponent.DOWNLOAD_ENVELOPE_URL
         .replace('${messageId}', encodeURIComponent(messageId));
-      const res = await this.http.get(downloadUrl).toPromise();
+      const res = await this.http.get(downloadUrl, {responseType: 'arraybuffer' as 'json'}).toPromise();
       if (!res) {
-        this.alertService.error('Cold not find envelopes to download.');
+        this.alertService.error('Could not find envelopes to download.');
         return;
       }
       DownloadService.downloadNative(downloadUrl);
