@@ -56,6 +56,9 @@ public class MessageRetentionPartitionsServiceTest {
     @Injectable
     DateUtil dateUtil;
 
+    @Injectable
+    PartitionService partitionService;
+
     @Test
     public void deleteExpiredMessagesTest() {
 
