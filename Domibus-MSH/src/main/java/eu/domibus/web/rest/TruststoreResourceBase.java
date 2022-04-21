@@ -103,6 +103,6 @@ public abstract class TruststoreResourceBase extends BaseResource {
                         "ValidFrom".toUpperCase(), "Valid from",
                         "ValidUntil".toUpperCase(), "Valid until"
                 ),
-                Arrays.asList("fingerprints"), moduleName);
+                Arrays.asList("fingerprints", "certificateExpiryAlertDays"), moduleName);
     }
 }
