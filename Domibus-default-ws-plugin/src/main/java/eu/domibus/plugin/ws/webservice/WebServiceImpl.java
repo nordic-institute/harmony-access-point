@@ -241,7 +241,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private void copyPartProperties(final String payloadContentType, final ExtendedPartInfo partInfo) throws SubmitMessageFault {
         final PartProperties partProperties = new PartProperties();
-        Property prop;
 
         // Add mimetype property if there are no part properties
         if (partInfo.getPartProperties() == null) {
@@ -255,8 +254,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
             // add all partproperties WEBSERVICE_OF the backend message
             for (final Property property : partInfo.getPartProperties().getProperty()) {
-                prop = new Property();
-
+                Property prop = new Property();
                 prop.setName(property.getName());
                 prop.setValue(property.getValue());
                 prop.setType(property.getType());
@@ -265,7 +263,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
             boolean mimeTypePropFound = false;
             for (final Property property : partProperties.getProperty()) {
-                if (MIME_TYPE.equals(property.getName())) {
+                if (MIME_TYPE.equalsIgnoreCase(property.getName())) {
                     mimeTypePropFound = true;
                     break;
                 }
@@ -279,8 +277,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     }
 
     private void setMimeTypeProperty(String payloadContentType, PartProperties partProperties) {
-        Property prop;
-        prop = new Property();
+        Property prop = new Property();
         prop.setName(MIME_TYPE);
         if (payloadContentType == null) {
             prop.setValue(DEFAULT_CONTENT_TYPE);
