@@ -41,7 +41,7 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
   }
 
   canAddCertificate() {
-    return this.rows && this.rows.length > 0 && !this.isBusy();
+    return this.storeExists  && !this.isBusy();
   }
 
   canRemoveCertificate() {
