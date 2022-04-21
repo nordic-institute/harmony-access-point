@@ -58,6 +58,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private static final String MIME_TYPE = "MimeType";
 
+    private static final String DEFAULT_CONTENT_TYPE = "text/xml";
+
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
 
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
@@ -239,29 +241,50 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private void copyPartProperties(final String payloadContentType, final ExtendedPartInfo partInfo) throws SubmitMessageFault {
         final PartProperties partProperties = new PartProperties();
-        Property prop;
 
-        // add all partproperties WEBSERVICE_OF the backend message
-        if (partInfo.getPartProperties() == null || CollectionUtils.isEmpty(partInfo.getPartProperties().getProperty())) {
-            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties must not be empty. It should have MimeType property"));
-        }
-        boolean mimeTypePropFound = false;
-        for (final Property property : partInfo.getPartProperties().getProperty()) {
-            if (MIME_TYPE.equals(property.getName())) {
-                mimeTypePropFound = true;
-                break;
+        // Add mimetype property if there are no part properties
+        if (partInfo.getPartProperties() == null) {
+            setMimeTypeProperty(payloadContentType, partProperties);
+
+        } else {
+            //throw exception for part properties without any property
+            if (CollectionUtils.isEmpty(partInfo.getPartProperties().getProperty())) {
+                throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should not be empty."));
+            }
+
+            // add all partproperties WEBSERVICE_OF the backend message
+            for (final Property property : partInfo.getPartProperties().getProperty()) {
+                Property prop = new Property();
+                prop.setName(property.getName());
+                prop.setValue(property.getValue());
+                prop.setType(property.getType());
+                partProperties.getProperty().add(prop);
+            }
+
+            boolean mimeTypePropFound = false;
+            for (final Property property : partProperties.getProperty()) {
+                if (MIME_TYPE.equalsIgnoreCase(property.getName())) {
+                    mimeTypePropFound = true;
+                    break;
+                }
+            }
+            // in case there was no property with name {@value Property.MIME_TYPE} and xmime:contentType attribute was set noinspection SuspiciousMethodCalls
+            if (!mimeTypePropFound) {
+                setMimeTypeProperty(payloadContentType, partProperties);
             }
         }
-        if (!mimeTypePropFound) {
-            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should have MimeType property"));
-        }
-        for (final Property property : partInfo.getPartProperties().getProperty()) {
-            prop = new Property();
-            prop.setName(property.getName());
-            prop.setValue(property.getValue());
-            partProperties.getProperty().add(prop);
-        }
         partInfo.setPartProperties(partProperties);
+    }
+
+    private void setMimeTypeProperty(String payloadContentType, PartProperties partProperties) {
+        Property prop = new Property();
+        prop.setName(MIME_TYPE);
+        if (payloadContentType == null) {
+            prop.setValue(DEFAULT_CONTENT_TYPE);
+        } else {
+            prop.setValue(payloadContentType);
+        }
+        partProperties.getProperty().add(prop);
     }
 
     @Override
@@ -349,7 +372,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
         wsMessageLogService.delete(wsMessageLogEntity);
     }
 
-    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {
+    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws
+            RetrieveMessageFault {
         UserMessage userMessage;
         try {
             userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
@@ -368,7 +392,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
         return userMessage;
     }
 
-    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {
+    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging
+            messaging) {
         if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
             LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
             return;
@@ -419,7 +444,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
     }
 
     @Override
-    public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws GetMessageErrorsFault {
+    public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws
+            GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage = null;
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
