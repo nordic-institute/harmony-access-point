@@ -105,6 +105,7 @@ public enum MessageStatus {
         public static List<MessageStatus> getFinalStatesForDroppingPartition(){
                 return Arrays.asList(
                         ACKNOWLEDGED,
+                        SEND_FAILURE,
                         RECEIVED,
                         DOWNLOADED,
                         DELETED);
