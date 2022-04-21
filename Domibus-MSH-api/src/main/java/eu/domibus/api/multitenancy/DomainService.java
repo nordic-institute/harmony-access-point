@@ -35,4 +35,6 @@ public interface DomainService {
     void addDomain(Domain domain);
 
     void refreshDomain(String domainCode);
+
+    void validateDomain(String domainCode);
 }

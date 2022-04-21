@@ -1,15 +1,14 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -62,6 +61,13 @@ public class DomainContextProviderImpl implements DomainContextProvider {
         if (StringUtils.isEmpty(domainCode)) {
             throw new DomainTaskException("Could not set current domain: domain is empty");
         }
+
+        Domain current = getCurrentDomainSafely();
+        if (current != null && StringUtils.equals(current.getCode(), domainCode)) {
+            return;
+        }
+
+        domainService.validateDomain(domainCode);
 
         LOG.putMDC(DomibusLogger.MDC_DOMAIN, domainCode);
         LOG.trace("Set domain to [{}]", domainCode);
