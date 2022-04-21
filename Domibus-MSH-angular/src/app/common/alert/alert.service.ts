@@ -127,6 +127,9 @@ export class AlertService {
     if (typeof response === 'string') {
       errMsg = response;
     } else if (response instanceof HttpErrorResponse) {
+      if (response.message) { 
+        console.warn(response.message);
+      }
       if (response.error) {
         if (instanceOfMultipleItemsResponse(response.error)) {
           errMsg = this.processMultipleItemsResponse(response.error);
@@ -135,7 +138,7 @@ export class AlertService {
         } else {
           errMsg = this.tryParseHtmlResponse(response.error);
         }
-      } else  if (response.message) {
+      } else if (response.message) {
         errMsg = response.message;
       }
     } else if (response instanceof HttpResponse) {

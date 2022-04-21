@@ -405,17 +405,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return row.messageFragment || row.sourceMessage;
   }
 
-  isDownloadButtonEnabledAction(row): boolean {
-    return this.isRowDownloadButtonEnabled(row);
-  }
-
   isDownloadButtonEnabled(): boolean {
-    return this.isOneRowSelected() && this.isRowDownloadButtonEnabled(this.selected[0]);
-  }
-
-  private isRowDownloadButtonEnabled(row): boolean {
-    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
-      && !this.isSplitAndJoinMessage(row) && row.canDownloadMessage;
+    return this.isOneRowSelected() && this.selected[0].canDownloadMessage;
   }
 
   private isOneRowSelected() {
@@ -449,24 +440,19 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.downloadEnvelopesForUserMessage(row.refToMessageId);
   }
 
-  private downloadEnvelopesForUserMessage(messageId) {
+  private async downloadEnvelopesForUserMessage(messageId) {
     try {
       const downloadUrl = MessageLogComponent.DOWNLOAD_ENVELOPE_URL
         .replace('${messageId}', encodeURIComponent(messageId));
-
+      const res = await this.http.get(downloadUrl, {responseType: 'arraybuffer' as 'json'}).toPromise();
+      if (!res) {
+        this.alertService.error('Could not find envelopes to download.');
+        return;
+      }
       DownloadService.downloadNative(downloadUrl);
     } catch (err) {
       this.alertService.exception(`Could not download message envelopes for id ${messageId}.`, err);
     }
-  }
-
-  isDownloadEnvelopeEnabledAction(row): boolean {
-    return this.isRowDownloadEnvelopeEnabled(row);
-  }
-
-  private isRowDownloadEnvelopeEnabled(row): boolean {
-    return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
-      && !this.isSplitAndJoinMessage(row) && row.canDownloadEnvelope;
   }
 
   downloadAction(row) {
