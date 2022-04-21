@@ -22,7 +22,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -191,9 +190,9 @@ public class CachingPModeProvider extends PModeProvider {
      * by configuration OR the initiator name matches
      *
      * @param process                   the process containing the initiators
-     * @param processTypePartyExtractor the extractor that provides the senderParty
+     * @param senderParty the senderParty
      */
-    protected boolean matchInitiator(final Process process, final ProcessTypePartyExtractor processTypePartyExtractor) {
+    protected boolean matchInitiator(final Process process, final String senderParty) {
         if (CollectionUtils.isEmpty(process.getInitiatorParties())) {
             if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
                 return true;
@@ -202,7 +201,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         for (final Party party : process.getInitiatorParties()) {
-            if (equalsIgnoreCase(party.getName(), processTypePartyExtractor.getSenderParty())) {
+            if (equalsIgnoreCase(party.getName(), senderParty)) {
                 return true;
             }
         }
@@ -210,7 +209,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected void checkInitiatorMismatch(Process process, ProcessTypePartyExtractor processTypePartyExtractor, LegFilterCriteria legFilterCriteria) {
-        if (matchInitiator(process, processTypePartyExtractor)) {
+        if (matchInitiator(process, processTypePartyExtractor.getSenderParty())) {
             LOG.debug("Initiator:[{}] matched for Process:[{}]", processTypePartyExtractor.getSenderParty(), process.getName());
             return;
         }
@@ -220,17 +219,17 @@ public class CachingPModeProvider extends PModeProvider {
     /**
      * The match requires that the responder exists in the process
      *
-     * @param process                   the process containing the responder
-     * @param processTypePartyExtractor the extractor that provides the receiverParty
+     * @param process        the process containing the responder
+     * @param receiverParty  the receiverParty
      */
-    protected boolean matchResponder(final Process process, final ProcessTypePartyExtractor processTypePartyExtractor) {
+    protected boolean matchResponder(final Process process, final String receiverParty) {
         //Responder is always required for this method to return true
         if (CollectionUtils.isEmpty(process.getResponderParties())) {
             return false;
         }
 
         for (final Party party : process.getResponderParties()) {
-            if (equalsIgnoreCase(party.getName(), processTypePartyExtractor.getReceiverParty())) {
+            if (equalsIgnoreCase(party.getName(), receiverParty)) {
                 return true;
             }
         }
@@ -238,7 +237,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected void checkResponderMismatch(Process process, ProcessTypePartyExtractor processTypePartyExtractor, LegFilterCriteria legFilterCriteria) {
-        if (matchResponder(process, processTypePartyExtractor)) {
+        if (matchResponder(process, processTypePartyExtractor.getReceiverParty())) {
             LOG.debug("Responder:[{}] matched for Process:[{}]", processTypePartyExtractor.getReceiverParty(), process.getName());
             return;
         }
@@ -257,8 +256,8 @@ public class CachingPModeProvider extends PModeProvider {
                 .filter(process -> matchRole(process.getInitiatorRole(), initiatorRole))
                 .filter(process -> matchRole(process.getResponderRole(), responderRole))
                 .filter(process -> ONE_WAY_PULL.getUri().equals(process.getMepBinding().getValue()))
-                .filter(process -> matchInitiator(process, processTypePartyExtractor))
-                .filter(process -> matchResponder(process, processTypePartyExtractor)).collect(Collectors.toList());
+                .filter(process -> matchInitiator(process, processTypePartyExtractor.getSenderParty()))
+                .filter(process -> matchResponder(process, processTypePartyExtractor.getReceiverParty())).collect(Collectors.toList());
 
         processes.stream().forEach(process -> candidates.addAll(process.getLegs()));
         if (candidates.isEmpty()) {
@@ -966,13 +965,11 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean hasInitiatorParty(Process process, String partyName) {
-        Set<Party> initiatorParties = process.getInitiatorParties();
-        return matchesParty(initiatorParties, partyName);
+        return matchInitiator(process, partyName);
     }
 
     protected boolean hasResponderParty(Process process, String partyName) {
-        Set<Party> responderParties = process.getResponderParties();
-        return matchesParty(responderParties, partyName);
+        return matchResponder(process, partyName);
     }
 
     protected boolean matchesParty(Set<Party> parties, String partyName) {
