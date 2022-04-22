@@ -20,7 +20,6 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class UpdateRetryLoggingServiceTest {
 
     private static final int RETRY_TIMEOUT_IN_MINUTES = 60;

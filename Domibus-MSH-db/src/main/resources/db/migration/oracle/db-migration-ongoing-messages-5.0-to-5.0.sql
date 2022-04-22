@@ -1187,6 +1187,210 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
         CLOSE c_signal_message_raw;
     END migrate_signal_message_raw;
 
+    PROCEDURE migrate_sj_message_header(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
+        CURSOR c_sj_message_header IS
+            SELECT ID_PK, BOUNDARY, START_MULTIPART, CREATION_TIME, CREATED_BY
+            FROM TB_SJ_MESSAGE_HEADER
+            WHERE ID_PK IN (
+                SELECT ID_PK
+                FROM TB_SJ_MESSAGE_GROUP
+                WHERE SOURCE_MESSAGE_ID_FK IN (
+                    SELECT ID_PK
+                    FROM TB_USER_MESSAGE
+                    WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
+                      AND ID_PK IN (
+                        SELECT ID_PK
+                        FROM TB_USER_MESSAGE_LOG
+                        WHERE MESSAGE_STATUS_ID_FK IN (
+                            SELECT ID_PK
+                            FROM TB_D_MESSAGE_STATUS
+                            WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
+                        ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate)));
+
+        TYPE T_SJ_MESSAGE_HEADER IS TABLE OF c_sj_message_header%ROWTYPE;
+        sj_message_header T_SJ_MESSAGE_HEADER;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Migrating TB_SJ_MESSAGE_HEADER entries...');
+        OPEN c_sj_message_header;
+        LOOP
+            FETCH c_sj_message_header BULK COLLECT INTO sj_message_header LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN sj_message_header.COUNT = 0;
+
+            FOR i IN sj_message_header.FIRST .. sj_message_header.LAST LOOP
+                    EXECUTE IMMEDIATE 'INSERT INTO TB_SJ_MESSAGE_HEADER@' || db_link || ' (ID_PK, BOUNDARY, START_MULTIPART, CREATION_TIME, CREATED_BY) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5)'
+                        USING sj_message_header(i).ID_PK,
+                        sj_message_header(i).BOUNDARY,
+                        sj_message_header(i).START_MULTIPART,
+                        sj_message_header(i).CREATION_TIME,
+                        sj_message_header(i).CREATED_BY;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE('Wrote ' || sj_message_header.COUNT || ' records');
+        END LOOP;
+        CLOSE c_sj_message_header;
+    END migrate_sj_message_header;
+
+    PROCEDURE migrate_sj_message_group(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
+        CURSOR c_sj_message_group IS
+            SELECT ID_PK, GROUP_ID, MESSAGE_SIZE, FRAGMENT_COUNT, SENT_FRAGMENTS, RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM, COMPRESSED_MESSAGE_SIZE, SOAP_ACTION, REJECTED, EXPIRED, MSH_ROLE_ID_FK, SOURCE_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY
+            FROM TB_SJ_MESSAGE_GROUP
+            WHERE SOURCE_MESSAGE_ID_FK IN (
+                SELECT ID_PK
+                FROM TB_USER_MESSAGE
+                WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
+                  AND ID_PK IN (
+                    SELECT ID_PK
+                    FROM TB_USER_MESSAGE_LOG
+                    WHERE MESSAGE_STATUS_ID_FK IN (
+                        SELECT ID_PK
+                        FROM TB_D_MESSAGE_STATUS
+                        WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
+                    ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate));
+
+        TYPE T_SJ_MESSAGE_GROUP IS TABLE OF c_sj_message_group%ROWTYPE;
+        sj_message_group T_SJ_MESSAGE_GROUP;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Migrating TB_SJ_MESSAGE_GROUP entries...');
+        OPEN c_sj_message_group;
+        LOOP
+            FETCH c_sj_message_group BULK COLLECT INTO sj_message_group LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN sj_message_group.COUNT = 0;
+
+            FOR i IN sj_message_group.FIRST .. sj_message_group.LAST LOOP
+                    EXECUTE IMMEDIATE 'INSERT INTO TB_SJ_MESSAGE_GROUP@' || db_link || ' (ID_PK, GROUP_ID, MESSAGE_SIZE, FRAGMENT_COUNT, SENT_FRAGMENTS, RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM, COMPRESSED_MESSAGE_SIZE, SOAP_ACTION, REJECTED, EXPIRED, MSH_ROLE_ID_FK, SOURCE_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
+                        USING sj_message_group(i).ID_PK,
+                        sj_message_group(i).GROUP_ID,
+                        sj_message_group(i).MESSAGE_SIZE,
+                        sj_message_group(i).FRAGMENT_COUNT,
+                        sj_message_group(i).SENT_FRAGMENTS,
+                        sj_message_group(i).RECEIVED_FRAGMENTS,
+                        sj_message_group(i).COMPRESSION_ALGORITHM,
+                        sj_message_group(i).COMPRESSED_MESSAGE_SIZE,
+                        sj_message_group(i).SOAP_ACTION,
+                        sj_message_group(i).REJECTED,
+                        sj_message_group(i).EXPIRED,
+                        sj_message_group(i).MSH_ROLE_ID_FK,
+                        sj_message_group(i).SOURCE_MESSAGE_ID_FK,
+                        sj_message_group(i).CREATION_TIME,
+                        sj_message_group(i).CREATED_BY;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE('Wrote ' || sj_message_group.COUNT || ' records');
+        END LOOP;
+        CLOSE c_sj_message_group;
+    END migrate_sj_message_group;
+
+    PROCEDURE migrate_sj_message_fragment(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
+        CURSOR c_sj_message_fragment IS
+            SELECT ID_PK, FRAGMENT_NUMBER, GROUP_ID_FK, CREATION_TIME, CREATED_BY
+            FROM TB_SJ_MESSAGE_FRAGMENT
+            WHERE ID_PK IN (
+                SELECT ID_PK
+                FROM TB_USER_MESSAGE
+                WHERE (SOURCE_MESSAGE = 1 OR MESSAGE_FRAGMENT = 1)
+                  AND ID_PK IN (
+                    SELECT ID_PK
+                    FROM TB_USER_MESSAGE_LOG
+                    WHERE MESSAGE_STATUS_ID_FK IN (
+                        SELECT ID_PK
+                        FROM TB_D_MESSAGE_STATUS
+                        WHERE STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
+                    ) AND RECEIVED BETWEEN migration.startDate AND migration.endDate));
+
+        TYPE T_SJ_MESSAGE_FRAGMENT IS TABLE OF c_sj_message_fragment%ROWTYPE;
+        sj_message_fragment T_SJ_MESSAGE_FRAGMENT;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Migrating TB_SJ_MESSAGE_FRAGMENT entries...');
+        OPEN c_sj_message_fragment;
+        LOOP
+            FETCH c_sj_message_fragment BULK COLLECT INTO sj_message_fragment LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN sj_message_fragment.COUNT = 0;
+
+            FOR i IN sj_message_fragment.FIRST .. sj_message_fragment.LAST LOOP
+                    EXECUTE IMMEDIATE 'INSERT INTO TB_SJ_MESSAGE_FRAGMENT@' || db_link || ' (ID_PK, FRAGMENT_NUMBER, GROUP_ID_FK, CREATION_TIME, CREATED_BY) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5)'
+                        USING sj_message_fragment(i).ID_PK,
+                        sj_message_fragment(i).FRAGMENT_NUMBER,
+                        sj_message_fragment(i).GROUP_ID_FK,
+                        sj_message_fragment(i).CREATION_TIME,
+                        sj_message_fragment(i).CREATED_BY;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE('Wrote ' || sj_message_fragment.COUNT || ' records');
+        END LOOP;
+        CLOSE c_sj_message_fragment;
+    END migrate_sj_message_fragment;
+
+    PROCEDURE migrate_ws_plg_msg_log(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
+        CURSOR c_ws_plugin_message_log IS
+            SELECT ID_PK, MESSAGE_ID, CONVERSATION_ID, REF_TO_MESSAGE_ID, FROM_PARTY_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, RECEIVED
+            FROM WS_PLUGIN_TB_MESSAGE_LOG
+            WHERE RECEIVED BETWEEN migration.startDate AND migration.endDate;
+
+        TYPE T_WS_PLUGIN_MESSAGE_LOG IS TABLE OF c_ws_plugin_message_log%ROWTYPE;
+        ws_plugin_message_log T_WS_PLUGIN_MESSAGE_LOG;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Migrating WS_PLUGIN_TB_MESSAGE_LOG entries...');
+        OPEN c_ws_plugin_message_log;
+        LOOP
+            FETCH c_ws_plugin_message_log BULK COLLECT INTO ws_plugin_message_log LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN ws_plugin_message_log.COUNT = 0;
+
+            FOR i IN ws_plugin_message_log.FIRST .. ws_plugin_message_log.LAST LOOP
+                    EXECUTE IMMEDIATE 'INSERT INTO WS_PLUGIN_TB_MESSAGE_LOG@' || db_link || ' (ID_PK, MESSAGE_ID, CONVERSATION_ID, REF_TO_MESSAGE_ID, FROM_PARTY_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, RECEIVED) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8)'
+                        USING ws_plugin_message_log(i).ID_PK,
+                        ws_plugin_message_log(i).MESSAGE_ID,
+                        ws_plugin_message_log(i).CONVERSATION_ID,
+                        ws_plugin_message_log(i).REF_TO_MESSAGE_ID,
+                        ws_plugin_message_log(i).FROM_PARTY_ID,
+                        ws_plugin_message_log(i).FINAL_RECIPIENT,
+                        ws_plugin_message_log(i).ORIGINAL_SENDER,
+                        ws_plugin_message_log(i).RECEIVED;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE('Wrote ' || ws_plugin_message_log.COUNT || ' records');
+        END LOOP;
+        CLOSE c_ws_plugin_message_log;
+    END migrate_ws_plg_msg_log;
+
+    PROCEDURE migrate_ws_plg_backend_msg_log(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
+        CURSOR c_ws_backebd_plugin_msg_log IS
+            SELECT ID_PK, CREATION_TIME, CREATED_BY, MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, BACKEND_MESSAGE_STATUS, MESSAGE_STATUS, BACKEND_MESSAGE_TYPE, RULE_NAME, SENT, FAILED, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, NEXT_ATTEMPT, SCHEDULED
+            FROM WS_PLUGIN_TB_BACKEND_MSG_LOG
+            WHERE MESSAGE_STATUS IN ('SEND_ENQUEUED', 'WAITING_FOR_RETRY', 'READY_TO_PULL', 'WAITING_FOR_RECEIPT')
+              AND MESSAGE_ID IN (
+                SELECT MESSAGE_ID
+                FROM WS_PLUGIN_TB_MESSAGE_LOG
+                WHERE RECEIVED BETWEEN migration.startDate AND migration.endDate);
+
+        TYPE T_WS_PLUGIN_BACKEND_MSG_LOG IS TABLE OF c_ws_backebd_plugin_msg_log%ROWTYPE;
+        ws_plugin_backend_msg_log T_WS_PLUGIN_BACKEND_MSG_LOG;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Migrating WS_PLUGIN_TB_BACKEND_MSG_LOG entries...');
+        OPEN c_ws_backebd_plugin_msg_log;
+        LOOP
+            FETCH c_ws_backebd_plugin_msg_log BULK COLLECT INTO ws_plugin_backend_msg_log LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN ws_plugin_backend_msg_log.COUNT = 0;
+
+            FOR i IN ws_plugin_backend_msg_log.FIRST .. ws_plugin_backend_msg_log.LAST LOOP
+                    EXECUTE IMMEDIATE 'INSERT INTO WS_PLUGIN_TB_BACKEND_MSG_LOG@' || db_link || ' (ID_PK, CREATION_TIME, CREATED_BY, MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, BACKEND_MESSAGE_STATUS, MESSAGE_STATUS, BACKEND_MESSAGE_TYPE, RULE_NAME, SENT, FAILED, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, NEXT_ATTEMPT, SCHEDULED) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16)'
+                        USING ws_plugin_backend_msg_log(i).ID_PK,
+                        ws_plugin_backend_msg_log(i).CREATION_TIME,
+                        ws_plugin_backend_msg_log(i).CREATED_BY,
+                        ws_plugin_backend_msg_log(i).MESSAGE_ID,
+                        ws_plugin_backend_msg_log(i).FINAL_RECIPIENT,
+                        ws_plugin_backend_msg_log(i).ORIGINAL_SENDER,
+                        ws_plugin_backend_msg_log(i).BACKEND_MESSAGE_STATUS,
+                        ws_plugin_backend_msg_log(i).MESSAGE_STATUS,
+                        ws_plugin_backend_msg_log(i).BACKEND_MESSAGE_TYPE,
+                        ws_plugin_backend_msg_log(i).RULE_NAME,
+                        ws_plugin_backend_msg_log(i).SENT,
+                        ws_plugin_backend_msg_log(i).FAILED,
+                        ws_plugin_backend_msg_log(i).SEND_ATTEMPTS,
+                        ws_plugin_backend_msg_log(i).SEND_ATTEMPTS_MAX,
+                        ws_plugin_backend_msg_log(i).NEXT_ATTEMPT,
+                        ws_plugin_backend_msg_log(i).SCHEDULED;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE('Wrote ' || ws_plugin_backend_msg_log.COUNT || ' records');
+        END LOOP;
+        CLOSE c_ws_backebd_plugin_msg_log;
+    END migrate_ws_plg_backend_msg_log;
+
     PROCEDURE migrate_message_properties(db_link IN VARCHAR2, migration IN T_MIGRATION_DETAILS) IS
         CURSOR c_message_properties IS
             SELECT USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME, CREATED_BY
@@ -1670,6 +1874,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
         migrate_signal_message_log(db_link, migration);
         migrate_user_message_raw(db_link, migration);
         migrate_signal_message_raw(db_link, migration);
+        migrate_sj_message_header(db_link, migration);
+        migrate_sj_message_group(db_link, migration);
+        migrate_sj_message_fragment(db_link, migration);
+        migrate_ws_plg_msg_log(db_link, migration);
+        migrate_ws_plg_backend_msg_log(db_link, migration);
         migrate_message_properties(db_link, migration);
         migrate_message_acknw(db_link, migration);
         migrate_message_acknw_prop(db_link, migration);
