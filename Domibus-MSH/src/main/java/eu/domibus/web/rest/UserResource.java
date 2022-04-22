@@ -146,7 +146,7 @@ public class UserResource extends BaseResource {
         return exportToCSV(result.getEntries(),
                 UserResponseRO.class,
                 ImmutableMap.of(
-                        "UserName".toUpperCase(), "Username",
+                        "UserName".toUpperCase(), "User Name",
                         "Roles".toUpperCase(), "Role"
                 ),
                 domibusConfigurationService.isMultiTenantAware() ?
