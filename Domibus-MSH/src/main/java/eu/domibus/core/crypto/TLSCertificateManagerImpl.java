@@ -69,9 +69,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         } catch (ConfigurationException ex) {
             if (domibusConfigurationService.isMultiTenantAware()) {
                 throw new ConfigurationException("Could not find or read the client authentication file for domain: " + domainProvider.getCurrentDomainSafely(), ex);
-            } else {
-                throw new ConfigurationException("Could not find or read the client authentication file ", ex);
             }
+            throw new ConfigurationException("Could not find or read the client authentication file", ex);
         }
     }
 
