@@ -52,7 +52,6 @@ public class LegConfigurationValidator implements PModeValidator {
         issues.add(validateLegSplitting(leg));
         issues.add(validateLegPayloadProfile(leg));
         issues.add(validateLegPropertySet(leg));
-        issues.add(validateLegRetry(leg));
 
         return issues.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
@@ -111,6 +110,10 @@ public class LegConfigurationValidator implements PModeValidator {
             String name = pModeValidationHelper.getAttributeValue(leg, "receptionAwarenessXml", String.class);
             return createIssue(leg, name, "ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.");
         }
+        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <=0) {
+            String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
+            return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted.");
+        }
         return null;
     }
 
@@ -142,14 +145,6 @@ public class LegConfigurationValidator implements PModeValidator {
         if (leg.getService() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "serviceXml", String.class);
             return createIssue(leg, name, "Service [%s] of leg configuration [%s] not found in business process services.");
-        }
-        return null;
-    }
-
-    protected ValidationIssue validateLegRetry(LegConfiguration leg) {
-        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <=0) {
-            String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
-            return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted.");
         }
         return null;
     }
