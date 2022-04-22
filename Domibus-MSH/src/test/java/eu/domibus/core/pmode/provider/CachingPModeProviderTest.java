@@ -625,9 +625,9 @@ public class CachingPModeProviderTest {
             result = configuration.getBusinessProcesses().getProcesses();
             cachingPModeProvider.matchAgreement((Process) any, anyString);
             result = true;
-            cachingPModeProvider.matchInitiator((Process) any, (ProcessTypePartyExtractor) any);
+            cachingPModeProvider.matchInitiator((Process) any, anyString);
             result = true;
-            cachingPModeProvider.matchResponder((Process) any, (ProcessTypePartyExtractor) any);
+            cachingPModeProvider.matchResponder((Process) any, anyString);
             result = true;
             cachingPModeProvider.candidateMatches(withAny(new LegConfiguration()), anyString, anyString, anyString);
             result = true;
@@ -665,9 +665,9 @@ public class CachingPModeProviderTest {
             result = configuration.getBusinessProcesses().getProcesses();
             cachingPModeProvider.matchAgreement((Process) any, anyString);
             result = true;
-            cachingPModeProvider.matchInitiator((Process) any, (ProcessTypePartyExtractor) any);
+            cachingPModeProvider.matchInitiator((Process) any, anyString);
             result = true;
-            cachingPModeProvider.matchResponder((Process) any, (ProcessTypePartyExtractor) any);
+            cachingPModeProvider.matchResponder((Process) any, anyString);
             result = true;
             cachingPModeProvider.candidateMatches(withAny(new LegConfiguration()), anyString, anyString, anyString);
             result = false;
@@ -715,14 +715,14 @@ public class CachingPModeProviderTest {
     public void testMatchInitiator() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "initiatorParties{[name:initiator1];[name:initiator2]}");
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "initiator1");
-        Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+        Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
 
     @Test
     public void testMatchInitiatorNot() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "initiatorParties{[name:initiator1];[name:initiator2]}");
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
-        Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+        Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
 
     @Test
@@ -733,7 +733,7 @@ public class CachingPModeProviderTest {
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
-        Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+        Assert.assertTrue(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
 
     @Test
@@ -744,28 +744,28 @@ public class CachingPModeProviderTest {
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor(null, "nobodywho");
-        Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor));
+        Assert.assertFalse(cachingPModeProvider.matchInitiator(process, processTypePartyExtractor.getSenderParty()));
     }
 
     @Test
     public void testMatchResponder() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "responderParties{[name:responder1];[name:responder2]}");
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor("responder1", null);
-        Assert.assertTrue(cachingPModeProvider.matchResponder(process, processTypePartyExtractor));
+        Assert.assertTrue(cachingPModeProvider.matchResponder(process, processTypePartyExtractor.getReceiverParty()));
     }
 
     @Test
     public void testMatchResponderNot() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "responderParties{[name:responder1];[name:responder2]}");
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor("nobody", null);
-        Assert.assertFalse(cachingPModeProvider.matchResponder(process, processTypePartyExtractor));
+        Assert.assertFalse(cachingPModeProvider.matchResponder(process, processTypePartyExtractor.getReceiverParty()));
     }
 
     @Test
     public void testMatchResponderEmpty() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
         ProcessTypePartyExtractor processTypePartyExtractor = new PullProcessPartyExtractor("nobody", null);
-        Assert.assertFalse(cachingPModeProvider.matchResponder(process, processTypePartyExtractor));
+        Assert.assertFalse(cachingPModeProvider.matchResponder(process, processTypePartyExtractor.getReceiverParty()));
     }
 
     @Test
@@ -1616,7 +1616,7 @@ public class CachingPModeProviderTest {
                                        @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
                                        @Injectable LegFilterCriteria legFilterCriteria) {
         new Expectations(cachingPModeProvider) {{
-            cachingPModeProvider.matchInitiator(process, processTypePartyExtractor);
+            cachingPModeProvider.matchInitiator(process, anyString);
             result = false;
 
             processTypePartyExtractor.getSenderParty();
@@ -1635,7 +1635,7 @@ public class CachingPModeProviderTest {
                                        @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
                                        @Injectable LegFilterCriteria legFilterCriteria) {
         new Expectations(cachingPModeProvider) {{
-            cachingPModeProvider.matchResponder(process, processTypePartyExtractor);
+            cachingPModeProvider.matchResponder(process, anyString);
             result = false;
 
             processTypePartyExtractor.getReceiverParty();

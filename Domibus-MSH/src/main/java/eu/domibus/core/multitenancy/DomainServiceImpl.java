@@ -183,7 +183,7 @@ public class DomainServiceImpl implements DomainService {
             LOG.info("Could not remove an empty domain.");
             return;
         }
-        Domain domain = domains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
+        Domain domain = findByCode(domainCode, domains);
         if (domain == null) {
             LOG.warn("Could not find domain [{}] to remove.", domainCode);
             return;
@@ -191,6 +191,27 @@ public class DomainServiceImpl implements DomainService {
         domains.remove(domain);
 
         authenticationService.removeDomainCode(domain.getCode());
+    }
+
+    @Override
+    public void validateDomain(String domainCode) {
+        if (StringUtils.isEmpty(domainCode)) {
+            throw new DomibusDomainException("Domain is empty.");
+        }
+
+        Domain domain = findByCode(domainCode, getAllDomains());
+        if (domain == null) {
+            throw new DomibusDomainException(String.format("Domain [%s] cannot be found.", domainCode));
+        }
+
+        domain = findByCode(domainCode, getDomains());
+        if (domain == null) {
+            throw new DomibusDomainException(String.format("Domain [%s] is not enabled.", domainCode));
+        }
+    }
+
+    private Domain findByCode(String domainCode, List<Domain> allDomains) {
+        return allDomains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
     }
 
 }

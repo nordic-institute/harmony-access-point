@@ -102,14 +102,14 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     protected void internalRemoveDomain(Domain domain) {
         domibusPropertyProvider.removeProperties(domain);
 
-        domainService.removeDomain(domain.getCode());
-
         try {
             notifyInternalBeansOfRemoval(domain);
         } catch (Exception ex) {
             domainService.addDomain(domain);
             throw new DomibusDomainException(String.format("Error removing the domain [%s]. ", domain), ex);
         }
+
+        domainService.removeDomain(domain.getCode());
     }
 
     protected void notifyInternalBeansOfRemoval(Domain domain) throws Exception {

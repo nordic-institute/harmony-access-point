@@ -43,6 +43,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected REMOVE_CERTIFICATE_URL: string;
 
   protected canHandleCertificates: boolean;
+  protected storeExists: boolean;
   showResetOperation: boolean;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
@@ -56,6 +57,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   ngOnInit(): void {
     super.ngOnInit();
 
+    this.storeExists = false;
     this.loadServerData();
   }
 
@@ -102,6 +104,8 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
 
   async getTrustStoreEntries() {
     const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries(this.LIST_ENTRIES_URL);
+
+    this.storeExists = true;
 
     for (const el of trustStoreEntries) {
       var dateDiffToExpiry = (new Date(el.validUntil).getTime() - new Date().getTime());

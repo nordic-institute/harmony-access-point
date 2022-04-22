@@ -175,7 +175,7 @@ public class ProcessValidator {
 
         if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
             LOG.debug("There is no need for a verification of the number of " +
-                    "initiators because the property thate allows dynamic initiator in pull process is enabled");
+                    "initiators because the property that allows dynamic initiator in pull process is enabled");
             return status;
         }
 

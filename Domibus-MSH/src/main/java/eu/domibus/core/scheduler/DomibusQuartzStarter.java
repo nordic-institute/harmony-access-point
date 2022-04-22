@@ -386,6 +386,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         try {
             scheduler.getJobDetail(jobKey).getJobClass().getName();
         } catch (SchedulerException se) {
+            LOG.debug("Could not get the job with key [{}]", jobKey, se);
             if (ExceptionUtils.getRootCause(se) instanceof ClassNotFoundException) {
                 deleteSchedulerJob(scheduler, jobKey, se);
             }
@@ -400,6 +401,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * @param se        the exception that triggered the job deletion
      */
     protected void deleteSchedulerJob(Scheduler scheduler, JobKey jobKey, SchedulerException se) {
+        LOG.info("Deleting job with key [{}]", jobKey.getName());
         // the job deletion needs to happen inside a transaction,
         // ensuring that, when the scheduler is started immediately afterwards, the deletion is already committed
         new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {

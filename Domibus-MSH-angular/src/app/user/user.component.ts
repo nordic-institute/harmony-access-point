@@ -85,7 +85,7 @@ export class UserComponent extends mix(BaseListComponent)
     this.columnPicker.allColumns = [
       {
         cellTemplate: this.editableTpl,
-        name: 'Username',
+        name: 'User Name',
         prop: 'userName',
         canAutoResize: true,
         showInitially: true
