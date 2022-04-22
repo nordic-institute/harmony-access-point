@@ -35,7 +35,7 @@ public enum RetryStrategy {
         ALGORITHM {
             @Override
             public Date compute(final Date received, int maxAttempts, final int timeoutInMinutes, final long delayInMillis) {
-                if(maxAttempts < 0 || timeoutInMinutes < 0 || received == null) {
+                if(maxAttempts <= 0 || timeoutInMinutes <= 0 || received == null) {
                     return null;
                 }
                 if(maxAttempts > MILLIS_PER_MINUTE) {
