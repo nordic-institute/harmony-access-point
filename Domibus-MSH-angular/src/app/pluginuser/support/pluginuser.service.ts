@@ -15,8 +15,8 @@ export class PluginUserService {
 
   public static passwordPattern = '^(?=.*[A-Z])(?=.*[ !#$%&\'()*+,-./:;<=>?@\\[^_`{|}~\\\]"])(?=.*[0-9])(?=.*[a-z]).{8,32}$';
 
-  public static originalUserPattern = 'urn:oasis:names:tc:ebcore:partyid\\-type:[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+';
-  public static originalUserPatternMessage = 'You should follow the rule: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]';
+  public static originalUserPattern = '(urn:oasis:names:tc:ebcore:partyid\\-type|iso6523\\-actorid\\-upis):[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+';
+  public static originalUserPatternMessage = 'You should follow the rule 1) urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner] OR 2) iso6523-actorid-upis::[country_code]:[global_location_number]';
   public static originalUserRequiredMessage = 'Original user field is required!';
 
   public static certificateIdPattern = 'CN=[a-zA-Z0-9_]+,O=[a-zA-Z0-9_]+,C=[a-zA-Z]{2}:[a-zA-Z0-9]+';
