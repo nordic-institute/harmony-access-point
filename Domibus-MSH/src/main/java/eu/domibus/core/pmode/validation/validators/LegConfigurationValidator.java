@@ -110,6 +110,10 @@ public class LegConfigurationValidator implements PModeValidator {
             String name = pModeValidationHelper.getAttributeValue(leg, "receptionAwarenessXml", String.class);
             return createIssue(leg, name, "ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.");
         }
+        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <=0) {
+            String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
+            return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted.");
+        }
         return null;
     }
 

@@ -41,6 +41,8 @@ public class UserResponseRO {
 
     private String domain;
 
+    private String domainName;
+
     private boolean deleted;
 
     private LocalDateTime expirationDate;
@@ -126,6 +128,14 @@ public class UserResponseRO {
         this.domain = domain;
     }
 
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
     public boolean isDeleted() {
         return deleted;
     }
@@ -154,6 +164,7 @@ public class UserResponseRO {
                 .append("roles", roles)
                 .append("status", status)
                 .append("domain", domain)
+                .append("domain", domainName)
                 .toString();
     }
 

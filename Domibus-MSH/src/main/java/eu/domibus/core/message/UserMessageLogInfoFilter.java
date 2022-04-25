@@ -44,7 +44,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 MESSAGE_COLLABORATION_INFO_SERVICE_TYPE + "," +
                 MESSAGE_COLLABORATION_INFO_SERVICE_VALUE + "," +
                 "log.backend" + "," +
-                "partInfo.length" +
+                "0L" +
                 ")" + getQueryBody(filters);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
@@ -58,17 +58,17 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
     @Override
     public String getQueryBody(Map<String, Object> filters) {
         return
-                " from PartInfo partInfo inner join partInfo.userMessage message, UserMessageLog log " +
+                " from UserMessageLog log " +
+                        "join log.userMessage message " +
                         (isFourCornerModel() ?
                                 "left join message.messageProperties propsFrom "  +
-                                "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
+                                        "left join message.messageProperties propsTo " : StringUtils.EMPTY) +
                         "left join log.timezoneOffset timezoneOffset " +
                         "left join message.partyInfo.from.fromPartyId partyFrom " +
                         "left join message.partyInfo.to.toPartyId partyTo " +
                         (isFourCornerModel() ?
                                 "where propsFrom.name = 'originalSender' "  +
-                                "and log.userMessage = message "  +
-                                "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+                                        "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
 
     }
 

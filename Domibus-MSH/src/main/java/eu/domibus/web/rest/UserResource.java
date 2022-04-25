@@ -146,12 +146,13 @@ public class UserResource extends BaseResource {
         return exportToCSV(result.getEntries(),
                 UserResponseRO.class,
                 ImmutableMap.of(
-                        "UserName".toUpperCase(), "Username",
-                        "Roles".toUpperCase(), "Role"
+                        "UserName".toUpperCase(), "User Name",
+                        "Roles".toUpperCase(), "Role",
+                        "DomainName".toUpperCase(), "Domain"
                 ),
                 domibusConfigurationService.isMultiTenantAware() ?
-                        Arrays.asList("authorities", "status", "password", "suspended") :
-                        Arrays.asList("authorities", "status", "password", "suspended", "domain"),
+                        Arrays.asList("authorities", "status", "password", "suspended", "email", "domain") :
+                        Arrays.asList("authorities", "status", "password", "suspended", "email", "domain", "domainName"),
                 "users");
     }
 
@@ -219,6 +220,7 @@ public class UserResource extends BaseResource {
     protected List<UserResponseRO> prepareResponse(List<User> users) {
         List<UserResponseRO> userResponseROS = authCoreMapper.userListToUserResponseROList(users);
         for (UserResponseRO userResponseRO : userResponseROS) {
+            userResponseRO.setDomainName(domainService.getDomain(userResponseRO.getDomain()).getName());
             userResponseRO.setStatus("PERSISTED");
             userResponseRO.updateRolesField();
         }
