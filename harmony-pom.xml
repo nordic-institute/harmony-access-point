@@ -614,12 +614,12 @@
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-dom</artifactId>
-                <version>${wss4j-ws-security.version}</version>
+                <version>${wss4j.ws.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-common</artifactId>
-                <version>${wss4j-ws-security.version}</version>
+                <version>${wss4j.ws.security.version}</version>
             </dependency>
             <!-- End Apache Commons -->
 
