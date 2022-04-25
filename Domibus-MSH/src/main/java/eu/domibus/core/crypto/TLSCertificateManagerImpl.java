@@ -64,13 +64,17 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
+        String errorMessage = null;
         try {
+            final String domainName;
+            errorMessage = "Could not find or read the client authentication file.";
+            if (domibusConfigurationService.isMultiTenantAware()) {
+                domainName = domainProvider.getCurrentDomainSafely().getName();
+                errorMessage = "Could not find or read the client authentication file for domain: " + domainName;
+            }
             return certificateService.getTrustStoreEntries(TLS_TRUSTSTORE_NAME);
         } catch (ConfigurationException ex) {
-            if (domibusConfigurationService.isMultiTenantAware()) {
-                throw new ConfigurationException("Could not find or read the client authentication file for domain: " + domainProvider.getCurrentDomainSafely(), ex);
-            }
-            throw new ConfigurationException("Could not find or read the client authentication file", ex);
+            throw new ConfigurationException(errorMessage, ex);
         }
     }
 
