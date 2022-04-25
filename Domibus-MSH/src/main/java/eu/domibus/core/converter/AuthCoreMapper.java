@@ -67,6 +67,7 @@ public interface AuthCoreMapper {
 
     List<User> userResponseROListToUserList(List<UserResponseRO> userResponseROList);
 
+    @Mapping(ignore = true, target = "domainName")
     List<UserResponseRO> userListToUserResponseROList(List<User> userList);
 
     List<AuthenticationEntity> pluginUserROListToAuthenticationEntityList(List<PluginUserRO> pluginUserROList);
