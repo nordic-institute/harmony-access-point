@@ -110,6 +110,10 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             try (FileObject fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder);
                  InputStream inputStream = file.getValue()) {
                 eArkSipBuilderService.createDataFile(fileObject, inputStream);
+            } catch (IOException e) {
+                throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]");
+            }
+            try (FileObject fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder)) {
                 eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, fileObject);
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]");
