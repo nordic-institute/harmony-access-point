@@ -112,16 +112,13 @@ public class DomibusContextRefreshedListener {
      * Add code that needs to be executed with regard to other nodes in the cluster
      */
     protected void executeSynchronized() {
-        backendFilterInitializerService.updateMessageFilters();
-        encryptionService.handleEncryption();
         messageDictionaryService.createStaticDictionaryEntries();
-
         multiDomainCryptoService.persistTruststoresIfApplicable();
         tlsCertificateManager.persistTruststoresIfApplicable();
-
-        userManagementService.createDefaultUserIfApplicable();
-
         domibusPropertyValidatorService.enforceValidation();
+        backendFilterInitializerService.updateMessageFilters();
+        encryptionService.handleEncryption();
+        userManagementService.createDefaultUserIfApplicable();
     }
 
     /**
