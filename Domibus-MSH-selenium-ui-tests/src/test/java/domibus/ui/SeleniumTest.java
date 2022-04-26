@@ -42,27 +42,9 @@ public class SeleniumTest extends BaseTest {
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
 
-//		deleteAllPluginUsers();
 		generateTestData();
 	}
 
-	public void deleteAllPluginUsers() throws Exception {
-		String[] pluginUserTypes = {"BASIC", "CERTIFICATE"};
-		List<String> domains = rest.getDomainCodes();
-
-		for (int i = 0; i < pluginUserTypes.length; i++) {
-			String type = pluginUserTypes[i];
-			for (String domain : domains) {
-				ArrayList<String> plus = rest.pluginUsers().getPluginUsernameList(type,domain);
-				for (String s : plus) {
-					rest.pluginUsers().deletePluginUser(s, domain);
-				}
-			}
-		}
-
-
-
-	}
 
 
 

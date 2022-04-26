@@ -23,9 +23,9 @@ public class UsersGrid extends DGrid {
 	}
 
 	public boolean isDeleted(String username) throws Exception {
-		int index = scrollTo("Username", username);
+		int index = scrollTo("User Name", username);
 		WebElement row = gridRows.get(index);
-		int colIndex = getColumnNames().indexOf("Username");
+		int colIndex = getColumnNames().indexOf("User Name");
 		WebElement cell = row.findElements(cellSelector).get(colIndex);
 		String classes = cell.findElement(By.tagName("span")).getAttribute("class");
 
@@ -66,7 +66,7 @@ public class UsersGrid extends DGrid {
 	}
 
 	public boolean isDeleted(String username, String columnName) throws Exception {
-		int index = scrollTo("Username", username);
+		int index = scrollTo("User Name", username);
 		WebElement row = gridRows.get(index);
 		int colIndex = getColumnNames().indexOf(columnName);
 		WebElement cell = row.findElements(cellSelector).get(colIndex);

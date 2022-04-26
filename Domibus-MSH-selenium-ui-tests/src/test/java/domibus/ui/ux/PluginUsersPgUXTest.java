@@ -60,7 +60,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 
 		if (page.grid().getRowsNo() == 0) {
-			rest.getPluginUser(null, DRoles.USER, true, true);
+			rest.getPluginUser(null, DRoles.ADMIN, true, true);
 			page.refreshPage();
 		}
 

@@ -252,10 +252,11 @@ public class MessagesPgTest extends SeleniumTest {
 			String status = info.get(i).get("Message Status");
 			List<String> actions = grid.getAvailableActionsForRow(i);
 
-			if (role.equalsIgnoreCase("SENDING") && (status.equalsIgnoreCase("SEND_FAILURE") || status.equalsIgnoreCase("WAITING_FOR_RETRY"))) {
+			if (role.equalsIgnoreCase("SENDING") && status.equalsIgnoreCase("SEND_FAILURE") ) {
 				soft.assertTrue(actions.contains("Resend"), "Message can be resent");
 				soft.assertTrue(actions.contains("Download"), "Message can be Downloaded");
 				toCheckIndex = i;
+				break;
 			}
 		}
 
