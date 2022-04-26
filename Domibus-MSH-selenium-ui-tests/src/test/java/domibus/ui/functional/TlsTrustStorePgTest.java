@@ -124,7 +124,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
 		soft.assertTrue(page.grid().getPagination().getTotalItems() == 0, "Grid is empty now");
 		soft.assertTrue(page.getUploadButton().isEnabled(), "Upload button is enabled");
-		soft.assertTrue(page.getAddCertButton().isDisabled(), "Add Certificate button is disabled");
+		soft.assertFalse(page.getAddCertButton().isDisabled(), "Add Certificate button is disabled");
 		soft.assertTrue(page.getDownloadButton().isDisabled(), "Download button is disabled");
 		soft.assertTrue(page.getRemoveCertButton().isDisabled(), "Remove certificate button is disabled");
 		soft.assertAll();
@@ -221,14 +221,14 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 			page.getAlertArea().closeAlert();
 		}
 
+		page.uploadTruststore(DFileUtils.getAbsolutePath("./src/main/resources/truststore/àøýßĉæãäħ.jks"), "test123");
+		page.grid().waitForRowsToLoad();
 		List<HashMap<String, String>> beforeUploadData = page.grid().getAllRowInfo();
-		String certFileName = "expired.jks";
-		String path = "./src/main/resources/truststore/" + certFileName;
-		String absolutePath = DFileUtils.getAbsolutePath(path);
 
-		page.uploadTruststore(absolutePath, "test123");
+		page.addCertificate(DFileUtils.getAbsolutePath("./src/main/resources/truststore/test.cer"), "newAlias");
+		page.grid().waitForRowsToLoad();
 		List<HashMap<String, String>> afterUploadData = page.grid().getAllRowInfo();
-		soft.assertFalse(beforeUploadData.equals(afterUploadData), "Before and after data are different");
+		soft.assertNotEquals(beforeUploadData, afterUploadData, "Before and after data are different");
 		soft.assertAll();
 	}
 

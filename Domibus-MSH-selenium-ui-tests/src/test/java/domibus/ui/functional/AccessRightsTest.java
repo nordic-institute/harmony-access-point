@@ -20,7 +20,7 @@ public class AccessRightsTest extends SeleniumTest {
 	public void userRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
-		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "default");
 		Reporter.log("Created user with username: " + username);
 		log.info("Created user with username: " + username);
 
@@ -40,7 +40,7 @@ public class AccessRightsTest extends SeleniumTest {
 	public void userAccessDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
-		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), "default");
 		Reporter.log("Created user with username: " + username);
 		log.info("Created user with username: " + username);
 
@@ -64,7 +64,7 @@ public class AccessRightsTest extends SeleniumTest {
 	public void adminRights() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
-		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "default");
 		Reporter.log("Created admin with username: " + username);
 		log.info("Created admin with username: " + username);
 
@@ -84,7 +84,7 @@ public class AccessRightsTest extends SeleniumTest {
 	public void adminDomainSwitch() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = Gen.randomAlphaNumeric(10);
-		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "Default");
+		rest.users().createUser(username, DRoles.ADMIN, data.defaultPass(), "default");
 		Reporter.log("Created admin with username: " + username);
 		log.info("Created admin with username: " + username);
 
@@ -181,8 +181,3 @@ public class AccessRightsTest extends SeleniumTest {
 	}
 
 }
-
-
-
-
-

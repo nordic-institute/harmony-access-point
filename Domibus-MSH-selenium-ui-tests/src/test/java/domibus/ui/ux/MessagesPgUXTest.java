@@ -423,24 +423,34 @@ public class MessagesPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
-		int gridRow = page.grid().getPagination().getTotalItems();
-		if (gridRow > 0) {
-			soft.assertTrue(page.isActionIconPresent(0, "downloadEnvelopes") && page.getActionIconStatus(0, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
-			String user = Gen.randomAlphaNumeric(10);
-			rest.users().createUser(user, DRoles.USER, data.defaultPass(), "Default");
-			logout();
-			login(user, data.defaultPass());
-			soft.assertTrue(page.isActionIconPresent(0, "downloadEnvelopes") && page.getActionIconStatus(0, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
-			if (data.isMultiDomain()) {
-				String adminUsr = Gen.randomAlphaNumeric(10);
-				rest.users().createUser(adminUsr, DRoles.ADMIN, data.defaultPass(), "Default");
-				logout();
-				login(adminUsr, data.defaultPass());
-				soft.assertTrue(page.isActionIconPresent(0, "downloadEnvelopes") && page.getActionIconStatus(0, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
-			}
-		} else {
-			throw new SkipException("Grid has no data present");
+
+		List<String> messIds = rest.getMessageIDsWithStatus(null, "ACKNOWLEDGED");
+		messIds.addAll(rest.getMessageIDsWithStatus(null, "DELETED"));
+
+		if (messIds.size() == 0) {
+			throw new SkipException("There are no messages with needed status");
 		}
+
+		int rowindex = page.grid().scrollTo("Message Id", messIds.get(0));
+
+		soft.assertTrue(page.isActionIconPresent(rowindex, "downloadEnvelopes") && page.getActionIconStatus(rowindex, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
+		String user = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(user, DRoles.USER, data.defaultPass(), "default");
+		logout();
+		login(user, data.defaultPass());
+
+		rowindex = page.grid().scrollTo("Message Id", messIds.get(0));
+		soft.assertTrue(page.isActionIconPresent(rowindex, "downloadEnvelopes") && page.getActionIconStatus(rowindex, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
+		if (data.isMultiDomain()) {
+			String adminUsr = Gen.randomAlphaNumeric(10);
+			rest.users().createUser(adminUsr, DRoles.ADMIN, data.defaultPass(), "default");
+			logout();
+			login(adminUsr, data.defaultPass());
+
+			rowindex = page.grid().scrollTo("Message Id", messIds.get(0));
+			soft.assertTrue(page.isActionIconPresent(rowindex, "downloadEnvelopes") && page.getActionIconStatus(rowindex, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
+		}
+
 		soft.assertAll();
 	}
 
