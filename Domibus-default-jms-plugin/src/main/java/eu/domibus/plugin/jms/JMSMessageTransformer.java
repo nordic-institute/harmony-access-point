@@ -194,11 +194,11 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     private String getPayloadURLReference(Long userMessageEntityId, String cid) {
         final String attachmentContext = getProperty(ATTACHMENTS_REFERENCE_CONTEXT);
         final String attachmentURL = getProperty(ATTACHMENTS_REFERENCE_URL);
+
         if (StringUtils.isEmpty(attachmentContext) || StringUtils.isEmpty(attachmentURL)) {
-            throw new DefaultJmsPluginException("Cannot create valid Payload reference URL with attachment context [" + attachmentContext + "] and URL [" + attachmentURL + "].");
+            throw new DefaultJmsPluginException("Cannot create valid payload reference URL with attachment context [" + attachmentContext + "] and URL [" + attachmentURL + "].");
         }
         String payloadUrl = attachmentContext + attachmentURL;
-
 
         String urlCid = getCid(cid);
 
