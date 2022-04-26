@@ -196,7 +196,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final String attachmentURL = getProperty(ATTACHMENTS_REFERENCE_URL);
 
         if (StringUtils.isEmpty(attachmentContext) || StringUtils.isEmpty(attachmentURL)) {
-            throw new DefaultJmsPluginException("Cannot create valid payload reference URL with attachment context [" + attachmentContext + "] and URL [" + attachmentURL + "].");
+            throw new DefaultJmsPluginException("Found empty property to create the payload reference URL. Cannot create valid payload reference URL with attachment context [" + attachmentContext + "] and URL [" + attachmentURL + "].");
         }
         String payloadUrl = attachmentContext + attachmentURL;
 
