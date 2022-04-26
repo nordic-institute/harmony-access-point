@@ -72,6 +72,7 @@ public class EArchivingRetentionService {
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batch.getBatchId())) {
             batchDirectory.deleteAll();
             batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
+            VFS.getManager().closeFileSystem(batchDirectory.getFileSystem());
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
         }
