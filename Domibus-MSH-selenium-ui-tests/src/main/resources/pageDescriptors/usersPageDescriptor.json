@@ -23,7 +23,7 @@
         "exportCSV": true,
         "defaultSort": "Username",
         "columns": [{
-                "name": "Username",
+                "name": "User Name",
                 "type": "TEXT",
                 "sortable": true,
                 "visibleByDefault": true
