@@ -49,6 +49,17 @@
         <cpe>cpe:/a:vmware:spring_framework</cpe>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-session-jdbc-2.6.3.jar
+   ]]></notes>
+        <!--
+        the features reported with vulnerabilities are not directly used in the project
+        -->
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:spring_framework</cpe>
+    </suppress>
+
     <!-- test modules exclusions start here -->
     <suppress>
         <notes><![CDATA[
