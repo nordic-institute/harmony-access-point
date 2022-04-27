@@ -6,10 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Provider;
 import java.util.List;
@@ -18,16 +15,16 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.0
  */
-@Configuration
+@Component
 public class DomainCryptoServiceFactory {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceFactory.class);
 
-    protected Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiListProvider;
+    protected final Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiListProvider;
 
-    final protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    final protected CertificateService certificateService;
+    protected final CertificateService certificateService;
 
     public DomainCryptoServiceFactory(Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiListProvider,
                                       DomibusPropertyProvider domibusPropertyProvider,
@@ -37,9 +34,6 @@ public class DomainCryptoServiceFactory {
         this.certificateService = certificateService;
     }
 
-
-    @Bean(autowireCandidate = false)
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DomainCryptoServiceImpl domainCryptoService(Domain domain) {
         LOG.debug("Instantiating the certificate provider for domain [{}]", domain);
 

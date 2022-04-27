@@ -67,7 +67,12 @@ public class DomainSchedulerFactoryConfiguration {
 
     public static final String GENERAL_SCHEDULER_NAME = "General";
     public static final String GROUP_GENERAL = "GENERAL";
-    private static final Integer JOB_START_DELAY_IN_MS = 30000;
+    private static final Integer JOB_START_DELAY_IN_MS = 30_000;
+
+    // Some lower priority jobs require prerequisite resources to be available upfront (e.g. a truststore that must
+    // have already been persisted) and this takes a bit more time on a slow server: we ensure this is done by applying
+    // a slightly longer delay of 5 minutes
+    private static final Integer JOB_START_LONG_DELAY_IN_MS = 300_000;
 
     public static final String EARCHIVE_CONTINUOUS_JOB="eArchiveContinuousJob";
     public static final String EARCHIVE_CLEANUP_JOB="eArchivingCleanupJob";
@@ -105,7 +110,6 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SchedulerFactoryBean schedulerFactory(Optional<Domain> optionalDomain) {
-
         // Regardless of SCOPE_PROTOTYPE, Spring tries to create this bean without a Domain during singleton creation.
         // Spring 5.x throws when the argument is not present.
         // The solution is to make the argument optional and in case it is not present, the bean will not be created.
@@ -117,12 +121,8 @@ public class DomainSchedulerFactoryConfiguration {
             return null;
         }
 
-        Domain domain = optionalDomain.get();
-        if (domain == null) {
-            return schedulerFactoryGeneral();
-        }
-
         // Domain
+        Domain domain = optionalDomain.get();
         return schedulerFactoryDomain(domain);
     }
 
@@ -138,8 +138,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean retentionWorkerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null)
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
+        }
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retentionWorkerJob().getObject());
@@ -160,8 +161,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean partitionsWorkerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null)
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
+        }
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(partitionsWorkerJob().getObject());
@@ -182,8 +184,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean retryWorkerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null)
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
+        }
 
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(retryWorkerJob().getObject());
@@ -203,8 +206,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean pullRetryWorkerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null)
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(pullRetryWorkerJob().getObject());
         String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_PULL_RETRY_CRON);
@@ -256,8 +260,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean alertRetryWorkerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null)
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertRetryJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RETRY_CRON));
@@ -295,8 +300,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean alertCleanerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null)
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(alertCleanerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CLEANER_CRON));
@@ -433,6 +439,7 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(saveCertificateAndLogRevocationJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_CERTIFICATE_CHECK_CRON));
+        obj.setStartDelay(JOB_START_LONG_DELAY_IN_MS);
         return obj;
     }
 

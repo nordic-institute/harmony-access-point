@@ -42,7 +42,8 @@ public class SaveCertificateAndLogRevocationJob extends DomibusQuartzJobBean {
 
             certificateService.sendCertificateAlerts();
         } catch (eu.domibus.api.security.CertificateException ex) {
-            LOG.warn("An problem occurred while loading keystore:[{}]", ex.getMessage(), ex);
+            LOG.debug("A problem occurred while loading keystore", ex);
+            LOG.warn("A problem occurred while loading keystore: [{}]", ex.getMessage());
         }
     }
 
