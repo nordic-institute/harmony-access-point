@@ -72,7 +72,9 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             batchEArchiveDTO.setManifestChecksum(checksum);
             createBatchJson(batchEArchiveDTO, batchDirectory);
 
-            return new DomibusEARKSIPResult(batchDirectory.getPath(), checksum);
+            DomibusEARKSIPResult domibusEARKSIPResult = new DomibusEARKSIPResult(batchDirectory.getPath(), checksum);
+            VFS.getManager().closeFileSystem(batchDirectory.getFileSystem());
+            return domibusEARKSIPResult;
         } catch (IPException | FileSystemException e) {
             throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "]", e);
         }
@@ -87,6 +89,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         try (FileObject fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH);
              InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             eArkSipBuilderService.createDataFile(fileObject, inputStream);
+            VFS.getManager().closeFileSystem(fileObject.getFileSystem());
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
         }
