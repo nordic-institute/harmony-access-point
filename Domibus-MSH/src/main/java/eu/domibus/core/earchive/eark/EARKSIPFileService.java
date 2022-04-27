@@ -66,7 +66,6 @@ public class EARKSIPFileService {
 
     public void createDataFile(FileObject fileObject, InputStream value) {
         try {
-            fileObject.createFile();
             try (OutputStream fileOS = fileObject.getContent().getOutputStream(true)) {
                 IOUtils.copy(value, fileOS);
             }

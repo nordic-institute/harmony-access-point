@@ -86,6 +86,13 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
 
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, FileObject batchDirectory) {
+        try (FileObject fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH)) {
+            fileObject.createFile();
+            VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+        } catch (IOException e) {
+            throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
+        }
+
         try (FileObject fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH);
              InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             eArkSipBuilderService.createDataFile(fileObject, inputStream);
@@ -109,6 +116,13 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         for (Map.Entry<String, InputStream> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());
             String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageId.getMessageId() + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
+
+            try (FileObject fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder)) {
+                fileObject.createFile();
+                VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+            } catch (IOException e) {
+                throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]");
+            }
 
             try (FileObject fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder);
                  InputStream inputStream = file.getValue()) {
