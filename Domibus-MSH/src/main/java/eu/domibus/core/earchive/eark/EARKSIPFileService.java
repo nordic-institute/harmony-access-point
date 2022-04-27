@@ -178,7 +178,9 @@ public class EARKSIPFileService {
     }
 
     private String getChecksumSHA256(Path path) throws IOException {
-        return DigestUtils.sha256Hex(Files.newInputStream(path));
+        try (final InputStream inputStream = Files.newInputStream(path)) {
+            return DigestUtils.sha256Hex(inputStream);
+        }
     }
 
     private DatatypeFactory getDatatypeFactory() throws DatatypeConfigurationException {
