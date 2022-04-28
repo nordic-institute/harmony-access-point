@@ -1,11 +1,12 @@
 package eu.domibus.core.earchive.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.core.certificate.crl.CRLUrlType;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -39,6 +40,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -63,6 +66,9 @@ public class EArchiveNotificationListener implements MessageListener {
     private final DomibusProxyService domibusProxyService;
 
     private final ObjectMapper objectMapper;
+    private ArchiveWebhookApi earchivingClientApi;
+
+    private Object earchivingClientApiLock = new Object();
 
     public EArchiveNotificationListener(
             DatabaseUtil databaseUtil,
@@ -77,6 +83,10 @@ public class EArchiveNotificationListener implements MessageListener {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusProxyService = domibusProxyService;
         this.objectMapper = objectMapper;
+    }
+
+    public ArchiveWebhookApi getEarchivingClientApi() {
+        return earchivingClientApi;
     }
 
     @Override
@@ -98,44 +108,47 @@ public class EArchiveNotificationListener implements MessageListener {
 
         EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
 
+        initializeEarchivingClientApi();
         if (notificationType == EArchiveBatchStatus.FAILED) {
             LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatch);
-            ArchiveWebhookApi earchivingClientApi = initializeEarchivingClientApi();
-            earchivingClientApi.putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
+            getEarchivingClientApi().putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
             LOG.info("Notification to the eArchive client for batch EXPORTED [{}] ", eArchiveBatch);
-            ArchiveWebhookApi earchivingClientApi = initializeEarchivingClientApi();
-            earchivingClientApi.putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
+            getEarchivingClientApi().putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
     }
 
-    protected ArchiveWebhookApi initializeEarchivingClientApi() {
+    protected void initializeEarchivingClientApi() {
         String restUrl = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL);
         if (StringUtils.isBlank(restUrl)) {
             throw new DomibusEArchiveException("eArchive client endpoint not configured");
         }
+        if (earchivingClientApi == null) {
+            synchronized (earchivingClientApiLock) {
+                if (earchivingClientApi == null) {
+                    LOG.debug("Initializing eArchive client api with endpoint [{}]...", restUrl);
 
-        LOG.debug("Initializing eArchive client api with endpoint [{}]...", restUrl);
+                    RestTemplate restTemplate = initRestTemplate();
+                    ApiClient apiClient = new ApiClient(restTemplate);
+                    apiClient.setBasePath(restUrl);
 
-        RestTemplate restTemplate = initRestTemplate();
-        ApiClient apiClient = new ApiClient(restTemplate);
-        apiClient.setBasePath(restUrl);
+                    earchivingClientApi = new ArchiveWebhookApi();
+                    earchivingClientApi.setApiClient(apiClient);
 
-        ArchiveWebhookApi earchivingClientApi = new ArchiveWebhookApi();
-        earchivingClientApi.setApiClient(apiClient);
-
-        String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
-        String password = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
-        if (StringUtils.isNotBlank(username)) {
-            earchivingClientApi.getApiClient().setUsername(username);
-            earchivingClientApi.getApiClient().setPassword(password);
+                    String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
+                    String password = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_PASSWORD);
+                    if (StringUtils.isNotBlank(username)) {
+                        earchivingClientApi.getApiClient().setUsername(username);
+                        earchivingClientApi.getApiClient().setPassword(password);
+                    }
+                }
+            }
         }
 
-        return earchivingClientApi;
     }
 
     protected RestTemplate initRestTemplate() {
