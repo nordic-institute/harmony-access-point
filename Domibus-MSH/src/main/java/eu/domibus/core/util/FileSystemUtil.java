@@ -27,8 +27,9 @@ public class FileSystemUtil {
      */
     public Path createLocation(String path) throws FileSystemException {
         FileSystemManager fileSystemManager = getVFSManager();
-
-        try (FileObject fileObject = fileSystemManager.resolveFile(path)) {
+        FileObject fileObject = null;
+        try {
+            fileObject = fileSystemManager.resolveFile(path);
             if (!fileObject.exists()) {
                 fileObject.createFolder();
                 LOG.info("The folder [{}] has been created!", fileObject.getPath().toAbsolutePath());
@@ -41,13 +42,22 @@ public class FileSystemUtil {
             return returnWritablePath(fileObject);
         } catch (IOException ioEx) {
             return getTemporaryPath(path, fileSystemManager, ioEx);
+        } finally {
+            if (fileObject != null) {
+                try {
+                    fileObject.close();
+                    VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+                } catch (FileSystemException e) {
+                    LOG.error("Could not close the file system", e);
+                }
+            }
         }
     }
 
     private Path getTemporaryPath(String path, FileSystemManager fileSystemManager, IOException ioEx) throws FileSystemException {
         LOG.error("Error creating/accessing the folder [{}]", path, ioEx);
         try (FileObject fo = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"))) {
-            if(LOG.isWarnEnabled()) {
+            if (LOG.isWarnEnabled()) {
                 LOG.warn(WarningUtil.warnOutput("The temporary folder " + fo.getPath().toAbsolutePath() + " has been selected!"));
             }
             return fo.getPath();

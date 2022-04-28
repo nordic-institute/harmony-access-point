@@ -56,8 +56,9 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
         String batchId = batchEArchiveDTO.getBatchId();
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
-
-        try (FileObject batchDirectory = getBatchDirectory(batchId)) {
+        FileObject batchDirectory = null;
+        try {
+            batchDirectory = getBatchDirectory(batchId);
             batchDirectory.createFolder();
 
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
@@ -72,11 +73,18 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             batchEArchiveDTO.setManifestChecksum(checksum);
             createBatchJson(batchEArchiveDTO, batchDirectory);
 
-            DomibusEARKSIPResult domibusEARKSIPResult = new DomibusEARKSIPResult(batchDirectory.getPath(), checksum);
-            VFS.getManager().closeFileSystem(batchDirectory.getFileSystem());
-            return domibusEARKSIPResult;
+            return new DomibusEARKSIPResult(batchDirectory.getPath(), checksum);
         } catch (IPException | FileSystemException e) {
             throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "]", e);
+        } finally {
+            if (batchDirectory != null) {
+                try {
+                    batchDirectory.close();
+                    VFS.getManager().closeFileSystem(batchDirectory.getFileSystem());
+                } catch (FileSystemException e) {
+                    LOG.error("Could not close the file system", e);
+                }
+            }
         }
     }
 
@@ -86,19 +94,41 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
 
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, FileObject batchDirectory) {
-        try (FileObject fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH)) {
+        FileObject fileObject = null;
+        try {
+            fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH);
             fileObject.createFile();
-            VFS.getManager().closeFileSystem(fileObject.getFileSystem());
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
+        } finally {
+            if (fileObject != null) {
+                try {
+                    fileObject.close();
+                    VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+                } catch (FileSystemException e) {
+                    LOG.error("Could not close the file system", e);
+                }
+            }
         }
-
-        try (FileObject fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH);
-             InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
-            eArkSipBuilderService.createDataFile(fileObject, inputStream);
-            VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+        try {
+            fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH);
+            try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
+                eArkSipBuilderService.createDataFile(fileObject, inputStream);
+                VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+            } catch (IOException e) {
+                throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
+            }
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
+        } finally {
+            if (fileObject != null) {
+                try {
+                    fileObject.close();
+                    VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+                } catch (FileSystemException e) {
+                    LOG.error("Could not close the file system", e);
+                }
+            }
         }
     }
 
@@ -117,26 +147,53 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             LOG.trace("Process file [{}]", file.getKey());
             String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageId.getMessageId() + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
 
-            try (FileObject fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder)) {
+            FileObject fileObject = null;
+            try {
+                fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder);
                 fileObject.createFile();
-                VFS.getManager().closeFileSystem(fileObject.getFileSystem());
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]");
+            } finally {
+                if (fileObject != null) {
+                    try {
+                        fileObject.close();
+                        VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+                    } catch (FileSystemException e) {
+                        LOG.error("Could not close the file system", e);
+                    }
+                }
             }
 
-            try (FileObject fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder);
-                 InputStream inputStream = file.getValue()) {
+            try (InputStream inputStream = file.getValue()) {
+                fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder);
                 eArkSipBuilderService.createDataFile(fileObject, inputStream);
-                VFS.getManager().closeFileSystem(fileObject.getFileSystem());
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]");
+            } finally {
+                if (fileObject != null) {
+                    try {
+                        fileObject.close();
+                        VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+                    } catch (FileSystemException e) {
+                        LOG.error("Could not close the file system", e);
+                    }
+                }
             }
 
-            try (FileObject fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder)) {
+            try {
+                fileObject = batchDirectory.resolveFile(FileSystemEArchivePersistence.FOLDER_REPRESENTATION_1 + relativePathToMessageFolder);
                 eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, fileObject);
-                VFS.getManager().closeFileSystem(fileObject.getFileSystem());
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]");
+            } finally {
+                if (fileObject != null) {
+                    try {
+                        fileObject.close();
+                        VFS.getManager().closeFileSystem(fileObject.getFileSystem());
+                    } catch (FileSystemException e) {
+                        LOG.error("Could not close the file system", e);
+                    }
+                }
             }
         }
     }

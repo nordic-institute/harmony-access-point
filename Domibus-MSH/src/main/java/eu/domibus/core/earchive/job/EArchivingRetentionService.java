@@ -8,6 +8,7 @@ import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.VFS;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,13 +69,22 @@ public class EArchivingRetentionService {
 
     protected void deleteBatch(EArchiveBatchEntity batch) {
         LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
-
-        try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batch.getBatchId())) {
+        FileObject batchDirectory = null;
+        try {
+            batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batch.getBatchId());
             batchDirectory.deleteAll();
             batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
-            VFS.getManager().closeFileSystem(batchDirectory.getFileSystem());
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
+        } finally {
+            if (batchDirectory != null) {
+                try {
+                    batchDirectory.close();
+                    VFS.getManager().closeFileSystem(batchDirectory.getFileSystem());
+                } catch (FileSystemException e) {
+                    LOG.error("Could not close the file system", e);
+                }
+            }
         }
     }
 }
