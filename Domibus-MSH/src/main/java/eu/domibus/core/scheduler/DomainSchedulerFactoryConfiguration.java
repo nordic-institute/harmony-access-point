@@ -29,6 +29,7 @@ import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
 import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Trigger;
 import org.quartz.impl.triggers.CronTriggerImpl;
@@ -40,6 +41,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -72,6 +74,12 @@ public class DomainSchedulerFactoryConfiguration {
     public static final String EARCHIVE_CONTINUOUS_JOB="eArchiveContinuousJob";
     public static final String EARCHIVE_CLEANUP_JOB="eArchivingCleanupJob";
     public static final String EARCHIVE_SANITIZER_JOB="eArchiveSanitizerJob";
+    public static final String QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
+    public static final String QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.oracle.weblogic.WebLogicOracleDelegate";
+
+
+    @Autowired
+    Environment environment;
 
     @Autowired
     @Qualifier("taskExecutor")
@@ -611,7 +619,7 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
         properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
-        properties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+        properties.setProperty("org.quartz.jobStore.driverDelegateClass", getQuartzDriverDelegateClass());
         properties.setProperty("org.quartz.jobStore.isClustered", domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED));
         properties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         properties.setProperty("org.quartz.jobStore.useProperties", "false");
@@ -637,6 +645,16 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setJobFactory(autowiringSpringBeanJobFactory);
 
         return scheduler;
+    }
+
+    protected String getQuartzDriverDelegateClass() {
+        String result = QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE;
+        if(DomibusEnvironmentUtil.INSTANCE.isWebLogic(environment)) {
+            result = QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE;
+        }
+        LOG.info("Using class [{}] for Quartz jdbcjobstore", result);
+
+        return result;
     }
 
     /**
