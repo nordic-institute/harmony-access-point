@@ -28,7 +28,7 @@ END MIGRATE_ONGOING_MESSAGES_429;
 
 CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
 
-    TYPE T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS TABLE OF NUMBER INDEX BY BINARY_INTEGER;
+    TYPE T_LOCAL_TO_REMOTE_PRIMARY_KEYS IS TABLE OF NUMBER INDEX BY VARCHAR2(38);
 
     FUNCTION lookup_value_safely(lookup_table T_LOCAL_TO_REMOTE_PRIMARY_KEYS, lookup_key NUMBER) RETURN NUMBER IS
         value NUMBER;
@@ -36,7 +36,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
         value := lookup_key;
 
         IF value IS NOT NULL THEN
-            value := lookup_table(value);
+            value := lookup_table(TO_CHAR(value));
         END IF;
 
         RETURN value;
@@ -177,7 +177,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
                         message_info(i).CREATED_BY,
                         message_info(i).CREATION_TIME;
 
-                    localToRemotePks(message_info(i).ID_PK) := remote_id;
+                    localToRemotePks(TO_CHAR(message_info(i).ID_PK)) := remote_id;
 
                     dbms_output.put_line('Local to remote mapping: TB_MESSAGE_INFO[' || message_info(i).ID_PK || '] = ' || remote_id);
                 END LOOP;
@@ -231,13 +231,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
                         user_message(i).MPC,
                         user_message(i).FROM_ROLE,
                         user_message(i).TO_ROLE,
-                        messageInfoLookupTable(user_message(i).MESSAGEINFO_ID_PK),
+                        messageInfoLookupTable(TO_CHAR(user_message(i).MESSAGEINFO_ID_PK)),
                         user_message(i).FK_MESSAGE_FRAGMENT_ID,
                         user_message(i).SPLIT_AND_JOIN,
                         user_message(i).CREATED_BY,
                         user_message(i).CREATION_TIME;
 
-                    localToRemotePks(user_message(i).ID_PK) := remote_id;
+                    localToRemotePks(TO_CHAR(user_message(i).ID_PK)) := remote_id;
 
                     dbms_output.put_line('Local to remote mapping: TB_USER_MESSAGE[' || user_message(i).ID_PK || '] = ' || remote_id);
                 END LOOP;
@@ -288,7 +288,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
                         error(i).REF_TO_MESSAGE_ID,
                         error(i).SEVERITY,
                         error(i).SHORT_DESCRIPTION,
-                        signalMessageLookupTable(error(i).SIGNALMESSAGE_ID),
+                        signalMessageLookupTable(TO_CHAR(error(i).SIGNALMESSAGE_ID)),
                         error(i).CREATED_BY,
                         error(i).CREATION_TIME;
                 END LOOP;
@@ -395,7 +395,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
                         part_info(i).SCHEMA_LOCATION,
                         part_info(i).SCHEMA_NAMESPACE,
                         part_info(i).SCHEMA_VERSION,
-                        userMessageLookupTable(part_info(i).PAYLOADINFO_ID),
+                        userMessageLookupTable(TO_CHAR(part_info(i).PAYLOADINFO_ID)),
                         part_info(i).FILENAME,
                         part_info(i).MIME,
                         part_info(i).PART_ORDER,
@@ -408,7 +408,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_429 IS
                         USING part_info(i).ID_PK,
                         remote_id;
 
-                    localToRemotePks(part_info(i).ID_PK) := remote_id;
+                    localToRemotePks(TO_CHAR(part_info(i).ID_PK)) := remote_id;
 
                     dbms_output.put_line('Local to remote mapping: TB_PART_INFO[' || part_info(i).ID_PK || '] = ' || remote_id);
                 END LOOP;
