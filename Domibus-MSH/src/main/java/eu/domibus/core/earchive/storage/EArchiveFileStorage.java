@@ -33,6 +33,8 @@ public class EArchiveFileStorage {
 
     private File storageDirectory = null;
 
+    private Object storageDirectoryLock = new Object();
+
     private Domain domain;
 
     @Autowired
@@ -77,7 +79,11 @@ public class EArchiveFileStorage {
 
     public File getStorageDirectory() {
         if (storageDirectory == null) {
-            init();
+            synchronized (storageDirectoryLock) {
+                if (storageDirectory == null) {
+                    init();
+                }
+            }
         }
         return storageDirectory;
     }
