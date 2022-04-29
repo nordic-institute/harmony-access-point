@@ -9,7 +9,7 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.notification.BackendPluginEnum;
+import eu.domibus.core.plugin.notification.BackendPlugin;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static eu.domibus.core.plugin.notification.BackendPlugin.Name.*;
 import static java.util.Arrays.stream;
 import static java.util.Comparator.comparing;
 
@@ -111,6 +112,19 @@ public class RoutingService {
                 .collect(Collectors.toList());
         LOG.debug("Found configured plugins [{}]", pluginToAdd);
 
+        // After a migration, the old filter corresponding to the WS-plugin may already be present, having the old name
+        // so we need to update its name to its newer version while keeping the filter index as is
+        LOG.debug("Checking if the old backend filter is already present for the WS-plugin");
+        entitiesInDB.stream()
+                .filter(backendFilterEntity -> StringUtils.equalsIgnoreCase(backendFilterEntity.getBackendName() , WS_OLD))
+                .findFirst()
+                .ifPresent(backendFilterEntity -> {
+                    LOG.info("Update old backend filter name from [{}] to [{}] to match the WS-plugin name change", WS_OLD, WS);
+                    backendFilterEntity.setBackendName(WS);
+                    backendFilterDao.update(backendFilterEntity);
+                }
+        );
+
         LOG.debug("Checking if any existing database plugins are already removed from the plugin location");
 
         List<BackendFilterEntity> dbFiltersNotInBackendConnectors = entitiesInDB.stream().filter(
@@ -164,10 +178,11 @@ public class RoutingService {
             return new ArrayList<>();
         }
 
-        List<String> defaultPluginOrderList = stream(BackendPluginEnum.values())
-                .sorted(comparing(BackendPluginEnum::getPriority))
-                .map(BackendPluginEnum::getPluginName)
+        List<String> defaultPluginOrderList = stream(BackendPlugin.values())
+                .sorted(comparing(BackendPlugin::getPriority))
+                .flatMap(backendPlugin -> backendPlugin.getNames().stream())
                 .collect(Collectors.toList());
+
         // If plugin not part of the list of default plugin, it will be put in highest priority by default
         pluginList.sort(comparing(defaultPluginOrderList::indexOf));
         LOG.debug("Assigning lower priorities (over [{}]) to the backend plugins which don't have any existing priority", priority);
