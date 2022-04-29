@@ -609,6 +609,9 @@ public class CertificateServiceImpl implements CertificateService {
     protected TruststoreEntity getTruststoreEntity(String trustName) {
         try {
             TruststoreEntity entity = truststoreDao.findByName(trustName);
+            if (entity == null) {
+                throw new ConfigurationException("Could not find truststore entity with name: " + trustName);
+            }
             String decrypted = passwordDecryptionService.decryptPropertyIfEncrypted(domainContextProvider.getCurrentDomainSafely(), trustName + ".password", entity.getPassword());
             entity.setPassword(decrypted);
             return entity;
