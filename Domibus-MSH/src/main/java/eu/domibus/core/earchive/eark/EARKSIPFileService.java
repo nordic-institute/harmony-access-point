@@ -1,6 +1,9 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.earchive.DomibusEArchiveException;
+import eu.domibus.core.earchive.listener.EArchiveListener;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -64,6 +67,8 @@ public class EARKSIPFileService {
         return mainMETSWrapper;
     }
 
+    @Timer(clazz = EArchiveListener.class, value = "earchive_createDataFile")
+    @Counter(clazz = EArchiveListener.class, value = "earchive_createDataFile")
     public void createDataFile(FileObject fileObject, InputStream value) {
         try {
             try (OutputStream fileOS = fileObject.getContent().getOutputStream(true)) {
