@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,6 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * @author Federico Martini
+ * @author Ion Perpegel
  * @since 3.2
  */
 @Service
@@ -33,23 +33,29 @@ public class MessagesLogServiceImpl implements MessagesLogService {
             MessageStatus.SEND_ENQUEUED
     )));
 
-    @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    private final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
+    private final SignalMessageLogDao signalMessageLogDao;
 
-    @Autowired
-    private MessageCoreMapper messageCoreConverter;
+    private final MessageCoreMapper messageCoreConverter;
 
-    @Autowired
-    private MessagesLogServiceHelper messagesLogServiceHelper;
+    private final MessagesLogServiceHelper messagesLogServiceHelper;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    NonRepudiationService nonRepudiationService;
+    private final NonRepudiationService nonRepudiationService;
+
+    public MessagesLogServiceImpl(UserMessageLogDao userMessageLogDao, SignalMessageLogDao signalMessageLogDao,
+                                  MessageCoreMapper messageCoreConverter, MessagesLogServiceHelper messagesLogServiceHelper,
+                                  DomibusPropertyProvider domibusPropertyProvider, NonRepudiationService nonRepudiationService) {
+        this.userMessageLogDao = userMessageLogDao;
+        this.signalMessageLogDao = signalMessageLogDao;
+        this.messageCoreConverter = messageCoreConverter;
+
+        this.messagesLogServiceHelper = messagesLogServiceHelper;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.nonRepudiationService = nonRepudiationService;
+    }
 
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
