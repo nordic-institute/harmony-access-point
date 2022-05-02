@@ -1,7 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.api.earchive.DomibusEArchiveException;
-import eu.domibus.core.earchive.listener.EArchiveListener;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -9,7 +8,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.roda_project.commons_ip.utils.IPException;
 import org.roda_project.commons_ip2.mets_v1_12.beans.DivType;
 import org.roda_project.commons_ip2.mets_v1_12.beans.FileType;
@@ -31,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
@@ -67,15 +66,16 @@ public class EARKSIPFileService {
         return mainMETSWrapper;
     }
 
-    @Timer(clazz = EArchiveListener.class, value = "earchive_createDataFile")
-    @Counter(clazz = EArchiveListener.class, value = "earchive_createDataFile")
-    public void createDataFile(FileObject fileObject, InputStream value) {
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive_createDataFile")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive_createDataFile")
+    public void createDataFile(Path path, InputStream value) {
+
         try {
-            try (OutputStream fileOS = fileObject.getContent().getOutputStream(true)) {
+            try (OutputStream fileOS = Files.newOutputStream(path)) {
                 IOUtils.copy(value, fileOS);
             }
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not create file [" + fileObject.getName() + "]", e);
+            throw new DomibusEArchiveException("Could not create file [" + path.toFile().getAbsolutePath() + "]", e);
         }
     }
 
@@ -93,11 +93,11 @@ public class EARKSIPFileService {
         mainMETSWrapper.getMets().getMetsHdr().setMetsDocumentID(value);
     }
 
-    protected Path addMetsFileToFolder(FileObject destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
+    protected Path addMetsFileToFolder(Path destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
         try {
-            return METSUtils.marshallMETS(mainMETSWrapper.getMets(), destinationDirectory.resolveFile(IPConstants.METS_FILE).getPath(), true);
+            return METSUtils.marshallMETS(mainMETSWrapper.getMets(), Paths.get(destinationDirectory.toFile().getAbsolutePath(), IPConstants.METS_FILE), true);
         } catch (JAXBException | IOException e) {
-            throw new DomibusEArchiveException("Could not create METS.xml to [" + destinationDirectory.getName() + "]", e);
+            throw new DomibusEArchiveException("Could not create METS.xml to [" + destinationDirectory.toFile().getName() + "]", e);
         }
     }
 
@@ -105,7 +105,7 @@ public class EARKSIPFileService {
         addDataFileInfoToMETS(representationMETS, pathFromData, null);
     }
 
-    public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, FileObject dataFile) {
+    public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, Path dataFile) {
         FileType file = new FileType();
         file.setID(Utils.generateRandomAndPrefixedUUID());
 
@@ -125,7 +125,7 @@ public class EARKSIPFileService {
         }
     }
 
-    public void setFileBasicInformation(FileObject file, FileType fileType) {
+    public void setFileBasicInformation(Path file, FileType fileType) {
         initMimeTypeInfo(file, fileType);
         initDateCreation(fileType, getFileName(file));
         if (file != null) {
@@ -134,17 +134,17 @@ public class EARKSIPFileService {
         }
     }
 
-    private String getFileName(@Nullable FileObject file) {
-        return file == null ? FileSystemEArchivePersistence.BATCH_JSON : file.getName().toString();
+    private String getFileName(@Nullable Path file) {
+        return file == null ? FileSystemEArchivePersistence.BATCH_JSON : file.toFile().getName();
     }
 
-    private void initSizeInfo(FileObject file, FileType fileType) {
+    private void initSizeInfo(Path file, FileType fileType) {
         try {
             LOG.debug("Setting file size [{}]", file);
-            fileType.setSIZE(file.getContent().getSize());
+            fileType.setSIZE(Files.size(file));
             LOG.debug("Done setting file size");
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Error getting file size [" + file.getName() + "]", e);
+            throw new DomibusEArchiveException("Error getting file size [" + file.toFile().getName() + "]", e);
         }
     }
 
@@ -156,7 +156,7 @@ public class EARKSIPFileService {
         }
     }
 
-    private void initMimeTypeInfo(FileObject file, FileType fileType) {
+    private void initMimeTypeInfo(Path file, FileType fileType) {
         try {
             LOG.debug("Setting mimetype [{}]", file);
             fileType.setMIMETYPE(getFileMimetype(file));
@@ -166,13 +166,12 @@ public class EARKSIPFileService {
         }
     }
 
-    private void initChecksum(FileObject file, FileType fileType) {
+    private void initChecksum(Path file, FileType fileType) {
         // checksum
         String checksumSHA256;
         try {
-            Path path = file.getPath();
-            checksumSHA256 = getChecksumSHA256(path);
-            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.getName());
+            checksumSHA256 = getChecksumSHA256(file);
+            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.toFile().getName());
             fileType.setCHECKSUM(checksumSHA256);
             fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
         } catch (IOException e) {
@@ -191,15 +190,12 @@ public class EARKSIPFileService {
         return DatatypeFactory.newInstance();
     }
 
-    private String getFileMimetype(@Nullable FileObject file) throws IOException {
-        if (file == null ||
-                file.getContent() == null ||
-                file.getContent().getContentInfo() == null ||
-                file.getContent().getContentInfo().getContentType() == null) {
+    private String getFileMimetype(@Nullable Path file) throws IOException {
+        if (file == null) {
             return "application/octet-stream";
         }
+        return Files.probeContentType(file);
 
-        return file.getContent().getContentInfo().getContentType();
     }
 
 }

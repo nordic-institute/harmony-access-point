@@ -9,6 +9,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.EArchiveBatchMapper;
 import eu.domibus.core.earchive.job.EArchiveBatchDispatcherService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -218,6 +220,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Transactional
+    @Timer(clazz = EArchivingDefaultService.class, value = "earchive_getEArchiveBatch")
+    @Counter(clazz = EArchivingDefaultService.class, value = "earchive_getEArchiveBatch")
     public EArchiveBatchEntity getEArchiveBatch(long entityId, boolean fetchEarchiveBatchUm) {
         EArchiveBatchEntity eArchiveBatch = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
 

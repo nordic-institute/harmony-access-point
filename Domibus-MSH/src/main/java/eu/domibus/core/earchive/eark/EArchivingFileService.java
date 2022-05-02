@@ -12,6 +12,8 @@ import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -58,6 +60,8 @@ public class EArchivingFileService {
     }
 
     @Transactional(readOnly = true)
+    @Timer(clazz = EArchivingFileService.class, value = "earchive_getArchivingFiles")
+    @Counter(clazz = EArchivingFileService.class, value = "earchive_getArchivingFiles")
     public Map<String, InputStream> getArchivingFiles(Long entityId) {
         HashMap<String, InputStream> files = new HashMap<>();
 

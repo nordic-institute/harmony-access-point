@@ -5,18 +5,23 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.VFS;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DAYS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX;
@@ -52,6 +57,8 @@ public class EArchivingRetentionService {
         eArchiveBatchDao.expireBatches(limitDate);
     }
 
+    @Timer(clazz = EArchivingRetentionService.class, value = "earchive_cleanStoredBatches")
+    @Counter(clazz = EArchivingRetentionService.class, value = "earchive_cleanStoredBatches")
     public void cleanStoredBatches() {
         final Integer maxBatchesToDelete = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX);
 
@@ -64,27 +71,20 @@ public class EArchivingRetentionService {
 
         LOG.debug("[{}] batches eligible for deletion found", batches.size());
 
-        batches.stream().forEach(batch -> deleteBatch(batch));
+        batches.forEach(this::deleteBatch);
     }
 
     protected void deleteBatch(EArchiveBatchEntity batch) {
         LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
-        FileObject batchDirectory = null;
-        try {
-            batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batch.getBatchId());
-            batchDirectory.deleteAll();
+        Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
+        LOG.info("Clean folder [{}]", folderToClean);
+        try (Stream<Path> walk = Files.walk(folderToClean)) {
+            walk.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
             batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
-        } finally {
-            if (batchDirectory != null) {
-                try {
-                    batchDirectory.close();
-                    VFS.getManager().closeFileSystem(batchDirectory.getFileSystem());
-                } catch (FileSystemException e) {
-                    LOG.error("Could not close the file system", e);
-                }
-            }
         }
     }
 }
