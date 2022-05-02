@@ -1,11 +1,10 @@
-package eu.domibus.core.crypto;
+package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.cluster.Command;
+import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.core.clustering.CommandTask;
-import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +19,9 @@ public class DomainAddedCommandTask implements CommandTask {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomainAddedCommandTask.class);
 
-    final DynamicDomainManagementService dynamicDomainManagementService ;
+    final DynamicDomainManagementService dynamicDomainManagementService;
 
-    public DomainAddedCommandTask(DynamicDomainManagementService dynamicDomainManagementService){
+    public DomainAddedCommandTask(DynamicDomainManagementService dynamicDomainManagementService) {
         this.dynamicDomainManagementService = dynamicDomainManagementService;
     }
 
@@ -35,7 +34,7 @@ public class DomainAddedCommandTask implements CommandTask {
     public void execute(Map<String, String> properties) {
         LOGGER.debug("Checking and handling domains added");
 
-        String domainCode = properties.get(MessageConstants.DOMAIN);
+        String domainCode = properties.get(CommandProperty.UPDATED_DOMAIN);
         dynamicDomainManagementService.addDomain(domainCode);
     }
 }
