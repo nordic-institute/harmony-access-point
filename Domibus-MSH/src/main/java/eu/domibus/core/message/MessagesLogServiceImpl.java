@@ -137,12 +137,16 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     }
 
     protected void setCanDownloadEnvelope(MessageLogRO messageLogRO) {
-        messageLogRO.setCanDownloadEnvelope(true);
         MessageStatus messageStatus = messageLogRO.getMessageStatus();
-        if (messageStatus == MessageStatus.SEND_FAILURE || messageStatus == MessageStatus.WAITING_FOR_RETRY) {
+        if (messageStatus == MessageStatus.SEND_FAILURE
+                || messageStatus == MessageStatus.WAITING_FOR_RETRY
+                || messageStatus == MessageStatus.SEND_ENQUEUED) {
             LOG.debug("The message [{}] status is [{}]: setting canDownloadEnvelope to false.", messageLogRO.getMessageId(), messageStatus);
             messageLogRO.setCanDownloadEnvelope(false);
+            return;
         }
+
+        messageLogRO.setCanDownloadEnvelope(true);
     }
 
     protected MessageLogDao getMessageLogDao(MessageType messageType) {
