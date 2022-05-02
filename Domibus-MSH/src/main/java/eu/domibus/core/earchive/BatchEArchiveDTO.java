@@ -154,7 +154,6 @@ public class BatchEArchiveDTO {
                 ", messageStartDate='" + messageStartId + '\'' +
                 ", messageEndDate='" + messageEndId + '\'' +
                 ", manifestChecksum='" + manifestChecksum + '\'' +
-                ", messages=" + messages +
                 '}';
     }
 }

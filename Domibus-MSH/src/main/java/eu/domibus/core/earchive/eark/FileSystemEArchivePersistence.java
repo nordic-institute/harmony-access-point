@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,13 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
             Path batchDirectory = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batchId);
+            if (Files.exists(batchDirectory)) {
+                BasicFileAttributes attr = Files.readAttributes(batchDirectory, BasicFileAttributes.class);
+                LOG.warn("File already exists: creationTime: [{}] | lastAccessTime: [{}] | lastModifiedTime: [{}]",
+                        attr.creationTime(),
+                        attr.lastAccessTime(),
+                        attr.lastModifiedTime());
+            }
             Files.createDirectory(batchDirectory);
 
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
@@ -106,14 +114,27 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
             Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageId.getMessageId());
             Path path = Paths.get(dir.toFile().getAbsolutePath(), file.getKey());
-            try (InputStream inputStream = file.getValue()) {
+            try {
+                if (Files.exists(dir)) {
+                    BasicFileAttributes attr = Files.readAttributes(dir, BasicFileAttributes.class);
+                    LOG.warn("File already exists: creationTime: [{}] | lastAccessTime: [{}] | lastModifiedTime: [{}]",
+                            attr.creationTime(),
+                            attr.lastAccessTime(),
+                            attr.lastModifiedTime());
+                }
                 Files.createDirectories(dir);
                 Files.createFile(path);
-                eArkSipBuilderService.createDataFile(path, inputStream);
-                eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, path);
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]", e);
             }
+            try (InputStream inputStream = file.getValue()) {
+
+                eArkSipBuilderService.createDataFile(path, inputStream);
+
+            } catch (IOException e) {
+                throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]", e);
+            }
+            eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, path);
 
         }
     }
