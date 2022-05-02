@@ -13,10 +13,7 @@ import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
@@ -29,6 +26,12 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class MessagesLogServiceImpl implements MessagesLogService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceImpl.class);
+
+    private final Set<MessageStatus> hasNoEnvelopes = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            MessageStatus.SEND_FAILURE,
+            MessageStatus.WAITING_FOR_RETRY,
+            MessageStatus.SEND_ENQUEUED
+    )));
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
@@ -138,9 +141,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     protected void setCanDownloadEnvelope(MessageLogRO messageLogRO) {
         MessageStatus messageStatus = messageLogRO.getMessageStatus();
-        if (messageStatus == MessageStatus.SEND_FAILURE
-                || messageStatus == MessageStatus.WAITING_FOR_RETRY
-                || messageStatus == MessageStatus.SEND_ENQUEUED) {
+        if (hasNoEnvelopes.contains(messageStatus)) {
             LOG.debug("The message [{}] status is [{}]: setting canDownloadEnvelope to false.", messageLogRO.getMessageId(), messageStatus);
             messageLogRO.setCanDownloadEnvelope(false);
             return;
