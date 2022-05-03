@@ -116,50 +116,6 @@ public class MessageResourceTest {
     }
 
     @Test
-    public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
-        new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
-            result = deletedMessage;
-            deletedMessage.getDeleted();
-            result = new Date();
-
-        }};
-        try {
-            messageResource.checkCanDownload("messageId");
-            Assert.fail();
-        }catch(MessagingException ex){
-            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
-        }
-    }
-
-    @Test
-    public void test_checkCanDownloadWhenNoMessage() {
-        new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
-            result = null;
-        }};
-
-        try {
-            messageResource.checkCanDownload("messageId");
-            Assert.fail();
-        }catch(MessagingException ex){
-            Assert.assertEquals(ex.getMessage(),"[DOM_001]:No message found for message id: messageId");
-        }
-    }
-
-    @Test
-    public void test_checkCanDownloadWithExistingMessage(@Injectable MessageLogRO existingMessage) {
-        new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
-            result = existingMessage;
-            existingMessage.getDeleted();
-            result = null;
-        }};
-
-      messageResource.checkCanDownload("messageId");
-    }
-
-    @Test
     public void getByteArrayResourceResponseEntity_empty() {
         String messageId = "messageId";
         new Expectations() {{
