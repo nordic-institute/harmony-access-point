@@ -2,6 +2,7 @@ package eu.domibus.core.earchive.listener;
 
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.logging.DomibusLogger;
@@ -38,7 +39,7 @@ public class EArchiveErrorHandler implements ErrorHandler {
         LOG.warn("Handling dispatch error for batch entityId [{}] ", entityId, t);
 
         EArchiveBatchEntity eArchiveBatchByBatchId = eArchivingDefaultService.getEArchiveBatch(entityId, false);
-        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED, StringUtils.substring(t.getMessage(), 0, 254), DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED.getCode());
+        eArchivingDefaultService.setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED, StringUtils.substring(t.getMessage(), 0, DomibusStringUtil.DEFAULT_MAX_STRING_LENGTH - 1), DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED.getCode());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORT_FAILED, eArchiveBatchByBatchId.getBatchId(), t.getMessage());
         eArchivingDefaultService.sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.FAILED);
 

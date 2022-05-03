@@ -123,24 +123,17 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageId.getMessageId());
             Path path = Paths.get(dir.toFile().getAbsolutePath(), file.getKey());
             try {
-                if (Files.exists(dir)) {
-                    BasicFileAttributes attr = Files.readAttributes(dir, BasicFileAttributes.class);
-                    LOG.warn("File already exists: creationTime: [{}] | lastAccessTime: [{}] | lastModifiedTime: [{}]",
-                            attr.creationTime(),
-                            attr.lastAccessTime(),
-                            attr.lastModifiedTime());
-                }
                 Files.createDirectories(dir);
                 Files.createFile(path);
             } catch (IOException e) {
-                throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]", e);
+                throw new DomibusEArchiveException("Could not create to the folder [" + dir + "] and file [" + path + "]", e);
             }
             try (InputStream inputStream = file.getValue()) {
 
                 eArkSipBuilderService.createDataFile(path, inputStream);
 
             } catch (IOException e) {
-                throw new DomibusEArchiveException("Could not access to the folder [" + batchDirectory + "] and file [" + relativePathToMessageFolder + "]", e);
+                throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + file.getValue() + "]", e);
             }
             eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, path);
 
