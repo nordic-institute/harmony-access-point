@@ -160,30 +160,6 @@ public class MessageResourceTest {
     }
 
     @Test
-    public void test_checkCanDownloadWithMaxDownLoadSize(@Injectable MessageLogRO existingMessage) {
-
-        byte[] content = "Message Content".getBytes();
-
-        new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
-            result = existingMessage;
-            existingMessage.getDeleted();
-            result = null;
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
-            result = 1;
-            userMessageService.getMessageAsBytes(anyString);
-            result = content;
-        }};
-
-        try {
-            messageResource.checkCanDownload("messageId");
-            Assert.fail();
-        } catch( MessagingException ex){
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:The message size exceeds maximum download size limit: 1");
-        }
-    }
-
-    @Test
     public void getByteArrayResourceResponseEntity_empty() {
         String messageId = "messageId";
         new Expectations() {{

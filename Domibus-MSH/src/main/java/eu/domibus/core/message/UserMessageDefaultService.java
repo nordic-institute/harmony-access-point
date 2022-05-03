@@ -192,6 +192,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     private UserMessageDefaultRestoreService restoreService;
 
+    @Autowired
+    private MessagesLogService messagesLogService;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -671,9 +674,6 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.info("Deleted [{}] userMessages.", deleteResult);
 
     }
-
-    @Autowired
-    private MessagesLogService messagesLogService;
 
     public void checkCanGetMessageContent(String messageId) {
         MessageLogRO message = messagesLogService.findUserMessageById(messageId);

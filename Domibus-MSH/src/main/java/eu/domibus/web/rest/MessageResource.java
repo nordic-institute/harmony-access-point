@@ -78,6 +78,7 @@ public class MessageResource {
                     .contentType(MediaType.parseMediaType("application/zip"))
                     .header("content-disposition", "attachment; filename=" + messageId + ".zip")
                     .body(new ByteArrayResource(zip));
+
         } catch (MessagingException ex) {
             LOG.info("Could not get content for user message [{}]; returning empty.", messageId, ex);
             return ResponseEntity.noContent().build();
@@ -87,21 +88,6 @@ public class MessageResource {
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     public void checkCanDownload(@RequestParam(value = "messageId", required = true) String messageId) {
         userMessageService.checkCanGetMessageContent(messageId);
-
-//        MessageLogRO message = messagesLogService.findUserMessageById(messageId);
-//        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
-//        if (message == null) {
-//            throw new MessagingException("No message found for message id: " + messageId, null);
-//        }
-//        if (message.getDeleted() != null) {
-//            LOG.info("Could not find message content for message: [{}]", messageId);
-//            throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
-//        }
-//        byte[] content = userMessageService.getMessageAsBytes(messageId);
-//        if (content.length > maxDownLoadSize) {
-//            LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
-//            throw new MessagingException("The message size exceeds maximum download size limit: " + maxDownLoadSize, null);
-//        }
     }
 
     @GetMapping(value = "/{messageId:.+}/envelopes")
