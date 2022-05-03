@@ -417,7 +417,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     const messageId = row.messageId;
     let canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
     this.http.get(canDownloadUrl).subscribe(res => {
-
       const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
       DownloadService.downloadNative(downloadUrl);
     }, err => {
