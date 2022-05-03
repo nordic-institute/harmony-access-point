@@ -7,6 +7,7 @@ import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.io.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.roda_project.commons_ip2.model.MetsWrapper;
@@ -14,11 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
 
@@ -60,8 +58,12 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
             Path batchDirectory = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batchId);
-            createFolder(batchDirectory);
-
+            FileUtils.createParentDirectories(batchDirectory.toFile());
+            if(batchDirectory.toFile().mkdir()){
+                LOG.debug("Folder created [{}]", batchDirectory);
+            } else {
+                LOG.warn("Folder not created [{}]", batchDirectory);
+            }
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
                     domibusVersionService.getArtifactName(),
                     domibusVersionService.getDisplayVersion(),
@@ -80,24 +82,14 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
-    private void createFolder(Path batchDirectory) throws IOException {
-        try {
-            Files.createDirectory(batchDirectory);
-        } catch (FileAlreadyExistsException e) {
-            BasicFileAttributes attr = Files.readAttributes(batchDirectory, BasicFileAttributes.class);
-            LOG.warn("File already exists [{}]: creationTime: [{}] | lastAccessTime: [{}] | lastModifiedTime: [{}]",
-                    batchDirectory.toAbsolutePath().toString(),
-                    attr.creationTime(),
-                    attr.lastAccessTime(),
-                    attr.lastModifiedTime(),
-                    e);
-        }
-    }
-
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, Path batchDirectory) {
         try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);
-            Files.createFile(path);
+            if(path.toFile().createNewFile()){
+                LOG.debug("File created [{}]", path);
+            } else {
+                LOG.warn("File not created [{}]", path);
+            }
             eArkSipBuilderService.createDataFile(path, inputStream);
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
@@ -123,8 +115,17 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageId.getMessageId());
             Path path = Paths.get(dir.toFile().getAbsolutePath(), file.getKey());
             try {
-                Files.createDirectories(dir);
-                Files.createFile(path);
+                FileUtils.createParentDirectories(dir.toFile());
+                if(dir.toFile().mkdir()){
+                    LOG.debug("Folder created [{}]", path);
+                } else {
+                    LOG.warn("Folder not created [{}]", path);
+                }
+                if(path.toFile().createNewFile()){
+                    LOG.debug("File created [{}]", path);
+                } else {
+                    LOG.warn("File not created [{}]", path);
+                }
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not create to the folder [" + dir + "] and file [" + path + "]", e);
             }

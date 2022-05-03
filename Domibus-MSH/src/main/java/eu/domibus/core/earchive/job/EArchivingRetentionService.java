@@ -9,19 +9,16 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DAYS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX;
@@ -78,10 +75,9 @@ public class EArchivingRetentionService {
         LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
         Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
         LOG.info("Clean folder [{}]", folderToClean);
-        try (Stream<Path> walk = Files.walk(folderToClean)) {
-            walk.sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+
+        try {
+            FileUtils.forceMkdir(folderToClean.toFile());
             batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);

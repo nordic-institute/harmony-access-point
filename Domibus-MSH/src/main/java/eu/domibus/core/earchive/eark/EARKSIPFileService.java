@@ -6,6 +6,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.roda_project.commons_ip.utils.IPException;
@@ -24,10 +25,10 @@ import javax.annotation.Nullable;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneOffset;
@@ -71,7 +72,7 @@ public class EARKSIPFileService {
     public void createDataFile(Path path, InputStream value) {
 
         try {
-            try (OutputStream fileOS = Files.newOutputStream(path)) {
+            try (FileOutputStream fileOS = FileUtils.openOutputStream(path.toFile())) {
                 IOUtils.copy(value, fileOS);
             }
         } catch (IOException e) {
@@ -139,13 +140,14 @@ public class EARKSIPFileService {
     }
 
     private void initSizeInfo(Path file, FileType fileType) {
-        try {
+//        try {
             LOG.debug("Setting file size [{}]", file);
-            fileType.setSIZE(Files.size(file));
+            fileType.setSIZE(1L);
+//            fileType.setSIZE(Files.size(file));
             LOG.debug("Done setting file size");
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Error getting file size [" + file.toFile().getName() + "]", e);
-        }
+//        } catch (IOException e) {
+//            throw new DomibusEArchiveException("Error getting file size [" + file.toFile().getName() + "]", e);
+//        }
     }
 
     private void initDateCreation(FileType fileType, String name) {
@@ -181,7 +183,7 @@ public class EARKSIPFileService {
     }
 
     private String getChecksumSHA256(Path path) throws IOException {
-        try (final InputStream inputStream = Files.newInputStream(path)) {
+        try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
             return DigestUtils.sha256Hex(inputStream);
         }
     }
@@ -191,10 +193,10 @@ public class EARKSIPFileService {
     }
 
     private String getFileMimetype(@Nullable Path file) throws IOException {
-        if (file == null) {
+//        if (file == null) {
             return "application/octet-stream";
-        }
-        return Files.probeContentType(file);
+//        }
+//        return Files.probeContentType(file);
     }
 
 }
