@@ -160,6 +160,10 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
 
     protected void validateAddition(String domainCode) {
+        if (StringUtils.isEmpty(domainCode)) {
+            throw new DomibusDomainException("Cannot add null domain.");
+        }
+
         if (domibusConfigurationService.isSingleTenantAware()) {
             throw new DomibusDomainException(String.format("Cannot add [%s] domain in single tenancy mode.", domainCode));
         }

@@ -33,9 +33,8 @@ public class DomainRemovedCommandTask implements CommandTask {
 
     @Override
     public void execute(Map<String, String> properties) {
-        LOG.debug("Checking and handling domain removed");
-
         String domainCode = properties.get(CommandProperty.UPDATED_DOMAIN);
+        LOG.debug("Executing remove domain command for domain [{}]", domainCode);
         dynamicDomainManagementService.removeDomain(domainCode);
     }
 }
