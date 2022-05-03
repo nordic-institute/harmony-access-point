@@ -4,6 +4,8 @@ import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -53,6 +55,8 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     @Override
+    @Timer(clazz = FileSystemEArchivePersistence.class, value = "earchive2_createEArkSipStructure")
+    @Counter(clazz = FileSystemEArchivePersistence.class, value = "earchive2_createEArkSipStructure")
     public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
         String batchId = batchEArchiveDTO.getBatchId();
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
@@ -82,6 +86,8 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
+    @Timer(clazz = FileSystemEArchivePersistence.class, value = "earchive24_createBatchJson")
+    @Counter(clazz = FileSystemEArchivePersistence.class, value = "earchive24_createBatchJson")
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, Path batchDirectory) {
         try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);

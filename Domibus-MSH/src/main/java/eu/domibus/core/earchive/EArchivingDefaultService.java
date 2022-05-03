@@ -220,8 +220,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Transactional
-    @Timer(clazz = EArchivingDefaultService.class, value = "earchive_getEArchiveBatch")
-    @Counter(clazz = EArchivingDefaultService.class, value = "earchive_getEArchiveBatch")
+    @Timer(clazz = EArchivingDefaultService.class, value = "earchive1_getEArchiveBatch")
+    @Counter(clazz = EArchivingDefaultService.class, value = "earchive1_getEArchiveBatch")
     public EArchiveBatchEntity getEArchiveBatch(long entityId, boolean fetchEarchiveBatchUm) {
         EArchiveBatchEntity eArchiveBatch = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(entityId);
 
@@ -252,6 +252,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Transactional
+    @Timer(clazz = EArchivingDefaultService.class, value = "earchive3_executeBatchIsExported")
+    @Counter(clazz = EArchivingDefaultService.class, value = "earchive3_executeBatchIsExported")
     public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORTED, eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation());

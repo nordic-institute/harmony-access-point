@@ -48,7 +48,8 @@ public class EARKSIPFileService {
     private static final String SHA256_CHECKSUMTYPE = "SHA-256";
     public static final String SHA_256 = "sha256:";
 
-
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
     public MetsWrapper getMetsWrapper(String artifactName, String displayVersion, String batchId) throws IPException {
         EARKSIP sip = new EARKSIP();
         sip.addCreatorSoftwareAgent(artifactName, displayVersion);
@@ -80,6 +81,8 @@ public class EARKSIPFileService {
         }
     }
 
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive23_getChecksum")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive23_getChecksum")
     public String getChecksum(Path path) {
         try {
             return SHA_256 + getChecksumSHA256(path);
@@ -94,6 +97,8 @@ public class EARKSIPFileService {
         mainMETSWrapper.getMets().getMetsHdr().setMetsDocumentID(value);
     }
 
+    @Timer(clazz = EARKSIPFileService.class, value = "earchive22_addMetsFileToFolder")
+    @Counter(clazz = EARKSIPFileService.class, value = "earchive22_addMetsFileToFolder")
     protected Path addMetsFileToFolder(Path destinationDirectory, MetsWrapper mainMETSWrapper) throws IPException {
         try {
             return METSUtils.marshallMETS(mainMETSWrapper.getMets(), Paths.get(destinationDirectory.toFile().getAbsolutePath(), IPConstants.METS_FILE), true);
