@@ -100,7 +100,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     @Override
     public Long findPartInfoTotalLength(long entityId) {
         List<Long> list = partInfoDao.findPartInfoLengthByUserMessageEntityId(entityId);
-        return list.stream().mapToLong(Long::longValue).sum();
+        return list.stream().filter(el -> el != null).mapToLong(Long::longValue).sum();
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
