@@ -80,7 +80,7 @@ public class MessageResource {
                     .body(new ByteArrayResource(zip));
 
         } catch (MessagingException ex) {
-            LOG.info("Could not get content for user message [{}]; returning empty.", messageId, ex);
+            LOG.warn("Could not get content for user message [{}]; returning empty.", messageId, ex);
             return ResponseEntity.noContent().build();
         }
     }
