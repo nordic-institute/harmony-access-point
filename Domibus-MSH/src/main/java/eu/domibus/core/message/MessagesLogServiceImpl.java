@@ -135,14 +135,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
             return;
         }
 
-        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         messageLogRO.setCanDownloadMessage(true);
-        Long content = messageLogRO.getPartLength();
-        LOG.debug("The message [{}] size is [{}].", messageLogRO.getMessageId(), content);
-        if (content != null && content > maxDownLoadSize) {
-            LOG.debug("The message [{}] size exceeds maximum download size limit: [{}]: setting canDownloadMessage to false.", messageLogRO.getMessageId(), maxDownLoadSize);
-            messageLogRO.setCanDownloadMessage(false);
-        }
     }
 
     protected void setCanDownloadEnvelope(MessageLogRO messageLogRO) {

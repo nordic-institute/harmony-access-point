@@ -86,7 +86,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     protected String getCid(String cid) {
-        if(StringUtils.startsWith(cid, "cid:")) {
+        if (StringUtils.startsWith(cid, "cid:")) {
             return cid;
         }
         return "cid:" + cid;
@@ -95,6 +95,12 @@ public class PartInfoServiceImpl implements PartInfoService {
     @Override
     public List<PartInfo> findPartInfo(long entityId) {
         return partInfoDao.findPartInfoByUserMessageEntityId(entityId);
+    }
+
+    @Override
+    public Long findPartInfoTotalLength(long entityId) {
+        List<Long> list = partInfoDao.findPartInfoLengthByUserMessageEntityId(entityId);
+        return list.stream().mapToLong(Long::longValue).sum();
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -270,10 +276,9 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     /**
-     *
      * @param userMessage the UserMessage received
      * @throws EbMS3Exception if an attachment with an invalid charset is received
-     * (not {@link Property#CHARSET} or not matching {@link Property#CHARSET_PATTERN})
+     *                        (not {@link Property#CHARSET} or not matching {@link Property#CHARSET_PATTERN})
      */
     public void checkPartInfoCharset(final UserMessage userMessage, List<PartInfo> partInfoList) throws EbMS3Exception {
         LOG.debug("Checking charset for attachments");
@@ -292,7 +297,7 @@ public class PartInfoServiceImpl implements PartInfoService {
                     throw EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                             .message(property.getValue() + " is not a valid Charset")
-                            .refToMessageId( userMessage.getMessageId())
+                            .refToMessageId(userMessage.getMessageId())
                             .mshRole(MSHRole.RECEIVING)
                             .build();
                 }

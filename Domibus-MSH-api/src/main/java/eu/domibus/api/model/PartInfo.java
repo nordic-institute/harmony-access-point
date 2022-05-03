@@ -26,6 +26,7 @@ import java.util.Set;
         @NamedQuery(name = "PartInfo.findPartInfoByUserMessageIdAndCid", query = "select distinct pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.messageId=:MESSAGE_ID and pi.href=:CID"),
         @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
         @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
+        @NamedQuery(name = "PartInfo.findPartInfosLength", query = "select pi.length from PartInfo pi where pi.userMessage.entityId=:ENTITY_ID"),
 })
 @Entity
 @Table(name = "TB_PART_INFO")
@@ -68,7 +69,7 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
     private String mime;
 
     @Column(name = "PART_LENGTH")
-    private long length = -1;
+    protected long length = -1;
 
     @Column(name = "PART_ORDER")
     private int partOrder = 0;

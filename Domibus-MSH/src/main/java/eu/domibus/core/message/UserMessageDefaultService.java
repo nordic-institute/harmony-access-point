@@ -46,6 +46,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.web.rest.ro.MessageLogRO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,6 +67,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -670,6 +672,27 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
+    @Autowired
+    private MessagesLogService messagesLogService;
+
+    public void checkCanGetMessageContent(String messageId) {
+        MessageLogRO message = messagesLogService.findUserMessageById(messageId);
+        if (message == null) {
+            throw new MessagingException("No message found for message id: " + messageId, null);
+        }
+        if (message.getDeleted() != null) {
+            LOG.info("Could not find message content for message: [{}]", messageId);
+            throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
+        }
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        Long contentLength = partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
+        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+        if (contentLength > maxDownLoadSize) {
+            LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
+            throw new MessagingException("The message size exceeds maximum download size limit: " + maxDownLoadSize, null);
+        }
+    }
+
     @Override
     public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId);
@@ -680,6 +703,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException {
+        checkCanGetMessageContent(messageId);
         Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
         return zipFiles(message);
     }

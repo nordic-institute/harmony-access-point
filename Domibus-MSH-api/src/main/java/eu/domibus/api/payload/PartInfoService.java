@@ -17,6 +17,8 @@ public interface PartInfoService {
 
     List<PartInfo> findPartInfo(long entityId);
 
+    Long findPartInfoTotalLength(long entityId);
+
     PartInfo findPartInfo(String messageId, String cid);
 
     PartInfo findPartInfo(Long messageEntityId, String cid);
