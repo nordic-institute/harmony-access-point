@@ -191,11 +191,10 @@ public class EARKSIPFileService {
     }
 
     private String getFileMimetype(@Nullable Path file) throws IOException {
-//        if (file == null) {
+        if (file == null) {
             return "application/octet-stream";
-//        }
-//        return Files.probeContentType(file);
-
+        }
+        return Files.probeContentType(file);
     }
 
 }

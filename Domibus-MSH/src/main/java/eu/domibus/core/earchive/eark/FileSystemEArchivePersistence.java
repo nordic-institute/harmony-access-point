@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,14 +60,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
             Path batchDirectory = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batchId);
-            if (Files.exists(batchDirectory)) {
-                BasicFileAttributes attr = Files.readAttributes(batchDirectory, BasicFileAttributes.class);
-                LOG.warn("File already exists: creationTime: [{}] | lastAccessTime: [{}] | lastModifiedTime: [{}]",
-                        attr.creationTime(),
-                        attr.lastAccessTime(),
-                        attr.lastModifiedTime());
-            }
-            Files.createDirectory(batchDirectory);
+            createFolder(batchDirectory);
 
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
                     domibusVersionService.getArtifactName(),
@@ -83,6 +77,20 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             return new DomibusEARKSIPResult(batchDirectory, checksum);
         } catch (IPException | IOException e) {
             throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveDTO + "]", e);
+        }
+    }
+
+    private void createFolder(Path batchDirectory) throws IOException {
+        try {
+            Files.createDirectory(batchDirectory);
+        } catch (FileAlreadyExistsException e) {
+            BasicFileAttributes attr = Files.readAttributes(batchDirectory, BasicFileAttributes.class);
+            LOG.warn("File already exists [{}]: creationTime: [{}] | lastAccessTime: [{}] | lastModifiedTime: [{}]",
+                    batchDirectory.toAbsolutePath().toString(),
+                    attr.creationTime(),
+                    attr.lastAccessTime(),
+                    attr.lastModifiedTime(),
+                    e);
         }
     }
 
