@@ -64,7 +64,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     @Override
-    public void addDomain(String domainCode) {
+    public void addDomain(String domainCode, boolean notifyClusterNodes) {
         validateAddition(domainCode);
 
         Domain domain = new Domain(domainCode, domainCode);
@@ -73,11 +73,13 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         notifyExternalModulesOfAddition(domain);
 
-        notifyClusterNodesOfAddition(domainCode);
+        if(notifyClusterNodes) {
+            notifyClusterNodesOfAddition(domainCode);
+        }
     }
 
     @Override
-    public void removeDomain(String domainCode) {
+    public void removeDomain(String domainCode, boolean notifyClusterNodes) {
         validateRemoval(domainCode);
 
         Domain domain = new Domain(domainCode, domainCode);
@@ -86,7 +88,9 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         notifyExternalModulesOfRemoval(domain);
 
-        notifyClusterNodesOfRemoval(domainCode);
+        if(notifyClusterNodes) {
+            notifyClusterNodesOfRemoval(domainCode);
+        }
     }
 
     protected void validateRemoval(String domainCode) {
@@ -160,10 +164,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
 
     protected void validateAddition(String domainCode) {
-        if (StringUtils.isEmpty(domainCode)) {
-            throw new DomibusDomainException("Cannot add null domain.");
-        }
-
         if (domibusConfigurationService.isSingleTenantAware()) {
             throw new DomibusDomainException(String.format("Cannot add [%s] domain in single tenancy mode.", domainCode));
         }
