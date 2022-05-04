@@ -114,11 +114,6 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, Path batchDirectory) {
         try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);
-            if(path.toFile().createNewFile()){
-                LOG.debug("File created [{}]", path);
-            } else {
-                LOG.warn("File not created [{}]", path);
-            }
             eArkSipBuilderService.createDataFile(path, inputStream);
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
@@ -153,30 +148,10 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageId.getMessageId());
             Path path = Paths.get(dir.toFile().getAbsolutePath(), file.getKey());
             getPath.stop();
-            try {
-                com.codahale.metrics.Timer.Context crtDir = metricRegistry.timer(name("addUserMessage", "createParentDirectories", "timer")).time();
-                FileUtils.createParentDirectories(dir.toFile());
-                crtDir.stop();
-                com.codahale.metrics.Timer.Context chkDir = metricRegistry.timer(name("addUserMessage", "checkDir", "timer")).time();
-                if(dir.toFile().mkdir()){
-                    LOG.debug("Folder created [{}]", path);
-                } else {
-//                    LOG.warn("Folder not created [{}]", path);
-                }
-                if(path.toFile().createNewFile()){
-                    LOG.debug("File created [{}]", path);
-                } else {
-                    LOG.warn("File not created [{}]", path);
-                }
-                chkDir.stop();
-            } catch (IOException e) {
-                throw new DomibusEArchiveException("Could not create to the folder [" + dir + "] and file [" + path + "]", e);
-            }
+
             com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addUserMessage", "createDataFile", "timer")).time();
             try (InputStream inputStream = file.getValue()) {
-
                 eArkSipBuilderService.createDataFile(path, inputStream);
-
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + file.getValue() + "]", e);
             }

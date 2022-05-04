@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
@@ -52,6 +53,8 @@ public class FileSystemEArchivePersistenceIT {
 
     @Injectable
     protected DomibusVersionService domibusVersionService;
+    @Injectable
+    protected MetricRegistry metricRegistry;
 
     @Injectable
     protected EArchivingFileService eArchivingFileService;
@@ -108,7 +111,9 @@ public class FileSystemEArchivePersistenceIT {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
-        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", new EARKSIPFileService());
+        EARKSIPFileService value = new EARKSIPFileService();
+        value.setMetricRegistry(new MetricRegistry());
+        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", value);
 
         Map<String, InputStream> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");

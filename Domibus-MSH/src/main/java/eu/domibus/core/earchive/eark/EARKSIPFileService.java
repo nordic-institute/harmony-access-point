@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.roda_project.commons_ip.utils.IPException;
 import org.roda_project.commons_ip2.mets_v1_12.beans.DivType;
@@ -28,7 +27,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -55,6 +53,10 @@ public class EARKSIPFileService {
     @Autowired
     private MetricRegistry metricRegistry;
 
+    public void setMetricRegistry(MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
+    }
+
     @Timer(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
     @Counter(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
     public MetsWrapper getMetsWrapper(String artifactName, String displayVersion, String batchId) throws IPException {
@@ -78,11 +80,8 @@ public class EARKSIPFileService {
     @Timer(clazz = EARKSIPFileService.class, value = "earchive_createDataFile")
     @Counter(clazz = EARKSIPFileService.class, value = "earchive_createDataFile")
     public void createDataFile(Path path, InputStream value) {
-
         try {
-            try (FileOutputStream fileOS = FileUtils.openOutputStream(path.toFile())) {
-                IOUtils.copy(value, fileOS);
-            }
+            FileUtils.copyToFile(value, path.toFile());
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not create file [" + path.toFile().getAbsolutePath() + "]", e);
         }
