@@ -135,16 +135,23 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     private void addUserMessage(EArchiveBatchUserMessage messageId, Path batchDirectory, MetsWrapper mainMETSWrapper) {
+        com.codahale.metrics.Timer.Context getArch = metricRegistry.timer(name("addUserMessage", "getArchivingFiles", "timer")).time();
         Map<String, InputStream> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getUserMessageEntityId());
+        getArch.stop();
 
         for (Map.Entry<String, InputStream> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());
             String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageId.getMessageId() + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
 
+            com.codahale.metrics.Timer.Context getPath = metricRegistry.timer(name("addUserMessage", "getPath", "timer")).time();
             Path dir = Paths.get(batchDirectory.toFile().getAbsolutePath(), "representations", "representation1", "data", messageId.getMessageId());
             Path path = Paths.get(dir.toFile().getAbsolutePath(), file.getKey());
+            getPath.stop();
             try {
+                com.codahale.metrics.Timer.Context crtDir = metricRegistry.timer(name("addUserMessage", "createParentDirectories", "timer")).time();
                 FileUtils.createParentDirectories(dir.toFile());
+                crtDir.stop();
+                com.codahale.metrics.Timer.Context chkDir = metricRegistry.timer(name("addUserMessage", "checkDir", "timer")).time();
                 if(dir.toFile().mkdir()){
                     LOG.debug("Folder created [{}]", path);
                 } else {
@@ -155,9 +162,11 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
                 } else {
                     LOG.warn("File not created [{}]", path);
                 }
+                chkDir.stop();
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not create to the folder [" + dir + "] and file [" + path + "]", e);
             }
+            com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addUserMessage", "createDataFile", "timer")).time();
             try (InputStream inputStream = file.getValue()) {
 
                 eArkSipBuilderService.createDataFile(path, inputStream);
@@ -165,7 +174,10 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             } catch (IOException e) {
                 throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + file.getValue() + "]", e);
             }
+            crtFile.stop();
+            com.codahale.metrics.Timer.Context mets = metricRegistry.timer(name("addUserMessage", "addDataFileInfoToMETS", "timer")).time();
             eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, path);
+            mets.stop();
 
         }
     }

@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -19,6 +20,7 @@ import org.roda_project.commons_ip2.model.impl.eark.EARKMETSUtils;
 import org.roda_project.commons_ip2.model.impl.eark.EARKSIP;
 import org.roda_project.commons_ip2.utils.METSUtils;
 import org.roda_project.commons_ip2.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -36,6 +38,8 @@ import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
 import java.util.Optional;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -47,6 +51,9 @@ public class EARKSIPFileService {
 
     private static final String SHA256_CHECKSUMTYPE = "SHA-256";
     public static final String SHA_256 = "sha256:";
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     @Timer(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
     @Counter(clazz = EARKSIPFileService.class, value = "earchive21_getMetsWrapper")
@@ -188,9 +195,13 @@ public class EARKSIPFileService {
     }
 
     private String getChecksumSHA256(Path path) throws IOException {
+        com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("getChecksumSHA256", "openInputStream", "timer")).time();
         try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
             return DigestUtils.sha256Hex(inputStream);
+        }finally {
+            crtFile.stop();
         }
+
     }
 
     private DatatypeFactory getDatatypeFactory() throws DatatypeConfigurationException {
