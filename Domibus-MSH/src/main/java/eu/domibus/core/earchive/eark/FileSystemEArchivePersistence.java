@@ -127,7 +127,9 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     protected void addRepresentation1(List<EArchiveBatchUserMessage> userMessageEntityIds, Path batchDirectory, MetsWrapper mainMETSWrapper) {
+        com.codahale.metrics.Timer.Context addB = metricRegistry.timer(name("addRepresentation1", "addBatchJsonToMETS", "timer")).time();
         eArkSipBuilderService.addBatchJsonToMETS(mainMETSWrapper, BATCH_JSON_PATH);
+        addB.stop();
         com.codahale.metrics.Timer.Context filLoc = metricRegistry.timer(name("addRepresentation1", "loop", "timer")).time();
         for (EArchiveBatchUserMessage eArchiveBatchUserMessage : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", eArchiveBatchUserMessage.getMessageId());
