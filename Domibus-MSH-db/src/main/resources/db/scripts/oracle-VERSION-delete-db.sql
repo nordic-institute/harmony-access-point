@@ -9,8 +9,13 @@
 -- *********************************************************************
 
 /* For SQL*Plus client use specific definition like:
+
    variable START_DATE varchar2(30)
    exec :START_DATE := '2013-10-01';
+   variable END_DATE varchar2(30)
+   exec :END_DATE := '2022-05-05';
+
+   Also replace all '@'characters with '&'
 */
 DEFINE START_DATE = TO_DATE('08-SEP-2021 09:59:00', 'DD-MM-YY HH24:MI:SS');
 DEFINE END_DATE = TO_DATE('04-MAY-2022 10:00:00', 'DD-MM-YY HH24:MI:SS');
