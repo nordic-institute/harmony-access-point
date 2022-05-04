@@ -119,23 +119,31 @@ public class EARKSIPFileService {
     }
 
     public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, Path dataFile) {
+        com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addDataFileInfoToMETS", "generateRandomAndPrefixedUUID", "timer")).time();
         FileType file = new FileType();
         file.setID(Utils.generateRandomAndPrefixedUUID());
+        crtFile.stop();
 
+        com.codahale.metrics.Timer.Context setBF = metricRegistry.timer(name("addDataFileInfoToMETS", "setFileBasicInformation", "timer")).time();
         // set mimetype, date creation, etc.
         setFileBasicInformation(dataFile, file);
+        setBF.stop();
 
         // add to file section
+        com.codahale.metrics.Timer.Context filLoc = metricRegistry.timer(name("addDataFileInfoToMETS", "fileLocation", "timer")).time();
         FileType.FLocat fileLocation = METSUtils.createFileLocation(pathFromData);
         file.getFLocat().add(fileLocation);
         representationMETS.getDataFileGroup().getFile().add(file);
+        filLoc.stop();
 
+        com.codahale.metrics.Timer.Context strMap = metricRegistry.timer(name("addDataFileInfoToMETS", "structMap", "timer")).time();
         // add to struct map
         if (representationMETS.getDataDiv().getFptr().isEmpty()) {
             DivType.Fptr fptr = new DivType.Fptr();
             fptr.setFILEID(representationMETS.getDataFileGroup());
             representationMETS.getDataDiv().getFptr().add(fptr);
         }
+        strMap.close();
     }
 
     public void setFileBasicInformation(Path file, FileType fileType) {
