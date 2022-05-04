@@ -10,19 +10,16 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * @author Federico Martini
+ * @author Ion Perpegel
  * @since 3.2
  */
 @Service
@@ -30,23 +27,35 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceImpl.class);
 
-    @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    private final Set<MessageStatus> hasNoEnvelopes = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            MessageStatus.SEND_FAILURE,
+            MessageStatus.WAITING_FOR_RETRY,
+            MessageStatus.SEND_ENQUEUED
+    )));
 
-    @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
+    private final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
-    private MessageCoreMapper messageCoreConverter;
+    private final SignalMessageLogDao signalMessageLogDao;
 
-    @Autowired
-    private MessagesLogServiceHelper messagesLogServiceHelper;
+    private final MessageCoreMapper messageCoreConverter;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private final MessagesLogServiceHelper messagesLogServiceHelper;
 
-    @Autowired
-    NonRepudiationService nonRepudiationService;
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    private final NonRepudiationService nonRepudiationService;
+
+    public MessagesLogServiceImpl(UserMessageLogDao userMessageLogDao, SignalMessageLogDao signalMessageLogDao,
+                                  MessageCoreMapper messageCoreConverter, MessagesLogServiceHelper messagesLogServiceHelper,
+                                  DomibusPropertyProvider domibusPropertyProvider, NonRepudiationService nonRepudiationService) {
+        this.userMessageLogDao = userMessageLogDao;
+        this.signalMessageLogDao = signalMessageLogDao;
+        this.messageCoreConverter = messageCoreConverter;
+
+        this.messagesLogServiceHelper = messagesLogServiceHelper;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.nonRepudiationService = nonRepudiationService;
+    }
 
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
@@ -126,23 +135,18 @@ public class MessagesLogServiceImpl implements MessagesLogService {
             return;
         }
 
-        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         messageLogRO.setCanDownloadMessage(true);
-        Long content = messageLogRO.getPartLength();
-        LOG.debug("The message [{}] size is [{}].", messageLogRO.getMessageId(), content);
-        if (content != null && content > maxDownLoadSize) {
-            LOG.debug("The message [{}] size exceeds maximum download size limit: [{}]: setting canDownloadMessage to false.", messageLogRO.getMessageId(), maxDownLoadSize);
-            messageLogRO.setCanDownloadMessage(false);
-        }
     }
 
     protected void setCanDownloadEnvelope(MessageLogRO messageLogRO) {
-        messageLogRO.setCanDownloadEnvelope(true);
         MessageStatus messageStatus = messageLogRO.getMessageStatus();
-        if (messageStatus == MessageStatus.SEND_FAILURE || messageStatus == MessageStatus.WAITING_FOR_RETRY) {
+        if (hasNoEnvelopes.contains(messageStatus)) {
             LOG.debug("The message [{}] status is [{}]: setting canDownloadEnvelope to false.", messageLogRO.getMessageId(), messageStatus);
             messageLogRO.setCanDownloadEnvelope(false);
+            return;
         }
+
+        messageLogRO.setCanDownloadEnvelope(true);
     }
 
     protected MessageLogDao getMessageLogDao(MessageType messageType) {
