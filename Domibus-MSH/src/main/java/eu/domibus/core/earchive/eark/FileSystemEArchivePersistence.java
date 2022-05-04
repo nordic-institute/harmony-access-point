@@ -128,10 +128,14 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     protected void addRepresentation1(List<EArchiveBatchUserMessage> userMessageEntityIds, Path batchDirectory, MetsWrapper mainMETSWrapper) {
         eArkSipBuilderService.addBatchJsonToMETS(mainMETSWrapper, BATCH_JSON_PATH);
+        com.codahale.metrics.Timer.Context filLoc = metricRegistry.timer(name("addRepresentation1", "loop", "timer")).time();
         for (EArchiveBatchUserMessage eArchiveBatchUserMessage : userMessageEntityIds) {
             LOG.debug("Add messageId [{}]", eArchiveBatchUserMessage.getMessageId());
+            com.codahale.metrics.Timer.Context addMess = metricRegistry.timer(name("addRepresentation1", "addUserMessage", "timer")).time();
             addUserMessage(eArchiveBatchUserMessage, batchDirectory, mainMETSWrapper);
+            addMess.stop();
         }
+        filLoc.stop();
     }
 
     private void addUserMessage(EArchiveBatchUserMessage messageId, Path batchDirectory, MetsWrapper mainMETSWrapper) {
