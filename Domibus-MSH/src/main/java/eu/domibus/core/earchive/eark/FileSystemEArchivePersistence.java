@@ -78,7 +78,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             if(batchDirectory.toFile().mkdir()){
                 LOG.debug("Folder created [{}]", batchDirectory);
             } else {
-                LOG.warn("Folder not created [{}]", batchDirectory);
+//                LOG.warn("Folder not created [{}]", batchDirectory);
             }
             checkdDir.stop();
             com.codahale.metrics.Timer.Context eArkSi = metricRegistry.timer(name("createEArkSipStructure", "getMetsWrapper", "timer")).time();
@@ -155,7 +155,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
                 if(dir.toFile().mkdir()){
                     LOG.debug("Folder created [{}]", path);
                 } else {
-                    LOG.warn("Folder not created [{}]", path);
+//                    LOG.warn("Folder not created [{}]", path);
                 }
                 if(path.toFile().createNewFile()){
                     LOG.debug("File created [{}]", path);
