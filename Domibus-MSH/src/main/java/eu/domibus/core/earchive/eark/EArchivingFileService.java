@@ -151,7 +151,8 @@ public class EArchivingFileService {
 
         return info.getHref().replace("cid:", "");
     }
-
+    @Timer(clazz = EArchivingFileService.class, value = "earchive24_getBatchFileJson")
+    @Counter(clazz = EArchivingFileService.class, value = "earchive24_getBatchFileJson")
     public InputStream getBatchFileJson(BatchEArchiveDTO batchEArchiveDTO) {
         try {
             return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(batchEArchiveDTO).getBytes(StandardCharsets.UTF_8));

@@ -86,8 +86,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
-    @Timer(clazz = FileSystemEArchivePersistence.class, value = "earchive24_createBatchJson")
-    @Counter(clazz = FileSystemEArchivePersistence.class, value = "earchive24_createBatchJson")
+
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, Path batchDirectory) {
         try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);
