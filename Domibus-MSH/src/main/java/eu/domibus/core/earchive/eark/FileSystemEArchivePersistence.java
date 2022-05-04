@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
@@ -13,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.roda_project.commons_ip2.model.MetsWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author François Gautier
@@ -43,6 +47,9 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     private final EARKSIPFileService eArkSipBuilderService;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
 
     public FileSystemEArchivePersistence(EArchiveFileStorageProvider storageProvider,
                                          DomibusVersionService domibusVersionService,
@@ -61,24 +68,41 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         String batchId = batchEArchiveDTO.getBatchId();
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
+            com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("createEArkSipStructure", "batchDirectory", "timer")).time();
             Path batchDirectory = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batchId);
+            methodTimer.stop();
+            com.codahale.metrics.Timer.Context cleanTimer = metricRegistry.timer(name("createEArkSipStructure", "createParentDirectories", "timer")).time();
             FileUtils.createParentDirectories(batchDirectory.toFile());
+            cleanTimer.stop();
+            com.codahale.metrics.Timer.Context checkdDir = metricRegistry.timer(name("createEArkSipStructure", "batchDirectorymkdir", "timer")).time();
             if(batchDirectory.toFile().mkdir()){
                 LOG.debug("Folder created [{}]", batchDirectory);
             } else {
                 LOG.warn("Folder not created [{}]", batchDirectory);
             }
+            checkdDir.stop();
+            com.codahale.metrics.Timer.Context eArkSi = metricRegistry.timer(name("createEArkSipStructure", "getMetsWrapper", "timer")).time();
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
                     domibusVersionService.getArtifactName(),
                     domibusVersionService.getDisplayVersion(),
                     batchId);
+            eArkSi.stop();
 
+            com.codahale.metrics.Timer.Context addRep = metricRegistry.timer(name("createEArkSipStructure", "addRepresentation1", "timer")).time();
             addRepresentation1(userMessageEntityIds, batchDirectory, mainMETSWrapper);
+            addRep.stop();
 
+
+            com.codahale.metrics.Timer.Context addMes = metricRegistry.timer(name("createEArkSipStructure", "addMetsFileToFolder", "timer")).time();
             Path path = eArkSipBuilderService.addMetsFileToFolder(batchDirectory, mainMETSWrapper);
+            addMes.stop();
+            com.codahale.metrics.Timer.Context chkSum = metricRegistry.timer(name("createEArkSipStructure", "getChecksum", "timer")).time();
             String checksum = eArkSipBuilderService.getChecksum(path);
+            chkSum.stop();
             batchEArchiveDTO.setManifestChecksum(checksum);
+            com.codahale.metrics.Timer.Context crtBatch = metricRegistry.timer(name("createEArkSipStructure", "createBatchJson", "timer")).time();
             createBatchJson(batchEArchiveDTO, batchDirectory);
+            crtBatch.stop();
 
             return new DomibusEARKSIPResult(batchDirectory, checksum);
         } catch (IPException | IOException e) {
