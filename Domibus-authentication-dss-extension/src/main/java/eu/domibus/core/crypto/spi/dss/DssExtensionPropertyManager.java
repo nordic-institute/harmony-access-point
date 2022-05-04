@@ -48,6 +48,20 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String DSS_DATA_LOADER_CONNECTION_TIMEOUT = "domibus.dss.data.loader.connection.timeout";
     public static final String AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE = "domibus.authentication.dss.password.encryption.active";
     public static final String AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.authentication.dss.password.encryption.properties";
+    public static final String AUTHENTICATION_DSS_OFFICIAL_JOURNAL_CONTENT_KEYSTORE_TYPE = "domibus.authentication.dss.official.journal.content.keystore.type";
+    public static final String AUTHENTICATION_DSS_OFFICIAL_JOURNAL_CONTENT_KEYSTORE_PATH = "domibus.authentication.dss.official.journal.content.keystore.path";
+    public static final String AUTHENTICATION_DSS_OFFICIAL_JOURNAL_CONTENT_KEYSTORE_PASSWORD = "domibus.authentication.dss.official.journal.content.keystore.password";
+    public static final String AUTHENTICATION_DSS_LOTL_ROOT_SCHEME_INFO_URI = "domibus.authentication.dss.lotl.root.scheme.info.uri";
+    public static final String AUTHENTICATION_DSS_CACHE_PATH = "domibus.authentication.dss.cache.path";
+    public static final String AUTHENTICATION_DSS_CACHE_NAME = "domibus.authentication.dss.cache.name";
+    public static final String EXCLUDE_PIVOT_FILE_REGEX = "domibus.exclude.pivot.file.regex";
+    public static final String DSS_SSL_TRUST_STORE_PATH = "domibus.dss.ssl.trust.store.path";
+    public static final String DSS_SSL_TRUST_STORE_PASSWORD = "domibus.dss.ssl.trust.store.password";
+    public static final String DSS_SSL_TRUST_STORE_TYPE = "domibus.dss.ssl.trust.store.type";
+    public static final String DSS_SSL_CACERT_PATH = "domibus.dss.ssl.cacert.path";
+    public static final String DSS_SSL_CACERT_TYPE = "domibus.dss.ssl.cacert.type";
+    public static final String DSS_SSL_CACERT_PASSWORD = "domibus.dss.ssl.cacert.password";
+
     //Dynamic custom trusted list properties
     public static final String DSS_CUSTOM_TRUSTED_LIST_1_URL = CUSTOM_TRUSTED_LISTS_PREFIX + ".list1.url";
     public static final String DSS_CUSTOM_TRUSTED_LIST_1_CODE = CUSTOM_TRUSTED_LISTS_PREFIX + ".list1.code";
@@ -55,8 +69,15 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String DSS_CUSTOM_TRUSTED_LIST_2_CODE = CUSTOM_TRUSTED_LISTS_PREFIX + ".list2.code";
     public static final String DSS_CUSTOM_TRUSTED_LIST_3_URL = CUSTOM_TRUSTED_LISTS_PREFIX + ".list3.url";
     public static final String DSS_CUSTOM_TRUSTED_LIST_3_CODE = CUSTOM_TRUSTED_LISTS_PREFIX + ".list3.code";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_1 = CUSTOM_TRUSTED_LISTS_PREFIX + ".list1";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_2 = CUSTOM_TRUSTED_LISTS_PREFIX + ".list2";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_3 = CUSTOM_TRUSTED_LISTS_PREFIX + ".list3";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.custom.trusted.list.for.multitenant";
+
     //Dynamic constraints properties
+    public static final String DSS_CONSTRAINTS_CONSTRAINT1 = CONSTRAINTS_PREFIX + ".constraint1";
     public static final String DSS_CONSTRAINTS_CONSTRAINT1_NAME = CONSTRAINTS_PREFIX + ".constraint1.name";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT2 = CONSTRAINTS_PREFIX + ".constraint2";
     public static final String DSS_CONSTRAINTS_CONSTRAINT2_NAME = CONSTRAINTS_PREFIX + ".constraint2.name";
     public static final String DSS_CONSTRAINTS_CONSTRAINT1_STATUS = CONSTRAINTS_PREFIX + ".constraint1.status";
     public static final String DSS_CONSTRAINTS_CONSTRAINT2_STATUS = CONSTRAINTS_PREFIX + ".constraint2.status";
@@ -99,7 +120,27 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_ACTIVE, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PASSWORD_ENCRYPTION_PROPERTIES, DomibusPropertyMetadataDTO.Type.COMMA_SEPARATED_LIST, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_DATA_LOADER_SOCKET_TIMEOUT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DSS_DATA_LOADER_CONNECTION_TIMEOUT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL)
+                new DomibusPropertyMetadataDTO(DSS_DATA_LOADER_CONNECTION_TIMEOUT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_OFFICIAL_JOURNAL_CONTENT_KEYSTORE_TYPE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_OFFICIAL_JOURNAL_CONTENT_KEYSTORE_PATH, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_OFFICIAL_JOURNAL_CONTENT_KEYSTORE_PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_LOTL_ROOT_SCHEME_INFO_URI, DomibusPropertyMetadataDTO.Type.URI, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CACHE_PATH, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CACHE_NAME, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(EXCLUDE_PIVOT_FILE_REGEX, DomibusPropertyMetadataDTO.Type.REGEXP, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_SSL_TRUST_STORE_PATH, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_SSL_TRUST_STORE_PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_SSL_TRUST_STORE_TYPE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_SSL_CACERT_PATH, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_SSL_CACERT_TYPE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_SSL_CACERT_PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_1, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_2, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_3, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL)
+
         );
         knownProperties = allProperties.stream().collect(Collectors.toMap(DomibusPropertyMetadataDTO::getName, domibusPropertyMetadataDTO -> domibusPropertyMetadataDTO));
     }

@@ -37,6 +37,7 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.web.rest.ro.MessageLogRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
@@ -49,10 +50,12 @@ import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static eu.domibus.core.message.UserMessageDefaultService.BATCH_SIZE;
 import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author Cosmin Baciu, Soumya
@@ -201,6 +204,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     EntityManager em;
+
+    @Injectable
+    private MessagesLogService messagesLogService;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -570,7 +576,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Injectable UserMessageLog userMessageLog)  {
+    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Injectable UserMessageLog userMessageLog) {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -898,7 +904,8 @@ public class UserMessageDefaultServiceTest {
         final String messageId = UUID.randomUUID().toString();
         UserMessage userMessage = new UserMessage();
 
-        new Expectations() {};
+        new Expectations() {
+        };
 
         UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
 
@@ -1044,5 +1051,73 @@ public class UserMessageDefaultServiceTest {
         };
     }
 
+    @Test
+    public void test_checkCanDownloadWithMaxDownLoadSize(@Injectable MessageLogRO existingMessage, @Injectable UserMessage userMessage) {
+        String messageId = "messageId";
 
+        new Expectations(userMessageDefaultService) {{
+            messagesLogService.findUserMessageById(anyString);
+            result = existingMessage;
+            existingMessage.getDeleted();
+            result = null;
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+            result = 1;
+            userMessageDao.findByMessageId(messageId);
+            result = userMessage;
+            partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
+            result = 1000;
+        }};
+
+        try {
+
+            userMessageDefaultService.checkCanGetMessageContent(messageId);
+            Assert.fail();
+        } catch (MessagingException ex) {
+            Assert.assertEquals(ex.getMessage(), "[DOM_001]:The message size exceeds maximum download size limit: 1");
+        }
+    }
+
+    @Test
+    public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
+        new Expectations(userMessageDefaultService) {{
+            messagesLogService.findUserMessageById(anyString);
+            result = deletedMessage;
+            deletedMessage.getDeleted();
+            result = new Date();
+
+        }};
+        try {
+            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            Assert.fail();
+        }catch(MessagingException ex){
+            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
+        }
+    }
+
+    @Test
+    public void test_checkCanDownloadWithExistingMessage(@Injectable MessageLogRO existingMessage) {
+        new Expectations(userMessageDefaultService) {{
+            messagesLogService.findUserMessageById(anyString);
+            result = existingMessage;
+            existingMessage.getDeleted();
+            result = null;
+        }};
+
+        userMessageDefaultService.checkCanGetMessageContent("messageId");
+    }
+
+    @Test
+    public void test_checkCanDownloadWhenNoMessage() {
+        new Expectations() {{
+            messagesLogService.findUserMessageById(anyString);
+            result = null;
+        }};
+
+        try {
+            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            Assert.fail();
+        }catch(MessagingException ex){
+            Assert.assertEquals(ex.getMessage(),"[DOM_001]:No message found for message id: messageId");
+        }
+    }
 }
