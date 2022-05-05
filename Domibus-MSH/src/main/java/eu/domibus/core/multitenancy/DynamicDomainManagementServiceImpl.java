@@ -107,7 +107,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         if (!domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
-            throw new DomibusDomainException(String.format("Cannot remove domain [%s] since is is not present.", domainCode));
+            throw new DomibusDomainException(String.format("Cannot remove domain [%s] since it is not present.", domainCode));
         }
     }
 
@@ -177,7 +177,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         if (domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
-            throw new DomibusDomainException(String.format("Cannot add domain [%s] since is is already added.", domainCode));
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] since it is already added.", domainCode));
         }
 
         if (!domainDao.findAll().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
