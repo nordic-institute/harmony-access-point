@@ -74,10 +74,10 @@ public class EArchivingRetentionService {
     protected void deleteBatch(EArchiveBatchEntity batch) {
         LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
         Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
-        LOG.info("Clean folder [{}]", folderToClean);
+        LOG.debug("Clean folder [{}]", folderToClean);
 
         try {
-            FileUtils.forceMkdir(folderToClean.toFile());
+            FileUtils.deleteDirectory(folderToClean.toFile());
             batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);

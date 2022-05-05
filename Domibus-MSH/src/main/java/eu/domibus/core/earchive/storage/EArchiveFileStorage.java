@@ -64,9 +64,7 @@ public class EArchiveFileStorage {
     }
 
     private Path getPath(String location) {
-        Path path;
-
-        path = fileSystemUtil.createLocation(location);
+        Path path = fileSystemUtil.createLocation(location);
 
         if (path == null) {
             throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.");

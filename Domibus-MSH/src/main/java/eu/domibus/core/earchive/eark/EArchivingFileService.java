@@ -62,18 +62,23 @@ public class EArchivingFileService {
     @Transactional(readOnly = true)
     @Timer(clazz = EArchivingFileService.class, value = "earchive_getArchivingFiles")
     @Counter(clazz = EArchivingFileService.class, value = "earchive_getArchivingFiles")
-    public Map<String, InputStream> getArchivingFiles(Long entityId) {
-        HashMap<String, InputStream> files = new HashMap<>();
+    public Map<String, ArchivingFileDTO> getArchivingFiles(Long entityId) {
+        HashMap<String, ArchivingFileDTO> files = new HashMap<>();
 
         RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByEntityId(entityId);
         if (rawXmlByMessageId != null) {
-            files.put(SOAP_ENVELOPE_XML, rawXmlByMessageId.getRawXmlMessageAsStream());
+            files.put(SOAP_ENVELOPE_XML,
+                    ArchivingFileDTOBuilder.getInstance()
+                            .setMimeType("application/xml")
+                            .setSize((long) rawXmlByMessageId.getRawMessage().length)
+                            .setInputStream(rawXmlByMessageId.getRawXmlMessageAsStream())
+                            .build());
         } else {
             LOG.debug("No userMessageRaw found for entityId [{}]", entityId);
         }
 
         final List<PartInfo> partInfos = partInfoService.findPartInfo(entityId);
-
+        //getMimetype in properties
         for (PartInfo partInfo : partInfos) {
             Map<String, String> props = getProps(partInfo);
             String mimeType = props.get(Property.MIME_TYPE);
@@ -85,18 +90,22 @@ public class EArchivingFileService {
             } else {
                 files.put(
                         getBaseName(partInfo) + ".attachment" + getExtension(partInfo.getMime()),
-                        getInputStream(entityId, partInfo));
+                        getArchivingFileDTO(entityId, partInfo));
             }
         }
         return files;
     }
 
-    private InputStream getDecompressdInputStream(Long entityId, PartInfo partInfo, String mimeType) {
+    private ArchivingFileDTO getDecompressdInputStream(Long entityId, PartInfo partInfo, String mimeType) {
         if (partInfo.getPayloadDatahandler() == null) {
             throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
         }
         try {
-            return new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream();
+            return ArchivingFileDTOBuilder.getInstance()
+                    .setMimeType(mimeType)
+                    .setSize(partInfo.getLength())
+                    .setInputStream(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream())
+                    .build();
         } catch (IOException e) {
             throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]", e);
         }
@@ -116,12 +125,16 @@ public class EArchivingFileService {
         return props;
     }
 
-    protected InputStream getInputStream(Long entityId, PartInfo partInfo) {
+    protected ArchivingFileDTO getArchivingFileDTO(Long entityId, PartInfo partInfo) {
         if (partInfo.getPayloadDatahandler() == null) {
             throw new DomibusEArchiveException(DomibusCoreErrorCode.DOM_009, "Could not find attachment for [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]");
         }
         try {
-            return partInfo.getPayloadDatahandler().getInputStream();
+            return ArchivingFileDTOBuilder.getInstance()
+                    .setMimeType(partInfo.getMime())
+                    .setSize(partInfo.getLength())
+                    .setInputStream(partInfo.getPayloadDatahandler().getInputStream())
+                    .build();
         } catch (IOException e) {
             throw new DomibusEArchiveException("Error getting input stream for attachment [" + partInfo.getHref() + "], messageId [" + partInfo.getUserMessage().getMessageId() + "] and entityId [" + entityId + "]", e);
         }
@@ -151,6 +164,7 @@ public class EArchivingFileService {
 
         return info.getHref().replace("cid:", "");
     }
+
     @Timer(clazz = EArchivingFileService.class, value = "earchive24_getBatchFileJson")
     @Counter(clazz = EArchivingFileService.class, value = "earchive24_getBatchFileJson")
     public InputStream getBatchFileJson(BatchEArchiveDTO batchEArchiveDTO) {

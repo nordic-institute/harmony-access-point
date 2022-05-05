@@ -117,7 +117,7 @@ public class EARKSIPFileService {
         addDataFileInfoToMETS(representationMETS, pathFromData, null);
     }
 
-    public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, Path dataFile) {
+    public void addDataFileInfoToMETS(MetsWrapper representationMETS, String pathFromData, ArchivingFileDTO archivingFileDTO) {
         com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addDataFileInfoToMETS", "generateRandomAndPrefixedUUID", "timer")).time();
         FileType file = new FileType();
         file.setID(Utils.generateRandomAndPrefixedUUID());
@@ -125,7 +125,7 @@ public class EARKSIPFileService {
 
         com.codahale.metrics.Timer.Context setBF = metricRegistry.timer(name("addDataFileInfoToMETS", "setFileBasicInformation", "timer")).time();
         // set mimetype, date creation, etc.
-        setFileBasicInformation(dataFile, file);
+        setFileBasicInformation(archivingFileDTO, file);
         setBF.stop();
 
         // add to file section
@@ -145,28 +145,25 @@ public class EARKSIPFileService {
         strMap.close();
     }
 
-    public void setFileBasicInformation(Path file, FileType fileType) {
-        initMimeTypeInfo(file, fileType);
-        initDateCreation(fileType, getFileName(file));
-        if (file != null) {
-            initSizeInfo(file, fileType);
-            initChecksum(file, fileType);
+    public void setFileBasicInformation(ArchivingFileDTO archivingFileDTO, FileType fileType) {
+        initMimeTypeInfo(archivingFileDTO, fileType);
+        initDateCreation(fileType, getFileName(archivingFileDTO));
+        if (archivingFileDTO != null) {
+            initSizeInfo(archivingFileDTO, fileType);
+            initChecksum(archivingFileDTO, fileType);
         }
     }
 
-    private String getFileName(@Nullable Path file) {
-        return file == null ? FileSystemEArchivePersistence.BATCH_JSON : file.toFile().getName();
+    private String getFileName(@Nullable ArchivingFileDTO archivingFileDTO) {
+        return (archivingFileDTO == null || archivingFileDTO.getPath() == null) ? FileSystemEArchivePersistence.BATCH_JSON : archivingFileDTO.getPath().toFile().getName();
     }
 
-    private void initSizeInfo(Path file, FileType fileType) {
-//        try {
-            LOG.debug("Setting file size [{}]", file);
-            fileType.setSIZE(1L);
-//            fileType.setSIZE(Files.size(file));
-            LOG.debug("Done setting file size");
-//        } catch (IOException e) {
-//            throw new DomibusEArchiveException("Error getting file size [" + file.toFile().getName() + "]", e);
-//        }
+    private void initSizeInfo(ArchivingFileDTO archivingFileDTO, FileType fileType) {
+
+        LOG.debug("Setting file size [{}]", archivingFileDTO);
+        fileType.setSIZE(archivingFileDTO.getSize());
+        LOG.debug("Done setting file size");
+
     }
 
     private void initDateCreation(FileType fileType, String name) {
@@ -177,22 +174,22 @@ public class EARKSIPFileService {
         }
     }
 
-    private void initMimeTypeInfo(Path file, FileType fileType) {
+    private void initMimeTypeInfo(ArchivingFileDTO archivingFileDTO, FileType fileType) {
         try {
-            LOG.debug("Setting mimetype [{}]", file);
-            fileType.setMIMETYPE(getFileMimetype(file));
+            LOG.debug("Setting mimetype [{}]", archivingFileDTO);
+            fileType.setMIMETYPE(getFileMimetype(archivingFileDTO));
             LOG.debug("Done setting mimetype");
         } catch (IOException e) {
-            throw new DomibusEArchiveException("Error probing content-type [" + getFileName(file) + "]", e);
+            throw new DomibusEArchiveException("Error probing content-type [" + getFileName(archivingFileDTO) + "]", e);
         }
     }
 
-    private void initChecksum(Path file, FileType fileType) {
+    private void initChecksum(ArchivingFileDTO archivingFileDTO, FileType fileType) {
         // checksum
         String checksumSHA256;
         try {
-            checksumSHA256 = getChecksumSHA256(file);
-            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, file.toFile().getName());
+            checksumSHA256 = getChecksumSHA256(archivingFileDTO.getPath());
+            LOG.debug("checksumSHA256 [{}] for file [{}]", checksumSHA256, archivingFileDTO.getPath().toFile().getName());
             fileType.setCHECKSUM(checksumSHA256);
             fileType.setCHECKSUMTYPE(SHA256_CHECKSUMTYPE);
         } catch (IOException e) {
@@ -205,7 +202,7 @@ public class EARKSIPFileService {
         com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("getChecksumSHA256", "openInputStream", "timer")).time();
         try (final FileInputStream inputStream = FileUtils.openInputStream(path.toFile())) {
             return DigestUtils.sha256Hex(inputStream);
-        }finally {
+        } finally {
             crtFile.stop();
         }
 
@@ -215,11 +212,11 @@ public class EARKSIPFileService {
         return DatatypeFactory.newInstance();
     }
 
-    private String getFileMimetype(@Nullable Path file) throws IOException {
-//        if (file == null) {
+    private String getFileMimetype(@Nullable ArchivingFileDTO archivingFileDTO) throws IOException {
+        if (archivingFileDTO == null || StringUtils.isBlank(archivingFileDTO.getMimeType())) {
             return "application/octet-stream";
-//        }
-//        return Files.probeContentType(file);
+        }
+        return archivingFileDTO.getMimeType();
     }
 
 }

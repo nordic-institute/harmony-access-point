@@ -74,13 +74,6 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             com.codahale.metrics.Timer.Context cleanTimer = metricRegistry.timer(name("createEArkSipStructure", "createParentDirectories", "timer")).time();
             FileUtils.createParentDirectories(batchDirectory.toFile());
             cleanTimer.stop();
-            com.codahale.metrics.Timer.Context checkdDir = metricRegistry.timer(name("createEArkSipStructure", "batchDirectorymkdir", "timer")).time();
-            if(batchDirectory.toFile().mkdir()){
-                LOG.debug("Folder created [{}]", batchDirectory);
-            } else {
-//                LOG.warn("Folder not created [{}]", batchDirectory);
-            }
-            checkdDir.stop();
             com.codahale.metrics.Timer.Context eArkSi = metricRegistry.timer(name("createEArkSipStructure", "getMetsWrapper", "timer")).time();
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
                     domibusVersionService.getArtifactName(),
@@ -137,10 +130,10 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     private void addUserMessage(EArchiveBatchUserMessage messageId, Path batchDirectory, MetsWrapper mainMETSWrapper) {
         com.codahale.metrics.Timer.Context getArch = metricRegistry.timer(name("addUserMessage", "getArchivingFiles", "timer")).time();
-        Map<String, InputStream> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getUserMessageEntityId());
+        Map<String, ArchivingFileDTO> archivingFile = eArchivingFileService.getArchivingFiles(messageId.getUserMessageEntityId());
         getArch.stop();
 
-        for (Map.Entry<String, InputStream> file : archivingFile.entrySet()) {
+        for (Map.Entry<String, ArchivingFileDTO> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());
             String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageId.getMessageId() + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
 
@@ -150,14 +143,16 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             getPath.stop();
 
             com.codahale.metrics.Timer.Context crtFile = metricRegistry.timer(name("addUserMessage", "createDataFile", "timer")).time();
-            try (InputStream inputStream = file.getValue()) {
+            ArchivingFileDTO archivingFileDTO = file.getValue();
+            archivingFileDTO.setPath(path);
+            try (InputStream inputStream = archivingFileDTO.getInputStream()) {
                 eArkSipBuilderService.createDataFile(path, inputStream);
             } catch (IOException e) {
-                throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + file.getValue() + "]", e);
+                throw new DomibusEArchiveException("Could not createDataFile on dir [" + dir + "] and file [" + archivingFileDTO + "]", e);
             }
             crtFile.stop();
             com.codahale.metrics.Timer.Context mets = metricRegistry.timer(name("addUserMessage", "addDataFileInfoToMETS", "timer")).time();
-            eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, path);
+            eArkSipBuilderService.addDataFileInfoToMETS(mainMETSWrapper, relativePathToMessageFolder, archivingFileDTO);
             mets.stop();
 
         }

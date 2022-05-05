@@ -4,10 +4,6 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemManager;
-import org.apache.commons.vfs2.VFS;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -58,28 +54,4 @@ public class FileSystemUtil {
         return payloadPath;
     }
 
-    private Path getTemporaryPath(String path, FileSystemManager fileSystemManager, IOException ioEx) throws FileSystemException {
-        LOG.error("Error creating/accessing the folder [{}]", path, ioEx);
-        try (FileObject fo = fileSystemManager.resolveFile(System.getProperty("java.io.tmpdir"))) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(WarningUtil.warnOutput("The temporary folder " + fo.getPath().toAbsolutePath() + " has been selected!"));
-            }
-            return fo.getPath();
-        }
-    }
-
-    private Path returnWritablePath(FileObject fileObject) throws IOException {
-        if (!fileObject.isWriteable()) {
-            throw new IOException("Write permission for folder " + fileObject.getPath().toAbsolutePath() + " is not granted.");
-        }
-        return fileObject.getPath();
-    }
-
-    private FileSystemManager getVFSManager() {
-        try {
-            return VFS.getManager();
-        } catch (FileSystemException e) {
-            throw new IllegalStateException("VFS Manager could not be created");
-        }
-    }
 }
