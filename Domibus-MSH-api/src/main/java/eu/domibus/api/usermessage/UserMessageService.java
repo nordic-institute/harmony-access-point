@@ -183,6 +183,8 @@ public interface UserMessageService {
 
     eu.domibus.api.model.UserMessage getMessageEntity(Long messageEntityId);
 
+    void checkCanGetMessageContent(String messageId);
+
     /**
      * Retrieves a message by id as a byte array
      *

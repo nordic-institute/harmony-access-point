@@ -16,10 +16,8 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -29,9 +27,9 @@ import org.junit.runner.RunWith;
 
 import java.util.*;
 
-import static eu.domibus.core.plugin.notification.BackendPluginEnum.*;
+import static eu.domibus.core.plugin.notification.BackendPlugin.*;
+import static eu.domibus.core.plugin.notification.BackendPlugin.Name.*;
 import static java.util.Arrays.asList;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 /**
@@ -45,13 +43,14 @@ import static org.junit.Assert.*;
 public class RoutingServiceTest {
 
     public static final int MAX_INDEX = 10;
+
     public static final String MESSAGE_ID = "MessageId";
 
     @Injectable
-    protected BackendConnectorProvider backendConnectorProvider;
+    private BackendConnectorProvider backendConnectorProvider;
 
     @Injectable
-    protected BackendFilterCoreMapper backendFilterCoreMapper;
+    private BackendFilterCoreMapper backendFilterCoreMapper;
 
     @Injectable
     private BackendFilterDao backendFilterDao;
@@ -60,25 +59,28 @@ public class RoutingServiceTest {
     private DomibusCoreMapper coreMapper;
 
     @Injectable
-    protected DomibusConfigurationService domibusConfigurationService;
+    private DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    protected DomainService domainService;
+    private DomainService domainService;
 
     @Injectable
-    protected DomainTaskExecutor domainTaskExecutor;
+    private DomainTaskExecutor domainTaskExecutor;
 
     @Injectable
-    protected List<CriteriaFactory> routingCriteriaFactories;
+    private List<CriteriaFactory> routingCriteriaFactories;
 
     @Injectable
-    protected DomainContextProvider domainContextProvider;
+    private DomainContextProvider domainContextProvider;
 
     @Injectable
-    AuthUtils authUtils;
+    private AuthUtils authUtils;
 
     @Injectable
-    SignalService signalService;
+    private SignalService signalService;
+
+    @Tested
+    private RoutingService routingService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -128,11 +130,10 @@ public class RoutingServiceTest {
                 }});
         bf3.setRoutingCriterias(rcd);
 
-        RoutingService routingService = new RoutingService();
         routingService.ensureUnicity(Arrays.asList(bf1, bf2, bf3));
     }
 
-    @Test()
+    @Test
     public void ensureUnicity() {
         BackendFilter bf1 = new BackendFilter();
         bf1.setBackendName("wsPlugin");
@@ -160,13 +161,11 @@ public class RoutingServiceTest {
                 }});
         bf2.setRoutingCriterias(rcc);
 
-        RoutingService routingService = new RoutingService();
         routingService.ensureUnicity(Arrays.asList(bf1, bf2));
     }
 
     @Test
     public void invalidateBackendFiltersCache() {
-        RoutingService routingService = new RoutingService();
         routingService.domainContextProvider = domainContextProvider;
 
         Domain domain1 = new Domain("D1", "DOMAIN1");
@@ -191,7 +190,6 @@ public class RoutingServiceTest {
 
     @Test
     public void getBackendFilters_backendFilterNotEmptyInDao() {
-        RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendFilterCoreMapper = backendFilterCoreMapper;
 
@@ -217,7 +215,6 @@ public class RoutingServiceTest {
 
     @Test
     public void getBackendFilters_return1(@Injectable BackendFilterEntity backendFilterEntity) {
-        RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendFilterCoreMapper = backendFilterCoreMapper;
 
@@ -236,7 +233,6 @@ public class RoutingServiceTest {
         }};
     }
 
-
     @Test
     public void testIsBackendFilterMatchingANDOperationWithFromAndActionMatching(@Injectable final BackendFilter filter,
                                                                                  @Injectable final Map<String, IRoutingCriteria> criteriaMap,
@@ -245,9 +241,6 @@ public class RoutingServiceTest {
                                                                                  @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                  @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                  @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
-
-        RoutingService routingService = new RoutingService();
-
         // these 2 filters are defined by the user in the Message Filter screen
         final List<RoutingCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(fromRoutingCriteria);
@@ -297,9 +290,6 @@ public class RoutingServiceTest {
                                                                                             @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                             @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                             @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
-
-        RoutingService routingService = new RoutingService();
-
         // these 2 filters are defined by the user in the Message Filter screen
         final List<RoutingCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(fromRoutingCriteria);
@@ -350,9 +340,6 @@ public class RoutingServiceTest {
                                                                            @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                            @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                            @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
-
-        RoutingService routingService = new RoutingService();
-
         // these 2 filters are defined by the user in the Message Filter screen
         final List<RoutingCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(fromRoutingCriteria);
@@ -387,6 +374,9 @@ public class RoutingServiceTest {
 
             actionRoutingCriteriaConfiguration.matches(userMessage, anyString);
             times = 0;
+
+            fromRoutingCriteria.toString();
+            userMessage.toString();
         }};
     }
 
@@ -398,9 +388,6 @@ public class RoutingServiceTest {
                                                                                 @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                 @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                 @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
-
-        RoutingService routingService = new RoutingService();
-
         // these 2 filters are defined by the user in the Message Filter screen
         final List<RoutingCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(fromRoutingCriteria);
@@ -444,6 +431,10 @@ public class RoutingServiceTest {
         new FullVerifications() {{
             actionRoutingCriteriaConfiguration.matches(userMessage, anyString);
             times = 1;
+
+            fromRoutingCriteria.toString();
+            actionRoutingCriteria.toString();
+            userMessage.toString();
         }};
     }
 
@@ -455,9 +446,6 @@ public class RoutingServiceTest {
                                                                         @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                         @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                         @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
-
-        RoutingService routingService = new RoutingService();
-
         new Expectations() {{
             filter.getRoutingCriterias();
             result = null;
@@ -469,6 +457,8 @@ public class RoutingServiceTest {
         new FullVerifications() {{
             criteriaMap.get(anyString);
             times = 0;
+
+            userMessage.toString();
         }};
     }
 
@@ -480,8 +470,6 @@ public class RoutingServiceTest {
                                                                                             @Injectable final IRoutingCriteria actionRoutingCriteriaConfiguration,
                                                                                             @Injectable final RoutingCriteria fromRoutingCriteria, //contains the FROM filter defined by the user
                                                                                             @Injectable final RoutingCriteria actionRoutingCriteria) { //contains the ACTION filter defined by the user
-        RoutingService routingService = new RoutingService();
-
         // these 2 filters are defined by the user in the Message Filter screen
         final List<RoutingCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(fromRoutingCriteria);
@@ -513,8 +501,6 @@ public class RoutingServiceTest {
     @Test
     public void testGetMatchingBackendFilter(@Injectable final UserMessage userMessage,
                                              @Injectable final List<BackendFilter> backendFilters) {
-        RoutingService routingService = new RoutingService();
-
         new Expectations(routingService) {{
             routingService.getBackendFiltersWithCache();
             result = backendFilters;
@@ -528,23 +514,17 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void testCreateBackendFiltersBasedOnExistingUserPriority(@Injectable BackendFilterEntity backendFilterEntity,
-                                                                    @Injectable AsyncNotificationConfiguration notificationListener,
-                                                                    @Injectable BackendConnector backendConnector) {
-
+    public void testCreateBackendFiltersBasedOnExistingUserPriority() {
         List<String> notificationListenerPluginsList = new ArrayList<>();
-        notificationListenerPluginsList.add(WS_PLUGIN.getPluginName());
-        notificationListenerPluginsList.add(JMS_PLUGIN.getPluginName());
-
-
-        RoutingService routingService = new RoutingService();
-
+        notificationListenerPluginsList.add(WS);
+        notificationListenerPluginsList.add(JMS);
 
         List<BackendFilterEntity> backendFilterEntities = routingService.buildBackendFilterEntities(notificationListenerPluginsList, 1);
         assertEquals(2, backendFilterEntities.size());
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            routingCriteriaFactories.iterator();
+        }};
     }
 
     @Test
@@ -557,17 +537,15 @@ public class RoutingServiceTest {
 
     @Test
     public void createBackendFilterEntity(@Injectable BackendFilterEntity backendFilterEntity) {
-        RoutingService routingService = new RoutingService();
-
         List<String> pluginList = new ArrayList<>();
-        int priority = 4;
-        pluginList.add(FS_PLUGIN.getPluginName());
+        pluginList.add(FS);
         pluginList.add("TEST2");
-        pluginList.add(JMS_PLUGIN.getPluginName());
+        pluginList.add(JMS);
         pluginList.add("TEST1");
-        pluginList.add(WS_PLUGIN.getPluginName());
+        pluginList.add(WS);
         pluginList.add("TEST3");
 
+        int priority = 4;
         List<BackendFilterEntity> backendFilters = routingService.buildBackendFilterEntities(pluginList, priority);
 
         assertEquals("TEST2", backendFilters.get(0).getBackendName());
@@ -576,38 +554,36 @@ public class RoutingServiceTest {
         assertEquals(5, backendFilters.get(1).getIndex());
         assertEquals("TEST3", backendFilters.get(2).getBackendName());
         assertEquals(6, backendFilters.get(2).getIndex());
-        assertEquals(WS_PLUGIN.getPluginName(), backendFilters.get(3).getBackendName());
+        assertTrue(WS_PLUGIN.getNames().contains(backendFilters.get(3).getBackendName()));
         assertEquals(7, backendFilters.get(3).getIndex());
-        assertEquals(JMS_PLUGIN.getPluginName(), backendFilters.get(4).getBackendName());
+        assertTrue(JMS_PLUGIN.getNames().contains(backendFilters.get(4).getBackendName()));
         assertEquals(8, backendFilters.get(4).getIndex());
-        assertEquals(FS_PLUGIN.getPluginName(), backendFilters.get(5).getBackendName());
+        assertTrue(FS_PLUGIN.getNames().contains(backendFilters.get(5).getBackendName()));
         assertEquals(9, backendFilters.get(5).getIndex());
     }
 
     @Test
     public void createBackendFilterEntities_defaultPlugin(@Injectable BackendFilterEntity backendFilterEntity) {
-        RoutingService routingService = new RoutingService();
-
-        List<String> pluginToAdd = asList(FS_PLUGIN.getPluginName(),
-                JMS_PLUGIN.getPluginName(),
-                WS_PLUGIN.getPluginName());
+        List<String> pluginToAdd = new ArrayList<>();
+        pluginToAdd.add(FS);
+        pluginToAdd.add(JMS);
+        pluginToAdd.add(WS);
 
         List<BackendFilterEntity> allBackendFilters = routingService.buildBackendFilterEntities(pluginToAdd, 0);
 
-        assertThat(allBackendFilters.size(), is(3));
-        assertThat(allBackendFilters.get(2).getBackendName(), is(FS_PLUGIN.getPluginName()));
-        assertThat(allBackendFilters.get(2).getIndex(), is(2));
-        assertThat(allBackendFilters.get(1).getBackendName(), is(JMS_PLUGIN.getPluginName()));
-        assertThat(allBackendFilters.get(1).getIndex(), is(1));
-        assertThat(allBackendFilters.get(0).getBackendName(), is(WS_PLUGIN.getPluginName()));
-        assertThat(allBackendFilters.get(0).getIndex(), is(0));
+        assertEquals(allBackendFilters.size(), 3);
+        assertEquals(allBackendFilters.get(2).getBackendName(), FS);
+        assertEquals(allBackendFilters.get(2).getIndex(), 2);
+        assertEquals(allBackendFilters.get(1).getBackendName(), JMS);
+        assertEquals(allBackendFilters.get(1).getIndex(), 1);
+        assertTrue(WS_PLUGIN.getNames().contains(allBackendFilters.get(0).getBackendName()));
+        assertEquals(allBackendFilters.get(0).getIndex(), 0);
     }
 
     @Test
     public void createBackendFilters_emptyDbEntities(@Injectable BackendConnectorProvider backendConnectorProvider,
                                                      @Injectable BackendConnector backendConnector,
                                                      @Injectable BackendFilterEntity dbBackendFilterEntity) {
-        RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
 
@@ -625,7 +601,7 @@ public class RoutingServiceTest {
             result = backendConnector;
 
             backendConnector.getName();
-            result = JMS_PLUGIN.getPluginName();
+            result = JMS;
 
             routingService.getMaxIndex(entitiesInDb);
             result = 0;
@@ -641,14 +617,12 @@ public class RoutingServiceTest {
             times = 1;
         }};
 
-        assertThat(pluginsToAdd.size(), is(1));
-        assertThat(pluginsToAdd.get(0), CoreMatchers.hasItems(
-                JMS_PLUGIN.getPluginName()));
+        assertEquals(1, pluginsToAdd.size());
+        assertTrue(pluginsToAdd.get(0).containsAll(JMS_PLUGIN.getNames()));
     }
 
     @Test
     public void testGetBackendFiltersWithCache(@Injectable List<BackendFilter> backendFilters) {
-        RoutingService routingService = new RoutingService();
         routingService.domainContextProvider = domainContextProvider;
 
         new Expectations(routingService) {{
@@ -678,9 +652,6 @@ public class RoutingServiceTest {
             @Injectable UserMessage userMessage,
             @Injectable BackendFilter backendFilter1,
             @Injectable BackendFilter backendFilter2) {
-
-        RoutingService routingService = new RoutingService();
-
         List<BackendFilter> backendFilters = asList(backendFilter1, backendFilter2);
 
         new Expectations(routingService) {{
@@ -707,8 +678,6 @@ public class RoutingServiceTest {
     public void getMatchingBackendFilter_noFilters(
             @Injectable Map<String, IRoutingCriteria> criteriaMap,
             @Injectable UserMessage userMessage) {
-        RoutingService routingService = new RoutingService();
-
         List<BackendFilter> backendFilters = new ArrayList<>();
 
         new Expectations() {{
@@ -726,16 +695,12 @@ public class RoutingServiceTest {
 
     @Test
     public void getMaxIndex_empty() {
-        RoutingService routingService = new RoutingService();
-
         int maxIndex = routingService.getMaxIndex(new ArrayList<>());
         assertEquals(0, maxIndex);
     }
 
     @Test
     public void getMaxIndex_null() {
-        RoutingService routingService = new RoutingService();
-
         int maxIndex = routingService.getMaxIndex(null);
         assertEquals(0, maxIndex);
     }
@@ -744,8 +709,6 @@ public class RoutingServiceTest {
     public void getMaxIndex_maxIndex(@Injectable BackendFilterEntity b1,
                                      @Injectable BackendFilterEntity b2,
                                      @Injectable BackendFilterEntity b3) {
-        RoutingService routingService = new RoutingService();
-
         new Expectations() {{
             b1.getIndex();
             result = MAX_INDEX - 2;
@@ -768,7 +731,6 @@ public class RoutingServiceTest {
     public void ensureAtLeastOneFilterForEachPluginInvalid(@Mocked BackendConnector<?, ?> bc1,
                                                            @Mocked BackendConnector<?, ?> bc2,
                                                            @Mocked BackendFilter bf1) {
-        RoutingService routingService = new RoutingService();
         routingService.backendConnectorProvider = backendConnectorProvider;
 
         new Expectations() {{
@@ -792,8 +754,6 @@ public class RoutingServiceTest {
                                                          @Mocked BackendFilter bf1,
                                                          @Mocked BackendFilter bf2,
                                                          @Mocked BackendFilter bf3) {
-
-        RoutingService routingService = new RoutingService();
         routingService.backendConnectorProvider = backendConnectorProvider;
 
         new Expectations() {{
@@ -821,33 +781,28 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void createBackendFiltersWithDbEntities(@Injectable BackendConnectorProvider backendConnectorProvider,
-                                                   @Injectable BackendConnector backendConnector,
+    public void createBackendFiltersWithDbEntities(@Injectable BackendConnector backendConnector,
                                                    @Injectable BackendFilterEntity dbBackendFilterEntity,
                                                    @Injectable BackendFilterEntity dbBackendFilterEntity1) {
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
         backendFilterEntities.add(dbBackendFilterEntity);
         backendFilterEntities.add(dbBackendFilterEntity1);
 
-        RoutingService routingService = new RoutingService();
-        routingService.backendFilterDao = backendFilterDao;
-        routingService.backendConnectorProvider = backendConnectorProvider;
-
         new Expectations(routingService) {{
             backendFilterDao.findAll();
             result = backendFilterEntities;
 
             dbBackendFilterEntity.getBackendName();
-            result = JMS_PLUGIN.getPluginName();
+            result = JMS;
 
             dbBackendFilterEntity1.getBackendName();
-            result = FS_PLUGIN.getPluginName();
+            result = FS;
 
             backendConnectorProvider.getBackendConnectors();
             result = backendConnector;
 
             backendConnector.getName();
-            result = JMS_PLUGIN.getPluginName();
+            result = JMS;
         }};
 
         routingService.createBackendFilters();
@@ -861,17 +816,39 @@ public class RoutingServiceTest {
             times = 1;
         }};
     }
+    @Test
+    public void ceateBackendFilters_updatesOldWsPluginBackendName(@Injectable BackendConnector backendConnector,
+                                                   @Injectable BackendFilterEntity dbBackendFilterEntity) {
+        List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
+        backendFilterEntities.add(dbBackendFilterEntity);
+
+        new Expectations(routingService) {{
+            backendFilterDao.findAll();
+            result = backendFilterEntities;
+
+            dbBackendFilterEntity.getBackendName();
+            result = WS_OLD;
+
+            backendConnectorProvider.getBackendConnectors();
+            result = backendConnector;
+
+            backendConnector.getName();
+            result = WS;
+        }};
+
+        routingService.createBackendFilters();
+
+        new VerificationsInOrder() {{
+            backendFilterDao.findAll();
+            dbBackendFilterEntity.setBackendName(WS);
+            backendFilterDao.update(dbBackendFilterEntity);
+        }};
+    }
 
     @Test
     public void updateBackendFilters(@Injectable BackendFilter filter1,
                                      @Injectable BackendFilter filter2,
                                      @Injectable List<BackendFilterEntity> allBackendFilterEntities) {
-        RoutingService routingService = new RoutingService();
-        routingService.backendFilterDao = backendFilterDao;
-        routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.signalService = signalService;
-        routingService.backendFilterCoreMapper = backendFilterCoreMapper;
-
         List<BackendFilter> filters = new ArrayList<>();
         filters.add(filter1);
         filters.add(filter2);
@@ -896,6 +873,7 @@ public class RoutingServiceTest {
             backendFilterDao.update(allBackendFilterEntities);
             routingService.invalidateBackendFiltersCache();
             signalService.signalMessageFiltersUpdated();
+            allBackendFilterEntities.toString();
         }};
     }
 }

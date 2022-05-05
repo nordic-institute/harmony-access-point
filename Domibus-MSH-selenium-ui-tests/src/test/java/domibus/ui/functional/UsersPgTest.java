@@ -68,7 +68,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("Selecting user " + username);
 		log.info("Selecting user " + username);
-		page.grid().scrollToAndSelect("Username", username);
+		page.grid().scrollToAndSelect("User Name", username);
 
 		Reporter.log("Press Delete button");
 		log.info("Press Delete button");
@@ -96,7 +96,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("Selecting user " + username);
 		log.info("Selecting user " + username);
-		int index = page.grid().scrollTo("Username", username);
+		int index = page.grid().scrollTo("User Name", username);
 		page.grid().selectRow(index);
 
 		Reporter.log("Press Delete button");
@@ -147,7 +147,7 @@ public class UsersPgTest extends SeleniumTest {
 
 			Reporter.log("editing user " + toEditUser);
 			log.info("editing user " + toEditUser);
-			page.grid().scrollToAndSelect("Username", toEditUser);
+			page.grid().scrollToAndSelect("User Name", toEditUser);
 			page.getEditBtn().click();
 			soft.assertTrue(testRoleList(SUPER_EDIT_USER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing a user");
 			Reporter.log("closing modal");
@@ -156,7 +156,7 @@ public class UsersPgTest extends SeleniumTest {
 
 			Reporter.log("editing admin " + adminUser);
 			log.info("editing admin " + adminUser);
-			page.grid().scrollToAndSelect("Username", adminUser);
+			page.grid().scrollToAndSelect("User Name", adminUser);
 			page.getEditBtn().click();
 			soft.assertTrue(testRoleList(SUPER_EDIT_ADMIN_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
 			Reporter.log("closing modal");
@@ -165,7 +165,7 @@ public class UsersPgTest extends SeleniumTest {
 
 			Reporter.log("editing super user " + superUser);
 			log.info("editing super user " + superUser);
-			page.grid().scrollToAndSelect("Username", superUser);
+			page.grid().scrollToAndSelect("User Name", superUser);
 			page.getEditBtn().click();
 			soft.assertTrue(testRoleList(SUPER_EDIT_SUPER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an SUPER");
 			Reporter.log("closing modal");
@@ -188,7 +188,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("editing user " + toEditUser);
 		log.info("editing user " + toEditUser);
-		page.grid().scrollToAndSelect("Username", toEditUser);
+		page.grid().scrollToAndSelect("User Name", toEditUser);
 		page.getEditBtn().click();
 		soft.assertTrue(testRoleList(ADMIN_VISIBLE_ROLES, modal), "Roles available for ADMIN");
 
@@ -225,7 +225,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("searching for user in grid");
 		log.info("searching for user in grid");
-		int index = page.grid().scrollTo("Username", username);
+		int index = page.grid().scrollTo("User Name", username);
 		soft.assertEquals(index, -1, "User not present in the list of users");
 
 		soft.assertAll();
@@ -255,7 +255,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("searching for user in grid");
 		log.info("searching for user in grid");
-		int index = page.grid().scrollTo("Username", username);
+		int index = page.grid().scrollTo("User Name", username);
 		soft.assertTrue(index > -1, "User present in the list of users");
 
 		soft.assertAll();
@@ -276,7 +276,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("editing user");
 		log.info("editing user");
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 
 		Reporter.log("make the user active");
 		log.info("make the user active");
@@ -296,7 +296,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("checking edited values");
 		log.info("checking edited values");
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 		modal = new UserModal(driver);
 
 		soft.assertFalse(modal.getActiveChk().isChecked(), "User is still disabled");
@@ -320,7 +320,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("editing user");
 		log.info("editing user");
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 
 		Reporter.log("make the user active");
 		log.info("make the user active");
@@ -340,7 +340,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("checking edited values");
 		log.info("checking edited values");
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 		modal = new UserModal(driver);
 
 		soft.assertTrue(modal.getActiveChk().isChecked(), "User is enabled");
@@ -391,7 +391,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("editing user " + username);
 		log.info("editing user " + username);
-		page.grid().scrollToAndSelect("Username", username);
+		page.grid().scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();
 
 		modal = new UserModal(driver);
@@ -427,7 +427,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("changing password for " + username);
 		log.info("changing password for " + username);
-		page.grid().scrollToAndSelect("Username", username);
+		page.grid().scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();
 
 		UserModal modal = new UserModal(driver);
@@ -518,7 +518,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("editing user:" + username);
 		log.info("editing user:" + username);
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 
 		Reporter.log("changing role");
 		log.info("changing role");
@@ -708,7 +708,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("deleting created user");
 		log.info("deleting created user");
-		page.grid().scrollToAndSelect("Username", username);
+		page.grid().scrollToAndSelect("User Name", username);
 		page.getDeleteBtn().click();
 
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
@@ -769,13 +769,13 @@ public class UsersPgTest extends SeleniumTest {
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 
-		page.grid().scrollToAndSelect("Username", "super");
+		page.grid().scrollToAndSelect("User Name", "super");
 		page.getDeleteBtn().click();
 		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.Users.LOGGEDINUSER_DELETE_ERROR + ": super"));
 		Reporter.log("Super user can't be deleted as no other super user exists");
 		log.info("Super user can't be deleted as no other super user exists");
 
-		page.grid().scrollToAndSelect("Username", "super");
+		page.grid().scrollToAndSelect("User Name", "super");
 		page.getEditBtn().click();
 		UserModal modal = new UserModal(driver);
 
@@ -805,7 +805,7 @@ public class UsersPgTest extends SeleniumTest {
 
 		Reporter.log("Update Email for new Super user " + userName);
 		log.info("Update Email for new Super user " + userName);
-		page.grid().scrollToAndSelect("Username", userName);
+		page.grid().scrollToAndSelect("User Name", userName);
 		page.getEditBtn().click();
 
 		UserModal modal = new UserModal(driver);
@@ -820,7 +820,7 @@ public class UsersPgTest extends SeleniumTest {
 		Reporter.log(String.format("Delete new Super user {}", userName));
 		log.info(String.format("Delete new Super user {}", userName));
 
-		page.grid().scrollToAndSelect("Username", userName);
+		page.grid().scrollToAndSelect("User Name", userName);
 		page.getDeleteBtn().click();
 		page.saveAndConfirm();
 
@@ -858,7 +858,7 @@ public class UsersPgTest extends SeleniumTest {
 
 				Reporter.log("Try deactivating logged in user");
 				log.info("Try deactivating logged in user");
-				userPage.grid().scrollToAndSelect("Username", loggedInUser);
+				userPage.grid().scrollToAndSelect("User Name", loggedInUser);
 				userPage.getEditBtn().click();
 				UserModal modal = new UserModal(driver);
 				soft.assertTrue(modal.getActiveChk().getAttribute("class").contains("disabled"), "Active checkbox is disabled");
@@ -909,7 +909,7 @@ public class UsersPgTest extends SeleniumTest {
 
 				Reporter.log("Try deactivating logged in user");
 				log.info("Try deactivating logged in user");
-				userPage.grid().scrollToAndSelect("Username", loggedInUser);
+				userPage.grid().scrollToAndSelect("User Name", loggedInUser);
 				userPage.getEditBtn().click();
 				UserModal modal = new UserModal(driver);
 				soft.assertTrue(modal.getActiveChk().getAttribute("class").contains("disabled"), "Active checkbox is disabled");
@@ -1002,7 +1002,7 @@ public class UsersPgTest extends SeleniumTest {
 				Reporter.log("Deactivated admin user : " + userName);
 				log.info("Deactivated admin user : " + userName);
 			} else {
-				userPage.grid().scrollToAndSelect("Username", newUser);
+				userPage.grid().scrollToAndSelect("User Name", newUser);
 				userPage.getEditBtn().click();
 				UserModal modal = new UserModal(driver);
 				modal.getActiveChk().click();
@@ -1040,7 +1040,7 @@ public class UsersPgTest extends SeleniumTest {
 				Reporter.log("Deleted admin user : " + userName);
 				log.info("Deleted admin user : " + userName);
 			} else {
-				userPage.grid().scrollToAndSelect("Username", newUser);
+				userPage.grid().scrollToAndSelect("User Name", newUser);
 				userPage.getDeleteBtn().click();
 				userPage.saveAndConfirm();
 
@@ -1064,7 +1064,7 @@ public class UsersPgTest extends SeleniumTest {
 		userPage.getSidebar().goToPage(PAGES.USERS);
 		userPage.grid().waitForRowsToLoad();
 
-		int index = userPage.grid().scrollTo("Username", deletedUsername);
+		int index = userPage.grid().scrollTo("User Name", deletedUsername);
 		soft.assertEquals(index, -1, "User is not visible in the grid");
 
 		userPage.newUser(deletedUsername, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());

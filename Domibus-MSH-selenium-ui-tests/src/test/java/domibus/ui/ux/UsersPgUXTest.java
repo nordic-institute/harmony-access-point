@@ -64,7 +64,7 @@ public class UsersPgUXTest extends SeleniumTest {
 
 		Reporter.log("double clicking on user");
 		log.info("double clicking on user");
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 
 		UserModal um = new UserModal(driver);
 		soft.assertTrue(um.isLoaded(), "Doubleclick opens modal");
@@ -94,12 +94,12 @@ public class UsersPgUXTest extends SeleniumTest {
 
 		Reporter.log("double clicking on user");
 		log.info("double clicking on user");
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 
 		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.USER_CANNOT_EDIT_DELETED, "Page shows error message");
 
-		page.grid().scrollToAndSelect("Username", username);
+		page.grid().scrollToAndSelect("User Name", username);
 		soft.assertTrue(page.getEditBtn().isDisabled(), "Edit button is not enabled for deleted users!");
 		soft.assertTrue(page.getDeleteBtn().isDisabled(), "Delete button is not enabled for deleted users!");
 
@@ -117,7 +117,7 @@ public class UsersPgUXTest extends SeleniumTest {
 		Reporter.log("test for user " + username);
 		log.info("test for user " + username);
 
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 		Reporter.log("modal opened");
 		log.info("modal opened");
 
@@ -142,7 +142,7 @@ public class UsersPgUXTest extends SeleniumTest {
 
 		Reporter.log("double clicking on user");
 		log.info("double clicking on user");
-		page.grid().scrollToAndDoubleClick("Username", username);
+		page.grid().scrollToAndDoubleClick("User Name", username);
 
 		Reporter.log("adding invalid email");
 		log.info("adding invalid email");
@@ -369,7 +369,7 @@ public class UsersPgUXTest extends SeleniumTest {
 
 		page.grid().waitForRowsToLoad();
 
-		int index = page.grid().scrollTo("Username", username);
+		int index = page.grid().scrollTo("User Name", username);
 		page.grid().selectRow(index);
 		Reporter.log("selecting row " + index);
 		log.info("selecting row " + index);
@@ -391,7 +391,7 @@ public class UsersPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
-		int index = page.grid().scrollTo("Username", username);
+		int index = page.grid().scrollTo("User Name", username);
 		page.grid().selectRow(index);
 		Reporter.log("selecting row " + index);
 		log.info("selecting row " + index);
@@ -495,11 +495,11 @@ public class UsersPgUXTest extends SeleniumTest {
 			String userName = userArray.getJSONObject(i).getString("userName");
 			String role = userArray.getJSONObject(i).getString("roles");
 
-			int index = page.grid().scrollTo("Username", userName);
+			int index = page.grid().scrollTo("User Name", userName);
 			soft.assertFalse(index < 0, "User is  visible in the grid");
 
 			if (isDeleted.booleanValue()) {
-				soft.assertTrue(page.getUsersGrid().isDeleted(userName, "Username"), "Username field value is strike through");
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName, "User Name"), "Username field value is strike through");
 				soft.assertTrue(page.getUsersGrid().isDeleted(userName, "Role"), "Role field value is striked through");
 			}
 		}
@@ -540,11 +540,11 @@ public class UsersPgUXTest extends SeleniumTest {
 		String userName = deletedUserArray.getJSONObject(0).get("userName").toString();
 		Boolean isDeleted = userArray.getJSONObject(0).getBoolean("deleted");
 
-		int index = page.grid().scrollTo("Username", userName);
+		int index = page.grid().scrollTo("User Name", userName);
 		soft.assertFalse(index < 0, "User is  visible in the grid");
 
 		if (isDeleted.booleanValue()) {
-			soft.assertTrue(page.getUsersGrid().isDeleted(userName, "Username"), "Username field value is strike through");
+			soft.assertTrue(page.getUsersGrid().isDeleted(userName, "User Name"), "Username field value is strike through");
 			soft.assertTrue(page.getUsersGrid().isDeleted(userName, "Role"), "Role field value is striked through");
 		}
 		soft.assertAll();
@@ -592,8 +592,8 @@ public class UsersPgUXTest extends SeleniumTest {
 		}
 		Reporter.log("get username for top row");
 		log.info("get username for top row");
-		page.grid().getRowSpecificColumnVal(1, "Username");
-		String userName = page.grid().getRowSpecificColumnVal(1, "Username");
+		page.grid().getRowSpecificColumnVal(1, "User Name");
+		String userName = page.grid().getRowSpecificColumnVal(1, "User Name");
 		Reporter.log("double click on top row");
 		log.info("double click on top row");
 		page.grid().doubleClickRow(1);

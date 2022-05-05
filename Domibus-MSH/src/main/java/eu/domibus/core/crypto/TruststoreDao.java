@@ -1,9 +1,9 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.core.dao.BasicDao;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -21,13 +21,13 @@ public class TruststoreDao extends BasicDao<TruststoreEntity> {
     public TruststoreEntity findByName(String name) {
         TypedQuery<TruststoreEntity> q = em.createNamedQuery("Truststore.findByName", TruststoreEntity.class);
         q.setParameter("NAME", name);
-        return DataAccessUtils.singleResult(q.getResultList());
+        return q.getSingleResult();
     }
 
     public TruststoreEntity findByNameSafely(String name) {
         try {
             return findByName(name);
-        } catch (Exception ex) {
+        } catch (NoResultException ex) {
             return null;
         }
     }
