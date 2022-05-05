@@ -65,6 +65,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     @Override
     public void addDomain(String domainCode, boolean notifyClusterNodes) {
+        LOG.debug("Adding domain [{}]", domainCode);
+
         validateAddition(domainCode);
 
         Domain domain = new Domain(domainCode, domainCode);
@@ -76,10 +78,14 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         if(notifyClusterNodes) {
             notifyClusterNodesOfAddition(domainCode);
         }
+
+        LOG.debug("Finished adding domain [{}]", domainCode);
     }
 
     @Override
     public void removeDomain(String domainCode, boolean notifyClusterNodes) {
+        LOG.debug("Removing domain [{}]", domainCode);
+
         validateRemoval(domainCode);
 
         Domain domain = new Domain(domainCode, domainCode);
@@ -91,6 +97,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         if(notifyClusterNodes) {
             notifyClusterNodesOfRemoval(domainCode);
         }
+
+        LOG.debug("Finished removing domain [{}]", domainCode);
     }
 
     protected void validateRemoval(String domainCode) {
