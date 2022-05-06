@@ -103,7 +103,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         try {
             entries = getTrustStoreEntries();
         } catch (ConfigurationException ex) {
-            LOG.error("Could not find TLS truststore.");
+            LOG.error("Could not find TLS truststore.", ex);
         }
         getCsvService().validateMaxRows(entries.size());
 
