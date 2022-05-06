@@ -19,7 +19,7 @@
         <com.smartbear.soapui.version>5.1.2</com.smartbear.soapui.version>
         <org.codehaus.groovy.version>2.9.2-01</org.codehaus.groovy.version>
         <org.codehaus.groovy.eclipse-batch.version>2.5.13-01</org.codehaus.groovy.eclipse-batch.version>
-        <org.apache.activemq.client-all.version>5.17.1</org.apache.activemq.client-all.version>
+        <org.apache.activemq.version>5.16.4</org.apache.activemq.version>
 
 
         <soapui.root.folder>${project.basedir}/src/main/soapui</soapui.root.folder>
@@ -50,8 +50,13 @@
         <!-- JMS Libraries -->
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-all</artifactId>
-            <version>${org.apache.activemq.client-all.version}</version>
+            <artifactId>activemq-client</artifactId>
+            <version>${org.apache.activemq.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <version>${org.apache.activemq.version}</version>
         </dependency>
 
     </dependencies>
