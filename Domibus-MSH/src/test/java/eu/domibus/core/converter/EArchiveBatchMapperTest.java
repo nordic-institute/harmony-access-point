@@ -55,8 +55,8 @@ public class EArchiveBatchMapperTest {
         Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
         Assert.assertEquals(testEntity.getErrorCode(), result.getErrorCode());
         Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
-        Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
-        Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
+        Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartDate());
+        Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndDate());
         Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
 
         Assert.assertTrue(result.getMessages().isEmpty());
@@ -90,8 +90,8 @@ public class EArchiveBatchMapperTest {
         Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
         Assert.assertEquals(testEntity.getErrorCode(), result.getErrorCode());
         Assert.assertEquals(testEntity.getErrorMessage(), result.getErrorDescription());
-        Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
-        Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
+        Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartDate());
+        Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndDate());
         Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
         // test list messages
         Assert.assertEquals(batchUserMessages.size(), result.getMessages().size());

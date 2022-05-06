@@ -22,7 +22,6 @@ import javax.persistence.PersistenceContext;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
 import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
@@ -177,8 +176,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         // descending order
         // the batch 1 is last in list
         Assert.assertEquals(batch1.getBatchId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getBatchId());
-        Assert.assertEquals(uml1.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageStartId().longValue());
-        Assert.assertEquals(uml3.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageEndId().longValue());
+        Assert.assertEquals(uml1.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageStartDate().longValue());
+        Assert.assertEquals(uml3.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageEndDate().longValue());
     }
 
     @Test
@@ -198,7 +197,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // second batch2 with only one message
         Assert.assertEquals(2, batchRequestsCount.size());
-        Assert.assertEquals(batchRequestsCount.get(0).getMessageEndId(), batchRequestsCount.get(0).getMessageEndId());
+        Assert.assertEquals(batchRequestsCount.get(0).getMessageEndDate(), batchRequestsCount.get(0).getMessageEndDate());
     }
 
     @Test

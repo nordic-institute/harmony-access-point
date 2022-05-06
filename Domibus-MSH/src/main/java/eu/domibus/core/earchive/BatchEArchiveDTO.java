@@ -22,9 +22,9 @@ public class BatchEArchiveDTO {
 
     String timestamp;
 
-    String messageStartId;
+    String messageStartDate;
 
-    String messageEndId;
+    String messageEndDate;
 
     String manifestChecksum;
 
@@ -42,15 +42,15 @@ public class BatchEArchiveDTO {
                             String requestType,
                             String status,
                             String timestamp,
-                            String messageStartId,
-                            String messageEndId
+                            String messageStartDate,
+                            String messageEndDate
                             ) {
         this.batchId = batchId;
         this.requestType = requestType;
         this.status = status;
         this.timestamp = timestamp;
-        this.messageStartId = messageStartId;
-        this.messageEndId = messageEndId;
+        this.messageStartDate = messageStartDate;
+        this.messageEndDate = messageEndDate;
     }
 
     public String getVersion() {
@@ -109,20 +109,20 @@ public class BatchEArchiveDTO {
         this.timestamp = timestamp;
     }
 
-    public String getMessageStartId() {
-        return messageStartId;
+    public String getMessageStartDate() {
+        return messageStartDate;
     }
 
-    public void setMessageStartId(String messageStartId) {
-        this.messageStartId = messageStartId;
+    public void setMessageStartDate(String messageStartDate) {
+        this.messageStartDate = messageStartDate;
     }
 
-    public String getMessageEndId() {
-        return messageEndId;
+    public String getMessageEndDate() {
+        return messageEndDate;
     }
 
-    public void setMessageEndId(String messageEndId) {
-        this.messageEndId = messageEndId;
+    public void setMessageEndDate(String messageEndDate) {
+        this.messageEndDate = messageEndDate;
     }
 
     public String getManifestChecksum() {
@@ -151,8 +151,8 @@ public class BatchEArchiveDTO {
                 ", errorCode='" + errorCode + '\'' +
                 ", errorDescription='" + errorDescription + '\'' +
                 ", timestamp='" + timestamp + '\'' +
-                ", messageStartDate='" + messageStartId + '\'' +
-                ", messageEndDate='" + messageEndId + '\'' +
+                ", messageStartDate='" + messageStartDate + '\'' +
+                ", messageEndDate='" + messageEndDate + '\'' +
                 ", manifestChecksum='" + manifestChecksum + '\'' +
                 ", messages=" + messages +
                 '}';

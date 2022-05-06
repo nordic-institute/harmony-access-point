@@ -35,8 +35,8 @@ public class EArchiveExtMapperTestIT extends AbstractIT {
         toConvert.setRequestType(BatchRequestType.MANUAL.name());
         toConvert.setMessages(Arrays.asList("messageId1", "messageId1"));
         toConvert.setTimestamp(Calendar.getInstance().getTime());
-        toConvert.setMessageStartId(2108080 * 10000000000L + 1234L);
-        toConvert.setMessageEndId(2108080 * 10000000000L + 12345L);
+        toConvert.setMessageStartDate(2108080 * 10000000000L + 1234L);
+        toConvert.setMessageEndDate(2108080 * 10000000000L + 12345L);
         // when
         final BatchDTO converted = archiveExtMapper.archiveBatchToBatch(toConvert);
         // then
@@ -59,8 +59,8 @@ public class EArchiveExtMapperTestIT extends AbstractIT {
         toConvert.setStatus(EArchiveBatchStatus.EXPORTED.name());
         toConvert.setMessages(Arrays.asList("messageId1", "messageId1"));
         toConvert.setTimestamp(Calendar.getInstance().getTime());
-        toConvert.setMessageStartId(2108080 * 10000000000L + 1234L);
-        toConvert.setMessageEndId(2108080 * 10000000000L + 12345L);
+        toConvert.setMessageStartDate(2108080 * 10000000000L + 1234L);
+        toConvert.setMessageEndDate(2108080 * 10000000000L + 12345L);
         // when
         final BatchDTO converted = archiveExtMapper.archiveBatchToBatch(toConvert);
         // then
@@ -85,8 +85,8 @@ public class EArchiveExtMapperTestIT extends AbstractIT {
         toConvert.setStatus(EArchiveBatchStatus.EXPORTED.name());
         toConvert.setMessages(Arrays.asList("messageId1", "messageId1"));
         toConvert.setTimestamp(Calendar.getInstance().getTime());
-        toConvert.setMessageStartId(2108080 * 10000000000L + 1234L);
-        toConvert.setMessageEndId(2108080 * 10000000000L + 12345L);
+        toConvert.setMessageStartDate(2108080 * 10000000000L + 1234L);
+        toConvert.setMessageEndDate(2108080 * 10000000000L + 12345L);
         // when
         final BatchDTO converted = archiveExtMapper.archiveBatchToBatch(toConvert);
         // then

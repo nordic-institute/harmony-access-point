@@ -19,6 +19,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -110,14 +111,33 @@ public class EArchiveListener implements MessageListener {
     }
 
     private String exportInFileSystem(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
+        LOG.debug("Earchive messageStartDate:  [{}]", getMessageStartDate(batchUserMessages, 0));
+        LOG.debug("Earchive messageEndDate:  [{}]", getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages)));
+        LOG.debug("Earchive messageEndDate long :  [{}]", Long.parseLong(getMessageStartDate(batchUserMessages, 0)));
+        Long startDate = eArchiveBatchUtils.extractDateFromPKUserMessageId(Long.parseLong(getMessageStartDate(batchUserMessages, 0)));
+        LOG.debug("Earchive startDate long :  [{}]", startDate);
+        //LOG.debug("Earchive startDate Date :  [{}]", new Date(startDate));
+        DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        LOG.debug("Earchive DEFAULT_FORMATTER:  [{}]", DEFAULT_FORMATTER);
+        Date date = (Date)DEFAULT_FORMATTER.parse(startDate.toString());
+        LOG.debug("Earchive date:  [{}]", date);
+        LOG.debug("Earchive utc date:  [{}]", date.toInstant().atZone(ZoneOffset.UTC));
+        Date messageStartDate = null;
+        Date messageEndDate = null;
+        if (getMessageStartDate(batchUserMessages, 0) != null) {
+            messageStartDate = new Date(Long.parseLong(getMessageStartDate(batchUserMessages, 0)));
+        }
+        if (getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages)) != null) {
+            messageEndDate = new Date(Long.parseLong(getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages))));
+        }
         DomibusEARKSIPResult eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                         .status("SUCCESS")
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId(getMessageStartDate(batchUserMessages, 0))
-                        .messageEndId(getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages)))
+                        .messageStartDate(DateTimeFormatter.ISO_DATE_TIME.format(messageStartDate.toInstant().atZone(ZoneOffset.UTC)))
+                        .messageEndDate(DateTimeFormatter.ISO_DATE_TIME.format(messageEndDate.toInstant().atZone(ZoneOffset.UTC)))
                         .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
                 batchUserMessages);
