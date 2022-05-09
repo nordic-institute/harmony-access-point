@@ -9,7 +9,7 @@ package eu.domibus.ext.services;
  */
 public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManagerExt {
     String PLUGINS_CONFIG_HOME = "plugins/config";
-    
+
     /**
      * Returns the current property value for the current domain
      *
