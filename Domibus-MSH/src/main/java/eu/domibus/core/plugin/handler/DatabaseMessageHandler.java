@@ -40,6 +40,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
+import eu.domibus.plugin.DownloadEvent;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessagePuller;
@@ -47,6 +48,7 @@ import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,6 +138,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected PartInfoService partInfoService;
 
+    @Autowired
+    protected ApplicationEventPublisher applicationEventPublisher;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
@@ -152,8 +157,17 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
         final UserMessageLog messageLog = userMessageLogService.findById(messageEntityId);
-
+        publishDownloadEvent(userMessage.getMessageId());
         return getSubmission(userMessage, messageLog);
+    }
+
+    /** Publishes a download event to be caught in case of transaction rollback
+     * @param messageId message id of the message that is being downloaded
+     */
+    protected void publishDownloadEvent(String messageId) {
+        DownloadEvent downloadEvent = new DownloadEvent();
+        downloadEvent.setMessageId(messageId);
+        applicationEventPublisher.publishEvent(downloadEvent);
     }
 
     protected Submission getSubmission(final UserMessage userMessage, final UserMessageLog messageLog) {
