@@ -236,7 +236,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         LOG.debug("Finished initializing the truststore certificate provider for domain [{}]", domain);
     }
 
-    private void loadTrustStoreProperties() {
+    protected void loadTrustStoreProperties() {
         try {
             super.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
@@ -257,7 +257,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         LOG.debug("Finished initializing the keyStore certificate provider for domain [{}]", domain);
     }
 
-    private void loadKeyStoreProperties() {
+    protected void loadKeyStoreProperties() {
         try {
             super.loadProperties(getKeystoreProperties(), Merlin.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
