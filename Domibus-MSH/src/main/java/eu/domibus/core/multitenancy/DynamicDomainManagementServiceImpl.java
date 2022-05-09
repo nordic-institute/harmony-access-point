@@ -64,7 +64,9 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     @Override
-    public void addDomain(String domainCode) {
+    public void addDomain(String domainCode, boolean notifyClusterNodes) {
+        LOG.debug("Adding domain [{}]", domainCode);
+
         validateAddition(domainCode);
 
         Domain domain = new Domain(domainCode, domainCode);
@@ -73,11 +75,17 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         notifyExternalModulesOfAddition(domain);
 
-        notifyClusterNodesOfAddition(domainCode);
+        if(notifyClusterNodes) {
+            notifyClusterNodesOfAddition(domainCode);
+        }
+
+        LOG.debug("Finished adding domain [{}]", domainCode);
     }
 
     @Override
-    public void removeDomain(String domainCode) {
+    public void removeDomain(String domainCode, boolean notifyClusterNodes) {
+        LOG.debug("Removing domain [{}]", domainCode);
+
         validateRemoval(domainCode);
 
         Domain domain = new Domain(domainCode, domainCode);
@@ -86,7 +94,11 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         notifyExternalModulesOfRemoval(domain);
 
-        notifyClusterNodesOfRemoval(domainCode);
+        if(notifyClusterNodes) {
+            notifyClusterNodesOfRemoval(domainCode);
+        }
+
+        LOG.debug("Finished removing domain [{}]", domainCode);
     }
 
     protected void validateRemoval(String domainCode) {
@@ -95,7 +107,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         if (!domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
-            throw new DomibusDomainException(String.format("Cannot remove domain [%s] since is is not present.", domainCode));
+            throw new DomibusDomainException(String.format("Cannot remove domain [%s] since it is not present.", domainCode));
         }
     }
 
@@ -165,7 +177,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         if (domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
-            throw new DomibusDomainException(String.format("Cannot add domain [%s] since is is already added.", domainCode));
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] since it is already added.", domainCode));
         }
 
         if (!domainDao.findAll().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {

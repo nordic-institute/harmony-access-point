@@ -56,4 +56,10 @@ public class PartInfoDao extends BasicDao<PartInfo> {
         emptyQuery.executeUpdate();
     }
 
+    public List<Long> findPartInfoLengthByUserMessageEntityId(final Long userMessageEntityId) {
+        final Query query = this.em.createNamedQuery("PartInfo.findPartInfosLength");
+        query.setParameter("ENTITY_ID", userMessageEntityId);
+        query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
+        return query.getResultList();
+    }
 }

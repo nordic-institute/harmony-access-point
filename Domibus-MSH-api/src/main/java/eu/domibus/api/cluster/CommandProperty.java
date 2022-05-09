@@ -7,6 +7,7 @@ public class CommandProperty {
     public static final String PROPERTY_NAME = "PROPERTY_NAME";
     public static final String PROPERTY_VALUE = "PROPERTY_VALUE";
     public static final String USER_NAME = "USER_NAME";
+    public static final String UPDATED_DOMAIN = "UPDATED_DOMAIN";
 
     private CommandProperty() {}
 }

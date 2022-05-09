@@ -38,8 +38,16 @@
                                     <destinationFile>${project.build.directory}/db/scripts/mysql-${project.version}-delete-db.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql-VERSION-delete-dictionary-tables.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/mysql-${project.version}-delete-dictionary-tables.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql</sourceFile>
                                     <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-dictionary-tables.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-delete-dictionary-tables.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-multi-tenancy-rights.sql</sourceFile>

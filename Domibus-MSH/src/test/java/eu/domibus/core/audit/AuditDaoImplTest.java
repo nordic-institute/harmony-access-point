@@ -36,7 +36,7 @@ public class AuditDaoImplTest {
             @Mocked CriteriaQuery<?> criteriaQuery,
             @Mocked Root<Audit> root,
             @Mocked Predicate predicate) {
-        auditDao.where(new HashSet<>(), new HashSet<>(), new HashSet<>(), null, null, criteriaBuilder, criteriaQuery, root);
+        auditDao.where(new HashSet<>(), new HashSet<>(), new HashSet<>(), null, null, null, criteriaBuilder, criteriaQuery, root);
         new FullVerifications() {
         };
     }
@@ -102,6 +102,7 @@ public class AuditDaoImplTest {
                 user,
                 from,
                 to,
+                null,
                 criteriaBuilder,
                 criteriaQuery,
                 root);
@@ -135,10 +136,10 @@ public class AuditDaoImplTest {
             criteriaQuery.from(Audit.class);
             result = root;
         }};
-        auditDao.buildAuditListCriteria(auditTarget, action, user, from, to);
+        auditDao.buildAuditListCriteria(auditTarget, action, user, from, to, null);
         new Verifications() {{
             criteriaQuery.select(root);
-            auditDao.where(auditTarget, action, user, from, to, criteriaBuilder, criteriaQuery, root);
+            auditDao.where(auditTarget, action, user, from, to, null, criteriaBuilder, criteriaQuery, root);
         }};
 
     }
@@ -163,11 +164,11 @@ public class AuditDaoImplTest {
             criteriaBuilder.count(root);
             result = expression;
         }};
-        auditDao.buildAuditCountCriteria(auditTarget, action, user, from, to);
+        auditDao.buildAuditCountCriteria(auditTarget, action, user, from, to, null);
         new Verifications() {{
             criteriaQuery.select(expression);
             times = 1;
-            auditDao.where(auditTarget, action, user, from, to, criteriaBuilder, criteriaQuery, root);
+            auditDao.where(auditTarget, action, user, from, to, null, criteriaBuilder, criteriaQuery, root);
             times = 1;
         }};
     }

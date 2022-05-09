@@ -77,7 +77,7 @@ public class ControllerListenerService implements MessageListener {
         }
 
         if (StringUtils.isEmpty(domainCode)) {
-            LOG.trace("No-domain command received");
+            LOG.debug("No-domain command received");
             domainContextProvider.clearCurrentDomain();
             return true;
         }
@@ -87,6 +87,7 @@ public class ControllerListenerService implements MessageListener {
             return false;
         }
 
+        LOG.debug("Received command for domain [{}]", domainCode);
         domainContextProvider.setCurrentDomain(domain.getCode());
         return true;
     }
