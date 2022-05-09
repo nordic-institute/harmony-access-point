@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
@@ -13,6 +14,7 @@ import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.model.*;
 import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.util.AnnotationsUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -46,6 +48,9 @@ public class AuditServiceImpl implements AuditService {
     private AuditDao auditDao;
 
     @Autowired
+    private UserDao userDao;
+
+    @Autowired
     private AuditLogCoreMapper auditLogCoreMapper;
 
     @Autowired
@@ -72,7 +77,8 @@ public class AuditServiceImpl implements AuditService {
                                     final Date from, final Date to, final int start, final int max, boolean domain) {
         List<Audit> auditList;
         if (domain) {
-            auditList = auditDao.listAudit(auditTargets, actions, users, from, to, start, max);
+            List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
+            auditList = auditDao.listAuditExceptSuperUsers(auditTargets, actions, users, from, to, start, max, superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList()));
         } else {
             auditList = domainTaskExecutor.submit(() -> auditDao.listAudit(auditTargets, actions, users, from, to, start, max));
         }
@@ -90,7 +96,8 @@ public class AuditServiceImpl implements AuditService {
                            final Date from,
                            final Date to, boolean domain) {
         if (domain) {
-            return auditDao.countAudit(auditTargetName, action, user, from, to);
+            List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
+            return auditDao.countAuditExceptSuperUsers(auditTargetName, action, user, from, to, superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList()));
         } else {
             return domainTaskExecutor.submit(() -> auditDao.countAudit(auditTargetName, action, user, from, to));
         }
