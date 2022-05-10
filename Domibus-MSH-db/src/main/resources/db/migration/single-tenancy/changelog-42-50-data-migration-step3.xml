@@ -522,6 +522,10 @@ ALTER INDEX UK_PLUGIN_USER_NAME RENAME TO OLD_UK_PLUGIN_USER_NAME
         <createIndex indexName="IDX_TO_ROLE_ID" tableName="TB_USER_MESSAGE">
             <column name="TO_ROLE_ID_FK"/>
         </createIndex>
+        <createIndex indexName="IDX_TEST_MESSAGE" tableName="TB_USER_MESSAGE">
+            <column name="TEST_MESSAGE"/>
+            <column name="ID_PK"/>
+        </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID"
                              tableName="TB_USER_MESSAGE"/>
 
