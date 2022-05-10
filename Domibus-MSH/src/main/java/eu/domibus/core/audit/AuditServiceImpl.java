@@ -19,6 +19,7 @@ import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.util.AnnotationsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -79,7 +80,7 @@ public class AuditServiceImpl implements AuditService {
         if (domain) {
             List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
             List<Long> superIds = null;
-            if (superUsers!=null) {
+            if (CollectionUtils.isNotEmpty(superUsers)) {
                 superIds = superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList());
             }
             auditList = auditDao.listAuditExceptSuperUsers(auditTargets, actions, users, from, to, start, max, superIds);
@@ -102,7 +103,7 @@ public class AuditServiceImpl implements AuditService {
         if (domain) {
             List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
             List<Long> superIds = null;
-            if (superUsers!=null) {
+            if (CollectionUtils.isNotEmpty(superUsers)) {
                 superIds = superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList());
             }
             return auditDao.countAuditExceptSuperUsers(auditTargetName, action, user, from, to, superIds);
