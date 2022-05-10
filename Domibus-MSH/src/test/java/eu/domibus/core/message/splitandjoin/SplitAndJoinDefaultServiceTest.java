@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -53,7 +52,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 import static eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService.ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE;
 import static org.junit.Assert.*;
@@ -64,7 +66,6 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions"})
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class SplitAndJoinDefaultServiceTest {
 
     public static final long ENTITY_ID = 1L;

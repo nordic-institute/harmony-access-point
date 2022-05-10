@@ -5,8 +5,8 @@ import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypes;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
@@ -33,7 +32,6 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
 public class EArchivingFileServiceTest {
 
