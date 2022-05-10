@@ -4,6 +4,8 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.JmsMessageDTO;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import org.springframework.jms.core.JmsOperations;
@@ -52,6 +54,8 @@ public class JMSExtServiceDelegate implements JMSExtService {
         jmsManager.sendMapMessageToQueue(jmsMessage, destination);
     }
 
+    @Timer(clazz = JMSExtServiceDelegate.class, value = "sendMapMessageToQueue")
+    @Counter(clazz = JMSExtServiceDelegate.class, value = "sendMapMessageToQueue")
     @Override
     public void sendMapMessageToQueue(JmsMessageDTO message, String destination, JmsOperations jmsOperations) {
         final JmsMessage jmsMessage = domibusExtMapper.jmsMessageDTOToJmsMessage(message);
