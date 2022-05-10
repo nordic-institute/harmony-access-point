@@ -78,7 +78,11 @@ public class AuditServiceImpl implements AuditService {
         List<Audit> auditList;
         if (domain) {
             List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
-            auditList = auditDao.listAuditExceptSuperUsers(auditTargets, actions, users, from, to, start, max, superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList()));
+            List<Long> superIds = null;
+            if (superUsers!=null) {
+                superIds = superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList());
+            }
+            auditList = auditDao.listAuditExceptSuperUsers(auditTargets, actions, users, from, to, start, max, superIds);
         } else {
             auditList = domainTaskExecutor.submit(() -> auditDao.listAudit(auditTargets, actions, users, from, to, start, max));
         }
@@ -97,7 +101,11 @@ public class AuditServiceImpl implements AuditService {
                            final Date to, boolean domain) {
         if (domain) {
             List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
-            return auditDao.countAuditExceptSuperUsers(auditTargetName, action, user, from, to, superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList()));
+            List<Long> superIds = null;
+            if (superUsers!=null) {
+                superIds = superUsers.stream().map(u -> u.getEntityId()).collect(Collectors.toList());
+            }
+            return auditDao.countAuditExceptSuperUsers(auditTargetName, action, user, from, to, superIds);
         } else {
             return domainTaskExecutor.submit(() -> auditDao.countAudit(auditTargetName, action, user, from, to));
         }
