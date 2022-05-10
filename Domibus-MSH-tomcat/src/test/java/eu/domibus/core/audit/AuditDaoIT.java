@@ -38,7 +38,7 @@ public class AuditDaoIT extends AbstractIT {
         revisionLog.addEntityAudit("14", "eu.domibus.core.user.ui.User", "User", ModificationType.MOD, 1);
 
         revisionLog.setUserName("admin");
-        revisionLog.setRevisionDate(new Date());
+        revisionLog.setRevisionDate(new Date(System.currentTimeMillis()));
         em.persist(revisionLog);
         em.flush();
 
