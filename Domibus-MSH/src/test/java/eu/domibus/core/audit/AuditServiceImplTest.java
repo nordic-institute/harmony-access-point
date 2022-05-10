@@ -107,6 +107,16 @@ public class AuditServiceImplTest {
                 0,
                 10))
                 .thenReturn(audits);
+        when(auditDao.listAuditExceptSuperUsers(
+                Sets.newHashSet("User", "Pmode"),
+                Sets.newHashSet("ADD"),
+                Sets.newHashSet("Admin"),
+                from,
+                from,
+                0,
+                10,
+                null))
+                .thenReturn(audits);
         auditService.listAudit(
                 Sets.newHashSet("User", "Pmode"),
                 Sets.newHashSet("ADD"),
@@ -122,18 +132,34 @@ public class AuditServiceImplTest {
     @Test
     public void countAudit() {
         Date from = new Date();
+        when(auditDao.countAuditExceptSuperUsers(
+                Sets.newHashSet("User", "Pmode"),
+                Sets.newHashSet("ADD"),
+                Sets.newHashSet("Admin"),
+                from,
+                from,
+                null))
+                .thenReturn(1L);
         auditService.countAudit(
                 Sets.newHashSet("User", "Pmode"),
                 Sets.newHashSet("ADD"),
                 Sets.newHashSet("Admin"),
                 from,
                 from, true);
-        verify(auditDao, times(1)).countAudit(
+        verify(auditDao, times(0)).countAudit(
                 Sets.newHashSet("User", "Pmode"),
                 Sets.newHashSet("ADD"),
                 Sets.newHashSet("Admin"),
                 from,
                 from
+        );
+        verify(auditDao, times(1)).countAuditExceptSuperUsers(
+                Sets.newHashSet("User", "Pmode"),
+                Sets.newHashSet("ADD"),
+                Sets.newHashSet("Admin"),
+                from,
+                from,
+                null
         );
     }
 
