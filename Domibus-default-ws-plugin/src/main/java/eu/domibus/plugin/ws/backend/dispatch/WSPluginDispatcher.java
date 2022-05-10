@@ -44,8 +44,8 @@ public class WSPluginDispatcher {
             String username = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DISPATCHER_PUSH_AUTH_USERNAME);
             String password = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DISPATCHER_PUSH_AUTH_PASSWORD);
             String credentials = username+":"+password;
-            String authorization = Base64.getEncoder().encodeToString(credentials.getBytes());
-            soapMessage.getMimeHeaders().addHeader("Authorization", "Basic " + authorization);
+            String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
+            soapMessage.getMimeHeaders().addHeader("Authorization", "Basic " + encodedCredentials);
 
             result = dispatch.invoke(soapMessage);
         } catch (final WebServiceException e) {
