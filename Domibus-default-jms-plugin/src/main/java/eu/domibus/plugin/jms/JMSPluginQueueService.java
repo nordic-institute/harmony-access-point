@@ -1,6 +1,8 @@
 package eu.domibus.plugin.jms;
 
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -44,6 +46,8 @@ public class JMSPluginQueueService {
      * @return the default or the routing queue
      * @throws DefaultJmsPluginException in case the queue could not be determined
      */
+    @Timer(clazz = JMSPluginQueueService.class, value = "getJMSQueue")
+    @Counter(clazz = JMSPluginQueueService.class, value = "getJMSQueue")
     public String getJMSQueue(QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
         String queueValue = getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
         if (StringUtils.isEmpty(queueValue)) {
