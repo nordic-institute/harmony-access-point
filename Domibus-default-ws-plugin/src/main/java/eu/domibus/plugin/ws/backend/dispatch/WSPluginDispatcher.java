@@ -13,6 +13,8 @@ import javax.xml.ws.WebServiceException;
 import java.net.ConnectException;
 import java.util.Base64;
 
+import static org.apache.commons.lang3.StringUtils.isNoneBlank;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -43,9 +45,11 @@ public class WSPluginDispatcher {
             // adding basic authentication when notifying C4 via push events
             String username = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DISPATCHER_PUSH_AUTH_USERNAME);
             String password = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DISPATCHER_PUSH_AUTH_PASSWORD);
-            String credentials = username+":"+password;
-            String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
-            soapMessage.getMimeHeaders().addHeader("Authorization", "Basic " + encodedCredentials);
+            if (isNoneBlank(username, password)) {
+                String credentials = username+":"+password;
+                String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
+                soapMessage.getMimeHeaders().addHeader("Authorization", "Basic " + encodedCredentials);
+            }
 
             result = dispatch.invoke(soapMessage);
         } catch (final WebServiceException e) {
