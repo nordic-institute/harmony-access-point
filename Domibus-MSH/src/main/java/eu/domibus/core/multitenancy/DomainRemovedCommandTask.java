@@ -1,11 +1,10 @@
-package eu.domibus.core.crypto;
+package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.cluster.Command;
+import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.core.clustering.CommandTask;
-import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -33,9 +32,8 @@ public class DomainRemovedCommandTask implements CommandTask {
 
     @Override
     public void execute(Map<String, String> properties) {
-        LOG.debug("Checking and handling domain removed");
-
-        String domainCode = properties.get(MessageConstants.DOMAIN);
-        dynamicDomainManagementService.removeDomain(domainCode);
+        String domainCode = properties.get(CommandProperty.UPDATED_DOMAIN);
+        LOG.debug("Executing remove domain command for domain [{}]", domainCode);
+        dynamicDomainManagementService.removeDomain(domainCode, false);
     }
 }

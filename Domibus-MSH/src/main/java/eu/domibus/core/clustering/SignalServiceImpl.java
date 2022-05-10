@@ -164,12 +164,12 @@ public class SignalServiceImpl implements SignalService {
 
     @Override
     public void signalDomainsAdded(String domainCode) {
-        signalOperation(domainCode, Command.DOMAIN_ADDED);
+        signalDomainOperation(domainCode, Command.DOMAIN_ADDED);
     }
 
     @Override
     public void signalDomainsRemoved(String domainCode) {
-        signalOperation(domainCode, Command.DOMAIN_REMOVED);
+        signalDomainOperation(domainCode, Command.DOMAIN_REMOVED);
     }
 
     private void signalOperation(String domainCode, String command) {
@@ -178,6 +178,16 @@ public class SignalServiceImpl implements SignalService {
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, command);
         commandProperties.put(MessageConstants.DOMAIN, domainCode);
+
+        sendMessage(commandProperties);
+    }
+
+    private void signalDomainOperation(String domainCode, String command) {
+        LOG.debug("Signaling [{}] command for [{}] domain", command, domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, command);
+        commandProperties.put(CommandProperty.UPDATED_DOMAIN, domainCode);
 
         sendMessage(commandProperties);
     }

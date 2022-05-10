@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,7 +50,7 @@ public class ClusterCommandConfiguration {
         String serverName = System.getProperty("weblogic.Name");
         LOGGER.debug("Server name ...[{}]", serverName);
 
-        final List<Domain> domains = domainService.getDomains();
+        final List<Domain> domains = new ArrayList<>(domainService.getDomains());
         for (Domain domain : domains) {
             domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName), domain);
         }

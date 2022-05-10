@@ -56,11 +56,11 @@ public class DomainResource {
 
     @PostMapping(value = "")
     public void addDomain(@RequestBody @Valid String domainCode) {
-        dynamicDomainManagementService.addDomain(domainCode);
+        dynamicDomainManagementService.addDomain(domainCode, true);
     }
 
     @DeleteMapping(value = "/{domainCode:.+}")
     public void removeDomain(@PathVariable(value = "domainCode") @Valid String domainCode) {
-        dynamicDomainManagementService.removeDomain(domainCode);
+        dynamicDomainManagementService.removeDomain(domainCode, true);
     }
 }

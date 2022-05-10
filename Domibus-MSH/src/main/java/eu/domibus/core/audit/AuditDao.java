@@ -35,6 +35,36 @@ public interface AuditDao {
                           int start,
                           int max);
 
+    /**
+     * Get a list of paginated, filtered and ordered {@link Audit} for the '/audit' page, but excluding events for the super users'
+     *
+     * @param auditTargets to filter by
+     * @param actions to filter by
+     * @param users to filter by
+     * @param from date
+     * @param to date
+     * @param start of the page
+     * @param max items to be returned
+     * @param superUserIds
+     * @return list of {@link Audit} excluding events for the username 'super'
+     * and paginated with {@param start} and {@param max}
+     * and filtered by {@param auditTargets}, {@param actions}, {@param users}, {@param from} and {@param to}
+     * and ordered by {@link AuditId#getChanged()} and by {@link AuditId#getId()}
+     */
+    List<Audit> listAuditExceptSuperUsers(Set<String> auditTargets,
+                                          Set<String> actions,
+                                          Set<String> users,
+                                          Date from,
+                                          Date to,
+                                          int start,
+                                          int max,
+                                          List<Long> superUserIds);
+
+    Long countAuditExceptSuperUsers(Set<String> auditTargets,
+                                    Set<String> actions, Set<String> users,
+                                    Date from,
+                                    Date to, List<Long> superUserIds);
+
     Long countAudit(Set<String> auditTargets,
                     Set<String> actions,
                     Set<String> users,
