@@ -15,7 +15,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;
@@ -48,7 +47,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.0
  */
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptorTest.class);

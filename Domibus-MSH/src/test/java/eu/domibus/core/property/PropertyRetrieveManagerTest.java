@@ -8,7 +8,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -24,7 +23,6 @@ import static org.junit.Assert.assertNull;
  */
 @SuppressWarnings("ConstantConditions")
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class PropertyRetrieveManagerTest {
 
     @Tested
