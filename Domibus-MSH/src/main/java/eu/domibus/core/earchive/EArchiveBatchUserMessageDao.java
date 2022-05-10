@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,5 +43,13 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
         query.setParameter("batchId", batchId);
         queryUtil.setPaginationParametersToQuery(query, pageStart, pageSize);
         return query.getResultList();
+    }
+
+    public Date getReceivedTime(String entityId) {
+        TypedQuery<Date> query = em.createNamedQuery("UserMessageLog.findReceivedTimeForEArchiveBatch", Date.class);
+        LOG.debug("EArchiveBatch ReceivedTime query:[{}]", query.toString());
+        query.setParameter("ENTITY_ID", Long.parseLong(entityId));
+        LOG.debug("EArchiveBatch ReceivedTime:[{}]", query.getSingleResult());
+        return query.getSingleResult();
     }
 }

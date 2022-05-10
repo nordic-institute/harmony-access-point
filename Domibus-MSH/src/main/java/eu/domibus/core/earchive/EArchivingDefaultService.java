@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -262,5 +263,11 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED,
                 eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation(),
                 userMessageDtos.get(userMessageDtos.size() - 1), userMessageDtos.get(0));
+    }
+
+    @Override
+    public Date getReceivedTime(String entityId) {
+        LOG.debug("EArchiveBatch getReceivedTime entityId:[{}]", entityId);
+        return eArchiveBatchUserMessageDao.getReceivedTime(entityId);
     }
 }

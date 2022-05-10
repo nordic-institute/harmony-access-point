@@ -1,5 +1,6 @@
 package eu.domibus.api.earchive;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,4 +66,6 @@ public interface DomibusEArchiveService {
     EArchiveBatchRequestDTO getBatch(String batchId);
 
     EArchiveBatchRequestDTO setBatchClientStatus(String batchId, EArchiveBatchStatus batchStatus, String message);
+
+    Date getReceivedTime(String entityId);
 }

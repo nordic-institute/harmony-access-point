@@ -167,6 +167,7 @@ import java.util.Date;
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
                         "  and uml.deleted IS NULL " +
                         "  and uml.exported IS NULL "),
+        @NamedQuery(name = "UserMessageLog.findReceivedTimeForEArchiveBatch", query = "SELECT uml.received FROM UserMessageLog uml join EArchiveBatchUserMessage batchUm where uml.entityId = batchUm.userMessageEntityId and batchUm.entityId=:ENTITY_ID"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query =
                 "delete from UserMessageLog uml where uml.entityId in :IDS"),
         @NamedQuery(name = "UserMessageLog.updateArchived", query =
