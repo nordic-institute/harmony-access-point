@@ -31,6 +31,7 @@ import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION;
 import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
 
 /**
@@ -53,11 +54,6 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * logger
      */
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzStarter.class);
-
-    /**
-     * Used to check if any Quartz Triggers are blocked for more than 5 minutes.
-     */
-    private static final long TRIGGER_BLOCKED_DURATION = 5 * 60 * 1000L;
 
     @Autowired
     protected DomibusSchedulerFactory domibusSchedulerFactory;
@@ -304,7 +300,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             LOG.warn("Trigger [{}] is in ERROR state for domain [{}]", trigger, domainName);
             return true;
         }
-        //checking triggers in error status or blocked for the duration of more than 5 minutes
+        //checking triggers in error status or blocked for the duration of more than 10 minutes
         Date now = new Date();
         Date previousFireTime = trigger.getPreviousFireTime();
         if (previousFireTime == null) {
@@ -313,7 +309,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
         }
 
-        if (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > TRIGGER_BLOCKED_DURATION)) {
+        if (triggerState.equals(Trigger.TriggerState.BLOCKED) && (now.getTime() - previousFireTime.getTime() > domibusPropertyProvider.getLongProperty(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION))) {
             LOG.warn("Trigger [{}] is BLOCKED for domain [{}]", trigger, domainName);
             return true;
         }
