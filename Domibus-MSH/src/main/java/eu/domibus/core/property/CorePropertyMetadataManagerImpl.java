@@ -363,6 +363,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION, Type.NUMERIC),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**
