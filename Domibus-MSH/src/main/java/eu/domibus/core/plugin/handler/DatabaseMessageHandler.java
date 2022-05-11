@@ -40,7 +40,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
-import eu.domibus.plugin.DownloadEvent;
+import eu.domibus.api.usermessage.UserMessageDownloadEvent;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessagePuller;
@@ -165,7 +165,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
      * @param messageId message id of the message that is being downloaded
      */
     protected void publishDownloadEvent(String messageId) {
-        DownloadEvent downloadEvent = new DownloadEvent();
+        UserMessageDownloadEvent downloadEvent = new UserMessageDownloadEvent();
         downloadEvent.setMessageId(messageId);
         applicationEventPublisher.publishEvent(downloadEvent);
     }
