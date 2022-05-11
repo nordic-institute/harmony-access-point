@@ -8,6 +8,7 @@ package eu.domibus.ext.services;
  * Used to expose all (configuration) property metadata and for getting and setting properties at runtime
  */
 public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManagerExt {
+    String PLUGINS_CONFIG_HOME = "plugins/config";
 
     /**
      * Returns the current property value for the current domain
