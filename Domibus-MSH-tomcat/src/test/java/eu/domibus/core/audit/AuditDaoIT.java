@@ -5,6 +5,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.core.audit.model.Audit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class AuditDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore
     public void testListAllAuditsAndExceptSuperUsers() {
         RevisionLog revisionLog = new RevisionLog();
 
@@ -63,6 +65,7 @@ public class AuditDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore
     public void testCountAllAuditsAndExceptSuperUsers() {
         RevisionLog revisionLog = new RevisionLog();
 
