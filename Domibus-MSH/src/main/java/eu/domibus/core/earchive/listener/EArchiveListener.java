@@ -123,9 +123,8 @@ public class EArchiveListener implements MessageListener {
         Date messageEndDate = null;
         DomibusEARKSIPResult eArkSipStructure;
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_WITH_START_DATE_END_DATE_ENABLED);
-        LOG.debug("EArchive isNotificationWithStartAndEndDate [{}]", isNotificationWithStartAndEndDate);
+        LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
-            LOG.debug("Inside if  isNotificationWithStartAndEndDate [{}]", isNotificationWithStartAndEndDate);
             if (getMessageStartDate(batchUserMessages, 0) != null) {
                 messageStartDate = eArchivingDefaultService.getReceivedTime(getMessageStartDate(batchUserMessages, 0));
             }
@@ -144,7 +143,6 @@ public class EArchiveListener implements MessageListener {
                             .createBatchEArchiveDTO(),
                     batchUserMessages);
         } else {
-            LOG.debug("Inside else isNotificationWithStartAndEndDate [{}]", isNotificationWithStartAndEndDate);
             eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                     new BatchEArchiveDTOBuilder()
                             .batchId(eArchiveBatchByBatchId.getBatchId())

@@ -267,7 +267,6 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Override
     public Date getReceivedTime(String entityId) {
-        LOG.debug("EArchiveBatch getReceivedTime entityId:[{}]", entityId);
         return eArchiveBatchUserMessageDao.getReceivedTime(entityId);
     }
 }
