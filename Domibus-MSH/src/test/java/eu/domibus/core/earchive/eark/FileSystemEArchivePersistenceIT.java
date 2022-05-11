@@ -15,7 +15,6 @@ import mockit.Tested;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -40,7 +39,6 @@ import static org.junit.Assert.assertEquals;
  * @since 5.0
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
-@Ignore("EDELIVERY-8892")
 public class FileSystemEArchivePersistenceIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceIT.class);

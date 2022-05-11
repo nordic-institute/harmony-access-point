@@ -16,7 +16,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,7 +28,6 @@ import java.util.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class EArchiveListenerTest {
 
     @Tested
@@ -166,6 +164,8 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
+
+            domibusEARKSIPResult.getDirectory().toAbsolutePath().toString();
         }};
     }
 
@@ -226,6 +226,8 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;
+
+            domibusEARKSIPResult.getDirectory().toAbsolutePath().toString();
         }};
     }
 
