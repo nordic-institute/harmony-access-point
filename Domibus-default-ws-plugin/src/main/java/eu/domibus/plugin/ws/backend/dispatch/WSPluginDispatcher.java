@@ -3,6 +3,8 @@ package eu.domibus.plugin.ws.backend.dispatch;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import static org.apache.commons.lang3.StringUtils.isNoneBlank;
 @Service
 public class WSPluginDispatcher {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcher.class);
     private final DomainContextExtService domainContextExtService;
 
     private final WSPluginDispatchClientProvider wsPluginDispatchClientProvider;
@@ -49,6 +52,7 @@ public class WSPluginDispatcher {
                 String credentials = username+":"+password;
                 String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
                 soapMessage.getMimeHeaders().addHeader("Authorization", "Basic " + encodedCredentials);
+                LOG.debug("Authorization header added for user [{}]", username);
             }
 
             result = dispatch.invoke(soapMessage);
