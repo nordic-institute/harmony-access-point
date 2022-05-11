@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.job;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.EArchiveBatchDao;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DAYS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX;
 
@@ -38,10 +40,16 @@ public class EArchivingRetentionService {
 
     protected final EArchiveFileStorageProvider storageProvider;
 
-    public EArchivingRetentionService(EArchiveBatchDao eArchiveBatchDao, DomibusPropertyProvider domibusPropertyProvider, EArchiveFileStorageProvider storageProvider) {
+    private final MetricRegistry metricRegistry;
+
+    public EArchivingRetentionService(EArchiveBatchDao eArchiveBatchDao,
+                                      DomibusPropertyProvider domibusPropertyProvider,
+                                      EArchiveFileStorageProvider storageProvider,
+                                      MetricRegistry metricRegistry) {
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.storageProvider = storageProvider;
+        this.metricRegistry = metricRegistry;
     }
 
     @Transactional(timeout = 120) // 2 minutes
@@ -72,15 +80,18 @@ public class EArchivingRetentionService {
     }
 
     protected void deleteBatch(EArchiveBatchEntity batch) {
+        com.codahale.metrics.Timer.Context metricDeleteBatch = metricRegistry.timer(name("earchive_cleanStoredBatches", "delete_one_batch", "timer")).time();
+
         LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
         Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
         LOG.debug("Clean folder [{}]", folderToClean);
 
         try {
             FileUtils.deleteDirectory(folderToClean.toFile());
-            batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
+            eArchiveBatchDao.setStatus(batch, EArchiveBatchStatus.DELETED, "", "");
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
         }
+        metricDeleteBatch.stop();
     }
 }
