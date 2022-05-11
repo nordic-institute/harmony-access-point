@@ -83,4 +83,15 @@ public class BatchEArchiveDTOBuilder {
         batchEArchiveDTO.setMessages(messages);
         return batchEArchiveDTO;
     }
+    public BatchEArchiveDTO createBatchEArchiveDTOWithOutStartAndEndDate() {
+        BatchEArchiveDTO batchEArchiveDTO = new BatchEArchiveDTO(batchId, requestType);
+        batchEArchiveDTO.setVersion(version);
+        batchEArchiveDTO.setStatus(status);
+        batchEArchiveDTO.setErrorCode(errorCode);
+        batchEArchiveDTO.setErrorDescription(errorDescription);
+        batchEArchiveDTO.setTimestamp(timestamp);
+        batchEArchiveDTO.setManifestChecksum(manifestChecksum);
+        batchEArchiveDTO.setMessages(messages);
+        return batchEArchiveDTO;
+    }
 }

@@ -47,9 +47,7 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
 
     public Date getReceivedTime(String entityId) {
         TypedQuery<Date> query = em.createNamedQuery("UserMessageLog.findReceivedTimeForEArchiveBatch", Date.class);
-        LOG.debug("EArchiveBatch ReceivedTime query:[{}]", query.toString());
         query.setParameter("ENTITY_ID", Long.parseLong(entityId));
-        LOG.debug("EArchiveBatch ReceivedTime:[{}]", query.getSingleResult());
         return query.getSingleResult();
     }
 }
