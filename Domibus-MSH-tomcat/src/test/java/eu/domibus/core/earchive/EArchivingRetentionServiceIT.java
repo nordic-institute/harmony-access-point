@@ -20,10 +20,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.VFS;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -164,6 +161,7 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Ignore("EDELIVERY-8892")
     public void cleanStoredBatches() {
         //setup batch and export messages
         EArchiveBatchEntity eArchiveBatch = eArchivingService.getEArchiveBatch(batch4.getEntityId(), true);
