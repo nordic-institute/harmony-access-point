@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,10 @@ public class DomainServiceImpl implements DomainService {
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
         this.authenticationService = authenticationService;
+    }
 
+    @PostConstruct
+    public void initialize() {
         domains = domainDao.findAll();
     }
 

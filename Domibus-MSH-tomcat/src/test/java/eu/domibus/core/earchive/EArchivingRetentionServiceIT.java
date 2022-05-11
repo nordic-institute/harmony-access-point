@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.earchive.EArchiveBatchFilter;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
@@ -49,6 +50,9 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
 
     @Autowired
     EArchivingDefaultService eArchivingService;
+
+    @Autowired
+    MetricRegistry metricRegistry;
 
     @Autowired
     EArchiveBatchDao eArchiveBatchDao;

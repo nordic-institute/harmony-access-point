@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
@@ -9,7 +10,6 @@ import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
-import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import org.apache.commons.io.FileUtils;
@@ -23,7 +23,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -52,6 +51,8 @@ public class FileSystemEArchivePersistenceIT {
 
     @Injectable
     protected DomibusVersionService domibusVersionService;
+    @Injectable
+    protected MetricRegistry metricRegistry;
 
     @Injectable
     protected EArchivingFileService eArchivingFileService;
@@ -108,12 +109,14 @@ public class FileSystemEArchivePersistenceIT {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
-        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", new EARKSIPFileService());
+        EARKSIPFileService value = new EARKSIPFileService();
+        value.setMetricRegistry(new MetricRegistry());
+        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", value);
 
-        Map<String, InputStream> messageId1 = new HashMap<>();
+        Map<String, ArchivingFileDTO> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");
         putFile(messageId1, MESSAGE_ATTACHMENT_MSG1, "attachmentTXT");
-        Map<String, InputStream> messageId2 = new HashMap<>();
+        Map<String, ArchivingFileDTO> messageId2 = new HashMap<>();
         putRaw(messageId2, "test2");
         putFile(messageId2, MESSAGE_ATTACHMENT_MSG2, "attachmentXML");
 
@@ -145,8 +148,6 @@ public class FileSystemEArchivePersistenceIT {
 
         fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds);
 
-        new FullVerifications() {
-        };
         File[] files = temp.listFiles();
         File batchFolder = files[0];
         File representation = Arrays.stream(batchFolder.listFiles()).sorted().collect(Collectors.toList()).get(1);
@@ -178,11 +179,11 @@ public class FileSystemEArchivePersistenceIT {
         }
     }
 
-    private void putRaw(Map<String, InputStream> messageId1, String test1) {
+    private void putRaw(Map<String, ArchivingFileDTO> messageId1, String test1) {
         putFile(messageId1, SOAP_ENVELOPE_XML, test1);
     }
 
-    private void putFile(Map<String, InputStream> messageId1, String s, String test1) {
-        messageId1.put(s, new ByteArrayInputStream(test1.getBytes(StandardCharsets.UTF_8)));
+    private void putFile(Map<String, ArchivingFileDTO> messageId1, String s, String test1) {
+        messageId1.put(s, ArchivingFileDTOBuilder.getInstance().setInputStream(new ByteArrayInputStream(test1.getBytes(StandardCharsets.UTF_8))).build());
     }
 }

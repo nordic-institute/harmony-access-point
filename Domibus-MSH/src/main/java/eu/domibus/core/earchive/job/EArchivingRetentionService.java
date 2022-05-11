@@ -1,22 +1,27 @@
 package eu.domibus.core.earchive.job;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.VFS;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DAYS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX;
 
@@ -35,10 +40,16 @@ public class EArchivingRetentionService {
 
     protected final EArchiveFileStorageProvider storageProvider;
 
-    public EArchivingRetentionService(EArchiveBatchDao eArchiveBatchDao, DomibusPropertyProvider domibusPropertyProvider, EArchiveFileStorageProvider storageProvider) {
+    private final MetricRegistry metricRegistry;
+
+    public EArchivingRetentionService(EArchiveBatchDao eArchiveBatchDao,
+                                      DomibusPropertyProvider domibusPropertyProvider,
+                                      EArchiveFileStorageProvider storageProvider,
+                                      MetricRegistry metricRegistry) {
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.storageProvider = storageProvider;
+        this.metricRegistry = metricRegistry;
     }
 
     @Transactional(timeout = 120) // 2 minutes
@@ -51,6 +62,8 @@ public class EArchivingRetentionService {
         eArchiveBatchDao.expireBatches(limitDate);
     }
 
+    @Timer(clazz = EArchivingRetentionService.class, value = "earchive_cleanStoredBatches")
+    @Counter(clazz = EArchivingRetentionService.class, value = "earchive_cleanStoredBatches")
     public void cleanStoredBatches() {
         final Integer maxBatchesToDelete = domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_RETENTION_DELETE_MAX);
 
@@ -63,17 +76,22 @@ public class EArchivingRetentionService {
 
         LOG.debug("[{}] batches eligible for deletion found", batches.size());
 
-        batches.stream().forEach(batch -> deleteBatch(batch));
+        batches.forEach(this::deleteBatch);
     }
 
     protected void deleteBatch(EArchiveBatchEntity batch) {
-        LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
+        com.codahale.metrics.Timer.Context metricDeleteBatch = metricRegistry.timer(name("earchive_cleanStoredBatches", "delete_one_batch", "timer")).time();
 
-        try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batch.getBatchId())) {
-            batchDirectory.deleteAll();
-            batch.setEArchiveBatchStatus(EArchiveBatchStatus.DELETED);
+        LOG.debug("Deleting earchive structure for batchId [{}]", batch.getBatchId());
+        Path folderToClean = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batch.getBatchId());
+        LOG.debug("Clean folder [{}]", folderToClean);
+
+        try {
+            FileUtils.deleteDirectory(folderToClean.toFile());
+            eArchiveBatchDao.setStatus(batch, EArchiveBatchStatus.DELETED, "", "");
         } catch (Exception e) {
             LOG.error("Error when deleting batch [{}]", batch.getBatchId(), e);
         }
+        metricDeleteBatch.stop();
     }
 }
