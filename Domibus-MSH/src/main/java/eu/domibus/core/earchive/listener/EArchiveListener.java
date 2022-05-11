@@ -144,7 +144,7 @@ public class EArchiveListener implements MessageListener {
                     batchUserMessages);
         } else {
             eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
-                    new BatchEArchiveDTOBuilder()
+                    new BatchEArchiveDTOBuilder(null, null, null, null, null, null, null, null)
                             .batchId(eArchiveBatchByBatchId.getBatchId())
                             .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                             .status("SUCCESS")

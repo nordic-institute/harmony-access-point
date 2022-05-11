@@ -15,6 +15,30 @@ public class BatchEArchiveDTOBuilder {
     private String manifestChecksum;
     private List<String> messages;
 
+
+    public BatchEArchiveDTOBuilder(String batchId,
+                                   String requestType,
+                                   String status,
+                                   String timestamp,
+                                   String manifestChecksum,
+                                   List<String> messages,
+                                   String errorCode,
+                                   String errorDescription
+    ) {
+        this.batchId = batchId;
+        this.requestType = requestType;
+        this.status = status;
+        this.timestamp = timestamp;
+        this.manifestChecksum = manifestChecksum;
+        this.messages = messages;
+        this.errorCode = errorCode;
+        this.errorDescription = errorDescription;
+    }
+
+    public BatchEArchiveDTOBuilder() {
+    }
+
+
     public BatchEArchiveDTOBuilder version(String version) {
         this.version = version;
         return this;
