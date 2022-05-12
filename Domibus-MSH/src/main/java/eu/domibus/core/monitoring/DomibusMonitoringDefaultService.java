@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class DomibusMonitoringDefaultService implements DomibusMonitoringService
     @Autowired
     private JMSManager jmsManager;
 
+    //Lazy loading of DomibusScheduler and DomainService to avoid the circular dependency and the jobs that are not created in the database
+    @Lazy
     @Autowired
     protected DomibusScheduler domibusQuartzScheduler;
 

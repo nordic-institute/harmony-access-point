@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -37,6 +38,8 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     @Autowired
     protected ApplicationContext applicationContext;
 
+    //Lazy loading of DomibusScheduler and DomainService to avoid the circular dependency and the that jobs are not created in the database
+    @Lazy
     @Autowired
     DomibusScheduler domibusScheduler;
 
