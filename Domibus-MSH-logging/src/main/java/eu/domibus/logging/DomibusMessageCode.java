@@ -100,6 +100,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_ARCHIVE_BATCH_EXPORT_FAILED("BUS-089", "Export failed batch: [{}]. Error message: [{}]!"),
     BUS_ARCHIVE_BATCH_ARCHIVED("BUS-090", "Batch: [{}] with first [{}] and last message: [{}] is Archived."),
     BUS_ATTACHMENTS_MORE_THAN_28("BUS-091", "Maximum number of attachments Domibus can accept in a message is 28."),
+    BUS_MESSAGE_STATUS_ROLLBACK("BUS-092", "Message with type [{}] has status rolled back to [{}]"),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),
