@@ -15,30 +15,6 @@ public class BatchEArchiveDTOBuilder {
     private String manifestChecksum;
     private List<String> messages;
 
-
-    public BatchEArchiveDTOBuilder(String batchId,
-                                   String requestType,
-                                   String status,
-                                   String timestamp,
-                                   String manifestChecksum,
-                                   List<String> messages,
-                                   String errorCode,
-                                   String errorDescription
-    ) {
-        this.batchId = batchId;
-        this.requestType = requestType;
-        this.status = status;
-        this.timestamp = timestamp;
-        this.manifestChecksum = manifestChecksum;
-        this.messages = messages;
-        this.errorCode = errorCode;
-        this.errorDescription = errorDescription;
-    }
-
-    public BatchEArchiveDTOBuilder() {
-    }
-
-
     public BatchEArchiveDTOBuilder version(String version) {
         this.version = version;
         return this;
@@ -103,17 +79,6 @@ public class BatchEArchiveDTOBuilder {
         batchEArchiveDTO.setTimestamp(timestamp);
         batchEArchiveDTO.setMessageStartDate(messageStartDate);
         batchEArchiveDTO.setMessageEndDate(messageEndDate);
-        batchEArchiveDTO.setManifestChecksum(manifestChecksum);
-        batchEArchiveDTO.setMessages(messages);
-        return batchEArchiveDTO;
-    }
-    public BatchEArchiveDTO createBatchEArchiveDTOWithOutStartAndEndDate() {
-        BatchEArchiveDTO batchEArchiveDTO = new BatchEArchiveDTO(batchId, requestType);
-        batchEArchiveDTO.setVersion(version);
-        batchEArchiveDTO.setStatus(status);
-        batchEArchiveDTO.setErrorCode(errorCode);
-        batchEArchiveDTO.setErrorDescription(errorDescription);
-        batchEArchiveDTO.setTimestamp(timestamp);
         batchEArchiveDTO.setManifestChecksum(manifestChecksum);
         batchEArchiveDTO.setMessages(messages);
         return batchEArchiveDTO;

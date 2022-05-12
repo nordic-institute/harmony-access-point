@@ -144,13 +144,13 @@ public class EArchiveListener implements MessageListener {
                     batchUserMessages);
         } else {
             eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
-                    new BatchEArchiveDTOBuilder(null, null, null, null, null, null, null, null)
+                    new BatchEArchiveBasicDTOBuilder()
                             .batchId(eArchiveBatchByBatchId.getBatchId())
                             .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                             .status("SUCCESS")
                             .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
                             .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
-                            .createBatchEArchiveDTOWithOutStartAndEndDate(),
+                            .createBatchEArchiveBasicDTO(),
                     batchUserMessages);
         }
         if (LOG.isDebugEnabled()) {

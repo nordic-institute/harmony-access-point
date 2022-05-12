@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive.eark;
 
+import eu.domibus.core.earchive.BatchEArchiveBasicDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 
@@ -12,5 +13,7 @@ import java.util.List;
 public interface EArchivePersistence {
 
     DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds);
+
+    DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveBasicDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds);
 
 }

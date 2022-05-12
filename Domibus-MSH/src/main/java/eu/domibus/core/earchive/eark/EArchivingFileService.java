@@ -10,6 +10,7 @@ import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.model.Property;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.core.earchive.BatchEArchiveBasicDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.logging.DomibusLogger;
@@ -153,6 +154,14 @@ public class EArchivingFileService {
             return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(batchEArchiveDTO).getBytes(StandardCharsets.UTF_8));
         } catch (JsonProcessingException e) {
             throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveDTO, e);
+        }
+    }
+
+    public InputStream getBatchFileJson(BatchEArchiveBasicDTO batchEArchiveBasicDTO) {
+        try {
+            return new ByteArrayInputStream(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(batchEArchiveBasicDTO).getBytes(StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveBasicDTO, e);
         }
     }
 }
