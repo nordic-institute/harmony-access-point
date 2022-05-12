@@ -19,6 +19,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.DomibusStringUtil;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -82,6 +83,7 @@ public class UserMessageDefaultService implements UserMessageService {
     static final String MESSAGE = "Message [";
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
+    static final String MIME_TYPE = "MimeType";
 
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
@@ -194,6 +196,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private MessagesLogService messagesLogService;
+
+    @Autowired
+    private FileServiceUtil fileServiceUtil;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -814,20 +819,25 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadName(PartInfo info) {
-        if (StringUtils.isEmpty(info.getHref())) {
-            return "bodyload";
-        }
-        if (!info.getHref().contains("cid:")) {
-            LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
-            return info.getHref();
-        }
+        String extension = null;
         for (PartProperty property : info.getPartProperties()) {
             if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
                 LOG.debug("Payload Name exists [{}]", property.getName());
                 return property.getValue();
             }
+            if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
+                extension = fileServiceUtil.getExtension(property.getValue());
+                LOG.debug("Payload extension [{}]", extension);
+            }
         }
-        return info.getHref().replace("cid:", "");
+        if (StringUtils.isEmpty(info.getHref())) {
+            return "bodyload" + extension;
+        }
+        if (!info.getHref().contains("cid:")) {
+            LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
+            return info.getHref() + "Payload" + extension;
+        }
+        return info.getHref().replace("cid:", "") + "Payload" + extension;
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
