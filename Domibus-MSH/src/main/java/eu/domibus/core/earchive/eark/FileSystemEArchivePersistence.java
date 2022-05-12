@@ -2,7 +2,6 @@ package eu.domibus.core.earchive.eark;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
-import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveBasicDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -105,34 +105,10 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     }
 
     @Override
-    public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveBasicDTO batchEArchiveBasicDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
-        String batchId = batchEArchiveBasicDTO.getBatchId();
-        LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
-
-        try (FileObject batchDirectory = getBatchDirectory(batchId)) {
-            batchDirectory.createFolder();
-
-            MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
-                    domibusVersionService.getArtifactName(),
-                    domibusVersionService.getDisplayVersion(),
-                    batchId);
-
-            addRepresentation1(userMessageEntityIds, batchDirectory, mainMETSWrapper);
-
-            Path path = eArkSipBuilderService.addMetsFileToFolder(batchDirectory, mainMETSWrapper);
-            String checksum = eArkSipBuilderService.getChecksum(path);
-            batchEArchiveBasicDTO.setManifestChecksum(checksum);
-            createBatchJson(batchEArchiveBasicDTO, batchDirectory);
-
-            return new DomibusEARKSIPResult(batchDirectory.getPath(), checksum);
-        } catch (IPException | FileSystemException e) {
-            throw new DomibusEArchiveException("Could not create eArchiving structure for batch [" + batchEArchiveBasicDTO + "]", e);
-        }
+    public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveBasicDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
+        return null;
     }
 
-    private FileObject getBatchDirectory(String batchId) throws FileSystemException {
-        return VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), batchId);
-    }
 
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, Path batchDirectory) {
         try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
@@ -144,10 +120,10 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     }
 
-    private void createBatchJson(BatchEArchiveBasicDTO batchEArchiveBasicDTO, FileObject batchDirectory) {
-        try (FileObject fileObject = batchDirectory.resolveFile(BATCH_JSON_PATH);
-             InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveBasicDTO)) {
-            eArkSipBuilderService.createDataFile(fileObject, inputStream);
+    private void createBatchJson(BatchEArchiveBasicDTO batchEArchiveBasicDTO, Path batchDirectory) {
+        try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveBasicDTO)) {
+            Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);
+            eArkSipBuilderService.createDataFile(path, inputStream);
         } catch (IOException e) {
             throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
         }

@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVING_NOTIFICATION_WITH_START_DATE_END_DATE_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED;
 
 /**
  * @author François Gautier
@@ -122,7 +122,7 @@ public class EArchiveListener implements MessageListener {
         Date messageStartDate = null;
         Date messageEndDate = null;
         DomibusEARKSIPResult eArkSipStructure;
-        final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_WITH_START_DATE_END_DATE_ENABLED);
+        final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
             if (getMessageStartDate(batchUserMessages, 0) != null) {
