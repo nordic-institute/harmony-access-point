@@ -822,16 +822,16 @@ public class UserMessageDefaultService implements UserMessageService {
         String extension = null;
         for (PartProperty property : info.getPartProperties()) {
             if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
-                LOG.debug("Payload Name exists [{}]", property.getName());
+                LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
                 return property.getValue();
             }
             if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
                 extension = fileServiceUtil.getExtension(property.getValue());
-                LOG.debug("Payload extension [{}]", extension);
+                LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
             }
         }
         if (StringUtils.isEmpty(info.getHref())) {
-            return "bodyload" + extension;
+            return "bodyload.xml";
         }
         if (!info.getHref().contains("cid:")) {
             LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
