@@ -89,11 +89,12 @@ public class EArchiveNotificationListenerTest {
             eArchiveNotificationListener.buildBatchNotification(eArchiveBatch);
             result = batchNotification;
 
-            eArchiveNotificationListener.initializeEarchivingClientApi();
+            eArchiveNotificationListener.getEarchivingClientApi();
             result = apiClient;
         }};
 
         eArchiveNotificationListener.onMessage(message);
+
     }
 
     @Test
@@ -123,7 +124,7 @@ public class EArchiveNotificationListenerTest {
             eArchiveNotificationListener.buildBatchNotification(eArchiveBatch);
             result = batchNotification;
 
-            eArchiveNotificationListener.initializeEarchivingClientApi();
+            eArchiveNotificationListener.getEarchivingClientApi();
             result = apiClient;
         }};
 
@@ -171,7 +172,7 @@ public class EArchiveNotificationListenerTest {
             result = "password";
         }};
 
-        ArchiveWebhookApi archiveWebhookApi = eArchiveNotificationListener.initializeEarchivingClientApi();
+        ArchiveWebhookApi archiveWebhookApi = eArchiveNotificationListener.getEarchivingClientApi();
 
         HttpBasicAuth basicAuth = (HttpBasicAuth) archiveWebhookApi
                 .getApiClient()

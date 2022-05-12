@@ -63,8 +63,8 @@ public class EArchiveListener implements MessageListener {
     }
 
     @Override
-    @Timer(clazz = EArchiveListener.class, value = "process_1_batch_earchive")
-    @Counter(clazz = EArchiveListener.class, value = "process_1_batch_earchive")
+    @Timer(clazz = EArchiveListener.class, value = "earchive_process_1_batch")
+    @Counter(clazz = EArchiveListener.class, value = "earchive_process_1_batch")
     public void onMessage(Message message) {
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 

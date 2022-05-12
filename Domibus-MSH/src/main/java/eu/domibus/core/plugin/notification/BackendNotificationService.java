@@ -10,6 +10,7 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -397,6 +398,8 @@ public class BackendNotificationService {
         userMessageLogDao.setAsNotified(userMessageLog);
     }
 
+    @Timer(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
     @Transactional
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         if (isPluginNotificationDisabled()) {
@@ -413,12 +416,15 @@ public class BackendNotificationService {
         userMessageLogDao.setAsNotified(userMessageLog);
     }
 
+
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(String messageId, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
 
+    @Timer(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
     @Transactional
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {

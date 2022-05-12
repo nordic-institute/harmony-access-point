@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -32,6 +31,8 @@ public class EArchiveFileStorage {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorage.class);
 
     private File storageDirectory = null;
+
+    private Object storageDirectoryLock = new Object();
 
     private Domain domain;
 
@@ -63,12 +64,8 @@ public class EArchiveFileStorage {
     }
 
     private Path getPath(String location) {
-        Path path;
-        try {
-            path = fileSystemUtil.createLocation(location);
-        } catch (FileSystemException e) {
-            throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.", e);
-        }
+        Path path = fileSystemUtil.createLocation(location);
+
         if (path == null) {
             throw new ConfigurationException("There was an error initializing the eArchiving folder but the earchiving is activated.");
         }
@@ -77,7 +74,11 @@ public class EArchiveFileStorage {
 
     public File getStorageDirectory() {
         if (storageDirectory == null) {
-            init();
+            synchronized (storageDirectoryLock) {
+                if (storageDirectory == null) {
+                    init();
+                }
+            }
         }
         return storageDirectory;
     }
