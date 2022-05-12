@@ -2,6 +2,10 @@ package eu.domibus.core.earchive;
 
 import java.util.List;
 
+/**
+ * @author Soumya Chandran
+ * @since 5.0
+ */
 public class BatchEArchiveBasicDTO {
     String batchId;
     String requestType;

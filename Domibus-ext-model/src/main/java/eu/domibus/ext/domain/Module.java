@@ -20,6 +20,4 @@ public class Module {
 
     public static final String WEBLOGIC_ECAS= "WEBLOGIC_ECAS";
 
-    public static final String UNKNOWN = "UNKNOWN";
-
 }
