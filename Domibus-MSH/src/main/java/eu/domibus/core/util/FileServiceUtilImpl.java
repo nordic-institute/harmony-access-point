@@ -5,7 +5,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,6 @@ public class FileServiceUtilImpl implements FileServiceUtil {
     @Override
     public String getExtension(String mime) {
         try {
-            MimeType mimeType = MimeTypes.getDefaultMimeTypes().forName(mime);
             return MimeTypes.getDefaultMimeTypes().forName(mime).getExtension();
         } catch (MimeTypeException e) {
             LOG.warn("Mimetype [{}] not found", mime);

@@ -819,25 +819,36 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadName(PartInfo info) {
-        String extension = null;
+        if (StringUtils.isEmpty(info.getHref())) {
+            return "bodyload.xml";
+        }
+        String extension = getPayloadExtension(info);
+        String messagePayloadNameWithExtension = info.getHref() + "Payload" + extension;
+
+        if (!info.getHref().contains("cid:")) {
+            LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
+            return messagePayloadNameWithExtension;
+        }
+
         for (PartProperty property : info.getPartProperties()) {
             if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
                 LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
                 return property.getValue();
             }
+        }
+
+        return messagePayloadNameWithExtension.replace("cid:", "");
+    }
+
+    protected String getPayloadExtension(PartInfo info) {
+        String extension = null;
+        for (PartProperty property : info.getPartProperties()) {
             if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
                 extension = fileServiceUtil.getExtension(property.getValue());
                 LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
             }
         }
-        if (StringUtils.isEmpty(info.getHref())) {
-            return "bodyload.xml";
-        }
-        if (!info.getHref().contains("cid:")) {
-            LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
-            return info.getHref() + "Payload" + extension;
-        }
-        return info.getHref().replace("cid:", "") + "Payload" + extension;
+        return extension;
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
