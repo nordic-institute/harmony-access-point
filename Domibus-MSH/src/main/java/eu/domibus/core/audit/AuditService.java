@@ -123,12 +123,12 @@ public interface AuditService {
     void addTLSTruststoreDownloadedAudit();
 
     /**
-     * Add TLS truststore uploaded
+     * Add Certificate added to TLS
      **/
     void addCertificateAddedAudit();
 
     /**
-     * Add TLS truststore removed
+     * Add Certificate removed from TLS
      **/
     void addCertificateRemovedAudit();
 
