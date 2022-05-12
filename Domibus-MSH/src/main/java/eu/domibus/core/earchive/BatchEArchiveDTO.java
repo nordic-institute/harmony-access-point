@@ -22,6 +22,10 @@ public class BatchEArchiveDTO {
 
     String timestamp;
 
+    String messageStartId;
+
+    String messageEndId;
+
     String messageStartDate;
 
     String messageEndDate;
@@ -42,6 +46,8 @@ public class BatchEArchiveDTO {
                             String requestType,
                             String status,
                             String timestamp,
+                            String messageStartId,
+                            String messageEndId,
                             String messageStartDate,
                             String messageEndDate
                             ) {
@@ -49,6 +55,8 @@ public class BatchEArchiveDTO {
         this.requestType = requestType;
         this.status = status;
         this.timestamp = timestamp;
+        this.messageStartId = messageStartId;
+        this.messageEndId = messageEndId;
         this.messageStartDate = messageStartDate;
         this.messageEndDate = messageEndDate;
     }
@@ -107,6 +115,22 @@ public class BatchEArchiveDTO {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getMessageStartId() {
+        return messageStartId;
+    }
+
+    public void setMessageStartId(String messageStartId) {
+        this.messageStartId = messageStartId;
+    }
+
+    public String getMessageEndId() {
+        return messageEndId;
+    }
+
+    public void setMessageEndId(String messageEndId) {
+        this.messageEndId = messageEndId;
     }
 
     public String getMessageStartDate() {

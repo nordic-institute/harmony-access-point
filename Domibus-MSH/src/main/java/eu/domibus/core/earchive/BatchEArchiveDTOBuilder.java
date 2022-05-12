@@ -10,6 +10,8 @@ public class BatchEArchiveDTOBuilder {
     private String errorCode;
     private String errorDescription;
     private String timestamp;
+    private String messageStartId;
+    private String messageEndId;
     private String messageStartDate;
     private String messageEndDate;
     private String manifestChecksum;
@@ -50,6 +52,16 @@ public class BatchEArchiveDTOBuilder {
         return this;
     }
 
+    public BatchEArchiveDTOBuilder messageStartId(String messageStartId) {
+        this.messageStartId = messageStartId;
+        return this;
+    }
+
+    public BatchEArchiveDTOBuilder messageEndId(String messageEndId) {
+        this.messageEndId = messageEndId;
+        return this;
+    }
+
     public BatchEArchiveDTOBuilder messageStartDate(String messageStartDate) {
         this.messageStartDate = messageStartDate;
         return this;
@@ -77,6 +89,8 @@ public class BatchEArchiveDTOBuilder {
         batchEArchiveDTO.setErrorCode(errorCode);
         batchEArchiveDTO.setErrorDescription(errorDescription);
         batchEArchiveDTO.setTimestamp(timestamp);
+        batchEArchiveDTO.setMessageStartId(messageStartId);
+        batchEArchiveDTO.setMessageEndId(messageEndId);
         batchEArchiveDTO.setMessageStartDate(messageStartDate);
         batchEArchiveDTO.setMessageEndDate(messageEndDate);
         batchEArchiveDTO.setManifestChecksum(manifestChecksum);

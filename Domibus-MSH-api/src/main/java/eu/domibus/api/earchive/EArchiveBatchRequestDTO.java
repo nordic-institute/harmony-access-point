@@ -24,9 +24,9 @@ public class EArchiveBatchRequestDTO {
 
     Date timestamp;
 
-    Long messageStartDate;
+    Long messageStartId;
 
-    Long messageEndDate;
+    Long messageEndId;
 
     String manifestChecksum;
 
@@ -49,8 +49,8 @@ public class EArchiveBatchRequestDTO {
                                    String errorCode,
                                    String errorDescription,
                                    Date timestamp,
-                                   Long messageStartDate,
-                                   Long messageEndDate
+                                   Long messageStartId,
+                                   Long messageEndId
                             ) {
         this.batchId = batchId;
         this.requestType = requestType;
@@ -58,8 +58,8 @@ public class EArchiveBatchRequestDTO {
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
         this.timestamp = timestamp;
-        this.messageStartDate = messageStartDate;
-        this.messageEndDate = messageEndDate;
+        this.messageStartId = messageStartId;
+        this.messageEndId = messageEndId;
     }
 
     public String getVersion() {
@@ -118,20 +118,20 @@ public class EArchiveBatchRequestDTO {
         this.timestamp = timestamp;
     }
 
-    public Long getMessageStartDate() {
-        return messageStartDate;
+    public Long getMessageStartId() {
+        return messageStartId;
     }
 
-    public void setMessageStartDate(Long messageStartDate) {
-        this.messageStartDate = messageStartDate;
+    public void setMessageStartId(Long messageStartId) {
+        this.messageStartId = messageStartId;
     }
 
-    public Long getMessageEndDate() {
-        return messageEndDate;
+    public Long getMessageEndId() {
+        return messageEndId;
     }
 
-    public void setMessageEndDate(Long messageEndDate) {
-        this.messageEndDate = messageEndDate;
+    public void setMessageEndId(Long messageEndId) {
+        this.messageEndId = messageEndId;
     }
 
     public String getManifestChecksum() {
@@ -160,8 +160,8 @@ public class EArchiveBatchRequestDTO {
                 ", errorCode='" + errorCode + '\'' +
                 ", errorDescription='" + errorDescription + '\'' +
                 ", timestamp='" + timestamp + '\'' +
-                ", messageStartDate='" + messageStartDate + '\'' +
-                ", messageEndDate='" + messageEndDate + '\'' +
+                ", messageStartDate='" + messageStartId + '\'' +
+                ", messageEndDate='" + messageEndId + '\'' +
                 ", manifestChecksum='" + manifestChecksum + '\'' +
                 ", messages=" + messages +
                 '}';

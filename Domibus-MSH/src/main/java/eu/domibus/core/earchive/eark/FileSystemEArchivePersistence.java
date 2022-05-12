@@ -2,7 +2,6 @@ package eu.domibus.core.earchive.eark;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
-import eu.domibus.core.earchive.BatchEArchiveBasicDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
@@ -104,12 +103,6 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
-    @Override
-    public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveBasicDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
-        return null;
-    }
-
-
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, Path batchDirectory) {
         try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);
@@ -120,14 +113,6 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
     }
 
-    private void createBatchJson(BatchEArchiveBasicDTO batchEArchiveBasicDTO, Path batchDirectory) {
-        try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveBasicDTO)) {
-            Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);
-            eArkSipBuilderService.createDataFile(path, inputStream);
-        } catch (IOException e) {
-            throw new DomibusEArchiveException("Could not write the file " + BATCH_JSON);
-        }
-    }
 
     protected void addRepresentation1(List<EArchiveBatchUserMessage> userMessageEntityIds, Path batchDirectory, MetsWrapper mainMETSWrapper) {
         com.codahale.metrics.Timer.Context addB = metricRegistry.timer(name("addRepresentation1", "addBatchJsonToMETS", "timer")).time();

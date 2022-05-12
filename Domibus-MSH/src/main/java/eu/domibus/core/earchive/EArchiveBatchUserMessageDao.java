@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,9 +44,4 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
         return query.getResultList();
     }
 
-    public Date getReceivedTime(String entityId) {
-        TypedQuery<Date> query = em.createNamedQuery("UserMessageLog.findReceivedTimeForEArchiveBatch", Date.class);
-        query.setParameter("ENTITY_ID", Long.parseLong(entityId));
-        return query.getSingleResult();
-    }
 }

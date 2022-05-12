@@ -6,6 +6,7 @@ import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.DomibusEARKSIPResult;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.JmsUtil;
@@ -45,7 +46,9 @@ public class EArchiveListener implements MessageListener {
 
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    private final UserMessageLogDao userMessageLogDao;
 
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
@@ -53,13 +56,14 @@ public class EArchiveListener implements MessageListener {
             EArchiveBatchUtils eArchiveBatchUtils,
             EArchivingDefaultService eArchivingDefaultService,
             JmsUtil jmsUtil,
-            DomibusPropertyProvider domibusPropertyProvider) {
+            DomibusPropertyProvider domibusPropertyProvider, UserMessageLogDao userMessageLogDao) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
         this.jmsUtil = jmsUtil;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.userMessageLogDao = userMessageLogDao;
     }
 
     @Override
@@ -124,12 +128,16 @@ public class EArchiveListener implements MessageListener {
         DomibusEARKSIPResult eArkSipStructure;
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
+        String firstUserMessageEntityId = getMessageStartDate(batchUserMessages, 0);
+        String lastUserMessageEntityId = getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages));
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
-            if (getMessageStartDate(batchUserMessages, 0) != null) {
-                messageStartDate = eArchivingDefaultService.getReceivedTime(getMessageStartDate(batchUserMessages, 0));
+            if (firstUserMessageEntityId != null) {
+                messageStartDate = userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+                LOG.debug("EArchive batch messageStartDate: [{}]", messageStartDate);
             }
-            if (getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages)) != null) {
-                messageEndDate = eArchivingDefaultService.getReceivedTime(getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages)));
+            if (lastUserMessageEntityId != null) {
+                messageEndDate = userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+                LOG.debug("EArchive batch messageEndDate: [{}]", messageEndDate);
             }
             eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                     new BatchEArchiveDTOBuilder()
@@ -137,6 +145,8 @@ public class EArchiveListener implements MessageListener {
                             .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                             .status("SUCCESS")
                             .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
+                            .messageStartId(firstUserMessageEntityId)
+                            .messageEndId(lastUserMessageEntityId)
                             .messageStartDate(DateTimeFormatter.ISO_DATE_TIME.format(messageStartDate.toInstant().atZone(ZoneOffset.UTC)))
                             .messageEndDate(DateTimeFormatter.ISO_DATE_TIME.format(messageEndDate.toInstant().atZone(ZoneOffset.UTC)))
                             .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
@@ -144,13 +154,15 @@ public class EArchiveListener implements MessageListener {
                     batchUserMessages);
         } else {
             eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
-                    new BatchEArchiveBasicDTOBuilder()
+                    new BatchEArchiveDTOBuilder()
                             .batchId(eArchiveBatchByBatchId.getBatchId())
                             .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                             .status("SUCCESS")
                             .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
+                            .messageStartId(firstUserMessageEntityId)
+                            .messageEndId(lastUserMessageEntityId)
                             .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
-                            .createBatchEArchiveBasicDTO(),
+                            .createBatchEArchiveDTO(),
                     batchUserMessages);
         }
         if (LOG.isDebugEnabled()) {

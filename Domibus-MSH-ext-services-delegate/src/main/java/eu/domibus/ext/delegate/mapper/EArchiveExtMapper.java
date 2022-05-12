@@ -25,8 +25,8 @@ public interface EArchiveExtMapper {
 
     @Mapping(source = "timestamp", target = "enqueuedTimestamp")
     @Mapping(source = "requestType", target = "requestType", qualifiedByName = "stringToBatchRequestType")
-    @Mapping(source = "messageEndDate", target = "messageEndDate", qualifiedByName = "messageIdToMessageDateHour")
-    @Mapping(source = "messageStartDate", target = "messageStartDate", qualifiedByName = "messageIdToMessageDateHour")
+    @Mapping(source = "messageEndId", target = "messageEndDate", qualifiedByName = "messageIdToMessageDateHour")
+    @Mapping(source = "messageStartId", target = "messageStartDate", qualifiedByName = "messageIdToMessageDateHour")
     BatchDTO archiveBatchToBatch(EArchiveBatchRequestDTO archiveBatchDTO);
 
     BatchStatusDTO archiveBatchToBatchStatus(EArchiveBatchRequestDTO archiveBatchDTO);

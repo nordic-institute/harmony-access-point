@@ -25,8 +25,8 @@ public abstract class EArchiveBatchMapper {
     @Mapping(source = "EArchiveBatchStatus", target = "status")
     @Mapping(source = "errorMessage", target = "errorDescription")
     @Mapping(source = "dateRequested", target = "timestamp")
-    @Mapping(source = "lastPkUserMessage", target = "messageEndDate")
-    @Mapping(source = "firstPkUserMessage", target = "messageStartDate")
+    @Mapping(source = "lastPkUserMessage", target = "messageEndId")
+    @Mapping(source = "firstPkUserMessage", target = "messageStartId")
     @Mapping(source = "batchBaseEntity", target = "messages", qualifiedByName = "userMessageListToMessageIdList")
     public abstract EArchiveBatchRequestDTO eArchiveBatchRequestEntityToDto(EArchiveBatchEntity batchBaseEntity);
 
