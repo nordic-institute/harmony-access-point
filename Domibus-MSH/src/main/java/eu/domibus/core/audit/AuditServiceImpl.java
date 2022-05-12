@@ -228,12 +228,12 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public void addTLSTruststoreAddedAudit() {
+    public void addCertificateAddedAudit() {
         auditDao.saveTruststoreAudit(new TruststoreAudit("tlstruststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
     }
 
     @Override
-    public void addTLSTruststoreDeletedAudit() {
+    public void addCertificateRemovedAudit() {
         auditDao.saveTruststoreAudit(new TruststoreAudit("tlstruststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.DEL));
     }
 

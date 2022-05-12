@@ -125,12 +125,12 @@ public interface AuditService {
     /**
      * Add TLS truststore uploaded
      **/
-    void addTLSTruststoreAddedAudit();
+    void addCertificateAddedAudit();
 
     /**
      * Add TLS truststore removed
      **/
-    void addTLSTruststoreDeletedAudit();
+    void addCertificateRemovedAudit();
 
     /**
      * Add download audit for am envelope of user or signal messages

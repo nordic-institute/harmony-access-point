@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.core.audit.AuditService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.configuration.security.KeyStoreType;
@@ -48,6 +49,9 @@ public class TLSCertificateManagerImplTest {
 
     @Injectable
     DomainService domainService;
+
+    @Injectable
+    private AuditService auditService;
 
     @Test
     public void replaceTrustStore(@Mocked KeyStoreType trustStore, @Mocked String fileName, @Mocked byte[] fileContent, @Mocked String filePassword, @Mocked String backupLocation) {
@@ -104,6 +108,7 @@ public class TLSCertificateManagerImplTest {
         new Verifications() {{
             certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
             tlsCertificateManager.resetTLSTruststore();
+            auditService.addCertificateAddedAudit();
         }};
     }
 
@@ -122,6 +127,7 @@ public class TLSCertificateManagerImplTest {
         new Verifications() {{
             certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
             tlsCertificateManager.resetTLSTruststore();
+            auditService.addCertificateRemovedAudit();
         }};
     }
 
