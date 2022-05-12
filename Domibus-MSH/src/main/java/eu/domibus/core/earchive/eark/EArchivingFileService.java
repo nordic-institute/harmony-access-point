@@ -174,5 +174,4 @@ public class EArchivingFileService {
             throw new DomibusEArchiveException("Could not write Batch.json " + batchEArchiveDTO, e);
         }
     }
-
 }

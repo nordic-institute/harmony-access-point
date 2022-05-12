@@ -43,5 +43,4 @@ public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessa
         queryUtil.setPaginationParametersToQuery(query, pageStart, pageSize);
         return query.getResultList();
     }
-
 }

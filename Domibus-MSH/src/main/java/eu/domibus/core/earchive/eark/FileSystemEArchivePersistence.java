@@ -103,6 +103,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
     }
 
+
     private void createBatchJson(BatchEArchiveDTO batchEArchiveDTO, Path batchDirectory) {
         try (InputStream inputStream = eArchivingFileService.getBatchFileJson(batchEArchiveDTO)) {
             Path path = Paths.get(batchDirectory.toFile().getAbsolutePath(), BATCH_JSON_PATH);
@@ -112,7 +113,6 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
         }
 
     }
-
 
     protected void addRepresentation1(List<EArchiveBatchUserMessage> userMessageEntityIds, Path batchDirectory, MetsWrapper mainMETSWrapper) {
         com.codahale.metrics.Timer.Context addB = metricRegistry.timer(name("addRepresentation1", "addBatchJsonToMETS", "timer")).time();
