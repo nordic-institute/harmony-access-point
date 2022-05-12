@@ -55,7 +55,7 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
         HttpServletRequest httpRequest = (HttpServletRequest) message.get("HTTP.REQUEST");
-        String domainCode = getDomainCode(httpRequest);
+        String domainCode = StringUtils.lowerCase(getDomainCode(httpRequest));
         LOG.debug("Using domain [{}]", domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
         message.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
