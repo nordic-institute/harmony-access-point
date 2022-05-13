@@ -9,6 +9,7 @@ import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -109,6 +110,17 @@ public class ErrorHandlerService {
                 .map(el -> getLast(el.getPropertyPath()) + " " + el.getMessage())
                 .reduce("There are validation errors: ", (accumulator, element) -> accumulator + element + "; ");
         return createResponse(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+
+    public ResponseEntity<ErrorRO> createHibernateExceptionResponse(HibernateException ex) {
+        StringBuilder loggedDetailedMsg = new StringBuilder();
+        List<Throwable> causes = ExceptionUtils.getThrowableList(ex);
+        causes.forEach(cause -> loggedDetailedMsg.append("\n"+cause.getMessage()));
+        LOG.error(loggedDetailedMsg.toString());
+        // hide precise errors (like SQL statements from the response) - see EDELIVERY-9027
+        String genericHibernateExcMsg = "Hibernate exception occured";
+        return createResponse(genericHibernateExcMsg, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     protected String getLast(Path propertyPath) {

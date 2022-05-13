@@ -3,13 +3,12 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.pmode.PModeException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.error.GlobalExceptionHandlerAdvice;
 import org.hibernate.HibernateException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.hibernate.exception.SQLGrammarException;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,6 +20,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -28,16 +29,19 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.RollbackException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,12 +50,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class GlobalExceptionHandlerAdviceTest {
     private final String exceptionMessage = "Lorem ipsum dolor sit amet";
     private MockMvc mockMvc;
+    private MockMvc mockMvcPmode;
 
     @InjectMocks
     private GlobalExceptionHandlerAdvice unitUnderTest;
 
     @Mock
     private PluginUserResource pluginUserResource;
+
+    @Mock
+    private PModeResource pModeResource;
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -64,6 +72,10 @@ public class GlobalExceptionHandlerAdviceTest {
         MockitoAnnotations.initMocks(this);
 
         this.mockMvc = MockMvcBuilders.standaloneSetup(pluginUserResource)
+                .setControllerAdvice(unitUnderTest)
+                .build();
+
+        this.mockMvcPmode = MockMvcBuilders.standaloneSetup(pModeResource)
                 .setControllerAdvice(unitUnderTest)
                 .build();
     }
@@ -86,7 +98,20 @@ public class GlobalExceptionHandlerAdviceTest {
         doThrow(thrown).when(pluginUserResource).updateUsers(anyList());
         message = mockMvcResultContent(status().is5xxServerError());
         Assert.assertThat(message, new Contains("\"message\""));
-        Assert.assertThat(message, new Contains(exceptionMessage));
+        Assert.assertThat(message, new Contains("Hibernate exception occured")); //HibernateException messages are now hidden from response and only logged (see EDELIVERY-9027)
+    }
+
+    @Test
+    public void testServerErrorHandler_HibernateException_hides_causes() throws Exception {
+        // test that all the messages from all causes (recursively) of a hibernate exception are not returned in the response ...
+        // ... as per EDELIVERY-9027 and only a generic exception message is shown
+        Throwable rootCause = new SQLGrammarException("SQL statement exposed", new SQLException("select query syntax error"));
+        Throwable hibExc = new HibernateException("Hibernate exception message", rootCause);
+        doThrow(hibExc).when(pluginUserResource).updateUsers(anyList());
+        String message = mockMvcResultContent(status().is5xxServerError());
+        Assert.assertFalse(message.contains(hibExc.getMessage()));
+        Assert.assertFalse(message.contains(rootCause.getMessage()));
+        Assert.assertThat(message, new Contains("Hibernate exception occured")); //HibernateException messages are now hidden from response and only logged (see EDELIVERY-9027)
     }
 
     @Test
@@ -141,6 +166,24 @@ public class GlobalExceptionHandlerAdviceTest {
         Assert.assertThat(message, new Contains(exceptionMessage1));
     }
 
+    @Test
+    @Ignore
+    public void testUploadPmodesEndpoint_throwing_HibernateException_sqlsHidden() throws Exception {
+        // testing that even if not caught by the service layer and thrown by the endpoint rest method ...
+        // ... a hibernate error message doesn't show explicit sql statements
+        MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
+        PModeException hibernateException = new PModeException(new HibernateException("Exception message containing SQL statements"));
+
+        doThrow(hibernateException).when(pModeResource).uploadPMode(any(), any());
+        MockHttpServletResponse response = mockMvcPmodeCall();
+        Assert.assertFalse(response.getContentAsString().contains(hibernateException.getMessage()));
+        // instead, the hibernate exception message should contain only a generic message
+        Assert.assertTrue(response.getContentAsString().contains("Hibernate exception occured"));
+
+    }
+
+
+
     private String mockMvcResultContent(ResultMatcher expectedStatus) throws Exception {
         String dummyPayload = "[]";
         MvcResult result = mockMvc.perform(put("/rest/plugin/users")
@@ -152,6 +195,14 @@ public class GlobalExceptionHandlerAdviceTest {
                 .andReturn();
 
         return result.getResponse().getContentAsString();
+    }
+
+    private MockHttpServletResponse mockMvcPmodeCall() throws Exception {
+        MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
+        MvcResult result = mockMvcPmode.perform(post("/rest/pmode")
+                .content(file.getBytes()))
+                .andReturn();
+        return result.getResponse();
     }
 
 
