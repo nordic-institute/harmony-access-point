@@ -15,6 +15,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.MessageInfo;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -207,6 +208,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private MessagesLogService messagesLogService;
+
+    @Injectable
+    private FileServiceUtil fileServiceUtil;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -879,7 +883,7 @@ public class UserMessageDefaultServiceTest {
 
         Set<PartProperty> partProperties = new HashSet<>();
         partProperties.add(partProperty);
-        new Expectations() {{
+        new Expectations(userMessageDefaultService) {{
             partInfoWithBodyload.getHref();
             result = null;
             partInfoWithPayload.getHref();
@@ -892,10 +896,13 @@ public class UserMessageDefaultServiceTest {
             result = PAYLOAD_NAME;
             partProperty.getValue();
             result = "test.txt";
+            userMessageDefaultService.getPayloadExtension(partInfoWithPayload);
+            result = ".xml";
+
         }};
 
-        Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
-        Assert.assertEquals("1234", userMessageDefaultService.getPayloadName(partInfoWithPayload));
+        Assert.assertEquals("bodyload.xml", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
+        Assert.assertEquals("1234Payload.xml", userMessageDefaultService.getPayloadName(partInfoWithPayload));
         Assert.assertEquals("test.txt", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
     }
 
