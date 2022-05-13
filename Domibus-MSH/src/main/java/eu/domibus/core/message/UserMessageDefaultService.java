@@ -19,6 +19,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.DomibusStringUtil;
+import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -82,6 +83,7 @@ public class UserMessageDefaultService implements UserMessageService {
     static final String MESSAGE = "Message [";
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
+    static final String MIME_TYPE = "MimeType";
 
     @Autowired
     @Qualifier(InternalJMSConstants.SEND_MESSAGE_QUEUE)
@@ -194,6 +196,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private MessagesLogService messagesLogService;
+
+    @Autowired
+    private FileServiceUtil fileServiceUtil;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -815,19 +820,35 @@ public class UserMessageDefaultService implements UserMessageService {
 
     protected String getPayloadName(PartInfo info) {
         if (StringUtils.isEmpty(info.getHref())) {
-            return "bodyload";
+            return "bodyload.xml";
         }
+        String extension = getPayloadExtension(info);
+        String messagePayloadNameWithExtension = info.getHref() + "Payload" + extension;
+
         if (!info.getHref().contains("cid:")) {
             LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
-            return info.getHref();
+            return messagePayloadNameWithExtension;
         }
+
         for (PartProperty property : info.getPartProperties()) {
             if (StringUtils.equals(property.getName(), PAYLOAD_NAME)) {
-                LOG.debug("Payload Name exists [{}]", property.getName());
+                LOG.debug("Payload Name for cid [{}] is [{}]", info.getHref(), property.getName());
                 return property.getValue();
             }
         }
-        return info.getHref().replace("cid:", "");
+
+        return messagePayloadNameWithExtension.replace("cid:", "");
+    }
+
+    protected String getPayloadExtension(PartInfo info) {
+        String extension = null;
+        for (PartProperty property : info.getPartProperties()) {
+            if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
+                extension = fileServiceUtil.getExtension(property.getValue());
+                LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
+            }
+        }
+        return extension;
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
