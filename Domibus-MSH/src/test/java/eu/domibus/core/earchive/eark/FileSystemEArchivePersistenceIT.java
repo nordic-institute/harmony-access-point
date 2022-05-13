@@ -119,6 +119,8 @@ public class FileSystemEArchivePersistenceIT {
         Map<String, ArchivingFileDTO> messageId2 = new HashMap<>();
         putRaw(messageId2, "test2");
         putFile(messageId2, MESSAGE_ATTACHMENT_MSG2, "attachmentXML");
+        Date messageStartDate = new Date();
+        Date messageEndDate = new Date();
 
         new Expectations() {{
             domibusVersionService.getArtifactName();
@@ -146,7 +148,7 @@ public class FileSystemEArchivePersistenceIT {
             result = temp;
         }};
 
-        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds);
+        fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, userMessageEntityIds, messageStartDate, messageEndDate);
 
         File[] files = temp.listFiles();
         File batchFolder = files[0];

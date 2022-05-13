@@ -126,10 +126,13 @@ public class EArchiveListener implements MessageListener {
         Date messageStartDate = null;
         Date messageEndDate = null;
         DomibusEARKSIPResult eArkSipStructure;
+
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
+
         String firstUserMessageEntityId = getMessageStartDate(batchUserMessages, 0);
         String lastUserMessageEntityId = getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages));
+
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
             if (firstUserMessageEntityId != null) {
                 messageStartDate = userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
@@ -139,46 +142,33 @@ public class EArchiveListener implements MessageListener {
                 messageEndDate = userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
                 LOG.debug("EArchive batch messageEndDate: [{}]", messageEndDate);
             }
-            eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
-                    new BatchEArchiveDTOBuilder()
-                            .batchId(eArchiveBatchByBatchId.getBatchId())
-                            .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
-                            .status("SUCCESS")
-                            .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                            .messageStartId(firstUserMessageEntityId)
-                            .messageEndId(lastUserMessageEntityId)
-                            .messageStartDate(DateTimeFormatter.ISO_DATE_TIME.format(messageStartDate.toInstant().atZone(ZoneOffset.UTC)))
-                            .messageEndDate(DateTimeFormatter.ISO_DATE_TIME.format(messageEndDate.toInstant().atZone(ZoneOffset.UTC)))
-                            .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
-                            .createBatchEArchiveDTO(),
-                    batchUserMessages);
-        } else {
-            eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
-                    new BatchEArchiveDTOBuilder()
-                            .batchId(eArchiveBatchByBatchId.getBatchId())
-                            .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
-                            .status("SUCCESS")
-                            .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                            .messageStartId(firstUserMessageEntityId)
-                            .messageEndId(lastUserMessageEntityId)
-                            .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
-                            .createBatchEArchiveDTO(),
-                    batchUserMessages);
         }
+        eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
+                new BatchEArchiveDTOBuilder()
+                        .batchId(eArchiveBatchByBatchId.getBatchId())
+                        .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
+                        .status("SUCCESS")
+                        .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
+                        .messageStartId(firstUserMessageEntityId)
+                        .messageEndId(lastUserMessageEntityId)
+                        .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
+                        .createBatchEArchiveDTO(),
+                batchUserMessages, messageStartDate, messageEndDate);
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("EArchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
         return eArkSipStructure.getManifestChecksum();
     }
 
-    private int getLastIndex(List<EArchiveBatchUserMessage> batchUserMessages) {
+    protected int getLastIndex(List<EArchiveBatchUserMessage> batchUserMessages) {
         if(CollectionUtils.isEmpty(batchUserMessages)){
             return 0;
         }
         return batchUserMessages.size() - 1;
     }
 
-    private String getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
+    protected String getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
         if(CollectionUtils.isEmpty(batchUserMessages)){
             return null;
         }
