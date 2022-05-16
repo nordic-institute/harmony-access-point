@@ -2,16 +2,16 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
@@ -182,7 +182,7 @@ public class MessageLogResource extends BaseResource {
     }
 
     private List<String> getExcludedProperties() {
-        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT, PROPERTY_NEXTATTEMPT_TIMEZONEID, PROPERTY_NEXTATTEMPT_OFFSET);
+        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT, PROPERTY_NEXTATTEMPT_TIMEZONEID, PROPERTY_NEXTATTEMPT_OFFSET, "testMessage", "pluginType", "partLength");
         if (!domibusConfigurationService.isFourCornerEnabled()) {
             excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
             excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
