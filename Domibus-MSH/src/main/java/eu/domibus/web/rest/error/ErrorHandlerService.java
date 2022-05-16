@@ -116,7 +116,7 @@ public class ErrorHandlerService {
     public ResponseEntity<ErrorRO> createHibernateExceptionResponse(HibernateException ex) {
         LOG.error(ex.getMessage(), ex);
         // hide precise errors (like SQL statements from the response) - see EDELIVERY-9027
-        String genericHibernateExcMsg = "Hibernate exception occured";
+        String genericHibernateExcMsg = "Persistence exception occurred";
         return createResponse(genericHibernateExcMsg, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

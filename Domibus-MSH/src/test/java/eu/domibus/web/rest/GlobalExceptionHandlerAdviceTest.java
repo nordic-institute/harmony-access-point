@@ -98,7 +98,7 @@ public class GlobalExceptionHandlerAdviceTest {
         doThrow(thrown).when(pluginUserResource).updateUsers(anyList());
         message = mockMvcResultContent(status().is5xxServerError());
         Assert.assertThat(message, new Contains("\"message\""));
-        Assert.assertThat(message, new Contains("Hibernate exception occured")); //HibernateException messages are now hidden from response and only logged (see EDELIVERY-9027)
+        Assert.assertThat(message, new Contains("Persistence exception occurred")); //HibernateException messages are now hidden from response and only logged (see EDELIVERY-9027)
     }
 
     @Test
@@ -111,7 +111,7 @@ public class GlobalExceptionHandlerAdviceTest {
         String message = mockMvcResultContent(status().is5xxServerError());
         Assert.assertFalse(message.contains(hibExc.getMessage()));
         Assert.assertFalse(message.contains(rootCause.getMessage()));
-        Assert.assertThat(message, new Contains("Hibernate exception occured")); //HibernateException messages are now hidden from response and only logged (see EDELIVERY-9027)
+        Assert.assertThat(message, new Contains("Persistence exception occurred")); //HibernateException messages are now hidden from response and only logged (see EDELIVERY-9027)
     }
 
     @Test
