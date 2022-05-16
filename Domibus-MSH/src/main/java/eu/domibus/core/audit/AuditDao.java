@@ -58,12 +58,12 @@ public interface AuditDao {
                                           Date to,
                                           int start,
                                           int max,
-                                          List<Long> superUserIds);
+                                          List<String> superUserIds);
 
     Long countAuditExceptSuperUsers(Set<String> auditTargets,
                                     Set<String> actions, Set<String> users,
                                     Date from,
-                                    Date to, List<Long> superUserIds);
+                                    Date to, List<String> superUserIds);
 
     Long countAudit(Set<String> auditTargets,
                     Set<String> actions,

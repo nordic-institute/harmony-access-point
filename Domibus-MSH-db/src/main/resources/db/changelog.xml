@@ -439,6 +439,10 @@
         <createIndex indexName="IDX_TO_ROLE_ID" tableName="TB_USER_MESSAGE">
             <column name="TO_ROLE_ID_FK"/>
         </createIndex>
+        <createIndex indexName="IDX_TEST_MESSAGE" tableName="TB_USER_MESSAGE">
+            <column name="TEST_MESSAGE"/>
+            <column name="ID_PK"/>
+        </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
 
         <createTable tableName="TB_MESSAGE_ACKNW">
@@ -2455,7 +2459,12 @@
                                  constraintName="FK_EARCHIVE_BATCH_ID_FTR" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_EARCHIVE_BATCH"/>
-
+        <createIndex indexName="IDX_TB_EARCHIVEBATCH_UM_ID" tableName="TB_EARCHIVEBATCH_UM">
+            <column name="FK_USER_MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_TB_EARCHIVEBATCH_UM_B_ID" tableName="TB_EARCHIVEBATCH_UM">
+            <column name="FK_EARCHIVE_BATCH_ID"/>
+        </createIndex>
         <createTable tableName="TB_EARCHIVE_START">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_START"/>

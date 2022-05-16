@@ -342,7 +342,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     }
 
 
-    @Test
+    @Test(expected = AuthorizationException.class)
     public void authorizeAgainstTruststoreAliasTestNullTruststore(@Mocked Domain domain) throws KeyStoreException {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{

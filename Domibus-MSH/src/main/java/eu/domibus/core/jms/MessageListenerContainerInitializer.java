@@ -71,7 +71,10 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         this.domainService = domainService;
         this.coreMapper = coreMapper;
         this.userMessagePriorityService = userMessagePriorityService;
+    }
 
+    @PostConstruct
+    public void initialize() {
         final List<Domain> domains = domainService.getDomains();
         createInstancesFor(domains);
     }

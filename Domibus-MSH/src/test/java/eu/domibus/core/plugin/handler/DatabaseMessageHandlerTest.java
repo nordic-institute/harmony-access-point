@@ -45,6 +45,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.jms.Queue;
@@ -192,6 +193,8 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     protected UserMessageSecurityService userMessageSecurityService;
 
+    @Injectable
+    protected ApplicationEventPublisher applicationEventPublisher;
 
     @Test
     public void testSubmitMessageGreen2RedOk(@Injectable final Submission messageData,

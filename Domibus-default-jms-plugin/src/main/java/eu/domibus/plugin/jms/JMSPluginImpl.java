@@ -178,6 +178,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         return queueContext;
     }
 
+    @Timer(clazz = JMSPluginImpl.class, value = "messageSendSuccess")
+    @Counter(clazz = JMSPluginImpl.class, value = "messageSendSuccess")
     @Override
     public void messageSendSuccess(MessageSendSuccessEvent event) {
         LOG.debug("Handling messageSendSuccess");

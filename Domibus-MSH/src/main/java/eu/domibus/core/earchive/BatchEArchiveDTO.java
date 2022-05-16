@@ -26,6 +26,10 @@ public class BatchEArchiveDTO {
 
     String messageEndId;
 
+    String messageStartDate;
+
+    String messageEndDate;
+
     String manifestChecksum;
 
     List<String> messages;
@@ -43,7 +47,9 @@ public class BatchEArchiveDTO {
                             String status,
                             String timestamp,
                             String messageStartId,
-                            String messageEndId
+                            String messageEndId,
+                            String messageStartDate,
+                            String messageEndDate
                             ) {
         this.batchId = batchId;
         this.requestType = requestType;
@@ -51,6 +57,8 @@ public class BatchEArchiveDTO {
         this.timestamp = timestamp;
         this.messageStartId = messageStartId;
         this.messageEndId = messageEndId;
+        this.messageStartDate = messageStartDate;
+        this.messageEndDate = messageEndDate;
     }
 
     public String getVersion() {
@@ -125,6 +133,22 @@ public class BatchEArchiveDTO {
         this.messageEndId = messageEndId;
     }
 
+    public String getMessageStartDate() {
+        return messageStartDate;
+    }
+
+    public void setMessageStartDate(String messageStartDate) {
+        this.messageStartDate = messageStartDate;
+    }
+
+    public String getMessageEndDate() {
+        return messageEndDate;
+    }
+
+    public void setMessageEndDate(String messageEndDate) {
+        this.messageEndDate = messageEndDate;
+    }
+
     public String getManifestChecksum() {
         return manifestChecksum;
     }
@@ -151,10 +175,9 @@ public class BatchEArchiveDTO {
                 ", errorCode='" + errorCode + '\'' +
                 ", errorDescription='" + errorDescription + '\'' +
                 ", timestamp='" + timestamp + '\'' +
-                ", messageStartDate='" + messageStartId + '\'' +
-                ", messageEndDate='" + messageEndId + '\'' +
+                ", messageStartDate='" + messageStartDate + '\'' +
+                ", messageEndDate='" + messageEndDate + '\'' +
                 ", manifestChecksum='" + manifestChecksum + '\'' +
-                ", messages=" + messages +
                 '}';
     }
 }

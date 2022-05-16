@@ -15,6 +15,7 @@ import mockit.Verifications;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypes;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,13 +93,13 @@ public class EArchivingFileServiceTest {
             result = CID + MESSAGE;
         }};
 
-        Map<String, InputStream> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
+        Map<String, ArchivingFileDTO> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
 
         new Verifications() {
         };
 
-        Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
-        Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
+        MatcherAssert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
+        MatcherAssert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
     }
 
     @Test
@@ -128,12 +129,12 @@ public class EArchivingFileServiceTest {
             result = CID + MESSAGE;
         }};
 
-        Map<String, InputStream> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
+        Map<String, ArchivingFileDTO> archivingFiles = eArchivingFileService.getArchivingFiles(entityId);
 
         new Verifications() {
         };
 
-        Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
+        Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
         Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
     }
 
@@ -241,7 +242,7 @@ public class EArchivingFileServiceTest {
             result = new ByteArrayInputStream(compressedBytes);
 
         }};
-        InputStream file = eArchivingFileService.getInputStream(1L, partInfo);
+        ArchivingFileDTO file = eArchivingFileService.getArchivingFileDTO(1L, partInfo);
 
         assertNotNull("message.attachment.xml", file);
 
@@ -265,7 +266,7 @@ public class EArchivingFileServiceTest {
             result = "href";
         }};
         try {
-            eArchivingFileService.getInputStream(1L, partInfo);
+            eArchivingFileService.getArchivingFileDTO(1L, partInfo);
             fail();
         } catch (DomibusEArchiveException e) {
             assertTrue(StringUtils.contains(e.getMessage(), "partInfoMessageId"));

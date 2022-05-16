@@ -3,8 +3,6 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
@@ -15,6 +13,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,10 @@ public class DomainServiceImpl implements DomainService {
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
         this.authenticationService = authenticationService;
+    }
 
+    @PostConstruct
+    public void initialize() {
         domains = domainDao.findAll();
     }
 
@@ -211,7 +213,7 @@ public class DomainServiceImpl implements DomainService {
     }
 
     private Domain findByCode(String domainCode, List<Domain> allDomains) {
-        return allDomains.stream().filter(el -> StringUtils.equals(el.getCode(), domainCode)).findFirst().orElse(null);
+        return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode)).findFirst().orElse(null);
     }
 
 }

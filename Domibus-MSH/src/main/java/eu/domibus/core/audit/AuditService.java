@@ -123,6 +123,16 @@ public interface AuditService {
     void addTLSTruststoreDownloadedAudit();
 
     /**
+     * Add Certificate added to TLS
+     **/
+    void addCertificateAddedAudit();
+
+    /**
+     * Add Certificate removed from TLS
+     **/
+    void addCertificateRemovedAudit();
+
+    /**
      * Add download audit for am envelope of user or signal messages
      *
      * @param messageId        the id of the message.

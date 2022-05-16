@@ -1,7 +1,7 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import mockit.Tested;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileSystemException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,12 +20,10 @@ public class FileSystemUtilTest {
     @Tested
     private FileSystemUtil fileSystemUtil;
 
-    @Test
+    @Test(expected = DomibusCoreException.class)
     public void createLocationWithRelativePath_returnTempFile() throws FileSystemException {
         final String location = "..\\domibus_blue\\domibus\\earchiving_storage";
-        Path result = fileSystemUtil.createLocation(location);
-        String property = System.getProperty("java.io.tmpdir");
-        assertTrue(StringUtils.containsAny(property, result.getFileName().toString()));
+        fileSystemUtil.createLocation(location);
     }
 
     @Test

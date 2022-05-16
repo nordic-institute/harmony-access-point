@@ -1,11 +1,11 @@
 package eu.domibus.core.earchive.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -63,6 +63,9 @@ public class EArchiveNotificationListener implements MessageListener {
     private final DomibusProxyService domibusProxyService;
 
     private final ObjectMapper objectMapper;
+    private ArchiveWebhookApi earchivingClientApi;
+
+    private Object earchivingClientApiLock = new Object();
 
     public EArchiveNotificationListener(
             DatabaseUtil databaseUtil,
@@ -77,6 +80,17 @@ public class EArchiveNotificationListener implements MessageListener {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusProxyService = domibusProxyService;
         this.objectMapper = objectMapper;
+    }
+
+    public ArchiveWebhookApi getEarchivingClientApi() {
+        if (earchivingClientApi == null) {
+            synchronized (earchivingClientApiLock) {
+                if (earchivingClientApi == null) {
+                    initialize();
+                }
+            }
+        }
+        return earchivingClientApi;
     }
 
     @Override
@@ -97,35 +111,31 @@ public class EArchiveNotificationListener implements MessageListener {
         LOG.info("Notification of type [{}] for batchId [{}] and entityId [{}]", notificationType, batchId, entityId);
 
         EArchiveBatchEntity eArchiveBatch = eArchiveService.getEArchiveBatch(entityId, true);
-
         if (notificationType == EArchiveBatchStatus.FAILED) {
             LOG.info("Notification to the eArchive client for batch FAILED [{}] ", eArchiveBatch);
-            ArchiveWebhookApi earchivingClientApi = initializeEarchivingClientApi();
-            earchivingClientApi.putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
+            getEarchivingClientApi().putStaleNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
 
         if (notificationType == EArchiveBatchStatus.EXPORTED) {
             LOG.info("Notification to the eArchive client for batch EXPORTED [{}] ", eArchiveBatch);
-            ArchiveWebhookApi earchivingClientApi = initializeEarchivingClientApi();
-            earchivingClientApi.putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
+            getEarchivingClientApi().putExportNotification(buildBatchNotification(eArchiveBatch), batchId);
             LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_NOTIFICATION_SENT, eArchiveBatch.getBatchId());
         }
     }
 
-    protected ArchiveWebhookApi initializeEarchivingClientApi() {
+    private void initialize() {
         String restUrl = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_URL);
         if (StringUtils.isBlank(restUrl)) {
             throw new DomibusEArchiveException("eArchive client endpoint not configured");
         }
-
         LOG.debug("Initializing eArchive client api with endpoint [{}]...", restUrl);
 
         RestTemplate restTemplate = initRestTemplate();
         ApiClient apiClient = new ApiClient(restTemplate);
         apiClient.setBasePath(restUrl);
 
-        ArchiveWebhookApi earchivingClientApi = new ArchiveWebhookApi();
+        earchivingClientApi = new ArchiveWebhookApi();
         earchivingClientApi.setApiClient(apiClient);
 
         String username = domibusPropertyProvider.getProperty(DOMIBUS_EARCHIVE_NOTIFICATION_USERNAME);
@@ -134,8 +144,6 @@ public class EArchiveNotificationListener implements MessageListener {
             earchivingClientApi.getApiClient().setUsername(username);
             earchivingClientApi.getApiClient().setPassword(password);
         }
-
-        return earchivingClientApi;
     }
 
     protected RestTemplate initRestTemplate() {
