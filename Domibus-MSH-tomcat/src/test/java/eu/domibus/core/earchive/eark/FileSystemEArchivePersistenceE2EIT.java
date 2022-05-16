@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -122,9 +123,11 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     public void createEArkSipStructure() throws IOException {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         UserMessage byMessageId2 = userMessageDao.findByMessageId(messageId2);
+        Date messageStartDate = new Date();
+        Date messageEndDate = new Date();
 
         DomibusEARKSIPResult fileObject = fileSystemEArchivePersistence.createEArkSipStructure(batchEArchiveDTO, Arrays.asList(new EArchiveBatchUserMessage(byMessageId.getEntityId(), messageId),
-                new EArchiveBatchUserMessage(byMessageId2.getEntityId(), messageId2)));
+                new EArchiveBatchUserMessage(byMessageId2.getEntityId(), messageId2)), messageStartDate, messageEndDate);
         try (FileObject batchDirectory = VFS.getManager().resolveFile(fileObject.getDirectory().toUri())) {
 
             // must have more that one subfolder item
