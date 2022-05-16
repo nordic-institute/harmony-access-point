@@ -60,6 +60,7 @@ public class TLSCertificateManagerImplTest {
         new Verifications() {{
             certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
             tlsCertificateManager.resetTLSTruststore();
+            auditService.addTLSTruststoreUploadedAudit();
         }};
     }
 
