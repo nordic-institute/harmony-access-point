@@ -34,7 +34,6 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      * The message components should be case insensitive from the PMode data
      *
      */
-    @Ignore("EDELIVERY-8892")
     @Test
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";
