@@ -151,8 +151,8 @@ public class UserResource extends BaseResource {
                         "DomainName".toUpperCase(), "Domain"
                 ),
                 domibusConfigurationService.isMultiTenantAware() ?
-                        Arrays.asList("authorities", "status", "password", "suspended", "email", "domain") :
-                        Arrays.asList("authorities", "status", "password", "suspended", "email", "domain", "domainName"),
+                        Arrays.asList("authorities", "status", "password", "suspended", "domain") :
+                        Arrays.asList("authorities", "status", "password", "suspended", "domain", "domainName"),
                 "users");
     }
 
