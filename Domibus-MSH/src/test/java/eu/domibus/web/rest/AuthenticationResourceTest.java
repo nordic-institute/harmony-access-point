@@ -65,6 +65,9 @@ public class AuthenticationResourceTest {
     UserDomainService userDomainService;
 
     @Injectable
+    DomainService domainService;
+
+    @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable

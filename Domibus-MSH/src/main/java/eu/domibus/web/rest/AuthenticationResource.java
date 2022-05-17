@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
@@ -54,6 +55,8 @@ public class AuthenticationResource {
 
     protected final UserDomainService userDomainService;
 
+    protected final DomainService domainService;
+
     protected final DomibusCoreMapper coreMapper;
 
     protected final ErrorHandlerService errorHandlerService;
@@ -61,11 +64,12 @@ public class AuthenticationResource {
     protected final CompositeSessionAuthenticationStrategy sas;
 
     public AuthenticationResource(AuthenticationService authenticationService, DomainContextProvider domainContextProvider,
-                                  UserDomainService userDomainService, DomibusCoreMapper coreMapper,
+                                  UserDomainService userDomainService, DomainService domainService, DomibusCoreMapper coreMapper,
                                   ErrorHandlerService errorHandlerService, CompositeSessionAuthenticationStrategy sas) {
         this.authenticationService = authenticationService;
         this.domainContextProvider = domainContextProvider;
         this.userDomainService = userDomainService;
+        this.domainService= domainService;
         this.coreMapper = coreMapper;
         this.errorHandlerService = errorHandlerService;
         this.sas = sas;
@@ -98,6 +102,7 @@ public class AuthenticationResource {
             }
 
             LOG.debug("Determined preferred domain [{}] for user [{}]", domainCode, loginRO.getUsername());
+            domainService.validateDomain(domainCode);
         }
 
         LOG.debug("Authenticating user [{}]", loginRO.getUsername());

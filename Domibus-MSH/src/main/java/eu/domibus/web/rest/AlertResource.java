@@ -186,7 +186,7 @@ public class AlertResource extends BaseResource {
 
     protected List<String> getExcludedColumns(boolean singleTenancy) {
         List<String> excludedColumns = new ArrayList<>();
-        excludedColumns.addAll(Arrays.asList("alertDescription", "deleted"));
+        excludedColumns.addAll(Arrays.asList("alertDescription", "deleted", "nextAttemptTimezoneId", "nextAttemptOffsetSeconds"));
         if (singleTenancy) {
             excludedColumns.add("superAdmin");
         }
