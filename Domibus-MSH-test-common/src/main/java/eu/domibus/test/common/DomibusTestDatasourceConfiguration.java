@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class DomibusTestDatasourceConfiguration {
 
         final String databaseSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_SCHEMA);
         //Enable logs for H2 with ';TRACE_LEVEL_FILE=4' at the end of databaseUrlTemplate
-        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=DAY,VALUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_LOCK_TIMEOUT=3000;INIT=runscript from '" + createSchemaScriptFullPath + "'\\;runscript from '" + domibusH2ScriptFullPath + "'\\;runscript from '" + domibusH2DataScriptFullPath + "'\\;runscript from '" + schemaH2ScriptFullPath + "'";
+        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=DAY,VALUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_LOCK_TIMEOUT=3000;INIT=runscript from '" + FilenameUtils.separatorsToUnix(createSchemaScriptFullPath) + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domibusH2ScriptFullPath) + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domibusH2DataScriptFullPath) + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(schemaH2ScriptFullPath) + "'";
         String databaseUrl = String.format(databaseUrlTemplate, databaseSchema);
 
         LOG.info("Using database URL [{}]", databaseUrl);
@@ -98,7 +99,7 @@ public class DomibusTestDatasourceConfiguration {
             scriptFullPath = domibusScript.getCanonicalPath();
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-            fail("Could not the full path for script [" + domibusScript + "]");
+            fail("Could not get the full path for script [" + domibusScript + "]");
         }
 
 
