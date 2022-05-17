@@ -121,13 +121,13 @@ export class AlertService {
     return (message ? message + ' \n' : '') + (errMsg || '');
   }
 
-  private tryExtractErrorMessageFromResponse(response: HttpErrorResponse | HttpResponse<any> | string | any) {
+  tryExtractErrorMessageFromResponse(response: HttpErrorResponse | HttpResponse<any> | string | any) {
     let errMsg: string = null;
 
     if (typeof response === 'string') {
       errMsg = response;
     } else if (response instanceof HttpErrorResponse) {
-      if (response.message) { 
+      if (response.message) {
         console.warn(response.message);
       }
       if (response.error) {
