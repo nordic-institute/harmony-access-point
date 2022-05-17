@@ -428,13 +428,15 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   serverRemoveAll(source: string): Promise<any> {
+    const messageIds = this.rows.map(el => el.id);
     return this.http.post('rest/jms/messages/action', {
       source: source,
-      action: 'REMOVE_ALL'
+      selectedMessages: messageIds,
+      action: 'REMOVE'
     }).toPromise().then(() => {
         this.refreshDestinations();
         this.markedForDeletionMessages = [];
-        this.alertService.success('All messages in the queue deleted successfully.');
+        this.alertService.success('All filtered messages in the queue deleted successfully.');
         super.rows = [];
       }
     )
