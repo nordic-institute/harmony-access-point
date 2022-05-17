@@ -15,6 +15,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
@@ -31,6 +33,7 @@ import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -212,16 +215,25 @@ public class JMSManagerImpl implements JMSManager {
         });
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
+    @Transactional
     @Override
     public void sendMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.TEXT_MESSAGE);
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
+    @Transactional
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination, JmsOperations jmsOperations) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE, jmsOperations);
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
+    @Transactional
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE);
