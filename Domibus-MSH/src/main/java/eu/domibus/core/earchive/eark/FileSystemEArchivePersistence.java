@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +67,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
     @Override
     @Timer(clazz = FileSystemEArchivePersistence.class, value = "earchive2_createEArkSipStructure")
     @Counter(clazz = FileSystemEArchivePersistence.class, value = "earchive2_createEArkSipStructure")
-    public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds) {
+    public DomibusEARKSIPResult createEArkSipStructure(BatchEArchiveDTO batchEArchiveDTO, List<EArchiveBatchUserMessage> userMessageEntityIds, Date messageStartDate, Date messageEndDate) {
         String batchId = batchEArchiveDTO.getBatchId();
         LOG.info("Create earchive structure for batchId [{}] with [{}] messages", batchId, userMessageEntityIds.size());
         try {
@@ -94,6 +97,11 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             chkSum.stop();
             batchEArchiveDTO.setManifestChecksum(checksum);
             com.codahale.metrics.Timer.Context crtBatch = metricRegistry.timer(name("createEArkSipStructure", "createBatchJson", "timer")).time();
+
+            if (messageStartDate != null && messageEndDate != null) {
+                batchEArchiveDTO.setMessageStartDate(DateTimeFormatter.ISO_DATE_TIME.format(messageStartDate.toInstant().atZone(ZoneOffset.UTC)));
+                batchEArchiveDTO.setMessageEndDate(DateTimeFormatter.ISO_DATE_TIME.format(messageEndDate.toInstant().atZone(ZoneOffset.UTC)));
+            }
             createBatchJson(batchEArchiveDTO, batchDirectory);
             crtBatch.stop();
 

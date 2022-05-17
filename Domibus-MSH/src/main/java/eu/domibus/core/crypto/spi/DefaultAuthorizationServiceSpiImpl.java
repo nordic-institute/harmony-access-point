@@ -133,8 +133,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         try {
             X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), alias);
             if (cert == null) {
-                LOG.warn("Failed to get the certificate based on the partyName [{}]. No further authorization against truststore is performed.", alias);
-                return;
+                LOG.error("Failed to get the certificate based on the partyName [{}]", alias);
+                throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Could not find the certificate in the truststore");
             }
             LOG.debug("Truststore certificate: [%s]", cert);
 

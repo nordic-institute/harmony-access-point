@@ -1,16 +1,19 @@
 package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.core.earchive.eark.DomibusEARKSIPResult;
 import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -19,7 +22,10 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED;
 
 /**
  * @author François Gautier
@@ -40,17 +46,24 @@ public class EArchiveListener implements MessageListener {
 
     private final EArchiveBatchUtils eArchiveBatchUtils;
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    private final UserMessageLogDao userMessageLogDao;
+
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
             EArchiveBatchUtils eArchiveBatchUtils,
             EArchivingDefaultService eArchivingDefaultService,
-            JmsUtil jmsUtil) {
+            JmsUtil jmsUtil,
+            DomibusPropertyProvider domibusPropertyProvider, UserMessageLogDao userMessageLogDao) {
         this.fileSystemEArchivePersistence = fileSystemEArchivePersistence;
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
         this.jmsUtil = jmsUtil;
         this.eArchiveBatchUtils = eArchiveBatchUtils;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.userMessageLogDao = userMessageLogDao;
     }
 
     @Override
@@ -110,31 +123,52 @@ public class EArchiveListener implements MessageListener {
     }
 
     private String exportInFileSystem(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> batchUserMessages) {
-        DomibusEARKSIPResult eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
+        Date messageStartDate = null;
+        Date messageEndDate = null;
+        DomibusEARKSIPResult eArkSipStructure;
+
+        final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
+        LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
+
+        String firstUserMessageEntityId = getMessageStartDate(batchUserMessages, 0);
+        String lastUserMessageEntityId = getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages));
+
+        if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
+            if (firstUserMessageEntityId != null) {
+                messageStartDate = userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+                LOG.debug("EArchive batch messageStartDate: [{}]", messageStartDate);
+            }
+            if (lastUserMessageEntityId != null) {
+                messageEndDate = userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+                LOG.debug("EArchive batch messageEndDate: [{}]", messageEndDate);
+            }
+        }
+        eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                         .status("SUCCESS")
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId(getMessageStartDate(batchUserMessages, 0))
-                        .messageEndId(getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages)))
+                        .messageStartId(firstUserMessageEntityId)
+                        .messageEndId(lastUserMessageEntityId)
                         .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
-                batchUserMessages);
+                batchUserMessages, messageStartDate, messageEndDate);
+
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Earchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
+            LOG.debug("EArchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
         return eArkSipStructure.getManifestChecksum();
     }
 
-    private int getLastIndex(List<EArchiveBatchUserMessage> batchUserMessages) {
+    protected int getLastIndex(List<EArchiveBatchUserMessage> batchUserMessages) {
         if(CollectionUtils.isEmpty(batchUserMessages)){
             return 0;
         }
         return batchUserMessages.size() - 1;
     }
 
-    private String getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
+    protected String getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
         if(CollectionUtils.isEmpty(batchUserMessages)){
             return null;
         }
