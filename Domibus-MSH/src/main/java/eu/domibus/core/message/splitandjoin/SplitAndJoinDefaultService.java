@@ -310,15 +310,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     @Override
-    public boolean mayUseSplitAndJoin(LegConfiguration legConfiguration) {
-        final Splitting splitting = legConfiguration.getSplitting();
-        if (splitting == null) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public String generateSourceFileName(String temporaryDirectoryLocation) {
         final String uuid = UUID.randomUUID().toString();
         return temporaryDirectoryLocation + "/" + uuid;

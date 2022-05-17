@@ -19,14 +19,6 @@ public interface SplitAndJoinService {
     void sendSignalError(String messageId, String ebMS3ErrorCode, String errorDetail, String pmodeKey);
 
     /**
-     * Checks if the leg is configured to use SplitAndJoin
-     *
-     * @param legConfiguration
-     * @return
-     */
-    boolean mayUseSplitAndJoin(LegConfiguration legConfiguration);
-
-    /**
      * Generates the file name for the source message
      *
      * @param temporaryDirectoryLocation

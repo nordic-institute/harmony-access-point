@@ -373,16 +373,16 @@ public class SplitAndJoinDefaultServiceTest {
         }};
     }
 
-    @Test
-    public void mayUseSplitAndJoin(@Injectable LegConfiguration legConfiguration,
-                                   @Injectable Splitting splitting) {
-        new Expectations() {{
-            legConfiguration.getSplitting();
-            result = splitting;
-        }};
-
-        Assert.assertTrue(splitAndJoinDefaultService.mayUseSplitAndJoin(legConfiguration));
-    }
+//    @Test
+//    public void mayUseSplitAndJoin(@Injectable LegConfiguration legConfiguration,
+//                                   @Injectable Splitting splitting) {
+//        new Expectations() {{
+//            legConfiguration.getSplitting();
+//            result = splitting;
+//        }};
+//
+//        Assert.assertTrue(splitAndJoinDefaultService.mayUseSplitAndJoin(legConfiguration));
+//    }
 
     @Test
     public void generateSourceFileName() {
