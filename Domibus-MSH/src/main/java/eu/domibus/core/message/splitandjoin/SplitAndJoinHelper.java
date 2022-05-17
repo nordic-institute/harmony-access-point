@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 /**
  * @author Ion Perpegel
  * @since 5.0
+ *
+ * Spin-off from splitAndJoinService to break a cyclic dependency
  */
 @Service
 public class SplitAndJoinHelper {
