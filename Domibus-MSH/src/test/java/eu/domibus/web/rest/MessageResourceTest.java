@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.MessagesLogService;
+import eu.domibus.core.message.UserMessageDefaultRestoreService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -59,6 +60,9 @@ public class MessageResourceTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    private UserMessageDefaultRestoreService userMessageDefaultRestoreService;
+
     @Test
     public void testDownload() {
         // Given
@@ -109,7 +113,7 @@ public class MessageResourceTest {
         new Verifications() {{
             final String messageIdActual;
             final String messageIdActual1;
-            userMessageService.resendFailedOrSendEnqueuedMessage(messageIdActual = withCapture());
+            userMessageDefaultRestoreService.resendFailedOrSendEnqueuedMessage(messageIdActual = withCapture());
             times = 1;
             Assert.assertEquals(messageId, messageIdActual);
         }};

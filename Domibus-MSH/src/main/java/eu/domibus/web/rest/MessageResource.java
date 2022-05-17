@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.logging.DomibusLogger;
@@ -40,6 +41,9 @@ public class MessageResource {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    private UserMessageRestoreService restoreService;
+
     @ExceptionHandler({MessagingException.class})
     public ResponseEntity<ErrorRO> handleMessagingException(MessagingException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.EXPECTATION_FAILED);
@@ -52,7 +56,7 @@ public class MessageResource {
 
     @RequestMapping(path = "/restore", method = RequestMethod.PUT)
     public void resend(@RequestParam(value = "messageId", required = true) String messageId) {
-        userMessageService.resendFailedOrSendEnqueuedMessage(messageId);
+        restoreService.resendFailedOrSendEnqueuedMessage(messageId);
     }
 
     @RequestMapping(path = "/{messageId:.+}/downloadOld", method = RequestMethod.GET)

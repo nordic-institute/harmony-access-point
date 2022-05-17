@@ -86,7 +86,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException {
         String originalUserFromSecurityContext = getUser();
-        return userMessageService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUserFromSecurityContext);
+        return restoreService.restoreFailedMessagesDuringPeriod(begin, end, null, originalUserFromSecurityContext);
     }
 
     @Override

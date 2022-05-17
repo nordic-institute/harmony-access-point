@@ -593,7 +593,7 @@ public class UserMessageDefaultServiceTest {
 
         //tested method
         try {
-            userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
+            userMessageDefaultRestoreService.resendFailedOrSendEnqueuedMessage(messageId);
             fail();
         } catch (Exception e) {
             //OK
@@ -618,7 +618,7 @@ public class UserMessageDefaultServiceTest {
 
         try {
             //tested method
-            userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
+            userMessageDefaultRestoreService.resendFailedOrSendEnqueuedMessage(messageId);
             Assert.fail("Exception expected");
         } catch (Exception e) {
             Assert.assertEquals(MessageNotFoundException.class, e.getClass());
