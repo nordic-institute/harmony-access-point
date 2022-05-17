@@ -2,12 +2,14 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.web.rest.ro.DomainRO;
+import eu.domibus.web.security.AuthenticationService;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -31,6 +33,9 @@ public class DomainResourceTest {
     private DomibusCoreMapper coreMapper;
 
     @Injectable
+    private UserDomainService userDomainService;
+
+    @Injectable
     private DomainService domainService;
 
     @Injectable
@@ -41,6 +46,9 @@ public class DomainResourceTest {
 
     @Injectable
     private AuthUtils authUtils;
+
+    @Injectable
+    private AuthenticationService authenticationService;
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
