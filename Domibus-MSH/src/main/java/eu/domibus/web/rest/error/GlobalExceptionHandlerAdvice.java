@@ -9,6 +9,7 @@ import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.hibernate.HibernateException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,6 +103,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
         return errorHandlerService.createConstraintViolationResponse(ex);
+    }
+
+    @ExceptionHandler({HibernateException.class})
+    public ResponseEntity<ErrorRO> handleHibernateException(HibernateException ex) {
+        return errorHandlerService.createHibernateExceptionResponse(ex);
     }
 
     private ResponseEntity<ErrorRO> handleWrappedException(Exception ex) {

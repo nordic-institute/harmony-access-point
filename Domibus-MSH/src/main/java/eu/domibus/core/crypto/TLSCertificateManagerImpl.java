@@ -9,6 +9,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
@@ -43,17 +44,22 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     protected final DomainService domainService;
 
+    protected final AuditService auditService;
+
     public TLSCertificateManagerImpl(TLSReaderService tlsReaderService,
                                      CertificateService certificateService,
                                      DomainContextProvider domainProvider,
-                                     SignalService signalService, DomibusConfigurationService domibusConfigurationService,
-                                     DomainService domainService) {
+                                     SignalService signalService,
+                                     DomibusConfigurationService domibusConfigurationService,
+                                     DomainService domainService,
+                                     AuditService auditService) {
         this.tlsReaderService = tlsReaderService;
         this.certificateService = certificateService;
         this.domainProvider = domainProvider;
         this.signalService = signalService;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainService = domainService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -85,9 +91,12 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
         boolean added = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
         if (added) {
-            LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
+            LOG.debug("Added certificate [{}] to the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
+
+        auditService.addCertificateAddedAudit();
+
         return added;
     }
 
@@ -95,9 +104,12 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     public synchronized boolean removeCertificate(String alias) {
         boolean deleted = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
         if (deleted) {
-            LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
+            LOG.debug("Removed certificate [{}] from the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
+
+        auditService.addCertificateRemovedAudit();
+
         return deleted;
     }
 
