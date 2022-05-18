@@ -27,6 +27,7 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -195,6 +196,9 @@ public class DatabaseMessageHandlerTest {
 
     @Injectable
     protected ApplicationEventPublisher applicationEventPublisher;
+
+    @Injectable
+    protected SplitAndJoinHelper splitAndJoinHelper;
 
     @Test
     public void testSubmitMessageGreen2RedOk(@Injectable final Submission messageData,
@@ -959,7 +963,7 @@ public class DatabaseMessageHandlerTest {
 
         Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
 
-        new Verifications(){{
+        new Verifications() {{
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
             times = 1;
         }};
@@ -1009,7 +1013,7 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     public void browseMessage(@Injectable UserMessage userMessage,
-                              @Injectable UserMessageLog userMessageLog)  {
+                              @Injectable UserMessageLog userMessageLog) {
         String messageId = "123";
 
         new Expectations(databaseMessageHandler) {{
