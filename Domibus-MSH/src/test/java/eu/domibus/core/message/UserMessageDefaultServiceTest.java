@@ -580,55 +580,6 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Injectable UserMessageLog userMessageLog) {
-        final String messageId = UUID.randomUUID().toString();
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
-            result = userMessageLog;
-
-            userMessageLog.getMessageStatus();
-            result = MessageStatus.SEND_ENQUEUED;
-        }};
-
-        //tested method
-        try {
-            userMessageDefaultRestoreService.resendFailedOrSendEnqueuedMessage(messageId);
-            fail();
-        } catch (Exception e) {
-            //OK
-        }
-
-
-        new FullVerifications(userMessageDefaultService) {{
-            String messageIdActual;
-            userMessageDefaultService.sendEnqueuedMessage(messageIdActual = withCapture());
-            Assert.assertEquals(messageId, messageIdActual);
-        }};
-    }
-
-    @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_MessageNotFound() {
-        final String messageId = UUID.randomUUID().toString();
-
-        new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
-            result = null;
-        }};
-
-        try {
-            //tested method
-            userMessageDefaultRestoreService.resendFailedOrSendEnqueuedMessage(messageId);
-            Assert.fail("Exception expected");
-        } catch (Exception e) {
-            Assert.assertEquals(MessageNotFoundException.class, e.getClass());
-        }
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void test_sendEnqueued(final @Injectable UserMessageLog userMessageLog,
                                   final @Injectable UserMessage userMessage) {
         final String messageId = UUID.randomUUID().toString();

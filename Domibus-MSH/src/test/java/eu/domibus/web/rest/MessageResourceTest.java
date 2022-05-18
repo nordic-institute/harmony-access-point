@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.MessagesLogService;
@@ -61,7 +62,7 @@ public class MessageResourceTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private UserMessageDefaultRestoreService userMessageDefaultRestoreService;
+    private UserMessageRestoreService userMessageDefaultRestoreService;
 
     @Test
     public void testDownload() {
