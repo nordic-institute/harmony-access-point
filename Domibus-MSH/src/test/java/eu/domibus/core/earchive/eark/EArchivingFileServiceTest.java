@@ -99,7 +99,7 @@ public class EArchivingFileServiceTest {
         };
 
         MatcherAssert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
-        MatcherAssert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
+        MatcherAssert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class EArchivingFileServiceTest {
         };
 
         Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
-        Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
+        Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
     }
 
     @Test
