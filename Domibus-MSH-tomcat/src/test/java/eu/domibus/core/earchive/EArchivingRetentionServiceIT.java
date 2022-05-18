@@ -161,7 +161,7 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8892")
+    //@Ignore("EDELIVERY-8892")
     public void cleanStoredBatches() {
         //setup batch and export messages
         EArchiveBatchEntity eArchiveBatch = eArchivingService.getEArchiveBatch(batch4.getEntityId(), true);

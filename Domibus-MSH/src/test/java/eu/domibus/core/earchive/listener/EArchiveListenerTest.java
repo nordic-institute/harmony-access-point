@@ -12,10 +12,7 @@ import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,7 +123,7 @@ public class EArchiveListenerTest {
 
         String lastUserMessageEntityId = "220511080000001204";
 
-        new Expectations(eArchiveListener) {{
+        new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -178,7 +175,7 @@ public class EArchiveListenerTest {
 
         eArchiveListener.onMessage(message);
 
-        new FullVerifications() {{
+        new Verifications() {{
             jmsUtil.setDomain(message);
             times = 1;
 
@@ -206,7 +203,7 @@ public class EArchiveListenerTest {
         String firstUserMessageEntityId = "220511070000001204";
         String lastUserMessageEntityId = "220511080000001204";
 
-        new Expectations(eArchiveListener) {{
+        new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -259,7 +256,7 @@ public class EArchiveListenerTest {
 
         eArchiveListener.onMessage(message);
 
-        new FullVerifications() {{
+        new Verifications() {{
             jmsUtil.setDomain(message);
             times = 1;
 
@@ -276,6 +273,8 @@ public class EArchiveListenerTest {
             times = 1;
 
             domibusEARKSIPResult.getDirectory().toAbsolutePath().toString();
+
+            databaseUtil.getDatabaseUserName();
         }};
     }
 
