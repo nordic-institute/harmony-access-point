@@ -1,10 +1,9 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
-import eu.domibus.common.model.configuration.BusinessProcesses;
-import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.configuration.Role;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
@@ -24,6 +23,12 @@ import java.util.stream.Collectors;
 @Order(4)
 public class RolesValidator implements PModeValidator {
 
+    final PModeValidationHelper pModeValidationHelper;
+
+    public RolesValidator(PModeValidationHelper pModeValidationHelper) {
+        this.pModeValidationHelper = pModeValidationHelper;
+    }
+
     @Override
     public List<ValidationIssue> validate(Configuration configuration) {
         List<ValidationIssue> issues = new ArrayList<>();
@@ -31,7 +36,8 @@ public class RolesValidator implements PModeValidator {
         final BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
 
         if(businessProcesses.getRoles() != null) {
-            List<String> names = businessProcesses.getRoles().stream().map(el -> el.getName().toLowerCase()).collect(Collectors.toList());
+            Roles roles = pModeValidationHelper.getAttributeValue(businessProcesses, "rolesXml", Roles.class);
+            List<String> names = roles.getRole().stream().map(el -> el.getName().toLowerCase()).collect(Collectors.toList());
             Set<String> duplicates = names.stream().filter(name -> Collections.frequency(names, name) > 1).collect(Collectors.toSet());
             if (duplicates.size() > 0) {
                 issues.add(new ValidationIssue("Business process roles contain duplicate names case insensitive:" + duplicates, ValidationIssue.Level.ERROR));
