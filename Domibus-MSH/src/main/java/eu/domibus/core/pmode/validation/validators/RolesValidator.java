@@ -30,10 +30,12 @@ public class RolesValidator implements PModeValidator {
 
         final BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
 
-        List<String> names = businessProcesses.getRoles().stream().map(el -> el.getName().toLowerCase()).collect(Collectors.toList());
-        Set<String> duplicates = names.stream().filter(name -> Collections.frequency(names, name) > 1).collect(Collectors.toSet());
-        if (duplicates.size() > 0) {
-            issues.add(new ValidationIssue("Business process roles contain duplicate names case insensitive:" + duplicates, ValidationIssue.Level.ERROR));
+        if(businessProcesses.getRoles() != null) {
+            List<String> names = businessProcesses.getRoles().stream().map(el -> el.getName().toLowerCase()).collect(Collectors.toList());
+            Set<String> duplicates = names.stream().filter(name -> Collections.frequency(names, name) > 1).collect(Collectors.toSet());
+            if (duplicates.size() > 0) {
+                issues.add(new ValidationIssue("Business process roles contain duplicate names case insensitive:" + duplicates, ValidationIssue.Level.ERROR));
+            }
         }
 
         for (Process process : businessProcesses.getProcesses()) {
