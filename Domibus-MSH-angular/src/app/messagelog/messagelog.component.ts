@@ -270,6 +270,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 155
       },
       {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Archived',
+        width: 155
+      },
+      {
         cellTemplate: this.rowActions,
         name: 'Actions',
         width: 80,
