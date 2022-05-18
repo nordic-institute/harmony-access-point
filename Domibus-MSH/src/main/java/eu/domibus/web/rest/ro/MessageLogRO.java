@@ -74,6 +74,16 @@ public class MessageLogRO implements Serializable {
 
     private Boolean canDownloadEnvelope;
 
+    public Date getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Date archived) {
+        this.archived = archived;
+    }
+
+    private Date archived;
+
     public String getMessageId() {
         return messageId;
     }

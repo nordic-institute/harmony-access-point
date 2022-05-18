@@ -72,6 +72,16 @@ public class MessageLogInfo {
 
     private Long partLength;
 
+    public Date getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Date archived) {
+        this.archived = archived;
+    }
+
+    private Date archived;
+
     public MessageLogInfo() {
     }
 
@@ -133,7 +143,8 @@ public class MessageLogInfo {
                           final String serviceType,
                           final String serviceValue,
                           final String pluginType,
-                          final Long partLength
+                          final Long partLength,
+                          final Date archived
     ) {
         this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, testMessage);
@@ -154,6 +165,7 @@ public class MessageLogInfo {
         this.restored = restored;
         this.pluginType = pluginType;
         this.partLength = partLength;
+        this.archived = archived;
     }
 
     public void setMessageId(String messageId) {
