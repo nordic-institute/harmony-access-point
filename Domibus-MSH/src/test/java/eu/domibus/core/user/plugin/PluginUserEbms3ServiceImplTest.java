@@ -354,17 +354,12 @@ public class PluginUserEbms3ServiceImplTest {
         new Expectations(){{
             addedUser.getUserName();
             result = "User_1234";
-            addedUser.getPassword();
-            result = "UserPasswd#1234";
             addedUser.getAuthRoles();
             result = AuthRole.ROLE_USER.name();
             addedUser.getOriginalUser();
             result = testOriginalUser;
 
         }};
-
-        thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Original User :" + testOriginalUser + " does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner].");
 
         pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
     }
