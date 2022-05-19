@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>5.0-SNAPSHOT</version>
+        <version>5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>Domibus-archive-webhook-swagger</artifactId>
