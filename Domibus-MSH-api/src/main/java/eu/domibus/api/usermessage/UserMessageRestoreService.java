@@ -18,6 +18,14 @@ public interface UserMessageRestoreService {
      */
     void resendFailedOrSendEnqueuedMessage(final String messageId);
 
-    List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end, String finalRecipient, String originalUser);
+    /**
+     * @param failedStartDate date and time (in ID PK format) from which to restore failed messages
+     * @param failedEndDate date and time (in ID PK format) until which to restore failed messages
+     * @param finalRecipient final recipient of failed message
+     * @param originalUser original user of failed message
+     * @return the failed messages in the given period and with the given final recipient and original user
+     * that were successfully restored
+     */
+    List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser);
 
 }

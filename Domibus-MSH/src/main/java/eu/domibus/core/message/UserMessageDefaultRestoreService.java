@@ -152,12 +152,12 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     @Transactional
     @Override
-    public List<String> restoreFailedMessagesDuringPeriod(Long start, Long end, String finalRecipient, String originalUser) {
-        final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, originalUser, start, end);
+    public List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser) {
+        final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, originalUser, failedStartDate, failedEndDate);
         if (CollectionUtils.isEmpty(failedMessages)) {
             return null;
         }
-        LOG.debug("Found failed messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
+        LOG.debug("Found failed messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", failedMessages, failedStartDate, failedEndDate, finalRecipient);
 
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
@@ -169,7 +169,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             }
         }
 
-        LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
+        LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, failedStartDate, failedEndDate, finalRecipient);
 
         return restoredMessages;
     }
