@@ -1,9 +1,9 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.naming.InvalidNameException;
 import java.security.KeyStore;
@@ -194,7 +194,7 @@ public interface CertificateService {
      * @param trustName the name of the trust in the db
      * @return
      */
-    Pair<Long, byte[]> getTruststoreContent(String trustName);
+    TrustStoreContentDTO getTruststoreContent(String trustName);
 
     /**
      * Loads a truststore pointed by the file location and persists it in the DB (with the given name) if not already there. This happens at bootstrap time

@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -12,7 +13,6 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +83,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected Pair<Long, byte[]> getTrustStoreContent() {
+    protected TrustStoreContentDTO getTrustStoreContent() {
         return multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
     }
 

@@ -1,6 +1,7 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
@@ -10,7 +11,6 @@ import eu.domibus.core.certificate.Certificate;
 import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.After;
 import org.junit.Assert;
@@ -95,9 +95,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String password = "test123";
         multiDomainCryptoService.persistTruststoresIfApplicable();
-        Pair<Long, byte[]> store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
+        TrustStoreContentDTO store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
 
-        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getRight(), password);
+        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }

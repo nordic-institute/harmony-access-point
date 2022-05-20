@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -14,7 +15,6 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -71,16 +71,16 @@ public abstract class TruststoreResourceBase extends BaseResource {
     protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
-        Pair<Long, byte[]> content = getTrustStoreContent();
+        TrustStoreContentDTO content = getTrustStoreContent();
 
-        ByteArrayResource resource = new ByteArrayResource(content.getRight());
+        ByteArrayResource resource = new ByteArrayResource(content.getContent());
 
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
         }
 
-        auditDownload(content.getLeft());
+        auditDownload(content.getEntityId());
 
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
@@ -90,7 +90,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected abstract void auditDownload(Long id);
 
-    protected abstract Pair<Long, byte[]> getTrustStoreContent();
+    protected abstract TrustStoreContentDTO getTrustStoreContent();
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = doGetTrustStoreEntries();

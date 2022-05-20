@@ -28,12 +28,12 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.Extension;
@@ -428,9 +428,9 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public Pair<Long, byte[]> getTruststoreContent(String trustName) {
+    public TrustStoreContentDTO getTruststoreContent(String trustName) {
         TruststoreEntity res = getTruststoreEntity(trustName);
-        return Pair.of(res.getEntityId(), res.getContent());
+        return new TrustStoreContentDTO(res.getEntityId(), res.getContent());
     }
 
     @Override

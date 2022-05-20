@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -10,7 +11,6 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -91,7 +91,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected Pair<Long, byte[]> getTrustStoreContent() {
+    protected TrustStoreContentDTO getTrustStoreContent() {
         return tlsCertificateManager.getTruststoreContent();
     }
 

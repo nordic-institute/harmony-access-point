@@ -115,13 +115,15 @@ public interface AuditService {
     /**
      * Add truststore downloaded
      *
-     * @param id*/
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
     void addTruststoreDownloadedAudit(String id);
 
     /**
      * Add TLS truststore downloaded
      *
-     * @param id*/
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
     void addTLSTruststoreDownloadedAudit(String id);
 
     /**
@@ -132,13 +134,15 @@ public interface AuditService {
     /**
      * Add Certificate added to TLS
      *
-     * @param id*/
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
     void addCertificateAddedAudit(String id);
 
     /**
      * Add Certificate removed from TLS
      *
-     * @param id*/
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
     void addCertificateRemovedAudit(String id);
 
     /**
