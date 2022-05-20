@@ -1,0 +1,13 @@
+<!--
+Reference to a Subject Key Identifier
+The <wsse:SecurityTokenReference> element contains a <wsse:KeyIdentifier> element that specifies the
+token data by means of a X.509 SubjectKeyIdentifier reference.
+A subject key identifier MAY only be used to reference an X.509v3 certificate.
+-->
+
+<wsp:Policy xmlns:wsp="http://www.w3.org/ns/ws-policy"
+            xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
+            xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+            xmlns:sp13="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200802"
+            wsu:Id="eDeliveryAS4Policy">
+</wsp:Policy>

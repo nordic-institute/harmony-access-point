@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns:jsr107='http://www.ehcache.org/v3/jsr107'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="
+        http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.5.xsd
+        http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.5.xsd">
+
+    <service>
+        <jsr107:defaults enable-management="false" enable-statistics="true"/>
+    </service>
+
+    <!-- cache definitions start here -->
+    <cache uses-template="ttl-3600-heap-5000" alias="policyCache"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="backendFilterCache"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="tlsCache"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="certValidationByAlias"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="crlByCert"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="dispatchClient"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="auditTarget"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="userDomain"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="preferredUserDomain"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="allDomains"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domainByCode"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domainByScheduler"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domibusProperties"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domibusPropertyMetadata"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="encryptionKey"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="passwordEncryptionKey"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="multitenantCache"/>
+    <cache alias="lookupInfo">
+        <expiry>
+            <class>eu.domibus.core.cache.DomibusCacheDynamicExpiryPolicy</class>
+        </expiry>
+        <heap>5000</heap>
+    </cache>
+    <cache alias="dss-cache">
+        <expiry>
+            <ttl>600</ttl>
+        </expiry>
+        <heap unit="entries">5000</heap>
+    </cache>
+    <cache alias="jmsDestinations">
+        <expiry>
+            <ttl>300</ttl>
+        </expiry>
+        <heap unit="entries">5000</heap>
+    </cache>
+    <cache uses-template="no-expiry-queries" alias="dictionary-queries"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.TimezoneOffset"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartProperty"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartyRole"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.ServiceEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MessageStatusEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MpcEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.ActionEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MSHRoleEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.MessageProperty"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.NotificationStatusEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.AgreementRefEntity"/>
+    <cache uses-template="no-expiry" alias="eu.domibus.api.model.PartyId"/>
+
+    <!-- cache definitions ends here -->
+
+    <cache-template name="ttl-3600-heap-5000">
+        <expiry>
+            <ttl>3600</ttl>
+        </expiry>
+        <heap unit="entries">5000</heap>
+    </cache-template>
+    <cache-template name="no-expiry">
+        <expiry>
+            <none/>
+        </expiry>
+        <heap unit="entries">5000</heap>
+    </cache-template>
+    <cache-template name="no-expiry-queries">
+        <expiry>
+            <none/>
+        </expiry>
+        <heap unit="entries">20000</heap>
+    </cache-template>
+</config>

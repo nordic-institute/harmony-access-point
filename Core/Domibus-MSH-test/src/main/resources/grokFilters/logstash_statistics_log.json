@@ -1,0 +1,164 @@
+### INPUT:
+#2020-06-25 12:50:30,433  INFO e.d.statistic:473 - type=GAUGE, name=memory.pools.Compressed-Class-Space.committed, value=15163392
+#2020-06-25 12:50:31,693  INFO e.d.statistic:374 - type=COUNTER, name=OUTGOING_PULL_REQUEST_counter, count=17
+#2020-06-25 12:50:31,693  INFO e.d.statistic:374 - type=TIMER, name=OUTGOING_PULL_REQUEST_timer, count=48, min=168.802543, max=5108.975176, mean=1389.206621, stddev=7.204414501672078E-9, median=1389.206621, p75=1389.206621, p95=1389.206621, p98=1389.206621, p99=1389.206621, p999=1389.206621, mean_rate=3.9516186134184707E-4, m1=2.033286951290993E-24, m5=1.3808050613026015E-7, m15=4.023406819588869E-5, rate_unit=events/second, duration_unit=milliseconds
+
+{
+            "type" => "statistics_log",
+           "COUNT" => "48",
+         "message" => "2020-06-25 12:50:31,693  INFO e.d.statistic:374 - type=TIMER, name=OUTGOING_PULL_REQUEST_timer, count=48, min=168.802543, max=5108.975176, mean=1389.206621, stddev=7.204414501672078E-9, median=1389.206621, p75=1389.206621, p95=1389.206621, p98=1389.206621, p99=1389.206621, p999=1389.206621, mean_rate=3.9516186134184707E-4, m1=2.033286951290993E-24, m5=1.3808050613026015E-7, m15=4.023406819588869E-5, rate_unit=events/second, duration_unit=milliseconds",
+            "host" => {
+            "hostname" => "Ioanas-MacBook-Pro.local",
+        "architecture" => "x86_64",
+                "name" => "Ioanas-MacBook-Pro.local",
+                  "os" => {
+             "version" => "10.15.3",
+              "family" => "darwin",
+                "name" => "Mac OS X",
+               "build" => "19D76",
+              "kernel" => "19.3.0",
+            "platform" => "darwin"
+        },
+                  "id" => "D291201D-33DA-5CEA-98F1-F074D1271176"
+    },
+           "class" => "e.d.statistic",
+            "line" => "374",
+             "ecs" => {
+        "version" => "1.0.0"
+    },
+    "stat_message" => "name=OUTGOING_PULL_REQUEST_timer, count=48, min=168.802543, max=5108.975176, mean=1389.206621, stddev=7.204414501672078E-9, median=1389.206621, p75=1389.206621, p95=1389.206621, p98=1389.206621, p99=1389.206621, p999=1389.206621, mean_rate=3.9516186134184707E-4, m1=2.033286951290993E-24, m5=1.3808050613026015E-7, m15=4.023406819588869E-5, rate_unit=events/second, duration_unit=milliseconds",
+             "MAX" => "5108.975176",
+      "@timestamp" => 2020-06-27T16:41:08.332Z,
+           "agent" => {
+             "version" => "7.0.0",
+                "type" => "filebeat",
+            "hostname" => "Ioanas-MacBook-Pro.local",
+                  "id" => "f1f22d3d-6c5c-452d-897a-431fbca1122c",
+        "ephemeral_id" => "b2e15997-5b6d-4908-820a-6497a8b3d487"
+    },
+             "MIN" => "168.802543",
+            "tags" => [
+        [0] "beats_input_codec_plain_applied",
+        [1] "_STATS_LOG",
+        [2] "_TIMER"
+    ],
+           "input" => {
+        "type" => "log"
+    },
+        "@version" => "1",
+       "TIMESTAMP" => "2020-06-25 12:50:31,693",
+            "TYPE" => "TIMER",
+           "LEVEL" => "INFO",
+            "MEAN" => "1389.206621",
+             "log" => {
+          "file" => {
+            "path" => "/Users/idragusa/test_input.log"
+        },
+        "offset" => 4876
+    },
+            "NAME" => "OUTGOING_PULL_REQUEST_timer"
+}
+{
+            "type" => "statistics_log",
+           "COUNT" => "17",
+         "message" => "2020-06-25 12:50:31,693  INFO e.d.statistic:374 - type=COUNTER, name=OUTGOING_PULL_REQUEST_counter, count=17",
+            "host" => {
+            "hostname" => "Ioanas-MacBook-Pro.local",
+        "architecture" => "x86_64",
+                "name" => "Ioanas-MacBook-Pro.local",
+                  "os" => {
+             "version" => "10.15.3",
+              "family" => "darwin",
+                "name" => "Mac OS X",
+               "build" => "19D76",
+              "kernel" => "19.3.0",
+            "platform" => "darwin"
+        },
+                  "id" => "D291201D-33DA-5CEA-98F1-F074D1271176"
+    },
+           "class" => "e.d.statistic",
+            "line" => "374",
+             "ecs" => {
+        "version" => "1.0.0"
+    },
+    "stat_message" => "name=OUTGOING_PULL_REQUEST_counter, count=17",
+      "@timestamp" => 2020-06-27T16:41:08.332Z,
+           "agent" => {
+            "hostname" => "Ioanas-MacBook-Pro.local",
+             "version" => "7.0.0",
+                "type" => "filebeat",
+                  "id" => "f1f22d3d-6c5c-452d-897a-431fbca1122c",
+        "ephemeral_id" => "b2e15997-5b6d-4908-820a-6497a8b3d487"
+    },
+            "tags" => [
+        [0] "beats_input_codec_plain_applied",
+        [1] "_STATS_LOG",
+        [2] "_COUNTER"
+    ],
+           "input" => {
+        "type" => "log"
+    },
+        "@version" => "1",
+       "TIMESTAMP" => "2020-06-25 12:50:31,693",
+            "TYPE" => "COUNTER",
+           "LEVEL" => "INFO",
+             "log" => {
+          "file" => {
+            "path" => "/Users/idragusa/test_input.log"
+        },
+        "offset" => 4767
+    },
+            "NAME" => "OUTGOING_PULL_REQUEST_counter"
+}
+{
+            "type" => "statistics_log",
+         "message" => "2020-06-25 12:50:30,433  INFO e.d.statistic:473 - type=GAUGE, name=memory.pools.Compressed-Class-Space.committed, value=15163392",
+            "host" => {
+            "hostname" => "Ioanas-MacBook-Pro.local",
+        "architecture" => "x86_64",
+                "name" => "Ioanas-MacBook-Pro.local",
+                  "os" => {
+             "version" => "10.15.3",
+              "family" => "darwin",
+                "name" => "Mac OS X",
+               "build" => "19D76",
+              "kernel" => "19.3.0",
+            "platform" => "darwin"
+        },
+                  "id" => "D291201D-33DA-5CEA-98F1-F074D1271176"
+    },
+           "class" => "e.d.statistic",
+            "line" => "473",
+             "ecs" => {
+        "version" => "1.0.0"
+    },
+    "stat_message" => "name=memory.pools.Compressed-Class-Space.committed, value=15163392",
+      "@timestamp" => 2020-06-27T16:41:08.332Z,
+           "agent" => {
+             "version" => "7.0.0",
+                "type" => "filebeat",
+            "hostname" => "Ioanas-MacBook-Pro.local",
+                  "id" => "f1f22d3d-6c5c-452d-897a-431fbca1122c",
+        "ephemeral_id" => "b2e15997-5b6d-4908-820a-6497a8b3d487"
+    },
+            "tags" => [
+        [0] "beats_input_codec_plain_applied",
+        [1] "_STATS_LOG",
+        [2] "_GAUGE"
+    ],
+           "input" => {
+        "type" => "log"
+    },
+        "@version" => "1",
+       "TIMESTAMP" => "2020-06-25 12:50:30,433",
+            "TYPE" => "GAUGE",
+           "LEVEL" => "INFO",
+             "log" => {
+          "file" => {
+            "path" => "/Users/idragusa/test_input.log"
+        },
+        "offset" => 4638
+    },
+            "NAME" => "memory.pools.Compressed-Class-Space.committed",
+           "VALUE" => "15163392"
+}

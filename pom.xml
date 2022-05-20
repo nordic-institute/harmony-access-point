@@ -10,22 +10,20 @@
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
-        <module>Domibus-archive-webhook-swagger</module>
-        <module>Domibus-MSH</module>
-        <module>Domibus-MSH-spi</module>
-        <module>Domibus-MSH-api</module>
-        <module>Domibus-MSH-ext-services-delegate</module>
-        <module>Domibus-MSH-logging</module>
-        <module>Domibus-MSH-soapui-tests</module>
-        <module>Domibus-plugin-api</module>
-        <module>Domibus-MSH-test</module>
-        <module>Domibus-MSH-test-common</module>
-        <module>Domibus-iam-spi</module>
-        <module>Domibus-ext-model</module>
-        <module>Wildfly</module>
-        <module>Plugin-WS</module>
-        <module>Plugin-JMS</module>
-        <module>Plugin-FS</module>
+        <module>Core/Domibus-archive-webhook-swagger</module>
+        <module>Core/Domibus-MSH</module>
+        <module>Core/Domibus-MSH-spi</module>
+        <module>Core/Domibus-MSH-api</module>
+        <module>Core/Domibus-MSH-ext-services-delegate</module>
+        <module>Core/Domibus-MSH-logging</module>
+        <module>Plugin-JMS/Domibus-MSH-jms-spi</module>
+        <module>Plugin-JMS/Domibus-MSH-jms-spi-helper</module>
+        <module>Core/Domibus-MSH-soapui-tests</module>
+        <module>Core/Domibus-plugin-api</module>
+        <module>Core/Domibus-MSH-test</module>
+        <module>Core/Domibus-MSH-test-common</module>
+        <module>Core/Domibus-iam-spi</module>
+        <module>Core/Domibus-ext-model</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -94,7 +92,7 @@
         <sonar.scm.disabled>true</sonar.scm.disabled>
         <sonar.exclusions>
             **/target/**,
-            **/Domibus-MSH-angular/node_modules/**,
+            **/Core/Domibus-MSH-angular/node_modules/**,
             **/swagger*.js,
             **/web.xml,
             **/common/model/configuration/**,
@@ -1456,7 +1454,10 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Tomcat</module>
+                <module>Tomcat/Domibus-MSH-jms-activemq</module>
+                <module>Tomcat/Domibus-MSH-taskexecutor-tomcat</module>
+                <module>Tomcat/Domibus-MSH-tomcat</module>
+                <module>Tomcat/Domibus-MSH-tomcat-distribution</module>
             </modules>
         </profile>
         <profile>
@@ -1480,7 +1481,9 @@
         <profile>
             <id>wildfly</id>
             <modules>
-                <module>Wildfly</module>
+                <module>Wildfly/Domibus-MSH-jms-wildfly-artemis</module>
+                <module>Wildfly/Domibus-MSH-taskexecutor-wildfly</module>
+                <module>Wildfly/Domibus-MSH-wildfly</module>
             </modules>
         </profile>
         <profile>
@@ -1489,7 +1492,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-MSH-angular</module>
+                <module>Core/Domibus-MSH-angular</module>
             </modules>
         </profile>
         <profile>
@@ -1498,9 +1501,15 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Plugin-WS</module>
+                <module>Plugin-WS/Domibus-default-ws-plugin-stub-utils</module>
+                <module>Plugin-WS/Domibus-ws-stubs</module>
+                <module>Plugin-WS/Domibus-default-ws-plugin-stubs</module>
+                <module>Plugin-WS/Domibus-default-ws-plugin-backend-ws-stubs</module>
+                <module>Plugin-WS/Domibus-default-ws-plugin-backend-ws-test</module>
+                <module>Plugin-WS/Domibus-default-ws-plugin-client</module>
+                <module>Plugin-WS/Domibus-default-ws-plugin</module>
                 <module>Plugin-JMS/Domibus-default-jms-plugin</module>
-                <module>Plugin-FS</module>
+                <module>Plugin-FS/Domibus-default-fs-plugin</module>
             </modules>
         </profile>
         <profile>
@@ -1519,7 +1528,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-MSH-db</module>
+                <module>Core/Domibus-MSH-db</module>
             </modules>
         </profile>
         <profile>
@@ -1528,13 +1537,13 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-MSH-distribution</module>
+                <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
             <id>swagger</id>
             <modules>
-                <module>Domibus-MSH-swagger</module>
+                <module>Core/Domibus-MSH-swagger</module>
             </modules>
         </profile>
         <profile>

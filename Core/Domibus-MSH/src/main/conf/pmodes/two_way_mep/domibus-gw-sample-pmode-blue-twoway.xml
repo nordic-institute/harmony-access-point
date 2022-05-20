@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="red_gw">
+
+    <mpcs>
+        <mpc name="defaultMpc"
+             qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"
+             enabled="true"
+             default="true"
+             retention_downloaded="0"
+             retention_undownloaded="14400"/>
+
+        <mpc name="mpcA"
+             qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcA"
+             enabled="true"
+             default="true"
+             retention_downloaded="0"
+             retention_undownloaded="14400"/>
+    </mpcs>
+    <businessProcesses>
+        <roles>
+            <role name="defaultInitiatorRole"
+                  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+            <role name="defaultResponderRole"
+                  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+        </roles>
+        <parties>
+            <partyIdTypes>
+                <partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+            </partyIdTypes>
+            <party name="red_gw"
+                   endpoint="http://localhost:8180/domibus/services/msh">
+                <identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+            </party>
+            <party name="blue_gw"
+                   endpoint="http://localhost:8080/domibus/services/msh">
+                <identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+            </party>
+        </parties>
+        <meps>
+            <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
+            <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+            <binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
+        </meps>
+        <properties>
+            <property name="originalSenderProperty"
+                      key="originalSender"
+                      datatype="string"
+                      required="true"/>
+            <property name="finalRecipientProperty"
+                      key="finalRecipient"
+                      datatype="string"
+                      required="true"/>
+            <propertySet name="eDeliveryPropertySet">
+                <propertyRef property="finalRecipientProperty"/>
+                <propertyRef property="originalSenderProperty"/>
+            </propertySet>
+        </properties>
+        <payloadProfiles>
+            <payload name="businessContentPayload"
+                     cid="cid:message"
+                     required="true"
+                     mimeType="text/xml"/>
+            <payload name="businessContentAttachment"
+                     cid="cid:attachment"
+                     required="false"
+                     mimeType="application/octet-stream"/>
+            <payloadProfile name="MessageProfile" maxSize="2147483647">
+                <attachment name="businessContentPayload"/>
+                <attachment name="businessContentAttachment"/>
+            </payloadProfile>
+        </payloadProfiles>
+        <securities>
+            <security name="eDeliveryAS4Policy"
+                      policy="eDeliveryAS4Policy.xml"
+                      signatureMethod="RSA_SHA256" />
+        </securities>
+        <errorHandlings>
+            <errorHandling name="demoErrorHandling"
+                           errorAsResponse="true"
+                           businessErrorNotifyProducer="true"
+                           businessErrorNotifyConsumer="true"
+                           deliveryFailureNotifyProducer="true"/>
+        </errorHandlings>
+        <agreements>
+            <agreement name="agreementA" value="agreementA" type="taA"/>
+        </agreements>
+        <services>
+            <service name="serviceA" value="bdx:serviceA" type="tsA"/>
+        </services>
+        <actions>
+            <action name="action1" value="action1"/>
+            <action name="action2" value="action2"/>
+        </actions>
+        <as4>
+            <receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+            <reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+        </as4>
+        <legConfigurations>
+            <legConfiguration name="leg1"
+                              service="serviceA"
+                              action="action1"
+                              defaultMpc="mpcA"
+                              reliability="AS4Reliability"
+                              security="eDeliveryAS4Policy"
+                              receptionAwareness="receptionAwareness"
+                              propertySet="eDeliveryPropertySet"
+                              payloadProfile="MessageProfile"
+                              errorHandling="demoErrorHandling"
+                              compressPayloads="true"/>
+            <legConfiguration name="leg2"
+                              service="serviceA"
+                              action="action2"
+                              defaultMpc="mpcA"
+                              reliability="AS4Reliability"
+                              security="eDeliveryAS4Policy"
+                              receptionAwareness="receptionAwareness"
+                              propertySet="eDeliveryPropertySet"
+                              payloadProfile="MessageProfile"
+                              errorHandling="demoErrorHandling"
+                              compressPayloads="false"/>
+        </legConfigurations>
+
+        <!-- Two-Way mep Scenario
+             Description: blue_gw has the 'request' UserMessage that needs to be exchanged on leg1 (action1) and red_gw has
+                         the 'response' UserMessage that needs to be exchanged on leg2 (action2)
+             Following processes simulate the 3 possible bindings for Two-Way mep. To use one, uncomment the two processes that follow the binding description.
+        -->
+
+        <!-- Two-Way mep, PushAndPush binding
+                pushLeg1: blue_gw pushes the request UM on leg1
+                pushLeg2: red_gw pushes the response UM on leg2 - requires RefToMessageId
+
+        <process name="pushLeg1"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="leg1"/>
+            </legs>
+        </process>
+        <process name="pushLeg2"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultResponderRole"
+                 responderRole="defaultInitiatorRole">
+            <initiatorParties>
+                <initiatorParty name="red_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="blue_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="leg2"/>
+            </legs>
+        </process>
+        -->
+
+        <!-- Two-Way mep, PushAndPull binding
+                 pushLeg1: blue_gw pushes the request UM on leg1
+                pullLeg2: blue_gw pulls the response UM on leg2 - requires RefToMessageId
+
+        <process name="pushLeg1"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="leg1"/>
+            </legs>
+        </process>
+        <process name="pullLeg2"
+                 mep="oneway"
+                 binding="pull"
+                 initiatorRole="defaultResponderRole"
+                 responderRole="defaultInitiatorRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="leg2"/>
+            </legs>
+        </process>
+        -->
+
+        <!-- Two-Way mep, PullAndPush binding
+                pullLeg1: red_gw pulls the request UM on leg1
+                pushLeg2: red_gw pushes the response UM on leg2 - requires RefToMessageId
+
+        <process name="pullLeg1"
+                 mep="oneway"
+                 binding="pull"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="red_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="blue_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="leg1"/>
+            </legs>
+        </process>
+        <process name="pushLeg2"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultResponderRole"
+                 responderRole="defaultInitiatorRole">
+            <initiatorParties>
+                <initiatorParty name="red_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="blue_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="leg2"/>
+            </legs>
+        </process>
+        -->
+
+    </businessProcesses>
+</db:configuration>

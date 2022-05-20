@@ -1,0 +1,19 @@
+
+
+
+<http-conf:tlsClientParameters
+        xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+        xmlns:security="http://cxf.apache.org/configuration/security">
+    <security:trustManagers>
+        <security:keyStore type="JKS" password="123456"
+                           file="${domibus.config.location}/client_trust.jks"/>
+    </security:trustManagers>
+    <security:keyManagers keyPassword="1234">
+        <security:keyStore type="JKS" password="123456"
+                           file="${domibus.config.location}/keystore_blue.jks"/>
+    </security:keyManagers>
+    <security:cipherSuitesFilter>
+        <security:exclude>.*_RSA_.*</security:exclude>
+    </security:cipherSuitesFilter>
+</http-conf:tlsClientParameters>
+

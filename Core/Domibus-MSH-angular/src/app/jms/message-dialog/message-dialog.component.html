@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>JMS Message</h2>
+<mat-dialog-content style="height:450px;width:650px">
+  <mat-card>
+    <mat-card-content>
+      <mat-card-title-group>
+        <mat-card-title>Header</mat-card-title>
+      </mat-card-title-group>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Source" value="{{currentSearchSelectedSource.name}}" readonly id="source_id"/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Id" value="{{message.id}}" readonly id="id_id"/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Timestamp" value="{{message.timestamp| domibusDate}}" readonly id="timestamp_id"/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="JMS Type" value="{{message.type}}" readonly id="type_id"/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <textarea matInput
+                  mdTextareaAutosize
+                  placeholder="Custom Properties" readonly id="customProperties_id">{{message.customProperties|json}}</textarea>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <mat-card-title-group>
+        <mat-card-title>Properties</mat-card-title>
+      </mat-card-title-group>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="JMSMessageID" value="{{message.jmsproperties.JMSMessageID}}"
+               readonly id="propJmsMessageId_id"/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="JMSDestination" value="{{message.jmsproperties.JMSDestination}}"
+               readonly id="propDestination_id"/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="JMSDeliveryMode" value="{{message.jmsproperties.JMSDeliveryMode}}"
+               readonly id="propDeliveryMode_id"/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="JMS Type" value="{{message.MESSAGE_ID}}" readonly id="propMessageId_id"/>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <mat-card-title-group>
+        <mat-card-title>Content</mat-card-title>
+      </mat-card-title-group>
+      <mat-form-field style="width:100%">
+        <input matInput value="{{message.content}}" readonly id="content_id"/>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button id="messageDialogCloseButton" mat-raised-button color="primary" (click)="dialogRef.close({})" style="margin-top:10px">
+    <mat-icon>close</mat-icon>
+    <span>Close</span>
+  </button>
+</mat-dialog-actions>

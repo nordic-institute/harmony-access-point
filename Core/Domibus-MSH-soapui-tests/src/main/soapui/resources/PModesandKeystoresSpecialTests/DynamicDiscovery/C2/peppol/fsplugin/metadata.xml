@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<UserMessage xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+    <PartyInfo>
+        <From>
+            <PartyId type="urn:fdc:peppol.eu:2017:identifiers:ap">senderalias</PartyId>
+            <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
+        </From>
+    </PartyInfo>
+    <CollaborationInfo>
+        <!--You may enter the following 4 items in any order-->
+        <!--Optional:-->
+        <AgreementRef>urn:fdc:peppol.eu:2017:agreements:tia:ap_provider</AgreementRef>
+        <Service type="urn:fdc:peppol.eu:2017:identifiers:proc-id">urn:www.cenbii.eu:profile:bii04:ver1.0</Service>
+        <Action>busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-12::Invoice##urn:www.cenbii.eu:transaction:biicoretrdm010:ver1.0:#urn:www.peppol.eu:bis:peppol4a:ver1.0::2.0</Action>        
+    </CollaborationInfo>
+    <MessageProperties>
+        <!--1 or more repetitions:-->
+        <!--originalSender and finalRecipient are mandatory-->
+        <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>
+        <Property name="finalRecipient" type="iso6523-actorid-upis">0088:112244</Property>
+    </MessageProperties>
+    <PayloadInfo>
+        <PartInfo href="cid:message">
+            <PartProperties>
+                <Property name="MimeType">text/xml</Property>
+            </PartProperties>
+        </PartInfo>
+    </PayloadInfo>
+</UserMessage>

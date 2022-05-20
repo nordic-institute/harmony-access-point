@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <cargo-maven3-plugin.version>1.9.9</cargo-maven3-plugin.version>
+        <replacer.version>1.5.3</replacer.version>
+    </properties>
+
+    <parent>
+        <groupId>eu.domibus</groupId>
+        <artifactId>Core</artifactId>
+        <version>5.1-SNAPSHOT</version>
+    </parent>
+    <packaging>pom</packaging>
+    <artifactId>domibus-distribution</artifactId>
+	<name>Domibus MSH Distribution</name>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>default-plugins</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-default-plugins</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/default-plugins/default-fs-plugin.xml</descriptor>
+                                        <descriptor>src/main/assembly/default-plugins/default-ws-plugin.xml</descriptor>
+                                        <descriptor>src/main/assembly/default-plugins/default-jms-plugin.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>dss-extension</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-authentication-dss-extension</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>
+                                            src/main/assembly/authentication-dss-extension/authentication-dss-extension.xml
+                                        </descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>tomcat</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <properties>
+                <tomcat.version>9.0.59</tomcat.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>${cargo-maven3-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>build-tomcat</id>
+                                <goals>
+                                    <goal>configure</goal>
+                                    <goal>package</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <container>
+                                        <containerId>tomcat9x</containerId>
+                                        <zipUrlInstaller>
+                                            <url>
+                                                https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/public/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip
+                                            </url>
+                                            <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
+                                            <extractDir>${project.basedir}/cargo/installs</extractDir>
+                                        </zipUrlInstaller>
+                                    </container>
+                                    <packager>
+                                        <outputLocation>
+                                            ${project.build.directory}/artifacts/domibus-container
+                                        </outputLocation>
+                                    </packager>
+                                    <configuration>
+                                        <files>
+                                            <file>
+                                                <file>${project.basedir}/../Tomcat/Domibus-MSH-tomcat/src/main/conf/domibus</file>
+                                                <todir>conf/domibus</todir>
+                                            </file>
+                                        </files>
+                                    </configuration>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>${replacer.version}</version>
+                        <executions>
+                            <execution>
+                                <id>tomcat-hardening</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                                <configuration>
+                                    <basedir>${project.basedir}/cargo/installs/tomcat-${tomcat.version}/apache-tomcat-${tomcat.version}</basedir>
+                                    <outputBasedir>${project.build.directory}</outputBasedir>
+                                    <outputDir>replacer</outputDir>
+                                    <includes>
+                                        <include>conf/server.xml</include>
+                                        <include>conf/web.xml</include>
+                                    </includes>
+                                    <replacements>
+                                        <!-- Errors -->
+                                        <replacement>
+                                            <token>&lt;/web-app&gt;</token>
+                                            <value><![CDATA[
+<error-page>
+    <error-code>404</error-code>
+    <location>/error.jsp</location>
+</error-page>
+<error-page>
+    <error-code>403</error-code>
+    <location>/error.jsp</location>
+</error-page>
+<error-page>
+    <error-code>500</error-code>
+    <location>/error.jsp</location>
+</error-page>
+<error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/error.jsp</location>
+</error-page>
+</web-app>]]>
+                                            </value>
+                                        </replacement>
+                                        <!-- Cookies -->
+                                        <replacement>
+                                            <token>&lt;/session-config&gt;</token>
+                                            <value> <![CDATA[
+    <cookie-config>
+        <secure>true</secure>
+        <http-only>true</http-only>
+    </cookie-config>
+</session-config>]]>
+                                            </value>
+                                        </replacement>
+                                        <!-- Remote server shutdown  -->
+                                        <replacement>
+                                            <!-- setting its value to -1 (i.e. disable the remote shutdown) is not encouraged -->
+                                            <token>(&lt;Server.*port=")(\d+)(".*)</token>
+                                            <value>$158291$3</value>
+                                        </replacement>
+                                        <replacement>
+                                            <token>(&lt;Server.*shutdown=")(\w+)(".*)</token>
+                                            <value>$1DOMIBUSSHUTDOWNCMD$3</value>
+                                        </replacement>
+                                    </replacements>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-tomcat</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/tomcat/tomcat-configuration-only.xml</descriptor>
+                                        <descriptor>src/main/assembly/tomcat/tomcat-war.xml</descriptor>
+                                        <descriptor>src/main/assembly/tomcat/tomcat-full.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>weblogic</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-weblogic</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-configuration-only.xml</descriptor>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-war.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>weblogic-ecas</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-weblogic-eu-login</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-ecas-configuration-only.xml</descriptor>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-ecas-war.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>wildfly</id>
+            <properties>
+                <wildfly.version>26.0.1.Final</wildfly.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>${cargo-maven3-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>build-wildfly</id>
+                                <goals>
+                                    <goal>configure</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <container>
+                                        <containerId>wildfly26x</containerId>
+                                        <zipUrlInstaller>
+                                            <url>
+                                                https://ec.europa.eu/digital-building-blocks/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
+                                            </url>
+                                            <downloadDir>${project.basedir}/cargo/downloads</downloadDir>
+                                            <extractDir>${project.basedir}/cargo/installs</extractDir>
+                                        </zipUrlInstaller>
+                                    </container>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>${replacer.version}</version>
+                        <executions>
+                            <execution>
+                                <id>wildfly-startup-arguments</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf.bat
+                                        </include>
+                                        <include>
+                                            ${project.basedir}/cargo/installs/wildfly-as-dist-${wildfly.version}/wildfly-${wildfly.version}/bin/standalone.conf
+                                        </include>
+                                    </includes>
+                                    <replacements>
+                                        <!-- Please keep the values from the "token" and the "value" fields on one line and do not include any whitespaces -->
+                                        <replacement>
+                                            <token>"JAVA_OPTS=-Xms64M -Xmx512M -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m"</token>
+                                            <value>"JAVA_OPTS=-Xms64M -Xmx512M -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Ddomibus.config.location=%JBOSS_HOME%/conf/domibus"</value>
+                                        </replacement>
+                                        <!-- Please keep the values from the "token" and the "value" fields on one line and do not include any whitespaces -->
+                                        <replacement>
+                                            <token>JAVA_OPTS="-Xms64m -Xmx512m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true"</token>
+                                            <value>JAVA_OPTS="-Xms64m -Xmx512m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true -Ddomibus.config.location=\$JBOSS_HOME/conf/domibus"</value>
+                                        </replacement>
+                                    </replacements>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-wildfly</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/wildfly/wildfly-configuration-only.xml</descriptor>
+                                        <descriptor>src/main/assembly/wildfly/wildfly-war.xml</descriptor>
+                                        <descriptor>src/main/assembly/wildfly/wildfly-full.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sample-configuration</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-sample-configuration</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/sampleconfiguration/sample-configuration-and-testing.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>database</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-sqlscripts</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/sqlscripts/sql-scripts.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

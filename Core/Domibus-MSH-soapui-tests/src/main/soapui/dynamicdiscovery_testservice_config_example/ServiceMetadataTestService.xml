@@ -1,0 +1,54 @@
+<!-- To edit or add new Participants: http://edeltest5.westeurope.cloudapp.azure.com/smp/ui -->
+<SignedServiceMetadata xmlns="http://docs.oasis-open.org/bdxr/ns/SMP/2016/05">
+    <ServiceMetadata>
+        <ServiceInformation>
+            <ParticipantIdentifier scheme="red-red-red">redparticipant</ParticipantIdentifier>
+            <DocumentIdentifier>
+                http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test
+            </DocumentIdentifier>
+            <ProcessList>
+                <Process>
+                    <ProcessIdentifier>
+                        http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service
+                    </ProcessIdentifier>
+                    <ServiceEndpointList>
+                        <Endpoint transportProfile="bdxr-transport-ebms3-as4-v1p0">
+                            <EndpointURI>http://localhost:8180/domibus/services/msh</EndpointURI>
+                            <Certificate>
+                                MIIDNzCCAh+gAwIBAgIJAJeSzmm8ifFMMA0GCSqGSIb3DQEBCwUAMDIxDzANBgNV BAMMBnJlZF9ndzESMBAGA1UECgwJZURlbGl2ZXJ5MQswCQYDVQQGEwJCRTAeFw0x NzA5MTQwNzI2NDdaFw0yNTEyMDEwNzI2NDdaMDIxDzANBgNVBAMMBnJlZF9ndzES MBAGA1UECgwJZURlbGl2ZXJ5MQswCQYDVQQGEwJCRTCCASIwDQYJKoZIhvcNAQEB BQADggEPADCCAQoCggEBAMqaG7svX3VYSCnI3DL3aOLWCMJjjSY9103Z33lUMOc1 PCusakhLDQec0WB9MLAxxtf1JNgKBjzjDRod0jsq67ubxKNyn2L6VWEoeUBXLbgN ypuzZ2czbKyjJ0cMa7TtOyZro06SNcKEVIxWgW8o44tIHKPAtSOxDRriIGPatN+p hmBejSCCbjZeN5IB5m1n4cQaV5zK7xf/MdRpdikEPqwdD2gCh84Npi6uEnZjXQvI fx5yMBimIbSUWSJ4/bgkDcBW1gbljFJcL47F0+agH2aM1xEUh/1bG+XwUMgyt3ek h8OR+9VO58qmA7SrbzrB8MIz6iVmeolZ625ZtwjmDwECAwEAAaNQME4wHQYDVR0O BBYEFOwCXgJxC+RBOZd5S3PhKBaTnyQqMB8GA1UdIwQYMBaAFOwCXgJxC+RBOZd5 S3PhKBaTnyQqMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBADHgWnjA hWRHpdgla9ajq+ugHNNdZQKWOD7RWjAP6A8TAbf9lJ8kyn3anqrbzotzJT1/L+DF 3WcpJS6q779C8XyQUdtdEDNpj+D5JeeAivBat1TmnwY7Ud+Uo3tSeByyDMkFEyYX jRDDa+MpbE/Ya5Mwjb2JbWzX1FnoVTkM5rjDrrT+CDFpDij6xQuNbo+BFUXk3M3M TJh0IESn12IDMblnvw3pb8ec+5olhbiZkVe/V43FEMRoIRQHot62qkF1eHsCj75e by5E+sufEQXyY7vSCI8lDCkXn7nYEYKB+oNbg48/Rc4oVzEIwS5Le/oxOzT3xOBC bVwtcXI4HW7jUQo=
+                            </Certificate>
+                            <ServiceDescription>Service description for partners</ServiceDescription>
+                            <TechnicalContactUrl>www.best-page.eu</TechnicalContactUrl>
+                        </Endpoint>
+                    </ServiceEndpointList>
+                </Process>
+            </ProcessList>
+        </ServiceInformation>
+    </ServiceMetadata>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <SignedInfo>
+            <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+            <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+            <Reference URI="">
+                <Transforms>
+                    <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                <DigestValue>4BwXXFs0xA1YR1//22wAOr71BHQ68u7ZRlsas+K4PhY=</DigestValue>
+            </Reference>
+        </SignedInfo>
+        <SignatureValue>
+            mFhWLWujts9tohYlw2PR0y2k6CD2tCjMcQVcYdBCzJ6OmUO/Qlc+wGZlrZdjg6VrT62uoSvkrNm4 NSULpXr48rv4awvYw6Nw7dhM4JdrFo4z2BYya6N2dnvtmdygGO6/n4bkAf+QdzlBXH9ZNTi977aw eBdfLJR4zbXuiXmEFSdZKgjMoN1U0lBXfAMP4DARChd5KKtyirTkKJYzXEzqY4uOR7s+Gw+uKhEg /t4ypWsp5ao9g04rSvQjbkJD5staeMH7YpD9LLrmrYAIy788RnMGY8heR3VZbMC13kyiLvirOuV8 Hf0VaF9HhrGybmtecW7R4XYJIsukYLxR1JF1pg==
+        </SignatureValue>
+        <KeyInfo>
+            <X509Data>
+                <X509SubjectName>
+                    C=BE,O=European Commission,OU=PEPPOL TEST SMP,CN=POP000004
+                </X509SubjectName>
+                <X509Certificate>
+                    MIIF2jCCA8KgAwIBAgIQDdDS+YzCUgW8bIVNHNiEETANBgkqhkiG9w0BAQsFADB5MQswCQYDVQQG EwJCRTEZMBcGA1UEChMQT3BlblBFUFBPTCBBSVNCTDEWMBQGA1UECxMNRk9SIFRFU1QgT05MWTE3 MDUGA1UEAxMuUEVQUE9MIFNFUlZJQ0UgTUVUQURBVEEgUFVCTElTSEVSIFRFU1QgQ0EgLSBHMjAe Fw0xODA0MTcwMDAwMDBaFw0yMDA0MDYyMzU5NTlaMFkxEjAQBgNVBAMMCVBPUDAwMDAwNDEYMBYG A1UECwwPUEVQUE9MIFRFU1QgU01QMRwwGgYDVQQKDBNFdXJvcGVhbiBDb21taXNzaW9uMQswCQYD VQQGEwJCRTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAM2bVlVKX3sxXv0wRf64/sxR 16y/8ruOEZt9rZXOBHabtkxuxkg7YZBbLb0G10WheNcut+7qwvMAzTsyV8FaAeQDeXlimHfiVDaJ zTMY3hFL1TstH2GSDD8RSRlTOQ99dA5I3L7JJotEtt+cGpbUeAp1vdBWGTzIFaNjWF7hOtjSVBBN ymoek8dftH3o4Q0lWYJlIUSlwiN6fIW7UU6BcYHXM4KCWyKZ9AGImflwR43qTqe+tKsUeqetvE91 QWZ2N3rdVxTDD4JrNUYQvKRAonmPqk2ulQuRi4eaWLZO/thSTHIOesHTAn5jgI58+UBm2yV2Wh9x Ll/Gggdur1DYh48CAwEAAaOCAXwwggF4MAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgOoMBYG A1UdJQEB/wQMMAoGCCsGAQUFBwMCMB0GA1UdDgQWBBR9mR65XMDRrRVSfSFU8zCbyy///DBdBgNV HR8EVjBUMFKgUKBOhkxodHRwOi8vcGtpLWNybC5zeW1hdXRoLmNvbS9jYV9iNmQwZGMxZGMzMTQ3 NzIzZmUzNmI3NTc1OTk3YWZjNC9MYXRlc3RDUkwuY3JsMDcGCCsGAQUFBwEBBCswKTAnBggrBgEF BQcwAYYbaHR0cDovL3BraS1vY3NwLnN5bWF1dGguY29tMB8GA1UdIwQYMBaAFHwdskjxutkKBsoW Y6nwek+9I517MC0GCmCGSAGG+EUBEAMEHzAdBhNghkgBhvhFARABAgMBAYGo1YEKFgY5NTc2MDgw OQYKYIZIAYb4RQEQBQQrMCkCAQAWJGFIUjBjSE02THk5d2Eya3RjbUV1YzNsdFlYVjBhQzVqYjIw PTANBgkqhkiG9w0BAQsFAAOCAgEASJureVZSKNKf0kHHJhsGD9Sl5xxlSJUhSaCT8fKrFZ2eS3F9 t2hp4rbrInke3VTmzQXIUjzlrppvGwHlsY+UeZcelLzTqcNcVU4SLH6idb5CEQp5q8pZMGA7D4BT VqmMEGn22XmqDmOV7eDPnsLYMBFFoIk1ojjp93HGvKCeNB3uAucoogm+H11szvtFIdlPg0MAN+Zy j//WwXaCYoNBo6SbKuuyHrVOvhyyscZggt6vlOyeDx4ox6jfC+MddFjhtxIPkdSttPeSH9/K+7uq MCBZdIIlASr2frcurZobYvNjg/FcECRVH7qdprdlTSvFnve7qFdnZvv0143ruoAqt5AFe+cB2CNO KZUsgEKLRxc/obl17xxDEvbTkMHE0iYFExlBEqHgxLrSeU2kiKKhGs8Tq9o9vHuft+rSl+xo33Qm mTHBQjd5CM0T2A2IRBC11zsnUxzNHGo6kyh0pdAWtluRzZdv8uCA0/4ik9usAc9WFrJarknlF3ga OwiEHuDGKjP8BSHELqZ1Q+yvEsf7pPabKMeysVR5unXdjZXHaZzC8mTgPHgN8Wm41pqiLMVNS8UE mF+h9Zm+Zugv2yE4BM2/BY5hfSLdDGK6FALSJq15+5BV+Xk3e5CwUil7YI/pETF6egubgHe8EMNI 4qWlx8cgX/su9vM+Il3k35p8tU8=
+                </X509Certificate>
+            </X509Data>
+        </KeyInfo>
+    </Signature>
+</SignedServiceMetadata>

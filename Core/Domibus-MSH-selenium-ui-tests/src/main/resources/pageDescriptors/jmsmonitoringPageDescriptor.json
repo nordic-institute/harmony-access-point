@@ -1,0 +1,116 @@
+{
+  "title": "JMS Monitoring",
+  "filters": [
+	{
+	  "name": "jmsQueueSelect",
+	  "placeholder": "Source",
+	  "isDefault": true,
+	  "type": "SELECT"
+	},
+	{
+	  "name": "jmsFromDatePicker",
+	  "placeholder": "Received From:",
+	  "isDefault": true,
+	  "type": "DATE"
+	},
+	{
+	  "name": "jmsToDatePicker",
+	  "placeholder": "Received Up To:",
+	  "isDefault": true,
+	  "type": "DATE"
+	},
+	{
+	  "name": "jmsSelectorInput",
+	  "placeholder": "Selector",
+	  "isDefault": true,
+	  "type": "INPUT"
+	},
+	{
+	  "name": "jmsTypeInput",
+	  "placeholder": "JMS Type",
+	  "isDefault": true,
+	  "type": "INPUT"
+	}
+  ],
+  "grid": {
+	"columnsControls": true,
+	"rowsControls": true,
+	"exportCSV": true,
+	"defaultSort": "Time",
+	"columns": [
+	  {
+		"name": "ID",
+		"type": "TEXT",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "JMS Type",
+		"type": "TEXT",
+		"sortable": true,
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "Time",
+		"type": "DATETIME",
+		"sortable": true,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Custom prop",
+		"type": "TEXT",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "JMS prop",
+		"type": "TEXT",
+		"sortable": false,
+		"visibleByDefault": true
+	  },
+	  {
+		"name": "Actions",
+		"type": "ACTION",
+		"sortable": false,
+		"visibleByDefault": true
+	  }
+	],
+	"pagination": {
+	  "showSelectedNo": true,
+	  "showTotalNo": true,
+	  "showPageControls": true
+	}
+  },
+  "buttons": [
+	{
+	  "name": "cancelButton",
+	  "label": "Cancel",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "saveButton",
+	  "label": "Save",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "moveButton",
+	  "label": "Move",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "deleteButton",
+	  "label": "Delete",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "deleteAllButton",
+	  "label": "Delete All",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	}
+  ]
+}

@@ -1,0 +1,45 @@
+<div style="width: 700px">
+  <p class="domibusTextSmall" style="margin:0;font-weight: bold">{{formTitle}}</p>
+  <form #editForm="ngForm" (submit)="submitForm()">
+    <mat-card>
+
+      <input type="text" name="username" style="position: absolute; top: -100px;">
+      <input type="password" name="password" style="position: absolute; top: -100px;">
+
+      <div style="margin-top:15px;">
+        <mat-form-field [style.width]="'100%'">
+          <input #certificate_id matInput placeholder="Certificate Id" name="certificateId" id="username_id" [(ngModel)]="user.certificateId" [disabled]="editMode"
+                 input-debounce #certificateId="ngModel" [pattern]="certificateIdPattern" maxlength="255" required>
+          <span class="help-block" *ngIf="shouldShowErrors(certificateId)">
+            <div *ngIf="certificateId.errors?.required" style="color:red; font-size: 70%">You should type a certificate id</div>
+            <div *ngIf="certificateId.errors?.pattern" style="color:red; font-size: 70%">{{certificateIdMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div style="margin-top:0;">
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" input-debounce
+                 #originalUser="ngModel" [required]="isRoleUserSelected(role)" [pattern]="originalUserPattern" maxlength="255">
+          <span class="help-block" *ngIf="shouldShowErrors(originalUser)">
+            <div *ngIf="originalUser.errors?.required" style="color:red; font-size: 70%">{{originalUserRequiredMessage}}</div>
+            <div *ngIf="originalUser.errors?.pattern" style="color:red; font-size: 70%">{{originalUserPatternMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div style="margin-top:15px;">
+        <mat-select matInput placeholder="Role" name="role" id="role_id" [(ngModel)]="user.authRoles"
+                    #role="ngModel" required [style.width]="'100%'">
+          <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>
+        </mat-select>
+        <span class="help-block" *ngIf="shouldShowErrors(role)">
+          <div *ngIf="role.errors?.required" style="color:red; font-size: 70%">You need to choose a role for this user</div>
+        </span>
+      </div>
+
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
+
+    </mat-card>
+  </form>
+</div>

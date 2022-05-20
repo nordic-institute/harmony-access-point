@@ -1,0 +1,7 @@
+::ng-deep .highlighted-row .datatable-body-cell {
+  color: red !important;
+}
+
+::ng-deep .warnNearExpiry .datatable-body-cell {
+  color: darkorange !important;
+}

@@ -1,0 +1,57 @@
+{
+  "createUserTemplate": {
+	"roles": "",
+	"domain": "",
+	"userName": "",
+	"email": "",
+	"password": "",
+	"status": "NEW",
+	"active": true,
+	"suspended": false,
+	"authorities": [],
+	"deleted": false,
+	"$$index": 2
+  },
+  "createPluginUser": {
+	"status": "NEW",
+	"userName": "",
+	"active": true,
+	"suspended": false,
+	"authenticationType": "BASIC",
+	"$$index": 0,
+	"authRoles": "",
+	"password": ""
+  },
+  "createPluginCertUser": {
+	"status": "NEW",
+	"userName": "",
+	"active": true,
+	"suspended": false,
+	"authenticationType": "CERTIFICATE",
+	"$$index": 4,
+	"certificateId": "",
+	"authRoles": ""
+  },
+  "createMessageFilter": {
+	"entityId": 0,
+	"index": 0,
+	"backendName": "backendWebservice",
+	"routingCriterias": [
+	  {
+		"entityId": 0,
+		"name": "action",
+		"expression": ""
+	  }
+	],
+	"persisted": false,
+	"from": null,
+	"to": null,
+	"action": {
+	  "entityId": 0,
+	  "name": "action",
+	  "expression": ""
+	},
+	"service": "",
+	"$$index": 2
+  }
+}

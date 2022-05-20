@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="red_gw">
+	<mpcs>
+		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
+		<mpc name="defaultMpcOne" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCOne" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
+		<mpc name="defaultMpcTwo" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCTwo" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+		<mpc name="defaultMpcThree" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCThree" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
+		<mpc name="defaultMpcFour" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCFour" enabled="true" default="true" retention_downloaded="2" retention_undownloaded="600"/>
+		<mpc name="defaultMpcFive" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCFive" enabled="true" default="true" retention_downloaded="5" retention_undownloaded="600"/>
+		<mpc name="defaultMpcSeven" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCSeven" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+		<mpc name="defaultMpcEight" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMpcEight" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+	</mpcs>
+	<businessProcesses>
+		<roles>
+			<role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+			<role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+			<role name="defaultInitiatorRoleEmpty" value=" "/>
+			<role name="defaultResponderRoleEmpty" value=" "/>
+			<role name="peppolSenderRole" value="urn:fdc:peppol.eu:2017:roles:ap:sender"/> 
+			<role name="peppolReceiverRole" value="urn:fdc:peppol.eu:2017:roles:ap:receiver"/>
+		</roles>
+		<parties>
+			<partyIdTypes>
+				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+				<partyIdType name="partyTypeEmpty" value=""/>
+			</partyIdTypes>
+			<party name="red_gw" endpoint="http://localhost:8180/domibus/services/msh?domain=default" allowChunking="false">
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=default" allowChunking="false">
+				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="domibus_c2dom1_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=domibus_c2dom1" allowChunking="false">
+				<identifier partyId="domibus-blue-dom1" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="a_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=a" allowChunking="false">
+				<identifier partyId="domibus-blue-dom3" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw" endpoint="http://localhost:8080/domibus/services/msh?domain=length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc" allowChunking="false">
+				<identifier partyId="domibus-blue-dom4" partyIdType="partyTypeUrn"/>
+			</party>
+		</parties>
+		<meps>
+			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
+			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
+			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+			<binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
+			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
+		</meps>
+		<properties>
+			<property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+			<property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
+			<propertySet name="ecodexPropertySet">
+				<propertyRef property="finalRecipientProperty"/>
+				<propertyRef property="originalSenderProperty"/>
+			</propertySet>
+		</properties>
+		<payloadProfiles>
+			<payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml" inBody="false"/>
+			<payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf" inBody="false"/>
+			<payloadProfile name="MessageProfile" maxSize="2147483647">
+				<attachment name="businessContentPayload"/>
+				<attachment name="businessContentAttachment"/>
+			</payloadProfile>				
+		</payloadProfiles>
+		<securities>
+			<security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="noSigNoEnc" policy="doNothingPolicy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="signOnly" policy="signOnly.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4Policy_BST" policy="eDeliveryAS4Policy_BST.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4Policy_IS" policy="eDeliveryAS4Policy_IS.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4PolicyEncryptBody" policy="eDeliveryAS4PolicyEncryptBody.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4PolicyNoBodyEncrypt" policy="eDeliveryAS4PolicyNoBodyEncrypt.xml" signatureMethod="RSA_SHA256"/>
+		</securities>
+		<errorHandlings>
+			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
+		</errorHandlings>
+		<agreements>
+			<agreement name="agreementEmpty" value="" type=""/>
+			<agreement name="default-default" value="default-default" type=""/>
+            <agreement name="domain1-default" value="domain1-default" type=""/>
+            <agreement name="domain3-default" value="domain3-default" type=""/>
+            <agreement name="domain4-default" value="domain4-default" type=""/>									
+		</agreements>
+		<services>
+			<service name="testService1" value="bdx:noprocess" type="tc1"/>
+			<service name="testService2" value="bdx:noprocess" type="tc2"/>
+			<service name="testService3" value="bdx:noprocess" type="tc3"/>
+			<service name="testService4" value="bdx:noprocess" type="tc4"/>
+			<service name="testService5" value="bdx:noprocess" type="tc5"/>
+			<service name="testService6" value="bdx:noprocess" type="tc6"/>
+			<service name="testService7" value="bdx:noprocess" type="tc7"/>							
+			<service name="testService9" value="bdx:noprocess" type="tc9"/>								
+			<service name="testService10" value="bdx:noprocess" type="tc10"/>												
+		</services>
+		<actions>
+			<action name="tc1Action" value="TC1Leg1"/>
+			<action name="tc2Action" value="TC2Leg1"/>
+			<action name="tc3Action" value="TC3Leg1"/>
+			<action name="tc4Action" value="TC4Leg1"/>
+			<action name="tc5Action" value="TC5Leg1"/>
+			<action name="tc6Action" value="TC6Leg1"/>
+			<action name="tc7Action" value="TC7Leg1"/>									
+			<action name="tc9Action" value="TC9Leg1"/>									
+			<action name="tc10Action" value="TC10Leg1"/>									
+		</actions>
+		<as4>
+			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+			<reliability name="noReliability" nonRepudiation="false" replyPattern="response"/>
+		</as4>
+		<legConfigurations>
+			<legConfiguration name="pushDefaultDefault" service="testService1" action="tc1Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDomain1Default" service="testService2" action="tc2Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDomain3Default" service="testService4" action="tc4Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDomain4Default" service="testService5" action="tc5Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDefaultDefaultfs" service="testService6" action="tc6Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDomain1Defaultfs" service="testService7" action="tc7Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDomain3Defaultfs" service="testService9" action="tc9Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushDomain4Defaultfs" service="testService10" action="tc10Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="true"/>						</legConfigurations>
+		<process name="tc1Process" agreement="default-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDefaultDefault"/>
+			</legs>
+		</process>
+		<process name="tc2Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="domibus_c2dom1_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="domibus_c2dom1_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain1Default"/>
+			</legs>
+		</process>
+		<process name="tc4Process" agreement="domain3-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="a_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="a_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain3Default"/>
+			</legs>
+		</process>
+		<process name="tc5Process" agreement="domain4-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain4Default"/>
+			</legs>
+		</process>
+		<process name="tc6Process" agreement="default-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDefaultDefaultfs"/>
+			</legs>
+		</process>
+		<process name="tc7Process" agreement="domain1-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="domibus_c2dom1_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="domibus_c2dom1_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain1Defaultfs"/>
+			</legs>
+		</process>		
+		<process name="tc9Process" agreement="domain3-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="a_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="a_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain3Defaultfs"/>
+			</legs>
+		</process>		
+		<process name="tc10Process" agreement="domain4-default" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushDomain4Defaultfs"/>
+			</legs>
+		</process>
+	</businessProcesses>
+</db:configuration>

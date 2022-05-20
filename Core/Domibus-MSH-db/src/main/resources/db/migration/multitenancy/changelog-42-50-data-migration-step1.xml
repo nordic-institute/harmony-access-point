@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- clean existing tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-prepare-multitenancy">
+        <comment>drop previously created tables for migration - MIGR_* and TB_D tables</comment>
+
+        <sql endDelimiter="\n/" dbms="oracle">
+DECLARE
+    table_does_not_exist exception;
+    PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE MIGR_TB_USER_DOMAIN';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table MIGR_TB_USER_DOMAIN: table does not exist');
+    END;
+END;
+/
+        </sql>
+
+        <sql endDelimiter="\n//" dbms="mysql">
+DROP TABLE IF EXISTS MIGR_TB_USER_DOMAIN
+//
+        </sql>
+    </changeSet>
+
+    <!-- rename any previously created PK constraints to avoid name collision -->
+    <changeSet author="Sebastian-Ion TINCU" dbms="oracle" id="EDELIVERY-7970-rename-old-pk-constraints-multitenancy">
+        <sql endDelimiter="\n/" dbms="oracle">
+            ALTER TABLE TB_USER_DOMAIN RENAME CONSTRAINT PK_USER_DOMAIN TO OLD_PK_USER_DOMAIN
+            /
+            ALTER INDEX PK_USER_DOMAIN RENAME TO OLD_PK_USER_DOMAIN
+            /
+        </sql>
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8441-recreate-MIGR-tables-for-primary-key-migration-multitenancy">
+        <!-- TB_USER_DOMAIN -->
+        <createTable tableName="MIGR_TB_USER_DOMAIN">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_DOMAIN"/>
+            </column>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="DOMAIN" type="VARCHAR(255)"/>
+            <column name="PREFERRED_DOMAIN" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <!-- TB_USER_AUD -->
+        <createTable tableName="MIGR_TB_USER_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_ENABLED" type="BOOLEAN"/>
+            <column name="ACTIVE_MOD" type="BOOLEAN"/>
+            <column name="USER_DELETED" type="BOOLEAN"/>
+            <column name="DELETED_MOD" type="BOOLEAN"/>
+            <column name="USER_EMAIL" type="VARCHAR(255)"/>
+            <column name="EMAIL_MOD" type="BOOLEAN"/>
+            <column name="USER_PASSWORD" type="VARCHAR(255)"/>
+            <column name="PASSWORD_MOD" type="BOOLEAN"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="OPTLOCK" type="INT"/>
+            <column name="VERSION_MOD" type="BOOLEAN"/>
+            <column name="ROLES_MOD" type="BOOLEAN"/>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"/>
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
+        </createTable>
+
+        <!-- TB_USER_ROLE_AUD -->
+        <createTable tableName="MIGR_TB_USER_ROLE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="ROLE_NAME" type="VARCHAR(255)"/>
+            <column name="NAME_MOD" type="BOOLEAN"/>
+            <column name="USERS_MOD" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- starting with 5.0 Domibus this file should be included in: changelog.xml, changelog-multi-tenancy.xml,
+    changelog-delta.xml and changelog-multi-tenancy-delta.xml files in order to insert/update Domibus version and build time
+      -->
+    <changeSet id="EDELIVERY-7668"  author="Catalin Enache" dbms="oracle">
+        <sql>
+            MERGE INTO TB_VERSION USING dual ON ( VERSION = '${DomibusVersion}' )
+            WHEN MATCHED
+            THEN UPDATE SET BUILD_TIME = '${DomibusBuildTime}', CREATION_TIME = ${now}
+            WHEN NOT MATCHED
+            THEN INSERT VALUES ('${DomibusVersion}', '${DomibusBuildTime}', ${now});
+        </sql>
+    </changeSet>
+    <changeSet id="EDELIVERY-7668"  author="Catalin Enache" dbms="mysql">
+        <sql>
+            INSERT INTO TB_VERSION (VERSION, BUILD_TIME, CREATION_TIME) VALUES ('${DomibusVersion}', '${DomibusBuildTime}', ${now})
+            ON DUPLICATE KEY UPDATE BUILD_TIME='${DomibusBuildTime}', CREATION_TIME = ${now};
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
