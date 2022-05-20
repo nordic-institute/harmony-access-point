@@ -1519,7 +1519,7 @@
             </activation>
             <modules>
                 <module>Domibus-DSS</module>
-                <module>Domibus-authentication-dss-extension</module>
+                <module>Domibus-DSS/Domibus-authentication-dss-extension</module>
             </modules>
         </profile>
         <profile>
