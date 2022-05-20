@@ -103,7 +103,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.restoreFailedMessagesDuringPeriod(1L, 2L);
 
         new Verifications() {{
-            userMessageService.restoreFailedMessagesDuringPeriod(1L, 2L, null, originalUserFromSecurityContext);
+            restoreService.restoreFailedMessagesDuringPeriod(1L, 2L, null, originalUserFromSecurityContext);
         }};
     }
 
