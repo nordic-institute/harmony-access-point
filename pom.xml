@@ -25,6 +25,7 @@
         <module>Wildfly</module>
         <module>Plugin-WS</module>
         <module>Plugin-JMS</module>
+        <module>Plugin-FS</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1499,7 +1500,7 @@
             <modules>
                 <module>Plugin-WS</module>
                 <module>Plugin-JMS/Domibus-default-jms-plugin</module>
-                <module>Domibus-default-fs-plugin</module>
+                <module>Plugin-FS</module>
             </modules>
         </profile>
         <profile>

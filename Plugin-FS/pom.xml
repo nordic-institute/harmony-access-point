@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>eu.domibus</groupId>
+        <artifactId>domibus</artifactId>
+        <version>5.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>Plugin-FS</artifactId>
+    <packaging>pom</packaging>
+    <name>Container for Domibus - FS Plugin modules</name>
+
+    <modules>
+        <module>Domibus-default-fs-plugin</module>
+    </modules>
+
+</project>
