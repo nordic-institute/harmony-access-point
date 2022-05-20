@@ -11,18 +11,14 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Plugin-WS</artifactId>
+    <artifactId>Plugin-JMS</artifactId>
     <packaging>pom</packaging>
-    <name>Container for Domibus - WS Plugin modules</name>
+    <name>Container for Domibus - JMS Plugin modules</name>
 
     <modules>
-        <module>Domibus-default-ws-plugin</module>
-        <module>Domibus-default-ws-plugin-backend-ws-stubs</module>
-        <module>Domibus-default-ws-plugin-backend-ws-test</module>
-        <module>Domibus-default-ws-plugin-client</module>
-        <module>Domibus-default-ws-plugin-stub-utils</module>
-        <module>Domibus-default-ws-plugin-stubs</module>
-        <module>Domibus-ws-stubs</module>
+        <module>Domibus-default-jms-plugin</module>
+        <module>Domibus-MSH-jms-spi</module>
+        <module>Domibus-MSH-jms-spi-helper</module>
     </modules>
 
 </project>

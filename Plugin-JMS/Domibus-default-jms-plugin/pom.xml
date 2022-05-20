@@ -7,7 +7,7 @@
 
     <parent>
         <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
+        <artifactId>Plugin-JMS</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
 
