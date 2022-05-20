@@ -11,7 +11,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Wildfly</artifactId>
+    <artifactId>wildfly</artifactId>
     <packaging>pom</packaging>
     <name>Container for Domibus - Wildfly modules</name>
 

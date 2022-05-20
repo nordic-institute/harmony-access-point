@@ -11,7 +11,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Plugin-FS</artifactId>
+    <artifactId>plugin-fs</artifactId>
     <packaging>pom</packaging>
     <name>Container for Domibus - FS Plugin modules</name>
 

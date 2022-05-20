@@ -11,7 +11,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Plugin-JMS</artifactId>
+    <artifactId>plugin-jms</artifactId>
     <packaging>pom</packaging>
     <name>Container for Domibus - JMS Plugin modules</name>
 

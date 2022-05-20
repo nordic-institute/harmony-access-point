@@ -11,7 +11,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Tomcat</artifactId>
+    <artifactId>tomcat</artifactId>
     <packaging>pom</packaging>
     <name>Container for Domibus - Tomcat modules</name>
 

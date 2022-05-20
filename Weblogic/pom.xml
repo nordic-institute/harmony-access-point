@@ -11,7 +11,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Weblogic</artifactId>
+    <artifactId>weblogic</artifactId>
     <packaging>pom</packaging>
     <name>Container for Domibus - Weblogic modules</name>
 
