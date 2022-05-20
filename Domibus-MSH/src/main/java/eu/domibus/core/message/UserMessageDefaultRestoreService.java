@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -12,17 +13,22 @@ import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * This service class is responsible for the restore of failed messages.
@@ -54,7 +60,9 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private UserMessageDao userMessageDao;
 
-    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService, PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao) {
+    private AuditService auditService;
+
+    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService, PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao, AuditService auditService) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
@@ -64,6 +72,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         this.pModeServiceHelper = pModeServiceHelper;
         this.userMessageService = userMessageService;
         this.userMessageDao = userMessageDao;
+        this.auditService = auditService;
     }
 
 
@@ -123,5 +132,45 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(messageId);
         // always increase maxAttempts (even when not reached by sendAttempts)
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
+    }
+
+    @Transactional
+    @Override
+    public void resendFailedOrSendEnqueuedMessage(String messageId) {
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
+            userMessageService.sendEnqueuedMessage(messageId);
+        } else {
+            restoreFailedMessage(messageId);
+        }
+
+        auditService.addMessageResentAudit(messageId);
+    }
+
+    @Transactional
+    @Override
+    public List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser) {
+        final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, originalUser, failedStartDate, failedEndDate);
+        if (CollectionUtils.isEmpty(failedMessages)) {
+            return null;
+        }
+        LOG.debug("Found failed messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", failedMessages, failedStartDate, failedEndDate, finalRecipient);
+
+        final List<String> restoredMessages = new ArrayList<>();
+        for (String messageId : failedMessages) {
+            try {
+                restoreFailedMessage(messageId);
+                restoredMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [" + messageId + "]", e);
+            }
+        }
+
+        LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, failedStartDate, failedEndDate, finalRecipient);
+
+        return restoredMessages;
     }
 }
