@@ -52,13 +52,13 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     protected Domain domain;
 
-    final protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    final protected CertificateService certificateService;
+    protected final CertificateService certificateService;
 
-    final protected SignalService signalService;
+    protected final SignalService signalService;
 
-    final protected DomibusCoreMapper coreMapper;
+    protected final DomibusCoreMapper coreMapper;
 
     protected final DomainTaskExecutor domainTaskExecutor;
 
@@ -198,17 +198,17 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        boolean removed = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, Arrays.asList(alias));
-        if (removed) {
+        Long entityId = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, Arrays.asList(alias));
+        if (entityId != null) {
             refreshTrustStore();
         }
-        return removed;
+        return entityId != null;
     }
 
     @Override
     public synchronized void removeCertificate(List<String> aliases) {
-        boolean removed = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, aliases);
-        if (removed) {
+        Long entityId = certificateService.removeCertificates(DOMIBUS_TRUSTSTORE_NAME, aliases);
+        if (entityId != null) {
             refreshTrustStore();
         }
     }
