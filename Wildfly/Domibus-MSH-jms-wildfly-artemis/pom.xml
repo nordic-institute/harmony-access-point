@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
+        <artifactId>Wildfly</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-jms-wildfly-artemis</artifactId>

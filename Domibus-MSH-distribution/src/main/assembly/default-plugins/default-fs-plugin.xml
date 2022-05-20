@@ -46,17 +46,17 @@
         </file>
         <!-- WildFly -->
         <file>
-            <source>${project.basedir}/../Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/fs-plugin.properties</source>
+            <source>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/fs-plugin.properties</source>
             <outputDirectory>conf/domibus/plugins/config/wildfly</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/example_metadata.xml</source>
+            <source>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/example_metadata.xml</source>
             <outputDirectory>conf/domibus/plugins/config/wildfly</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
+            <source>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-fs-plugin.properties</source>
             <outputDirectory>conf/domibus/plugins/config/wildfly/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
         </file>
