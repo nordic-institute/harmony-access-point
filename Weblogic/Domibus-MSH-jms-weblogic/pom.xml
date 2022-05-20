@@ -7,13 +7,13 @@
 
     <parent>
         <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
+        <artifactId>Weblogic</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-taskexecutor-weblogic</artifactId>
+    <artifactId>domibus-jms-weblogic</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH TaskExecutor for WebLogic</name>
- 
+    <name>Domibus MSH JMS WebLogic</name>
+
 
     <build>
         <plugins>
@@ -29,6 +29,38 @@
     </build>
 
     <dependencies>
+        <!-- Domibus -->
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-jms-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-jms-spi-helper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-plugin-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-logging</artifactId>
+        </dependency>
+        <!-- End Domibus -->
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
@@ -36,18 +68,18 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- End Spring -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
         </dependency>
         <dependency>
             <groupId>com.oracle.weblogic</groupId>
@@ -55,10 +87,7 @@
             <version>12.1.2-0-0</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
-        </dependency>
+        <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -69,5 +98,12 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.oracle.weblogic</groupId>
+            <artifactId>com.oracle.css.weblogic.security.wls_7.0.0.0</artifactId>
+            <version>12.1.2-0-0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- End Test -->
     </dependencies>
 </project>
