@@ -1,8 +1,6 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -12,6 +10,7 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,16 +29,12 @@ import java.util.List;
 public class TLSTruststoreResource extends TruststoreResourceBase {
 
     private final TLSCertificateManager tlsCertificateManager;
-    private final DomainContextProvider domainProvider;
-    private final DomibusPropertyProvider domibusPropertyProvider;
 
 
-    public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager, DomainContextProvider domainProvider, DomibusPropertyProvider domibusPropertyProvider,
+    public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
                                  PartyCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
         super(coreMapper, errorHandlerService, multiPartFileUtil, auditService);
-        this.domainProvider = domainProvider;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.tlsCertificateManager = tlsCertificateManager;
     }
 
@@ -91,12 +86,12 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void auditDownload() {
-        auditService.addTLSTruststoreDownloadedAudit();
+    protected void auditDownload(Long entityId) {
+        auditService.addTLSTruststoreDownloadedAudit(entityId != null ? entityId.toString() : "tlstruststore");
     }
 
     @Override
-    protected byte[] getTrustStoreContent() {
+    protected Pair<Long, byte[]> getTrustStoreContent() {
         return tlsCertificateManager.getTruststoreContent();
     }
 

@@ -33,6 +33,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.Extension;
@@ -403,7 +404,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite) {
+    public Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite) {
         X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
 
@@ -412,24 +413,24 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public boolean addCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
-        return doAddCertificates(trustName, certificates, overwrite);
+        return doAddCertificates(trustName, certificates, overwrite) != null;
     }
 
     @Override
-    public boolean removeCertificate(String trustName, String alias) {
+    public Long removeCertificate(String trustName, String alias) {
         List<String> aliases = Arrays.asList(alias);
         return doRemoveCertificates(trustName, aliases);
     }
 
     @Override
-    public boolean removeCertificates(String trustName, List<String> aliases) {
+    public Long removeCertificates(String trustName, List<String> aliases) {
         return doRemoveCertificates(trustName, aliases);
     }
 
     @Override
-    public byte[] getTruststoreContent(String trustName) {
+    public Pair<Long, byte[]> getTruststoreContent(String trustName) {
         TruststoreEntity res = getTruststoreEntity(trustName);
-        return res.getContent();
+        return Pair.of(res.getEntityId(), res.getContent());
     }
 
     @Override
@@ -527,7 +528,11 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected boolean doAddCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
+    /**
+     *
+     * @return EntityId of the {@link TruststoreEntity} to which the certificates are added. Null if not added
+     */
+    protected Long doAddCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite) {
         KeyStore trustStore = getTrustStore(trustName);
 
         int addedNr = 0;
@@ -539,14 +544,16 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (addedNr > 0) {
             LOG.trace("Added [{}] certificates so persisting the truststore.", addedNr);
-            persistTrustStore(trustStore, trustName);
-            return true;
+            return persistTrustStore(trustStore, trustName);
         }
         LOG.trace("Added 0 certificates so exiting without persisting the truststore.");
-        return false;
+        return null;
     }
-
-    protected boolean doRemoveCertificates(String trustName, List<String> aliases) {
+    /**
+     *
+     * @return EntityId of the {@link TruststoreEntity} to which the certificates are removed. Null if not added
+     */
+    protected Long doRemoveCertificates(String trustName, List<String> aliases) {
         KeyStore trustStore = getTrustStore(trustName);
 
         int removedNr = 0;
@@ -558,11 +565,10 @@ public class CertificateServiceImpl implements CertificateService {
         }
         if (removedNr > 0) {
             LOG.trace("Removed [{}] certificates so persisting the truststore.", removedNr);
-            persistTrustStore(trustStore, trustName);
-            return true;
+            return persistTrustStore(trustStore, trustName);
         }
         LOG.trace("Removed 0 certificates so exiting without persisting the truststore.");
-        return false;
+        return null;
     }
 
     protected boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
@@ -652,8 +658,12 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
+    /**
+     *
+     * @return EntityId of the {@link TruststoreEntity}
+     */
     // used for add/remove certificates ( the persisted store is the same as the one modified)
-    protected void persistTrustStore(KeyStore truststore, String trustName) throws CryptoException {
+    protected Long persistTrustStore(KeyStore truststore, String trustName) throws CryptoException {
         backupTrustStore(trustName);
 
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
@@ -665,6 +675,7 @@ public class CertificateServiceImpl implements CertificateService {
 
             entity.setContent(content);
             truststoreDao.update(entity);
+            return entity.getEntityId();
         } catch (Exception e) {
             throw new CryptoException("Could not persist truststore:", e);
         }

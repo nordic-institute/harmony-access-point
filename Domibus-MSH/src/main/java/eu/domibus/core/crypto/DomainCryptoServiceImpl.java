@@ -17,6 +17,7 @@ import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
@@ -254,7 +255,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public byte[] getTruststoreContent() {
+    public Pair<Long, byte[]> getTruststoreContent() {
         return certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
     }
 

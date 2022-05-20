@@ -14,6 +14,7 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -70,16 +71,16 @@ public abstract class TruststoreResourceBase extends BaseResource {
     protected abstract void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password);
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent() {
-        byte[] content = getTrustStoreContent();
+        Pair<Long, byte[]> content = getTrustStoreContent();
 
-        ByteArrayResource resource = new ByteArrayResource(content);
+        ByteArrayResource resource = new ByteArrayResource(content.getRight());
 
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
         }
 
-        auditDownload();
+        auditDownload(content.getLeft());
 
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
@@ -87,9 +88,9 @@ public abstract class TruststoreResourceBase extends BaseResource {
                 .body(resource);
     }
 
-    protected abstract void auditDownload();
+    protected abstract void auditDownload(Long id);
 
-    protected abstract byte[] getTrustStoreContent();
+    protected abstract Pair<Long, byte[]> getTrustStoreContent();
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = doGetTrustStoreEntries();

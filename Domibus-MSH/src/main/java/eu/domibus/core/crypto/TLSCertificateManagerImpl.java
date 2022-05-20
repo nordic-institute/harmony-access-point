@@ -14,6 +14,7 @@ import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.stereotype.Service;
@@ -85,34 +86,34 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public byte[] getTruststoreContent() {
+    public Pair<Long, byte[]> getTruststoreContent() {
         return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
-        boolean added = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
-        if (added) {
+        Long entityId = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
+        if (entityId != null) {
             LOG.debug("Added certificate [{}] to the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
 
-        auditService.addCertificateAddedAudit();
+        auditService.addCertificateAddedAudit(entityId != null ? entityId.toString() : "tlstruststore");
 
-        return added;
+        return entityId != null;
     }
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        boolean deleted = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
-        if (deleted) {
+        Long entityId = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
+        if (entityId != null) {
             LOG.debug("Removed certificate [{}] from the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
 
-        auditService.addCertificateRemovedAudit();
+        auditService.addCertificateRemovedAudit(entityId != null ? entityId.toString() : "tlstruststore");
 
-        return deleted;
+        return entityId != null;
     }
 
     @Override

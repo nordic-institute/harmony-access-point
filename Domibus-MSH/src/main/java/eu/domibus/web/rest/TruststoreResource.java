@@ -12,6 +12,7 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * @author Mircea Musat
@@ -61,7 +61,7 @@ public class TruststoreResource extends TruststoreResourceBase {
         return downloadTruststoreContent();
     }
 
-    @RequestMapping(value = {"/list"}, method = GET)
+    @GetMapping(value = {"/list"})
     public List<TrustStoreRO> trustStoreEntries() {
         return getTrustStoreEntries();
     }
@@ -78,12 +78,12 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected void auditDownload() {
-        auditService.addTruststoreDownloadedAudit();
+    protected void auditDownload(Long entityId) {
+        auditService.addTruststoreDownloadedAudit(entityId != null ? entityId.toString() : "truststore");
     }
 
     @Override
-    protected byte[] getTrustStoreContent() {
+    protected Pair<Long, byte[]> getTrustStoreContent() {
         return multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
     }
 
