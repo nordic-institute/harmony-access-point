@@ -1454,10 +1454,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-MSH-jms-activemq</module>
-                <module>Domibus-MSH-taskexecutor-tomcat</module>
-                <module>Domibus-MSH-tomcat</module>
-                <module>Domibus-MSH-tomcat-distribution</module>
+                <module>Tomcat</module>
             </modules>
         </profile>
         <profile>
