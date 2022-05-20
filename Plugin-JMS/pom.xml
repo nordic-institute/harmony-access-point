@@ -17,8 +17,6 @@
 
     <modules>
         <module>Domibus-default-jms-plugin</module>
-        <module>Domibus-MSH-jms-spi</module>
-        <module>Domibus-MSH-jms-spi-helper</module>
     </modules>
 
 </project>

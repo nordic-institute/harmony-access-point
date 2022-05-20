@@ -16,8 +16,8 @@
         <module>Core/Domibus-MSH-api</module>
         <module>Core/Domibus-MSH-ext-services-delegate</module>
         <module>Core/Domibus-MSH-logging</module>
-        <module>Plugin-JMS/Domibus-MSH-jms-spi</module>
-        <module>Plugin-JMS/Domibus-MSH-jms-spi-helper</module>
+        <module>Core/Domibus-MSH-jms-spi</module>
+        <module>Core/Domibus-MSH-jms-spi-helper</module>
         <module>Core/Domibus-MSH-soapui-tests</module>
         <module>Core/Domibus-plugin-api</module>
         <module>Core/Domibus-MSH-test</module>
