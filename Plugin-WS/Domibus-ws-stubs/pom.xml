@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>eu.domibus</groupId>
-        <artifactId>domibus</artifactId>
+        <artifactId>Plugin-WS</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
 

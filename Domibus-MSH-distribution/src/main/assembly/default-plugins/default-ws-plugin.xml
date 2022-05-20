@@ -48,19 +48,19 @@
 
         <!-- Plugin jar -->
         <file>
-            <source>${project.basedir}/../Domibus-default-ws-plugin/target/domibus-default-ws-plugin-${project.version}.jar</source>
+            <source>${project.basedir}/../Plugin-WS/Domibus-default-ws-plugin/target/domibus-default-ws-plugin-${project.version}.jar</source>
             <outputDirectory>conf/domibus/plugins/lib</outputDirectory>
             <filtered>false</filtered>
         </file>
 
         <!-- Backend -->
         <file>
-            <source>${project.basedir}/../Domibus-default-ws-plugin-backend-ws-stubs/src/main/resources/schemas/BackendService.wsdl</source>
+            <source>${project.basedir}/../Plugin-WS/Domibus-default-ws-plugin-backend-ws-stubs/src/main/resources/schemas/BackendService.wsdl</source>
             <outputDirectory>conf/domibus/plugins/backend</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-default-ws-plugin-backend-ws-stubs/src/main/resources/schemas/BackendService.xsd</source>
+            <source>${project.basedir}/../Plugin-WS/Domibus-default-ws-plugin-backend-ws-stubs/src/main/resources/schemas/BackendService.xsd</source>
             <outputDirectory>conf/domibus/plugins/backend</outputDirectory>
             <filtered>false</filtered>
         </file>

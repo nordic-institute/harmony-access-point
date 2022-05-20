@@ -122,7 +122,7 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Domibus-default-ws-plugin/target/domibus-default-ws-plugin-${project.version}.jar</source>
+            <source>${project.basedir}/../Plugin-WS/Domibus-default-ws-plugin/target/domibus-default-ws-plugin-${project.version}.jar</source>
             <outputDirectory>domibus/conf/domibus/plugins/lib</outputDirectory>
             <filtered>false</filtered>
         </file>

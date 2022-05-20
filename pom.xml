@@ -25,6 +25,7 @@
         <module>Domibus-iam-spi</module>
         <module>Domibus-ext-model</module>
         <module>Wildfly</module>
+        <module>Plugin-WS</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1497,13 +1498,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>Domibus-default-ws-plugin-stub-utils</module>
-                <module>Domibus-ws-stubs</module>
-                <module>Domibus-default-ws-plugin-stubs</module>
-                <module>Domibus-default-ws-plugin-backend-ws-stubs</module>
-                <module>Domibus-default-ws-plugin-backend-ws-test</module>
-                <module>Domibus-default-ws-plugin-client</module>
-                <module>Domibus-default-ws-plugin</module>
+                <module>Plugin-WS</module>
                 <module>Domibus-default-jms-plugin</module>
                 <module>Domibus-default-fs-plugin</module>
             </modules>
