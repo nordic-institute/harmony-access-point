@@ -2,6 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -66,6 +67,8 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
         certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
         resetTLSTruststore();
+
+        auditService.addTLSTruststoreUploadedAudit();
     }
 
     @Override
@@ -83,34 +86,34 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public byte[] getTruststoreContent() {
+    public TrustStoreContentDTO getTruststoreContent() {
         return certificateService.getTruststoreContent(TLS_TRUSTSTORE_NAME);
     }
 
     @Override
     public synchronized boolean addCertificate(byte[] certificateData, String alias) {
-        boolean added = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
-        if (added) {
+        Long entityId = certificateService.addCertificate(TLS_TRUSTSTORE_NAME, certificateData, alias, true);
+        if (entityId != null) {
             LOG.debug("Added certificate [{}] to the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
 
-        auditService.addCertificateAddedAudit();
+        auditService.addCertificateAddedAudit(entityId != null ? entityId.toString() : "tlstruststore");
 
-        return added;
+        return entityId != null;
     }
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        boolean deleted = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
-        if (deleted) {
+        Long entityId = certificateService.removeCertificate(TLS_TRUSTSTORE_NAME, alias);
+        if (entityId != null) {
             LOG.debug("Removed certificate [{}] from the tls truststore; resetting it.", alias);
             resetTLSTruststore();
         }
 
-        auditService.addCertificateRemovedAudit();
+        auditService.addCertificateRemovedAudit(entityId != null ? entityId.toString() : "tlstruststore");
 
-        return deleted;
+        return entityId != null;
     }
 
     @Override

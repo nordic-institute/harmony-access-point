@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -8,6 +9,7 @@ import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -19,8 +21,10 @@ import org.junit.runner.RunWith;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Soumya
@@ -58,6 +62,9 @@ public class UserMessageDefaultRestoreServiceTest {
 
     @Injectable
     protected UserMessageDefaultService userMessageDefaultService;
+
+    @Injectable
+    private AuditService auditService;
 
     @Test
     public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
@@ -220,4 +227,51 @@ public class UserMessageDefaultRestoreServiceTest {
             times = 1;
         }};
     }
+
+    @Test
+    public void test_ResendFailedOrSendEnqueuedMessage_MessageNotFound() {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations() {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = null;
+        }};
+
+        try {
+            //tested method
+            restoreService.resendFailedOrSendEnqueuedMessage(messageId);
+            Assert.fail("Exception expected");
+        } catch (Exception e) {
+            Assert.assertEquals(MessageNotFoundException.class, e.getClass());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void test_ResendFailedOrSendEnqueuedMessage_SendEnqueuedAndAudit(final @Injectable UserMessageLog userMessageLog) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+        }};
+
+        //tested method
+        restoreService.resendFailedOrSendEnqueuedMessage(messageId);
+
+        new FullVerifications(userMessageDefaultService) {{
+            String messageIdActual;
+            userMessageDefaultService.sendEnqueuedMessage(messageIdActual = withCapture()); //method tested in UserMessageDefaultServiceTest.test_sendEnqueued
+            Assert.assertEquals(messageId, messageIdActual);
+
+            auditService.addMessageResentAudit(messageIdActual = withCapture());
+            Assert.assertEquals(messageId, messageIdActual);
+        }};
+    }
+
 }

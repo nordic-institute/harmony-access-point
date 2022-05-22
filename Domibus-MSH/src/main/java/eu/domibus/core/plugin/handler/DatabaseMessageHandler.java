@@ -24,6 +24,7 @@ import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -82,9 +83,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected UserMessageDefaultService userMessageService;
-
+    
     @Autowired
-    protected SplitAndJoinService splitAndJoinService;
+    protected SplitAndJoinHelper splitAndJoinHelper;
 
     @Autowired
     protected PModeDefaultService pModeDefaultService;
@@ -400,7 +401,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             backendMessageValidator.validatePayloadProfile(userMessage, partInfos, pModeKey);
             backendMessageValidator.validatePropertyProfile(userMessage, pModeKey);
 
-            final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
+            final boolean splitAndJoin = splitAndJoinHelper.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSourceMessage(splitAndJoin);
 
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {

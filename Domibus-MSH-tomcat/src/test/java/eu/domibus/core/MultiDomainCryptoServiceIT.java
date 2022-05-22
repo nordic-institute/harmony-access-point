@@ -1,6 +1,7 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
@@ -39,6 +40,7 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
  */
 @Transactional
 public class MultiDomainCryptoServiceIT extends AbstractIT {
+
 
     @Autowired
     private MultiDomainCryptoServiceImpl multiDomainCryptoService;
@@ -93,9 +95,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String password = "test123";
         multiDomainCryptoService.persistTruststoresIfApplicable();
-        byte[] store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
+        TrustStoreContentDTO store = certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
 
-        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store, password);
+        multiDomainCryptoService.replaceTrustStore(domain, DOMIBUS_TRUSTSTORE_NAME + ".jks", store.getContent(), password);
         boolean isPersisted = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
         Assert.assertTrue(isPersisted);
     }
@@ -106,7 +108,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.persistTruststoresIfApplicable();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertEquals(2, trustStoreEntries.size());
 
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "cefsupportgwtruststore.jks");
         byte[] content = Files.readAllBytes(path);
@@ -114,7 +116,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, file_name, content, "test123");
 
         trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 9);
+        Assert.assertEquals(9, trustStoreEntries.size());
     }
 
     @Test
@@ -122,7 +124,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     public void getTrustStoreEntries() {
         multiDomainCryptoService.persistTruststoresIfApplicable();
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertEquals(2, trustStoreEntries.size());
     }
 
     @Test
@@ -131,7 +133,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.persistTruststoresIfApplicable();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertEquals(2, trustStoreEntries.size());
 
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), "keystores", "green_gw.cer");
         byte[] content = Files.readAllBytes(path);
@@ -140,7 +142,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(green_gw, x509Certificate)), true);
 
         trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 3);
+        Assert.assertEquals(3, trustStoreEntries.size());
         Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
     }
 
@@ -150,13 +152,13 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.persistTruststoresIfApplicable();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertEquals(2, trustStoreEntries.size());
 
         String blue_gw = "blue_gw";
         X509Certificate certificateFromTruststore = multiDomainCryptoService.getCertificateFromTruststore(domainContextProvider.getCurrentDomain(), blue_gw);
 
         trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertEquals(2, trustStoreEntries.size());
         Assert.assertTrue(certificateFromTruststore.getIssuerDN().getName().contains(blue_gw));
     }
 
@@ -197,22 +199,22 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         String blue_gw = "blue_gw";
         String defaultX509Identifier = multiDomainCryptoService.getDefaultX509Identifier(domainContextProvider.getCurrentDomain());
 
-        Assert.assertTrue(defaultX509Identifier.equals(blue_gw));
+        Assert.assertEquals(defaultX509Identifier, blue_gw);
     }
 
     @Test
     @Transactional
-    public void removeCertificate() throws IOException {
+    public void removeCertificate()  {
         multiDomainCryptoService.persistTruststoresIfApplicable();
 
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 2);
+        Assert.assertEquals(2, trustStoreEntries.size());
 
         String red_gw = "red_gw";
         multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
 
         trustStoreEntries = certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(trustStoreEntries.size() == 1);
-        Assert.assertTrue(!trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(red_gw)));
+        Assert.assertEquals(1, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
     }
 }

@@ -14,7 +14,6 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -26,7 +25,6 @@ import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.*;
-import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
@@ -307,15 +305,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         } catch (EbMS3Exception e) {
             throw new SplitAndJoinException("Error dispatching SourceMessage receipt", e);
         }
-    }
-
-    @Override
-    public boolean mayUseSplitAndJoin(LegConfiguration legConfiguration) {
-        final Splitting splitting = legConfiguration.getSplitting();
-        if (splitting == null) {
-            return false;
-        }
-        return true;
     }
 
     @Override

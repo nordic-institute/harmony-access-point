@@ -216,25 +216,30 @@ public class AuditServiceImpl implements AuditService {
 
     /**
      * {@inheritDoc}
+     * @param id
      */
     @Override
-    public void addTruststoreDownloadedAudit() {
-        auditDao.saveTruststoreAudit(new TruststoreAudit("truststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+    public void addTruststoreDownloadedAudit(String id) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
     }
 
     @Override
-    public void addTLSTruststoreDownloadedAudit() {
-        auditDao.saveTruststoreAudit(new TruststoreAudit("tlstruststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+    public void addTLSTruststoreDownloadedAudit(String id) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+    }
+    @Override
+    public void addTLSTruststoreUploadedAudit() {
+        auditDao.saveTruststoreAudit(new TruststoreAudit("tlstruststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.MOD));
     }
 
     @Override
-    public void addCertificateAddedAudit() {
-        auditDao.saveTruststoreAudit(new TruststoreAudit("tlstruststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
+    public void addCertificateAddedAudit(String id) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
     }
 
     @Override
-    public void addCertificateRemovedAudit() {
-        auditDao.saveTruststoreAudit(new TruststoreAudit("tlstruststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.DEL));
+    public void addCertificateRemovedAudit(String id) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DEL));
     }
 
     @Override

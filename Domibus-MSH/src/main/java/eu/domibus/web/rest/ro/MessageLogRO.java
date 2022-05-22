@@ -74,6 +74,8 @@ public class MessageLogRO implements Serializable {
 
     private Boolean canDownloadEnvelope;
 
+    private Date archived;
+
     public String getMessageId() {
         return messageId;
     }
@@ -316,5 +318,13 @@ public class MessageLogRO implements Serializable {
 
     public boolean isSplitAndJoin() {
         return this.messageFragment || this.sourceMessage;
+    }
+    
+    public Date getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Date archived) {
+        this.archived = archived;
     }
 }

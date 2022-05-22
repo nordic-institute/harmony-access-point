@@ -1,6 +1,7 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.TrustStoreEntry;
 
@@ -158,7 +159,7 @@ public interface CertificateService {
      * @param overwrite          if overwrite an existing certificate
      * @return
      */
-    boolean addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
+    Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
 
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
@@ -177,7 +178,7 @@ public interface CertificateService {
      * @param alias     the certificate name
      * @return true is at least one was deleted
      */
-    boolean removeCertificate(String trustName, String alias);
+    Long removeCertificate(String trustName, String alias);
 
     /**
      * Removes the specified certificates from the truststore pointed by the parameters
@@ -186,14 +187,14 @@ public interface CertificateService {
      * @param aliases   the list of certificate names
      * @return true is at least one was deleted
      */
-    boolean removeCertificates(String trustName, List<String> aliases);
+    Long removeCertificates(String trustName, List<String> aliases);
 
     /**
      * Retrieves the content of the specified truststore
      * @param trustName the name of the trust in the db
      * @return
      */
-    byte[] getTruststoreContent(String trustName);
+    TrustStoreContentDTO getTruststoreContent(String trustName);
 
     /**
      * Loads a truststore pointed by the file location and persists it in the DB (with the given name) if not already there. This happens at bootstrap time

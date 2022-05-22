@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -151,8 +152,8 @@ public class UserResource extends BaseResource {
                         "DomainName".toUpperCase(), "Domain"
                 ),
                 domibusConfigurationService.isMultiTenantAware() ?
-                        Arrays.asList("authorities", "status", "password", "suspended", "email", "domain") :
-                        Arrays.asList("authorities", "status", "password", "suspended", "email", "domain", "domainName"),
+                        Arrays.asList("authorities", "status", "password", "suspended", "domain") :
+                        Arrays.asList("authorities", "status", "password", "suspended", "domain", "domainName"),
                 "users");
     }
 
@@ -220,7 +221,8 @@ public class UserResource extends BaseResource {
     protected List<UserResponseRO> prepareResponse(List<User> users) {
         List<UserResponseRO> userResponseROS = authCoreMapper.userListToUserResponseROList(users);
         for (UserResponseRO userResponseRO : userResponseROS) {
-            userResponseRO.setDomainName(domainService.getDomain(userResponseRO.getDomain()).getName());
+            Domain domain = domainService.getDomain(userResponseRO.getDomain());
+            userResponseRO.setDomainName(domain == null ? null : domain.getName());
             userResponseRO.setStatus("PERSISTED");
             userResponseRO.updateRolesField();
         }

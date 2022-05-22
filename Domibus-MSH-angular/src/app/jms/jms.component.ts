@@ -251,11 +251,15 @@ export class JmsComponent extends mix(BaseListComponent)
     this.refreshDestinations();
   }
 
-  async doSave(): Promise<any> {
+  async doSave(): Promise<void> {
     const messageIds = this.markedForDeletionMessages.map((message) => message.id);
     // because the user can change the source after pressing search and then select the messages and press delete
     // in this case I need to use currentSearchSelectedSource
-    return this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
+    try {
+      await this.serverRemove(this.currentSearchSelectedSource.name, messageIds);
+    } catch (ex) {
+      throw new Error('Exception trying to delete messages:' + this.alertService.tryExtractErrorMessageFromResponse(ex));
+    }
   }
 
   moveElements(elements: any[]) {
@@ -365,11 +369,7 @@ export class JmsComponent extends mix(BaseListComponent)
   }
 
   deleteAll() {
-    try {
-      this.serverRemoveAll(this.currentSearchSelectedSource.name);
-    } catch (ex) {
-      this.alertService.exception('Exception trying to delete all messages:', ex);
-    }
+    this.serverRemoveAll(this.currentSearchSelectedSource.name);
   }
 
   deleteElements(elements: any[]) {
@@ -415,29 +415,29 @@ export class JmsComponent extends mix(BaseListComponent)
     )
   }
 
-  serverRemove(source: string, messageIds: Array<any>): Promise<any> {
-    return this.http.post('rest/jms/messages/action', {
-      source: source,
-      selectedMessages: messageIds,
-      action: 'REMOVE'
-    }).toPromise().then(() => {
-        this.refreshDestinations();
-        this.markedForDeletionMessages = [];
-      }
-    )
+  async serverRemove(source: string, messageIds: Array<any>): Promise<void> {
+    try {
+      const res = await this.http.post('rest/jms/messages/action', {
+        source: source,
+        selectedMessages: messageIds,
+        action: 'REMOVE'
+      }).toPromise();
+      this.refreshDestinations();
+      this.markedForDeletionMessages = [];
+    } catch (ex) {
+      throw ex;
+    }
   }
 
-  serverRemoveAll(source: string): Promise<any> {
-    return this.http.post('rest/jms/messages/action', {
-      source: source,
-      action: 'REMOVE_ALL'
-    }).toPromise().then(() => {
-        this.refreshDestinations();
-        this.markedForDeletionMessages = [];
-        this.alertService.success('All messages in the queue deleted successfully.');
-        super.rows = [];
-      }
-    )
+  async serverRemoveAll(source: string): Promise<any> {
+    try {
+      const messageIds = this.rows.map(el => el.id);
+      await this.serverRemove(source, messageIds);
+      super.rows = [];
+    } catch (ex) {
+      this.alertService.exception('Exception trying to delete filtered messages:', ex);
+      return null
+    }
   }
 
   saveAsCSV() {

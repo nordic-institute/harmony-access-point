@@ -55,6 +55,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -153,6 +154,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected UserMessageFactory userMessageFactory;
 
     @Autowired
+    @Lazy       //temporary fix of circular bean dependency (see EDELIVERY-9389)
     protected DatabaseMessageHandler databaseMessageHandler;
 
     @Autowired
@@ -190,9 +192,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     ReceiptDao receiptDao;
-
-    @Autowired
-    private UserMessageDefaultRestoreService restoreService;
 
     @Autowired
     private MessagesLogService messagesLogService;
@@ -291,22 +290,6 @@ public class UserMessageDefaultService implements UserMessageService {
         reprogrammableService.setRescheduleInfo(userMessageLog, new Date());
         userMessageLogDao.update(userMessageLog);
         scheduleSending(userMessage, userMessageLog);
-    }
-
-    @Transactional
-    @Override
-    public void resendFailedOrSendEnqueuedMessage(String messageId) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-        if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
-        }
-        if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
-            sendEnqueuedMessage(messageId);
-        } else {
-            restoreService.restoreFailedMessage(messageId);
-        }
-
-        auditService.addMessageResentAudit(messageId);
     }
 
     protected Integer getUserMessagePriority(UserMessage userMessage) {
@@ -497,30 +480,6 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public UserMessage getMessageEntity(Long messageEntityId) {
         return userMessageDao.findByEntityId(messageEntityId);
-    }
-
-    @Transactional
-    @Override
-    public List<String> restoreFailedMessagesDuringPeriod(Long start, Long end, String finalRecipient, String originalUser) {
-        final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, originalUser, start, end);
-        if (CollectionUtils.isEmpty(failedMessages)) {
-            return null;
-        }
-        LOG.debug("Found failed messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
-
-        final List<String> restoredMessages = new ArrayList<>();
-        for (String messageId : failedMessages) {
-            try {
-                restoreService.restoreFailedMessage(messageId);
-                restoredMessages.add(messageId);
-            } catch (Exception e) {
-                LOG.error("Failed to restore message [" + messageId + "]", e);
-            }
-        }
-
-        LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
-
-        return restoredMessages;
     }
 
     @Transactional

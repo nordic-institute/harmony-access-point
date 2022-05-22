@@ -76,16 +76,6 @@ public interface UserMessageService {
 
     void sendEnqueuedMessage(String messageId);
 
-    /**
-     * Resend a message in the status SEND_FAILURE or
-     * SEND_ENQUEUED
-     *
-     * @param messageId message Id of the message
-     */
-    void resendFailedOrSendEnqueuedMessage(final String messageId);
-
-    List<String> restoreFailedMessagesDuringPeriod(Long begin, Long end, String finalRecipient, String originalUser);
-
     void deleteFailedMessage(String messageId);
 
     void deleteMessage(String messageId);

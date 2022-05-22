@@ -43,7 +43,8 @@ public class FSPluginGlobalPasswordEncryptionContext extends PluginPasswordEncry
 
     @Override
     public boolean isEncryptionActive() {
-        // all password properties are domain
-        return false;
+        // even if there are no domain password properties for now, this is used in ST mode anyway
+        final String passwordEncryptionActive = propertyProvider.getKnownPropertyValue(PASSWORD_ENCRYPTION_ACTIVE);
+        return BooleanUtils.toBoolean(passwordEncryptionActive);
     }
 }

@@ -72,6 +72,8 @@ public class MessageLogInfo {
 
     private Long partLength;
 
+    private Date archived;
+
     public MessageLogInfo() {
     }
 
@@ -133,7 +135,8 @@ public class MessageLogInfo {
                           final String serviceType,
                           final String serviceValue,
                           final String pluginType,
-                          final Long partLength
+                          final Long partLength,
+                          final Date archived
     ) {
         this(messageId, messageStatus, mshRole, deleted, received, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, testMessage);
@@ -154,6 +157,7 @@ public class MessageLogInfo {
         this.restored = restored;
         this.pluginType = pluginType;
         this.partLength = partLength;
+        this.archived = archived;
     }
 
     public void setMessageId(String messageId) {
@@ -381,6 +385,14 @@ public class MessageLogInfo {
         this.partLength = partLength;
     }
 
+    public Date getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Date archived) {
+        this.archived = archived;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -409,12 +421,13 @@ public class MessageLogInfo {
                 .append(refToMessageId, that.refToMessageId)
                 .append(failed, that.failed)
                 .append(restored, that.restored)
-                .append(messageFragment, this.messageFragment)
-                .append(action, this.action)
-                .append(serviceType, this.serviceType)
-                .append(serviceValue, this.serviceValue)
-                .append(pluginType, this.pluginType)
-                .append(partLength, this.partLength)
+                .append(messageFragment, that.messageFragment)
+                .append(action, that.action)
+                .append(serviceType, that.serviceType)
+                .append(serviceValue, that.serviceValue)
+                .append(pluginType, that.pluginType)
+                .append(partLength, that.partLength)
+                .append(archived, that.partLength)
                 .isEquals();
     }
 
@@ -446,6 +459,7 @@ public class MessageLogInfo {
                 .append(serviceValue)
                 .append(pluginType)
                 .append(partLength)
+                .append(archived)
                 .toHashCode();
     }
 }
