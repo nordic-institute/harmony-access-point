@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED;
 
 /**
  * This service class is responsible for the retention and clean up of Domibus messages.
@@ -62,7 +63,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
-                                          UserMessageDao userMessageDao,
+                                             UserMessageDao userMessageDao,
                                              UserMessageLogDao userMessageLogDao,
                                              DomibusPropertyProvider domibusPropertyProvider,
                                              EventService eventService,
@@ -105,14 +106,15 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         // We only consider for deletion those partitions older than the maximum retention over all the MPCs defined in the pMode
         int maxRetention = getMaxRetention();
         LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
-        Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);;
+        Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
+        ;
         String newestPartitionName = partitionService.getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.debug("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = getExpiredPartitions(newestPartitionName);
         for (String partitionName : partitionNames) {
             LOG.info("Verify partition [{}]", partitionName);
             // To avoid SQL injection issues, check the partition name used in the next checks, inside native SQL queries
-            if(!partitionName.matches(PARTITION_NAME_REGEXP)) {
+            if (!partitionName.matches(PARTITION_NAME_REGEXP)) {
                 LOG.error("Partition [{}] has invalid name", partitionName);
                 continue;
             }
@@ -139,9 +141,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         }
     }
 
-    protected List<String> getExpiredPartitions(String newestPartitionName){
+    protected List<String> getExpiredPartitions(String newestPartitionName) {
         List<String> partitionNames;
-        if(domibusConfigurationService.isMultiTenantAware()) {
+        if (domibusConfigurationService.isMultiTenantAware()) {
             Domain currentDomain = domainContextProvider.getCurrentDomain();
             partitionNames = userMessageDao.findAllPartitionsOlderThan(newestPartitionName, domainService.getDatabaseSchema(currentDomain));
         } else {
@@ -157,8 +159,12 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected boolean verifyIfAllMessagesAreArchived(String partitionName) {
         if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
-            LOG.debug("Archiving messages is disabled.");
-            return true;
+            LOG.debug("Archiving messages mechanism is disabled.");
+            if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED)) {
+                LOG.info("The property [{}] is set to true, it is allowed to drop partitions containing unarchived messages.", DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
+                return true;
+            }
+            LOG.info("The property [{}] is set to false, partitions containing unarchived messages will not be dropped.", DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
         }
         LOG.info("Verify if all messages are archived on partition [{}]", partitionName);
         int count = userMessageLogDao.countUnarchivedMessagesOnPartition(partitionName);
@@ -193,7 +199,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                     checkByMessageStatusAndMpcOnPartition(mpc, MessageStatus.SEND_FAILURE, partitionName) &&
                     checkByMessageStatusAndMpcOnPartition(mpc, MessageStatus.RECEIVED, partitionName);
 
-            if(!allMessagesExpired) {
+            if (!allMessagesExpired) {
                 LOG.info("There are messages that did not yet expired for mpc [{}] on partition [{}]", mpc, partitionName);
                 return false;
             }
@@ -233,6 +239,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         LOG.debug("Retention value for MPC [{}] and messageStatus [{}] is [{}]", mpc, messageStatus, retention);
         return retention;
     }
+
     protected int getMaxRetention() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         int maxRetention = -1;
