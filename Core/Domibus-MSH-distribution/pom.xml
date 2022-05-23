@@ -135,7 +135,7 @@
                                     <configuration>
                                         <files>
                                             <file>
-                                                <file>${project.basedir}/../Tomcat/Domibus-MSH-tomcat/src/main/conf/domibus</file>
+                                                <file>${project.basedir}/../../Tomcat/Domibus-MSH-tomcat/src/main/conf/domibus</file>
                                                 <todir>conf/domibus</todir>
                                             </file>
                                         </files>

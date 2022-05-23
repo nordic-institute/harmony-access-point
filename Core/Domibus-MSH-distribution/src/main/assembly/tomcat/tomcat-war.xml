@@ -14,7 +14,7 @@
 
     <files>
         <file>
-            <source>${project.basedir}/../Tomcat/Domibus-MSH-tomcat-distribution/target/domibus-MSH-tomcat-distribution-${project.version}.war</source>
+            <source>${project.basedir}/../../Tomcat/Domibus-MSH-tomcat-distribution/target/domibus-MSH-tomcat-distribution-${project.version}.war</source>
             <destName>domibus-MSH-tomcat-${project.version}.war</destName>
             <outputDirectory></outputDirectory>
             <filtered>false</filtered>

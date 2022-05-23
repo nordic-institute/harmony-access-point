@@ -13,7 +13,7 @@
     <includeSiteDirectory>false</includeSiteDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/src/main/conf/domibus</directory>
+            <directory>${project.basedir}/../../Wildfly/Domibus-MSH-wildfly/src/main/conf/domibus</directory>
             <outputDirectory>/</outputDirectory>
             <useDefaultExcludes>true</useDefaultExcludes>
             <excludes>
@@ -22,7 +22,7 @@
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/src/main/conf/scripts</directory>
+            <directory>${project.basedir}/../../Wildfly/Domibus-MSH-wildfly/src/main/conf/scripts</directory>
             <outputDirectory>scripts</outputDirectory>
             <includes>
                 <include>*.sh</include>
@@ -32,7 +32,7 @@
             <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/src/main/conf/scripts</directory>
+            <directory>${project.basedir}/../../Wildfly/Domibus-MSH-wildfly/src/main/conf/scripts</directory>
             <outputDirectory>scripts</outputDirectory>
             <includes>
                 <include>*.bat</include>
@@ -42,7 +42,7 @@
             <lineEnding>windows</lineEnding>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/src/main/conf/scripts</directory>
+            <directory>${project.basedir}/../../Wildfly/Domibus-MSH-wildfly/src/main/conf/scripts</directory>
             <outputDirectory>scripts</outputDirectory>
             <includes>
                 <include>**/*.cli</include>
@@ -51,7 +51,7 @@
             <directoryMode>0555</directoryMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/example/</directory>
+            <directory>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/example/</directory>
             <useDefaultExcludes>false</useDefaultExcludes>
             <outputDirectory>example</outputDirectory>
             <!-- excludes/-->
@@ -65,14 +65,14 @@
 
     <files>
         <file>
-            <source>${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/domains/domain_name/domain_name-domibus.properties</source>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/domains/domain_name/domain_name-domibus.properties</source>
             <outputDirectory>domains/domain_name</outputDirectory>
             <destName>domain_name-domibus.properties</destName>
             <filtered>false</filtered>
         </file>
         <file>
             <source>
-                ${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/domains/default/default-domibus.properties
+                ${project.basedir}/../Domibus-MSH/src/main/conf/domibus/domains/default/default-domibus.properties
             </source>
             <outputDirectory>domains/default</outputDirectory>
             <destName>default-domibus.properties</destName>
@@ -80,7 +80,7 @@
         </file>
         <file>
             <source>
-                ${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/domains/super-domibus.properties
+                ${project.basedir}/../Domibus-MSH/src/main/conf/domibus/domains/super-domibus.properties
             </source>
             <outputDirectory>/domains</outputDirectory>
             <destName>super-domibus.properties</destName>
@@ -88,28 +88,28 @@
         </file>
 
         <file>
-            <source>${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/internal/ehcache.xml</source>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/internal/ehcache.xml</source>
             <outputDirectory>internal</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy.xml</source>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy.xml</source>
             <outputDirectory>policies</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy_BST.xml</source>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy_BST.xml</source>
             <outputDirectory>policies</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy_BST_PKIP.xml</source>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy_BST_PKIP.xml</source>
             <outputDirectory>policies</outputDirectory>
             <filtered>false</filtered>
         </file>
 
         <file>
-            <source>${project.basedir}/../Core/Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy_IS.xml</source>
+            <source>${project.basedir}/../Domibus-MSH/src/main/conf/domibus/policies/eDeliveryAS4Policy_IS.xml</source>
             <outputDirectory>policies</outputDirectory>
             <filtered>false</filtered>
         </file>

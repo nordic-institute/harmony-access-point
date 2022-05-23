@@ -12,7 +12,7 @@
     <includeSiteDirectory>false</includeSiteDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/../Core/Domibus-MSH-db/target/sql-scripts</directory>
+            <directory>${project.basedir}/../Domibus-MSH-db/target/sql-scripts</directory>
             <useDefaultExcludes>true</useDefaultExcludes>
             <outputDirectory>sql-scripts</outputDirectory>
             <includes>
@@ -26,7 +26,7 @@
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../Core/Domibus-MSH-db/target/db/scripts</directory>
+            <directory>${project.basedir}/../Domibus-MSH-db/target/db/scripts</directory>
             <useDefaultExcludes>true</useDefaultExcludes>
             <outputDirectory>sql-scripts</outputDirectory>
             <includes>

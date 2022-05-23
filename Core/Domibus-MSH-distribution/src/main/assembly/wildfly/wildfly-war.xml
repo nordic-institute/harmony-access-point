@@ -14,7 +14,7 @@
 
     <files>
         <file>
-            <source>${project.basedir}/../Wildfly/Domibus-MSH-wildfly/target/domibus-MSH-wildfly-${project.version}.war</source>
+            <source>${project.basedir}/../../Wildfly/Domibus-MSH-wildfly/target/domibus-MSH-wildfly-${project.version}.war</source>
             <outputDirectory></outputDirectory>
             <filtered>false</filtered>
         </file>
