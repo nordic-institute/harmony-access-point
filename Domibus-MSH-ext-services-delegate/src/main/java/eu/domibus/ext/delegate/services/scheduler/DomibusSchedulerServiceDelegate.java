@@ -23,7 +23,7 @@ public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtServi
 
     protected final DomainService domainService;
 
-    //Lazy loading of DomibusScheduler and DomainService to avoid the circular dependency and the jobs are not created in the database
+    //Lazy loading of DomibusScheduler and DomainService to avoid the circular dependency and the that jobs are not created in the database
     DomibusSchedulerServiceDelegate(@Lazy DomibusScheduler domibusScheduler,
                                     @Lazy DomainService domainService) {
         LOG.debug("creating DomibusSchedulerServiceDelegate");
