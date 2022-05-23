@@ -107,7 +107,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         int maxRetention = getMaxRetention();
         LOG.info("Max retention time configured in pMode is [{}] minutes", maxRetention);
         Date newestPartitionToCheckDate = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
-        ;
         String newestPartitionName = partitionService.getPartitionNameFromDate(newestPartitionToCheckDate);
         LOG.debug("Verify if all messages expired for partitions older than [{}]", newestPartitionName);
         List<String> partitionNames = getExpiredPartitions(newestPartitionName);
@@ -161,10 +160,10 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE)) {
             LOG.debug("Archiving messages mechanism is disabled.");
             if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED)) {
-                LOG.info("The property [{}] is set to true, it is allowed to drop partitions containing unarchived messages.", DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
+                LOG.debug("The property [{}] is set to false, it is allowed to drop partitions containing unarchived messages.", DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
                 return true;
             }
-            LOG.info("The property [{}] is set to false, partitions containing unarchived messages will not be dropped.", DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
+            LOG.debug("The property [{}] is set to true, partitions containing unarchived messages will not be dropped.", DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
         }
         LOG.info("Verify if all messages are archived on partition [{}]", partitionName);
         int count = userMessageLogDao.countUnarchivedMessagesOnPartition(partitionName);
