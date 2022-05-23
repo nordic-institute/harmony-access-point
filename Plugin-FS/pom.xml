@@ -13,7 +13,7 @@
 
     <artifactId>plugin-fs</artifactId>
     <packaging>pom</packaging>
-    <name>Container for Domibus - FS Plugin modules</name>
+    <name>FS Plugin modules</name>
 
     <modules>
         <module>Domibus-default-fs-plugin</module>

@@ -13,7 +13,7 @@
 
     <artifactId>plugin-jms</artifactId>
     <packaging>pom</packaging>
-    <name>Container for Domibus - JMS Plugin modules</name>
+    <name>JMS Plugin modules</name>
 
     <modules>
         <module>Domibus-default-jms-plugin</module>
