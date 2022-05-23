@@ -126,6 +126,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE = "domibus.retentionWorker.message.retention.batch.delete";
     String DOMIBUS_RETENTION_JMS_CONCURRENCY = "domibus.retention.jms.concurrency";
     String DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK = "domibus.partitions.creation.days_to_check";
+    String DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED = "domibus.partitions.drop.check.messages.earchived";
     String DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY = "domibus.dispatch.ebms.error.unrecoverable.retry";
     String DOMIBUS_PROXY_ENABLED = DOMIBUS_PROXY_PREFIX + "enabled";
     String DOMIBUS_PROXY_HTTP_HOST = DOMIBUS_PROXY_PREFIX + "http.host";
