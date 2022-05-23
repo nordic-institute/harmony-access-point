@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
@@ -23,7 +24,8 @@ public class ArchiveActivePropertyChangeListener implements DomibusPropertyChang
     protected final DomibusScheduler domibusScheduler;
     protected final DomainService domainService;
 
-    public ArchiveActivePropertyChangeListener(DomainService domainService, DomibusScheduler domibusScheduler) {
+    //Lazy loading of DomibusScheduler and DomainService to avoid the circular dependency and the that jobs are not created in the database
+    public ArchiveActivePropertyChangeListener(DomainService domainService, @Lazy DomibusScheduler domibusScheduler) {
         this.domibusScheduler = domibusScheduler;
         this.domainService = domainService;
     }

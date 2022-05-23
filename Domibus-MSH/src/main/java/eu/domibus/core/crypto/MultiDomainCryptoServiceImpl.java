@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
@@ -39,8 +40,8 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceImpl.class);
 
-    public final static String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
-    public final static String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
+    public static final String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
+    public static final String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";
     public static final String CERT_VALIDATION_BY_ALIAS = "certValidationByAlias";
 
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
@@ -55,7 +56,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     protected CertificateService certificateService;
 
-    final protected DomibusRawPropertyProvider domibusRawPropertyProvider;
+    protected final DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     protected final DomainService domainService;
 
@@ -235,7 +236,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public byte[] getTruststoreContent(Domain domain) {
+    public TrustStoreContentDTO getTruststoreContent(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.getTruststoreContent();
     }

@@ -1320,100 +1320,6 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_user_message()
     END
 //
 
-/**-- TB_MESSAGE_FRAGMENT migration --*/
-CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment()
-    BEGIN
-        DECLARE created_by VARCHAR(255);
-        DECLARE creation_time TIMESTAMP;
-        DECLARE fragment_number INT;
-        DECLARE group_id VARCHAR(255);
-        DECLARE group_id_fk BIGINT;
-        DECLARE id_pk BIGINT;
-        DECLARE modification_time TIMESTAMP;
-        DECLARE modified_by VARCHAR(255);
-
-        DECLARE done INT DEFAULT FALSE;
-        DECLARE migration_status BOOLEAN;
-
-        DECLARE c_message_fragment CURSOR FOR
-            SELECT (SELECT MPKSUM.NEW_ID
-                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
-                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
-                   MF.GROUP_ID,
-                   MF.FRAGMENT_NUMBER,
-                   MF.CREATION_TIME,
-                   MF.CREATED_BY,
-                   MF.MODIFICATION_TIME,
-                   MF.MODIFIED_BY,
-                   MG.ID_PK GROUP_ID_FK
-            FROM TB_MESSAGE_FRAGMENT MF,
-                 TB_MESSAGE_GROUP MG,
-                 TB_USER_MESSAGE UM
-            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK
-              AND MF.GROUP_ID = MG.GROUP_ID;
-
-        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
-
-        SET @i := 0;
-        SET @v_batch_no := 1;
-        SET @v_tab := 'TB_MESSAGE_FRAGMENT';
-        SET @v_tab_new := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
-        SET @v_tab_user_message := 'TB_USER_MESSAGE';
-
-        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_user_message,
-            CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab, ' migration'));
-
-        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
-
-        OPEN c_message_fragment;
-        read_loop: LOOP
-            BEGIN
-                DECLARE EXIT HANDLER FOR SQLEXCEPTION
-                    BEGIN
-                        GET DIAGNOSTICS CONDITION 1
-                            @p2 = MESSAGE_TEXT;
-                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_fragment -> execute error: ', @p2));
-                    END;
-
-                FETCH c_message_fragment INTO id_pk, group_id, fragment_number, creation_time, created_by,
-                        modification_time, modified_by, group_id_fk;
-
-                IF done THEN
-                    LEAVE read_loop;
-                END IF;
-
-                INSERT INTO MIGR_TB_SJ_MESSAGE_FRAGMENT (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME,
-                        CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                VALUES (id_pk,
-                        group_id_fk,
-                        fragment_number,
-                        creation_time,
-                        created_by,
-                        modification_time,
-                        modified_by);
-
-                SET @i = @i + 1;
-                IF @i MOD @BATCH_SIZE = 0 THEN
-                    COMMIT;
-                    CALL MIGRATE_42_TO_50_trace(CONCAT(
-                            @v_tab_new, ': Commit after ', @BATCH_SIZE * @v_batch_no, ' records'));
-                    SET @v_batch_no := @v_batch_no + 1;
-                END IF;
-            END;
-        END LOOP read_loop;
-        COMMIT;
-
-        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_new, ': Migrated ', @i, ' records in total'));
-        CLOSE c_message_fragment;
-
-        -- check counts
-        CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_new, migration_status);
-        IF migration_status THEN
-            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));
-        END IF;
-    END
-//
-
 /**-- TB_MESSAGE_GROUP migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group()
     BEGIN
@@ -1551,7 +1457,103 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_group()
     END
 //
 
-/**-- TB_MESSAGE_GROUP migration --*/
+/**-- TB_MESSAGE_FRAGMENT migration --*/
+CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_fragment()
+    BEGIN
+        DECLARE created_by VARCHAR(255);
+        DECLARE creation_time TIMESTAMP;
+        DECLARE fragment_number INT;
+        DECLARE group_id VARCHAR(255);
+        DECLARE group_id_fk BIGINT;
+        DECLARE id_pk BIGINT;
+        DECLARE modification_time TIMESTAMP;
+        DECLARE modified_by VARCHAR(255);
+
+        DECLARE done INT DEFAULT FALSE;
+        DECLARE migration_status BOOLEAN;
+
+        DECLARE c_message_fragment CURSOR FOR
+            SELECT (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
+                   MF.GROUP_ID,
+                   MF.FRAGMENT_NUMBER,
+                   MF.CREATION_TIME,
+                   MF.CREATED_BY,
+                   MF.MODIFICATION_TIME,
+                   MF.MODIFIED_BY,
+                   (SELECT MPKSMG.NEW_ID
+                    FROM MIGR_TB_PKS_MESSAGE_GROUP MPKSMG
+                    WHERE MPKSMG.OLD_ID = MG.ID_PK) AS GROUP_ID_FK
+            FROM TB_MESSAGE_FRAGMENT MF,
+                 TB_MESSAGE_GROUP MG,
+                 TB_USER_MESSAGE UM
+            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK
+              AND MF.GROUP_ID = MG.GROUP_ID;
+
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done := TRUE;
+
+        SET @i := 0;
+        SET @v_batch_no := 1;
+        SET @v_tab := 'TB_MESSAGE_FRAGMENT';
+        SET @v_tab_new := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
+        SET @v_tab_user_message := 'TB_USER_MESSAGE';
+
+        CALL MIGRATE_42_TO_50_ensure_table_exists(@v_tab_user_message,
+            CONCAT(@v_tab_user_message, ' should exists before starting ', @v_tab, ' migration'));
+
+        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration started...'));
+
+        OPEN c_message_fragment;
+        read_loop: LOOP
+            BEGIN
+                DECLARE EXIT HANDLER FOR SQLEXCEPTION
+                    BEGIN
+                        GET DIAGNOSTICS CONDITION 1
+                            @p2 = MESSAGE_TEXT;
+                        CALL MIGRATE_42_TO_50_trace(CONCAT('migrate_message_fragment -> execute error: ', @p2));
+                    END;
+
+                FETCH c_message_fragment INTO id_pk, group_id, fragment_number, creation_time, created_by,
+                        modification_time, modified_by, group_id_fk;
+
+                IF done THEN
+                    LEAVE read_loop;
+                END IF;
+
+                INSERT INTO MIGR_TB_SJ_MESSAGE_FRAGMENT (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME,
+                        CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                VALUES (id_pk,
+                        group_id_fk,
+                        fragment_number,
+                        creation_time,
+                        created_by,
+                        modification_time,
+                        modified_by);
+
+                SET @i = @i + 1;
+                IF @i MOD @BATCH_SIZE = 0 THEN
+                    COMMIT;
+                    CALL MIGRATE_42_TO_50_trace(CONCAT(
+                            @v_tab_new, ': Commit after ', @BATCH_SIZE * @v_batch_no, ' records'));
+                    SET @v_batch_no := @v_batch_no + 1;
+                END IF;
+            END;
+        END LOOP read_loop;
+        COMMIT;
+
+        CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab_new, ': Migrated ', @i, ' records in total'));
+        CLOSE c_message_fragment;
+
+        -- check counts
+        CALL MIGRATE_42_TO_50_check_counts(@v_tab, @v_tab_new, migration_status);
+        IF migration_status THEN
+            CALL MIGRATE_42_TO_50_trace(CONCAT(@v_tab, ' migration is done'));
+        END IF;
+    END
+//
+
+/**-- TB_MESSAGE_HEADER migration --*/
 CREATE PROCEDURE MIGRATE_42_TO_50_migrate_message_header()
     BEGIN
         DECLARE boundary VARCHAR(255);
@@ -9227,8 +9229,8 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
 
         -- START migrate to the new schema (including primary keys to the new format)
         CALL MIGRATE_42_TO_50_migrate_user_message();
-        CALL MIGRATE_42_TO_50_migrate_message_fragment();
         CALL MIGRATE_42_TO_50_migrate_message_group();
+        CALL MIGRATE_42_TO_50_migrate_message_fragment();
         CALL MIGRATE_42_TO_50_migrate_message_header();
 
         CALL MIGRATE_42_TO_50_migrate_signal_receipt();

@@ -1,5 +1,6 @@
 package eu.domibus.jms.weblogic;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.jms.spi.InternalJMSConstants.*;
 
 /**
@@ -130,6 +132,9 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     @Autowired
     XMLUtil xmlUtil;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     /**
      * {@inheritDoc}
@@ -419,7 +424,10 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     protected Destination lookupDestination(String destJndiName) throws NamingException {
         LOG.debug("Retrieving destination with JNDI name [{}] ", destJndiName);
-        return jmsDestinationCache.getByJndiName(destJndiName);
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("InternalJMSManagerWeblogic", "getByJndiName", "timer")).time();
+        final Destination destination = jmsDestinationCache.getByJndiName(destJndiName);
+        methodTimer.stop();
+        return destination;
     }
 
     @Override
