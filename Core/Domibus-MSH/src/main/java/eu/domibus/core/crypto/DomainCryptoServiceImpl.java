@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
@@ -254,7 +255,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public byte[] getTruststoreContent() {
+    public TrustStoreContentDTO getTruststoreContent() {
         return certificateService.getTruststoreContent(DOMIBUS_TRUSTSTORE_NAME);
     }
 

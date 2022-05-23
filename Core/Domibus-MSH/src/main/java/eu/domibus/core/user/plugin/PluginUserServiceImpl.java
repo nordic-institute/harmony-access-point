@@ -151,10 +151,6 @@ public class PluginUserServiceImpl implements PluginUserService {
         if(StringUtils.isBlank(originalUser)){
             return;
         }
-        if(!originalUser.matches(PLUGINUSER_ORIGINAL_USER_PATTERN)){
-            LOG.error("Original User:[{}] does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]", originalUser);
-            throw new UserManagementException("Original User :" + originalUser + " does not match the pattern: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner].");
-        }
     }
 
     protected void validateAuthRoles(String authRoles) {

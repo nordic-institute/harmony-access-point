@@ -27,8 +27,6 @@ export class EditPluginUserFormBaseComponent extends EditPopupBaseComponent {
   formTitle: string;
   user: PluginUserRO;
 
-  public originalUserPattern = PluginUserService.originalUserPattern;
-  public originalUserPatternMessage = PluginUserService.originalUserPatternMessage;
   public originalUserRequiredMessage = PluginUserService.originalUserRequiredMessage;
 
   constructor(public dialogRef: MatDialogRef<EditPluginUserFormBaseComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
