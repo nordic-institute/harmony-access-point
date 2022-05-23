@@ -10,7 +10,7 @@
         <artifactId>core</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-jms-spi</artifactId>
+    <artifactId>domibus-msh-jms-spi</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH JMS SPI</name>
 

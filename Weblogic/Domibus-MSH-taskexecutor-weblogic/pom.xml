@@ -10,7 +10,7 @@
         <artifactId>weblogic</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-taskexecutor-weblogic</artifactId>
+    <artifactId>domibus-msh-taskexecutor-weblogic</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH TaskExecutor for WebLogic</name>
  
@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

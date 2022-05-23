@@ -11,7 +11,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-swagger</artifactId>
+    <artifactId>domibus-msh-swagger</artifactId>
     <packaging>war</packaging>
     <name>Domibus MSH REST API documentation</name>
     <properties>
@@ -30,14 +30,14 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-services-delegate</artifactId>
+            <artifactId>domibus-msh-ext-services-delegate</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

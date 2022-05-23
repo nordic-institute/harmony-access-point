@@ -15,7 +15,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
-    <artifactId>domibus-distribution</artifactId>
+    <artifactId>domibus-msh-distribution</artifactId>
 	<name>Domibus MSH Distribution</name>
 
     <build>

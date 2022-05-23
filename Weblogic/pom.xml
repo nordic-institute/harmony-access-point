@@ -25,7 +25,7 @@
         <module>Domibus-MSH-taskexecutor-weblogic</module>
         <module>Domibus-MSH-weblogic</module>
         <module>Domibus-MSH-weblogic-common</module>
-        <module>Domibus-MSH-weblogic-ecas</module>
+        <module>Domibus-MSH-weblogic-eu-login</module>
     </modules>
 
 </project>

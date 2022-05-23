@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -125,13 +125,13 @@
         <!-- Tests -->
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test</artifactId>
+            <artifactId>domibus-msh-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test-common</artifactId>
+            <artifactId>domibus-msh-test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

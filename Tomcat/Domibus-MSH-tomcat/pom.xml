@@ -35,12 +35,12 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-taskexecutor-tomcat</artifactId>
+            <artifactId>domibus-msh-taskexecutor-tomcat</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-activemq</artifactId>
+            <artifactId>domibus-msh-jms-activemq</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -50,12 +50,12 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <artifactId>domibus-msh-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-spi</artifactId>
+            <artifactId>domibus-msh-jms-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -65,7 +65,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -289,7 +289,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test-common</artifactId>
+            <artifactId>domibus-msh-test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -307,7 +307,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-services-delegate</artifactId>
+            <artifactId>domibus-msh-ext-services-delegate</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

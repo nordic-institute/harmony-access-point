@@ -39,17 +39,17 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <artifactId>domibus-msh-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-spi</artifactId>
+            <artifactId>domibus-msh-jms-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -470,13 +470,13 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-test-common</artifactId>
+            <artifactId>domibus-msh-test-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-db</artifactId>
+            <artifactId>domibus-msh-db</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

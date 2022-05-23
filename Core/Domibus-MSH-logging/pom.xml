@@ -10,7 +10,7 @@
         <artifactId>core</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-logging</artifactId>
+    <artifactId>domibus-msh-logging</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH Logging</name>
 

@@ -10,7 +10,7 @@
     <artifactId>core</artifactId>
     <version>5.1-SNAPSHOT</version>
   </parent>
-  <artifactId>domibus-angular</artifactId>
+  <artifactId>domibus-msh-angular</artifactId>
   <packaging>jar</packaging>
   <name>Domibus MSH Angular UI</name>
 

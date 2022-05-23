@@ -30,12 +30,12 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-weblogic</artifactId>
+            <artifactId>domibus-msh-jms-weblogic</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-taskexecutor-weblogic</artifactId>
+            <artifactId>domibus-msh-taskexecutor-weblogic</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
             <scope>compile</scope>
         </dependency>
         <!-- End Domibus modules -->

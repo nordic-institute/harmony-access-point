@@ -9,7 +9,7 @@
         <groupId>eu.domibus</groupId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>dss-domibus</artifactId>
+    <artifactId>domibus-dss</artifactId>
     <packaging>pom</packaging>
     <name>Domibus DSS</name>
     <modules>

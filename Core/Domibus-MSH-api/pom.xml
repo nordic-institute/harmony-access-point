@@ -10,7 +10,7 @@
         <artifactId>core</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-api</artifactId>
+    <artifactId>domibus-msh-api</artifactId>
     <packaging>jar</packaging>
     <name>Domibus MSH API</name>
 
@@ -45,7 +45,7 @@
         <!-- Domibus modules -->
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
         </dependency>
         <!-- End Domibus modules -->
 
