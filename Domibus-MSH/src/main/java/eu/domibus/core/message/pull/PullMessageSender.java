@@ -37,8 +37,6 @@ import eu.domibus.messaging.MessageConstants;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -102,7 +100,6 @@ public class PullMessageSender {
     private PullRequestDao pullRequestDao;
 
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
-    @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
     @Timer(clazz = PullMessageSender.class, value = "outgoing_pull_request")
     @Counter(clazz = PullMessageSender.class, value = "outgoing_pull_request")
@@ -165,6 +162,7 @@ public class PullMessageSender {
                 sendMessageId += UserMessageHandlerService.SELF_SENDING_SUFFIX;
             }
             try {
+                LOG.debug("Schedule sending pull receipt for message [{}]", sendMessageId);
                 userMessageDefaultService.scheduleSendingPullReceipt(sendMessageId, pModeKey);
             } catch (Exception ex) {
                 LOG.warn("Message[{}] exception while sending receipt asynchronously.", messageId, ex);
