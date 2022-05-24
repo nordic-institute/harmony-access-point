@@ -52,7 +52,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -67,6 +66,7 @@ import static org.junit.Assert.*;
  * Created by Cosmin Baciu on 07-Jul-16.
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions", "UnusedAssignment"})
+@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
 
