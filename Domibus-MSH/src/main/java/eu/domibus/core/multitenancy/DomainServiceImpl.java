@@ -2,6 +2,7 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -26,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.0
  */
 @Service
-public class DomainServiceImpl implements DomainService {
+public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
@@ -216,4 +217,28 @@ public class DomainServiceImpl implements DomainService {
         return allDomains.stream().filter(el -> StringUtils.equalsIgnoreCase(el.getCode(), domainCode)).findFirst().orElse(null);
     }
 
+    @Override
+    public void onDomainAdded(Domain domain) {
+        removeCachedSchema(domain);
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+        removeCachedSchema(domain);
+    }
+
+    private void removeCachedSchema(Domain domain) {
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            LOG.debug("Domain schema for domain [{}] not found; exiting", domain);
+            return;
+        }
+        synchronized (domainSchemas) {
+            domainSchema = domainSchemas.get(domain);
+            if (domainSchema != null) {
+                LOG.debug("Removing domain schema [{}] for domain [{}]", domainSchema, domain);
+                domainSchemas.remove(domain);
+            }
+        }
+    }
 }
