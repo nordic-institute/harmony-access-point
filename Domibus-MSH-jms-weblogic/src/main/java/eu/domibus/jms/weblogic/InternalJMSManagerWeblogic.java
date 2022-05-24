@@ -416,7 +416,8 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
 
     protected Destination lookupDestination(String destJndiName) throws NamingException {
         LOG.debug("Retrieving destination with JNDI name [{}] ", destJndiName);
-        return jmsDestinationCache.getByJndiName(destJndiName);
+        final Destination destination = jmsDestinationCache.getByJndiName(destJndiName);
+        return destination;
     }
 
     @Override

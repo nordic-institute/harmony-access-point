@@ -760,118 +760,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     END migrate_user_message;
 
-    /**-- TB_MESSAGE_FRAGMENT migration --*/
-    PROCEDURE migrate_message_fragment IS
-        v_tab              VARCHAR2(30) := 'TB_MESSAGE_FRAGMENT';
-        v_tab_new          VARCHAR2(30) := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
-        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
-
-        CURSOR c_message_fragment IS
-            SELECT (SELECT MPKSUM.NEW_ID
-                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
-                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
-                   MF.GROUP_ID,
-                   MF.FRAGMENT_NUMBER,
-                   MF.CREATION_TIME,
-                   MF.CREATED_BY,
-                   MF.MODIFICATION_TIME,
-                   MF.MODIFIED_BY,
-                   MG.ID_PK GROUP_ID_FK
-            FROM TB_MESSAGE_FRAGMENT MF,
-                 TB_MESSAGE_GROUP MG,
-                 TB_USER_MESSAGE UM
-            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK
-              AND MF.GROUP_ID = MG.GROUP_ID;
-
-        TYPE T_MESSAGE_FRAGMENT IS TABLE OF c_message_fragment%ROWTYPE;
-        message_fragment   T_MESSAGE_FRAGMENT;
-
-        TYPE T_MIGR_MESSAGE_FRAGMENT IS TABLE OF MIGR_TB_SJ_MESSAGE_FRAGMENT%ROWTYPE INDEX BY PLS_INTEGER;
-        migr_message_fragment T_MIGR_MESSAGE_FRAGMENT;
-
-        v_last PLS_INTEGER;
-        v_start PLS_INTEGER;
-        v_end PLS_INTEGER;
-    BEGIN
-        IF NOT check_table_exists(v_tab_user_message) THEN
-            DBMS_OUTPUT.PUT_LINE(v_tab_user_message || ' should exists before starting ' || v_tab || ' migration');
-        END IF;
-
-        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
-        OPEN c_message_fragment;
-        LOOP
-            FETCH c_message_fragment BULK COLLECT INTO message_fragment LIMIT BULK_COLLECT_LIMIT;
-            EXIT WHEN message_fragment.COUNT = 0;
-
-            migr_message_fragment := T_MIGR_MESSAGE_FRAGMENT();
-
-            FOR i IN message_fragment.FIRST .. message_fragment.LAST
-                LOOP
-                    migr_message_fragment(i).ID_PK := message_fragment(i).ID_PK;
-                    migr_message_fragment(i).GROUP_ID_FK := message_fragment(i).GROUP_ID_FK;
-                    migr_message_fragment(i).FRAGMENT_NUMBER := message_fragment(i).FRAGMENT_NUMBER;
-                    migr_message_fragment(i).CREATION_TIME := message_fragment(i).CREATION_TIME;
-                    migr_message_fragment(i).CREATED_BY := message_fragment(i).CREATED_BY;
-                    migr_message_fragment(i).MODIFICATION_TIME := message_fragment(i).MODIFICATION_TIME;
-                    migr_message_fragment(i).MODIFIED_BY := message_fragment(i).MODIFIED_BY;
-                END LOOP;
-
-            v_start := 1;
-            v_last := migr_message_fragment.COUNT;
-
-            LOOP
-                EXIT WHEN v_start > v_last;
-
-                v_end := LEAST(v_start + BATCH_SIZE - 1, v_last);
-
-                BEGIN
-                    log_verbose('migrate_message_fragment -> start-end: ' || v_start || '-' || v_end);
-                    FORALL i IN v_start .. v_end SAVE EXCEPTIONS
-                        INSERT INTO MIGR_TB_SJ_MESSAGE_FRAGMENT (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME,
-                                                                 CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
-                        VALUES (migr_message_fragment(i).ID_PK,
-                                migr_message_fragment(i).GROUP_ID_FK,
-                                migr_message_fragment(i).FRAGMENT_NUMBER,
-                                migr_message_fragment(i).CREATION_TIME,
-                                migr_message_fragment(i).CREATED_BY,
-                                migr_message_fragment(i).MODIFICATION_TIME,
-                                migr_message_fragment(i).MODIFIED_BY);
-                EXCEPTION
-                    WHEN failure_in_forall
-                        THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_message_fragment -> insert error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
-                            DBMS_OUTPUT.PUT_LINE('Updated ' || SQL%ROWCOUNT || ' rows.');
-
-                            FOR i IN 1 .. SQL%BULK_EXCEPTIONS.COUNT
-                                LOOP
-                                    DBMS_OUTPUT.PUT_LINE('Error ' || i || ' occurred on index '
-                                        || SQL%BULK_EXCEPTIONS(i).ERROR_INDEX
-                                        || '  with error code '
-                                        || SQL%BULK_EXCEPTIONS(i).ERROR_CODE
-                                        || '  for migration entry having ID_PK '
-                                        || migr_message_fragment(SQL%BULK_EXCEPTIONS(i).ERROR_INDEX).ID_PK);
-                                END LOOP;
-                END;
-
-                log_verbose(v_tab_new || ': Committing...');
-                COMMIT;
-
-                v_start := v_end + 1;
-            END LOOP;
-            log_verbose(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records');
-        END LOOP;
-
-        COMMIT;
-        CLOSE c_message_fragment;
-
-        -- check counts
-        IF check_counts(v_tab, v_tab_new) THEN
-            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
-        END IF;
-
-    END migrate_message_fragment;
-
     /**-- TB_MESSAGE_GROUP migration --*/
     PROCEDURE migrate_message_group IS
         v_tab                  VARCHAR2(30) := 'TB_MESSAGE_GROUP';
@@ -1034,7 +922,121 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     END migrate_message_group;
 
-    /**-- TB_MESSAGE_GROUP migration --*/
+    /**-- TB_MESSAGE_FRAGMENT migration --*/
+    PROCEDURE migrate_message_fragment IS
+        v_tab              VARCHAR2(30) := 'TB_MESSAGE_FRAGMENT';
+        v_tab_new          VARCHAR2(30) := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
+        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
+
+        CURSOR c_message_fragment IS
+            SELECT (SELECT MPKSUM.NEW_ID
+                    FROM MIGR_TB_PKS_USER_MESSAGE MPKSUM
+                    WHERE MPKSUM.OLD_ID = UM.ID_PK) AS ID_PK, -- 1:1 ID_PK implementation
+                   MF.GROUP_ID,
+                   MF.FRAGMENT_NUMBER,
+                   MF.CREATION_TIME,
+                   MF.CREATED_BY,
+                   MF.MODIFICATION_TIME,
+                   MF.MODIFIED_BY,
+                   (SELECT MPKSMG.NEW_ID
+                    FROM MIGR_TB_PKS_MESSAGE_GROUP MPKSMG
+                    WHERE MPKSMG.OLD_ID = MG.ID_PK) AS GROUP_ID_FK
+            FROM TB_MESSAGE_FRAGMENT MF,
+                 TB_MESSAGE_GROUP MG,
+                 TB_USER_MESSAGE UM
+            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK
+              AND MF.GROUP_ID = MG.GROUP_ID;
+
+        TYPE T_MESSAGE_FRAGMENT IS TABLE OF c_message_fragment%ROWTYPE;
+        message_fragment   T_MESSAGE_FRAGMENT;
+
+        TYPE T_MIGR_MESSAGE_FRAGMENT IS TABLE OF MIGR_TB_SJ_MESSAGE_FRAGMENT%ROWTYPE INDEX BY PLS_INTEGER;
+        migr_message_fragment T_MIGR_MESSAGE_FRAGMENT;
+
+        v_last PLS_INTEGER;
+        v_start PLS_INTEGER;
+        v_end PLS_INTEGER;
+    BEGIN
+        IF NOT check_table_exists(v_tab_user_message) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_user_message || ' should exists before starting ' || v_tab || ' migration');
+        END IF;
+
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_message_fragment;
+        LOOP
+            FETCH c_message_fragment BULK COLLECT INTO message_fragment LIMIT BULK_COLLECT_LIMIT;
+            EXIT WHEN message_fragment.COUNT = 0;
+
+            migr_message_fragment := T_MIGR_MESSAGE_FRAGMENT();
+
+            FOR i IN message_fragment.FIRST .. message_fragment.LAST
+                LOOP
+                    migr_message_fragment(i).ID_PK := message_fragment(i).ID_PK;
+                    migr_message_fragment(i).GROUP_ID_FK := message_fragment(i).GROUP_ID_FK;
+                    migr_message_fragment(i).FRAGMENT_NUMBER := message_fragment(i).FRAGMENT_NUMBER;
+                    migr_message_fragment(i).CREATION_TIME := message_fragment(i).CREATION_TIME;
+                    migr_message_fragment(i).CREATED_BY := message_fragment(i).CREATED_BY;
+                    migr_message_fragment(i).MODIFICATION_TIME := message_fragment(i).MODIFICATION_TIME;
+                    migr_message_fragment(i).MODIFIED_BY := message_fragment(i).MODIFIED_BY;
+                END LOOP;
+
+            v_start := 1;
+            v_last := migr_message_fragment.COUNT;
+
+            LOOP
+                EXIT WHEN v_start > v_last;
+
+                v_end := LEAST(v_start + BATCH_SIZE - 1, v_last);
+
+                BEGIN
+                    log_verbose('migrate_message_fragment -> start-end: ' || v_start || '-' || v_end);
+                    FORALL i IN v_start .. v_end SAVE EXCEPTIONS
+                        INSERT INTO MIGR_TB_SJ_MESSAGE_FRAGMENT (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME,
+                                                                 CREATED_BY, MODIFICATION_TIME, MODIFIED_BY)
+                        VALUES (migr_message_fragment(i).ID_PK,
+                                migr_message_fragment(i).GROUP_ID_FK,
+                                migr_message_fragment(i).FRAGMENT_NUMBER,
+                                migr_message_fragment(i).CREATION_TIME,
+                                migr_message_fragment(i).CREATED_BY,
+                                migr_message_fragment(i).MODIFICATION_TIME,
+                                migr_message_fragment(i).MODIFIED_BY);
+                EXCEPTION
+                    WHEN failure_in_forall
+                        THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_fragment -> insert error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('Updated ' || SQL%ROWCOUNT || ' rows.');
+
+                            FOR i IN 1 .. SQL%BULK_EXCEPTIONS.COUNT
+                                LOOP
+                                    DBMS_OUTPUT.PUT_LINE('Error ' || i || ' occurred on index '
+                                        || SQL%BULK_EXCEPTIONS(i).ERROR_INDEX
+                                        || '  with error code '
+                                        || SQL%BULK_EXCEPTIONS(i).ERROR_CODE
+                                        || '  for migration entry having ID_PK '
+                                        || migr_message_fragment(SQL%BULK_EXCEPTIONS(i).ERROR_INDEX).ID_PK);
+                                END LOOP;
+                END;
+
+                log_verbose(v_tab_new || ': Committing...');
+                COMMIT;
+
+                v_start := v_end + 1;
+            END LOOP;
+            log_verbose(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records');
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_message_fragment;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
+
+    END migrate_message_fragment;
+
+    /**-- TB_MESSAGE_HEADER migration --*/
     PROCEDURE migrate_message_header IS
         v_tab               VARCHAR2(30) := 'TB_MESSAGE_HEADER';
         v_tab_new           VARCHAR2(30) := 'MIGR_TB_SJ_MESSAGE_HEADER';
@@ -10365,8 +10367,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         -- START migrate to the new schema (including primary keys to the new format)
         migrate_user_message;
-        migrate_message_fragment;
         migrate_message_group;
+        migrate_message_fragment;
         migrate_message_header;
 
         migrate_signal_receipt;

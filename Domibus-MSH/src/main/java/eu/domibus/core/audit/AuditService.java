@@ -114,13 +114,17 @@ public interface AuditService {
 
     /**
      * Add truststore downloaded
-     **/
-    void addTruststoreDownloadedAudit();
+     *
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
+    void addTruststoreDownloadedAudit(String id);
 
     /**
      * Add TLS truststore downloaded
-     **/
-    void addTLSTruststoreDownloadedAudit();
+     *
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
+    void addTLSTruststoreDownloadedAudit(String id);
 
     /**
      * Add TLS Truststore uploaded
@@ -129,13 +133,17 @@ public interface AuditService {
 
     /**
      * Add Certificate added to TLS
-     **/
-    void addCertificateAddedAudit();
+     *
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
+    void addCertificateAddedAudit(String id);
 
     /**
      * Add Certificate removed from TLS
-     **/
-    void addCertificateRemovedAudit();
+     *
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
+    void addCertificateRemovedAudit(String id);
 
     /**
      * Add download audit for am envelope of user or signal messages

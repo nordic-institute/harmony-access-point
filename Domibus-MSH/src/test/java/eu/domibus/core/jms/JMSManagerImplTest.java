@@ -1,5 +1,6 @@
 package eu.domibus.core.jms;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JmsMessage;
@@ -43,6 +44,9 @@ public class JMSManagerImplTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private MetricRegistry metricRegistry; 
 
     @Injectable
     InternalJMSManager internalJmsManager;

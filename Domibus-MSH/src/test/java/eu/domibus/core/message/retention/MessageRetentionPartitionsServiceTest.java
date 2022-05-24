@@ -13,11 +13,15 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED;
 
 /**
  * @author idragusa
@@ -84,5 +88,18 @@ public class MessageRetentionPartitionsServiceTest {
 
         messageRetentionPartitionsService.deleteExpiredMessages();
 
+    }
+
+    @Test
+    public void verifySafeGuard() {
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
+            result = false;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
+            result = false;
+
+        }};
+
+        Assert.assertTrue(messageRetentionPartitionsService.verifyIfAllMessagesAreArchived("mypart"));
     }
 }

@@ -7,7 +7,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -35,9 +34,6 @@ public class CompressionService {
 
     @Autowired
     private CompressionMimeTypeBlacklist blacklist;
-
-    @Autowired
-    protected SplitAndJoinService splitAndJoinService;
 
     @Autowired
     protected SplitAndJoinHelper splitAndJoinHelper;
