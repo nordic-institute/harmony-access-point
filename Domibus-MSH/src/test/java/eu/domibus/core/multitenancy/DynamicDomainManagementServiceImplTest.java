@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -11,6 +12,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainsAwareExt;
+import eu.domibus.web.security.AuthenticationService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -58,6 +60,12 @@ public class DynamicDomainManagementServiceImplTest {
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    private AuthenticationService authenticationService;
+
+    @Injectable
+    private UserDomainService userDomainService;
+    
     List<Domain> domains, allDomains;
     Domain domain1, domain2;
 
