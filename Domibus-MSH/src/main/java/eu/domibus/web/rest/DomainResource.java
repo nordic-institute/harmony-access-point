@@ -36,11 +36,18 @@ public class DomainResource {
 
     private final DomibusCoreMapper coreMapper;
 
+    private final AuthenticationService authenticationService;
+
+    private final UserDomainService userDomainService;
+
     public DomainResource(DynamicDomainManagementService dynamicDomainManagementService,
-                          DomainService domainService, DomibusCoreMapper coreMapper) {
+                          DomainService domainService, DomibusCoreMapper coreMapper,
+                          AuthenticationService authenticationService, UserDomainService userDomainService) {
         this.dynamicDomainManagementService = dynamicDomainManagementService;
         this.domainService = domainService;
         this.coreMapper = coreMapper;
+        this.authenticationService = authenticationService;
+        this.userDomainService = userDomainService;
     }
 
     /**
@@ -66,6 +73,13 @@ public class DomainResource {
 
     @DeleteMapping(value = "/{domainCode:.+}")
     public void removeDomain(@PathVariable(value = "domainCode") @Valid String domainCode) {
+        DomibusUserDetails domibusUserDetails = authenticationService.getLoggedUser();
+        String preferredDomainCode = userDomainService.getPreferredDomainForUser(domibusUserDetails.getUsername());
+
+        if (StringUtils.equalsIgnoreCase(domainCode, preferredDomainCode)) {
+            throw new ValidationException("Cannot disable the domain of the current user");
+        }
+
         dynamicDomainManagementService.removeDomain(domainCode, true);
     }
 }

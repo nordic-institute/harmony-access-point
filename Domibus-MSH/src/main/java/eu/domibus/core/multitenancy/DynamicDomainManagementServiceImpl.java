@@ -4,21 +4,17 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
-import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainsAwareExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.security.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,20 +45,13 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    private final AuthenticationService authenticationService;
-
-    private final UserDomainService userDomainService;
-
     public DynamicDomainManagementServiceImpl(DomainService domainService,
                                               DomibusPropertyProvider domibusPropertyProvider,
                                               DomainDao domainDao,
                                               SignalService signalService,
                                               List<DomainsAware> domainsAwareList,
                                               List<DomainsAwareExt> externalDomainsAwareList,
-                                              DomibusCoreMapper coreMapper,
-                                              DomibusConfigurationService domibusConfigurationService,
-                                              AuthenticationService authenticationService,
-                                              UserDomainService userDomainService) {
+                                              DomibusCoreMapper coreMapper, DomibusConfigurationService domibusConfigurationService) {
 
         this.domainService = domainService;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -72,8 +61,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         this.externalDomainsAwareList = externalDomainsAwareList;
         this.coreMapper = coreMapper;
         this.domibusConfigurationService = domibusConfigurationService;
-        this.authenticationService = authenticationService;
-        this.userDomainService = userDomainService;
     }
 
     @Override
@@ -121,12 +108,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         if (!domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
             throw new DomibusDomainException(String.format("Cannot remove domain [%s] since it is not present.", domainCode));
-        }
-
-        DomibusUserDetails domibusUserDetails = authenticationService.getLoggedUser();
-        String preferredDomainCode = userDomainService.getPreferredDomainForUser(domibusUserDetails.getUsername());
-        if (StringUtils.equalsIgnoreCase(domainCode, preferredDomainCode)) {
-            throw new DomibusDomainException("Cannot disable the domain of the current user");
         }
     }
 
