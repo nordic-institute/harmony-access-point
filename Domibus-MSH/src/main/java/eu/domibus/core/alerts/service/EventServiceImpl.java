@@ -7,7 +7,6 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
@@ -84,9 +83,6 @@ public class EventServiceImpl implements EventService {
 
     @Autowired
     private JMSManager jmsManager;
-
-    @Autowired
-    private PartitionsModuleConfiguration partitionsModuleConfiguration;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
@@ -172,10 +168,6 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public void enqueuePartitionCheckEvent(String partitionName) {
-        if (!partitionsModuleConfiguration.isActive()) {
-            LOG.debug("Partitions alerts module is not enabled, no alert will be created");
-            return;
-        }
         Event event = new Event(EventType.PARTITION_CHECK);
         event.addStringKeyValue(PartitionCheckEvent.PARTITION_NAME.name(), partitionName);
         enqueueEvent(PARTITION_CHECK, event);

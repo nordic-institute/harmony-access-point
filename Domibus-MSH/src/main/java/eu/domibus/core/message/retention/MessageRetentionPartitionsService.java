@@ -8,6 +8,8 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
+import eu.domibus.core.alerts.configuration.partitions.PartitionsModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -60,6 +62,9 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected PartitionService partitionService;
 
+    protected PartitionsConfigurationManager partitionsConfigurationManager;
+
+
     public static final String DEFAULT_PARTITION_NAME = "P22000000"; // default partition that we never delete
 
     public MessageRetentionPartitionsService(PModeProvider pModeProvider,
@@ -70,7 +75,8 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
                                              DomibusConfigurationService domibusConfigurationService,
                                              DomainService domainService,
                                              DomainContextProvider domainContextProvider, DateUtil dateUtil,
-                                             PartitionService partitionService) {
+                                             PartitionService partitionService,
+                                             PartitionsConfigurationManager partitionsConfigurationManager) {
         this.pModeProvider = pModeProvider;
         this.userMessageDao = userMessageDao;
         this.userMessageLogDao = userMessageLogDao;
@@ -81,6 +87,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         this.domainContextProvider = domainContextProvider;
         this.dateUtil = dateUtil;
         this.partitionService = partitionService;
+        this.partitionsConfigurationManager = partitionsConfigurationManager;
     }
 
     @Override
@@ -122,7 +129,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             boolean toDelete = verifyIfAllMessagesAreArchived(partitionName);
             if (toDelete == false) {
                 LOG.info("Partition [{}] will not be deleted because not all messages are archived", partitionName);
-                eventService.enqueuePartitionCheckEvent(partitionName);
+                enqueuePartitionCheckEvent(partitionName);
                 continue;
             }
 
@@ -131,12 +138,19 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             toDelete = verifyIfAllMessagesAreExpired(partitionName);
             if (toDelete == false) {
                 LOG.info("Partition [{}] will not be deleted because there are still ongoing messages", partitionName);
-                eventService.enqueuePartitionCheckEvent(partitionName);
+                enqueuePartitionCheckEvent(partitionName);
                 continue;
             }
 
             LOG.info("Delete partition [{}]", partitionName);
             userMessageDao.dropPartition(partitionName);
+        }
+    }
+
+    protected void enqueuePartitionCheckEvent(String partitionName) {
+        PartitionsModuleConfiguration partitionsModuleConfiguration = partitionsConfigurationManager.getConfiguration();
+        if (partitionsModuleConfiguration.isActive()) {
+            eventService.enqueuePartitionCheckEvent(partitionName);
         }
     }
 
