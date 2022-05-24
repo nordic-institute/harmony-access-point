@@ -15,6 +15,7 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsOperations;
 
@@ -36,6 +37,7 @@ import static org.junit.Assert.*;
  * Created by Cosmin Baciu on 30-Sep-16.
  */
 @RunWith(JMockit.class)
+@Ignore("EDELIVERY-8892")
 public class JMSManagerWeblogicTest {
 
     @Tested
