@@ -13,19 +13,11 @@
 
     <artifactId>weblogic</artifactId>
     <packaging>pom</packaging>
-    <name>Container for Domibus - Weblogic modules</name>
+    <name>Weblogic modules</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
-
-    <modules>
-        <module>Domibus-MSH-jms-weblogic</module>
-        <module>Domibus-MSH-taskexecutor-weblogic</module>
-        <module>Domibus-MSH-weblogic</module>
-        <module>Domibus-MSH-weblogic-common</module>
-        <module>Domibus-MSH-weblogic-ecas</module>
-    </modules>
 
 </project>

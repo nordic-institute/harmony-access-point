@@ -13,26 +13,23 @@
 
     <artifactId>core</artifactId>
     <packaging>pom</packaging>
-    <name>Container for Domibus - Core modules</name>
+    <name>Core modules</name>
 
     <modules>
         <module>Domibus-archive-webhook-swagger</module>
-        <module>Domibus-MSH-swagger</module>
-        <module>Domibus-iam-spi</module>
-        <module>Domibus-MSH-spi</module>
-        <module>Domibus-plugin-api</module>
-        <module>Domibus-ext-model</module>
         <module>Domibus-MSH</module>
-        <module>Domibus-MSH-angular</module>
+        <module>Domibus-MSH-spi</module>
         <module>Domibus-MSH-api</module>
-        <module>Domibus-MSH-distribution</module>
         <module>Domibus-MSH-ext-services-delegate</module>
         <module>Domibus-MSH-logging</module>
+        <module>Domibus-MSH-jms-spi</module>
+        <module>Domibus-MSH-jms-spi-helper</module>
+        <module>Domibus-MSH-soapui-tests</module>
+        <module>Domibus-plugin-api</module>
         <module>Domibus-MSH-test</module>
         <module>Domibus-MSH-test-common</module>
-        <module>Domibus-MSH-selenium-ui-tests</module>
-        <module>Domibus-MSH-soapui-tests</module>
-        <module>Domibus-MSH-db</module>
+        <module>Domibus-iam-spi</module>
+        <module>Domibus-ext-model</module>
     </modules>
 
 </project>

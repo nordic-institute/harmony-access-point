@@ -12,30 +12,4 @@
     <artifactId>dss-domibus</artifactId>
     <packaging>pom</packaging>
     <name>Domibus DSS</name>
-    <modules>
-        <module>specs-xmldsig</module>
-        <module>specs-xades</module>
-        <module>dss-enumerations</module>
-        <module>dss-jaxb-parsers</module>
-        <module>dss-alert</module>
-        <module>specs-trusted-list</module>
-        <module>dss-tsl-validation</module>
-        <module>dss-xades</module>
-        <module>dss-model</module>
-        <module>dss-spi</module>
-        <module>dss-utils</module>
-        <module>dss-crl-parser</module>
-        <module>dss-document</module>
-        <module>validation-policy</module>
-        <module>dss-policy-jaxb</module>
-        <module>dss-diagnostic-jaxb</module>
-        <module>dss-simple-report-jaxb</module>
-        <module>dss-simple-certificate-report-jaxb</module>
-        <module>dss-detailed-report-jaxb</module>
-        <module>specs-validation-report</module>
-        <module>dss-i18n</module>
-        <module>dss-service</module>
-        <module>dss-utils-apache-commons</module>
-        <module>domibus-dss-test</module>
-    </modules>
 </project>

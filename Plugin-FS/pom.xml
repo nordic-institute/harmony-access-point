@@ -15,8 +15,4 @@
     <packaging>pom</packaging>
     <name>FS Plugin modules</name>
 
-    <modules>
-        <module>Domibus-default-fs-plugin</module>
-    </modules>
-
 </project>

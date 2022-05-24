@@ -15,14 +15,4 @@
     <packaging>pom</packaging>
     <name>WS Plugin modules</name>
 
-    <modules>
-        <module>Domibus-default-ws-plugin</module>
-        <module>Domibus-default-ws-plugin-backend-ws-stubs</module>
-        <module>Domibus-default-ws-plugin-backend-ws-test</module>
-        <module>Domibus-default-ws-plugin-client</module>
-        <module>Domibus-default-ws-plugin-stub-utils</module>
-        <module>Domibus-default-ws-plugin-stubs</module>
-        <module>Domibus-ws-stubs</module>
-    </modules>
-
 </project>
