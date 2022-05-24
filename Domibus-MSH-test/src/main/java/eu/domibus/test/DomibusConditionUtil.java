@@ -22,7 +22,7 @@ public class DomibusConditionUtil {
     protected UserMessageLogDao userMessageLogDao;
 
     public void waitUntilDatabaseIsInitialized() {
-        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(databaseIsInitialized());
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(300, TimeUnit.SECONDS).until(databaseIsInitialized());
     }
 
     public Callable<Boolean> databaseIsInitialized() {
