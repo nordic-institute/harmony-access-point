@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class AlertDispatcherEbms3ServiceImplTest {
+public class AlertDispatcherServiceImplTest {
 
     @Tested
     private AlertDispatcherServiceImpl alertDispatcherService;
