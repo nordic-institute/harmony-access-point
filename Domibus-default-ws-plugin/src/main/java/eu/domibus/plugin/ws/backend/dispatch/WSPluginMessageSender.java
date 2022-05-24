@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -13,7 +14,19 @@ import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRulesService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Node;
+
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
 
 /**
  * Common logic for sending messages to C1/C4 from WS Plugin
@@ -22,7 +35,7 @@ import org.springframework.stereotype.Service;
  * @since 5.0
  */
 @Service
-public class WSPluginMessageSender {
+public class WSPluginMessageSender extends Slf4jEventSender {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMessageSender.class);
 
@@ -37,6 +50,11 @@ public class WSPluginMessageSender {
     protected final WSPluginDispatcher dispatcher;
 
     protected final WSPluginImpl wsPlugin;
+
+    @Autowired
+    XMLUtil xmlUtil;
+
+    static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 
     public WSPluginMessageSender(WSPluginBackendReliabilityService reliabilityService,
                                  WSBackendMessageLogDao wsBackendMessageLogDao,
@@ -65,16 +83,26 @@ public class WSPluginMessageSender {
                 backendMessage.getType(),
                 backendMessage.getEntityId());
         WSPluginDispatchRule dispatchRule = null;
+        SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(backendMessage);
         try {
             dispatchRule = rulesService.getRule(backendMessage.getRuleName());
             String endpoint = dispatchRule.getEndpoint();
             LOG.debug("Endpoint identified: [{}]", endpoint);
-            dispatcher.dispatch(messageBuilder.buildSOAPMessage(backendMessage), endpoint);
+            SOAPMessage soapSent = dispatcher.dispatch(soapMessage, endpoint);
             backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
                     backendMessage.getMessageId(),
                     endpoint);
+            String rawSoapXml = getRawXMLMessage(soapMessage);
+
+            if (isCxfLoggingInfoEnabled()){
+                LOG.info("The soap message push notification sent to C4 for message with id [{}] is: [{}]",
+                        backendMessage.getMessageId(), getRawXMLMessage(soapSent));
+                LOG.info("The soap message received from C4 for id [{}] is: [{}]", backendMessage.getMessageId(), rawSoapXml);
+
+            }
+
             if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
                 wsPlugin.downloadMessage(backendMessage.getMessageId(), null);
             }
@@ -85,6 +113,31 @@ public class WSPluginMessageSender {
             reliabilityService.handleReliability(backendMessage, dispatchRule);
             LOG.error("Error occurred when sending backend message with ID [{}]", backendMessage.getEntityId(), t);
         }
+    }
+
+
+
+    protected boolean isCxfLoggingInfoEnabled() {
+        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
+        LOG.debug("[{}] is {}set to INFO level", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled ? StringUtils.EMPTY : "not ");
+        return isCxfLoggingInfoEnabled;
+    }
+
+
+    private String getRawXmlFromNode(Node node) throws TransformerException {
+        final StringWriter rawXmlMessageWriter = new StringWriter();
+
+        TransformerFactory transformerFactory = xmlUtil.getTransformerFactory();
+
+        transformerFactory.newTransformer().transform(
+                new DOMSource(node),
+                new StreamResult(rawXmlMessageWriter));
+
+        return rawXmlMessageWriter.toString();
+    }
+
+    private String getRawXMLMessage(SOAPMessage soapMessage) throws TransformerException {
+        return getRawXmlFromNode(soapMessage.getSOAPPart());
     }
 
 }
