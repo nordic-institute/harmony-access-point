@@ -1,5 +1,6 @@
 package eu.domibus.core.jms;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
@@ -14,6 +15,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
@@ -30,6 +33,7 @@ import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -37,6 +41,8 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author Cosmin Baciu
@@ -95,6 +101,9 @@ public class JMSManagerImpl implements JMSManager {
 
     @Autowired
     private DomainService domainService;
+
+    @Autowired
+    private MetricRegistry metricRegistry;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -206,16 +215,25 @@ public class JMSManagerImpl implements JMSManager {
         });
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
+    @Transactional
     @Override
     public void sendMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.TEXT_MESSAGE);
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
+    @Transactional
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination, JmsOperations jmsOperations) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE, jmsOperations);
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
+    @Transactional
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE);
@@ -227,8 +245,13 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected void sendMessageToQueue(JmsMessage message, String destination, InternalJmsMessage.MessageType messageType, JmsOperations jmsOperations) {
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("JMSManagerImpl", "getInternalJmsMessage", "timer")).time();
         InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, destination, messageType);
+        methodTimer.stop();
+
+        methodTimer = metricRegistry.timer(name("JMSManagerImpl", "internalJmsManager.sendMessage", "timer")).time();
         internalJmsManager.sendMessage(internalJmsMessage, destination, jmsOperations);
+        methodTimer.stop();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.MultiDomainCryptoService;
@@ -13,7 +14,6 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -181,7 +181,7 @@ public class TruststoreResourceBaseTest {
         final byte[] fileContent = new byte[]{1, 0, 1};
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.getTrustStoreContent();
-            result = Pair.of(1L,fileContent);
+            result = new TrustStoreContentDTO(1L, fileContent);
         }};
 
         // When
