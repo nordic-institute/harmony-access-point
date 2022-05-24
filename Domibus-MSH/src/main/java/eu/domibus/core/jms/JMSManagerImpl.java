@@ -33,7 +33,6 @@ import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -217,7 +216,6 @@ public class JMSManagerImpl implements JMSManager {
 
     @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
     @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
-    @Transactional
     @Override
     public void sendMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.TEXT_MESSAGE);
@@ -225,7 +223,6 @@ public class JMSManagerImpl implements JMSManager {
 
     @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
     @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
-    @Transactional
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination, JmsOperations jmsOperations) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE, jmsOperations);
@@ -233,7 +230,6 @@ public class JMSManagerImpl implements JMSManager {
 
     @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
     @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
-    @Transactional
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE);
