@@ -87,6 +87,7 @@
             <version>12.1.2-0-0</version>
             <scope>provided</scope>
         </dependency>
+        <!--It is used only for validating the selector correctness when filtering JMS messages-->
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-client</artifactId>
