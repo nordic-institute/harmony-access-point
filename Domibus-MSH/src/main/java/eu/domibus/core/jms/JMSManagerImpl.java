@@ -1,6 +1,5 @@
 package eu.domibus.core.jms;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
@@ -40,8 +39,6 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author Cosmin Baciu
@@ -100,9 +97,6 @@ public class JMSManagerImpl implements JMSManager {
 
     @Autowired
     private DomainService domainService;
-
-    @Autowired
-    private MetricRegistry metricRegistry;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -241,13 +235,8 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected void sendMessageToQueue(JmsMessage message, String destination, InternalJmsMessage.MessageType messageType, JmsOperations jmsOperations) {
-        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name("JMSManagerImpl", "getInternalJmsMessage", "timer")).time();
         InternalJmsMessage internalJmsMessage = getInternalJmsMessage(message, destination, messageType);
-        methodTimer.stop();
-
-        methodTimer = metricRegistry.timer(name("JMSManagerImpl", "internalJmsManager.sendMessage", "timer")).time();
         internalJmsManager.sendMessage(internalJmsMessage, destination, jmsOperations);
-        methodTimer.stop();
     }
 
     @Override
