@@ -11,6 +11,7 @@
 
     <artifactId>domibus-ext-model</artifactId>
     <name>Domibus MSH external model</name>
+    <packaging>jar</packaging>
 
     <build>
         <plugins>
