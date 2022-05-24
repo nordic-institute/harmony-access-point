@@ -98,6 +98,9 @@
         <createIndex indexName="IDX_ALERT_TZ_OFFSET" tableName="TB_ALERT">
             <column name="FK_TIMEZONE_OFFSET" />
         </createIndex>
+        <createIndex indexName="IDX_ALERT_STATUS" tableName="TB_ALERT">
+            <column name="ALERT_STATUS" />
+        </createIndex>
 
         <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
