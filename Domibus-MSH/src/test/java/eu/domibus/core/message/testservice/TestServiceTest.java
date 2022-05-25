@@ -8,7 +8,9 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogService;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
@@ -30,7 +32,6 @@ import java.io.IOException;
  */
 @SuppressWarnings({"ConstantConditions", "SameParameterValue", "ResultOfMethodCallIgnored", "unused"})
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class TestServiceTest {
 
     private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = Deencapsulation.getField(TestService.class, "MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT");
@@ -60,6 +61,12 @@ public class TestServiceTest {
 
     @Injectable
     private SignalMessageDao signalMessageDao;
+
+    @Injectable
+    UserMessageDao userMessageDao;
+
+    @Injectable
+    ActionDictionaryService actionDictionaryService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -310,10 +317,7 @@ public class TestServiceTest {
     }
 
     private void whenCreatingTheSubmissionMessageData() throws IOException {
-        new Expectations() {{
-           testService.createSubmission(sender);
-           result = returnedSubmission;
-        }};
+        returnedSubmission = testService.createSubmission(sender);
     }
 
     private void whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery() throws Exception {
@@ -386,7 +390,7 @@ public class TestServiceTest {
             times = 0;
             gson.readValue(anyString, Submission.class);
             times = 0;
-            userMessageLogDao.findByMessageIdSafely(userMessageId);
+            userMessageLogDao.findByEntityId(anyLong);
             result = userMessageLog;
         }};
         TestServiceMessageInfoRO lastTestSent = testService.getLastTestSentWithErrors(partyId);
@@ -401,7 +405,7 @@ public class TestServiceTest {
             times = 0;
             gson.readValue(anyString, Submission.class);
             times = 0;
-            userMessageLogDao.findByMessageIdSafely(userMessageId);
+            userMessageLogDao.findByEntityId(anyLong);
             result = null;
         }};
 
@@ -410,10 +414,11 @@ public class TestServiceTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8052 Failing tests must be ignored")
     public void testGetLastTestReceivedWithUserMessageId(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException, IOException {
         // Given
         new Expectations() {{
+            new ObjectMapper();
+            times = 0;
             party.getEndpoint();
             result = "testEndpoint";
             times = 0;
