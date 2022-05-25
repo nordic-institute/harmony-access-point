@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -39,8 +39,10 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     public void resetAll() {
         LOG.debug("Resetting all configurations.");
         commonConfigurationManager.reset();
-        Arrays.asList(AlertType.values())
-                .forEach(alertType -> getModuleConfigurationManager(alertType).reset());
+        Arrays.asList(AlertType.values()).stream()
+                .map(this::getModuleConfigurationManager)
+                .filter(Objects::nonNull)
+                .forEach(AlertConfigurationManager::reset);
     }
 
     @Override
@@ -64,10 +66,10 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     }
 
     protected AlertConfigurationManager getModuleConfigurationManager(AlertType alertType) {
-        Optional<AlertConfigurationManager> res = alertConfigurationManagers.stream().filter(el -> el.getAlertType() == alertType).findFirst();
-        if (!res.isPresent()) {
-            throw new IllegalArgumentException("Could not find configuration manager for alert type " + alertType);
-        }
-        return res.get();
+        // an alert type is allowed to lack a AlertConfigurationManager
+        return alertConfigurationManagers.stream()
+                .filter(el -> el.getAlertType() == alertType)
+                .findFirst()
+                .orElse(null);
     }
 }
