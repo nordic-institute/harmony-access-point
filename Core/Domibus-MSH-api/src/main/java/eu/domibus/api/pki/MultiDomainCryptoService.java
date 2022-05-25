@@ -1,6 +1,7 @@
 package eu.domibus.api.pki;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainsAware;
 import org.apache.wss4j.common.crypto.CryptoType;
@@ -70,7 +71,7 @@ public interface MultiDomainCryptoService extends DomainsAware {
 
     void resetKeyStore(Domain domain);
 
-    byte[] getTruststoreContent(Domain domain);
+    TrustStoreContentDTO getTruststoreContent(Domain domain);
 
     void persistTruststoresIfApplicable();
 

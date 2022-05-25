@@ -117,27 +117,27 @@ public abstract class AbstractIT {
     }
 
     private static void copyPolicies(File domibusConfigLocation, File projectRoot) throws IOException {
-        final File policiesDirectory = new File(projectRoot, "Core/Domibus-MSH/src/main/conf/domibus/policies");
+        final File policiesDirectory = new File(projectRoot, "../Core/Domibus-MSH/src/main/conf/domibus/policies");
         final File destPoliciesDirectory = new File(domibusConfigLocation, "policies");
         FileUtils.forceMkdir(destPoliciesDirectory);
         FileUtils.copyDirectory(policiesDirectory, destPoliciesDirectory);
     }
 
     private static void copyDomibusProperties(File domibusConfigLocation, File projectRoot) throws IOException {
-        final File domibusPropertiesFile = new File(projectRoot, "Domibus-MSH-test/src/main/conf/domibus.properties");
+        final File domibusPropertiesFile = new File(projectRoot, "../Core/Domibus-MSH-test/src/main/conf/domibus.properties");
         final File destDomibusPropertiesFile = new File(domibusConfigLocation, "domibus.properties");
         FileUtils.copyFile(domibusPropertiesFile, destDomibusPropertiesFile);
     }
 
     private static void copyKeystores(File domibusConfigLocation, File projectRoot) throws IOException {
-        final File keystoresDirectory = new File(projectRoot, "Tomcat/Domibus-MSH-tomcat/src/test/resources/keystores");
+        final File keystoresDirectory = new File(projectRoot, "../Tomcat/Domibus-MSH-tomcat/src/test/resources/keystores");
         final File destKeystoresDirectory = new File(domibusConfigLocation, "keystores");
         FileUtils.forceMkdir(destKeystoresDirectory);
         FileUtils.copyDirectory(keystoresDirectory, destKeystoresDirectory);
     }
 
     private static void copyActiveMQFile(File domibusConfigLocation, File projectRoot) throws IOException {
-        final File activeMQFile = new File(projectRoot, "Tomcat/Domibus-MSH-tomcat/src/main/conf/domibus/internal/activemq.xml");
+        final File activeMQFile = new File(projectRoot, "../Tomcat/Domibus-MSH-tomcat/src/main/conf/domibus/internal/activemq.xml");
         final File internalDirectory = new File(domibusConfigLocation, "internal");
         FileUtils.forceMkdir(internalDirectory);
         final File destActiveMQ = new File(internalDirectory, "activemq.xml");

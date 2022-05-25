@@ -10,20 +10,14 @@
     <packaging>pom</packaging>
     <name>Domibus MSH</name>
     <modules>
-        <module>Core/Domibus-archive-webhook-swagger</module>
-        <module>Core/Domibus-MSH</module>
-        <module>Core/Domibus-MSH-spi</module>
-        <module>Core/Domibus-MSH-api</module>
-        <module>Core/Domibus-MSH-ext-services-delegate</module>
-        <module>Core/Domibus-MSH-logging</module>
-        <module>Core/Domibus-MSH-jms-spi</module>
-        <module>Core/Domibus-MSH-jms-spi-helper</module>
-        <module>Core/Domibus-MSH-soapui-tests</module>
-        <module>Core/Domibus-plugin-api</module>
-        <module>Core/Domibus-MSH-test</module>
-        <module>Core/Domibus-MSH-test-common</module>
-        <module>Core/Domibus-iam-spi</module>
-        <module>Core/Domibus-ext-model</module>
+        <module>Core</module>
+        <module>Domibus-DSS</module>
+        <module>Plugin-FS</module>
+        <module>Plugin-JMS</module>
+        <module>Plugin-WS</module>
+        <module>Tomcat</module>
+        <module>Weblogic</module>
+        <module>Wildfly</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -1544,6 +1538,30 @@
             <id>swagger</id>
             <modules>
                 <module>Core/Domibus-MSH-swagger</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>sample-configuration</id>
+            <modules>
+                <module>Core/Domibus-MSH-distribution</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>bamboo-rest</id>
+            <modules>
+                <module>Core/Domibus-MSH-selenium-ui-tests</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>bamboo-remote</id>
+            <modules>
+                <module>Core/Domibus-MSH-selenium-ui-tests</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>selenium_local</id>
+            <modules>
+                <module>Core/Domibus-MSH-selenium-ui-tests</module>
             </modules>
         </profile>
         <profile>

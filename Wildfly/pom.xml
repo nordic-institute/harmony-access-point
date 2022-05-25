@@ -13,17 +13,11 @@
 
     <artifactId>wildfly</artifactId>
     <packaging>pom</packaging>
-    <name>Container for Domibus - Wildfly modules</name>
+    <name>Wildfly modules</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
-
-    <modules>
-        <module>Domibus-MSH-wildfly</module>
-        <module>Domibus-MSH-taskexecutor-wildfly</module>
-        <module>Domibus-MSH-jms-wildfly-artemis</module>
-    </modules>
 
 </project>

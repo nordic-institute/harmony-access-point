@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.crypto.TrustStoreContentDTO;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.MultiDomainCryptoService;
@@ -128,7 +129,7 @@ public class TruststoreResourceBaseTest {
     }
 
     @Test
-    public void testGetCsv(@Mocked String moduleName) {
+    public void testGetCsv() {
         Date date = new Date();
         List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList(date);
         new Expectations(truststoreResourceBase) {{
@@ -140,7 +141,7 @@ public class TruststoreResourceBaseTest {
                     "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator();
         }};
 
-        final ResponseEntity<String> csv = truststoreResourceBase.getEntriesAsCSV(moduleName);
+        final ResponseEntity<String> csv = truststoreResourceBase.getEntriesAsCSV("moduleName");
 
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
         Assert.assertEquals("Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
@@ -163,7 +164,7 @@ public class TruststoreResourceBaseTest {
     }
 
     @Test
-    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile) throws Exception {
+    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile)  {
         final String emptyPassword = "";
 
         try {
@@ -180,7 +181,7 @@ public class TruststoreResourceBaseTest {
         final byte[] fileContent = new byte[]{1, 0, 1};
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.getTrustStoreContent();
-            result = fileContent;
+            result = new TrustStoreContentDTO(1L, fileContent);
         }};
 
         // When
@@ -190,7 +191,7 @@ public class TruststoreResourceBaseTest {
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications() {{
-            truststoreResourceBase.auditDownload();
+            truststoreResourceBase.auditDownload(1L);
         }};
 
     }
