@@ -25,7 +25,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 5.0
  */
 @Configuration
-@Conditional(SecurityInternalAuthProviderCondition.class)
 public class DomibusSessionConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSessionConfiguration.class);
