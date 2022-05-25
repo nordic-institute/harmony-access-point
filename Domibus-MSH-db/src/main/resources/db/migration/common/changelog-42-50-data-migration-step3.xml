@@ -116,6 +116,9 @@ ALTER INDEX UK_ROLE_NAME RENAME TO OLD_UK_ROLE_NAME
         <createIndex indexName="IDX_ALERT_TZ_OFFSET" tableName="TB_ALERT">
             <column name="FK_TIMEZONE_OFFSET" />
         </createIndex>
+        <createIndex indexName="IDX_ALERT_STATUS" tableName="TB_ALERT">
+            <column name="ALERT_STATUS" />
+        </createIndex>
 
         <!-- TB_EVENT_ALERT -->
         <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID"

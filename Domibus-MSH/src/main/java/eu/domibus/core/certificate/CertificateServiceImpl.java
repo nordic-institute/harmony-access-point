@@ -69,6 +69,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.zone.ZoneRulesException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -449,7 +450,7 @@ public class CertificateServiceImpl implements CertificateService {
                 truststore.store(oldTrustStoreBytes, entity.getPassword().toCharArray());
 
                 doReplace(fileContent, filePassword, storeType, trustName, truststore, entity.getPassword(), oldTrustStoreBytes);
-            } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
+            } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | ZoneRulesException exc) {
                 throw new CryptoException("Could not replace truststore " + trustName, exc);
             }
         } else {

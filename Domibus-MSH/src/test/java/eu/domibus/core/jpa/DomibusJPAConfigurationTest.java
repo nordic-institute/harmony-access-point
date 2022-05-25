@@ -4,7 +4,6 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
@@ -12,13 +11,13 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 
 import static eu.domibus.core.jpa.DomibusJPAConfiguration.CONFIG_DOMIBUS_ORM;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DomibusJPAConfigurationTest {
 

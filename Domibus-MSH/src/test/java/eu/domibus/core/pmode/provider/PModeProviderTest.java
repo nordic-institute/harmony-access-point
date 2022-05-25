@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
@@ -18,7 +19,6 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,7 +34,6 @@ import java.lang.reflect.Method;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PModeProviderTest {
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
@@ -89,6 +88,8 @@ public class PModeProviderTest {
             pModeProvider.getSenderParty(pmodeKey);
             result = senderParty;
 
+            domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE);
+            result = true;
         }};
 
         //tested method
@@ -114,6 +115,8 @@ public class PModeProviderTest {
             pModeProvider.getSenderParty(pmodeKey);
             result = senderParty;
 
+            domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE);
+            result = true;
         }};
 
         //tested method
@@ -139,6 +142,9 @@ public class PModeProviderTest {
 
             pModeProvider.getSenderParty(pmodeKey);
             result = senderParty;
+
+            domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE);
+            result = true;
         }};
 
         //tested method

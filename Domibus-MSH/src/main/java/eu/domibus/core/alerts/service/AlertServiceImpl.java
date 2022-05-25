@@ -242,7 +242,7 @@ public class AlertServiceImpl implements AlertService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void handleAlertStatus(eu.domibus.core.alerts.model.service.Alert alert) {
         final Alert alertEntity = readAlert(alert);
         if (alertEntity == null) {

@@ -22,7 +22,6 @@ import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,7 +35,6 @@ import java.util.List;
  * @since 4.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class UserAlertsServiceImplTest {
 

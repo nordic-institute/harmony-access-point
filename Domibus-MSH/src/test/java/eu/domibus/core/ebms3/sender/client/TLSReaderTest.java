@@ -6,7 +6,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -20,7 +19,6 @@ import java.util.Optional;
 /**
  * @author Sebastian-Ion TINCU
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class TLSReaderTest {
 
@@ -60,7 +58,7 @@ public class TLSReaderTest {
 
         whenRetrievingTheClientAuthenticationPath();
 
-        Assert.assertSame("Should have returned the domain specific path if present", clientAuthenticationPath.orElse(null), domainSpecificPath);
+        Assert.assertSame("Should have returned the domain specific path if present", clientAuthenticationPath.get(), domainSpecificPath);
     }
 
     @Test
@@ -71,7 +69,7 @@ public class TLSReaderTest {
 
         whenRetrievingTheClientAuthenticationPath();
 
-        Assert.assertSame("Should have returned the default path if present when the domain specific path is missing", clientAuthenticationPath.orElse(null), defaultPath);
+        Assert.assertSame("Should have returned the default path if present when the domain specific path is missing", clientAuthenticationPath.get(), defaultPath);
     }
 
     @Test
@@ -151,9 +149,6 @@ public class TLSReaderTest {
     }
 
     private void whenRetrievingTheClientAuthenticationPath() {
-        new Expectations() {{
-            tlsReader.getClientAuthenticationPath(domainCode);
-            result = clientAuthenticationPath;
-        }};
+        clientAuthenticationPath = tlsReader.getClientAuthenticationPath(domainCode);
     }
 }

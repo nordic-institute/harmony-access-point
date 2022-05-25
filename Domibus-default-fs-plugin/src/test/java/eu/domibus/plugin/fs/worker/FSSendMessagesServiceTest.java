@@ -342,7 +342,6 @@ public class FSSendMessagesServiceTest {
         Assert.assertEquals(false, actualRes);
     }
 
-    @Ignore("EDELIVERY-8892")
     @Test
     public void testCheckSizeChangedRecently_RecentFile_SameSize(final @Mocked FileObject contentFile2) throws FileSystemException {
         final String domain = "default";
@@ -353,7 +352,7 @@ public class FSSendMessagesServiceTest {
 
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
-            result = 200;
+            result = 2000;
 
             contentFile2.getContent().getSize();
             result = fileSize;

@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class PluginUserAlertsEbms3ServiceImplTest {
+public class PluginUserAlertsServiceImplTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
