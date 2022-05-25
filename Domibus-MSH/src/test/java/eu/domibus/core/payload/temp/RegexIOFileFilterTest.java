@@ -6,7 +6,6 @@ import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,7 +17,6 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class RegexIOFileFilterTest {
 

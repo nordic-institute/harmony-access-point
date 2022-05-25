@@ -8,7 +8,6 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,7 +25,6 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
 public class UserMessageLogDefaultServiceTest {
@@ -65,8 +63,9 @@ public class UserMessageLogDefaultServiceTest {
 
         }};
         assertFalse(userMessageLogDefaultService.setSignalMessageAsDeleted(signalMessage));
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            signalMessage.toString();
+        }};
     }
 
     @Test
@@ -77,8 +76,9 @@ public class UserMessageLogDefaultServiceTest {
 
         }};
         assertFalse(userMessageLogDefaultService.setSignalMessageAsDeleted(signalMessage));
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            signalMessage.toString();
+        }};
     }
 
     @Test
@@ -180,9 +180,6 @@ public class UserMessageLogDefaultServiceTest {
         new Expectations() {{
             userMessage.isTestMessage();
             result = true;
-
-            userMessage.getMessageId();
-            result = "messageId";
         }};
 
         userMessageLogDefaultService.setMessageAsDeleted(userMessage, userMessageLog);
@@ -198,11 +195,6 @@ public class UserMessageLogDefaultServiceTest {
     public void testSetMessageAsDownloaded(@Injectable UserMessage userMessage,
                                            @Injectable UserMessageLog userMessageLog) {
 
-        new Expectations() {{
-            userMessage.getMessageId();
-            result = "messageId";
-        }};
-        
         userMessageLogDefaultService.setMessageAsDownloaded(userMessage, userMessageLog);
 
         new Verifications() {{
@@ -217,11 +209,6 @@ public class UserMessageLogDefaultServiceTest {
     @Test
     public void testSetMessageAsAcknowledged(@Injectable UserMessage userMessage,
                                              @Injectable UserMessageLog userMessageLog) {
-
-        new Expectations() {{
-            userMessage.getMessageId();
-            result = "messageId";
-        }};
 
         userMessageLogDefaultService.setMessageAsAcknowledged(userMessage, userMessageLog);
 
@@ -238,11 +225,6 @@ public class UserMessageLogDefaultServiceTest {
     public void testSetMessageAsAckWithWarnings(@Injectable UserMessage userMessage,
                                                 @Injectable UserMessageLog userMessageLog) {
 
-        new Expectations() {{
-            userMessage.getMessageId();
-            result = "messageId";
-        }};
-
         userMessageLogDefaultService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
 
 
@@ -258,11 +240,6 @@ public class UserMessageLogDefaultServiceTest {
     @Test
     public void tesSetMessageAsSendFailure(@Injectable UserMessage userMessage,
                                            @Injectable UserMessageLog userMessageLog) {
-
-        new Expectations() {{
-            userMessage.getMessageId();
-            result = "messageId";
-        }};
 
         userMessageLogDefaultService.setMessageAsSendFailure(userMessage, userMessageLog);
 

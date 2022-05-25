@@ -9,6 +9,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
+import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
@@ -17,7 +18,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,14 +33,12 @@ import java.util.List;
 import java.util.function.Function;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class PasswordEncryptionServiceImplTest {
@@ -74,6 +72,9 @@ public class PasswordEncryptionServiceImplTest {
 
     @Injectable
     DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DomibusRawPropertyProvider domibusRawPropertyProvider;
 
     @Tested
     PasswordEncryptionServiceImpl passwordEncryptionService;
@@ -199,8 +200,9 @@ public class PasswordEncryptionServiceImplTest {
 
         passwordEncryptionService.encryptPasswords(passwordEncryptionContext);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            encryptedKeyFile.toString();
+        }};
     }
 
     @Test
@@ -257,8 +259,9 @@ public class PasswordEncryptionServiceImplTest {
 
         passwordEncryptionService.encryptPasswords(passwordEncryptionContext);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            encryptedKeyFile.toString();
+        }};
     }
 
     @Test
@@ -508,8 +511,9 @@ public class PasswordEncryptionServiceImplTest {
 
         passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            configurationFile.toString();
+        }};
     }
 
     @Test
@@ -687,7 +691,7 @@ public class PasswordEncryptionServiceImplTest {
             times = 1;
             result = true;
 
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
+            domibusRawPropertyProvider.getRawPropertyValue(domain, DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
             result = this.getClass().getResource("/encrypt").getPath();
 
             passwordEncryptionDao.getSecret((File) any);
@@ -717,8 +721,9 @@ public class PasswordEncryptionServiceImplTest {
 
         assertEquals(expected, actual);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+
+        }};
     }
 
     @Test
@@ -730,7 +735,7 @@ public class PasswordEncryptionServiceImplTest {
             times = 1;
             result = true;
 
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
+            domibusRawPropertyProvider.getRawPropertyValue(domain, DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
             result = null;
 
         }};

@@ -31,7 +31,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,7 +49,6 @@ import static org.junit.Assert.*;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "rawtypes"})
 @RunWith(JMockit.class)
 public class AS4Ebms3ReceiptEbms3ServiceImplTest {

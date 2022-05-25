@@ -14,7 +14,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,7 +28,6 @@ import static org.junit.Assert.assertFalse;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class PasswordDecryptionServiceImplTest {
@@ -127,6 +125,9 @@ public class PasswordDecryptionServiceImplTest {
             secret.getInitVector();
             result = "".getBytes();
 
+            encryptedKeyFile.toString();
+            result = "some_path";
+
             encryptionUtil.getSecretKey((byte[]) any);
             result = secretKey;
 
@@ -147,8 +148,9 @@ public class PasswordDecryptionServiceImplTest {
 
         assertEquals("result", actual);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            encryptedKeyFile.toString(); times = 1;
+        }};
     }
 
     @Test

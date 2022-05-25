@@ -1,17 +1,21 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
@@ -22,7 +26,6 @@ import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadKeyStoreFromJKSFile;
-import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
 
 /**
@@ -30,7 +33,6 @@ import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY
  * @since 4.0
  */
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class DefaultDomainCryptoServiceSpiImplTest {
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 
@@ -97,8 +99,8 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         commonExpectations();
 
         // Given
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error occurred when loading the properties of TrustStore");
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the truststore properties for domain");
 
         new Expectations(domainCryptoService) {{
             domainCryptoService.loadProperties((Properties) any, (ClassLoader) any, null);
@@ -106,7 +108,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         }};
 
         // When
-        domainCryptoService.init();
+        domainCryptoService.loadTrustStoreProperties();
     }
 
     @Test
@@ -114,8 +116,8 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         commonExpectations();
 
         // Given
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error occurred when loading the properties of TrustStore");
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Error while trying to load the keystore properties for domain");
 
         new Expectations(domainCryptoService) {{
             domainCryptoService.loadProperties((Properties) any, (ClassLoader) any, null);
@@ -123,7 +125,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         }};
 
         // When
-        domainCryptoService.init();
+        domainCryptoService.loadKeyStoreProperties();
     }
 
     @Test

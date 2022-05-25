@@ -12,13 +12,9 @@ import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +29,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class EArchiveListenerTest {
 
     @Tested
@@ -128,7 +123,7 @@ public class EArchiveListenerTest {
 
         String lastUserMessageEntityId = "220511080000001204";
 
-        new Expectations(eArchiveListener) {{
+        new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -180,7 +175,7 @@ public class EArchiveListenerTest {
 
         eArchiveListener.onMessage(message);
 
-        new FullVerifications() {{
+        new Verifications() {{
             jmsUtil.setDomain(message);
             times = 1;
 
@@ -195,6 +190,8 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
+
+            domibusEARKSIPResult.getDirectory().toAbsolutePath().toString();
         }};
     }
 
@@ -206,7 +203,7 @@ public class EArchiveListenerTest {
         String firstUserMessageEntityId = "220511070000001204";
         String lastUserMessageEntityId = "220511080000001204";
 
-        new Expectations(eArchiveListener) {{
+        new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -259,7 +256,7 @@ public class EArchiveListenerTest {
 
         eArchiveListener.onMessage(message);
 
-        new FullVerifications() {{
+        new Verifications() {{
             jmsUtil.setDomain(message);
             times = 1;
 
@@ -274,6 +271,10 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;
+
+            domibusEARKSIPResult.getDirectory().toAbsolutePath().toString();
+
+            databaseUtil.getDatabaseUserName();
         }};
     }
 
