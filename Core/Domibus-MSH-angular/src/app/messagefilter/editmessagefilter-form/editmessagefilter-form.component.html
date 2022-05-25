@@ -1,0 +1,58 @@
+<div style="width: 500px">
+  <h2 mat-dialog-title>{{formTitle}}</h2>
+  <form #editForm="ngForm" (submit)="submitForm()">
+    <mat-card>
+      <div>
+        <mat-select matInput placeholder="Plugin" id="backendfilter_id" name="plugin" [(ngModel)]="entity.backendName" #plugin="ngModel"
+                    floatPlaceholder="always" [style.width]="'100%'">
+          <mat-option *ngFor="let bName of backendFilterNames" [value]="bName.toString()">
+            {{bName.toString()}}
+          </mat-option>
+        </mat-select>
+      </div>
+
+      <div>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="From" name="from" id="from_id" [(ngModel)]="criteria.from" input-debounce #from="ngModel"
+                 [pattern]="partyPattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(from)">
+            <div *ngIf="from.errors?.pattern" style="color:red; font-size: 70%">{{partyPatternMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="To" name="to" id="to_id" [(ngModel)]="criteria.to" input-debounce #to="ngModel"
+                 [pattern]="partyPattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(to)">
+            <div *ngIf="to.errors?.pattern" style="color:red; font-size: 70%">{{partyPatternMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Action" name="action" id="action_id" [(ngModel)]="criteria.action" input-debounce #action="ngModel"
+                 [pattern]="actionPattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(action)">
+            <div *ngIf="action.errors?.pattern" style="color:red; font-size: 70%">{{actionPatternMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Service" name="service" id="service_id" [(ngModel)]="criteria.service" input-debounce #service="ngModel"
+                 [pattern]="servicePattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(service)">
+            <div *ngIf="service.errors?.pattern" style="color:red; font-size: 70%">{{servicePatternMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
+
+    </mat-card>
+  </form>
+</div>

@@ -1,0 +1,22 @@
+<jaxb:bindings version="2.1"
+               xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+               jaxb:extensionBindingPrefixes="xjc">
+
+    <jaxb:globalBindings>
+        <jaxb:serializable uid="1"/>
+        <xjc:javaType name="java.time.LocalDateTime"
+                      xmlType="xsd:dateTime"
+                      adapter="eu.domibus.plugin.fs.jaxb.DateTimeAdapter"/>
+        <xjc:javaType name="java.time.LocalTime"
+                      xmlType="xsd:time"
+                      adapter="eu.domibus.plugin.fs.jaxb.TimeAdapter"/>
+        <xjc:javaType name="java.time.LocalDate"
+                      xmlType="xsd:date"
+                      adapter="eu.domibus.plugin.fs.jaxb.DateAdapter"/>
+    </jaxb:globalBindings>
+
+
+
+</jaxb:bindings>

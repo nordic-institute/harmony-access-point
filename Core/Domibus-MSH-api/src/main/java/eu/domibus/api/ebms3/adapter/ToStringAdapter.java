@@ -1,0 +1,85 @@
+package eu.domibus.api.ebms3.adapter;
+
+import eu.domibus.api.util.xml.XMLFactoryProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ *
+ * This adapter takes a {@literal List<String>} containing a single element and maps it to the single String Node and vice versa.
+ *
+ * @author Christian Koch, Stefan Mueller
+ */
+public class ToStringAdapter extends XmlAdapter<Node, List<String>> {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ToStringAdapter.class);
+
+    @Override
+    /**
+     * {@inheritDoc}
+     */
+    public List<String> unmarshal(final Node v) throws Exception {
+        if (v != null) {
+            final List<String> result = new ArrayList<>(1);
+            result.add(this.nodeToString(v));
+
+            return result;
+        }
+
+        return null;
+    }
+
+    @Override
+    /**
+     * {@inheritDoc}
+     */
+    public Node marshal(final List<String> v) throws Exception {
+        if (v.size() > 1) {
+            throw new IllegalArgumentException("More than one Element in List");
+        }
+
+        return this.stringToNode(v.get(0));
+    }
+
+    protected String nodeToString(final Node node) throws TransformerException {
+        final StringWriter sw = new StringWriter();
+        final Transformer t = XMLFactoryProvider.getTransformerFactory().newTransformer();
+        t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        t.transform(new DOMSource(node), new StreamResult(sw));
+        return sw.toString();
+    }
+
+    protected Node stringToNode(final String content) {
+
+        try {
+            final Document doc = XMLFactoryProvider.getDocumentBuilderFactoryNamespaceAware().newDocumentBuilder().parse(new InputSource(new StringReader(content)));
+
+            if (doc.getChildNodes().getLength() == 1) {
+                return doc.getChildNodes().item(0);
+            }
+
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            LOG.warn("Error during transformation of String to Node", e);
+        }
+
+        return null;
+    }
+
+}

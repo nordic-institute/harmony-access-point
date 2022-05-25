@@ -1,0 +1,86 @@
+package eu.domibus.core.multitenancy;
+
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * @author Cosmin Baciu
+ * @since 4.0
+ */
+@Service
+public class DomainContextProviderImpl implements DomainContextProvider {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);
+
+    @Autowired
+    protected DomainService domainService;
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Override
+    public Domain getCurrentDomain() {
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            LOG.trace("No multi-tenancy aware: returning the default domain");
+            return DomainService.DEFAULT_DOMAIN;
+        }
+
+        String domainCode = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
+        if (StringUtils.isBlank(domainCode)) {
+            throw new DomainTaskException("Could not get current domain");
+        }
+        final Domain domain = domainService.getDomain(domainCode);
+        if (domain == null) {
+            throw new DomainTaskException("Could not get current domain: domain with code [" + domainCode + "] is not configured");
+        }
+        return domain;
+    }
+
+    @Override
+    public Domain getCurrentDomainSafely() {
+        Domain result = null;
+        try {
+            result = getCurrentDomain();
+        } catch (DomainTaskException e) {
+            LOG.trace("Could not get current domain [{}]", e.getMessage());
+        }
+        return result;
+
+    }
+
+    @Override
+    public void setCurrentDomain(String domainCode) {
+        if (StringUtils.isEmpty(domainCode)) {
+            throw new DomainTaskException("Could not set current domain: domain is empty");
+        }
+
+        Domain current = getCurrentDomainSafely();
+        if (current != null && StringUtils.equals(current.getCode(), domainCode)) {
+            LOG.debug("Domain [{}] is already the current domain so exiting;", domainCode);
+            return;
+        }
+
+        domainService.validateDomain(domainCode);
+
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, domainCode);
+        LOG.trace("Set domain to [{}]", domainCode);
+    }
+
+    @Override
+    public void setCurrentDomain(Domain domain) {
+        setCurrentDomain(domain.getCode());
+    }
+
+    @Override
+    public void clearCurrentDomain() {
+        LOG.removeMDC(DomibusLogger.MDC_DOMAIN);
+    }
+}

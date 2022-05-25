@@ -1,0 +1,96 @@
+
+package eu.domibus.plugin.jms;
+
+import eu.domibus.messaging.MessageConstants;
+
+/**
+ * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
+ */
+public final class JMSMessageConstants {
+
+    private JMSMessageConstants() {}
+
+    public static final String PROPERTY_ORIGINAL_QUEUE = "originalQueue";
+    public static final String JMS_PLUGIN_PROPERTY_PREFIX = "jmsplugin";
+    public static final String MPC = "mpc";
+    public static final String MESSAGE_ID = "messageId";
+    public static final String MESSAGE_ENTITY_ID = "messageEntityId";
+    public static final String P1_IN_BODY = "p1InBody";
+    public static final String JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY = "messageType";
+    public static final String MIME_TYPE = "MimeType";
+    public static final String ACTION = "action";
+    public static final String SERVICE = "service";
+    public static final String SERVICE_TYPE = "serviceType";
+    public static final String CONVERSATION_ID = "conversationId";
+    public static final String AGREEMENT_REF = "agreementRef";
+    public static final String AGREEMENT_REF_TYPE = "agreementRefType";
+    public static final String REF_TO_MESSAGE_ID = "refToMessageId";
+    public static final String FROM_PARTY_ID = "fromPartyId";
+    public static final String FROM_PARTY_TYPE = "fromPartyType";
+    public static final String FROM_ROLE = "fromRole";
+    public static final String TO_PARTY_ID = "toPartyId";
+    public static final String TO_PARTY_TYPE = "toPartyType";
+    public static final String TO_ROLE = "toRole";
+    public static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
+    public static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
+    public static final String PROPERTY_FINAL_RECIPIENT_TYPE = "finalRecipientType";
+    public static final String PROPERTY_ENDPOINT = "endPointAddress";
+    public static final String PROTOCOL = "protocol";
+    public static final String TOTAL_NUMBER_OF_PAYLOADS = "totalNumberOfPayloads";
+    public static final String MESSAGE_TYPE_SUBMIT = "submitMessage";
+    public static final String MESSAGE_TYPE_SUBMIT_RESPONSE = "submitResponse";
+    public static final String MESSAGE_TYPE_INCOMING = "incomingMessage";
+    public static final String MESSAGE_TYPE_SEND_SUCCESS = "messageSent";
+    public static final String MESSAGE_TYPE_SEND_FAILURE = "messageSendFailure";
+    public static final String MESSAGE_TYPE_RECEIVE_FAILURE = "messageReceptionFailure";
+    public static final String ERROR_CODE = "errorCode";
+    public static final String ERROR_DETAIL = "errorDetail";
+    public static final String PROPERTY_PREFIX = "property_";
+    public static final String PROPERTY_TYPE_PREFIX = "propertyType_";
+    private static final String PAYLOAD_NAME_PREFIX = "payload_";
+    public static final String PAYLOAD_NAME_FORMAT = PAYLOAD_NAME_PREFIX + "{0}";
+    private static final String PAYLOAD_MIME_TYPE_SUFFIX = "_mimeType";
+    public static final String PAYLOAD_MIME_TYPE_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_MIME_TYPE_SUFFIX;
+    private static final String PAYLOAD_FILE_NAME_SUFFIX = "_fileName";
+    public static final String PAYLOAD_FILE_NAME_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_FILE_NAME_SUFFIX;
+    private static final String PAYLOAD_FILE_URL_SUFFIX = "_fileURL";
+    public static final String PAYLOAD_FILE_URL_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_FILE_URL_SUFFIX;
+    private static final String PAYLOAD_MIME_CONTENT_ID_SUFFIX = "_mimeContentId";
+    public static final String PAYLOAD_MIME_CONTENT_ID_FORMAT = PAYLOAD_NAME_FORMAT + PAYLOAD_MIME_CONTENT_ID_SUFFIX;
+    public static final String PUT_ATTACHMENTS_IN_QUEUE = "putAttachmentInQueue";
+    public static final String ATTACHMENTS_REFERENCE_TYPE = "attachment.reference.type";
+    public static final String ATTACHMENTS_REFERENCE_CONTEXT = "attachment.reference.context";
+    public static final String ATTACHMENTS_REFERENCE_URL = "attachment.reference.url";
+    public static final String ATTACHMENTS_REFERENCE_URL_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
+    public static final String ATTACHMENTS_REFERENCE_URL_PAYLOAD_CID = "CID";
+
+
+    public static final String PAYLOAD_FILENAME = "FileName";
+    public static final String JMS_PAYLOAD_NAME_FORMAT = PAYLOAD_NAME_FORMAT + "_" + MessageConstants.PAYLOAD_PROPERTY_FILE_NAME;
+
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password"; //NOSONAR
+
+    public static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
+    public static final String JMSPLUGIN_QUEUE_REPLY_ROUTING = "jmsplugin.queue.reply.routing";
+    public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING = "jmsplugin.queue.consumer.notification.error.routing";
+    public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING = "jmsplugin.queue.producer.notification.error.routing";
+    public static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
+    public static final String JMSPLUGIN_QUEUE_OUT_ROUTING = "jmsplugin.queue.out.routing";
+
+    public static final String CONNECTION_FACTORY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "connection.factory";
+    public static final String CONNECTION_FACTORY_NAME= "domibusJMSPlugin-ConnectionFactory";
+    public static final String CACHING_CONNECTION_FACTORY_NAME= "domibusJMSPlugin-Caching-ConnectionFactory";
+    public static final String CACHING_CONNECTION_FACTORY_SESSION_CACHE_SIZE= JMS_PLUGIN_PROPERTY_PREFIX + "." + "jms.connectionFactory.session.cache.size";
+
+    public static final String QUEUE_NOTIFICATION = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.notification";
+    public static final String QUEUE_IN = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in";
+    public static final String QUEUE_IN_CONCURRENCY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in.concurrency";
+
+    public static final String MESSAGE_NOTIFICATIONS = JMS_PLUGIN_PROPERTY_PREFIX + "." + "messages.notifications";
+    public static final String PROCESSING_TYPE = "processingType";
+
+}

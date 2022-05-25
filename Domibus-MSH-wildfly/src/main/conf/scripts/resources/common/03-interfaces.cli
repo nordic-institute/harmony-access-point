@@ -1,2 +1,0 @@
-/interface=public:undefine-attribute(name=inet-address)
-/interface=public:write-attribute(name=any-address,value=true)

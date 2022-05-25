@@ -1,0 +1,31 @@
+{
+  "title": "PMode - Current",
+  "filters": [],
+  "grid": {},
+  "buttons": [
+	{
+	  "name": "cancelBtn",
+	  "label": "Cancel",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "saveBtn",
+	  "label": "Save",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "downloadBtn",
+	  "label": "Download",
+	  "enabledByDefault": false,
+	  "visibleByDefault": true
+	},
+	{
+	  "name": "uploadBtn",
+	  "label": "Upload",
+	  "enabledByDefault": true,
+	  "visibleByDefault": true
+	}
+  ]
+}

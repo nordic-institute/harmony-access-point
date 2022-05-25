@@ -1,2 +1,0 @@
-/subsystem=messaging-activemq/server=default/connection-factory=edeliveryConnectionFactory:add(connectors=[in-vm],entries=["java:/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)
-/subsystem=messaging-activemq/server=default/connection-factory=edeliveryRemoteConnectionFactory:add(connectors=[http-connector],entries=["java:jboss/exported/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)

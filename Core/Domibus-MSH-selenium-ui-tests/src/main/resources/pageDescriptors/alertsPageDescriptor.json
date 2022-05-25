@@ -1,0 +1,273 @@
+{
+  "title": "Alerts",
+  "filters": [
+    {
+      "name": "processedContainer",
+      "placeholder": "Processed",
+      "isDefault": true,
+	  "type": "SELECT"
+    },
+    {
+      "name": "alertTypeContainer",
+      "placeholder": "Alert Type",
+      "isDefault": true,
+	  "type": "SELECT"
+    },
+    {
+      "name": "alertStatusContainer",
+      "placeholder": "Alert Status",
+      "isDefault": true,
+	  "type": "SELECT"
+    },
+    {
+      "name": "alertLevelContainer",
+      "placeholder": "Alert Level",
+      "isDefault": true,
+	  "type": "SELECT"
+    },
+    {
+      "name": "creationFromContainer",
+      "placeholder": "Creation From:",
+      "isDefault": true,
+	  "type": "DATE"
+    },
+    {
+      "name": "creationToContainer",
+      "placeholder": "Creation To:",
+      "isDefault": true,
+	  "type": "DATE"
+    },
+    {
+      "name": "alertIdInput",
+      "placeholder": "Alert Id",
+      "isDefault": false,
+	  "type": "INPUT"
+    },
+    {
+      "name": "reportingFromContainer",
+      "placeholder": "Reporting From:",
+      "isDefault": false,
+	  "type": "DATE"
+    },
+    {
+      "name": "reportingToContainer",
+      "placeholder": "Reporting To:",
+      "isDefault": false,
+	  "type": "DATE"
+    },
+    {
+      "name": "showDomainAlertsChk",
+      "placeholder": "",
+      "isDefault": true,
+	  "type": "CHECKBOX"
+    }
+  ],
+  "extraFilters": {
+    "MSG_STATUS_CHANGED": [
+      "MESSAGE_ID",
+      "OLD_STATUS",
+      "NEW_STATUS",
+      "FROM_PARTY",
+      "TO_PARTY",
+      "ROLE",
+      "DESCRIPTION"
+    ],
+    "CERT_IMMINENT_EXPIRATION": [
+      "ACCESS_POINT",
+      "ALIAS",
+      "EXPIRATION_DATE FROM",
+      "EXPIRATION_DATE TO"
+    ],
+    "CERT_EXPIRED": [
+      "ACCESS_POINT",
+      "ALIAS",
+      "EXPIRATION_DATE FROM",
+      "EXPIRATION_DATE TO"
+    ],
+    "USER_LOGIN_FAILURE": [
+      "USER",
+      "ACCOUNT_DISABLED",
+      "LOGIN_TIME FROM",
+      "LOGIN_TIME TO"
+    ],
+    "USER_ACCOUNT_DISABLED": [
+      "USER",
+      "LOGIN_TIME FROM",
+      "LOGIN_TIME TO"
+    ],
+    "USER_ACCOUNT_ENABLED": [
+      "USER",
+      "LOGIN_TIME FROM",
+      "LOGIN_TIME TO"
+    ],
+    "PLUGIN_USER_LOGIN_FAILURE": [
+      "USER",
+      "ACCOUNT_DISABLED",
+      "LOGIN_TIME FROM",
+      "LOGIN_TIME TO"
+    ],
+    "PLUGIN_USER_ACCOUNT_DISABLED": [
+      "USER",
+      "LOGIN_TIME FROM",
+      "LOGIN_TIME TO"
+    ],
+    "PLUGIN_USER_ACCOUNT_ENABLED": [
+      "USER",
+      "LOGIN_TIME FROM",
+      "LOGIN_TIME TO"
+    ],
+    "PASSWORD_IMMINENT_EXPIRATION": [
+      "USER",
+      "USER_TYPE",
+      "EXPIRATION_DATE FROM",
+      "EXPIRATION_DATE TO"
+    ],
+    "PASSWORD_EXPIRED": [
+      "USER",
+      "USER_TYPE",
+      "EXPIRATION_DATE FROM",
+      "EXPIRATION_DATE TO"
+    ],
+    "PLUGIN_PASSWORD_IMMINENT_EXPIRATION": [
+      "USER",
+      "USER_TYPE",
+      "EXPIRATION_DATE FROM",
+      "EXPIRATION_DATE TO"
+    ],
+    "PLUGIN_PASSWORD_EXPIRED": [
+      "USER",
+      "USER_TYPE",
+      "EXPIRATION_DATE FROM",
+      "EXPIRATION_DATE TO"
+    ],
+    "PLUGIN": [],
+    "ARCHIVING_MESSAGES_NON_FINAL": [
+      "MESSAGE_ID",
+      "OLD_STATUS",
+      "NEW_STATUS",
+      "FROM_PARTY",
+      "TO_PARTY",
+      "ROLE",
+      "DESCRIPTION"
+    ],
+    "ARCHIVING_NOTIFICATION_FAILED": [
+      "BATCH_ID",
+      "BATCH_STATUS"
+    ],
+    "ARCHIVING_START_DATE_STOPPED": [],
+    "PARTITION_CHECK": [
+      "PARTITION_NAME"
+    ]
+  },
+  "grid": {
+    "columnsControls": true,
+    "rowsControls": true,
+    "exportCSV": true,
+    "defaultSort": "Creation Time",
+    "columns": [
+      {
+        "name": "Processed",
+        "type": "BOOLEAN",
+        "sortable": false,
+        "visibleByDefault": true
+      }, {
+        "name": "Alert Id",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Alert Status",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Alert Level",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Creation Time",
+        "type": "DATETIME",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Alert Type",
+        "type": "text",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Reporting Time",
+        "type": "DATETIME",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Sent Attempts",
+        "type": "NUMBER",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Max Attempts",
+        "type": "NUMBER",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Next Attempt",
+        "type": "DATETIME",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Reporting Time Failure",
+        "type": "DATETIME",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Parameters",
+        "type": "TEXT",
+        "sortable": false,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Actions",
+        "type": "ACTION",
+        "sortable": false,
+        "visibleByDefault": true
+      }
+    ]
+  },
+  "pagination": {
+    "showSelectedNo": true,
+    "showTotalNo": true,
+    "showPageControls": true
+  },
+  "buttons": [
+    {
+      "name": "Cancel",
+      "label": "Cancel",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    },
+    {
+      "name": "Save",
+      "label": "Save",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    },
+    {
+      "name": "Delete",
+      "label": "Delete",
+      "enabledByDefault": false,
+      "visibleByDefault": true
+    }
+  ]
+}
+

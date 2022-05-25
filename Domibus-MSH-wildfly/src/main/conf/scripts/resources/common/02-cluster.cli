@@ -1,5 +1,0 @@
-/subsystem=messaging-activemq/server=default:undefine-attribute(name=security-enabled)
-/subsystem=messaging-activemq/server=default:write-attribute(name=security-enabled,value=false)
-
-/subsystem=messaging-activemq/server=default/connection-factory=edeliveryConnectionFactory:add(discovery-group="dg-group1",entries=["java:/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)
-/subsystem=messaging-activemq/server=default/connection-factory=edeliveryRemoteConnectionFactory:add(discovery-group="dg-group1",entries=["java:jboss/exported/jms/ConnectionFactory"], compress-large-messages=false, failover-on-initial-connection=false, use-global-pools=true)

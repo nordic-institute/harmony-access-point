@@ -1,0 +1,2929 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
+
+    <!-- properties - to be used in column definitions -->
+    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- sequences -->
+    <changeSet dbms="oracle" author="martifp,Cosmin Baciu" id="EDELIVERY-7803-oracle sequence">
+        <comment>create HIBERNATE_SEQUENCE</comment>
+        <!--
+        - the sequence starts at 100 to allocate the first 100 primary keys for the initial data insert eg default users, user roles, etc
+        - maxValue is omitted meaning that the sequence has not upper boundary value
+        -->
+        <createSequence sequenceName="HIBERNATE_SEQUENCE" minValue="1"
+                        incrementBy="20" startValue="100" cacheSize="1000" cycle="false" ordered="false"/>
+    </changeSet>
+    <changeSet dbms="oracle" author="idragusa" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
+        <sqlFile path="src/main/resources/db/common/oracle-sequence-create.sql"/>
+    </changeSet>
+    <changeSet dbms="mysql,h2" author="gautifr" id="EDELIVERY-7836">
+        <comment>create DOMIBUS_SCALABLE_SEQUENCE sequence</comment>
+        <createTable tableName="DOMIBUS_SCALABLE_SEQUENCE">
+            <column name="sequence_name" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="PK_DOMIBUS_SCALABLE_SEQUENCE"/>
+            </column>
+            <column name="next_val" type="bigint"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Quartz tables -->
+    <include file="changelog-quartz.xml" relativeToChangelogFile="true"/>
+
+    <!-- Start WS Plugin specific tables -->
+    <changeSet author="idragusa" id="EDELIVERY-4740">
+        <comment>Plugin specific tables</comment>
+        <createTable tableName="WS_PLUGIN_TB_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="FROM_PARTY_ID" type="VARCHAR(255)"/>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="Francois Gautier" id="EDELIVERY-2427">
+        <comment>WS Plugin specific tables for backend dispatch</comment>
+        <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_BACKEND_MSG_LOG"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
+
+            <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)"/>
+
+            <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>
+            <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FAILED" type="DATETIME" remarks="DateTime when the message had failed"/>
+
+            <column name="SEND_ATTEMPTS" type="INT" remarks="Number of attempts sent"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT" remarks="Number of attempts maximal"/>
+            <column name="NEXT_ATTEMPT" type="DATETIME" remarks="DateTime for the next attempt"/>
+
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the backend message is already scheduled to be sent"/>
+        </createTable>
+    </changeSet>
+    <!-- End WS Plugin specific tables -->
+
+    <!-- Start Dictionary Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Dictionary Tables">
+        <createTable tableName="TB_D_MSH_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MSH_ROLE"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_MSH_ROLE" tableName="TB_D_MSH_ROLE"/>
+
+        <createTable tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MSG_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_MSG_PROP_NAME_VALUE_TYPE ON TB_D_MESSAGE_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_MESSAGE_PROPERTY ADD CONSTRAINT UK_D_MSG_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
+        </sql>
+
+        <createTable tableName="TB_D_PART_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_PART_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_PART_PROP_NAME_VALUE_TYPE ON TB_D_PART_PROPERTY (NAME(100), VALUE(100), (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_PART_PROPERTY ADD CONSTRAINT UK_D_PART_PROP_NAME UNIQUE (NAME, VALUE, TYPE);
+        </sql>
+
+        <createTable tableName="TB_D_MPC">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MPC"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_MPC_VALUE" tableName="TB_D_MPC"/>
+
+        <createTable tableName="TB_D_SERVICE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_SERVICE"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_SERVICE_VALUE_TYPE ON TB_D_SERVICE (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_SERVICE ADD CONSTRAINT UK_D_SERVICE_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
+
+        <createTable tableName="TB_D_PARTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_PARTY"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_PARTY_VALUE_TYPE ON TB_D_PARTY (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_PARTY ADD CONSTRAINT UK_D_PARTY_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
+
+        <createTable tableName="TB_D_ACTION">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_ACTION"/>
+            </column>
+            <column name="ACTION" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ACTION" constraintName="UK_D_PARTY_ACTION" tableName="TB_D_ACTION"/>
+
+        <createTable tableName="TB_D_AGREEMENT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_AGREEMENT"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <sql dbms="mysql">
+            CREATE UNIQUE INDEX UIDX_D_AGREEMENT_VALUE_TYPE ON TB_D_AGREEMENT (VALUE, (CASE WHEN TYPE IS NULL THEN '' ELSE TYPE END));
+        </sql>
+        <sql dbms="oracle">
+            ALTER TABLE TB_D_AGREEMENT ADD CONSTRAINT UK_D_AGREEMENT_VALUE_TYPE UNIQUE (VALUE, TYPE);
+        </sql>
+
+        <createTable tableName="TB_D_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_ROLE"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_ROLE_VALUE" tableName="TB_D_ROLE"/>
+
+        <createTable tableName="TB_D_NOTIFICATION_STATUS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_NOTIFICATION_STATUS"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_NOTIF_STATUS" tableName="TB_D_NOTIFICATION_STATUS"/>
+
+        <createTable tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MESSAGE_STATUS"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_MESSAGE_STATUS" tableName="TB_D_MESSAGE_STATUS"/>
+
+        <createTable tableName="TB_D_TIMEZONE_OFFSET">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_TIMEZONE_OFFSET"/>
+            </column>
+            <column name="NEXT_ATTEMPT_TIMEZONE_ID" type="VARCHAR(255)" remarks="Time zone ID on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column name="NEXT_ATTEMPT_OFFSET_SECONDS" type="INT" remarks="Offset in seconds of the time zone on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="NEXT_ATTEMPT_TIMEZONE_ID,NEXT_ATTEMPT_OFFSET_SECONDS" constraintName="UK_D_TIMEZONE_OFFSET" tableName="TB_D_TIMEZONE_OFFSET"/>
+    </changeSet>
+    <!-- End Dictionary Tables -->
+
+    <!--Start UserMessage Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-UserMessage Tables">
+        <createTable tableName="TB_USER_MESSAGE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="SOURCE_MESSAGE" type="BOOLEAN" remarks="true if the message is a SourceMessage"/>
+            <column name="MESSAGE_FRAGMENT" type="BOOLEAN" remarks="true if the message is a message fragment"/>
+            <column name="TEST_MESSAGE" type="BOOLEAN"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
+            <column name="ACTION_ID_FK" type="BIGINT"/>
+            <column name="AGREEMENT_ID_FK" type="BIGINT"/>
+            <column name="SERVICE_ID_FK" type="BIGINT"/>
+            <column name="MPC_ID_FK" type="BIGINT"/>
+            <column name="FROM_PARTY_ID_FK" type="BIGINT"/>
+            <column name="FROM_ROLE_ID_FK" type="BIGINT"/>
+            <column name="TO_PARTY_ID_FK" type="BIGINT"/>
+            <column name="TO_ROLE_ID_FK" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="ACTION_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_ACTION_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ACTION"/>
+        <addForeignKeyConstraint baseColumnNames="AGREEMENT_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_AGREEMENT_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_AGREEMENT"/>
+        <addForeignKeyConstraint baseColumnNames="SERVICE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_SERVICE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_SERVICE"/>
+        <addForeignKeyConstraint baseColumnNames="MPC_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_MPC_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MPC"/>
+        <addForeignKeyConstraint baseColumnNames="FROM_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_FROM_PARTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="FROM_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_FROM_ROLE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="TO_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_TO_PARTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="TO_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ROLE"/>
+        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
+            <column name="ACTION_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_AGREEMENT_ID" tableName="TB_USER_MESSAGE">
+            <column name="AGREEMENT_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_SERVICE_ID" tableName="TB_USER_MESSAGE">
+            <column name="SERVICE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_MPC_ID" tableName="TB_USER_MESSAGE">
+            <column name="MPC_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_FROM_PARTY_ID" tableName="TB_USER_MESSAGE">
+            <column name="FROM_PARTY_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_FROM_ROLE_ID" tableName="TB_USER_MESSAGE">
+            <column name="FROM_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_TO_PARTY_ID" tableName="TB_USER_MESSAGE">
+            <column name="TO_PARTY_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_TO_ROLE_ID" tableName="TB_USER_MESSAGE">
+            <column name="TO_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_TEST_MESSAGE" tableName="TB_USER_MESSAGE">
+            <column name="TEST_MESSAGE"/>
+            <column name="ID_PK"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
+
+        <createTable tableName="TB_MESSAGE_ACKNW">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_ACKNW"/>
+            </column>
+            <column name="FROM_VALUE" type="VARCHAR(255)"/>
+            <column name="TO_VALUE" type="VARCHAR(255)"/>
+            <column name="ACKNOWLEDGE_DATE" type="TIMESTAMP"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_ACKNW"
+                                 constraintName="FK_MSG_ACK_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID_FK" tableName="TB_MESSAGE_ACKNW">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_MESSAGE_ACKNW_PROP">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_ACKNW_PROP"/>
+            </column>
+            <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
+            <column name="FK_MSG_ACKNOWLEDGE" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                 constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_MESSAGE_ACKNW"/>
+        <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
+            <column name="FK_MSG_ACKNOWLEDGE"/>
+        </createIndex>
+
+        <createTable tableName="TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
+            <column name="ID_PK" type="BIGINT"  autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_HEADER"/>
+            </column>
+            <column name="BOUNDARY" type="VARCHAR(255)" remarks="The multipart boundary value"/>
+            <column name="START_MULTIPART" type="VARCHAR(255)" remarks="The multipart start value"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_SJ_MESSAGE_GROUP" remarks="Stores information about the message group for SplitAndJoin" >
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_GROUP"/>
+            </column>
+            <column name="GROUP_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="MESSAGE_SIZE" type="BIGINT" remarks="The message size before compression"/>
+            <column name="FRAGMENT_COUNT" type="INT"/>
+            <column name="SENT_FRAGMENTS" type="INT"/>
+            <column name="RECEIVED_FRAGMENTS" type="INT"/>
+            <column name="COMPRESSION_ALGORITHM" type="VARCHAR(255)"/>
+            <column name="COMPRESSED_MESSAGE_SIZE" type="BIGINT" remarks="The size of the message after compression"/>
+            <column name="SOAP_ACTION" type="VARCHAR(255)"/>
+            <column name="REJECTED" type="BOOLEAN" remarks="True if the message group has been rejected"/>
+            <column name="EXPIRED" type="BOOLEAN" remarks="True if the message group has expired"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SOURCE_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="SOURCE_MESSAGE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_UM" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MH" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_HEADER"/>
+        <createIndex indexName="IDX_SJ_MG_SM_ID_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="SOURCE_MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SJ_MG_ROLE_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_SJ_MESSAGE_FRAGMENT">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_FRAGMENT"/>
+            </column>
+            <column name="FRAGMENT_NUMBER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="GROUP_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="GROUP_ID_FK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
+                                 constraintName="FK_SJ_MSG_FG_GROUP" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_GROUP"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
+                                 constraintName="FK_SJ_MSG_FG_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
+            <column name="GROUP_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_USER_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_LOG"/>
+            </column>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACKNOWLEDGED" type="TIMESTAMP"/>
+            <column name="DOWNLOADED" type="TIMESTAMP"/>
+            <column name="ARCHIVED" type="TIMESTAMP"/>
+            <column name="EXPORTED" type="TIMESTAMP"/>
+            <column name="FAILED" type="TIMESTAMP"/>
+            <column name="RESTORED" type="TIMESTAMP"/>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the message is already scheduled to be sent" />
+            <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOTIFICATION_STATUS_ID_FK" type="BIGINT"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="PROCESSING_TYPE" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_NOTIF_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_NOTIFICATION_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MESSAGE_LOG_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_ROLE_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="NOTIFICATION_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_TZ_OFFSET" tableName="TB_USER_MESSAGE_LOG">
+            <column name="FK_TIMEZONE_OFFSET"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_ARCHIVED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="ARCHIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_EXPORTED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="EXPORTED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_ACKNOWLEDGED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="ACKNOWLEDGED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_PROCESSING_TYPE" tableName="TB_USER_MESSAGE_LOG">
+            <column name="PROCESSING_TYPE"/>
+        </createIndex>
+
+
+        <createTable tableName="TB_MESSAGING_LOCK">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGING_LOCK"/>
+            </column>
+            <column name="MESSAGE_TYPE" type="VARCHAR(10)"/>
+            <column name="MESSAGE_RECEIVED" type="TIMESTAMP"/>
+            <column name="MESSAGE_STATE" type="VARCHAR(10)"/>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="INITIATOR" type="VARCHAR(255)"/>
+            <column name="MPC" type="VARCHAR(255)"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+            <column name="MESSAGE_STALED" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGING_LOCK"
+                                 constraintName="FK_MESSAGING_LOCK_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+        <createIndex indexName="IDX_MESSAGE_LOCK_SEARCH" tableName="TB_MESSAGING_LOCK">
+            <column name="MESSAGE_TYPE"/>
+            <column name="MESSAGE_STATE"/>
+            <column name="INITIATOR"/>
+            <column name="MPC"/>
+            <column name="NEXT_ATTEMPT"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGING_LOCK_TZ_OFFSET" tableName="TB_MESSAGING_LOCK">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createTable tableName="TB_PART_INFO">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PART_INFO"/>
+            </column>
+            <column name="BINARY_DATA" type="LONGBLOB"/>
+            <column name="DESCRIPTION_LANG" type="VARCHAR(255)"/>
+            <column name="DESCRIPTION_VALUE" type="VARCHAR(255)"/>
+            <column name="HREF" type="VARCHAR(255)"/>
+            <column name="IN_BODY" type="BOOLEAN"/>
+            <column name="FILENAME" type="VARCHAR(255)"/>
+            <column name="MIME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="PART_ORDER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="PART_LENGTH" type="BIGINT" defaultValueNumeric="-1">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="FK_USER_MESSAGE_ID" tableName="TB_PART_INFO">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_PART_PROPERTIES">
+            <column name="PART_INFO_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PART_INFO_PROPERTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addPrimaryKey columnNames="PART_INFO_ID_FK, PART_INFO_PROPERTY_FK" tableName="TB_PART_PROPERTIES" constraintName="PK_PART_PROPERTIES"/>
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_PROPERTY_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_PROP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_D_PART_PROPERTY"/>
+        <createIndex indexName="IDX_PART_PROPS_PART_PROP" tableName="TB_PART_PROPERTIES">
+            <column name="PART_INFO_PROPERTY_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_MESSAGE_PROPERTIES">
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_PROPERTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addPrimaryKey columnNames="USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK" tableName="TB_MESSAGE_PROPERTIES" constraintName="PK_MESSAGE_PROPERTIES"/>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
+                                 constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_PROPERTY_FK" baseTableName="TB_MESSAGE_PROPERTIES"
+                                 constraintName="FK_MSG_PROPS_MSG_PROP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_D_MESSAGE_PROPERTY"/>
+
+        <createTable tableName="TB_USER_MESSAGE_RAW">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
+            </column>
+            <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_RAW"
+                                 constraintName="FK_MSG_RAW_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <createTable tableName="TB_SIGNAL_MESSAGE">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE"/>
+            </column>
+            <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <createIndex indexName="IDX_SIG_MESS_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="REF_TO_MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+            <column name="SIGNAL_MESSAGE_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_LOG"/>
+            </column>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_SIGNAL_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SIGNAL_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_STATUS_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_ROLE_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_RECEIVED" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+
+        <createTable tableName="TB_RECEIPT">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
+            </column>
+            <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_RECEIPT"
+                                 constraintName="FK_TB_RECEIPT_SIGNAL_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <createTable tableName="TB_SIGNAL_MESSAGE_RAW">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
+            </column>
+            <column name="RAW_XML" type="LONGBLOB"/>
+            <column name="COMPRESSED" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_RAW"
+                                 constraintName="FK_SIGNAL_MSG_RAW_SIGNAL_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <createTable tableName="TB_SEND_ATTEMPT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_SEND_ATTEMPT"/>
+            </column>
+            <column name="START_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ERROR" type="VARCHAR(255)"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_SEND_ATTEMPT"
+                                 constraintName="FK_SEND_ATTEMPT_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_MESSAGE_ID_FK" tableName="TB_SEND_ATTEMPT">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+    </changeSet>
+    <!--End UserMessage Tables -->
+
+    <!-- Start Miscellaneous Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Miscellaneous Tables">
+        <createTable tableName="TB_CERTIFICATE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE"/>
+            </column>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME"/>
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME"/>
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert imminent notification date"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert expired notification date"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="UK_CERTIFICATE_ALIAS"
+                             tableName="TB_CERTIFICATE"/>
+
+        <createTable tableName="TB_REV_INFO">
+            <column name="ID" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_REV_INFO"/>
+            </column>
+            <column name="TIMESTAMP" type="BIGINT"/>
+            <column name="REVISION_DATE" type="TIMESTAMP"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+        </createTable>
+        <createTable tableName="TB_REV_CHANGES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_REV_CHANGES"/>
+            </column>
+            <column name="REV" type="BIGINT"/>
+            <column name="AUDIT_ORDER" type="INT"/>
+            <column name="ENTITY_NAME" type="VARCHAR(255)"/>
+            <column name="GROUP_NAME" type="VARCHAR(255)"/>
+            <column name="ENTITY_ID" type="VARCHAR(255)"/>
+            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_REV_CHANGES_REV_INFO" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_CERTIFICATE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert imminent notification date"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP" remarks="Alert expired notification date"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
+                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_COMMAND"/>
+            </column>
+            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMMAND_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
+            <column name="PROPERTY_NAME" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
+            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UK_COMMAND_PROP_NAME"
+                             tableName="TB_COMMAND_PROPERTY"/>
+
+        <createTable tableName="TB_ENCRYPTION_KEY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_ENCRYPTION_KEY"/>
+            </column>
+            <column name="KEY_USAGE" type="VARCHAR(255)" remarks="The encryption usage: PAYLOAD"/>
+            <column name="SECRET_KEY" type="LONGBLOB"  remarks="The secret key used for symmetric encryption">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INIT_VECTOR" type="LONGBLOB" remarks="The initialization vector used for encryption">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UK_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
+
+        <createTable tableName="TB_ERROR_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_ERROR_LOG"/>
+            </column>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="ERROR_SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_IN_ERROR_ID" type="VARCHAR(255)"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
+            <column name="NOTIFIED" type="TIMESTAMP"/>
+            <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT" defaultValue="${default_id_pk}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_ERROR_LOG"
+                                 constraintName="FK_ERROR_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_ERROR_LOG"
+                                 constraintName="FK_ERROR_LOG_MSG_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_ERROR_LOG_MSH_ROLE_ID" tableName="TB_ERROR_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_ERROR_LOG_MSG_ID" tableName="TB_ERROR_LOG">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
+            <column name="MESSAGE_IN_ERROR_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_MESSAGE_ID" tableName="TB_ERROR_LOG">
+            <column name="ERROR_SIGNAL_MESSAGE_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
+            <column name="VERSION" type="VARCHAR(30)"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
+    </changeSet>
+
+    <!-- Start PMode Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-PMode Tables">
+        <createTable tableName="TB_PM_BUSINESS_PROCESS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_BUSINESS_PROCESS"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_PM_ACTION">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_ACTION"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ACTION"
+                                 constraintName="FK_ACTION_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_ACTION_BP" tableName="TB_PM_ACTION">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_ACTION_AUDIT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_ACTION_AUDIT"/>
+            </column>
+            <column name="AUDIT_TYPE" type="VARCHAR(31)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ENTITY_ID" type="VARCHAR(255)"/>
+            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
+            <column name="REVISION_DATE" type="TIMESTAMP"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="FROM_QUEUE" type="VARCHAR(255)"/>
+            <column name="TO_QUEUE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+                DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+                         rc.MODIFICATION_TYPE as ACTION_TYPE,
+                         ri.USER_NAME as USER_NAME ,
+                         ri.REVISION_DATE as AUDIT_DATE,
+                         COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+                         COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV
+            UNION
+            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
+                TB_ACTION_AUDIT aa
+        </createView>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
+
+        <createTable tableName="TB_PM_AGREEMENT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_AGREEMENT"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_AGREEMENT"
+                                 constraintName="FK_AGREEMENT_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_AGREEMENT_BP" tableName="TB_PM_AGREEMENT">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PARTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_PARTY"/>
+            </column>
+            <column name="ENDPOINT" type="VARCHAR(1024)"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="PASSWORD" type="VARCHAR(255)"/>
+            <column name="USERNAME" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY"
+                                 constraintName="FK_PARTY_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_PARTY_BP" tableName="TB_PM_PARTY">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+
+        <createTable tableName="TB_PM_CONFIGURATION">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_CONFIGURATION"/>
+            </column>
+            <column name="FK_BUSINESSPROCESSES" type="BIGINT"/>
+            <column name="FK_PARTY" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_CONFIGURATION"
+                                 constraintName="FK_CONFIG_PARTY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_PM_CONFIGURATION"
+                                 constraintName="FK_CONFIG_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_CONFIG_PARTY" tableName="TB_PM_CONFIGURATION">
+            <column name="FK_PARTY"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_CONFIG_BP" tableName="TB_PM_CONFIGURATION">
+            <column name="FK_BUSINESSPROCESSES"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_CONFIGURATION_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="EXPRESSION" type="VARCHAR(255)"/>
+            <column name="EXPRESSION_MOD" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="NAME_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_AUD"
+                                 constraintName="FK_CONFIG_AUD_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_CONFIG_AUD_REV" tableName="TB_PM_CONFIGURATION_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_CONFIGURATION_RAW">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_CONFIGURATION_RAW"/>
+            </column>
+            <column name="CONFIGURATION_DATE" type="TIMESTAMP"/>
+            <column name="XML" type="LONGBLOB"/>
+            <column defaultValue="" name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_PM_CONFIGURATION_RAW_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_RAW_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CONFIGURATION_RAW_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CONFIGURATION_DATE" type="TIMESTAMP"/>
+            <column name="CONFIGURATIONDATE_MOD" type="BOOLEAN"/>
+            <column name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column name="DESCRIPTION_MOD" type="VARCHAR(255)"/>
+            <column name="XML" type="LONGBLOB"/>
+            <column name="XML_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_CONFIGURATION_RAW_AUD"
+                                 constraintName="FK_CONFIG_RAW_AUD" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_CONFIG_RAW_AUD" tableName="TB_PM_CONFIGURATION_RAW_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_ERROR_HANDLING">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_ERROR_HANDLING"/>
+            </column>
+            <column name="BUSINESS_ERROR_NOTIFY_CONSUMER" type="BOOLEAN"/>
+            <column name="BUSINESS_ERROR_NOTIFY_PRODUCER" type="BOOLEAN"/>
+            <column name="DELIVERY_FAIL_NOTIFY_PRODUCER" type="BOOLEAN"/>
+            <column name="ERROR_AS_RESPONSE" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ERROR_HANDLING"
+                                 constraintName="FK_ERROR_HANDLING_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_ERROR_HANDLING_BP" tableName="TB_PM_ERROR_HANDLING">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PAYLOAD_PROFILE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_PAYLOAD_PROFILE"/>
+            </column>
+            <column name="MAX_SIZE" type="BIGINT"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_PM_PAYLOAD">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_PAYLOAD"/>
+            </column>
+            <column name="CID" type="VARCHAR(255)"/>
+            <column name="IN_BODY" type="BOOLEAN"/>
+            <column name="MAX_SIZE" type="INT"/>
+            <column name="MIME_TYPE" type="VARCHAR(255)"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="REQUIRED_" type="BOOLEAN"/>
+            <column name="SCHEMA_FILE" type="VARCHAR(1024)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD"
+                                 constraintName="FK_PAYLOAD_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_PAYLOAD_BP" tableName="TB_PM_PAYLOAD">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_JOIN_PAYLOAD_PROFILE">
+            <column name="FK_PAYLOAD" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FK_PROFILE" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
+                                 constraintName="FK_JP_PROFILE" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD_PROFILE"/>
+        <addForeignKeyConstraint baseColumnNames="FK_PROFILE" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
+                                 constraintName="FK_JP_PAYLOAD" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD"/>
+        <createIndex indexName="IDX_FK_JP_PROFILE" tableName="TB_PM_JOIN_PAYLOAD_PROFILE">
+            <column name="FK_PAYLOAD"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_JP_PAYLOAD" tableName="TB_PM_JOIN_PAYLOAD_PROFILE">
+            <column name="FK_PROFILE"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_MEP_BINDING">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_MEP_BINDING"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP_BINDING"
+                                 constraintName="FK_MEP_BINDING_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_MEP_BINDING_BP" tableName="TB_PM_MEP_BINDING">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_ROLE"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ROLE"
+                                 constraintName="FK_ROLE_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_ROLE_BP" tableName="TB_PM_ROLE">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_MEP">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_MEP"/>
+            </column>
+            <column name="LEG_COUNT" type="INT"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MEP"
+                                 constraintName="FK_MEP_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_MEP_BP" tableName="TB_PM_MEP">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PROCESS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_PROCESS"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="FK_AGREEMENT" type="BIGINT"/>
+            <column name="FK_INITIATOR_ROLE" type="BIGINT"/>
+            <column name="FK_MEP" type="BIGINT"/>
+            <column name="FK_MEP_BINDING" type="BIGINT"/>
+            <column name="FK_RESPONDER_ROLE" type="BIGINT"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column name="USE_DYNAMIC_INITIATOR" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USE_DYNAMIC_RESPONDER" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_MEP_BINDING" baseTableName="TB_PM_PROCESS"
+                                 constraintName="FK_PROCESS_MEP_BINDING" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MEP_BINDING"/>
+        <addForeignKeyConstraint baseColumnNames="FK_INITIATOR_ROLE" baseTableName="TB_PM_PROCESS"
+                                 constraintName="FK_PROCESS_INITIATOR_ROLE" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="FK_MEP" baseTableName="TB_PM_PROCESS"
+                                 constraintName="FK_PROCESS_MEP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MEP"/>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PROCESS"
+                                 constraintName="FK_PROCESS_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <addForeignKeyConstraint baseColumnNames="FK_RESPONDER_ROLE" baseTableName="TB_PM_PROCESS"
+                                 constraintName="FK_PROCESS_RESPONDER_ROLE" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="FK_AGREEMENT" baseTableName="TB_PM_PROCESS"
+                                 constraintName="FK_PROCESS_AGREEMENT" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_AGREEMENT"/>
+        <createIndex indexName="IDX_FK_PROCESS_MEP_BINDING" tableName="TB_PM_PROCESS">
+            <column name="FK_MEP_BINDING"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_PROCESS_INIT_ROLE" tableName="TB_PM_PROCESS">
+            <column name="FK_INITIATOR_ROLE"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_PROCESS_AGRMNT" tableName="TB_PM_PROCESS">
+            <column name="FK_AGREEMENT"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_PROCESS_MEP" tableName="TB_PM_PROCESS">
+            <column name="FK_MEP"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_PROCESS_BP" tableName="TB_PM_PROCESS">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_PROCESS_RESP_ROLE" tableName="TB_PM_PROCESS">
+            <column name="FK_RESPONDER_ROLE"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_JOIN_PROCESS_INIT_PARTY">
+            <column name="PROCESS_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"
+                                 constraintName="FK_JOIN_INIT_PARTY_PRS" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
+        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_PM_JOIN_PROCESS_INIT_PARTY"
+                                 constraintName="FK_JOIN_INIT_PARTY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
+        <createIndex indexName="IDX_FK_JOIN_INIT_PARTY_PRS" tableName="TB_PM_JOIN_PROCESS_INIT_PARTY">
+            <column name="PROCESS_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_JOIN_INIT_PARTY" tableName="TB_PM_JOIN_PROCESS_INIT_PARTY">
+            <column name="PARTY_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_SECURITY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_SECURITY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="POLICY" type="VARCHAR(255)"/>
+            <column name="SIGNATURE_METHOD" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SECURITY"
+                                 constraintName="FK_SECURITY_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_SECURITY_BP" tableName="TB_PM_SECURITY">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_SERVICE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_SERVICE"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_SERVICE"
+                                 constraintName="FK_SERVICE_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_SERVICE_BP" tableName="TB_PM_SERVICE">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_RECEPTION_AWARENESS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_RECEPTION_AWARENESS"/>
+            </column>
+            <column name="DUPLICATE_DETECTION" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="RETRY_COUNT" type="INT"/>
+            <column name="RETRY_TIMEOUT" type="INT"/>
+            <column name="STRATEGY" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RECEPTION_AWARENESS"
+                                 constraintName="FK_REC_AWRNS_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_REC_AWRNS_BP" tableName="TB_PM_RECEPTION_AWARENESS">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_RELIABILITY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_RELIABILITY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="NON_REPUDIATION" type="BOOLEAN"/>
+            <column name="REPLY_PATTERN" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_RELIABILITY"
+                                 constraintName="FK_RELIABILITY_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_RELIABILITY_BP" tableName="TB_PM_RELIABILITY">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_MPC">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_MPC"/>
+            </column>
+            <column name="DEFAULT_MPC" type="BOOLEAN"/>
+            <column name="IS_ENABLED" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="QUALIFIED_NAME" type="VARCHAR(255)"/>
+            <column name="RETENTION_DOWNLOADED" type="INT"/>
+            <column name="RETENTION_UNDOWNLOADED" type="INT"/>
+            <column name="RETENTION_SENT"
+                    remarks="Retention time for sent messages (both send success and send failure)" type="INT"
+                    defaultValueNumeric="-1"/>
+            <column name="DELETE_MESSAGE_METADATA"
+                    remarks="Specifies whether the message metadata should be deleted or not." type="BOOLEAN"
+                    defaultValueBoolean="false"/>
+            <column name="MAX_BATCH_DELETE"
+                    remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
+                    type="INT" defaultValueNumeric="-1"/>
+            <column name="FK_CONFIGURATION" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_CONFIGURATION" baseTableName="TB_PM_MPC"
+                                 constraintName="FK_MPC_CONFIGURATION" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_CONFIGURATION"/>
+        <createIndex indexName="IDX_FK_MPC_CONFIGURATION" tableName="TB_PM_MPC">
+            <column name="FK_CONFIGURATION"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_MESSAGE_PROPERTY_SET">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_MESSAGE_PROPERTY_SET"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY_SET"
+                                 constraintName="FK_PROPERTY_SET_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_PROPERTY_SET_BP" tableName="TB_PM_MESSAGE_PROPERTY_SET">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode"
+                     tableName="TB_PM_SPLITTING">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_SPLITTING"/>
+            </column>
+            <column name="NAME" remarks="Splitting configuration name" type="VARCHAR(255)"/>
+            <column name="FRAGMENT_SIZE" remarks="The fragment size" type="INT"/>
+            <column name="COMPRESSION" remarks="True if compression will be used" type="BOOLEAN"/>
+            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm to use for compressing the SourceMessage" type="VARCHAR(255)"/>
+            <column name="JOIN_INTERVAL" remarks="The join interval" type="INT"/>
+            <column name="FK_BUSINESSPROCESS" remarks="Foreign key to the business process" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <createIndex indexName="IDX_FK_SPLT_BP" tableName="TB_PM_SPLITTING">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_LEG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_LEG"/>
+            </column>
+            <column name="COMPRESS_PAYLOADS" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="FK_ACTION" type="BIGINT"/>
+            <column name="FK_MPC" type="BIGINT"/>
+            <column name="FK_ERROR_HANDLING" type="BIGINT"/>
+            <column name="FK_PAYLOAD_PROFILE" type="BIGINT"/>
+            <column name="FK_PROPERTY_SET" type="BIGINT"/>
+            <column name="FK_RECEPTION_AWARENESS" type="BIGINT"/>
+            <column name="FK_RELIABILITY" type="BIGINT"/>
+            <column name="FK_SECURITY" type="BIGINT"/>
+            <column name="FK_SERVICE" type="BIGINT"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column name="FK_SPLITTING" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_PM_LEG" constraintName="FK_LEG_SPLT"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_SPLITTING"/>
+        <addForeignKeyConstraint baseColumnNames="FK_PROPERTY_SET" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_PROPERTY_SET" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY_SET"/>
+        <addForeignKeyConstraint baseColumnNames="FK_ERROR_HANDLING" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_ERROR_HANDLING" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ERROR_HANDLING"/>
+        <addForeignKeyConstraint baseColumnNames="FK_ACTION" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_ACTION" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_ACTION"/>
+        <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD_PROFILE" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_PAYLOAD_PROFILE" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PAYLOAD_PROFILE"/>
+        <addForeignKeyConstraint baseColumnNames="FK_SECURITY" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_SECURITY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_SECURITY"/>
+        <addForeignKeyConstraint baseColumnNames="FK_SERVICE" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_SERVICE" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_SERVICE"/>
+        <addForeignKeyConstraint baseColumnNames="FK_RECEPTION_AWARENESS" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_REC_AWRNS" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_RECEPTION_AWARENESS"/>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <addForeignKeyConstraint baseColumnNames="FK_MPC" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_MPC" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MPC"/>
+        <addForeignKeyConstraint baseColumnNames="FK_RELIABILITY" baseTableName="TB_PM_LEG"
+                                 constraintName="FK_LEG_RELIABILITY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_RELIABILITY"/>
+        <createIndex indexName="IDX_FK_LEG_REC_AWRNS" tableName="TB_PM_LEG">
+            <column name="FK_RECEPTION_AWARENESS"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_BP" tableName="TB_PM_LEG">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_MPC" tableName="TB_PM_LEG">
+            <column name="FK_MPC"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_SPLT" tableName="TB_PM_LEG">
+            <column name="FK_SPLITTING"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_PROPERTY_SET" tableName="TB_PM_LEG">
+            <column name="FK_PROPERTY_SET"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_SERVICE" tableName="TB_PM_LEG">
+            <column name="FK_SERVICE"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_ERROR_HANDLING" tableName="TB_PM_LEG">
+            <column name="FK_ERROR_HANDLING"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_ACTION" tableName="TB_PM_LEG">
+            <column name="FK_ACTION"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_PAYLOAD_PROFILE" tableName="TB_PM_LEG">
+            <column name="FK_PAYLOAD_PROFILE"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_SECURITY" tableName="TB_PM_LEG">
+            <column name="FK_SECURITY"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_LEG_RELIABILITY" tableName="TB_PM_LEG">
+            <column name="FK_RELIABILITY"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_JOIN_PROCESS_LEG">
+            <column name="PROCESS_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LEG_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="LEG_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
+                                 constraintName="FK_JOIN_PROCESS_LEG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_LEG"/>
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
+                                 constraintName="FK_JOIN_PROC_LEG_PROC" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
+        <createIndex indexName="IDX_FK_JOIN_PROCESS_LEG" tableName="TB_PM_JOIN_PROCESS_LEG">
+            <column name="LEG_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_JOIN_PROC_LEG_PROC" tableName="TB_PM_JOIN_PROCESS_LEG">
+            <column name="PROCESS_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_JOIN_PROCESS_RESP_PARTY">
+            <column name="PROCESS_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="PARTY_FK" baseTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"
+                                 constraintName="FK_JOIN_PROC_RESP_PARTY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_RESP_PARTY"
+                                 constraintName="FK_JN_PROC_RESP_PRT_PROC" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PROCESS"/>
+        <createIndex indexName="IDX_FK_JOIN_PROC_RESP_PARTY" tableName="TB_PM_JOIN_PROCESS_RESP_PARTY">
+            <column name="PARTY_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_JN_PROC_RESP_PRT_PROC" tableName="TB_PM_JOIN_PROCESS_RESP_PARTY">
+            <column name="PROCESS_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_MESSAGE_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_MESSAGE_PROPERTY"/>
+            </column>
+            <column name="DATATYPE" type="VARCHAR(255)"/>
+            <column name="KEY_" type="VARCHAR(255)"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="REQUIRED_" type="BOOLEAN"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_MESSAGE_PROPERTY"
+                                 constraintName="FK_MESSAGE_PROPERTY_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_MESSAGE_PROPERTY_BP" tableName="TB_PM_MESSAGE_PROPERTY">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_JOIN_PROPERTY_SET">
+            <column name="PROPERTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SET_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="PROPERTY_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
+                                 constraintName="FK_JOIN_PROP_SET_PROP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY_SET"/>
+        <addForeignKeyConstraint baseColumnNames="SET_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
+                                 constraintName="FK_JOIN_PROPERTY_SET" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MESSAGE_PROPERTY"/>
+        <createIndex indexName="IDX_FK_JOIN_PROP_SET_PROP" tableName="TB_PM_JOIN_PROPERTY_SET">
+            <column name="PROPERTY_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_JOIN_PROPERTY_SET" tableName="TB_PM_JOIN_PROPERTY_SET">
+            <column name="SET_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_LEG_MPC">
+            <column name="LEGCONFIGURATION_ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
+            </column>
+            <column name="PARTYMPCMAP_ID_PK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARTYMPCMAP_KEY" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PRIMARY_12"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="LEGCONFIGURATION_ID_PK" baseTableName="TB_PM_LEG_MPC"
+                                 constraintName="FK_LEG_MPC_LEG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_LEG"/>
+
+        <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_KEY" baseTableName="TB_PM_LEG_MPC"
+                                 constraintName="FK_LEG_MPC_PARTY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
+        <addUniqueConstraint columnNames="PARTYMPCMAP_ID_PK" constraintName="UK_LEG_MPC_PARTYMPCMAP_ID"
+                             tableName="TB_PM_LEG_MPC"/>
+        <addForeignKeyConstraint baseColumnNames="PARTYMPCMAP_ID_PK" baseTableName="TB_PM_LEG_MPC"
+                                 constraintName="FK_LEG_MPC_MPC" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_MPC"/>
+        <createIndex indexName="IDX_FK_LEG_MPC_PARTY" tableName="TB_PM_LEG_MPC">
+            <column name="PARTYMPCMAP_KEY"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PARTY_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PARTY_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PARTY_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="ENDPOINT" type="VARCHAR(1024)"/>
+            <column name="ENDPOINT_MOD" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="NAME_MOD" type="BOOLEAN"/>
+            <column name="PASSWORD" type="VARCHAR(255)"/>
+            <column name="PASSWORD_MOD" type="BOOLEAN"/>
+            <column name="USERNAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_AUD" constraintName="FK_PARTY_AUD_REV"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_PARTY_AUD_REV" tableName="TB_PM_PARTY_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PARTY_ID_TYPE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_PARTY_ID_TYPE"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY_ID_TYPE"
+                                 constraintName="FK_PARTY_ID_TYPE_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_PARTY_ID_TYPE_BP" tableName="TB_PM_PARTY_ID_TYPE">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PARTY_IDENTIFIER">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PM_PARTY_IDENTIFIER"/>
+            </column>
+            <column name="PARTY_ID" type="VARCHAR(255)"/>
+            <column name="FK_PARTY_ID_TYPE" type="BIGINT"/>
+            <column name="FK_PARTY" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY" baseTableName="TB_PM_PARTY_IDENTIFIER"
+                                 constraintName="FK_PARTY_IDENT_PARTY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="FK_PARTY_ID_TYPE" baseTableName="TB_PM_PARTY_IDENTIFIER"
+                                 constraintName="FK_PARTY_IDENT_ID_TYPE" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_PARTY_ID_TYPE"/>
+        <createIndex indexName="IDX_FK_PARTY_IDENT_PARTY" tableName="TB_PM_PARTY_IDENTIFIER">
+            <column name="FK_PARTY"/>
+        </createIndex>
+        <createIndex indexName="IDX_FK_PARTY_IDENT_ID_TYPE" tableName="TB_PM_PARTY_IDENTIFIER">
+            <column name="FK_PARTY_ID_TYPE"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PARTY_IDENTIFIER_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PARTY_IDENTIFIER_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PARTY_IDENTIFIER_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="FK_PARTY" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_IDENTIFIER_AUD"
+                                 constraintName="FK_PARTY_IDENT_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_PARTY_IDENT_AUD_REV" tableName="TB_PM_PARTY_IDENTIFIER_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_PM_PARTY_ID_TYPE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PARTY_ID_TYPE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PARTY_ID_TYPE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="NAME_MOD" type="BOOLEAN"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="VALUE_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_ID_TYPE_AUD"
+                                 constraintName="FK_PARTY_ID_TYPE_AUD_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_PARTY_ID_TYPE_AUD_REV" tableName="TB_PM_PARTY_ID_TYPE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD_PROFILE"
+                                 constraintName="FK_PAYLOAD_PROFILE_BP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PM_BUSINESS_PROCESS"/>
+        <createIndex indexName="IDX_FK_PAYLOAD_PROFILE_BP" tableName="TB_PM_PAYLOAD_PROFILE">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+
+    </changeSet>
+    <!-- End PMode tables -->
+
+    <!-- Start Alert Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Alert Tables">
+        <createTable tableName="TB_ALERT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_ALERT"/>
+            </column>
+            <column name="ALERT_TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ATTEMPTS_NUMBER" type="INT"/>
+            <column name="MAX_ATTEMPTS_NUMBER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROCESSED" type="BOOLEAN"/>
+            <column name="PROCESSED_TIME" type="TIMESTAMP"/>
+            <column name="REPORTING_TIME" type="TIMESTAMP"/>
+            <column name="REPORTING_TIME_FAILURE" type="TIMESTAMP"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+            <column name="ALERT_STATUS" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ALERT_LEVEL" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_ALERT"
+                                 constraintName="FK_ALERT_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+        <createIndex indexName="IDX_ALERT_TZ_OFFSET" tableName="TB_ALERT">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createTable tableName="TB_EVENT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT"/>
+            </column>
+            <column name="EVENT_TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REPORTING_TIME" type="TIMESTAMP"/>
+            <column name="LAST_ALERT_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_EVENT_ALERT">
+            <column name="FK_EVENT" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
+            </column>
+            <column name="FK_ALERT" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT_ALERT"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_ALERT"/>
+        <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_ALERT" constraintName="FK_EVENT_ID"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_EVENT"/>
+        <createIndex indexName="IDX_FK_ALERT" tableName="TB_EVENT_ALERT">
+            <column name="FK_ALERT"/>
+        </createIndex>
+
+        <createTable tableName="TB_EVENT_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EVENT_PROPERTY"/>
+            </column>
+            <column name="PROPERTY_TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FK_EVENT" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DTYPE" type="VARCHAR(31)"/>
+            <column name="STRING_VALUE" type="VARCHAR(255)"/>
+            <column name="DATE_VALUE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_PROPERTY"
+                                 constraintName="FK_EVENT_PROPERTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_EVENT"/>
+        <createIndex indexName="IDX_FK_EVENT_PROPERTY" tableName="TB_EVENT_PROPERTY">
+            <column name="FK_EVENT"/>
+        </createIndex>
+    </changeSet>
+    <!-- End Alert Tables -->
+
+    <!-- Start EArchive Tables -->
+    <changeSet author="Francois Gautier" id="EDELIVERY-8450">
+        <createTable tableName="TB_EARCHIVE_BATCH">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_BATCH"/>
+            </column>
+            <column name="BATCH_ID" type="VARCHAR(255)"/>
+            <column name="ORIGINAL_BATCH_ID" type="VARCHAR(255)" remarks="The original BATCH_ID from which this batch was generated/re-exported"/>
+            <column name="REEXPORTED" type="BOOLEAN" defaultValueBoolean="false" remarks="true if this batch messages were re-exported by a new batch">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
+            <column name="BATCH_STATUS" type="VARCHAR(255)"/>
+            <column name="DATE_REQUESTED" type="TIMESTAMP"/>
+            <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="FIRST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="MANIFEST_CHECK_SUM" type="VARCHAR(255)"/>
+            <column name="BATCH_SIZE" type="INT"/>
+            <column name="STORAGE_LOCATION" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createIndex indexName="IDX_EARCHIVE_BATCH_UNIQUE_ID" tableName="TB_EARCHIVE_BATCH" unique="true">
+            <column name="BATCH_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_EARCHIVE_BATCH_STATUS" tableName="TB_EARCHIVE_BATCH">
+            <column name="BATCH_STATUS"/>
+        </createIndex>
+
+        <createTable tableName="TB_EARCHIVEBATCH_UM">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EARCHIVEBATCH_UML"/>
+            </column>
+            <column name="FK_EARCHIVE_BATCH_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FK_USER_MESSAGE_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_EARCHIVE_BATCH_ID" baseTableName="TB_EARCHIVEBATCH_UM"
+                                 constraintName="FK_EARCHIVE_BATCH_ID_FTR" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_EARCHIVE_BATCH"/>
+        <createIndex indexName="IDX_TB_EARCHIVEBATCH_UM_ID" tableName="TB_EARCHIVEBATCH_UM">
+            <column name="FK_USER_MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_TB_EARCHIVEBATCH_UM_B_ID" tableName="TB_EARCHIVEBATCH_UM">
+            <column name="FK_EARCHIVE_BATCH_ID"/>
+        </createIndex>
+        <createTable tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_START"/>
+            </column>
+            <column name="LAST_PK_USER_MESSAGE" type="BIGINT"/>
+            <column name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+    </changeSet>
+    <!-- End EArchive Tables -->
+
+
+    <!-- Start Backend Filter Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Backend Filter Tables">
+        <createTable tableName="TB_BACKEND_FILTER">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_BACKEND_FILTER"/>
+            </column>
+            <column name="BACKEND_NAME" type="VARCHAR(255)"/>
+            <column name="PRIORITY" type="INT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_BACKEND_FILTER_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_BACKEND_FILTER_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_BACKEND_FILTER_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="BACKEND_NAME" type="VARCHAR(255)"/>
+            <column name="BACKENDNAME_MOD" type="BOOLEAN"/>
+            <column name="PRIORITY" type="INT"/>
+            <column name="INDEX_MOD" type="BOOLEAN"/>
+            <column name="ROUTINGCRITERIAS_MOD" type="BOOLEAN"/>
+        </createTable>
+        <createIndex indexName="IDX_FK_BACKEND_FTR_AUD_REV" tableName="TB_BACKEND_FILTER_AUD">
+            <column name="REV"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_BACKEND_FILTER_AUD"
+                                 constraintName="FK_BACKEND_FILTER_AUD_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+
+        <createTable tableName="TB_ROUTING_CRITERIA">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_ROUTING_CRITERIA"/>
+            </column>
+            <column name="EXPRESSION" type="VARCHAR(255)"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="FK_BACKEND_FILTER" type="BIGINT"/>
+            <column name="PRIORITY" type="INT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_BACKEND_FILTER" baseTableName="TB_ROUTING_CRITERIA"
+                                 constraintName="FK_ROUT_CRIT_BACK_FTR" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_BACKEND_FILTER"/>
+        <createIndex indexName="IDX_FK_ROUT_CRIT_BACK_FTR" tableName="TB_ROUTING_CRITERIA">
+            <column name="FK_BACKEND_FILTER"/>
+        </createIndex>
+
+        <createTable tableName="TB_ROUTING_CRITERIA_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_ROUTING_CRITERIA_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_ROUTING_CRITERIA_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="EXPRESSION" type="VARCHAR(255)"/>
+            <column name="EXPRESSION_MOD" type="BOOLEAN"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="NAME_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_ROUTING_CRITERIA_AUD"
+                                 constraintName="FK_ROUT_CRIT_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_ROUT_CRIT_AUD_REV" tableName="TB_ROUTING_CRITERIA_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_BACK_RCRITERIA_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_BACK_RCRITERIA_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_BACK_RCRITERIA_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="FK_BACKEND_FILTER" type="BIGINT"/>
+            <column name="PRIORITY" type="INT"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_BACK_RCRITERIA_AUD"
+                                 constraintName="FK_BCK_RCR_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_BCK_RCR_AUD_REV_INFO" tableName="TB_BACK_RCRITERIA_AUD">
+            <column name="REV"/>
+        </createIndex>
+    </changeSet>
+    <!-- End Backend Filter Tables -->
+
+    <!-- Start User/Plugin User Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-User/Plugin User Tables">
+        <createTable tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_AUTHENTICATION_ENTRY"/>
+            </column>
+            <column name="CERTIFICATE_ID" type="VARCHAR(255)"/>
+            <column name="USERNAME" type="VARCHAR(255)"/>
+            <column name="PASSWD" type="VARCHAR(255)"/>
+            <column name="AUTH_ROLES" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ORIGINAL_USER" type="VARCHAR(255)"/>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueBoolean="false" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column defaultValueNumeric="0" name="ATTEMPT_COUNT" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SUSPENSION_DATE" type="TIMESTAMP"/>
+            <column defaultValueBoolean="true" name="USER_ENABLED" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UK_PLUGIN_USER_NAME"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UK_PLUGIN_USER_CERT"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+
+        <createTable tableName="TB_AUTHENTICATION_ENTRY_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_AUTHENTICATION_ENTRY_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_AUTHENTICATION_ENTRY_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CERTIFICATE_ID" type="VARCHAR(255)"/>
+            <column name="CERTIFICATEID_MOD" type="BOOLEAN"/>
+            <column name="USERNAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="PASSWD" type="VARCHAR(255)"/>
+            <column name="PASSWORD_MOD" type="BOOLEAN"/>
+            <column name="AUTH_ROLES" type="VARCHAR(255)"/>
+            <column name="AUTHROLES_MOD" type="BOOLEAN"/>
+            <column name="ORIGINAL_USER" type="VARCHAR(255)"/>
+            <column name="ORIGINALUSER_MOD" type="BOOLEAN"/>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="BACKEND_MOD" type="BOOLEAN"/>
+            <column name="USER_ENABLED" type="BOOLEAN"/>
+            <column name="ACTIVE_MOD" type="BOOLEAN"/>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"/>
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_AUTHENTICATION_ENTRY_AUD"
+                                 constraintName="FK_AUTH_ENTRY_AUD_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_AUTH_ENTRY_AUD_REV" tableName="TB_AUTHENTICATION_ENTRY_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_PLUGIN_USER_PASSWD_HISTO"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY"
+                                 constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_AUTHENTICATION_ENTRY"/>
+        <createIndex indexName="IDX_PLUGIN_USER_ID" tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
+            <column name="USER_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_USER">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER"/>
+            </column>
+            <column name="USER_EMAIL" type="VARCHAR(255)"/>
+            <column name="USER_ENABLED" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="OPTLOCK" type="INT"/>
+            <column defaultValueNumeric="0" name="ATTEMPT_COUNT" type="INT"/>
+            <column name="SUSPENSION_DATE" type="TIMESTAMP"/>
+            <column defaultValueBoolean="false" name="USER_DELETED" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="PASSWORD_CHANGE_DATE" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_USER_NAME" tableName="TB_USER"/>
+
+        <createTable tableName="TB_USER_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_ENABLED" type="BOOLEAN"/>
+            <column name="ACTIVE_MOD" type="BOOLEAN"/>
+            <column name="USER_DELETED" type="BOOLEAN"/>
+            <column name="DELETED_MOD" type="BOOLEAN"/>
+            <column name="USER_EMAIL" type="VARCHAR(255)"/>
+            <column name="EMAIL_MOD" type="BOOLEAN"/>
+            <column name="USER_PASSWORD" type="VARCHAR(255)"/>
+            <column name="PASSWORD_MOD" type="BOOLEAN"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="OPTLOCK" type="INT"/>
+            <column name="VERSION_MOD" type="BOOLEAN"/>
+            <column name="ROLES_MOD" type="BOOLEAN"/>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"/>
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"/>
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USER_AUD_REV" tableName="TB_USER_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_USER_PASSWORD_HISTORY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_PASSWORD_HISTORY"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_PASSWORD_HISTORY"
+                                 constraintName="FK_USER_PASSWORD_HISTORY" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER"/>
+        <createIndex indexName="IDX_UPH_USER_ID" tableName="TB_USER_PASSWORD_HISTORY">
+            <column name="USER_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_USER_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE"/>
+            </column>
+            <column name="ROLE_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UK_ROLE_NAME" tableName="TB_USER_ROLE"/>
+
+        <createTable tableName="TB_USER_ROLES">
+            <column name="USER_ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
+            </column>
+            <column name="ROLE_ID" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_PRIMARY"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_ROLES"
+                                 constraintName="FK_USER_ROLES_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER"/>
+
+        <addForeignKeyConstraint baseColumnNames="ROLE_ID" baseTableName="TB_USER_ROLES"
+                                 constraintName="FK_USER_ROLES_USER" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_ROLE"/>
+        <createIndex indexName="IDX_ROLE_ID" tableName="TB_USER_ROLES">
+            <column name="ROLE_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_USER_ROLES_AUD">
+            <column name="REV" type="BIGINT"/>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="USER_ID" type="BIGINT"/>
+            <column name="ROLE_ID" type="BIGINT"/>
+        </createTable>
+
+        <createTable tableName="TB_USER_ROLE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="ROLE_NAME" type="VARCHAR(255)"/>
+            <column name="NAME_MOD" type="BOOLEAN"/>
+            <column name="USERS_MOD" type="BOOLEAN"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
+                                 constraintName="FK_USR_ROL_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+    </changeSet>
+
+    <changeSet author="dussath" id="EDELIVERY-4669">
+        <comment>Create pull request table</comment>
+        <createTable tableName="TB_PULL_REQUEST">
+            <column name="PULL_REQUEST_UUID" type="VARCHAR(255)" >
+                <constraints primaryKey="true" primaryKeyName="PK_PULL_REQUEST"/>
+            </column>
+            <column name="MPC" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-8503_1">
+        <createTable tableName="TB_LOCK" remarks="Stores keys used for locking/synchronizing in cluster">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_LOCK"/>
+            </column>
+            <column name="LOCK_KEY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="LOCK_KEY" constraintName="UK_LOCK_KEY" tableName="TB_LOCK"/>
+    </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-8532">
+        <createTable tableName="TB_TRUSTSTORE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TRUSTSTORE"/>
+            </column>
+            <column name="NAME" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTENT" type="LONGBLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
+    </changeSet>
+    <!-- End User Tables -->
+
+</databaseChangeLog>

@@ -1,0 +1,2 @@
+module add --name=com.mysql --resources=${MYSQL_JDBC_DRIVER_DIR}/${MYSQL_JDBC_DRIVER_NAME} --dependencies=javax.api,javax.transaction.api --allow-nonexistent-resources
+/subsystem=datasources/jdbc-driver=com.mysql:add(driver-name="com.mysql", driver-module-name="com.mysql", driver-class-name=com.mysql.cj.jdbc.Driver, driver-xa-datasource-class-name=com.mysql.cj.jdbc.MysqlXADataSource)

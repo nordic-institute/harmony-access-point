@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <!-- IMPORTANT: this data is intended to setup domibus integration tests and are additional data generated in
+     src/main/resources/db/changelog-data.xml
+     -->
+
+    <!-- properties - to be used in column definitions -->
+    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="insert_default_roles" author="Sebastian-Ion TINCU" dbms="h2">
+        <comment>Setup default roles</comment>
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_ADMIN"/>
+        </insert>
+        <insert tableName="TB_USER_ROLE">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="INT"/>
+            <column name="ROLE_NAME" value="ROLE_USER"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert_default_auth" author="rihtajo" dbms="h2">
+        <comment>Setup default authentication</comment>
+        <insert tableName="TB_USER">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="INT"/>
+            <column name="USER_NAME" value="admin"/>
+            <column name="USER_PASSWORD" value="$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36"/>
+            <column name="USER_ENABLED" valueBoolean="true"/>
+            <column name="USER_DELETED" valueBoolean="false"/>
+            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
+        </insert>
+        <insert tableName="TB_USER">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="INT"/>
+            <column name="USER_NAME" value="user"/>
+            <column name="USER_PASSWORD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
+            <column name="USER_ENABLED" valueBoolean="true"/>
+            <column name="USER_DELETED" valueBoolean="false"/>
+            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
+        </insert>
+        <insert tableName="TB_USER_ROLES">
+            <column name="USER_ID" value="${default_id_pk}0000000001" type="INT"/>
+            <column name="ROLE_ID" value="${default_id_pk}0000000001" type="INT"/>
+        </insert>
+        <insert tableName="TB_USER_ROLES">
+            <column name="USER_ID" value="${default_id_pk}0000000002" type="INT"/>
+            <column name="ROLE_ID" value="${default_id_pk}0000000002" type="INT"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert_ws_default_auth" author="rihtajo" dbms="h2">
+        <comment>Setup plugin authentication</comment>
+        <insert tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="USERNAME" value="admin"/>
+            <column name="PASSWD" value="$2a$10$5uKS72xK2ArGDgb2CwjYnOzQcOmB7CPxK6fz2MGcDBM9vJ4rUql36"/>
+            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
+            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
+            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
+        </insert>
+        <insert tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="USERNAME" value="user"/>
+            <column name="PASSWD" value="$2a$10$HApapHvDStTEwjjneMCvxuqUKVyycXZRfXMwjU0rRmaWMsjWQp/Zu"/>
+            <column name="AUTH_ROLES" value="ROLE_USER"/>
+            <column name="ORIGINAL_USER" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"/>
+            <column name="DEFAULT_PASSWORD" valueBoolean="true"/>
+            <column name="PASSWORD_CHANGE_DATE" valueComputed="${now}" />
+        </insert>
+        <insert tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="CERTIFICATE_ID" value="CN=blue_gw,O=eDelivery,C=BE:10370035830817850458"/>
+            <column name="AUTH_ROLES" value="ROLE_ADMIN"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="idragusa" id="EDELIVERY-7836-insert">
+        <insert tableName="TB_USER_MESSAGE">
+            <column name="ID_PK" value="${default_id_pk}" type="BIGINT"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-8503_2">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000001" type="BIGINT"/>
+            <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
+        </insert>
+    </changeSet>
+    <!-- DO NOT CHANGE ID of entries the values 1 and 2 have special meaning in code! -->
+    <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="1"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR CONTINUOUS EXPORT"/>
+        </insert>
+        <insert tableName="TB_EARCHIVE_START">
+            <column name="ID_PK" value="2"/>
+            <column name="LAST_PK_USER_MESSAGE" value="000101000000000000"/>
+            <column name="DESCRIPTION" value ="START ID_PK FOR SANITY EXPORT"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

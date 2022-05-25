@@ -1,0 +1,27 @@
+﻿<div class="group-action-button">
+  <button id="cancelButtonId" mat-raised-button (click)="parent.cancel()" color="primary" [disabled]="!parent.canCancel()"
+          button-click-behaviour>
+    <mat-icon>cancel</mat-icon>
+    <span>Cancel</span>
+  </button>
+  <button id="saveButtonId" mat-raised-button (click)="parent.save()" color="primary" [disabled]="!parent.canSave()"
+          button-click-behaviour>
+    <mat-icon>save</mat-icon>
+    <span>Save</span>
+  </button>
+  <button id="addButtonId" mat-raised-button (click)="parent.add()" color="primary" [disabled]="!parent.canAdd()"
+          button-click-behaviour *ngIf="isAddVisible">
+    <mat-icon>add</mat-icon>
+    <span>New</span>
+  </button>
+  <button id="editButtonId" mat-raised-button (click)="parent.edit()" color="primary" [disabled]="!parent.canEdit()"
+          button-click-behaviour *ngIf="isEditVisible">
+    <mat-icon>edit</mat-icon>
+    <span>Edit</span>
+  </button>
+  <button id="deleteButtonId" mat-raised-button (click)="parent.delete()" color="primary" [disabled]="!parent.canDelete()"
+          button-click-behaviour>
+    <mat-icon>delete</mat-icon>
+    <span>Delete</span>
+  </button>
+</div>

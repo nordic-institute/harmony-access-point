@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+            xmlns:tns="eu.domibus"
+            targetNamespace="eu.domibus">
+
+    <xsd:simpleType name="max255-non-empty-string">
+        <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="255"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="max1024-non-empty-string">
+        <xsd:restriction base="xsd:string">
+            <xsd:minLength value="1"/>
+            <xsd:maxLength value="1024"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="messageStatus">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="READY_TO_SEND"/>
+            <xsd:enumeration value="READY_TO_PULL"/>
+            <xsd:enumeration value="BEING_PULLED"/>
+            <xsd:enumeration value="SEND_ENQUEUED"/>
+            <xsd:enumeration value="SEND_IN_PROGRESS"/>
+            <xsd:enumeration value="WAITING_FOR_RECEIPT"/>
+            <xsd:enumeration value="ACKNOWLEDGED"/>
+            <xsd:enumeration value="ACKNOWLEDGED_WITH_WARNING"/>
+            <xsd:enumeration value="SEND_ATTEMPT_FAILED"/>
+            <xsd:enumeration value="SEND_FAILURE"/>
+            <xsd:enumeration value="NOT_FOUND"/>
+            <xsd:enumeration value="WAITING_FOR_RETRY"/>
+            <xsd:enumeration value="RECEIVED"/>
+            <xsd:enumeration value="RECEIVED_WITH_WARNINGS"/>
+            <xsd:enumeration value="DELETED"/>
+            <xsd:enumeration value="DOWNLOADED"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="LargePayloadType">
+        <xsd:sequence>
+            <xsd:element name="value" type="xsd:base64Binary" xmime:expectedContentTypes="application/octet-stream"/>
+        </xsd:sequence>
+        <xsd:attribute name="payloadId" type="xsd:token"/>
+        <xsd:attribute name="contentType" type="xsd:string"/>
+        <xsd:attribute name="mimeType" type="xsd:string"/>
+        <xsd:attribute name="payloadName" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:element name="submitRequest">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" type="tns:LargePayloadType"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="Messaging" type="tns:Messaging"/>
+
+    <xsd:complexType name="Messaging">
+        <xsd:sequence>
+            <xsd:element name="UserMessage" type="tns:UserMessage" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="UserMessage">
+        <xsd:all>
+            <xsd:element name="MessageInfo" type="tns:MessageInfo" minOccurs="0"/>
+            <xsd:element name="PartyInfo" type="tns:PartyInfo"/>
+            <xsd:element name="CollaborationInfo" type="tns:CollaborationInfo"/>
+            <xsd:element name="MessageProperties" type="tns:MessageProperties" minOccurs="0"/>
+            <xsd:element name="PayloadInfo" type="tns:PayloadInfo" minOccurs="0"/>
+            <xsd:element name="ProcessingType" type="tns:ProcessingType" minOccurs="0" default="PUSH"/>
+        </xsd:all>
+        <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
+    </xsd:complexType>
+
+    <xsd:simpleType name="ProcessingType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="PUSH"/>
+            <xsd:enumeration value="PULL"/>
+            <xsd:minLength value="0"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="MessageInfo">
+        <xsd:all>
+            <xsd:element name="Timestamp" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="MessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+            <xsd:element name="RefToMessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:complexType name="PartyInfo">
+        <xsd:all>
+            <xsd:element name="From" type="tns:From"/>
+            <xsd:element name="To" type="tns:To" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:complexType name="PartyId">
+        <xsd:simpleContent>
+            <xsd:extension base="tns:max255-non-empty-string">
+                <xsd:attribute name="type" type="tns:max255-non-empty-string"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="From">
+        <xsd:all>
+            <xsd:element name="PartyId" type="tns:PartyId"/>
+            <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:complexType name="To">
+        <xsd:all>
+            <xsd:element name="PartyId" type="tns:PartyId"/>
+            <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:complexType name="CollaborationInfo">
+        <xsd:all>
+            <xsd:element name="AgreementRef" type="tns:AgreementRef" minOccurs="0"/>
+            <xsd:element name="Service" type="tns:Service"/>
+            <xsd:element name="Action" type="xsd:token"/>
+            <xsd:element name="ConversationId" type="xsd:token" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:complexType name="Service">
+        <xsd:simpleContent>
+            <xsd:extension base="tns:max255-non-empty-string">
+                <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="AgreementRef">
+        <xsd:simpleContent>
+            <xsd:extension base="tns:max255-non-empty-string">
+                <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+                <xsd:attribute name="pmode" type="tns:max255-non-empty-string" use="optional"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="PayloadInfo">
+        <xsd:sequence>
+            <xsd:element name="PartInfo" type="tns:PartInfo" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="PartInfo">
+        <xsd:all>
+            <xsd:element name="PartProperties" type="tns:PartProperties" minOccurs="0"/>
+        </xsd:all>
+        <xsd:attribute name="href" type="xsd:token"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="Property">
+        <xsd:simpleContent>
+            <xsd:extension base="tns:max1024-non-empty-string">
+                <xsd:attribute name="name" type="tns:max255-non-empty-string" use="required"/>
+                <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="PartProperties">
+        <xsd:sequence>
+            <xsd:element name="Property" type="tns:Property" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="MessageProperties">
+        <xsd:sequence>
+            <xsd:element name="Property" type="tns:Property" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="BackendFaultDetail">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="code" type="xsd:string"/>
+                <xsd:element name="message" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="sendSuccess">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="sendFailure">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="receiveSuccess">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="receiveFailure">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="delete">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="deleteBatch">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageIds" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="messageStatusChange">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+                <xsd:element name="messageStatus" type="tns:messageStatus"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This file contains the configuration of both the Webservice endpoint and client -->
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd   http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd">
+
+    <!--MSH Webservice client-->
+    <jaxws:client id="{http://domibus.eu}msh-dispatch" name="{http://domibus.eu}msh-dispatch" createdFromAPI="true">
+        <jaxws:outInterceptors>
+            <ref bean="setPolicyOutInterceptor"/>
+            <ref bean="httpHeaderOutInterceptor"/>
+        </jaxws:outInterceptors>
+        <jaxws:inInterceptors>
+            <ref bean="setSignatureAlgorithmInInterceptor"/>
+            <ref bean="setPolicyInInterceptorClient"/>
+            <ref bean="httpHeaderInInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:handlers>
+            <ref bean="faultOutHandler"/>
+        </jaxws:handlers>
+
+        <jaxws:properties>
+            <entry key="org.apache.cxf.ws.security.tokenstore.TokenStore" value-ref="ehCacheTokenStore"/>
+            <entry key="ws-security.callback-handler" value-ref="keystorePasswordCallback"/>
+            <entry key="ws-security.encryption.crypto" value-ref="Wss4JMultiDomainCryptoProvider"/>
+            <entry key="ws-security.signature.crypto" value-ref="Wss4JMultiDomainCryptoProvider"/>
+            <entry key="faultStackTraceEnabled" value="false"/>
+            <entry key="exceptionMessageCauseEnabled" value="false"/>
+        </jaxws:properties>
+        <jaxws:features>
+            <ref bean="loggingFeature"/>
+        </jaxws:features>
+    </jaxws:client>
+
+    <jaxws:client id="{http://domibus.eu}local-msh-dispatch" name="{http://domibus.eu}local-msh-dispatch" createdFromAPI="true">
+        <jaxws:outInterceptors>
+            <ref bean="domibusPrepareAttachmentInterceptor"/>
+            <ref bean="domibusAttachmentOutInterceptorRemoval"/>
+            <ref bean="domibusAttachmentOutInterceptor"/>
+        </jaxws:outInterceptors>
+        <jaxws:inInterceptors>
+            <ref bean="domibusPrepareAttachmentInInterceptor"/>
+        </jaxws:inInterceptors>
+        <jaxws:handlers>
+            <ref bean="faultOutHandler"/>
+        </jaxws:handlers>
+
+        <jaxws:properties>
+            <entry key="faultStackTraceEnabled" value="false"/>
+            <entry key="exceptionMessageCauseEnabled" value="false"/>
+        </jaxws:properties>
+        <jaxws:features>
+            <ref bean="loggingFeature"/>
+        </jaxws:features>
+    </jaxws:client>
+
+    <http-conf:conduit name="*.http-conduit">
+        <http-conf:client AllowChunking="false"/>
+    </http-conf:conduit>
+
+</beans>

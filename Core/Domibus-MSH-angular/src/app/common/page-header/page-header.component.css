@@ -1,0 +1,8 @@
+:host:before {
+	display: none !important;
+	content: '' !important;
+}
+
+.page-header-style {
+  margin-left: 10px;
+}

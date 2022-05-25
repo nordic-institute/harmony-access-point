@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Error log details</h2>
+
+<mat-dialog-content style="height:auto;width:650px">
+  <mat-card>
+    <mat-card-content>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Signal Message Id" value="{{message.errorSignalMessageId}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="AP Role" value="{{message.mshRole}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Message Id" value="{{message.messageInErrorId}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Error Code" value="{{message.errorCode}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Error Detail" value="{{message.errorDetail}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Timestamp" value="{{message.timestamp | domibusDate}}" readonly/>
+      </mat-form-field>
+
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Notified" value="{{message.notified | domibusDate}}" readonly/>
+      </mat-form-field>
+
+    </mat-card-content>
+  </mat-card>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" (click)="dialogRef.close({})" style="margin-top:10px">
+    <mat-icon>close</mat-icon>
+    <span>Close</span>
+  </button>
+</mat-dialog-actions>
+

@@ -1,0 +1,12 @@
+<http-conf:tlsClientParameters disableCNCheck="true" secureSocketProtocol="TLSv1.2" xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" xmlns:security="http://cxf.apache.org/configuration/security">
+    <security:trustManagers>
+        <security:keyStore type="JKS" password="test123" file="${domibus.config.location}/keystores/gateway_truststore.jks"/>
+    </security:trustManagers>
+    <security:keyManagers keyPassword="test123">
+		<security:keyStore type="JKS" password="test123" file="${domibus.config.location}/keystores/gateway_keystore.jks"/>
+	</security:keyManagers>
+    <security:cipherSuitesFilter>
+        <security:exclude>.*_RSA_.*</security:exclude>
+    </security:cipherSuitesFilter>
+</http-conf:tlsClientParameters>
+

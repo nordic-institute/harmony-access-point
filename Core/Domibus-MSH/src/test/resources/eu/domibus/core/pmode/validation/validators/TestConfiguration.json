@@ -1,0 +1,85 @@
+{
+  "businessProcesses": {
+    "parties": [
+      {
+        "name": "party1",
+        "endpoint": "http://localhost:8180/domibus/services/msh"
+      },
+      {
+        "name": "party2",
+        "endpoint": ""
+      },
+      {
+        "name": "party3",
+        "endpoint": "http://localhost:8180/domibus/services/msh3?domain=aqua&<img src=http://localhost/271/300>"
+      }
+    ],
+    "processes": [
+      {
+        "name": "TestProcess_notSupported",
+        "mepBinding": {
+          "name": "pushAndPush",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"
+        },
+        "mep": {
+          "name": "twoway",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"
+        },
+        "initiatorRole": {
+          "name": "eCODEXRole",
+          "value": "GW"
+        },
+        "responderRole": {
+          "name": "eCODEXRole",
+          "value": "GW"
+        }
+      },
+      {
+        "name": "TestProcess_notValid",
+        "mepBinding": {
+          "name": "pushAndPush",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"
+        },
+        "mep": {
+          "name": "oneway",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"
+        },
+        "initiatorRole": {
+          "name": "eCODEXRole",
+          "value": "GW"
+        },
+        "responderRole": {
+          "name": "eCODEXRole",
+          "value": "GW"
+        }
+      }
+    ],
+    "properties": [
+      {
+        "name": "originalSenderProperty",
+        "key": "originalSender",
+        "datatype": "string",
+        "required": "true"
+      },
+      {
+        "name": "propertyNotUsed",
+        "key": "notUsed",
+        "datatype": "string",
+        "required": "true"
+      }
+    ],
+    "propertySets": [
+      {
+        "name": "eDeliveryPropertySet",
+        "propertyRef": [
+          {
+            "property": "originalSenderProperty"
+          },
+          {
+            "property": "propertyRefNotDefined"
+          }
+        ]
+      }
+    ]
+  }
+}
