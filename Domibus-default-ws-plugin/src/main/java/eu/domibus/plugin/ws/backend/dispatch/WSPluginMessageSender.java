@@ -51,8 +51,7 @@ public class WSPluginMessageSender extends Slf4jEventSender {
 
     protected final WSPluginImpl wsPlugin;
 
-    @Autowired
-    XMLUtil xmlUtil;
+    protected final XMLUtil xmlUtil;
 
     static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 
@@ -61,13 +60,15 @@ public class WSPluginMessageSender extends Slf4jEventSender {
                                  WSPluginDispatchRulesService rulesService,
                                  WSPluginMessageBuilder messageBuilder,
                                  WSPluginDispatcher dispatcher,
-                                 WSPluginImpl wsPlugin) {
+                                 WSPluginImpl wsPlugin,
+                                 XMLUtil xmlUtil) {
         this.reliabilityService = reliabilityService;
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.rulesService = rulesService;
         this.messageBuilder = messageBuilder;
         this.dispatcher = dispatcher;
         this.wsPlugin = wsPlugin;
+        this.xmlUtil = xmlUtil;
     }
 
     /**
@@ -83,24 +84,23 @@ public class WSPluginMessageSender extends Slf4jEventSender {
                 backendMessage.getType(),
                 backendMessage.getEntityId());
         WSPluginDispatchRule dispatchRule = null;
-        SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(backendMessage);
         try {
             dispatchRule = rulesService.getRule(backendMessage.getRuleName());
             String endpoint = dispatchRule.getEndpoint();
             LOG.debug("Endpoint identified: [{}]", endpoint);
+            SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(backendMessage);
             SOAPMessage soapSent = dispatcher.dispatch(soapMessage, endpoint);
             backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
                     backendMessage.getMessageId(),
                     endpoint);
-            String rawSoapXml = getRawXMLMessage(soapMessage);
 
-            if (isCxfLoggingInfoEnabled()){
+            if (isCxfLoggingInfoEnabled()) {
                 LOG.info("The soap message push notification sent to C4 for message with id [{}] is: [{}]",
                         backendMessage.getMessageId(), getRawXMLMessage(soapSent));
-                LOG.info("The soap message received from C4 for id [{}] is: [{}]", backendMessage.getMessageId(), rawSoapXml);
-
+                LOG.info("The soap message received from C4 for id [{}] is: [{}]",
+                        backendMessage.getMessageId(), getRawXMLMessage(soapMessage));
             }
 
             if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
@@ -115,14 +115,11 @@ public class WSPluginMessageSender extends Slf4jEventSender {
         }
     }
 
-
-
     protected boolean isCxfLoggingInfoEnabled() {
         boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
         LOG.debug("[{}] is {}set to INFO level", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled ? StringUtils.EMPTY : "not ");
         return isCxfLoggingInfoEnabled;
     }
-
 
     private String getRawXmlFromNode(Node node) throws TransformerException {
         final StringWriter rawXmlMessageWriter = new StringWriter();
