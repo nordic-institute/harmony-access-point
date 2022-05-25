@@ -37,7 +37,6 @@ import static org.junit.Assert.*;
  * Created by Cosmin Baciu on 30-Sep-16.
  */
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class JMSManagerWeblogicTest {
 
     @Tested
