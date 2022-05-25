@@ -15,7 +15,6 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -23,13 +22,11 @@ import org.junit.rules.ExpectedException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
-@Ignore("EDELIVERY-8892")
 public class BackendFilterInitializerServiceTest {
 
     @Tested
@@ -103,14 +100,12 @@ public class BackendFilterInitializerServiceTest {
 
             domainService.getDomains();
             result = Collections.singletonList(domain);
+
+            backendFilterInitializerService.createBackendFilters(domain);
         }};
 
         backendFilterInitializerService.updateMessageFilters();
 
-        new FullVerifications() {{
-            domainTaskExecutor.submit((Runnable) any, domain, true, 3L, TimeUnit.MINUTES);
-            times = 1;
-        }};
     }
 
     @Test

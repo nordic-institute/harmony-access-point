@@ -264,7 +264,6 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         Assert.assertEquals(uml1.getUserMessage().getMessageId(), resultList.get(0));
     }
 
-    @Ignore("EDELIVERY-8892")
     @Test
     public void delete_id_notFound() throws Exception {
 

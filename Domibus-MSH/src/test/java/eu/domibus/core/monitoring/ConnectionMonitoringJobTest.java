@@ -7,7 +7,6 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
@@ -17,7 +16,6 @@ import org.quartz.JobExecutionException;
  * @author Soumya Chandran
  * @since 5.0
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class ConnectionMonitoringJobTest {
     @Tested
@@ -50,6 +48,7 @@ public class ConnectionMonitoringJobTest {
 
         new FullVerifications() {{
             connectionMonitoringService.sendTestMessages();
+            domain.toString();
         }};
     }
 }

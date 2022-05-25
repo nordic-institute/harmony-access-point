@@ -20,7 +20,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -31,7 +30,6 @@ import java.util.Date;
 import static org.junit.Assert.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PullMessageEbms3ServiceImplTest {
 
@@ -314,6 +312,9 @@ public class PullMessageEbms3ServiceImplTest {
             messagingLockDao.save(lock);
             userMessageLogDao.update(userMessageLog);
             backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, MessageStatus.WAITING_FOR_RECEIPT, withAny(timestamp));
+            legConfiguration.getReceptionAwareness();
+            userMessageLog.getSendAttemptsMax();
+            timestamp.toString();
         }};
     }
 
@@ -321,18 +322,13 @@ public class PullMessageEbms3ServiceImplTest {
     public void hasAttemptsLeftTrueBecauseOfSendAttempt(@Injectable final UserMessageLog userMessageLog,
                                                         @Injectable final LegConfiguration legConfiguration) {
         new Expectations() {{
-            legConfiguration.getReceptionAwareness().getRetryTimeout();
-            result = 1;
             userMessageLog.getSendAttempts();
             result = 1;
             userMessageLog.getSendAttemptsMax();
             result = 2;
 
-            updateRetryLoggingService.getScheduledStartTime(userMessageLog);
-            result = System.currentTimeMillis() + 10000;
-
-            updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);
-            result = new Date(System.currentTimeMillis() + 50000);
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
+            result = false;
 
         }};
         assertTrue(pullMessageService.attemptNumberLeftIsLowerOrEqualThenMaxAttempts(userMessageLog, legConfiguration));
@@ -358,20 +354,14 @@ public class PullMessageEbms3ServiceImplTest {
     public void equalAttemptsButNotExpired(@Injectable final UserMessageLog userMessageLog,
                                            @Injectable final LegConfiguration legConfiguration) {
         new Expectations() {{
-            legConfiguration.getReceptionAwareness().getRetryTimeout();
-            result = 1;
-
             userMessageLog.getSendAttempts();
             result = 2;
 
             userMessageLog.getSendAttemptsMax();
             result = 2;
 
-            updateRetryLoggingService.getScheduledStartTime(userMessageLog);
-            result = System.currentTimeMillis() + 70000;
-
-            updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);
-            result = new Date(System.currentTimeMillis() + 50000);
+            updateRetryLoggingService.isExpired(legConfiguration, userMessageLog);
+            result = false;
         }};
         final boolean actual = pullMessageService.attemptNumberLeftIsLowerOrEqualThenMaxAttempts(userMessageLog, legConfiguration);
         assertTrue(actual);
@@ -381,9 +371,6 @@ public class PullMessageEbms3ServiceImplTest {
     public void equalAttemptsButExpired(@Injectable final UserMessageLog userMessageLog,
                                         @Injectable final LegConfiguration legConfiguration) {
         new Expectations() {{
-            legConfiguration.getReceptionAwareness().getRetryTimeout();
-            result = 1;
-
             userMessageLog.getSendAttempts();
             result = 2;
 

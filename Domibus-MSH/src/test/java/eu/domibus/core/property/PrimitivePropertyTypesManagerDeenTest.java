@@ -1,11 +1,9 @@
 package eu.domibus.core.property;
 
 import mockit.Deencapsulation;
-import mockit.Expectations;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,7 +12,6 @@ import java.util.Properties;
 /**
  * @author Sebastian-Ion TINCU
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PrimitivePropertyTypesManagerDeenTest {
 
@@ -189,22 +186,14 @@ public class PrimitivePropertyTypesManagerDeenTest {
     }
 
     private void whenRetrievingTheIntegerProperty() {
-        new Expectations() {{
-            primitivePropertyTypesManager.getIntegerInternal(propertyName, customValue);
-            result = myResult;
-        }};
+        myResult = primitivePropertyTypesManager.getIntegerInternal(propertyName, customValue);
     }
 
     private void whenRetrievingTheBooleanProperty() {
-        new Expectations() {{
-            primitivePropertyTypesManager.getBooleanInternal(propertyName, customValue);
-            result = myResult;
-        }};
+        myResult = primitivePropertyTypesManager.getBooleanInternal(propertyName, customValue);
     }
 
     private void thenPropertyValueTakenFromDefaults(String message, Object expectedValue) {
-        Assert.assertEquals(message, myResult, expectedValue);
+        Assert.assertEquals(message, expectedValue, myResult);
     }
-
-
 }

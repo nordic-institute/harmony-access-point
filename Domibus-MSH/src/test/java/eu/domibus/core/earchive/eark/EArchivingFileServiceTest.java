@@ -18,7 +18,6 @@ import org.apache.tika.mime.MimeTypes;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.activation.DataHandler;
@@ -34,7 +33,6 @@ import static org.junit.Assert.*;
  * @author François Gautier
  * @since 5.0
  */
-@Ignore("EDELIVERY-8892")
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
 public class EArchivingFileServiceTest {
 
@@ -101,7 +99,7 @@ public class EArchivingFileServiceTest {
         };
 
         MatcherAssert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
-        MatcherAssert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
+        MatcherAssert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
     }
 
     @Test
@@ -137,7 +135,7 @@ public class EArchivingFileServiceTest {
         };
 
         Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
-        Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml"), is(inputStream));
+        Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
     }
 
     @Test

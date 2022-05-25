@@ -43,7 +43,6 @@ import static org.junit.Assert.*;
  * @author Thomas Dussart
  * @since 4.0
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class PartyServiceImplTest {
 
@@ -97,7 +96,7 @@ public class PartyServiceImplTest {
 
     @Before
     public void setUp() {
-        new Expectations() {{
+        new NonStrictExpectations() {{
             gatewayParty.getName();
             result = "gatewayParty";
             pModeProvider.getGatewayParty();

@@ -1,6 +1,5 @@
 package eu.domibus.core.cxf;
 
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ssl.offload.SslOffloadService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -10,19 +9,10 @@ import org.apache.cxf.transport.http.Address;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE;
-import static eu.domibus.core.cxf.DomibusURLConnectionHTTPConduit.PROTOCOL_HTTP;
-import static eu.domibus.core.cxf.DomibusURLConnectionHTTPConduit.PROTOCOL_HTTPS;
-
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DomibusURLConnectionHTTPConduitTest {
 
