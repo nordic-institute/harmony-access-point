@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.MailModel;
@@ -13,7 +14,7 @@ import org.junit.runner.RunWith;
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class AlertDispatcherEbms3ServiceImplTest {
+public class AlertDispatcherServiceImplTest {
 
     @Tested
     private AlertDispatcherServiceImpl alertDispatcherService;
@@ -22,14 +23,14 @@ public class AlertDispatcherEbms3ServiceImplTest {
     private AlertService alertService;
 
     @Injectable
+    private AlertDao alertDao;
+
+    @Injectable
     protected AlertMethodFactory alertMethodFactory;
 
     @Test
     public void dispatch(@Mocked final Alert alert) {
-        new Expectations(alertDispatcherService) {{
-            alertDispatcherService.findAlert(anyLong);
-            result = alert;
-        }};
+
         alertDispatcherService.dispatch(alert);
 
         new VerificationsInOrder(){{
@@ -47,8 +48,6 @@ public class AlertDispatcherEbms3ServiceImplTest {
     @Test(expected = RuntimeException.class)
     public void dispatchWithError(@Mocked final Alert alert, @Mocked final MailModel mailModelForAlert) {
         new Expectations() {{
-            alertDispatcherService.findAlert(anyLong);
-            result = alert;
             alertMethodFactory.getAlertMethod().sendAlert(alert);
             result = new RuntimeException("Error sending alert");
         }};
@@ -73,6 +72,8 @@ public class AlertDispatcherEbms3ServiceImplTest {
             result = 0;
             alert.getMaxAttempts();
             result = 5;
+            alertDao.read(anyLong);
+            result = null;
         }};
         alertDispatcherService.dispatch(alert);
 
