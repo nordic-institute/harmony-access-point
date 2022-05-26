@@ -1,5 +1,6 @@
 package eu.domibus.core.message.compression;
 
+import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -169,6 +170,15 @@ public class CompressionService {
                     .build();
         }
         partInfo.setCompressed(true);
+        try {
+            LOG.info("\n\n\nBefore decompressing \n\n\n");
+            DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
+            LOG.info("\n\n\nAfter decompressing, dh [{}]\n\n\n", dh.getName());
+        } catch (Exception e ) {
+            LOG.info("\n\n\nException is [{}]\n\n\n", e);
+            LOG.info("\n\n\n_____________\n\n\n");
+            throw e;
+        }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
     }
 
