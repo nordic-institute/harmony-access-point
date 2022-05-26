@@ -444,7 +444,12 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
         LOG.info("Persisting received message");
 
-        compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
+        try {
+            compressionService.handleDecompression(userMessage, partInfoList, legConfiguration);
+        } catch (IOException e) {
+            LOG.error("Decompression error", e);
+            throw new CompressionException("Decompression error.");
+        }
 
         final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult);
 

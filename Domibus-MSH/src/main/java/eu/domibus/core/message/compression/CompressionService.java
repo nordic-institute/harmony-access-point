@@ -124,13 +124,13 @@ public class CompressionService {
      * @return {@code true} if everything was decompressed without problems, {@code false} in case of disabled compression via pmode
      * @throws EbMS3Exception if an problem occurs during the de compression or the mimetype of a compressed payload was missing
      */
-    public void handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception {
+    public void handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception, IOException {
         for (final PartInfo partInfo : partInfoList) {
             handlePartInfoDecompression(userMessage.getMessageId(), partInfo);
         }
     }
 
-    public void handlePartInfoDecompression(String messageId, PartInfo partInfo) throws EbMS3Exception {
+    public void handlePartInfoDecompression(String messageId, PartInfo partInfo) throws EbMS3Exception, IOException {
         if (partInfo.isInBody()) {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_PART_INFO_IN_BODY, partInfo.getHref());
             return;
@@ -173,7 +173,7 @@ public class CompressionService {
         try {
             LOG.info("\n\n\nBefore decompressing \n\n\n");
             DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
-            LOG.info("\n\n\nAfter decompressing, dh [{}]\n\n\n", dh.getName());
+            LOG.info("\n\n\nAfter decompressing, dh [{}]\n\n\n", dh.getInputStream().available());
         } catch (Exception e ) {
             LOG.info("\n\n\nException is [{}]\n\n\n", e);
             LOG.info("\n\n\n_____________\n\n\n");
