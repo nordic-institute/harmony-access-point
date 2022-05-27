@@ -17,6 +17,11 @@ import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerat
  */
 @Component
 public class EArchiveBatchUtils {
+    private final UserMessageLogDao userMessageLogDao;
+
+    public EArchiveBatchUtils(UserMessageLogDao userMessageLogDao) {
+        this.userMessageLogDao = userMessageLogDao;
+    }
 
     public List<String> getMessageIds(List<EArchiveBatchUserMessage> userMessageDtos) {
         if (CollectionUtils.isEmpty(userMessageDtos)) {
@@ -57,7 +62,7 @@ public class EArchiveBatchUtils {
         return "" + batchUserMessages.get(index).getUserMessageEntityId();
     }
 
-    public Date getBatchMessageDate(UserMessageLogDao userMessageLogDao, String userMessageEntityId) {
+    public Date getBatchMessageDate(String userMessageEntityId) {
         Date messageStartDate = null;
         if (userMessageEntityId != null) {
             messageStartDate = userMessageLogDao.findByEntityId(Long.parseLong(userMessageEntityId)).getReceived();

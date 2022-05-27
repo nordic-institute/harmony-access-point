@@ -6,7 +6,6 @@ import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.earchive.EArchivingDefaultService;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -61,9 +60,6 @@ public class EArchiveNotificationListenerTest {
 
     @Injectable
     private ObjectMapper objectMapper;
-
-    @Injectable
-    private UserMessageLogDao userMessageLogDao;
 
     private final long entityId = 1L;
 
