@@ -119,9 +119,9 @@ public class EArchiveListenerTest {
     public void onMessage_noMessages(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
-        String firstUserMessageEntityId = "220511070000001204";
+        Long firstUserMessageEntityId = 220511070000001204L;
 
-        String lastUserMessageEntityId = "220511080000001204";
+        Long lastUserMessageEntityId = 220511080000001204L;
 
         new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
@@ -157,10 +157,10 @@ public class EArchiveListenerTest {
             eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
             result = lastUserMessageEntityId;
 
-            userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
             result = new Date();
 
-            userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
@@ -200,8 +200,8 @@ public class EArchiveListenerTest {
                              @Injectable EArchiveBatchEntity eArchiveBatch,
                              @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
 
-        String firstUserMessageEntityId = "220511070000001204";
-        String lastUserMessageEntityId = "220511080000001204";
+        Long firstUserMessageEntityId = 220511070000001204L;
+        Long lastUserMessageEntityId = 220511080000001204L;
 
         new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
@@ -237,10 +237,10 @@ public class EArchiveListenerTest {
             eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
             result = lastUserMessageEntityId;
 
-            userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
             result = new Date();
 
-            userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);

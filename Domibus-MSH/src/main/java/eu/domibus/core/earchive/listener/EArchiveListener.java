@@ -126,8 +126,8 @@ public class EArchiveListener implements MessageListener {
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
 
-        String firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
-        String lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+        Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
+        Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
             messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
             messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
@@ -140,8 +140,8 @@ public class EArchiveListener implements MessageListener {
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                         .status("SUCCESS")
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
-                        .messageStartId(firstUserMessageEntityId)
-                        .messageEndId(lastUserMessageEntityId)
+                        .messageStartId(String.valueOf(firstUserMessageEntityId))
+                        .messageEndId(String.valueOf(lastUserMessageEntityId))
                         .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
                 batchUserMessages, messageStartDate, messageEndDate);

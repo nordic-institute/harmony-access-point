@@ -218,8 +218,8 @@ public class EArchiveNotificationListener implements MessageListener {
         LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
             List<EArchiveBatchUserMessage> batchUserMessages = eArchiveBatch.geteArchiveBatchUserMessages();
-            String firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
-            String lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+            Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
+            Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
 
             messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
             messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);

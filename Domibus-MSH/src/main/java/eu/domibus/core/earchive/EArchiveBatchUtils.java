@@ -55,17 +55,17 @@ public class EArchiveBatchUtils {
         return batchUserMessages.size() - 1;
     }
 
-    public String getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
+    public Long getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
         if (org.springframework.util.CollectionUtils.isEmpty(batchUserMessages)) {
             return null;
         }
-        return "" + batchUserMessages.get(index).getUserMessageEntityId();
+        return batchUserMessages.get(index).getUserMessageEntityId();
     }
 
-    public Date getBatchMessageDate(String userMessageEntityId) {
+    public Date getBatchMessageDate(Long userMessageEntityId) {
         Date messageStartDate = null;
         if (userMessageEntityId != null) {
-            messageStartDate = userMessageLogDao.findByEntityId(Long.parseLong(userMessageEntityId)).getReceived();
+            messageStartDate = userMessageLogDao.findByEntityId(userMessageEntityId).getReceived();
         }
         return messageStartDate;
     }
