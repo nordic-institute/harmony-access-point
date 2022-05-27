@@ -14,6 +14,8 @@ import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.activemq.filter.BooleanExpression;
+import org.apache.activemq.selector.SelectorParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import weblogic.messaging.runtime.MessageInfo;
 
 import javax.annotation.Resource;
 import javax.jms.Destination;
+import javax.jms.InvalidSelectorException;
 import javax.jms.Topic;
 import javax.management.*;
 import javax.management.openmbean.CompositeData;
@@ -685,7 +688,13 @@ public class InternalJMSManagerWeblogic implements InternalJMSManager {
      */
     @Override
     public List<InternalJmsMessage> browseMessages(String source, String jmsType, Date fromDate, Date toDate, String selectorClause) {
-
+        if (StringUtils.isNotEmpty(selectorClause)) {
+            try {
+                BooleanExpression selectorExpression =  SelectorParser.parse(selectorClause);
+            } catch (InvalidSelectorException e) {
+                throw new InternalJMSException("Invalid selector [" + source + "]", e);
+            }
+        }
         List<InternalJmsMessage> internalJmsMessages = new ArrayList<>();
         InternalJMSDestination destination = getInternalJMSDestination(removeJmsModule(source));
         String destinationType = destination.getType();
