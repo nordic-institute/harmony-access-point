@@ -215,20 +215,21 @@ public class EArchiveNotificationListener implements MessageListener {
         Date messageEndDate = null;
 
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
-        LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
-        if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
-            List<EArchiveBatchUserMessage> batchUserMessages = eArchiveBatch.geteArchiveBatchUserMessages();
-            Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
-            Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
-
-            messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
-            messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
-            if (messageStartDate != null && messageEndDate != null) {
-                batchNotification.setMessageStartDate(OffsetDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC));
-                batchNotification.setMessageEndDate(OffsetDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC));
-            }
+        if (BooleanUtils.isNotTrue(isNotificationWithStartAndEndDate)) {
+            LOG.debug("EArchive client with batch Id [{}] needs to receive notifications with message start date and end date [{}]", eArchiveBatch.getBatchId(), isNotificationWithStartAndEndDate);
+            return batchNotification;
         }
-        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}]", messageStartDate, messageEndDate);
+        List<EArchiveBatchUserMessage> batchUserMessages = eArchiveBatch.geteArchiveBatchUserMessages();
+        Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
+        Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+
+        messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
+        messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
+        if (messageStartDate != null && messageEndDate != null) {
+            batchNotification.setMessageStartDate(OffsetDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC));
+            batchNotification.setMessageEndDate(OffsetDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC));
+        }
+        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, eArchiveBatch.getBatchId());
 
         return batchNotification;
     }

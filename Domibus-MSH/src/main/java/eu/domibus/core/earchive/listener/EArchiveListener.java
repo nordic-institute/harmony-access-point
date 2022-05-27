@@ -122,9 +122,10 @@ public class EArchiveListener implements MessageListener {
         Date messageStartDate = null;
         Date messageEndDate = null;
         DomibusEARKSIPResult eArkSipStructure;
+        String batchId = eArchiveBatchByBatchId.getBatchId();
 
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
-        LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
+        LOG.debug("EArchive client with batch Id [{}] needs to receive notifications with message start date and end date: [{}]", batchId, isNotificationWithStartAndEndDate);
 
         Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
         Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
@@ -132,11 +133,11 @@ public class EArchiveListener implements MessageListener {
             messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
             messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
         }
-        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}]", messageStartDate, messageEndDate);
+        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, batchId);
 
         eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
-                        .batchId(eArchiveBatchByBatchId.getBatchId())
+                        .batchId(batchId)
                         .requestType(eArchiveBatchByBatchId.getRequestType() != null ? eArchiveBatchByBatchId.getRequestType().name() : null)
                         .status("SUCCESS")
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
