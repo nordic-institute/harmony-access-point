@@ -29,18 +29,18 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-angular</artifactId>
+            <artifactId>domibus-msh-angular</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-services-delegate</artifactId>
+            <artifactId>domibus-msh-ext-services-delegate</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- End Domibus modules -->

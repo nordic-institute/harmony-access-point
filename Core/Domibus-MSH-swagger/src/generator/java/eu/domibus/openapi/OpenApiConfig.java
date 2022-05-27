@@ -20,7 +20,7 @@ import java.util.Properties;
 
 /**
  * Class contains spring MVC configuration to startup MockMVC with the spring-doc. The class generates all (mocked) beans
- * needed by the domibus REST API defined in module domibus-ext-services-delegate
+ * needed by the domibus REST API defined in module domibus-msh-ext-services-delegate
  *
  * @author Joze Rihtarsic
  * @since 5.0

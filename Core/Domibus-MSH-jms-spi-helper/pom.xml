@@ -10,7 +10,7 @@
         <artifactId>core</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-jms-spi-helper</artifactId>
+    <artifactId>domibus-msh-jms-spi-helper</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH JMS SPI Helper</name>
 
@@ -30,7 +30,7 @@
     <dependencies>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-spi</artifactId>
+            <artifactId>domibus-msh-jms-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>javax</groupId>

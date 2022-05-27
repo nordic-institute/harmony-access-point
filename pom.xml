@@ -238,7 +238,7 @@
             <!-- Domibus modules -->
             <dependency>
                 <groupId>eu.domibus</groupId>
-                <artifactId>domibus-logging</artifactId>
+                <artifactId>domibus-msh-logging</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
@@ -1469,7 +1469,7 @@
                 <module>Weblogic/Domibus-MSH-taskexecutor-weblogic</module>
                 <module>Weblogic/Domibus-MSH-jms-weblogic</module>
                 <module>Weblogic/Domibus-MSH-weblogic-common</module>
-                <module>Weblogic/Domibus-MSH-weblogic-ecas</module>
+                <module>Weblogic/Domibus-MSH-weblogic-eu-login</module>
             </modules>
         </profile>
         <profile>

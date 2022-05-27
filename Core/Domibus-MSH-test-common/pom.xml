@@ -10,7 +10,7 @@
         <artifactId>core</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
-    <artifactId>domibus-test-common</artifactId>
+    <artifactId>domibus-msh-test-common</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH Test Common</name>
 
@@ -37,11 +37,11 @@
         <!-- Domibus modules -->
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-logging</artifactId>
+            <artifactId>domibus-msh-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
+            <artifactId>domibus-msh-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -51,12 +51,12 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-jms-activemq</artifactId>
+            <artifactId>domibus-msh-jms-activemq</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-db</artifactId>
+            <artifactId>domibus-msh-db</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- End Domibus modules -->

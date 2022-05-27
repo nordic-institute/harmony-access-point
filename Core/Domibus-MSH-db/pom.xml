@@ -11,7 +11,7 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
-    <artifactId>domibus-db</artifactId>
+    <artifactId>domibus-msh-db</artifactId>
     <name>Domibus MSH Database</name>
 
     <properties>

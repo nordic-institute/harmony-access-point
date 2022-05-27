@@ -22,7 +22,7 @@
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../../Weblogic/Domibus-MSH-weblogic-ecas/src/main/conf/domibus</directory>
+            <directory>${project.basedir}/../../Weblogic/Domibus-MSH-weblogic-eu-login/src/main/conf/domibus</directory>
             <outputDirectory>/</outputDirectory>
             <useDefaultExcludes>true</useDefaultExcludes>
             <filtered>false</filtered>
