@@ -6,6 +6,7 @@ import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.earchive.EArchivingDefaultService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -14,7 +15,10 @@ import eu.domibus.messaging.MessageConstants;
 import gen.eu.domibus.archive.client.api.ArchiveWebhookApi;
 import gen.eu.domibus.archive.client.invoker.auth.HttpBasicAuth;
 import gen.eu.domibus.archive.client.model.BatchNotification;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,6 +61,9 @@ public class EArchiveNotificationListenerTest {
 
     @Injectable
     private ObjectMapper objectMapper;
+
+    @Injectable
+    private UserMessageLogDao userMessageLogDao;
 
     private final long entityId = 1L;
 

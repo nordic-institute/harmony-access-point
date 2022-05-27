@@ -130,19 +130,14 @@ public class EArchiveListener implements MessageListener {
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         LOG.debug("EArchive client needs to receive notifications with message start date and end date: [{}]", isNotificationWithStartAndEndDate);
 
-        String firstUserMessageEntityId = getMessageStartDate(batchUserMessages, 0);
-        String lastUserMessageEntityId = getMessageStartDate(batchUserMessages, getLastIndex(batchUserMessages));
-
+        String firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
+        String lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
-            if (firstUserMessageEntityId != null) {
-                messageStartDate = userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
-                LOG.debug("EArchive batch messageStartDate: [{}]", messageStartDate);
-            }
-            if (lastUserMessageEntityId != null) {
-                messageEndDate = userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
-                LOG.debug("EArchive batch messageEndDate: [{}]", messageEndDate);
-            }
+            messageStartDate = eArchiveBatchUtils.getBatchMessageDate(userMessageLogDao, firstUserMessageEntityId);
+            messageEndDate = eArchiveBatchUtils.getBatchMessageDate(userMessageLogDao, lastUserMessageEntityId);
         }
+        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}]", messageStartDate, messageEndDate);
+
         eArkSipStructure = fileSystemEArchivePersistence.createEArkSipStructure(
                 new BatchEArchiveDTOBuilder()
                         .batchId(eArchiveBatchByBatchId.getBatchId())
@@ -159,19 +154,5 @@ public class EArchiveListener implements MessageListener {
             LOG.debug("EArchive saved in location [{}]", eArkSipStructure.getDirectory().toAbsolutePath().toString());
         }
         return eArkSipStructure.getManifestChecksum();
-    }
-
-    protected int getLastIndex(List<EArchiveBatchUserMessage> batchUserMessages) {
-        if(CollectionUtils.isEmpty(batchUserMessages)){
-            return 0;
-        }
-        return batchUserMessages.size() - 1;
-    }
-
-    protected String getMessageStartDate(List<EArchiveBatchUserMessage> batchUserMessages, int index) {
-        if(CollectionUtils.isEmpty(batchUserMessages)){
-            return null;
-        }
-        return "" + batchUserMessages.get(index).getUserMessageEntityId();
     }
 }
