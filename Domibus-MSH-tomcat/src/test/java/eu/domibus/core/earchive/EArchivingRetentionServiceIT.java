@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -161,10 +162,11 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
 
     @Test
     @Transactional
-    @Ignore("EDELIVERY-8892")
-    public void cleanStoredBatches() {
+    public void cleanStoredBatches() throws IOException {
         //setup batch and export messages
         EArchiveBatchEntity eArchiveBatch = eArchivingService.getEArchiveBatch(batch4.getEntityId(), true);
+        String batchId = eArchiveBatch.getBatchId();
+        Files.createDirectory(Paths.get(temp.getAbsolutePath(), batchId));
         eArchiveListener.onMessageExportBatch(eArchiveBatch, eArchiveBatch.geteArchiveBatchUserMessages());
         // need to set the status manually now
         eArchiveBatchDao.setStatus(eArchiveBatch, EArchiveBatchStatus.ARCHIVED, null, null);
