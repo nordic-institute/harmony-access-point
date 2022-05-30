@@ -562,7 +562,7 @@ public class UserMessageHandlerServiceImplTest {
                                                                @Injectable final Ebms3Messaging ebms3Messaging,
                                                                @Injectable final UserMessageLog userMessageLog,
                                                                @Injectable Ebms3MessageFragmentType messageFragment)
-            throws EbMS3Exception {
+            throws EbMS3Exception, IOException {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations() {{
@@ -599,7 +599,7 @@ public class UserMessageHandlerServiceImplTest {
                                                             @Injectable final Party receiverParty,
                                                             @Injectable final UserMessageLog userMessageLog,
                                                             @Injectable Ebms3MessageFragmentType messageFragment)
-            throws EbMS3Exception {
+            throws EbMS3Exception, IOException {
         final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
 
         new Expectations() {{

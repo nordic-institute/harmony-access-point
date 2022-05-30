@@ -208,6 +208,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD, Type.NUMERIC, Usage.DOMAIN, true),
