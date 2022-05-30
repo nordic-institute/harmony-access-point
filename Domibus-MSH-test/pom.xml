@@ -82,7 +82,7 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>9.4.29.v20200521</version>
+                <version>9.3.3.v20150827</version>
             </dependency>
             <dependency>
                 <groupId>org.jmockit</groupId>
@@ -401,7 +401,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.4.29.v20200521</version>
+            <version>9.3.3.v20150827</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>

@@ -156,9 +156,9 @@
    file name: spring-core-5.3.20.jar
    ]]></notes>
         <!--
-        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project)
+        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
         -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-core@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
     </suppress>
 
@@ -167,9 +167,9 @@
    file name: spring-tx-5.3.20.jar
    ]]></notes>
         <!--
-        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project)
+        see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
         -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-tx@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-tx@.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
     </suppress>
 
