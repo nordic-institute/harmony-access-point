@@ -179,7 +179,7 @@ public class CompressionService {
             LOG.debug("Perform decompression validation for partInfo [{}].", partInfo.getHref());
             DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
             if (dh.getInputStream().available() > 0) {
-                LOG.info("Successfully decompressed partInfo [{}]", partInfo.getHref());
+                LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
             }
         }
 
