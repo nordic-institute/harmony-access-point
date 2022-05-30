@@ -130,7 +130,7 @@ public interface CertificateService {
      * @param trustName    the name of the trust in hte DB
      * @throws CryptoException
      */
-    void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
+    Long replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) throws CryptoException;
 
      /**
      * Returns the truststore pointed by the location/password parameters
@@ -157,7 +157,8 @@ public interface CertificateService {
      * @param certificateContent the content of the certificate
      * @param alias              the name of the certificate
      * @param overwrite          if overwrite an existing certificate
-     * @return
+     *
+     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}
      */
     Long addCertificate(String trustName, byte[] certificateContent, String alias, boolean overwrite);
 
@@ -167,6 +168,7 @@ public interface CertificateService {
      * @param trustName    the location of the trust on disc
      * @param certificates the list of certificate entries( name and value)
      * @param overwrite    if overwrite an existing certificate
+     *
      * @return true if at least one was added
      */
     boolean addCertificates(String trustName, List<CertificateEntry> certificates, boolean overwrite);
@@ -176,7 +178,8 @@ public interface CertificateService {
      *
      * @param trustName the location of the trust on disc
      * @param alias     the certificate name
-     * @return true is at least one was deleted
+     *
+     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}.
      */
     Long removeCertificate(String trustName, String alias);
 
@@ -185,14 +188,16 @@ public interface CertificateService {
      *
      * @param trustName the location of the trust on disc
      * @param aliases   the list of certificate names
-     * @return true is at least one was deleted
+     *
+     * @return the id of the {@link eu.domibus.core.crypto.TruststoreEntity} with {@param trustName}.
      */
     Long removeCertificates(String trustName, List<String> aliases);
 
     /**
      * Retrieves the content of the specified truststore
      * @param trustName the name of the trust in the db
-     * @return
+     *
+     * @return the content and the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
      */
     TrustStoreContentDTO getTruststoreContent(String trustName);
 
