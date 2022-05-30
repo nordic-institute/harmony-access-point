@@ -158,7 +158,7 @@
         <!--
         see EDELIVERY-9237 (vulnerability CVE-2016-1000027 not affecting the project or affecting probability is low)
         -->
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-core@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-*@.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
     </suppress>
 
