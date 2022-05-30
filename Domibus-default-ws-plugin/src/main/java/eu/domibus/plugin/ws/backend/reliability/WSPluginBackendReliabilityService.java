@@ -106,7 +106,9 @@ public class WSPluginBackendReliabilityService {
         emailBodyVariables.put("rule.types", rule.getTypes().toString());
         emailBodyVariables.put("message.messageId", backendMessage.getMessageId());
         emailBodyVariables.put("message.originalSender", backendMessage.getOriginalSender());
-        emailBodyVariables.put("message.messageStatus", backendMessage.getMessageStatus().name());
+        if(backendMessage.getMessageStatus() != null) {
+            emailBodyVariables.put("message.messageStatus", backendMessage.getMessageStatus().name());
+        }
         emailBodyVariables.put("message.type", backendMessage.getType().name());
         return StringSubstitutor.replace(body, emailBodyVariables, "{", "}");
     }
