@@ -170,8 +170,11 @@ public class CompressionService {
                     .build();
         }
         partInfo.setCompressed(true);
-        // decompress to make sure the zip is correct
-        DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
+            DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
+            if(dh.getInputStream().available() > 0) {
+                LOG.info("Successfully decompressed part info [{}]", partInfo.getHref());
+            }
+
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
     }
 
