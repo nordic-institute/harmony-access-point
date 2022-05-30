@@ -1853,7 +1853,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log()
                 LEAVE read_loop;
             END IF;
 
-            IF @v_type = 'USER' THEN
+            IF type = 'USER' THEN
                 BEGIN
                     DECLARE EXIT HANDLER FOR SQLEXCEPTION
                         BEGIN

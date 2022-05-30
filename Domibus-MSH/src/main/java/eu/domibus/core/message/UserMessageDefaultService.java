@@ -676,7 +676,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public byte[] getMessageEnvelopesAsZip(String messageId) {
         Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId);
         if (envelopes.isEmpty()) {
-            LOG.info("Could not find message envelopes with id [{}].", messageId);
+            LOG.debug("Could not find message envelopes with id [{}].", messageId);
             return new byte[0];
         }
         try {
