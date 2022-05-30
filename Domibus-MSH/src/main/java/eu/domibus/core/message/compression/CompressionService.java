@@ -170,15 +170,8 @@ public class CompressionService {
                     .build();
         }
         partInfo.setCompressed(true);
-        try {
-            LOG.info("\n\n\nBefore decompressing \n\n\n");
-            DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
-            LOG.info("\n\n\nAfter decompressing, dh [{}]\n\n\n", dh.getInputStream().available());
-        } catch (Exception e ) {
-            LOG.info("\n\n\nException is [{}]\n\n\n", e);
-            LOG.info("\n\n\n_____________\n\n\n");
-            throw e;
-        }
+        // decompress to make sure the zip is correct
+        DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
     }
 
