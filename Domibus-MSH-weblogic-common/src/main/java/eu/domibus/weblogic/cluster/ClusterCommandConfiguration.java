@@ -52,6 +52,10 @@ public class ClusterCommandConfiguration {
 
         final List<Domain> domains = new ArrayList<>(domainService.getDomains());
         for (Domain domain : domains) {
+            if (domainService.getDomain(domain.getCode()) == null) {
+                LOGGER.debug("Domain [{}] is no longer active, skip executing commands for it", domain);
+                continue;
+            }
             domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName), domain);
         }
 
