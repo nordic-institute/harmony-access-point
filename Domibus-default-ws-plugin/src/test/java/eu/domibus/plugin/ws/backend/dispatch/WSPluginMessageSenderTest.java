@@ -2,7 +2,6 @@ package eu.domibus.plugin.ws.backend.dispatch;
 
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
@@ -48,9 +47,6 @@ public class WSPluginMessageSenderTest {
 
     @Injectable
     protected WSPluginDispatchRulesService wsPluginDispatchRulesService;
-
-    @Injectable
-    protected WSBackendMessageLogDao wsBackendMessageLogDao;
 
     @Injectable
     protected WSPluginBackendReliabilityService reliabilityService;

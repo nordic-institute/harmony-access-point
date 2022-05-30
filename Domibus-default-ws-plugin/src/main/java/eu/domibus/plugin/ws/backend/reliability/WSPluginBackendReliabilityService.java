@@ -85,7 +85,7 @@ public class WSPluginBackendReliabilityService {
 
         boolean alertIsActive = BooleanUtils.isTrue(wsPluginPropertyManager.getKnownBooleanPropertyValue(PUSH_ALERT_ACTIVE));
         LOG.debug("[WSPLUGIN] Alert is enabled: [{}]", alertIsActive);
-        if(alertIsActive) {
+        if (alertIsActive) {
             String alertLevel = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_LEVEL);
             String subject = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_SUBJECT);
             String body = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_BODY);
@@ -106,7 +106,7 @@ public class WSPluginBackendReliabilityService {
         emailBodyVariables.put("rule.types", rule.getTypes().toString());
         emailBodyVariables.put("message.messageId", backendMessage.getMessageId());
         emailBodyVariables.put("message.originalSender", backendMessage.getOriginalSender());
-        if(backendMessage.getMessageStatus() != null) {
+        if (backendMessage.getMessageStatus() != null) {
             emailBodyVariables.put("message.messageStatus", backendMessage.getMessageStatus().name());
         }
         emailBodyVariables.put("message.type", backendMessage.getType().name());
