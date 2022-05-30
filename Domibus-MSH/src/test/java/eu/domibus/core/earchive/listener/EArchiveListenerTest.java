@@ -119,9 +119,9 @@ public class EArchiveListenerTest {
     public void onMessage_noMessages(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
-        String firstUserMessageEntityId = "220511070000001204";
+        Long firstUserMessageEntityId = 220511070000001204L;
 
-        String lastUserMessageEntityId = "220511080000001204";
+        Long lastUserMessageEntityId = 220511080000001204L;
 
         new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
@@ -134,7 +134,7 @@ public class EArchiveListenerTest {
             result = entityId;
 
             jmsUtil.getMessageTypeSafely(message);
-            result=EArchiveBatchStatus.EXPORTED.name();
+            result = EArchiveBatchStatus.EXPORTED.name();
 
             eArchivingDefaultService.getEArchiveBatch(entityId, true);
             result = eArchiveBatch;
@@ -151,16 +151,16 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = EArchiveRequestType.CONTINUOUS;
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, 0);
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, eArchiveListener.getLastIndex(batchUserMessages));
-            result =lastUserMessageEntityId;
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+            result = lastUserMessageEntityId;
 
-            userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
             result = new Date();
 
-            userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
@@ -200,8 +200,8 @@ public class EArchiveListenerTest {
                              @Injectable EArchiveBatchEntity eArchiveBatch,
                              @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
 
-        String firstUserMessageEntityId = "220511070000001204";
-        String lastUserMessageEntityId = "220511080000001204";
+        Long firstUserMessageEntityId = 220511070000001204L;
+        Long lastUserMessageEntityId = 220511080000001204L;
 
         new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
@@ -211,7 +211,7 @@ public class EArchiveListenerTest {
             result = batchId;
 
             jmsUtil.getMessageTypeSafely(message);
-            result=EArchiveBatchStatus.EXPORTED.name();
+            result = EArchiveBatchStatus.EXPORTED.name();
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
@@ -231,16 +231,16 @@ public class EArchiveListenerTest {
             domibusEARKSIPResult.getManifestChecksum();
             result = "sha256:test";
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, 0);
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, eArchiveListener.getLastIndex(batchUserMessages));
-            result =lastUserMessageEntityId;
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+            result = lastUserMessageEntityId;
 
-            userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
             result = new Date();
 
-            userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
@@ -280,7 +280,7 @@ public class EArchiveListenerTest {
 
     @Test
     public void onMessage_ArchiveOK(@Injectable Message message,
-                                   @Injectable EArchiveBatchEntity eArchiveBatch){
+                                    @Injectable EArchiveBatchEntity eArchiveBatch) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -289,7 +289,7 @@ public class EArchiveListenerTest {
             result = batchId;
 
             jmsUtil.getMessageTypeSafely(message);
-            result=EArchiveBatchStatus.ARCHIVED.name();
+            result = EArchiveBatchStatus.ARCHIVED.name();
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
