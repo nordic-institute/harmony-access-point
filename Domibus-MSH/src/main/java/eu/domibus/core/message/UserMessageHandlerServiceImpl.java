@@ -449,7 +449,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         } catch (IOException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageId());
             throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
                     .message(exc.getMessage())
                     .refToMessageId(userMessage.getMessageId())
                     .cause(exc)
