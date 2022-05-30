@@ -2,6 +2,8 @@ package eu.domibus.core.message.compression;
 
 import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -41,6 +43,9 @@ public class CompressionService {
 
     @Autowired
     protected PartPropertyDictionaryService partPropertyDictionaryService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * This method is responsible for compression of payloads in a ebMS3 AS4 conformant way in case of {@link eu.domibus.api.model.MSHRole#SENDING}
@@ -170,10 +175,13 @@ public class CompressionService {
                     .build();
         }
         partInfo.setCompressed(true);
+        if (domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE)) {
+            LOG.debug("Perform decompression validation for partInfo [{}].", partInfo.getHref());
             DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
-            if(dh.getInputStream().available() > 0) {
-                LOG.info("Successfully decompressed part info [{}]", partInfo.getHref());
+            if (dh.getInputStream().available() > 0) {
+                LOG.info("Successfully decompressed partInfo [{}]", partInfo.getHref());
             }
+        }
 
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
     }
