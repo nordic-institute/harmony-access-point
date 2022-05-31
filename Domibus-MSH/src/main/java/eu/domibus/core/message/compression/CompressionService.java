@@ -1,6 +1,9 @@
 package eu.domibus.core.message.compression;
 
+import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -40,6 +43,9 @@ public class CompressionService {
 
     @Autowired
     protected PartPropertyDictionaryService partPropertyDictionaryService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * This method is responsible for compression of payloads in a ebMS3 AS4 conformant way in case of {@link eu.domibus.api.model.MSHRole#SENDING}
@@ -123,13 +129,13 @@ public class CompressionService {
      * @return {@code true} if everything was decompressed without problems, {@code false} in case of disabled compression via pmode
      * @throws EbMS3Exception if an problem occurs during the de compression or the mimetype of a compressed payload was missing
      */
-    public void handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception {
+    public void handleDecompression(final UserMessage userMessage, List<PartInfo> partInfoList, final LegConfiguration legConfigForMessage) throws EbMS3Exception, IOException {
         for (final PartInfo partInfo : partInfoList) {
             handlePartInfoDecompression(userMessage.getMessageId(), partInfo);
         }
     }
 
-    public void handlePartInfoDecompression(String messageId, PartInfo partInfo) throws EbMS3Exception {
+    public void handlePartInfoDecompression(String messageId, PartInfo partInfo) throws EbMS3Exception, IOException {
         if (partInfo.isInBody()) {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION_PART_INFO_IN_BODY, partInfo.getHref());
             return;
@@ -169,6 +175,14 @@ public class CompressionService {
                     .build();
         }
         partInfo.setCompressed(true);
+        if (domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE)) {
+            LOG.debug("Perform decompression validation for partInfo [{}].", partInfo.getHref());
+            DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
+            if (dh.getInputStream().available() > 0) {
+                LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
+            }
+        }
+
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
     }
 

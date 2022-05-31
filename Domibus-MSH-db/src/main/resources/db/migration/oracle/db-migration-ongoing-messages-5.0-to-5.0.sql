@@ -1,7 +1,12 @@
 -- ********************************************************************************************************
--- Domibus 5.0to 5.0 ongoing messages data migration package
+-- Domibus 5.0 to 5.0 ongoing messages data migration package
 --
--- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
+-- Main entry point is the procedure 'migrate'. To be executed into a begin/end; anonymous block. Uncomment trailing
+-- lines, edit values in the migration anonymous block and execute this full script: preparation anonymous blocks, PKs
+-- temporary tables creation, package and package body definitions, migration and cleanup anonymous blocks.
+--
+-- NOTE: Oracle allows users to manipulate global temporary tables in the session where they have been created! Execute
+-- this file as a whole script to ensure this happens so you don't need to manipulate user sessions later on.
 --
 -- Parameters to be adjusted:
 -- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100

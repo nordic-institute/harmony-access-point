@@ -58,12 +58,17 @@ public class TLSCertificateManagerImplTest {
 
     @Test
     public void replaceTrustStore(@Injectable KeyStoreType trustStore, @Injectable String fileName, @Injectable byte[] fileContent, @Injectable String filePassword, @Injectable String backupLocation) {
+        new Expectations() {{
+            certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
+            result = 1L;
+        }};
+
         tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword);
 
         new Verifications() {{
-            certificateService.replaceStore(fileName, fileContent, filePassword, TLS_TRUSTSTORE_NAME);
+
             tlsCertificateManager.resetTLSTruststore();
-            auditService.addTLSTruststoreUploadedAudit();
+            auditService.addTLSTruststoreUploadedAudit("1");
         }};
     }
 
