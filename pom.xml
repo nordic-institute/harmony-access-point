@@ -76,7 +76,7 @@
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.0</handlebars.version>
         <dropwizard.metrics.version>4.2.8</dropwizard.metrics.version>
-        <owasp.dependency.check.version>6.5.3</owasp.dependency.check.version>
+        <owasp.dependency.check.version>7.1.0</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version>
