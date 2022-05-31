@@ -196,6 +196,10 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-servlet</artifactId>
                 </exclusion>
                 <exclusion>
@@ -203,6 +207,11 @@
                     <artifactId>jetty-server</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>9.4.46.v20220331</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
