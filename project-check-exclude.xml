@@ -207,4 +207,13 @@
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-jms@.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-orm-5.3.20.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-orm@.*$</packageUrl>
+        <cve>CVE-2016-1000027</cve>
+    </suppress>
+
 </suppressions>
