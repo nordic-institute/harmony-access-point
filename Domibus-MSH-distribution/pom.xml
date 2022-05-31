@@ -297,7 +297,7 @@
         <profile>
             <id>wildfly</id>
             <properties>
-                <wildfly.version>26.0.1.Final</wildfly.version>
+                <wildfly.version>26.1.0.Final</wildfly.version>
             </properties>
             <build>
                 <plugins>
