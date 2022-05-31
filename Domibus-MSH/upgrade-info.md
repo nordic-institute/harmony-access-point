@@ -1,5 +1,8 @@
-Domibus 5.0 (from 4.2.9)
-                [Multitenancy only]
+# Domibus upgrade information
+
+## Domibus 5.0 (from 4.2.9)
+
+### Multitenancy only
                     - domibus.security.keystore.* and domibus.security.truststore.* properties are used only the first time domibus starts and persisted in the DB to be used from there on;
                     - Create a folder named "domains" in "conf/domibus" and, inside it, create a new folder for every domain (e.g. conf/domibus/domains/domain1)
                     - Move the super-domibus.properties file into "conf/domibus/domains"
@@ -20,7 +23,8 @@ Domibus 5.0 (from 4.2.9)
                         * JMS-Plugin multitenancy installation: move any domain specific properties from jms-plugin.properties
                         to a domain specific property file (e.g. conf/domibus/plugins/config/domains/domain1/domain1-jms-plugin.properties)
                     Please note that these changes need to be done for the "default" domain too, and that the properties in the properties files are still prefixed with the domain name.
-                - [Tomcat only]
+
+### Tomcat only
                          o If you use custom queues please update the following in the file "cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml".
                            If you don't use custom queues just replace the old file with the new file version:
                              - in the policies section add the following:
@@ -59,7 +63,7 @@ Domibus 5.0 (from 4.2.9)
                                                 <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue" reportInterval="10000"/>
                                             -new configuration:
                                                 <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.earchive.queue domibus.internal.earchive.notification.dlq" reportInterval="10000"/>
-                - [Wildfly only]
+### Wildfly only
                          o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                           - add the following queues in the destination section
                                       .............................
@@ -287,13 +291,13 @@ Domibus 5.0 (from 4.2.9)
                                eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
                                eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
                                eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
-Domibus 4.2.9 (from 4.2.8):
+## Domibus 4.2.9 (from 4.2.8):
                 - Replace the Domibus war
-Domibus 4.2.8 (from 4.2.7):
+## Domibus 4.2.8 (from 4.2.7):
                 - Replace the Domibus war
-Domibus 4.2.7 (from 4.2.6):
+## Domibus 4.2.7 (from 4.2.6):
                 - Replace the Domibus war
-Domibus 4.2.6 (from 4.2.5):
+## Domibus 4.2.6 (from 4.2.5):
                 - Please remove the following properties from the file /conf/domibus/extensions/config/authentication-dss-extension.properties:
                         - domibus.authentication.dss.custom.trusted.lists.list1.code
                         - domibus.authentication.dss.lotl.country.code=EU
@@ -321,18 +325,18 @@ Domibus 4.2.6 (from 4.2.5):
                     - If you don't use custom caches just replace the old file with the new file version
                 - Run the appropriate DB migration script(mysql-4.2.5-to-4.2.6-migration.ddl for MySQL or oracle-4.2.5-to-4.2.6-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
-Domibus 4.2.5 (from 4.2.4):
+## Domibus 4.2.5 (from 4.2.4):
                 - Replace the Domibus war
                 - Replace the default dss extension jar into "/conf/domibus/extensions/lib"
                 - Remove all revoked certificates from /conf/domibus/keystores/dss-tls-truststore.p12
-Domibus 4.2.4 (from 4.2.3):
+## Domibus 4.2.4 (from 4.2.3):
                 - Replace the Domibus war
-Domibus 4.2.3 (from 4.2.2):
+## Domibus 4.2.3 (from 4.2.2):
                 - Run the appropriate DB migration script(mysql-4.2.2-to-4.2.3-migration.ddl for MySQL or oracle-4.2.2-to-4.2.3-migration.ddl for Oracle)
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Replace the default dss extension jar into  "/conf/domibus/extentions/lib"
-Domibus 4.2.2 (from 4.2.1):
+## Domibus 4.2.2 (from 4.2.1):
                 - [Mysql8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:
                         In MySQL 8.0, XA_RECOVER is permitted only to users who have the XA_RECOVER_ADMIN privilege. Prior to MySQL 8.0, any user could execute this and discover the XID values of XA transactions by other users.
@@ -346,7 +350,7 @@ Domibus 4.2.2 (from 4.2.1):
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Change the name of 'domibus.ui.resend.action.enabled.received.minutes' property to 'domibus.action.resend.wait.minutes' in domibus.properties file.
-Domibus 4.2.1 (from 4.2):
+## Domibus 4.2.1 (from 4.2):
                 - [Oracle only]
                    - Grant access to your user to create stored procedures:
                         Open a command line session and log in (edelivery_user and password are the ones assigned during the Oracle installation):
@@ -357,7 +361,7 @@ Domibus 4.2.1 (from 4.2):
                 - Replace the Domibus war
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Replace the default dss extention jar into  "/conf/domibus/extensions/lib"
-Domibus 4.2 (from 4.1.7):
+## Domibus 4.2 (from 4.1.7):
                 Domibus 4.2 supports newer version of application servers and databases. Support for Oracle OpenJDK 11 has been also introduced on top of Oracle JDK 8 which was already supported.
                   It is mandatory to update to one of the below supported servers and databases.
                     Servers: Tomcat 9.x, WildFly 20.0.x, WebLogic 12.2.1.4
@@ -397,22 +401,22 @@ Domibus 4.2 (from 4.1.7):
                     - 8. DEPRECATED API AND MIGRATING TO THE NEW API - to update the notification listener to the plugins
                     - 4. PLUGIN PROPERTIES - to update the registration of plugin properties with Domibus and their retrieval
                     - 3.9. Ehcache - to follow the new structure of ehcache if the plugin creates its own caches.
-Domibus 4.2 (from 4.2-RC1):
+## Domibus 4.2 (from 4.2-RC1):
                 - Run the appropriate DB migration script(mysql-4.2-RC1-to-4.2-migration.ddl for MySQL or oracle-4.2-RC1-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
                 - Replace the domibus.properties file(Please comment the property 'domibus.database.schema', if Domibus is configured in single-tenancy mode with Oracle database)
                 - [WebLogic only]
                      - execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.1.6-to-4.2-WeblogicSingleServer.properties for single server deployment or 4.1.6-to-4.2-WeblogicCluster.properties for cluster deployment
-Domibus 4.1.7:
+## Domibus 4.1.7:
                 - Upgraded several libraries version: Apache CXF to 3.3.8, Hibernate to 5.4.27.Final, BouncyCastle to 1.64, etc
-Domibus 4.1.6 (from 4.1.5)
+## Domibus 4.1.6 (from 4.1.5)
                 - Please replace the Domibus war
-Domibus 4.1.5 (from 4.1.3)
+## Domibus 4.1.5 (from 4.1.3)
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.3-to-4.1.5-migration.ddl for MySQL or oracle10g-4.1.3-to-4.1.5-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
                 - In case of Dynamic Discovery where the trust for SMP certificate is established only by issuer certificate, now the whole chain must be imported in to the truststore
-Domibus 4.1.3 (from 4.1.2):
+## Domibus 4.1.3 (from 4.1.2):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
                 - [Tomcat only]
                     o in file "conf/domibus/internal/activemq.xml":
@@ -420,7 +424,7 @@ Domibus 4.1.3 (from 4.1.2):
                     o in file "/conf/domibus/domibus.properties":
                         - remove the property "activeMQ.rmiServerPort"
                         - update the JMX URL property to "activeMQ.JMXURL=service:jmx:rmi:///jndi/rmi://${activeMQ.broker.host}:${activeMQ.connectorPort}/jmxrmi"
-Domibus 4.1.2 (from 4.1.1):
+## Domibus 4.1.2 (from 4.1.1):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.1-to-4.1.2-migration.ddl for MySQL or oracle10g-4.1.1-to-4.1.2-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
                 - Replace the current logback.xml file with the newer version optionally keeping the existing configuration
@@ -447,9 +451,9 @@ Domibus 4.1.2 (from 4.1.1):
                     <bean id="wsPluginLoggingSender" class="eu.domibus.plugin.webService.impl.logging.DomibusWSPluginLoggingEventSender">
                         <property name="printPayload" value="${domibus.logging.payload.print}"/>
                     </bean>
-Domibus 4.1.1 (from 4.1):
+## Domibus 4.1.1 (from 4.1):
                 - Please replace the Domibus war
-Domibus 4.1 (from 4.0.2):
+## Domibus 4.1 (from 4.0.2):
                 - Run the appropriate DB migration script(mysql5innoDb-4.0.2-to-4.1-migration.ddl for MySQL or oracle10g-4.0.2-to-4.1-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
                 - Replace the current logback.xml file with the newer version optionally keeping the existing configuration
@@ -516,9 +520,9 @@ Domibus 4.1 (from 4.0.2):
                    o rename the property "message.retention.downloaded.max.delete" to "domibus.retentionWorker.message.retention.downloaded.max.delete" in your domibus.properties file. If the property is not defined, do nothing. Default value "50" has not been changed.
                    o rename the property "message.retention.not_downloaded.max.delete" to "domibus.retentionWorker.message.retention.not_downloaded.max.delete" in your domibus.properties file. If the property is not defined, do nothing. Default value "50" has not been changed.
                - [Recommended] Remove domibus.msh.retry.tolerance from domibus.properties, if set. The property is not used anymore.
-Domibus 4.0.2 (from 4.0.1):
+## Domibus 4.0.2 (from 4.0.1):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
-Domibus 4.0.1 (from 4.0.0):
+## Domibus 4.0.1 (from 4.0.0):
                 - Run the appropriate DB migration script(mysql5innoDb-4.0-to-4.0.1-migration.ddl for MySQL or oracle10g-4.0-to-4.0.1-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
                 - In case you are using multitenancy please make the following modifications::
@@ -528,7 +532,7 @@ Domibus 4.0.1 (from 4.0.0):
                     - for the database general schema run the appropriate DB migration script(mysql5innoDb-4.0-to-4.0.1-multi-tenancy-migration.ddl for MySQL or oracle10g-4.0-to-4.0.1-multi-tenancy-migration.ddl for Oracle)
                     - for each tenant schema in the database run the appropriate DB migration script(mysql5innoDb-4.0-to-4.0.1-migration.ddl for MySQL or oracle10g-4.0-to-4.0.1-migration.ddl for Oracle)
                     - for Oracle database, for each tenant schema in the database, grant privileges to the general schema using oracle10g-4.0.1-multi-tenancy-rights.sql. Please update the schema name before execution.
-Domibus 4.0 (from 3.3.4):
+## Domibus 4.0 (from 3.3.4):
                 - Run the appropriate DB migration script(mysql5innoDb-3.3.4-to-4.0-migration.ddl for MySQL or oracle10g-3.3.4-to-4.0-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
                 - The following changes have been implemented in the Default WS Plugin which is not backward compatible. The client of the Default WS Plugin need to take into account the following changes:
@@ -674,7 +678,7 @@ Domibus 4.0 (from 3.3.4):
                     Please check the Admin Guide for more details how to set up Domibus in multi-tenancy mode
                 - (Optional)Security policies were updated and renamed. Change your pMode to use eDeliveryAS4Policy.xml instead of eDeliveryPolicy.xml and eSensPolicy(.v2.0).xml.
                             Replace both eDeliveryPolicy_CA.xml and eSensPolicy.v2.0_CA.xml, by eDeliveryAS4Policy_BST.xml
-Domibus 3.3.4 (from 3.3.3):
+## Domibus 3.3.4 (from 3.3.3):
                  - Run the appropriate DB migration script (mysql5innoDb-3.3.2(+)-to-3.3.4-migration.ddl for MySQL or oracle10g-3.3.2(+)-to-3.3.4-migration.ddl for Oracle)
                  - In the file "/conf/domibus/domibus.properties" add the following properties :
                             domibus.pull.queue.concurency=1-1
@@ -685,9 +689,9 @@ Domibus 3.3.4 (from 3.3.3):
                         domibus.dynamic.discovery.client.specification rename to domibus.dynamicdiscovery.client.specification
                         domibus.dynamic.discovery.peppolclient.mode rename to domibus.dynamicdiscovery.peppolclient.mode
                         domibus.dynamic.discovery.oasisclient.regexCertificateSubjectValidation rename to domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation
-Domibus 3.3.3 (from 3.3.2):
+## Domibus 3.3.3 (from 3.3.2):
                 - Replace the Domibus war and the plugin(s) jar(s) into "/domibus/conf/domibus/plugins/lib"
-Domibus 3.3.2 (from 3.3.1):
+## Domibus 3.3.2 (from 3.3.1):
                 - In the file "/conf/domibus/domibus.properties" add the following properties :
                     o in the security section:
                         domibus.certificate.check.cron=0 0 0/1 * * ?
@@ -707,7 +711,7 @@ Domibus 3.3.2 (from 3.3.1):
                             <max-delivery-attempts>0</max-delivery-attempts>
                         </address-setting>
 
-Domibus 3.3.1 (from 3.3):
+## Domibus 3.3.1 (from 3.3):
                - Replace the Domibus war and the plugin(s) jar(s) into "/domibus/conf/domibus/plugins/lib"
                - In the file "/conf/domibus/domibus.properties" add the following properties :
                     o in the security section:
@@ -715,7 +719,7 @@ Domibus 3.3.1 (from 3.3):
                         domibus.console.login.suspension.time=3600
                         domibus.account.unlock.cron=0 0/1 * * * ?
                - Run the appropriate DB migration script(mysql5innoDb-3.3-to-3.3.1-migration.ddl for MySQL or oracle10g-3.3-to-3.3.1-migration.ddl for Oracle)
-Domibus 3.3 (from 3.2.5):
+## Domibus 3.3 (from 3.2.5):
                - Replace the Domibus war and the plugin(s) jar(s) into "/domibus/conf/domibus/plugins/lib"
                - Run the appropriate DB migration script(mysql5innoDb-3.2.5-to-3.3-migration.ddl for MySQL or oracle10g-3.2.5-to-3.3-migration.ddl for Oracle)
                - [ALL Databases]:execute the following SQL snippet after replacing the values for the USER_PASSWORD with the configured passwords in domibus-security.xml(in the "authenticationManagerForAdminConsole" authentication manager)
@@ -938,17 +942,17 @@ Domibus 3.3 (from 3.2.5):
                           eg: private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendWebServiceImpl.class);
 
                 If you are using samples keystores, please update them as the previous ones expired.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.2.5:
+
+## Domibus 3.2.5:
                - Run the appropriate DB migration script.
                - Replace the war file and the default plugins: domibus-default-ws-plugin and domibus-default-jms-plugin jar files
-Domibus 3.2.4:
+## Domibus 3.2.4:
                - Replace the war file and the default plugins: domibus-default-ws-plugin and domibus-default-jms-plugin jar files
-Domibus 3.2.3:
+## Domibus 3.2.3:
                - Replace the war file and the default plugins: domibus-default-ws-plugin and domibus-default-jms-plugin jar files
                - In case of Weblogic cluster uncomment and configure the "domibus.deployment.cluster.url" property
                  and uncomment/comment the xml parts as indicated into ws-plugin.xml and domibus-datasources.xml.
-Domibus 3.2.2:
+## Domibus 3.2.2:
                - Replace the war file and the default plugins: domibus-default-ws-plugin and domibus-default-jms-plugin jar files
                - Add the following lines to conf/domibus/internal/ehcache.xml
                    	<cache name="lookupInfo"
@@ -957,16 +961,16 @@ Domibus 3.2.2:
                           overflowToDisk="false">
                     </cache>
                - To use the Dynamic Discovery copy conf/domibus/policies/eDeliveryPolicy_CA.xml to conf/domibus/policies
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.2.1:
+
+## Domibus 3.2.1:
                - [WebLogic only]
                   o execute the WLST API script(from "/conf/domibus/scripts/upgrades") 3.2-to-3.2.1-WeblogicSingleServer.properties for single server deployment or 3.2-to-3.2.1-WeblogicCluster.properties for cluster deployment
                   o In the WebLogic console, in the page "Home >Summary of Security Realms >myrealm",  enable the flag "Use Authorization Providers to Protect JMX Access" flag; for more info please check the Administration Guide
                   o In the WebLogic console, in the page "Home >Summary of JDBC Data Sources >cipaeDeliveryDs", tab "Configuration/Connection Pool/Advanced"
                     enable the "Test Connections On Reserve" flag and add "SQL SELECT 1 FROM DUAL" in the "Test Table Name"
                - Replace the war file
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.2 (from 3.1.1):
+
+## Domibus 3.2 (from 3.1.1):
                 Run the appropriate DB migration script.
                 Update the configuration file following these steps:
                 -  in file "/domibus/conf/domibus/plugins/config/ws-plugin.xml":
@@ -1043,8 +1047,8 @@ Domibus 3.2 (from 3.1.1):
                                 <class>eu.domibus.plugin.ws.entity.AuthenticationEntry</class>
 
                 If you are using samples keystores, please update them since they are expiring on the 26th of October 2016.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.2 (from RC1):
+
+## Domibus 3.2 (from RC1):
                   Run the appropriate DB migration script.
                   Replace domibus.war and the plugin(s) jar(s) into /domibus/conf/domibus/plugins/lib"
                   Update the configuration file following these steps:
@@ -1077,11 +1081,11 @@ Domibus 3.2 (from RC1):
 
                               </jaxws:endpoint>
                   -  in file conf/domibus/internal/ehcache.xml, add
-                                            <cache name="crlByCert" 
-                                                maxBytesLocalHeap="5m" 
-                                                timeToLiveSeconds="3600" 
+                                            <cache name="crlByCert"
+                                                maxBytesLocalHeap="5m"
+                                                timeToLiveSeconds="3600"
                                                 overflowToDisk="false">
- </cache>
+                                            </cache>
                 -  in file conf/domibus/domibus-security.xml
                         o   replace all from the comment
                                  <!-- Administration GUI user credentials-->
@@ -1108,8 +1112,8 @@ Domibus 3.2 (from RC1):
 
                   - [Tomcat only] in file conf/domibus/persistence.xml, add to the <persistence-unit> tag:
                                   <class>eu.domibus.plugin.ws.entity.AuthenticationEntry</class>
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.2 RC1:   Run the appropriate DB migration script.
+
+## Domibus 3.2 RC1:   Run the appropriate DB migration script.
                     Replace domibus.war and the plugin(s) jar(s) into /domibus/conf/domibus/plugins/lib"
                     For Tomcat installations only, the activemq.xml file has to be replaced and re-configured according to your environment (transportConnector uri, authenticationUser, redeliveryPolicy).
                     Update the configuration file following these steps:
@@ -1158,21 +1162,20 @@ Domibus 3.2 RC1:   Run the appropriate DB migration script.
                                     </amq:xaConnectionFactory>
 
                     If you are using samples keystores, please update them since they are expiring on the 26th of October 2016.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.1.1:      Replace the war. This release updated the type of one column for the MySQL db. Please run the migration script.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.1.0:      Re-install the domibus-security.xml and re-configure the properties according with the installed Truststore and Keystore.
+
+## Domibus 3.1.1:      Replace the war. This release updated the type of one column for the MySQL db. Please run the migration script.
+
+## Domibus 3.1.0:      Re-install the domibus-security.xml and re-configure the properties according with the installed Truststore and Keystore.
                     For Tomcat installations only, the activemq.xml has to be re-installed and re-configured and the domibus-ActiveMQ-ThroughputLimiter jar can be deleted.
                     There have been some changes to the database, please use the new scripts.
                     Run the migration script if you are upgrading from 3.0 to 3.1
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.1 RC2:   Replace the war and jar(plugins) files. There have been some changes to the MessageFilter, please use a clean database.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.1 RC1:   Domibus 3.1 is a major release that has to be installed from scratch.
+
+## Domibus 3.1 RC2:   Replace the war and jar(plugins) files. There have been some changes to the MessageFilter, please use a clean database.
+
+## Domibus 3.1 RC1:   Domibus 3.1 is a major release that has to be installed from scratch.
                     There have been some changes to the database, please use the new script.
                     There is a new PMode generation plugin available (BETA-3), use this to regenerate your PMode files
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.0 BETA-2: Replace the war file.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Domibus 3.0 BETA-1: Domibus 3.0 is a major release that has to be installed from scratch. There is no available upgrade path.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## Domibus 3.0 BETA-2: Replace the war file.
+
+## Domibus 3.0 BETA-1: Domibus 3.0 is a major release that has to be installed from scratch. There is no available upgrade path.
