@@ -85,22 +85,22 @@
             <dependency>
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
-                <version>2.4.6</version>
+                <version>${json-smart.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
-                <version>9.4.46.v20220331</version>
+                <version>${jetty.stable.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>9.4.46.v20220331</version>
+                <version>${jetty.stable.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
-                <version>9.4.46.v20220331</version>
+                <version>${jetty.stable.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jmockit</groupId>
@@ -422,22 +422,22 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>2.4.6</version>
+            <version>${json-smart.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.4.46.v20220331</version>
+            <version>${jetty.stable.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-util</artifactId>
-            <version>9.4.46.v20220331</version>
+            <version>${jetty.stable.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.4.46.v20220331</version>
+            <version>${jetty.stable.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
