@@ -149,7 +149,7 @@ public class CompressionService {
                 if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
                     mimeType = property.getValue();
                 }
-                if (MessageConstants .COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && MessageConstants .COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
+                if (MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
                     payloadCompressed = true;
                 }
             }
@@ -161,8 +161,8 @@ public class CompressionService {
         }
 
         final PartProperty compressionProperty = new PartProperty();
-        compressionProperty.setName(MessageConstants .COMPRESSION_PROPERTY_KEY);
-        compressionProperty.setValue(MessageConstants .COMPRESSION_PROPERTY_VALUE);
+        compressionProperty.setName(MessageConstants.COMPRESSION_PROPERTY_KEY);
+        compressionProperty.setValue(MessageConstants.COMPRESSION_PROPERTY_VALUE);
         partInfo.getPartProperties().remove(compressionProperty);
 
         if (mimeType == null) {
@@ -177,15 +177,21 @@ public class CompressionService {
         partInfo.setCompressed(true);
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
         if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE)) {
-            LOG.debug("Property [{}] is not enabled, ",DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE);
+            LOG.debug("Property [{}] is not enabled, ", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE);
             return;
         }
 
+        validateDecompression(messageId, partInfo, mimeType);
+    }
+
+    protected void validateDecompression(String messageId, PartInfo partInfo, String mimeType)  throws EbMS3Exception {
         LOG.debug("Property [{}] is enabled, performing decompression validation for partInfo [{}].", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, partInfo.getHref());
         try {
             DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
-            if (dh.getInputStream() != null && dh.getInputStream().available() > 0) {
+            InputStream is = dh.getInputStream();
+            if ( is != null && is.available() > 0) {
                 LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
+                is.close();
                 return;
             }
         } catch (IOException exc) {
@@ -199,7 +205,6 @@ public class CompressionService {
                 .mshRole(MSHRole.RECEIVING)
                 .build();
     }
-
 
     private class CompressedDataSource implements DataSource {
         private DataSource ds;
