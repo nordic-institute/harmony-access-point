@@ -82,7 +82,6 @@
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
-        <jetty.stable.version>9.4.46.v20220331</jetty.stable.version>
         <tomcat-embed.version>9.0.63</tomcat-embed.version>
         <json-smart.version>2.4.6</json-smart.version>
 
@@ -1199,24 +1198,6 @@
                 <groupId>com.oracle.weblogic</groupId>
                 <artifactId>com.oracle.css.weblogic.security.wls_7.0.0.0</artifactId>
                 <version>${com.oracle.css.weblogic.security.wls_7.0.0.0.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-util</artifactId>
-                <version>${jetty.stable.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlet</artifactId>
-                <version>${jetty.stable.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-server</artifactId>
-                <version>${jetty.stable.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- End Test dependencies -->
         </dependencies>
