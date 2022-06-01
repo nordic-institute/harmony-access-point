@@ -265,6 +265,7 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
     String DOMIBUS_DEPLOYMENT_CLUSTERED = "domibus.deployment.clustered";
+    String DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED = "domibus.scheduler.bootstrap.synchronized";
     String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
     String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
     String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";

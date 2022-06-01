@@ -16,6 +16,7 @@ import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.quartz.*;
@@ -34,6 +35,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED;
 import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
 
 /**
@@ -89,7 +91,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     @PostConstruct
     public void initialize() {
-        boolean useLock = true;
+        boolean useLock = domibusConfigurationService.isClusterDeployment()
+                && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED));
         if (useLock) {
             SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(this::initQuartzSchedulers, SCHEDULER_SYNC_LOCK_KEY);
             synchronizedRunnable.run();
