@@ -45,13 +45,7 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
                                          Object object) throws HibernateException {
         LocalDateTime now = getCurrentDate();
         String seqStr = now.format(dtf);
-
-        Serializable nextId = generate(session, object);
-        if(nextId instanceof Long && (Long)nextId<0){
-            //ie. when DOMIBUS_SCALABLE_SEQUENCE.next_val < TableGenerator.INCREMENT_PARAM (eg. after some migrations)
-            nextId = generate(session, object);
-        }
-        String paddedSequence = MIN + nextId;
+        String paddedSequence = MIN + this.generate(session, object);
         // add 10 right digits to the date
         seqStr += paddedSequence.substring(paddedSequence.length() - MIN.length());
         return NumberUtils.createLong(seqStr);
