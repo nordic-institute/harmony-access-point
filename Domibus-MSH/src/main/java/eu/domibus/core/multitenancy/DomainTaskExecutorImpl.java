@@ -133,7 +133,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     protected void handleRunnableError(Exception exception, Runnable errorHandler) {
         if (errorHandler != null) {
-            LOG.debug("Running the error handler");
+            LOG.debug("Running the error handler", exception);
             errorHandler.run();
             return;
         }

@@ -6,6 +6,8 @@ import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -55,6 +57,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      */
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzStarter.class);
 
+    private static final String SCHEDULER_SYNC_LOCK_KEY = "scheduler-synchronization.lock";
+
     @Autowired
     protected DomibusSchedulerFactory domibusSchedulerFactory;
 
@@ -73,6 +77,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    protected SynchronizedRunnableFactory synchronizedRunnableFactory;
+
     protected Map<Domain, Scheduler> schedulers = new HashMap<>();
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
@@ -81,7 +88,17 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected List<DomibusDomainQuartzJob> jobsToPause = new ArrayList<>();
 
     @PostConstruct
-    public void initQuartzSchedulers() {
+    public void initialize() {
+        boolean useLock = true;
+        if (useLock) {
+            SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(this::initQuartzSchedulers, SCHEDULER_SYNC_LOCK_KEY);
+            synchronizedRunnable.run();
+        } else {
+            initQuartzSchedulers();
+        }
+    }
+
+    protected void initQuartzSchedulers() {
         // General Schedulers
         try {
             startsSchedulers(GROUP_GENERAL);
@@ -152,6 +169,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     public void checkJobsAndStartScheduler(Domain domain) throws SchedulerException {
         domainContextProvider.setCurrentDomain(domain);
 
+        LOG.debug("Starting quartz scheduler for domain [{}]", domain);
         Scheduler scheduler = domibusSchedulerFactory.createScheduler(domain);
 
         //check Quartz scheduler jobs first
@@ -323,6 +341,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      */
     private void startsSchedulers(String triggerGroup) throws SchedulerException {
         if (!domibusConfigurationService.isMultiTenantAware()) {
+            LOG.trace("No general quartz scheduler in single-tenancy");
             return;
         }
         Scheduler generalScheduler = domibusSchedulerFactory.createScheduler(null);
