@@ -1,15 +1,13 @@
 package eu.domibus.core.converter;
 
 import eu.domibus.core.alerts.model.mapper.EventMapper;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
+import mockit.Injectable;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -29,6 +27,9 @@ public abstract class AbstractMapperTest {
             "classpath:config/commonsTestContext.xml"
     })
     static class ContextConfiguration {
+        @Injectable
+        private UserMessageLogDao userMessageLogDao;
+
         @Bean
         public EventMapper eventMapper() {
             return new EventMapperImpl_();
@@ -36,7 +37,7 @@ public abstract class AbstractMapperTest {
 
         @Bean
         public EArchiveBatchUtils eArchiveBatchUtils() {
-            return new EArchiveBatchUtils();
+            return new EArchiveBatchUtils(userMessageLogDao);
         }
 
         @Bean

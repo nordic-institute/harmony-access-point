@@ -194,6 +194,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         domains.remove(domain);
 
         authenticationService.removeDomainCode(domain.getCode());
+        this.domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
     }
 
     @Override

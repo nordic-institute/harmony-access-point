@@ -387,9 +387,9 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public void replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
+    public Long replaceStore(String fileName, byte[] fileContent, String filePassword, String trustName) {
         String storeType = certificateHelper.getStoreType(fileName);
-        replaceStore(fileContent, filePassword, storeType, trustName);
+       return replaceStore(fileContent, filePassword, storeType, trustName);
     }
 
     @Override
@@ -440,7 +440,7 @@ public class CertificateServiceImpl implements CertificateService {
         return coreMapper.truststoreEntityToTruststoreInfo(entity);
     }
 
-    protected void replaceStore(byte[] fileContent, String filePassword, String storeType, String trustName) throws CryptoException {
+    protected Long replaceStore(byte[] fileContent, String filePassword, String storeType, String trustName) throws CryptoException {
         LOG.debug("Replacing the existing truststore [{}] with the provided one.", trustName);
 
         TruststoreEntity entity = getTruststoreEntitySafely(trustName);
@@ -449,7 +449,7 @@ public class CertificateServiceImpl implements CertificateService {
             try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
                 truststore.store(oldTrustStoreBytes, entity.getPassword().toCharArray());
 
-                doReplace(fileContent, filePassword, storeType, trustName, truststore, entity.getPassword(), oldTrustStoreBytes);
+                return doReplace(fileContent, filePassword, storeType, trustName, truststore, entity.getPassword(), oldTrustStoreBytes);
             } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | ZoneRulesException exc) {
                 throw new CryptoException("Could not replace truststore " + trustName, exc);
             }
@@ -457,22 +457,23 @@ public class CertificateServiceImpl implements CertificateService {
             try {
                 KeyStore truststore = KeyStore.getInstance(storeType);
 
-                doReplace(fileContent, filePassword, storeType, trustName, truststore, null, null);
+                return doReplace(fileContent, filePassword, storeType, trustName, truststore, null, null);
             } catch (KeyStoreException exc) {
                 throw new CryptoException("Could not create a store named " + trustName, exc);
             }
         }
     }
 
-    private void doReplace(byte[] fileContent, String filePassword, String storeType, String trustName, KeyStore truststore,
+    private Long doReplace(byte[] fileContent, String filePassword, String storeType, String trustName, KeyStore truststore,
                            String oldPassword, ByteArrayOutputStream oldTrustStoreBytes) {
         try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
             validateLoadOperation(newTrustStoreBytes, filePassword, storeType);
             truststore.load(newTrustStoreBytes, filePassword.toCharArray());
             LOG.debug("Truststore successfully loaded");
 
-            persistTrustStore(truststore, filePassword, storeType, trustName);
-            LOG.debug("Truststore successfully persisted");
+            Long entityId = persistTrustStore(truststore, filePassword, storeType, trustName);
+            LOG.debug("Truststore successfully persisted with id [{}]", entityId);
+            return entityId;
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
             if (oldTrustStoreBytes != null) {
                 try {
@@ -682,7 +683,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected void persistTrustStore(KeyStore truststore, String password, String storeType, String trustName) throws CryptoException {
+    protected Long persistTrustStore(KeyStore truststore, String password, String storeType, String trustName) throws CryptoException {
         backupTrustStore(trustName);
 
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
@@ -707,6 +708,7 @@ public class CertificateServiceImpl implements CertificateService {
             } else {
                 truststoreDao.update(entity);
             }
+            return entity.getEntityId();
         } catch (Exception e) {
             throw new CryptoException("Could not persist truststore:", e);
         }

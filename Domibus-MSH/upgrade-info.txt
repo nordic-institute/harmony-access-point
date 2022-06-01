@@ -319,7 +319,6 @@ Domibus 4.2.6 (from 4.2.5):
                                 <cache alias="dss-cache"><expiry><ttl>3600</ttl></expiry><heap unit="MB">50</heap></cache>
 
                     - If you don't use custom caches just replace the old file with the new file version
-                - Run the appropriate DB migration script(mysql-4.2.5-to-4.2.6-migration.ddl for MySQL or oracle-4.2.5-to-4.2.6-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "/conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
 Domibus 4.2.5 (from 4.2.4):
                 - Replace the Domibus war
