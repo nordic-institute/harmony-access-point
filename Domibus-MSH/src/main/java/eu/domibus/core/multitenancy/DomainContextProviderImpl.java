@@ -64,7 +64,7 @@ public class DomainContextProviderImpl implements DomainContextProvider {
 
         Domain current = getCurrentDomainSafely();
         if (current != null && StringUtils.equals(current.getCode(), domainCode)) {
-            LOG.debug("Domain [{}] is already the current domain so exiting;", domainCode);
+            LOG.trace("Domain [{}] is already the current domain so exiting;", domainCode);
             return;
         }
 
