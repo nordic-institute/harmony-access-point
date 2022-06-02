@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
@@ -40,14 +41,17 @@ public class DomainResource {
 
     private final UserDomainService userDomainService;
 
+    private final DomainContextProvider domainContextProvider;
+
     public DomainResource(DynamicDomainManagementService dynamicDomainManagementService,
                           DomainService domainService, DomibusCoreMapper coreMapper,
-                          AuthenticationService authenticationService, UserDomainService userDomainService) {
+                          AuthenticationService authenticationService, UserDomainService userDomainService, DomainContextProvider domainContextProvider) {
         this.dynamicDomainManagementService = dynamicDomainManagementService;
         this.domainService = domainService;
         this.coreMapper = coreMapper;
         this.authenticationService = authenticationService;
         this.userDomainService = userDomainService;
+        this.domainContextProvider = domainContextProvider;
     }
 
     /**
@@ -78,6 +82,11 @@ public class DomainResource {
 
         if (StringUtils.equalsIgnoreCase(domainCode, preferredDomainCode)) {
             throw new ValidationException("Cannot disable the domain of the current user");
+        }
+
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        if (StringUtils.equalsIgnoreCase(domainCode, currentDomain.getCode())) {
+            throw new ValidationException("Cannot disable the current domain of your session");
         }
 
         dynamicDomainManagementService.removeDomain(domainCode, true);

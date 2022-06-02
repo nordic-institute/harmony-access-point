@@ -52,6 +52,10 @@ export class DomainService {
     return this.domainSubject.asObservable();
   }
 
+  retrieveCurrentDomain(): Promise<Domain> {
+    return this.http.get<Domain>(DomainService.CURRENT_DOMAIN_URL).toPromise();
+  }
+
   resetDomain(): void {
     if (this.domainSubject) {
       this.domainSubject.unsubscribe();
