@@ -5,6 +5,7 @@ import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
@@ -65,6 +66,9 @@ public class DomibusQuartzStarterTest {
 
     @Injectable
     private PlatformTransactionManager transactionManager;
+
+    @Injectable
+    private SynchronizedRunnableFactory synchronizedRunnableFactory;
 
     @Before
     public void setUp() throws Exception {
