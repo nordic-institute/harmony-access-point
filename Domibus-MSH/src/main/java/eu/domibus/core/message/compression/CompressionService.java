@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 /**
  * This class is responsible for compression handling of incoming and outgoing ebMS3 messages.
@@ -188,15 +189,18 @@ public class CompressionService {
         LOG.debug("Property [{}] is enabled, performing decompression validation for partInfo [{}].", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, partInfo.getHref());
         try {
             DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
-            InputStream is = dh.getInputStream();
-            if ( is != null && is.available() > 0) {
-                LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
-                is.close();
-                return;
+            if(dh != null) {
+                try (InputStream is = dh.getInputStream()) {
+                    try (GZIPInputStream gzipInputStream = new GZIPInputStream(is)) {
+                        LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
+                        return;
+                    }
+                }
             }
         } catch (IOException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, exc);
         }
+        
         // if it gets here, the decompression was not successful
         throw EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
