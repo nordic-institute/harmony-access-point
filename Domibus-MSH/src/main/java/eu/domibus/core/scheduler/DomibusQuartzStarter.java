@@ -96,6 +96,10 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         if (useLock) {
             SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(this::initQuartzSchedulers, SCHEDULER_SYNC_LOCK_KEY);
             synchronizedRunnable.run();
+
+            if (schedulers.isEmpty()) {
+                throw new DomibusSchedulerException("Could not initialize the Quartz Scheduler in a timely manner");
+            }
         } else {
             initQuartzSchedulers();
         }
