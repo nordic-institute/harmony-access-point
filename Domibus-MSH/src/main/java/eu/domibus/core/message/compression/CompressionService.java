@@ -1,6 +1,5 @@
 package eu.domibus.core.message.compression;
 
-import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -182,15 +181,15 @@ public class CompressionService {
             return;
         }
 
-        validateDecompression(messageId, partInfo, mimeType);
+        validateDecompression(messageId, partInfo);
     }
 
-    protected void validateDecompression(String messageId, PartInfo partInfo, String mimeType)  throws EbMS3Exception {
+    protected void validateDecompression(String messageId, PartInfo partInfo)  throws EbMS3Exception {
         LOG.debug("Property [{}] is enabled, performing decompression validation for partInfo [{}].", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, partInfo.getHref());
         try {
-            DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
-            if(dh != null) {
-                try (InputStream is = dh.getInputStream()) {
+            DataSource ds  = partInfo.getPayloadDatahandler().getDataSource();
+            if(ds != null) {
+                try (InputStream is = ds.getInputStream()) {
                     try (GZIPInputStream gzipInputStream = new GZIPInputStream(is)) {
                         LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
                         return;
@@ -200,7 +199,7 @@ public class CompressionService {
         } catch (IOException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, exc);
         }
-        
+
         // if it gets here, the decompression was not successful
         throw EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
