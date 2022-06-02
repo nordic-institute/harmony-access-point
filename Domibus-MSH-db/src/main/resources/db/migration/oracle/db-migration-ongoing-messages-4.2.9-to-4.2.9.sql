@@ -1,7 +1,9 @@
 -- ********************************************************************************************************
 -- Domibus 4.2.9 to 4.2.9 ongoing messages data migration package
 --
--- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
+-- Main entry point is the procedure 'migrate'. To be executed into a begin/end; anonymous block. Uncomment trailing
+-- lines, edit values in the migration anonymous block and execute this full script: package and package body
+-- definitions, migration anonymous block.
 --
 -- Parameters to be adjusted:
 -- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100

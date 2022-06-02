@@ -5,7 +5,6 @@ import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
@@ -17,7 +16,6 @@ import eu.domibus.plugin.ws.exception.WSPluginException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
@@ -41,7 +39,6 @@ public class WSPluginMessageSender extends Slf4jEventSender {
 
     protected final WSPluginBackendReliabilityService reliabilityService;
 
-    protected final WSBackendMessageLogDao wsBackendMessageLogDao;
 
     protected final WSPluginDispatchRulesService rulesService;
 
@@ -56,14 +53,12 @@ public class WSPluginMessageSender extends Slf4jEventSender {
     static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 
     public WSPluginMessageSender(WSPluginBackendReliabilityService reliabilityService,
-                                 WSBackendMessageLogDao wsBackendMessageLogDao,
                                  WSPluginDispatchRulesService rulesService,
                                  WSPluginMessageBuilder messageBuilder,
                                  WSPluginDispatcher dispatcher,
                                  WSPluginImpl wsPlugin,
                                  XMLUtil xmlUtil) {
         this.reliabilityService = reliabilityService;
-        this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.rulesService = rulesService;
         this.messageBuilder = messageBuilder;
         this.dispatcher = dispatcher;

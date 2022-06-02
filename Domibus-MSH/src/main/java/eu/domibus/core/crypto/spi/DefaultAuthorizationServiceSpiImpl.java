@@ -15,8 +15,10 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryService;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,19 +126,24 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             return;
         }
 
+        if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY))) {
+            LOG.debug("Sender certificate verification is disabled in dynamic discovery mode");
+            return;
+        }
+
         LOG.debug("Authorize against certificate extracted based on the alias [{}] from the truststore", alias);
         if (signingCertificate == null) {
             LOG.debug("Signing certificate is not provided.");
             return;
         }
-        LOG.debug("Signing certificate: [%s]", signingCertificate);
+        LOG.debug("Signing certificate: [{}]", signingCertificate);
         try {
             X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), alias);
             if (cert == null) {
                 LOG.error("Failed to get the certificate based on the partyName [{}]", alias);
                 throw new AuthorizationException(AuthorizationError.AUTHORIZATION_REJECTED, "Could not find the certificate in the truststore");
             }
-            LOG.debug("Truststore certificate: [%s]", cert);
+            LOG.debug("Truststore certificate: [{}]", cert);
 
             if (!signingCertificate.equals(cert)) {
                 String excMessage = "Signing certificate and truststore certificate do not match.";

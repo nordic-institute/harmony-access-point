@@ -30,8 +30,8 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.6</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
-        <spring.version>5.3.19</spring.version>
-        <spring.security.version>5.6.3</spring.security.version>
+        <spring.version>5.3.20</spring.version>
+        <spring.security.version>5.6.5</spring.security.version>
         <spring.session.core.version>2.6.3</spring.session.core.version>
         <spring.session.jdbc.version>2.6.3</spring.session.jdbc.version>
         <springdoc.version>1.6.6</springdoc.version>
@@ -62,7 +62,7 @@
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <jaxb-impl.version>2.3.3</jaxb-impl.version>
         <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>2.3.0</tika.version>
+        <tika.version>2.4.0</tika.version>
         <peppol.version>2.0.2</peppol.version>
         <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
@@ -70,19 +70,20 @@
         <hibernate.validator.version>6.2.2.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
-        <h2.version>2.1.210</h2.version>
+        <h2.version>2.1.212</h2.version>
         <liquibase.version>4.7.1</liquibase.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.0</handlebars.version>
         <dropwizard.metrics.version>4.2.8</dropwizard.metrics.version>
-        <owasp.dependency.check.version>6.5.3</owasp.dependency.check.version>
+        <owasp.dependency.check.version>7.1.0</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
-
+        <tomcat-embed.version>9.0.63</tomcat-embed.version>
+        <json-smart.version>2.4.6</json-smart.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
