@@ -54,8 +54,36 @@
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>
+    <xsd:element name="listPushFailedMessagesRequest">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="conversationId" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="refToMessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="fromPartyId" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="finalRecipient" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="originalSender" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="receivedFrom" type="xsd:dateTime" minOccurs="0"/>
+                <xsd:element name="receivedTo" type="xsd:dateTime" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="rePushFailedMessagesRequest">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
 
     <xsd:element name="listPendingMessagesResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="listPushFailedMessagesResponse">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>

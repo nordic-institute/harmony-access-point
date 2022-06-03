@@ -7,6 +7,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor;
+import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
@@ -61,6 +62,7 @@ public class WebServiceConfiguration {
     public WebServiceImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
                                          WebServiceExceptionFactory webServicePluginExceptionFactory,
                                          WSMessageLogService wsMessageLogService,
+                                         WSBackendMessageLogService wsBackendMessageLogService,
                                          DomainContextExtService domainContextExtService,
                                          WSPluginPropertyManager wsPluginPropertyManager,
                                          AuthenticationExtService authenticationExtService,
@@ -69,6 +71,7 @@ public class WebServiceConfiguration {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogService,
+                wsBackendMessageLogService,
                 domainContextExtService,
                 wsPluginPropertyManager,
                 authenticationExtService,

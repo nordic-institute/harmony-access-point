@@ -14,6 +14,8 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.generated.*;
@@ -63,12 +65,14 @@ public class WebServiceImpl implements WebServicePluginInterface {
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
 
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
+    public static final String INVALID_REQUEST = "Invalid request";
 
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
     protected WebServiceExceptionFactory webServicePluginExceptionFactory;
 
     protected WSMessageLogService wsMessageLogService;
+    protected WSBackendMessageLogService wsBackendMessageLogService;
 
     private DomainContextExtService domainContextExtService;
 
@@ -83,6 +87,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public WebServiceImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                           WebServiceExceptionFactory webServicePluginExceptionFactory,
                           WSMessageLogService wsMessageLogService,
+                          WSBackendMessageLogService wsBackendMessageLogService,
                           DomainContextExtService domainContextExtService,
                           WSPluginPropertyManager wsPluginPropertyManager,
                           AuthenticationExtService authenticationExtService,
@@ -91,6 +96,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogService = wsMessageLogService;
+        this.wsBackendMessageLogService = wsBackendMessageLogService;
         this.domainContextExtService = domainContextExtService;
         this.wsPluginPropertyManager = wsPluginPropertyManager;
         this.authenticationExtService = authenticationExtService;
@@ -216,12 +222,12 @@ public class WebServiceImpl implements WebServicePluginInterface {
     protected void validateSubmitRequest(SubmitRequest submitRequest) throws SubmitMessageFault {
         for (final LargePayloadType payload : submitRequest.getPayload()) {
             if (StringUtils.isBlank(payload.getPayloadId())) {
-                throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "Attribute 'payloadId' of the 'payload' element must not be empty"));
+                throw new SubmitMessageFault(INVALID_REQUEST, generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "Attribute 'payloadId' of the 'payload' element must not be empty"));
             }
         }
         final LargePayloadType bodyload = submitRequest.getBodyload();
         if (bodyload != null && StringUtils.isNotBlank(bodyload.getPayloadId())) {
-            throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "Attribute 'payloadId' must not appear on element 'bodyload'"));
+            throw new SubmitMessageFault(INVALID_REQUEST, generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "Attribute 'payloadId' must not appear on element 'bodyload'"));
         }
     }
 
@@ -249,7 +255,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         } else {
             //throw exception for part properties without any property
             if (CollectionUtils.isEmpty(partInfo.getPartProperties().getProperty())) {
-                throw new SubmitMessageFault("Invalid request", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should not be empty."));
+                throw new SubmitMessageFault(INVALID_REQUEST, generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, "PartProperties should not be empty."));
             }
 
             // add all partproperties WEBSERVICE_OF the backend message
@@ -322,6 +328,45 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 .map(WSMessageLogEntity::getMessageId).collect(Collectors.toList());
         response.getMessageID().addAll(ids);
         return response;
+    }
+
+    @Override
+    public ListPushFailedMessagesResponse listPushFailedMessages(ListPushFailedMessagesRequest listPushFailedMessagesRequest) throws ListPushFailedMessagesFault {
+        DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
+        LOG.info("ListPendingMessages for domain [{}]", domainDTO);
+
+        final ListPushFailedMessagesResponse response = WEBSERVICE_OF.createListPushFailedMessagesResponse();
+        final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT);
+        LOG.debug("maxPushFailedMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
+
+        String finalRecipient = listPushFailedMessagesRequest.getFinalRecipient();
+        if (!authenticationExtService.isUnsecureLoginAllowed()) {
+            String originalUser = authenticationExtService.getOriginalUser();
+            if (StringUtils.isNotEmpty(finalRecipient)) {
+                LOG.warn("finalRecipient [{}] provided in listPendingMessagesRequest is overridden by authenticated user [{}]", finalRecipient, originalUser);
+            }
+            finalRecipient = originalUser;
+        }
+        LOG.info("Final Recipient is [{}]", finalRecipient);
+
+        List<WSBackendMessageLogEntity> pending = wsBackendMessageLogService.findAllWithFilter(
+                listPushFailedMessagesRequest.getMessageId(),
+                listPushFailedMessagesRequest.getFromPartyId(),
+                listPushFailedMessagesRequest.getOriginalSender(),
+                finalRecipient,
+                listPushFailedMessagesRequest.getReceivedFrom(),
+                listPushFailedMessagesRequest.getReceivedTo(),
+                intMaxPendingMessagesRetrieveCount);
+
+        final Collection<String> ids = pending.stream()
+                .map(WSBackendMessageLogEntity::getMessageId).collect(Collectors.toList());
+        response.getMessageID().addAll(ids);
+        return response;
+    }
+
+    @Override
+    public void rePushFailedMessages(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
+
     }
 
     /**

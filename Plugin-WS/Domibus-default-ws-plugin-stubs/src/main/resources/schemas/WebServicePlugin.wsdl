@@ -47,6 +47,14 @@
         <wsdl:part element="tns:FaultDetail" name="listPendingMessagesFault">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="listPushFailedMessagesFault">
+        <wsdl:part element="tns:FaultDetail" name="listPushFailedMessagesFault">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="rePushFailedMessagesFault">
+        <wsdl:part element="tns:FaultDetail" name="rePushFailedMessagesFault">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="getMessageErrorsFault">
         <wsdl:part element="tns:FaultDetail" name="getMessageErrorsFault">
         </wsdl:part>
@@ -61,12 +69,26 @@
         <wsdl:part element="tns:listPendingMessagesResponse" name="listPendingMessagesResponse">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="listPushFailedMessagesResponse">
+        <wsdl:part element="tns:listPushFailedMessagesResponse" name="listPushFailedMessagesResponse">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="rePushFailedMessagesResponse">
+    </wsdl:message>
     <wsdl:message name="getStatusResponse">
         <wsdl:part element="tns:getStatusResponse" name="getStatusResponse">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="listPendingMessages">
         <wsdl:part element="tns:listPendingMessagesRequest" name="listPendingMessagesRequest">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="listPushFailedMessages">
+        <wsdl:part element="tns:listPushFailedMessagesRequest" name="listPushFailedMessagesRequest">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="rePushFailedMessages">
+        <wsdl:part element="tns:rePushFailedMessagesRequest" name="rePushFailedMessagesRequest">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="getStatus">
@@ -118,6 +140,22 @@
             <wsdl:output message="tns:listPendingMessagesResponse" name="listPendingMessagesResponse">
             </wsdl:output>
             <wsdl:fault message="tns:listPendingMessagesFault" name="listPendingMessagesFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listPushFailedMessages">
+            <wsdl:input message="tns:listPushFailedMessages" name="listPushFailedMessages">
+            </wsdl:input>
+            <wsdl:output message="tns:listPushFailedMessagesResponse" name="listPushFailedMessagesResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:listPushFailedMessagesFault" name="listPushFailedMessagesFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="rePushFailedMessages">
+            <wsdl:input message="tns:rePushFailedMessages" name="rePushFailedMessages">
+            </wsdl:input>
+            <wsdl:output message="tns:rePushFailedMessagesResponse" name="rePushFailedMessagesResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:rePushFailedMessagesFault" name="rePushFailedMessagesFault">
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getMessageErrors">
@@ -187,6 +225,30 @@
             </wsdl:output>
             <wsdl:fault name="listPendingMessagesFault">
                 <soap12:fault name="listPendingMessagesFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="listPushFailedMessages">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="listPushFailedMessages">
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="listPushFailedMessagesResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="listPushFailedMessagesFault">
+                <soap12:fault name="listPushFailedMessagesFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="rePushFailedMessages">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="rePushFailedMessages">
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="rePushFailedMessagesResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="rePushFailedMessagesFault">
+                <soap12:fault name="rePushFailedMessagesFault" use="literal"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="retrieveMessage">

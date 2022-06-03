@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.property;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
@@ -29,6 +28,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String SCHEMA_VALIDATION_ENABLED_PROPERTY = "wsplugin.schema.validation.enabled";
     public static final String MTOM_ENABLED_PROPERTY = "wsplugin.mtom.enabled";
     public static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "wsplugin.messages.pending.list.max";
+    public static final String PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT = "wsplugin.messages.push.failed.list.max";
     public static final String MESSAGE_NOTIFICATIONS = "wsplugin.messages.notifications";
 
     public static final String PUSH_ENABLED = "wsplugin.push.enabled";
