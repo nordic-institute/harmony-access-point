@@ -19,10 +19,9 @@ import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 /**
  * This class is responsible for compression handling of incoming and outgoing ebMS3 messages.
@@ -111,7 +110,7 @@ public class CompressionService {
             return false;
         }
 
-        final PartProperty compressionProperty = partPropertyDictionaryService.findOrCreatePartProperty(MessageConstants .COMPRESSION_PROPERTY_KEY, MessageConstants .COMPRESSION_PROPERTY_VALUE, null);
+        final PartProperty compressionProperty = partPropertyDictionaryService.findOrCreatePartProperty(MessageConstants.COMPRESSION_PROPERTY_KEY, MessageConstants.COMPRESSION_PROPERTY_VALUE, null);
         partInfo.getPartProperties().add(compressionProperty);
         final CompressedDataSource compressedDataSource = new CompressedDataSource(partInfo.getPayloadDatahandler().getDataSource());
         DataHandler gZipDataHandler = new DataHandler(compressedDataSource);
@@ -184,26 +183,41 @@ public class CompressionService {
         validateDecompression(messageId, partInfo, mimeType);
     }
 
-    protected void validateDecompression(String messageId, PartInfo partInfo, String mimeType)  throws EbMS3Exception {
+    public void validateDecompression(String messageId, PartInfo partInfo, String mimeType) throws EbMS3Exception {
         LOG.debug("Property [{}] is enabled, performing decompression validation for partInfo [{}].", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, partInfo.getHref());
-        try {
-            DataHandler dh = new DataHandler(new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType));
-            InputStream is = dh.getInputStream();
-            if ( is != null && is.available() > 0) {
-                LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
-                is.close();
-                return;
+
+        try (InputStream is = new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream()) {
+            if (is.available() > 0) {
+                LOG.debug("Creating decompression data source was successful", partInfo.getHref());
             }
-        } catch (IOException exc) {
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, exc);
+        } catch (IOException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("Decompression exception")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
-        // if it gets here, the decompression was not successful
-        throw EbMS3ExceptionBuilder.getInstance()
-                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
-                .message("Decompression exception")
-                .refToMessageId(messageId)
-                .mshRole(MSHRole.RECEIVING)
-                .build();
+
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream();
+             GZIPInputStream gis = new GZIPInputStream(partInfo.getPayloadDatahandler().getDataSource().getInputStream())) {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = gis.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+        } catch (IOException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("Decompression exception")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        LOG.info("The validation of the decompression for partInfo [{}] was successful", partInfo.getHref());
     }
 
     private class CompressedDataSource implements DataSource {
@@ -225,7 +239,7 @@ public class CompressionService {
 
         @Override
         public String getContentType() {
-            return MessageConstants .COMPRESSION_PROPERTY_VALUE;
+            return MessageConstants.COMPRESSION_PROPERTY_VALUE;
         }
 
         @Override
