@@ -48,7 +48,7 @@ public interface DomibusDatePrefixedSequenceIdGeneratorGenerator extends Identif
         String paddedSequence = MIN + this.generate(session, object);
         // add 10 right digits to the date
         seqStr += paddedSequence.substring(paddedSequence.length() - MIN.length());
-        return NumberUtils.toLong(seqStr);
+        return NumberUtils.createLong(seqStr);
     }
 
     default LocalDateTime getCurrentDate() {
