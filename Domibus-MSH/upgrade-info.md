@@ -108,7 +108,7 @@
                                           .............................
   ### Weblogic only
                         o execute the WLST API script remove.py (from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-Weblogic-removeJDBCDatasources.properties to remove the 2 datasources of 4.2 (wlstapi.cmd ../scripts/remove.py --property ../deleteDatasources.properties)
-                        o execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-WeblogicSingleServer.properties for single server deployment or 4.2-to-5.0-WeblogicCluster.properties for cluster deployment
+                        o execute the WLST API script import.py (from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-WeblogicSingleServer.properties for single server deployment or 4.2-to-5.0-WeblogicCluster.properties for cluster deployment
                         o [Mysql only]
                             o update the JDBC connection URL value in the Admin Console for your data sources by appending "&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC" (without surrounding quotes) to their end:
                                 jdbc:mysql://localhost:3306/domibus?autoReconnect=true&amp;useSSL=false
@@ -169,7 +169,7 @@
                                     - (Optional) step 4: oracle-4.2.9-to-5.0-data-migration-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - (Optional) partitioning: oracle-5.0-partitioning.ddl (if you further plan on using Oracle partitions in an Enterprise Editions database)
-                                    - grant privileges to the general schema using oracle-5.0-SNAPSHOT-multi-tenancy-rights.sql, updating the schema names before execution
+                                    - grant privileges to the general schema using oracle-5.0-multi-tenancy-rights.sql, updating the schema names before execution
    #### Mysql only
                         The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                     	    - the root user, specifying the target databases as part of the command. For example, for single tenancy:
@@ -254,7 +254,7 @@
                                 .............................
                     - [Tomcat only]
 
-  # ## Domibus properties changes:
+  ### Domibus properties changes:
                         o Modify the Domibus properties file "\conf\domibus\domibus.properties":
                                   - rename the "domibus.jms.XAConnectionFactory.maxPoolSize" property to "domibus.jms.connectionFactory.maxPoolSize" (if present)
                                   - remove these properties:
@@ -274,7 +274,7 @@
                             - in the file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                                     - remove the <xa-datasource jndi-name="java:/jdbc/cipaeDeliveryDs"...> datasource
                                     - clone the <datasource jndi-name="java:/jdbc/cipaeDeliveryNonXADs"...> datasource and set the jndi-name attribute to "java:/jdbc/cipaeDeliveryDs" and the pool-name attribute to either "eDeliveryMysqlDS" or "eDeliveryOracleDS"
-  ### Others
+  ### Other common changes
                 - Replace the Domibus war
                 - The minimum password length for users has increased to 16 and it is recommended to change them for the existing users
                 - Rename conf/domibus/default_clientauthentication.xml to conf/domibus/clientauthentication.xml
