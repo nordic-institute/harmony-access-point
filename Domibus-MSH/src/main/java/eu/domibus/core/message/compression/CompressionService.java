@@ -191,7 +191,7 @@ public class CompressionService {
                 LOG.debug("Creating decompression data source was successful", partInfo.getHref());
             }
         } catch (IOException e) {
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, e);
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref(), e);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
                     .message("Decompression exception")
@@ -208,7 +208,7 @@ public class CompressionService {
                 os.write(buffer, 0, len);
             }
         } catch (IOException e) {
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, e);
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref(), e);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
                     .message("Decompression exception")
