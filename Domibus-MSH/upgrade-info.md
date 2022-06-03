@@ -254,7 +254,7 @@
                                 .............................
                     - [Tomcat only]
 
-  # ## Domibus properties changes:
+  ### Domibus properties changes:
                         o Modify the Domibus properties file "\conf\domibus\domibus.properties":
                                   - rename the "domibus.jms.XAConnectionFactory.maxPoolSize" property to "domibus.jms.connectionFactory.maxPoolSize" (if present)
                                   - remove these properties:
