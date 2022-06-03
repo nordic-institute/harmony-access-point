@@ -721,8 +721,8 @@ BEGIN
     END IF;
 
     INSERT INTO DOMIBUS_SCALABLE_SEQUENCE (SEQUENCE_NAME, NEXT_VAL)
-    VALUES (in_sequence_name, next_value + 1)
-    ON DUPLICATE KEY UPDATE NEXT_VAL = next_value + 1;
+    VALUES (in_sequence_name, next_value + 50)
+    ON DUPLICATE KEY UPDATE NEXT_VAL = next_value + 50;
 
     SELECT MIGRATE_42_TO_50_generate_scalable_seq(next_value, SYSDATE())
     INTO seq_id;
