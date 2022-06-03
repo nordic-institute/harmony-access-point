@@ -191,6 +191,7 @@ public class CompressionService {
             if(ds != null) {
                 try (InputStream is = ds.getInputStream()) {
                     try (GZIPInputStream gzipInputStream = new GZIPInputStream(is)) {
+                        gzipInputStream.read();
                         LOG.info("The validation of the decompression for partInfo [{}] was successful ", partInfo.getHref());
                         return;
                     }
