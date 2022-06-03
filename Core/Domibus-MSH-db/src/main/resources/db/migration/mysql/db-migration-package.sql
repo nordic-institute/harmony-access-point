@@ -720,6 +720,7 @@ BEGIN
         SET next_value := 1;
     END IF;
 
+    -- 50 is the increment step configured DatePrefixedGenericSequenceIdGenerator
     INSERT INTO DOMIBUS_SCALABLE_SEQUENCE (SEQUENCE_NAME, NEXT_VAL)
     VALUES (in_sequence_name, next_value + 50)
     ON DUPLICATE KEY UPDATE NEXT_VAL = next_value + 50;
