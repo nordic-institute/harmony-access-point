@@ -183,11 +183,13 @@ public class CompressionService {
         validateDecompression(messageId, partInfo, mimeType);
     }
 
-    protected void validateDecompression(String messageId, PartInfo partInfo, String mimeType) throws EbMS3Exception {
+    public void validateDecompression(String messageId, PartInfo partInfo, String mimeType) throws EbMS3Exception {
         LOG.debug("Property [{}] is enabled, performing decompression validation for partInfo [{}].", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, partInfo.getHref());
 
-        try {
-            new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream();
+        try (InputStream is = new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream()) {
+            if(is.available() > 0) {
+                LOG.debug("Creating decompression data source was successful", partInfo.getHref());
+            }
         } catch (IOException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, e);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -198,18 +200,15 @@ public class CompressionService {
                     .build();
         }
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
-            GZIPInputStream gis = new GZIPInputStream(partInfo.getPayloadDatahandler().getDataSource().getInputStream());
-            byte[] buffer = new byte[1024];
-            int len;
-            while((len = gis.read(buffer)) != -1){
-                os.write(buffer, 0, len);
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            try (GZIPInputStream gis = new GZIPInputStream(partInfo.getPayloadDatahandler().getDataSource().getInputStream())) {
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = gis.read(buffer)) != -1) {
+                    os.write(buffer, 0, len);
+                }
             }
-            os.close();
-            gis.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, e);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
