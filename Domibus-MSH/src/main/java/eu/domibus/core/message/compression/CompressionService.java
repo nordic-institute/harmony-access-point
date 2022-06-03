@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -200,23 +198,28 @@ public class CompressionService {
                     .build();
         }
 
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
-                try (GZIPInputStream gzipInputStream = new GZIPInputStream(partInfo.getPayloadDatahandler().getDataSource().getInputStream())) {
-                    LOG.info("The validation of the decompression for partInfo [{}] was successful, [{}] ", partInfo.getHref(), gzipInputStream.available());
-                    return;
-                }
-        } catch (Exception exc) {
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, exc);
+            GZIPInputStream gis = new GZIPInputStream(partInfo.getPayloadDatahandler().getDataSource().getInputStream());
+            byte[] buffer = new byte[1024];
+            int len;
+            while((len = gis.read(buffer)) != -1){
+                os.write(buffer, 0, len);
+            }
+            os.close();
+            gis.close();
+        }
+        catch (IOException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId, e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("Decompression exception")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
         }
 
-        LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
-        // if it gets here, the decompression was not successful
-        throw EbMS3ExceptionBuilder.getInstance()
-                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
-                .message("Decompression exception")
-                .refToMessageId(messageId)
-                .mshRole(MSHRole.RECEIVING)
-                .build();
+        LOG.info("The validation of the decompression for partInfo [{}] was successful", partInfo.getHref());
     }
 
     private class CompressedDataSource implements DataSource {
