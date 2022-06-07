@@ -165,7 +165,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
             return;
         }
         domainDao.refreshDomain(domain);
-        this.domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
     }
 
     @Override
@@ -178,6 +178,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         domains.add(domain);
 
         authenticationService.addDomainCode(domain.getCode());
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
     }
 
     @Override
@@ -194,7 +195,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         domains.remove(domain);
 
         authenticationService.removeDomainCode(domain.getCode());
-        this.domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
     }
 
     @Override
