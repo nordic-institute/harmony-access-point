@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * @author Catalin Enache
- * @since 5.0
+ * @author François Gautier
+ * @since 5.1
  */
 public interface WSBackendMessageLogService {
 
