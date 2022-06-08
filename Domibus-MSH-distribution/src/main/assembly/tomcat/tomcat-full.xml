@@ -156,5 +156,10 @@
             <outputDirectory>domibus/bin</outputDirectory>
             <filtered>false</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/src/main/assembly/tomcat/ServerInfo.properties</source>
+            <outputDirectory>domibus/lib/org/apache/catalina/util</outputDirectory>
+            <filtered>false</filtered>
+        </file>
     </files>
 </assembly>
