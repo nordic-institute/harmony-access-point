@@ -351,7 +351,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
         List<WSBackendMessageLogEntity> pending = wsBackendMessageLogService.findAllWithFilter(
                 listPushFailedMessagesRequest.getMessageId(),
-                listPushFailedMessagesRequest.getFromPartyId(),
                 listPushFailedMessagesRequest.getOriginalSender(),
                 finalRecipient,
                 listPushFailedMessagesRequest.getReceivedFrom(),
@@ -365,8 +364,15 @@ public class WebServiceImpl implements WebServicePluginInterface {
     }
 
     @Override
+    @Transactional
     public void rePushFailedMessages(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
+        DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
+        LOG.info("rePushFailedMessages for domain [{}]", domainDTO);
 
+        FaultDetail faultDetail = wsBackendMessageLogService.updateForRetry(rePushFailedMessagesRequest.getMessageID());
+        if (faultDetail != null) {
+            throw new RePushFailedMessagesFault("RePush has failed", faultDetail);
+        }
     }
 
     /**

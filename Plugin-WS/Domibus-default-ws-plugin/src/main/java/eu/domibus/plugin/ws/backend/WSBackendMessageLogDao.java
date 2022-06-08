@@ -28,9 +28,7 @@ import static eu.domibus.plugin.ws.backend.WSBackendMessageStatus.SEND_FAILURE;
 public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity> {
 
     private static final String MESSAGE_ID = "MESSAGE_ID";
-
     private static final String CRIT_MESSAGE_ID = "messageId";
-    private static final String CRIT_FROM_PARTY_ID = "fromPartyId";
     private static final String CRIT_FINAL_RECIPIENT = "finalRecipient";
     private static final String CRIT_CREATION_TIME = "creationTime";
     private static final String CRIT_ORIGINAL_SENDER = "originalSender";
@@ -88,14 +86,13 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
 
     public List<WSBackendMessageLogEntity> findAllFailedWithFilter(
             String messageId,
-            String fromPartyId,
             String originalSender,
             String finalRecipient,
             LocalDateTime receivedFrom,
             LocalDateTime receivedTo,
             int maxCount) {
         TypedQuery<WSBackendMessageLogEntity> query = em.createQuery(
-                buildWSMessageLogListCriteria(messageId, fromPartyId,
+                buildWSMessageLogListCriteria(messageId,
                         originalSender, finalRecipient, receivedFrom, receivedTo, SEND_FAILURE));
 
         if (maxCount > 0) {
@@ -106,7 +103,6 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
 
     protected CriteriaQuery<WSBackendMessageLogEntity> buildWSMessageLogListCriteria(
             String messageId,
-            String fromPartyId,
             String originalSender,
             String finalRecipient,
             LocalDateTime receivedFrom,
@@ -120,9 +116,6 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
 
         if (StringUtils.isNotBlank(messageId)) {
             predicates.add(criteriaBuilder.equal(root.get(CRIT_MESSAGE_ID), messageId));
-        }
-        if (StringUtils.isNotBlank(fromPartyId)) {
-            predicates.add(criteriaBuilder.equal(root.get(CRIT_FROM_PARTY_ID), fromPartyId));
         }
         if (StringUtils.isNotBlank(finalRecipient)) {
             predicates.add(criteriaBuilder.equal(root.get(CRIT_FINAL_RECIPIENT), finalRecipient));

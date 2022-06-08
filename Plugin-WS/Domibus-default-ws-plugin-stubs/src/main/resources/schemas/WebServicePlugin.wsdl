@@ -267,7 +267,7 @@
     </wsdl:binding>
     <wsdl:service name="WebServicePlugin">
         <wsdl:port binding="tns:WebServicePlugin_SoapBinding" name="WEBSERVICEPLUGIN_PORT">
-            <soap12:address location="http://localhost:8080/domibus/services/wsPlugin"/>
+            <soap12:address location="http://localhost:8080/domibus/services/wsplugin"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

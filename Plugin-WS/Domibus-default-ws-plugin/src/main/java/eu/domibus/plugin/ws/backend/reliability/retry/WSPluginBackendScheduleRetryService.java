@@ -76,7 +76,7 @@ public class WSPluginBackendScheduleRetryService {
         }
     }
 
-    protected void scheduleBackendMessage(WSBackendMessageLogEntity backendMessage) {
+    public void scheduleBackendMessage(WSBackendMessageLogEntity backendMessage) {
         LOG.debug("Send backendMessage [{}] to queue [{}]", backendMessage.getEntityId(), getQueueName());
 
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.

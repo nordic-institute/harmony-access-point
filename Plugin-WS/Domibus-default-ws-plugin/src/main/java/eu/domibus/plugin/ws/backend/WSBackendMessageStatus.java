@@ -7,17 +7,13 @@ package eu.domibus.plugin.ws.backend;
 public enum WSBackendMessageStatus {
 
     /**
-     * The message is in the send queue.
-     */
-    SEND_ENQUEUED,
-
-    /**
      * The final send attempt of the message has failed and there will be no more retries
      */
     SEND_FAILURE,
 
     /**
-     * The last attempt to send the message has failed. There will  be a retry once the waiting interval of the
+     * The message is in the send queue for the first time or the last attempt to send the message has failed.
+     * There will be a retry once the waiting interval of the
      * corresponding PMode has passed.
      */
     WAITING_FOR_RETRY,

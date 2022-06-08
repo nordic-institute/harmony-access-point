@@ -5,8 +5,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.AbstractWSEntity;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.id.enhanced.SequenceStyleGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -241,4 +239,26 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
         this.scheduled = scheduled;
     }
 
+    @Override
+    public String toString() {
+        return "WSBackendMessageLogEntity{" +
+                "creationTime=" + creationTime +
+                ", modificationTime=" + modificationTime +
+                ", createdBy='" + createdBy + '\'' +
+                ", modifiedBy='" + modifiedBy + '\'' +
+                ", messageId='" + messageId + '\'' +
+                ", finalRecipient='" + finalRecipient + '\'' +
+                ", originalSender='" + originalSender + '\'' +
+                ", backendMessageStatus=" + backendMessageStatus +
+                ", messageStatus=" + messageStatus +
+                ", type=" + type +
+                ", ruleName='" + ruleName + '\'' +
+                ", sent=" + sent +
+                ", failed=" + failed +
+                ", sendAttempts=" + sendAttempts +
+                ", sendAttemptsMax=" + sendAttemptsMax +
+                ", nextAttempt=" + nextAttempt +
+                ", scheduled=" + scheduled +
+                "} " + super.toString();
+    }
 }
