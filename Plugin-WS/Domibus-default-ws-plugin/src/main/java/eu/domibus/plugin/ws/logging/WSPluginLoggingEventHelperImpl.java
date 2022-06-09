@@ -27,8 +27,10 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
     static final String SUBMIT_REQUEST = "submitRequest";
     static final String OPERATION_SUBMIT_MESSAGE = "submitMessage";
+    static final String OPERATION_DISPATCH = "{http://cxf.apache.org/jaxws/dispatch}Invoke";
     static final String OPERATION_RETRIEVE_MESSAGE = "retrieveMessage";
     static final String HEADERS_AUTHORIZATION = "Authorization";
+    public static final String DISPATCH_SERVICE = "{eu.domibus}wsplugin-dispatch-service";
 
     @Override
     public void stripPayload(LogEvent event) {
@@ -76,7 +78,8 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
             LOG.debug("operationName is null, exiting");
             return null;
         }
-        if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) {
+        if ((logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) ||
+                (logEvent.getType() == EventType.REQ_OUT && StringUtils.equalsIgnoreCase(logEvent.getServiceName().toString(), DISPATCH_SERVICE))) {
             return SUBMIT_REQUEST;
         }
         if (logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(OPERATION_RETRIEVE_MESSAGE)) {
