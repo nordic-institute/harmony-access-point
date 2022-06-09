@@ -3,7 +3,7 @@ package eu.domibus.ext.delegate.mapper;
 
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.ext.domain.JmsMessageDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtMapperDecorator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtMapperDecorator.class);
 
     @Autowired
     @Qualifier("delegate")

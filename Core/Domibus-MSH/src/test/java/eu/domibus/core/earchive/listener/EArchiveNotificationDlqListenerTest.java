@@ -8,7 +8,7 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class EArchiveNotificationDlqListenerTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationDlqListenerTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationDlqListenerTest.class);
 
     @Tested
     private EArchiveNotificationDlqListener eArchiveNotificationDlqListener;
@@ -59,7 +59,7 @@ public class EArchiveNotificationDlqListenerTest {
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable ArchivingNotificationFailedModuleConfiguration alertConfiguration) {
 
-        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
@@ -92,7 +92,7 @@ public class EArchiveNotificationDlqListenerTest {
                                                           @Injectable EArchiveBatchEntity eArchiveBatch,
                                                           @Injectable ArchivingNotificationFailedModuleConfiguration alertConfiguration) {
 
-        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations() {{
             databaseUtil.getDatabaseUserName();

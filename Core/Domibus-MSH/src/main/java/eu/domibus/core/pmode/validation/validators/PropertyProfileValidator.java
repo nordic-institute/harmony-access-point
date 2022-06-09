@@ -11,7 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -30,7 +30,7 @@ import java.util.Set;
 
 @Service
 public class PropertyProfileValidator {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProfileValidator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProfileValidator.class);
 
     @Autowired
     private PModeProvider pModeProvider;

@@ -1,7 +1,7 @@
 package eu.domibus.core.ssl.offload;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +29,7 @@ public class SslOffloadServiceImpl implements SslOffloadService {
      */
     public static final String PROTOCOL_HTTPS = "https";
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SslOffloadServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SslOffloadServiceImpl.class);
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 

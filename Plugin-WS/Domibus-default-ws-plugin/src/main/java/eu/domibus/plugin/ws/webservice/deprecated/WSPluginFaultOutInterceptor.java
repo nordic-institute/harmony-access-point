@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.webservice.WebServiceOperation;
@@ -33,7 +33,7 @@ import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 @Component("wsPluginFaultOutInterceptorDeprecated")
 public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginFaultOutInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginFaultOutInterceptor.class);
     protected static final CharSequence[] SOAP_FAULT_FORBIDDEN_CODES = {
             "XML_STREAM_EXC",
             "XML_WRITE_EXC"
@@ -86,7 +86,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
     protected void handleRetrieveMessageUnexpectedRollbackException(SoapMessage message, Exception exception, UnexpectedRollbackException cause) {
         LOG.error("Error handling request", exception);
 
-        String messageId = LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ID);
+        String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
         String retrieveMessageErrorMessage = getRetrieveMessageErrorMessage(cause, messageId);
         RetrieveMessageFault retrieveMessageFault = new RetrieveMessageFault(retrieveMessageErrorMessage, webServicePluginExceptionFactory.createFault("Error retrieving message"));
         message.setContent(Exception.class, new Fault(retrieveMessageFault));

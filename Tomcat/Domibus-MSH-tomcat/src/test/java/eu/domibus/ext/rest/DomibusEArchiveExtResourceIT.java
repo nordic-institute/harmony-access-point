@@ -12,7 +12,7 @@ import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
 import eu.domibus.ext.domain.archive.ExportedBatchStatusType;
 import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
-    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
 
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/archive";

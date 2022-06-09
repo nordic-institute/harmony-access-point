@@ -1,6 +1,6 @@
 package eu.domibus.plugin.webService.impl;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -15,7 +15,7 @@ import javax.ws.rs.HttpMethod;
 @Component
 public class HttpMethodAuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor.class);
 
     public HttpMethodAuthorizationInInterceptor() {
         super(Phase.PRE_PROTOCOL);

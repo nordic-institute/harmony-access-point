@@ -2,7 +2,7 @@ package eu.domibus.ext.delegate.services.interceptor;
 
 import eu.domibus.api.util.AOPUtil;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,5 +33,5 @@ public abstract class ServiceInterceptor {
 
     public abstract Exception convertCoreException(Exception e);
 
-    public abstract IDomibusLogger getLogger();
+    public abstract DomibusLogger getLogger();
 }

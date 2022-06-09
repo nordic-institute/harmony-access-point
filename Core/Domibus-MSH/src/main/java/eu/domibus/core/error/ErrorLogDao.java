@@ -2,7 +2,7 @@ package eu.domibus.core.error;
 
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.core.dao.ListDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -30,7 +30,7 @@ import java.util.Map;
 public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
 
     public ErrorLogDao() {
         super(ErrorLogEntry.class);

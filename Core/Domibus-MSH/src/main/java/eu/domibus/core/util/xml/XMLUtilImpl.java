@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.DefaultUnmarshallerResult;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.validation.XmlValidationEventHandler;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +48,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Component(XMLUtil.BEAN_NAME)
 public class XMLUtilImpl implements XMLUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
 
     protected DomibusPropertyProvider domibusPropertyProvider;
 

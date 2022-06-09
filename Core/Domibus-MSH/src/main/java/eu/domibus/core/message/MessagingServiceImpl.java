@@ -19,7 +19,7 @@ import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -41,7 +41,7 @@ import java.util.List;
 @Service
 public class MessagingServiceImpl implements MessagingService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagingServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagingServiceImpl.class);
 
     public static final String MIME_TYPE_APPLICATION_UNKNOWN = "application/unknown";
 

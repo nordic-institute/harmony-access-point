@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class CRLChangeListener implements DomibusPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLChangeListener.class);
 
     private CRLService crlService;
 

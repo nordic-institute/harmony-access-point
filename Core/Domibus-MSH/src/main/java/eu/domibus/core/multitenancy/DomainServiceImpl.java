@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class DomainServiceImpl implements DomainService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
 

@@ -14,7 +14,7 @@ import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -46,7 +46,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     public static final String DELETE_TYPE = "DELETE_TYPE";
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionDefaultService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionDefaultService.class);
     public static final String NO_MESSAGE_TO_BE_SCHEDULED_FOR_DELETION = "No message to be scheduled for deletion";
 
     @Autowired

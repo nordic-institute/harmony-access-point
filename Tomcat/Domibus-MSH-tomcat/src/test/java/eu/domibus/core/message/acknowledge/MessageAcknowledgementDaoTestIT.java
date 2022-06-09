@@ -14,7 +14,7 @@ import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
 
     @Autowired
     MessageAcknowledgementDao messageAcknowledgementDao;

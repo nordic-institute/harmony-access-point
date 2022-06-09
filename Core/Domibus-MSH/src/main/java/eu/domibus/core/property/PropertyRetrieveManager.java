@@ -3,7 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PropertyRetrieveManager {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyRetrieveManager.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyRetrieveManager.class);
 
     private final ConfigurableEnvironment environment;
 

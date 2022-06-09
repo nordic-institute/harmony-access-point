@@ -6,16 +6,16 @@ import org.slf4j.MDC;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static eu.domibus.logging.IDomibusLogger.MDC_DOMAIN;
-import static eu.domibus.logging.IDomibusLogger.MDC_PROPERTY_PREFIX;
+import static eu.domibus.logging.DomibusLogger.MDC_DOMAIN;
+import static eu.domibus.logging.DomibusLogger.MDC_PROPERTY_PREFIX;
 
 public class DomibusLoggersCache {
     public static final String COMMON_PREFIX = "domibus";
-    private final static Map<String, IDomibusLogger> cache = new ConcurrentHashMap<>();
+    private final static Map<String, DomibusLogger> cache = new ConcurrentHashMap<>();
 
-    public static IDomibusLogger getLogger(String name){
+    public static DomibusLogger getLogger(String name){
         String loggerName = getLoggerName(name);
-        IDomibusLogger logger = cache.get(loggerName);
+        DomibusLogger logger = cache.get(loggerName);
         if(logger==null){
             logger = new DomibusLoggerImpl(LoggerFactory.getLogger(loggerName));
             cache.put(loggerName, logger);

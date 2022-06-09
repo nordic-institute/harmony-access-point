@@ -9,7 +9,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingSourceMessageHandler.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingSourceMessageHandler.class);
 
     @Autowired
     protected PayloadFileStorageProvider storageProvider;

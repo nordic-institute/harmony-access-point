@@ -2,7 +2,7 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import com.google.common.io.ByteStreams;
 import eu.domibus.core.proxy.ProxyUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import network.oxalis.vefa.peppol.lookup.api.FetcherResponse;
 import network.oxalis.vefa.peppol.lookup.api.LookupException;
@@ -33,7 +33,7 @@ import java.net.UnknownHostException;
 * */
 public class DomibusApacheFetcher extends AbstractFetcher {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApacheFetcher.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApacheFetcher.class);
 
     protected RequestConfig requestConfig;
 

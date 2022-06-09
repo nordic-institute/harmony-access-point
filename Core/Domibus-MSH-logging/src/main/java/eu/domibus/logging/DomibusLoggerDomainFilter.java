@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DomibusLoggerDomainFilter extends Filter<ILoggingEvent> {
     /** MDC key for domain */
-    static final String MDC_DOMAIN_KEY = IDomibusLogger.MDC_PROPERTY_PREFIX + IDomibusLogger.MDC_DOMAIN;
+    static final String MDC_DOMAIN_KEY = DomibusLogger.MDC_PROPERTY_PREFIX + DomibusLogger.MDC_DOMAIN;
 
     private FilterReply onMatch;
     private FilterReply onMismatch;

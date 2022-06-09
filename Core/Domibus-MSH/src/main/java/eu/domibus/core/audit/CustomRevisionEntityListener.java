@@ -6,7 +6,7 @@ import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.core.util.AnnotationsUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.envers.EntityTrackingRevisionListener;
 import org.hibernate.envers.RevisionType;
@@ -25,7 +25,7 @@ import java.util.Optional;
  * Custom listener that allows us to add custom information to the hibernate envers schema.
  */
 public class CustomRevisionEntityListener implements EntityTrackingRevisionListener {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomRevisionEntityListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomRevisionEntityListener.class);
 
     private AnnotationsUtil annotationsUtil;
 

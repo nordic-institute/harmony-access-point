@@ -12,7 +12,7 @@ import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
 import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.core.util.backup.BackupService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -44,7 +44,7 @@ import static org.apache.commons.lang3.StringUtils.*;
 @Service
 public class PasswordEncryptionServiceImpl implements PasswordEncryptionService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionServiceImpl.class);
 
     public static final String ENC_START = "ENC(";
     public static final String ENC_END = ")";

@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs;
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -49,7 +49,7 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
  */
 public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginImpl.class);
 
     public static final String PLUGIN_NAME = "backendFSPlugin";
 
@@ -131,7 +131,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void deliverMessage(DeliverMessageEvent event) {
         String fsPluginDomain = fsDomainService.getFSPluginDomain();
         if (!fsPluginProperties.getDomainEnabled(fsPluginDomain)) {

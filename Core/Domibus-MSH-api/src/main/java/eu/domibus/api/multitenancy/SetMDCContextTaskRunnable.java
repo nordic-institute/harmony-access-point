@@ -1,6 +1,6 @@
 package eu.domibus.api.multitenancy;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.util.Map;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class SetMDCContextTaskRunnable implements Runnable {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetMDCContextTaskRunnable.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetMDCContextTaskRunnable.class);
 
     protected Runnable runnable;
     protected Runnable errorHandler;

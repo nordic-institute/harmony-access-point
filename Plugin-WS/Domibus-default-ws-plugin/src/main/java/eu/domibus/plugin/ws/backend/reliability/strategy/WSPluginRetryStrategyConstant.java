@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.backend.reliability.strategy;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
 @Service
 public class WSPluginRetryStrategyConstant implements WSPluginRetryStrategy {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginRetryStrategyConstant.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginRetryStrategyConstant.class);
 
     public static final int DEFAULT_MAX_ATTEMPTS = 60000;
 

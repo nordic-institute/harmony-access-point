@@ -2,7 +2,7 @@
 package eu.domibus.core.ebms3.ws.algorithm;
 
 import eu.domibus.core.cxf.DomibusBus;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
@@ -42,7 +42,7 @@ import static org.apache.wss4j.dom.WSConstants.MGF_SHA256;
 @Service("algorithmSuiteLoader")
 public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAlgorithmSuiteLoader.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAlgorithmSuiteLoader.class);
 
     public static final String E_DELIVERY_ALGORITHM_NAMESPACE = "http://e-delivery.eu/custom/security-policy";
 

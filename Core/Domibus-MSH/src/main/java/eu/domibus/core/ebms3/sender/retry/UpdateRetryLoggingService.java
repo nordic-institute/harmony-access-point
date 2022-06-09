@@ -18,7 +18,7 @@ import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class UpdateRetryLoggingService {
 
     public static final String MESSAGE_EXPIRATION_DELAY = DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UpdateRetryLoggingService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UpdateRetryLoggingService.class);
 
     private final BackendNotificationService backendNotificationService;
 

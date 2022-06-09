@@ -27,7 +27,7 @@ import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.user.multitenancy.ActivateSuspendedSuperUsersJob;
 import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
 import eu.domibus.core.user.ui.job.ActivateSuspendedUsersJob;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +65,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @DependsOn({"springContextProvider"})
 public class DomainSchedulerFactoryConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainSchedulerFactoryConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainSchedulerFactoryConfiguration.class);
 
     public static final String GENERAL_SCHEDULER_NAME = "General";
     public static final String GROUP_GENERAL = "GENERAL";

@@ -11,7 +11,7 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserLoginErrorReason;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ import java.util.List;
 @Service
 public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAlertsServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAlertsServiceImpl.class);
     private static final String DEFAULT = "default ";
 
     @Autowired

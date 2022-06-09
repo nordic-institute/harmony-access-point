@@ -2,7 +2,7 @@ package eu.domibus.core.spring;
 
 import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class DomibusContextLoaderListenerTest {
                                     @Mocked ContextLoaderListener contextLoaderListener,
                                     @Mocked LoggerFactory loggerFactory,
                                     @Mocked LoggerContext loggerContext,
-                                    @Mocked IDomibusLogger domibusLogger) {
+                                    @Mocked DomibusLogger domibusLogger) {
         Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
 
         new Expectations() {{
@@ -82,7 +82,7 @@ public class DomibusContextLoaderListenerTest {
 
     @Test
     public void contextDestroyed_pluginClassLoaderNull(@Mocked LoggerFactory loggerFactory,
-                                                       @Mocked IDomibusLogger domibusLogger) {
+                                                       @Mocked DomibusLogger domibusLogger) {
         Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
 
         Deencapsulation.setField(domibusContextLoaderListener, "pluginClassLoader", null);
@@ -101,7 +101,7 @@ public class DomibusContextLoaderListenerTest {
                                            @Mocked ContextLoaderListener contextLoaderListener,
                                            @Mocked LoggerFactory loggerFactory,
                                            @Mocked LoggerContext loggerContext,
-                                           @Mocked IDomibusLogger domibusLogger) {
+                                           @Mocked DomibusLogger domibusLogger) {
         Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
 
         pluginClassLoader.throwExceptionOnClose();

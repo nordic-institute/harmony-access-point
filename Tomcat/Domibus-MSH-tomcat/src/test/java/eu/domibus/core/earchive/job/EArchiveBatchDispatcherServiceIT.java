@@ -17,7 +17,7 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +44,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Transactional
 public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDispatcherServiceIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDispatcherServiceIT.class);
 
     JMSManager jmsManager;
 

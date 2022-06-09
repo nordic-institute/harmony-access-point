@@ -6,9 +6,10 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
+import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,7 @@ import java.util.Map;
  * @since 4.1
  */
 public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRequestToFileInInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRequestToFileInInterceptor.class);
 
     public SaveRequestToFileInInterceptor() {
         super(Phase.RECEIVE);

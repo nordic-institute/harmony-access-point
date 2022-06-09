@@ -1,7 +1,7 @@
 package eu.domibus.jms.activemq;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.Destination;
@@ -22,7 +22,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.PROP_MAX_BROWSE_SIZE;
  */
 public class DomibusBrokerFactoryBean extends BrokerFactoryBean {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusBrokerFactoryBean.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusBrokerFactoryBean.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs.configuration;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.TomcatCondition;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FSPluginTomcatConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginTomcatConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginTomcatConfiguration.class);
 
     @Bean(FSPluginConfiguration.NOTIFY_BACKEND_FS_QUEUE_NAME)
     public ActiveMQQueue notifyBackendFSQueue() {

@@ -3,7 +3,7 @@ package eu.domibus.core.crypto.spi.dss.listeners;
 import com.google.common.collect.Sets;
 import eu.domibus.core.crypto.spi.dss.CertificateVerifierService;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 
@@ -19,7 +19,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
  */
 public class CertificateVerifierListener implements PluginPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateVerifierListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateVerifierListener.class);
 
     private final Set<String> properties = Sets.newHashSet(
             DSS_PERFORM_CRL_CHECK,

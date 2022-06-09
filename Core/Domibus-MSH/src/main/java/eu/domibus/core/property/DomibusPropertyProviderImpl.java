@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -38,7 +38,7 @@ import static eu.domibus.api.property.DomibusPropertyProvider.SPRING_BEAN_NAME;
 @Service(SPRING_BEAN_NAME)
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 

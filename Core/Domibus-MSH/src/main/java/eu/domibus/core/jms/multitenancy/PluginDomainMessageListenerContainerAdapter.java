@@ -2,7 +2,7 @@ package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainMessageListenerContainer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
@@ -16,7 +16,7 @@ import org.springframework.jms.listener.MessageListenerContainer;
  * We need this because we manage them explicitly and we need also to replace one at runtime
  */
 public class PluginDomainMessageListenerContainerAdapter implements DomainMessageListenerContainer {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginDomainMessageListenerContainerAdapter.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginDomainMessageListenerContainerAdapter.class);
 
     private final MessageListenerContainer messageListenerContainer;
     private final Domain domain;

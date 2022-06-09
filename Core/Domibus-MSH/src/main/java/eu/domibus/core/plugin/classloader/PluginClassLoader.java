@@ -1,7 +1,7 @@
 package eu.domibus.core.plugin.classloader;
 
 import com.google.common.collect.Lists;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.io.File;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class PluginClassLoader extends URLClassLoader {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginClassLoader.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginClassLoader.class);
 
     protected Set<File> files;
 

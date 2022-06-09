@@ -4,7 +4,7 @@ import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PartyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,7 +29,7 @@ import java.util.List;
 @Tag(name = "party", description = "Domibus Party management API")
 public class PartyExtResource {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
 
     @Autowired
     PartyExtService partyExtService;

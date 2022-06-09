@@ -23,7 +23,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ import java.util.List;
 @Service
 public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingUserMessageReceiptHandler.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingUserMessageReceiptHandler.class);
 
     protected Reliability sourceMessageReliability;
 

@@ -7,7 +7,7 @@ import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.crypto.spi.DomibusCertificateSpiException;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.CoreServiceExceptionInterceptor;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -24,7 +24,7 @@ import java.security.KeyStoreException;
 @Component
 public class DomainCryptoServiceInterceptor extends CoreServiceExceptionInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceInterceptor.class);
 
     public DomainCryptoServiceInterceptor(AOPUtil aopUtil) {
         super(aopUtil);
@@ -58,7 +58,7 @@ public class DomainCryptoServiceInterceptor extends CoreServiceExceptionIntercep
     }
 
     @Override
-    public IDomibusLogger getLogger() {
+    public DomibusLogger getLogger() {
         return LOG;
     }
 }

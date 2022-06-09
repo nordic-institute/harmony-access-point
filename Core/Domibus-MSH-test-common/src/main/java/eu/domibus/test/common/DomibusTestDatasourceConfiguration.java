@@ -3,7 +3,7 @@ package eu.domibus.test.common;
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 @Configuration
 public class DomibusTestDatasourceConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTestDatasourceConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTestDatasourceConfiguration.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

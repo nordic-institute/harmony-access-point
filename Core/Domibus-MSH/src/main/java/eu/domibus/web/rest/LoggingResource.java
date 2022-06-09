@@ -4,7 +4,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingException;
 import eu.domibus.core.logging.LoggingService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
@@ -33,7 +33,7 @@ import java.util.List;
 @RequestMapping(value = "/rest/logging")
 @Validated
 public class LoggingResource {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingResource.class);
 
     private final DomibusCoreMapper coreMapper;
 

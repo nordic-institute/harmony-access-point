@@ -5,7 +5,8 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -22,7 +23,7 @@ import java.util.List;
 public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
 
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageGroupDao.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageGroupDao.class);
 
     public MessageGroupDao() {
         super(MessageGroupEntity.class);

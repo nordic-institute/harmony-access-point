@@ -13,7 +13,7 @@ import eu.domibus.ext.domain.ProcessDTO;
 import eu.domibus.ext.domain.TrustStoreDTO;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.services.PartyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 public class PartyServiceDelegate implements PartyExtService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceDelegate.class);
 
     protected PartyService partyService;
 

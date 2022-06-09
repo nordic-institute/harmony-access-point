@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs.property.listeners;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -22,7 +22,7 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
 @Component
 public class EnabledChangeListener implements PluginPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EnabledChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EnabledChangeListener.class);
 
     public static final String[] FSPLUGIN_JOB_NAMES = TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.values().toArray(new String[]{}); //NOSONAR
 

@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.property.listeners.ConcurrencyChangeListener;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +20,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Configuration
 public class MessageListenerContainerInitializerIT extends AbstractIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializerIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializerIT.class);
 
     @Autowired
     private ConcurrencyChangeListener concurrencyChangeListener;

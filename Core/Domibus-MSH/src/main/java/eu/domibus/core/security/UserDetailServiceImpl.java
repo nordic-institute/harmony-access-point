@@ -8,7 +8,7 @@ import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
-    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDetailServiceImpl.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     @Autowired
     private UserDao userDao;

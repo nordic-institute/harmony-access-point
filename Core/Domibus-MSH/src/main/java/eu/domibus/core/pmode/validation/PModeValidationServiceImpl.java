@@ -3,7 +3,7 @@ package eu.domibus.core.pmode.validation;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 public class PModeValidationServiceImpl implements PModeValidationService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeValidationServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeValidationServiceImpl.class);
 
     @Autowired(required = false)
     protected List<PModeValidator> pModeValidatorList;

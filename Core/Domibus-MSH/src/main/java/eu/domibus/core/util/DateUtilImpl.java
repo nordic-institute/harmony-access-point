@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 @Component
 public class DateUtilImpl implements DateUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
 
     @Override
     public String getIdPkDateHourPrefix(Date value) {

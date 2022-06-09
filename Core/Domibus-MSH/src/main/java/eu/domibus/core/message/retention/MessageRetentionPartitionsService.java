@@ -14,7 +14,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     private static final String PARTITION_NAME_REGEXP = "P[0-9]{8}";
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionPartitionsService.class);
 
     protected PModeProvider pModeProvider;
 

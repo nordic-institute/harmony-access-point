@@ -15,7 +15,7 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 3.3
  */
-public class DomibusLoggerImpl extends CategoryLogger implements IDomibusLogger {
+public class DomibusLoggerImpl extends CategoryLogger implements DomibusLogger {
 
     public DomibusLoggerImpl(Logger logger, MessageConverter messageConverter) {
         super(logger, DomibusLoggerImpl.class.getName(),messageConverter, MDC_PROPERTY_PREFIX);

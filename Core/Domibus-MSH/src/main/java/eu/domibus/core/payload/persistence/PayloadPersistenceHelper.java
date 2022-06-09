@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import javax.validation.constraints.NotNull;
 @Service
 public class PayloadPersistenceHelper {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadPersistenceHelper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadPersistenceHelper.class);
 
     @Autowired
     protected DomainContextProvider domainContextProvider;

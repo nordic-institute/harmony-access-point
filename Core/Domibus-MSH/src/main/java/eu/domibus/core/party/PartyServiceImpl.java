@@ -22,7 +22,7 @@ import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.collections4.CollectionUtils;
@@ -51,7 +51,7 @@ import static java.util.stream.Collectors.*;
 @Service
 public class PartyServiceImpl implements PartyService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceImpl.class);
     private static final Predicate<Party> DEFAULT_PREDICATE = condition -> true;
 
     public static final String EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM = "Cannot delete the party describing the current system.";

@@ -8,7 +8,7 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;
 import org.apache.commons.codec.binary.Base64;
@@ -50,7 +50,7 @@ import java.util.Collection;
  */
 public class SoapInterceptorTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapInterceptorTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapInterceptorTest.class);
 
     protected static String MESSAGE_TYPE_OUT_TEST_VALUE = "MESSAGE_TYPE_OUT_TEST_VALUE";
 

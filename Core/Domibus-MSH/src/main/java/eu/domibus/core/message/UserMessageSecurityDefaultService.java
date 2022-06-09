@@ -6,7 +6,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class UserMessageSecurityDefaultService implements UserMessageSecurityService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSecurityDefaultService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSecurityDefaultService.class);
 
     protected AuthUtils authUtils;
     protected UserMessageService userMessageService;

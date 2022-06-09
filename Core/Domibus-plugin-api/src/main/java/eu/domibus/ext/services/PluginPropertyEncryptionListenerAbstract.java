@@ -1,7 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.encryption.PluginPropertyEncryptionListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public abstract class PluginPropertyEncryptionListenerAbstract implements PluginPropertyEncryptionListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPropertyEncryptionListenerAbstract.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPropertyEncryptionListenerAbstract.class);
 
     @Autowired
     protected DomainExtService domainsExtService;

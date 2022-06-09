@@ -6,7 +6,7 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CertificateListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateListener.class);
 
     @Autowired
     private EventService eventService;
@@ -43,7 +43,7 @@ public class CertificateListener {
     private void saveEventAndTriggerAlert(Event event, @Header(name = "DOMAIN") String domain) {
         LOG.debug("Certificate event:[{}] for domain:[{}]", event, domain);
         domainContextProvider.setCurrentDomain(domain);
-        LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         eventService.persistEvent(event);
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
         alertService.enqueueAlert(alertOnEvent);

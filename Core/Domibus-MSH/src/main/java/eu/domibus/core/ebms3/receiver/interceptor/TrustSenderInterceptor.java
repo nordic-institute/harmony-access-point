@@ -16,7 +16,7 @@ import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
@@ -74,7 +74,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);
 
     public static final QName KEYINFO = new QName("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
 
@@ -138,8 +138,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             senderPartyName = getSenderPartyName(message);
             receiverPartyName = getReceiverPartyName(message);
         }
-        LOG.putMDC(IDomibusLogger.MDC_FROM, senderPartyName);
-        LOG.putMDC(IDomibusLogger.MDC_TO, receiverPartyName);
+        LOG.putMDC(DomibusLogger.MDC_FROM, senderPartyName);
+        LOG.putMDC(DomibusLogger.MDC_TO, receiverPartyName);
 
         LOG.debug("Validating sender certificate for party [{}]", senderPartyName);
         List<? extends Certificate> certificateChain = getSenderCertificateChain(message);

@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,7 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
         }
 
         domainContextProvider.setCurrentDomain(domainCode);
-        getLogger().putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
+        getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         getLogger().debug("Sending message ID [{}] for domain [{}]", messageId, domainCode);
 
         sendUserMessage(messageId, messageEntityId, retryCount);
@@ -68,7 +68,7 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
         getLogger().debug("Finished sending message ID [{}] for domain [{}]", messageId, domainCode);
     }
 
-    public abstract IDomibusLogger getLogger();
+    public abstract DomibusLogger getLogger();
 
     public abstract void sendUserMessage(final String messageId, Long messageEntityId, int retryCount);
 }

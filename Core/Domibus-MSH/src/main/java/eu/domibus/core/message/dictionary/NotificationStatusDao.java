@@ -4,7 +4,7 @@ import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.NotificationStatusEntity;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import javax.persistence.TypedQuery;
 @Service
 public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLog.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLog.class);
 
     public NotificationStatusDao() {
         super(NotificationStatusEntity.class);

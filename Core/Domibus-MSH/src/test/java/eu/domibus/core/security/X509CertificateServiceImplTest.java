@@ -1,7 +1,7 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.security.AuthenticationException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.CertificateServiceImpl;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(JMockit.class)
 public class X509CertificateServiceImplTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(X509CertificateServiceImplTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(X509CertificateServiceImplTest.class);
 
     @Injectable
     private CertificateServiceImpl certificateService;

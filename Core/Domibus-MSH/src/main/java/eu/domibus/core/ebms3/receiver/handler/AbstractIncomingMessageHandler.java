@@ -13,7 +13,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import java.io.IOException;
  */
 public abstract class AbstractIncomingMessageHandler implements IncomingMessageHandler {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIncomingMessageHandler.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIncomingMessageHandler.class);
 
     @Autowired
     protected BackendNotificationService backendNotificationService;

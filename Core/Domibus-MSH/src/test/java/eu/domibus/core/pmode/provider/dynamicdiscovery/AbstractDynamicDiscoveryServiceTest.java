@@ -1,6 +1,8 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.pki.PKIUtil;
+import eu.domibus.logging.DomibusLogger;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -27,7 +29,7 @@ public class AbstractDynamicDiscoveryServiceTest {
     AbstractDynamicDiscoveryService testInstance;
 
     @Injectable
-    IDomibusLogger logger;
+    DomibusLogger logger;
 
     @Test
     public void testGetAllowedSMPCertificatePolicyOIDsPropertyNotDefined() {

@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheDynamicExpiryPolicy;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.ehcache.config.CacheRuntimeConfiguration;
@@ -40,7 +40,7 @@ import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOI
  */
 @Service
 public class DynamicDiscoveryCacheTTLChangeListener implements DomibusPropertyChangeListener {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryCacheTTLChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryCacheTTLChangeListener.class);
 
     protected final CacheManager cacheManager;
     protected final Map<String, String> propertyCacheMapping;

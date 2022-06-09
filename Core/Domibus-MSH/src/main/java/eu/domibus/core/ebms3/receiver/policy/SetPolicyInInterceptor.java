@@ -3,7 +3,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -28,7 +28,7 @@ import java.util.Collection;
  */
 public abstract class SetPolicyInInterceptor extends AbstractSoapInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInInterceptor.class);
 
     @Autowired
     protected SoapService soapService;

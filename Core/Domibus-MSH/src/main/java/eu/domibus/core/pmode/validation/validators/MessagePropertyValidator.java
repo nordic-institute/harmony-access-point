@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.plugin.Submission;
@@ -25,7 +25,7 @@ import java.util.Set;
 @Service
 public class MessagePropertyValidator {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagePropertyValidator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagePropertyValidator.class);
 
     @Timer(clazz = MessagePropertyValidator.class, value = "validate")
     @Counter(clazz = MessagePropertyValidator.class, value = "validate")

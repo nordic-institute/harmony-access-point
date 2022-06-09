@@ -1,6 +1,6 @@
 package eu.domibus.common;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
@@ -24,7 +24,7 @@ public enum ErrorCode {
     private static final String ORIGIN_SECURITY = "security";
     private String errorCodeName;
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorCode.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorCode.class);
 
     ErrorCode(final String errorCodeName) {
         this.errorCodeName = errorCodeName;

@@ -2,7 +2,7 @@ package eu.domibus.core.spring;
 
 import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class DomibusContextLoaderListener extends ContextLoaderListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextLoaderListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextLoaderListener.class);
 
     protected PluginClassLoader pluginClassLoader;
 

@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.logging;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.event.LogEvent;
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Catalin Enache
  */
 public class WSPluginLoggingEventSender extends Slf4jEventSender {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingEventSender.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingEventSender.class);
 
     static final String ORG_APACHE_CXF_CATEGORY = "org.apache.cxf";
 

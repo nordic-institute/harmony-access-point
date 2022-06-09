@@ -1,7 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class PrefixedProperties extends Properties {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PrefixedProperties.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrefixedProperties.class);
 
     public PrefixedProperties(DomibusPropertyProvider domibusPropertyProvider, String prefix) {
         Set<String> propertyNames = domibusPropertyProvider.filterPropertiesName(propName -> propName.startsWith(prefix));

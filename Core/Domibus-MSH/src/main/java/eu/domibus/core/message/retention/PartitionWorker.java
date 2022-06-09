@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -21,7 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @DisallowConcurrentExecution
 public class PartitionWorker extends DomibusQuartzJobBean {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionWorker.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionWorker.class);
 
     @Autowired
     private ConfigurationDAO configurationDAO;

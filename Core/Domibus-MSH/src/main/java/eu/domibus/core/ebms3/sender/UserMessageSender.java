@@ -5,7 +5,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.PartInfoDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class UserMessageSender extends AbstractUserMessageSender {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSender.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSender.class);
 
     protected PartInfoDao partInfoDao;
 
@@ -36,7 +36,7 @@ public class UserMessageSender extends AbstractUserMessageSender {
     }
 
     @Override
-    protected IDomibusLogger getLog() {
+    protected DomibusLogger getLog() {
         return LOG;
     }
 }

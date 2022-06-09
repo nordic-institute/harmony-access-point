@@ -13,7 +13,7 @@ import eu.domibus.core.jms.multitenancy.PluginDomainMessageListenerContainerAdap
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
 import eu.domibus.core.message.UserMessagePriorityService;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
 import org.apache.commons.collections4.CollectionUtils;
@@ -42,7 +42,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessageListenerContainerInitializer implements DomainsAware {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerInitializer.class);
 
     public static final String JMS_PRIORITY = "JMSPriority";
 

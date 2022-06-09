@@ -13,7 +13,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 @Service
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
 
     public final static String TLS_TRUSTSTORE_NAME = "TLS.truststore";
 

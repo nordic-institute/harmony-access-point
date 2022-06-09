@@ -1,7 +1,14 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.DomibusBaseEntity;
+import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.core.dao.ListDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;

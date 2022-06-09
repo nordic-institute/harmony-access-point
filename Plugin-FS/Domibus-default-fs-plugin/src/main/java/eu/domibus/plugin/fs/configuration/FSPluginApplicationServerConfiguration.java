@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs.configuration;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.ApplicationServerCondition;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -22,7 +22,7 @@ import javax.jms.Queue;
 @Configuration
 public class FSPluginApplicationServerConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginApplicationServerConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginApplicationServerConfiguration.class);
 
     @Bean(FSPluginConfiguration.NOTIFY_BACKEND_FS_QUEUE_NAME)
     public JndiObjectFactoryBean notifyBackendFSQueue() {

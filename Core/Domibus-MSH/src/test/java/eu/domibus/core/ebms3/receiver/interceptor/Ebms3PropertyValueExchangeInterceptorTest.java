@@ -4,7 +4,7 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.core.ebms3.sender.interceptor.SoapInterceptorTest;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Mocked;
 import mockit.Tested;
@@ -31,7 +31,7 @@ import java.security.cert.CertificateException;
 @RunWith(JMockit.class)
 public class Ebms3PropertyValueExchangeInterceptorTest extends SoapInterceptorTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(Ebms3PropertyValueExchangeInterceptorTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(Ebms3PropertyValueExchangeInterceptorTest.class);
 
     @Tested
     PropertyValueExchangeInterceptor propertyValueExchangeInterceptor;

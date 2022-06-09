@@ -10,7 +10,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
@@ -43,7 +43,7 @@ import java.util.Collections;
                 DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 public abstract class AbstractIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;

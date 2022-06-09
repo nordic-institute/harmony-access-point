@@ -15,7 +15,7 @@ import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service(UserManagementServiceImpl.BEAN_NAME)
 public class UserManagementServiceImpl implements UserService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceImpl.class);
 
     public static final String BEAN_NAME = "userManagementService";
 

@@ -1,7 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.source.TLSource;
@@ -24,7 +24,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
 @Component
 public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<TLSource> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomTrustedListPropertyMapper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomTrustedListPropertyMapper.class);
 
     private static final String URL = "url";
 

@@ -1,7 +1,7 @@
 package eu.domibus.api.ebms3.adapter;
 
 import eu.domibus.api.util.xml.XMLFactoryProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ToStringAdapter extends XmlAdapter<Node, List<String>> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ToStringAdapter.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ToStringAdapter.class);
 
     @Override
     /**

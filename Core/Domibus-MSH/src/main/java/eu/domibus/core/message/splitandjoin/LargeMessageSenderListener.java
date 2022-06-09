@@ -1,7 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.core.ebms3.sender.AbstractMessageSenderListener;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import javax.jms.Message;
  */
 @Service
 public class LargeMessageSenderListener extends AbstractMessageSenderListener {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(LargeMessageSenderListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LargeMessageSenderListener.class);
 
     @Override
     public void onMessage(final Message message) {
@@ -28,7 +28,7 @@ public class LargeMessageSenderListener extends AbstractMessageSenderListener {
     }
 
     @Override
-    public IDomibusLogger getLogger() {
+    public DomibusLogger getLogger() {
         return LOG;
     }
 }

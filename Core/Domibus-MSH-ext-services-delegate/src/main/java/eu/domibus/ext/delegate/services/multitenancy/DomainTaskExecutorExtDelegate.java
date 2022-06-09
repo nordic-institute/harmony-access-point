@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DomainTaskExecutorExtDelegate implements DomainTaskExtExecutor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorExtDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorExtDelegate.class);
 
     protected DomibusExtMapper domibusExtMapper;
 

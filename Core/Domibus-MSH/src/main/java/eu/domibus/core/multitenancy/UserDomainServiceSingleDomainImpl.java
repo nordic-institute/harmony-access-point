@@ -2,7 +2,7 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
@@ -11,7 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
  */
 public class UserDomainServiceSingleDomainImpl implements UserDomainService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainServiceSingleDomainImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainServiceSingleDomainImpl.class);
 
     /**
      * Get the domain associated to the provided user. <br>

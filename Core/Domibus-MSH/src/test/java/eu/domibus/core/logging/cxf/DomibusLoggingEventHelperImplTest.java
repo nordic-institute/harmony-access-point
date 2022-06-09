@@ -1,6 +1,6 @@
 package eu.domibus.core.logging.cxf;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(JMockit.class)
 public class DomibusLoggingEventHelperImplTest {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingEventHelperImplTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingEventHelperImplTest.class);
 
     @Tested
     DomibusLoggingEventHelperImpl domibusLoggingEventHelper;

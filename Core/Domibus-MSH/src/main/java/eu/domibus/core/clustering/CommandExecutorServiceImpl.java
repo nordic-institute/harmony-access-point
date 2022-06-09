@@ -6,7 +6,7 @@ import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.ext.services.CommandExtTask;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ import java.util.Map;
 @Service
 public class CommandExecutorServiceImpl implements CommandExecutorService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandExecutorServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandExecutorServiceImpl.class);
 
     protected CommandService commandService;
     protected ServerInfoService serverInfoService;

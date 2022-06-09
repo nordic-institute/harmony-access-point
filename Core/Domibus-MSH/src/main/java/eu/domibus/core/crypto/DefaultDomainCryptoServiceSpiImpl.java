@@ -13,7 +13,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -48,7 +48,7 @@ import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTS
 @Qualifier(AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI)
 public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainCryptoServiceSpi {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
 
     protected Domain domain;
 

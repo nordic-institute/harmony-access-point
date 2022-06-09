@@ -9,7 +9,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +29,7 @@ import java.util.zip.GZIPOutputStream;
 @Service
 public class FileSystemPayloadPersistence implements PayloadPersistence {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistence.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistence.class);
 
     public static final String PAYLOAD_EXTENSION = ".payload";
 

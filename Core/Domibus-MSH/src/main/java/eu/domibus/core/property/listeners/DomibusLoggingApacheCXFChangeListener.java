@@ -2,7 +2,7 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service
 public class DomibusLoggingApacheCXFChangeListener implements DomibusPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingApacheCXFChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingApacheCXFChangeListener.class);
 
     LoggingFeature loggingFeature;
 

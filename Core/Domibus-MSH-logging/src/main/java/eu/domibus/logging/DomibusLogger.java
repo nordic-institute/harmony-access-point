@@ -7,7 +7,7 @@ import org.slf4j.MarkerFactory;
 
 import java.util.Map;
 
-public interface IDomibusLogger extends Logger, MDCAccessor {
+public interface DomibusLogger extends Logger, MDCAccessor {
     String MDC_USER = "user";
     String MDC_MESSAGE_ID = "messageId";
     String MDC_MESSAGE_ENTITY_ID = "messageEntityId";

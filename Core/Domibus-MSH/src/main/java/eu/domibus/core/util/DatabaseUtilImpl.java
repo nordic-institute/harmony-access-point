@@ -2,7 +2,7 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,7 +24,7 @@ import java.sql.SQLException;
 @Service(DatabaseUtil.DATABASE_USER)
 public class DatabaseUtilImpl implements DatabaseUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseUtilImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseUtilImpl.class);
 
     private String databaseUserName;
 

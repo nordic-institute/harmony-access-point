@@ -10,6 +10,7 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -21,7 +22,7 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -55,7 +56,7 @@ import static java.util.stream.Collectors.toList;
 @Service("backendNotificationService")
 public class BackendNotificationService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationService.class);
 
     @Autowired
     protected JMSManager jmsManager;
@@ -416,7 +417,7 @@ public class BackendNotificationService {
     }
 
 
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(String messageId, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
@@ -425,7 +426,7 @@ public class BackendNotificationService {
     @Timer(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
     @Counter(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
     @Transactional
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
@@ -437,7 +438,7 @@ public class BackendNotificationService {
         }
         final String messageId = userMessage.getMessageId();
         if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
         if (messageLog.getMessageStatus() == newStatus) {
             LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);

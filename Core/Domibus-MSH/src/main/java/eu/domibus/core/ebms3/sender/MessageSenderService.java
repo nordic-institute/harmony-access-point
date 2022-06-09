@@ -4,10 +4,11 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.message.*;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import java.util.Set;
  */
 @Service
 public class MessageSenderService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderService.class);
 
     private static final Set<MessageStatus> ALLOWED_STATUSES_FOR_SENDING = EnumSet.of(MessageStatus.SEND_ENQUEUED, MessageStatus.WAITING_FOR_RETRY);
     private static final int MAX_RETRY_COUNT = 3;

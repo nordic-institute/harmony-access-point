@@ -17,7 +17,7 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ import javax.xml.soap.SOAPMessage;
 @Service
 public class ResponseHandler {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ResponseHandler.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ResponseHandler.class);
 
     private final SignalMessageLogDefaultService signalMessageLogDefaultService;
     private final NonRepudiationService nonRepudiationService;

@@ -24,7 +24,7 @@ public class DomibusLoggerTest {
 
     @Test
     public void testMDC() throws Exception {
-        final IDomibusLogger domibusLogger = DomibusLoggerFactory.getLogger(DomibusLoggerTest.class.getName());
+        final DomibusLogger domibusLogger = DomibusLoggerFactory.getLogger(DomibusLoggerTest.class.getName());
         final String key = "key1";
         final String value = "value1";
         domibusLogger.putMDC(key, value);
@@ -51,7 +51,7 @@ public class DomibusLoggerTest {
         listAppender.start();
         root.addAppender(listAppender);
 
-        final IDomibusLogger domibusLogger = DomibusLoggerFactory.getLogger(DomibusLoggerTest.class);
+        final DomibusLogger domibusLogger = DomibusLoggerFactory.getLogger(DomibusLoggerTest.class);
         final String charset = "UTF-8";
         domibusLogger.businessTrace(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);
         domibusLogger.businessDebug(DomibusMessageCode.BUS_MESSAGE_CHARSET_INVALID, charset);

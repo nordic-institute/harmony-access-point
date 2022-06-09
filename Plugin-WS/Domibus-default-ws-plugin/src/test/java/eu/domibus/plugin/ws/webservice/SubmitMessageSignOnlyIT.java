@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
@@ -12,6 +12,7 @@ import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceImpl.class);
 
     @Autowired
     NonRepudiationChecker nonRepudiationChecker;

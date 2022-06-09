@@ -2,7 +2,7 @@ package eu.domibus.core.audit;
 
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.model.*;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -26,7 +26,7 @@ import java.util.Set;
 @Repository
 public class AuditDaoImpl implements AuditDao {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditDaoImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditDaoImpl.class);
     public static final String CHANGED = "changed";
     public static final String ID = "id";
 

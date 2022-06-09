@@ -1,7 +1,7 @@
 package eu.domibus.core.cxf;
 
 import eu.domibus.core.ssl.offload.SslOffloadService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 public class DomibusURLConnectionHTTPConduit extends URLConnectionHTTPConduit {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusURLConnectionHTTPConduit.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusURLConnectionHTTPConduit.class);
 
     public static final String PROTOCOL_HTTP = "http";
 

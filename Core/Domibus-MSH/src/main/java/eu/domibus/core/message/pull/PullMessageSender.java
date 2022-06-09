@@ -30,7 +30,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequestDao;
 import eu.domibus.core.status.DomibusStatusService;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -58,7 +58,7 @@ import java.util.Set;
 @Component
 public class PullMessageSender {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageSender.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageSender.class);
 
     @Autowired
     protected MessageUtil messageUtil;

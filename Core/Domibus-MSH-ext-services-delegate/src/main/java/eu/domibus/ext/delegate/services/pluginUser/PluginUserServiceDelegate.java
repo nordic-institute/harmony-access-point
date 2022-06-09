@@ -7,7 +7,7 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.PluginUserDTO;
 import eu.domibus.ext.exceptions.PluginUserExtServiceException;
 import eu.domibus.ext.services.PluginUserExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class PluginUserServiceDelegate implements PluginUserExtService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserServiceDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserServiceDelegate.class);
 
     PluginUserService pluginUserService;
 

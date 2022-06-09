@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.logging;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.event.EventType;
@@ -17,7 +17,7 @@ import static org.apache.cxf.ext.logging.AbstractLoggingInterceptor.CONTENT_SUPP
  */
 @Service
 public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelper {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingEventHelperImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingEventHelperImpl.class);
 
     static final String BOUNDARY_MARKER = "boundary=\"";
     static final String BOUNDARY_MARKER_PREFIX = "--";

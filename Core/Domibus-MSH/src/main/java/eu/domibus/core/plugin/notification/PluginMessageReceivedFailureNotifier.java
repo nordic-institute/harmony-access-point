@@ -5,7 +5,7 @@ import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
@@ -23,7 +23,7 @@ import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
 @Service
 public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginMessageReceivedFailureNotifier.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginMessageReceivedFailureNotifier.class);
 
     protected BackendConnectorDelegate backendConnectorDelegate;
 

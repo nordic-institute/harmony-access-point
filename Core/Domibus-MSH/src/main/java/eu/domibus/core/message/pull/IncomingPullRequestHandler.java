@@ -8,7 +8,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.security.AuthorizationServiceImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import javax.xml.soap.SOAPMessage;
 @Service
 public class IncomingPullRequestHandler implements IncomingMessageHandler {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullRequestHandler.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullRequestHandler.class);
 
     @Autowired
     private PullRequestHandler pullRequestHandler;

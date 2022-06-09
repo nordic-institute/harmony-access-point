@@ -5,7 +5,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.scheduler.GeneralQuartzJobBean;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -23,7 +23,7 @@ import java.util.Date;
 @DisallowConcurrentExecution
 public class ActivateSuspendedSuperUsersJob extends GeneralQuartzJobBean {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ActivateSuspendedSuperUsersJob.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ActivateSuspendedSuperUsersJob.class);
 
     @Autowired
     @Qualifier(UserManagementServiceImpl.BEAN_NAME)

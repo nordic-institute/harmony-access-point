@@ -8,7 +8,7 @@ import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class EArchivingRetentionService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingRetentionService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingRetentionService.class);
 
     private final EArchiveBatchDao eArchiveBatchDao;
 

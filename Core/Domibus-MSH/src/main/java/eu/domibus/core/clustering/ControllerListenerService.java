@@ -5,7 +5,7 @@ import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ import java.util.Map;
 @Service
 public class ControllerListenerService implements MessageListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerService.class);
 
     @Autowired
     protected CommandExecutorService commandExecutorService;

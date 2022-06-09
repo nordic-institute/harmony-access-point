@@ -7,7 +7,7 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.core.csv.serializer.CsvSerializer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ import static java.util.Arrays.asList;
 
 @Service
 public class CsvServiceImpl implements CsvService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CsvServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CsvServiceImpl.class);
     public static final String CSV_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss'GMT'Z";
 
     public static final String APPLICATION_EXCEL_STR = "application/ms-excel";

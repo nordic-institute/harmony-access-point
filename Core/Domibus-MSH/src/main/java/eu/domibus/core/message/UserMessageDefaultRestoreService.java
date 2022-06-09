@@ -18,9 +18,10 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +40,7 @@ import java.util.List;
 @Service
 public class UserMessageDefaultRestoreService implements UserMessageRestoreService {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultRestoreService.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultRestoreService.class);
 
     private MessageExchangeService messageExchangeService;
 

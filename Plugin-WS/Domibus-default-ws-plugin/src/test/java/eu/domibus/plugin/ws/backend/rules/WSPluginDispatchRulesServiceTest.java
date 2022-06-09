@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyType;
@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class WSPluginDispatchRulesServiceTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesServiceTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesServiceTest.class);
 
     public static final String RULE_NAME_1 = "red1";
     public static final String RULE_NAME_3 = "red3";
@@ -189,11 +189,11 @@ public class WSPluginDispatchRulesServiceTest {
                     new WSPluginDispatchRuleBuilder("test21").build());
             times = 2;
         }};
-        LOG.putMDC(IDomibusLogger.MDC_DOMAIN, "test1");
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test1");
         assertEquals(1, rulesService.getRules().size());
-        LOG.putMDC(IDomibusLogger.MDC_DOMAIN, "test2");
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test2");
         assertEquals(2, rulesService.getRules().size());
-        LOG.putMDC(IDomibusLogger.MDC_DOMAIN, "test1");
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test1");
         assertEquals(1, rulesService.getRules().size());
 
         new FullVerifications() {

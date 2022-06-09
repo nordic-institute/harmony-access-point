@@ -7,7 +7,7 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.converter.AuditLogCoreMapper;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
 import eu.domibus.web.rest.ro.AuditResponseRo;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Validated
 public class AuditResource extends BaseResource {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditResource.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

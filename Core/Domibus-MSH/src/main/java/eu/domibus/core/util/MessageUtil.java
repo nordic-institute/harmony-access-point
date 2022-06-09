@@ -9,7 +9,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +45,7 @@ import static org.apache.wss4j.common.WSS4JConstants.WSU_PREFIX;
 @Service
 public class MessageUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageUtil.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageUtil.class);
 
     public static final String LOCAL_NAME = "Id";
     public static final String MESSAGE_INFO = "MessageInfo";

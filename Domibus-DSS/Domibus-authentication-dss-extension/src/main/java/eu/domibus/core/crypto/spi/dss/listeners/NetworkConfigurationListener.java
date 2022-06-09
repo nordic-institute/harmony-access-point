@@ -3,7 +3,7 @@ package eu.domibus.core.crypto.spi.dss.listeners;
 import com.google.common.collect.Sets;
 import eu.domibus.core.crypto.spi.dss.ProxyHelper;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
@@ -20,7 +20,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
  */
 public class NetworkConfigurationListener implements PluginPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(NetworkConfigurationListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NetworkConfigurationListener.class);
 
     private final Set<String> properties = Sets.newHashSet(
             AUTHENTICATION_DSS_PROXY_HTTP_HOST,

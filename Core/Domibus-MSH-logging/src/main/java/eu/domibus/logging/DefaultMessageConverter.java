@@ -13,7 +13,7 @@ import java.util.Arrays;
  */
 public class DefaultMessageConverter implements MessageConverter {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultMessageConverter.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultMessageConverter.class);
 
     @Override
     public String getMessage(Marker marker, MessageCode messageCode, Object... args) {

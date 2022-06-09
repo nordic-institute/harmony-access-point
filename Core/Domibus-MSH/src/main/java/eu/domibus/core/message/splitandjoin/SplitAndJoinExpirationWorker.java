@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class SplitAndJoinExpirationWorker extends DomibusQuartzJobBean {
 
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinExpirationWorker.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinExpirationWorker.class);
 
     @Autowired
     protected SplitAndJoinService splitAndJoinService;

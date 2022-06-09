@@ -1,7 +1,7 @@
 package eu.domibus.core.proxy;
 
 import eu.domibus.api.cxf.ProxyCxfUtilService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProxyCxfUtil implements ProxyCxfUtilService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ProxyCxfUtil.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ProxyCxfUtil.class);
 
     final DomibusProxyService domibusProxyService;
 

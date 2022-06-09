@@ -10,8 +10,9 @@ import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -30,7 +31,7 @@ import java.util.List;
 @Service
 public class PayloadProfileValidator {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadProfileValidator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadProfileValidator.class);
 
     @Autowired
     private PModeProvider pModeProvider;

@@ -3,7 +3,7 @@ package eu.domibus.core.message;
 import com.google.common.collect.Maps;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import static java.util.Locale.ENGLISH;
  */
 public abstract class MessageLogInfoFilter {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogInfoFilter.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogInfoFilter.class);
 
     private static final String LOG_MESSAGE_ENTITY_ID = "log.entityId";
     private static final String LOG_MESSAGE_ID = "message.messageId";

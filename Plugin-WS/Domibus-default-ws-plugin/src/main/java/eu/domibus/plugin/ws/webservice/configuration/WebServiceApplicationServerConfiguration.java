@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.webservice.configuration;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.ApplicationServerCondition;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ import javax.jms.Queue;
 @Configuration
 public class WebServiceApplicationServerConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceApplicationServerConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceApplicationServerConfiguration.class);
 
     @Bean("notifyBackendWebServiceQueue")
     public JndiObjectFactoryBean notifyBackendWebServiceQueue() {

@@ -1,6 +1,6 @@
 package eu.domibus.test;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.xbean.BrokerFactoryBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class DomibusTestActiveMQConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTestActiveMQConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusTestActiveMQConfiguration.class);
 
     @Value("${activeMQ.embedded.configurationFile}")
     private Resource activeMQConfiguration;

@@ -6,7 +6,7 @@ import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordExpirationListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordExpirationListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordExpirationListener.class);
 
     @Autowired
     private AlertService alertService;
@@ -48,7 +48,7 @@ public class PasswordExpirationListener {
         } else {
             domainContextProvider.setCurrentDomain(domain);
         }
-        LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         //find the corresponding persisted event
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.read(event.getEntityId());

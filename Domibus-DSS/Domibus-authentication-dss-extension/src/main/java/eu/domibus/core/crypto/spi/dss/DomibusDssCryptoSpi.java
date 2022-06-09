@@ -3,7 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.PkiExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDssCryptoSpi.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDssCryptoSpi.class);
 
     private static final String CERTPATH = "certpath";
 

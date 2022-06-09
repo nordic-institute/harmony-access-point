@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("httpHeaderInInterceptor")
 public class HttpHeaderInInterceptor extends HttpHeaderAbstractInterceptor {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpHeaderInInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpHeaderInInterceptor.class);
 
     public HttpHeaderInInterceptor() {
         super(Phase.PRE_INVOKE);
@@ -22,7 +22,7 @@ public class HttpHeaderInInterceptor extends HttpHeaderAbstractInterceptor {
     }
 
     @Override
-    protected IDomibusLogger getLogger() {
+    protected DomibusLogger getLogger() {
         return LOG;
     }
 }

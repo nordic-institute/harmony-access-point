@@ -8,7 +8,7 @@ import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.*;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import eu.domibus.jms.spi.helper.JmsMessageCreator;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
@@ -38,7 +38,7 @@ import java.util.*;
 @Component
 public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(InternalJMSManagerActiveMQ.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(InternalJMSManagerActiveMQ.class);
 
     private static final String PROPERTY_OBJECT_NAME = "ObjectName";
 

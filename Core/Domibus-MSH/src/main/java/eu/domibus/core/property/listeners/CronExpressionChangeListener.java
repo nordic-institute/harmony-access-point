@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -29,7 +29,7 @@ import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.*;
 @Service
 public class CronExpressionChangeListener implements DomibusPropertyChangeListener {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CronExpressionChangeListener.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CronExpressionChangeListener.class);
 
     @Autowired
     protected DomainService domainService;

@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyType;
@@ -24,7 +24,7 @@ import static org.apache.commons.lang3.StringUtils.*;
 @Service
 public class WSPluginDispatchRulesService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesService.class);
 
     public static final String PUSH_RULE_BASE = "wsplugin.push.rules";
     public static final String PUSH_RULE_PREFIX = PUSH_RULE_BASE + ".";
@@ -45,7 +45,7 @@ public class WSPluginDispatchRulesService {
     }
 
     public List<WSPluginDispatchRule> getRules() {
-        String domain = LOG.getMDC(IDomibusLogger.MDC_DOMAIN);
+        String domain = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
         List<WSPluginDispatchRule> domainRules = rules.get(domain);
         if (domainRules == null) {
             synchronized (rules) {

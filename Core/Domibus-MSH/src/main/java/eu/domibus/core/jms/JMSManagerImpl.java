@@ -17,7 +17,7 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @Component
 public class JMSManagerImpl implements JMSManager {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSManagerImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSManagerImpl.class);
 
     private static final String SELECTOR = "selector";
 
@@ -540,7 +540,7 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     @Override
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void removeFromPending(String queueName, String messageId) throws MessageNotFoundException {
         if (!authUtils.isUnsecureLoginAllowed()) {
             authUtils.hasUserOrAdminRole();
@@ -548,7 +548,7 @@ public class JMSManagerImpl implements JMSManager {
 
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
         JmsMessage message = consumeMessage(queueName, messageId);

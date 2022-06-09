@@ -2,7 +2,7 @@ package eu.domibus.executor.tomcat;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ import org.springframework.scheduling.quartz.SimpleThreadPoolTaskExecutor;
 @Configuration
 public class TomcatTaskExecutorConfiguration {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatTaskExecutorConfiguration.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatTaskExecutorConfiguration.class);
 
     @Bean(name = {"taskExecutor", "quartzTaskExecutor"})
     public SimpleThreadPoolTaskExecutor simpleThreadPoolTaskExecutor(DomibusPropertyProvider domibusPropertyProvider) {

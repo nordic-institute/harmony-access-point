@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.client;
 
 import com.sun.xml.messaging.saaj.soap.XmlDataContentHandler;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.generated.StatusFault;
@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
  */
 public class WebserviceClientTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WebserviceClientTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebserviceClientTest.class);
 
     private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/test/resources/eu/domibus/plugin/ws/client/submitMessage_submitRequest.xml";
 

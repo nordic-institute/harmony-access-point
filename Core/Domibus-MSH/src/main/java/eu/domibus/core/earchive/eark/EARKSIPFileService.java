@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -45,7 +45,7 @@ import static com.codahale.metrics.MetricRegistry.name;
 @Service
 public class EARKSIPFileService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EARKSIPFileService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EARKSIPFileService.class);
 
     private static final String SHA256_CHECKSUMTYPE = "SHA-256";
     public static final String SHA_256 = "sha256:";

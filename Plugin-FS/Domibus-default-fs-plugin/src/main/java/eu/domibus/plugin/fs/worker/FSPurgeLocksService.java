@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs.worker;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class FSPurgeLocksService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeLocksService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeLocksService.class);
 
     private final FSDomainService fsDomainService;
 

@@ -9,7 +9,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import java.util.Map;
  */
 @Service
 public class SignalServiceImpl implements SignalService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalServiceImpl.class);
 
     protected final JMSManager jmsManager;
 

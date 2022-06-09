@@ -2,7 +2,7 @@ package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class CRLServiceImpl implements CRLService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImpl.class);
 
     public static final String CRL_EXCLUDED_PROTOCOLS = DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS;
 

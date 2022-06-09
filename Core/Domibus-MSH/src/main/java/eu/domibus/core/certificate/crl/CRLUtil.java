@@ -1,7 +1,7 @@
 package eu.domibus.core.certificate.crl;
 
 import eu.domibus.api.util.HttpUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +12,8 @@ import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -38,7 +40,7 @@ import java.util.List;
 @Service
 public class CRLUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLUtil.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLUtil.class);
 
     /**
      * LDAP attribute for CRL

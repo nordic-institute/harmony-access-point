@@ -1,7 +1,7 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,7 +13,7 @@ import javax.servlet.ServletContext;
  */
 public class DomibusConfigLocationProvider {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConfigLocationProvider.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConfigLocationProvider.class);
 
     public String getDomibusConfigLocation(ServletContext servletContext) {
         String domibusConfigLocationInitParameter = servletContext.getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);

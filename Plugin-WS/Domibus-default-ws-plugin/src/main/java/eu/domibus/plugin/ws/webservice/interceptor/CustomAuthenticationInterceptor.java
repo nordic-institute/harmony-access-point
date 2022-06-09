@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.webservice.interceptor;
 
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 @Component(value = "customAuthenticationInterceptor")
 public class CustomAuthenticationInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomAuthenticationInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomAuthenticationInterceptor.class);
 
     @Autowired
     private AuthenticationExtService authenticationExtService;

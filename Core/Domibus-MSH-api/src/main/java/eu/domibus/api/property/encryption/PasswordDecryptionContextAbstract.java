@@ -1,7 +1,7 @@
 package eu.domibus.api.property.encryption;
 
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.io.File;
@@ -15,7 +15,7 @@ import static eu.domibus.api.property.encryption.PasswordEncryptionContextAbstra
  */
 public abstract class PasswordDecryptionContextAbstract implements PasswordDecryptionContext {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionContextAbstract.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionContextAbstract.class);
 
     protected DomibusConfigurationService domibusConfigurationService;
 

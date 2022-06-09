@@ -3,7 +3,7 @@ package eu.domibus.core.message.attempt;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -19,7 +19,7 @@ import java.util.List;
 @Repository
 public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAttemptDao.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAttemptDao.class);
 
     public MessageAttemptDao() {
         super(MessageAttemptEntity.class);

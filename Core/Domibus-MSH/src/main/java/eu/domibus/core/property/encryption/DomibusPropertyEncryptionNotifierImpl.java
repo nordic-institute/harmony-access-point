@@ -1,6 +1,6 @@
 package eu.domibus.core.property.encryption;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.encryption.PluginPropertyEncryptionListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class DomibusPropertyEncryptionNotifierImpl implements DomibusPropertyEncryptionNotifier {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyEncryptionNotifierImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyEncryptionNotifierImpl.class);
 
     @Autowired(required = false)
     protected List<PluginPropertyEncryptionListener> pluginPropertyEncryptionListeners;

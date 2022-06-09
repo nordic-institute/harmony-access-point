@@ -6,7 +6,7 @@ import eu.domibus.ext.delegate.mapper.MonitoringExtMapper;
 import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class DomibusMonitoringServiceDelegate implements DomibusMonitoringExtService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringServiceDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringServiceDelegate.class);
     protected DomibusMonitoringService domibusMonitoringService;
 
     protected MonitoringExtMapper monitoringExtMapper;

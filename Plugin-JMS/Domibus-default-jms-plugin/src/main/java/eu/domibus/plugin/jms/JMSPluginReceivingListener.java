@@ -3,12 +3,14 @@ package eu.domibus.plugin.jms;
 import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.MapMessage;
 
@@ -18,7 +20,7 @@ import javax.jms.MapMessage;
 @Service
 public class JMSPluginReceivingListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginReceivingListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginReceivingListener.class);
 
     @Autowired
     protected JMSPluginImpl backendJMS;

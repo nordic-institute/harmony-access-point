@@ -10,7 +10,7 @@ import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DateExtService;
 import eu.domibus.ext.services.MessageMonitorExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -36,7 +36,7 @@ import java.util.List;
 @Tag(name = "monitoring", description = "Domibus Message Monitoring API")
 public class MessageMonitoringExtResource {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResource.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResource.class);
 
     @Autowired
     ExtExceptionHelper extExceptionHelper;

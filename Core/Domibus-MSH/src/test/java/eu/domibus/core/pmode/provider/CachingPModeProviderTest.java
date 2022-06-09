@@ -24,7 +24,7 @@ import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.*;
 import eu.domibus.core.pmode.validation.PModeValidationService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.PojoInstaciatorUtil;
 import mockit.*;
@@ -57,7 +57,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class CachingPModeProviderTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProviderTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProviderTest.class);
 
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
     private static final String VALID_PMODE_TEST_CONFIG_URI = "samplePModes/domibus-configuration-valid-testservice.xml";

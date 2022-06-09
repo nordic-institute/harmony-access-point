@@ -5,7 +5,7 @@ import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.dao.support.DataAccessUtils;
@@ -24,7 +24,7 @@ import java.util.List;
 @Repository
 public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
 
-    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageRawEnvelopeDao.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageRawEnvelopeDao.class);
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
     public static final String MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";

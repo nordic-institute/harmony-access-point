@@ -1,7 +1,7 @@
 package eu.domibus.core.cache;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 public class DomibusCacheServiceImpl implements DomibusCacheService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheServiceImpl.class);
 
     protected CacheManager cacheManager;
 

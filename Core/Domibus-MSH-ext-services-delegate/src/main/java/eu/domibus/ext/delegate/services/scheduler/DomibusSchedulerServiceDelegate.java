@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DomibusSchedulerServiceDelegate implements DomibusSchedulerExtService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSchedulerServiceDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSchedulerServiceDelegate.class);
 
     protected final DomibusScheduler domibusScheduler;
 

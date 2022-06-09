@@ -2,7 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +24,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
  */
 @Service
 public class NestedPropertiesManager {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(NestedPropertiesManager.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NestedPropertiesManager.class);
 
     protected ConfigurableEnvironment environment;
 

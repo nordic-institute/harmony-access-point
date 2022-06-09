@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import javax.jms.Message;
  */
 @Service
 public class MessageSenderListener extends AbstractMessageSenderListener {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderListener.class);
 
     /**
      * Method called when dealing with outgoing messages
@@ -38,7 +38,7 @@ public class MessageSenderListener extends AbstractMessageSenderListener {
         super.messageSenderService.sendUserMessage(messageId, messageEntityId, retryCount);
     }
 
-    public IDomibusLogger getLogger() {
+    public DomibusLogger getLogger() {
         return LOG;
     }
 }

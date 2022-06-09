@@ -3,7 +3,7 @@ package eu.domibus.core.earchive;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.common.JPAConstants;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,7 +21,7 @@ import javax.persistence.PersistenceContext;
 @Transactional
 public class EArchiveBatchDaoIT extends AbstractIT {
 
-    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDaoIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDaoIT.class);
 
     @Autowired
     EArchiveBatchDao eArchiveBatchDao;

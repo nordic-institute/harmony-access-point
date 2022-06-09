@@ -1,7 +1,7 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigurer {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationJMSConfigurer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationJMSConfigurer.class);
 
     protected List<AsyncNotificationConfiguration> asyncNotificationConfigurations;
     protected JmsListenerContainerFactory jmsListenerContainerFactory;

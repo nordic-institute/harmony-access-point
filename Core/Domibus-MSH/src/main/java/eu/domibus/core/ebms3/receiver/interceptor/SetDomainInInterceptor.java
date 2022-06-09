@@ -7,7 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 public class SetDomainInInterceptor extends AbstractSoapInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetDomainInInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetDomainInInterceptor.class);
 
     public SetDomainInInterceptor() {
         this(Phase.RECEIVE);

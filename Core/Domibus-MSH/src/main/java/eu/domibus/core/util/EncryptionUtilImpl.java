@@ -1,7 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.util.EncryptionUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 @Service
 public class EncryptionUtilImpl implements EncryptionUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionUtilImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionUtilImpl.class);
 
     public static final String ALGORITHM = "AES";
     public static final String CIPHER = "AES/GCM/NoPadding";

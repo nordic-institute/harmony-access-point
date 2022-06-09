@@ -22,7 +22,7 @@ import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.validation.PModeValidationService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -56,7 +56,7 @@ public abstract class PModeProvider {
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
     protected static final String OPTIONAL_AND_EMPTY = "OAE";
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeProvider.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeProvider.class);
 
     @Autowired
     protected ConfigurationDAO configurationDAO;
@@ -244,7 +244,7 @@ public abstract class PModeProvider {
         return serializedPMode;
     }
 
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID, IDomibusLogger.MDC_FROM, IDomibusLogger.MDC_TO, IDomibusLogger.MDC_SERVICE, IDomibusLogger.MDC_ACTION})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
 
         final String agreementName;
@@ -258,12 +258,12 @@ public abstract class PModeProvider {
         final String messageId = userMessage.getMessageId();
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        LOG.putMDC(IDomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFrom().getFromPartyId().getValue());
-        LOG.putMDC(IDomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
-        LOG.putMDC(IDomibusLogger.MDC_SERVICE, userMessage.getService().getValue());
-        LOG.putMDC(IDomibusLogger.MDC_ACTION, userMessage.getActionValue());
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFrom().getFromPartyId().getValue());
+        LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getPartyInfo().getToParty());
+        LOG.putMDC(DomibusLogger.MDC_SERVICE, userMessage.getService().getValue());
+        LOG.putMDC(DomibusLogger.MDC_ACTION, userMessage.getActionValue());
 
         try {
             agreementName = findAgreement(userMessage.getAgreementRef());
@@ -389,12 +389,12 @@ public abstract class PModeProvider {
         return getBusinessProcessRole(responderRole);
     }
 
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
     }
 
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, boolean isPull) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, isPull, null);
     }

@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class ConnectionMonitoringChangeListener implements DomibusPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListener.class);
 
     protected PModeProvider pModeProvider;
 

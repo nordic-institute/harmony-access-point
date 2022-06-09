@@ -1,6 +1,6 @@
 package eu.domibus.core.property.encryption;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
 @Service
 public class PasswordDecryptionHelper {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionHelper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionHelper.class);
 
     public boolean isValueEncrypted(final String propertyValue) {
         if (isBlank(propertyValue)) {

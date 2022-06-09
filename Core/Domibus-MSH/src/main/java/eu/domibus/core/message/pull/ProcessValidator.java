@@ -7,7 +7,7 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mep;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import static eu.domibus.core.message.pull.PullProcessStatus.*;
 @Component
 public class ProcessValidator {
 
-    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ProcessValidator.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ProcessValidator.class);
 
     @Autowired
     PullMessageService pullMessageService;

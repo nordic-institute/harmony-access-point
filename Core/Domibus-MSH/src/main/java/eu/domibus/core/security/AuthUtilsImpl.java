@@ -8,7 +8,7 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Component(value = "authUtils")
 public class AuthUtilsImpl implements AuthUtils {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthUtilsImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthUtilsImpl.class);
     private static final String DOMIBUS_USER = "domibus";
     private static final String DOMIBUS_PASSWORD = "domibus"; //NOSONAR
 

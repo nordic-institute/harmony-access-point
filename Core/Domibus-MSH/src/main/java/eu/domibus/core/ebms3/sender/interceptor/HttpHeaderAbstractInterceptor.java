@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -52,7 +52,7 @@ public abstract class HttpHeaderAbstractInterceptor extends AbstractPhaseInterce
         getLogger().debug("httpHeaders are: {}", httpHeadersToString(headers));
     }
 
-    protected abstract IDomibusLogger getLogger();
+    protected abstract DomibusLogger getLogger();
 
     private String httpHeadersToString(Map<String, List<String>> headers) {
         return headers.keySet().stream()

@@ -15,7 +15,7 @@ import eu.domibus.core.message.pull.PullReceiptListener;
 import eu.domibus.core.message.retention.RetentionListener;
 import eu.domibus.core.message.splitandjoin.LargeMessageSenderListener;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinListener;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +46,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.*;
 @Configuration
 public class MessageListenerContainerConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageListenerContainerConfiguration.class);
     public static final String PROPERTY_LARGE_FILES_CONCURRENCY = DOMIBUS_DISPATCHER_LARGE_FILES_CONCURRENCY;
     public static final String PROPERTY_SPLIT_AND_JOIN_CONCURRENCY = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY;
     private static final String PROPERTY_RETENTION_JMS_CONCURRENCY = DOMIBUS_RETENTION_JMS_CONCURRENCY;

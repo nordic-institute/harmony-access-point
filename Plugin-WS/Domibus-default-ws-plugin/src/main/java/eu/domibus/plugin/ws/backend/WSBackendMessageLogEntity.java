@@ -1,10 +1,12 @@
 package eu.domibus.plugin.ws.backend;
 
 import eu.domibus.common.MessageStatus;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.AbstractWSEntity;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -29,7 +31,7 @@ import java.util.Date;
                 "and (backendMessage.scheduled is null or backendMessage.scheduled=false)")
 public class WSBackendMessageLogEntity extends AbstractWSEntity {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendMessageLogEntity.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendMessageLogEntity.class);
 
     @Column(name = "CREATION_TIME", updatable = false, nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -91,7 +93,7 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
     protected Boolean scheduled;
 
     public WSBackendMessageLogEntity() {
-        String user = LOG.getMDC(IDomibusLogger.MDC_USER);
+        String user = LOG.getMDC(DomibusLogger.MDC_USER);
         if (StringUtils.isBlank(user)) {
             user = "wsplugin_default";
         }

@@ -4,9 +4,10 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
  */
 @Service
 public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadataManager {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
 
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
 

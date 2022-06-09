@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
 import eu.europa.ec.dynamicdiscovery.core.fetcher.FetcherResponse;
@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServiceOASISTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryEbms3ServiceOASISTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryEbms3ServiceOASISTest.class);
 
     //The (sub)domain of the SML, e.g. ehealth.acc.edelivery.tech.ec.europa.eu, connectivitytest.acc.edelivery.tech.ec.europa.eu
     private static final String TEST_SML_ZONE = "acc.edelivery.tech.ec.europa.eu";

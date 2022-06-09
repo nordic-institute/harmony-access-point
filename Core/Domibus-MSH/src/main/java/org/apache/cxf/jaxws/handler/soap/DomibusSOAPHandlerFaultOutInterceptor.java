@@ -1,6 +1,7 @@
 
 package org.apache.cxf.jaxws.handler.soap;
 
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.phase.Phase;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 
@@ -41,7 +42,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 public class DomibusSOAPHandlerFaultOutInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
         SoapInterceptor {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSOAPHandlerFaultOutInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSOAPHandlerFaultOutInterceptor.class);
 
     private static final SAAJOutInterceptor SAAJ_OUT = new SAAJOutInterceptor();
     private static final String ENDING_ID = DomibusSOAPHandlerFaultOutInterceptor.class.getName() + ".ENDING";

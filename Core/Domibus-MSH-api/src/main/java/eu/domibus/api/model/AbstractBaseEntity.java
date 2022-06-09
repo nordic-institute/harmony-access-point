@@ -1,9 +1,10 @@
 package eu.domibus.api.model;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
@@ -13,7 +14,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @MappedSuperclass
 public abstract class AbstractBaseEntity extends AbstractBaseAuditEntity {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBaseEntity.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBaseEntity.class);
 
     public static final String DOMIBUS_SCALABLE_SEQUENCE="DOMIBUS_SCALABLE_SEQUENCE";
 

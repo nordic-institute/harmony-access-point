@@ -6,7 +6,7 @@ import eu.domibus.ext.domain.PluginUserDTO;
 import eu.domibus.ext.exceptions.PluginUserExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PluginUserExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "pluginUser", description = "Domibus Plugin User management API")
 public class PluginUserExtResource {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserExtResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserExtResource.class);
 
     protected PluginUserExtService pluginUserExtService;
     protected ExtExceptionHelper extExceptionHelper;

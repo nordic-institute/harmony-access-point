@@ -1,7 +1,7 @@
 package eu.domibus.core.crypto.spi.dss.listeners;
 
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 
@@ -16,7 +16,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.AUTHENT
 
 public class TriggerChangeListener implements PluginPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
 
     private final static String JOB_NAME = "dssRefreshJob";
 

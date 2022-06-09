@@ -2,7 +2,7 @@ package eu.domibus.ext.delegate.services.multitenancy;
 
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
 import eu.domibus.ext.exceptions.DomainTaskExtException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DomainTaskExecutorExtDelegateInterceptor extends ServiceInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorExtDelegateInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorExtDelegateInterceptor.class);
 
     @Around(value = "execution(public * eu.domibus.ext.delegate.services.multitenancy.DomainTaskExecutorExtDelegate.*(..))")
     @Override
@@ -27,7 +27,7 @@ public class DomainTaskExecutorExtDelegateInterceptor extends ServiceInterceptor
     }
 
     @Override
-    public IDomibusLogger getLogger() {
+    public DomibusLogger getLogger() {
         return LOG;
     }
 }

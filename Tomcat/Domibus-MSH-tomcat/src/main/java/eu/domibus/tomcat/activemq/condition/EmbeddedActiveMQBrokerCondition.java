@@ -1,6 +1,6 @@
 package eu.domibus.tomcat.activemq.condition;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Condition;
@@ -16,7 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_M
  */
 public class EmbeddedActiveMQBrokerCondition implements Condition {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(EmbeddedActiveMQBrokerCondition.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(EmbeddedActiveMQBrokerCondition.class);
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {

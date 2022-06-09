@@ -3,7 +3,7 @@ package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.services.FileUtilExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
@@ -29,7 +29,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
 @Component(value = "StubDtoTransformerDeprecated")
 public class StubDtoTransformer implements MessageSubmissionTransformer<Messaging>, MessageRetrievalTransformer<UserMessage> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
 
     @Autowired
     FileUtilExtService fileUtilExtService;

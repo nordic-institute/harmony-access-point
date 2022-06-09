@@ -1,7 +1,7 @@
 package eu.domibus.core.jpa;
 
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.ConditionContext;
@@ -17,7 +17,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 @Configuration
 public class MultiTenantAwareEntityManagerCondition implements ConfigurationCondition {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(MultiTenantAwareEntityManagerCondition.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(MultiTenantAwareEntityManagerCondition.class);
 
     @Override
     public ConfigurationPhase getConfigurationPhase() {

@@ -3,7 +3,7 @@ package eu.domibus.tomcat.activemq;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.jms.activemq.DomibusBrokerFactoryBean;
 import eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.tomcat.activemq.condition.DummyEmbeddedActiveMQCondition;
 import eu.domibus.tomcat.activemq.condition.EmbeddedActiveMQCondition;
@@ -26,7 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class DomibusActiveMQConfiguration {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusActiveMQConfiguration.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusActiveMQConfiguration.class);
 
     @Value("${activeMQ.embedded.configurationFile}")
     Resource activeMQConfiguration;

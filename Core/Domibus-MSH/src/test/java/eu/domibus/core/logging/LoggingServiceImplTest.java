@@ -9,7 +9,7 @@ import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -163,8 +163,8 @@ public class LoggingServiceImplTest {
 
     @Test
     public void testGetLoggingLevel_ClassNotPresentInList(){
-        IDomibusLogger LOG1 = DomibusLoggerFactory.getLogger("class TestLoggerName");
-        IDomibusLogger LOG2 = DomibusLoggerFactory.getLogger("class org.ehcache.core.Ehcache-eu.domibus.api.model.PartyRole");
+        DomibusLogger LOG1 = DomibusLoggerFactory.getLogger("class TestLoggerName");
+        DomibusLogger LOG2 = DomibusLoggerFactory.getLogger("class org.ehcache.core.Ehcache-eu.domibus.api.model.PartyRole");
 
         List<LoggingEntry> loggingEntries = loggingService.getLoggingLevel("eu.domibus", true);
         List<LoggingEntry> loggingEntries2 = loggingService.getLoggingLevel("class", true);

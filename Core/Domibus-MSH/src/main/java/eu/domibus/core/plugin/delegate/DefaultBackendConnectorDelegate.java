@@ -5,7 +5,7 @@ import eu.domibus.common.*;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.AsyncNotificationConfigurationService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultBackendConnectorDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultBackendConnectorDelegate.class);
 
 
     protected ClassUtil classUtil;

@@ -2,7 +2,7 @@ package eu.domibus.core.plugin.routing.dao;
 
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import java.util.List;
 @Transactional
 public class BackendFilterDao extends BasicDao<BackendFilterEntity> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFilterDao.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFilterDao.class);
 
     public BackendFilterDao() {
         super(BackendFilterEntity.class);

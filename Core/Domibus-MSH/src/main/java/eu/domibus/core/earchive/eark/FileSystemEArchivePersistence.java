@@ -8,7 +8,7 @@ import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.roda_project.commons_ip.utils.IPException;
@@ -36,7 +36,7 @@ import static com.codahale.metrics.MetricRegistry.name;
 @Service
 public class FileSystemEArchivePersistence implements EArchivePersistence {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistence.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistence.class);
     public static final String BATCH_JSON = "batch.json";
     public static final String FOLDER_REPRESENTATION_1 = IPConstants.REPRESENTATIONS_FOLDER + "representation1" + IPConstants.ZIP_PATH_SEPARATOR;
     public static final String FOLDER_REPRESENTATION_1_NEW = IPConstants.REPRESENTATIONS_FOLDER + "representation1";

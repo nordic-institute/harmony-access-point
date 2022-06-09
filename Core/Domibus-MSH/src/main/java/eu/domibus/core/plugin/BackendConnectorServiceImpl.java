@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.EnableAware;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class BackendConnectorServiceImpl implements BackendConnectorService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorServiceImpl.class);
 
     protected final DomainService domainService;
     protected final BackendConnectorProvider backendConnectorProvider;

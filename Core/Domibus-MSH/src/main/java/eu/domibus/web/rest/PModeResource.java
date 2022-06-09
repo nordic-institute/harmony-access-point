@@ -11,7 +11,7 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
@@ -46,7 +46,7 @@ import java.util.List;
 @Validated
 public class PModeResource extends BaseResource {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeResource.class);
 
     @Autowired
     PModeService pModeService;

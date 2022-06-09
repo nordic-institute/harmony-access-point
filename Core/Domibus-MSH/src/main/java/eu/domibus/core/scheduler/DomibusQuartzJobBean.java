@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -19,7 +19,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
  */
 public abstract class DomibusQuartzJobBean extends QuartzJobBean {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzJobBean.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzJobBean.class);
 
     public static final String DOMIBUS_QUARTZ_USER = "domibus-quartz";
 
@@ -44,7 +44,7 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
             final Domain currentDomain = getDomain(context);
             domainContextProvider.setCurrentDomain(currentDomain);
             setQuartzJobSecurityContext();
-            LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+            LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
             executeJob(context, currentDomain);
         } finally {
             domainContextProvider.clearCurrentDomain();

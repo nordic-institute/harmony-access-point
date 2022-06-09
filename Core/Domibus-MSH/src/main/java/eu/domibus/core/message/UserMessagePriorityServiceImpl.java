@@ -4,7 +4,7 @@ import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -23,7 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class UserMessagePriorityServiceImpl implements UserMessagePriorityService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePriorityServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePriorityServiceImpl.class);
     public static final String ACTION_LIST_SEPARATOR = ",";
     public static final String SERVICE = "service";
     public static final String ACTION = "action";

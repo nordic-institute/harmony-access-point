@@ -5,7 +5,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.CoreServiceExceptionInterceptor;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationServiceInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationServiceInterceptor.class);
 
     public AuthorizationServiceInterceptor(AOPUtil aopUtil) {
         super(aopUtil);
@@ -89,7 +89,7 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
     }
 
     @Override
-    public IDomibusLogger getLogger() {
+    public DomibusLogger getLogger() {
         return LOG;
     }
 }

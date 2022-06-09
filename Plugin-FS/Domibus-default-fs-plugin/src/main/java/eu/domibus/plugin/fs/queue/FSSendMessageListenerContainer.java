@@ -1,7 +1,7 @@
 package eu.domibus.plugin.fs.queue;
 
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -22,7 +22,7 @@ import java.util.Map;
 @Service
 public class FSSendMessageListenerContainer implements PluginMessageListenerContainer {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSSendMessageListenerContainer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSSendMessageListenerContainer.class);
 
     @Autowired
     protected ApplicationContext applicationContext;

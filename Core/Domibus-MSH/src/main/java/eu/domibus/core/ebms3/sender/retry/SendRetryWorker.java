@@ -6,7 +6,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.ebms3.sender.MessageSenderService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -25,7 +25,7 @@ import java.util.List;
 @DisallowConcurrentExecution //Only one SenderWorker runs at any time
 public class SendRetryWorker extends DomibusQuartzJobBean {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SendRetryWorker.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SendRetryWorker.class);
 
     @Autowired
     protected RetryService retryService;

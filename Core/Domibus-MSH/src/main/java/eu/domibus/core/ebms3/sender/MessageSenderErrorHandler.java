@@ -10,7 +10,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import java.sql.Timestamp;
 @Service("messageSenderErrorHandler")
 public class MessageSenderErrorHandler implements ErrorHandler {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderErrorHandler.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderErrorHandler.class);
 
     private UserMessageDao userMessageDao;
 
@@ -43,9 +43,9 @@ public class MessageSenderErrorHandler implements ErrorHandler {
     }
 
     @Override
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void handleError(Throwable t) {
-        String messageId = LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ID);
+        String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
         LOG.warn("Handling dispatch error for message [{}]", messageId, t);
 
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);

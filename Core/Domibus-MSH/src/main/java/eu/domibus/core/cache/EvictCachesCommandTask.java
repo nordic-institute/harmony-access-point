@@ -2,7 +2,7 @@ package eu.domibus.core.cache;
 
 import eu.domibus.api.cluster.Command;
 import eu.domibus.core.clustering.CommandTask;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 public class EvictCachesCommandTask implements CommandTask {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EvictCachesCommandTask.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EvictCachesCommandTask.class);
 
     protected DomibusCacheService domibusCacheService;
 

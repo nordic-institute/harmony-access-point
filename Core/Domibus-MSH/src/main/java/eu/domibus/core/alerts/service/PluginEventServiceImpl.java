@@ -5,7 +5,7 @@ import eu.domibus.api.alerts.PluginEventService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +26,7 @@ import static eu.domibus.core.alerts.service.EventServiceImpl.MAX_DESCRIPTION_LE
  */
 @Service
 public class PluginEventServiceImpl implements PluginEventService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginEventServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginEventServiceImpl.class);
     private static final String PLUGIN_EVENT_ADDED_TO_THE_QUEUE = "Plugin Event:[{}] added to the queue";
 
     private final JMSManager jmsManager;

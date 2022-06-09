@@ -3,7 +3,7 @@ package eu.domibus.ext.rest.error;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @RequestMapping(produces = "application/vnd.error+json")
 public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ExtExceptionHandlerAdvice.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ExtExceptionHandlerAdvice.class);
 
     @Autowired
     ExtExceptionHelper extExceptionHelper;

@@ -3,7 +3,7 @@ package eu.domibus.core.message.dictionary;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.AbstractBaseEntity;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  */
 public abstract class AbstractDictionaryService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractDictionaryService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractDictionaryService.class);
 
     protected <T extends AbstractBaseEntity> T findOrCreateEntity(Callable<T> findTask, Callable<T> findOrCreateTask, String entityDescription) {
         T entity = callTask(findTask);

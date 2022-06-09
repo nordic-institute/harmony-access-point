@@ -2,7 +2,7 @@ package eu.domibus.ext.delegate.services.party;
 
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PartyServiceInterceptor extends ServiceInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceInterceptor.class);
 
     @Around(value = "execution(public * eu.domibus.ext.delegate.services.party.PartyServiceDelegate.*(..))")
     @Override
@@ -31,7 +31,7 @@ public class PartyServiceInterceptor extends ServiceInterceptor {
     }
 
     @Override
-    public IDomibusLogger getLogger() {
+    public DomibusLogger getLogger() {
         return LOG;
     }
 }

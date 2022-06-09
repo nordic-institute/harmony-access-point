@@ -1,7 +1,7 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.ext.services.FileUtilExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ProcessingType;
@@ -36,7 +36,7 @@ import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_MET
 @Component
 public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessage>, MessageSubmissionTransformer<FSMessage> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSMessageTransformer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSMessageTransformer.class);
 
     private static final String PAYLOAD_PROPERTY_MIME_TYPE = "MimeType";
 

@@ -4,7 +4,7 @@ import eu.domibus.core.spi.validation.UserMessageValidatorSpiException;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import eu.domibus.ext.domain.PartInfoDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 
@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class UserMessageValidatorSpiMock implements UserMessageValidatorSpi {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorSpiMock.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorSpiMock.class);
 
     @Override
     public void validateUserMessage(UserMessageDTO userMessage) throws UserMessageValidatorSpiException {

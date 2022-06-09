@@ -2,7 +2,7 @@ package eu.domibus.core.earchive.job;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DisallowConcurrentExecution
 public class EArchivingCleanupJob extends DomibusQuartzJobBean {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingCleanupJob.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingCleanupJob.class);
 
     @Autowired
     protected EArchivingRetentionService eArchivingRetentionService;

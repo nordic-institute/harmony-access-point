@@ -1,7 +1,7 @@
 package eu.domibus.jms.spi.helper;
 
 import eu.domibus.jms.spi.InternalJmsMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.jms.core.JmsTemplate;
@@ -18,7 +18,7 @@ import javax.jms.MessageProducer;
  */
 public class PriorityJmsTemplate extends JmsTemplate {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PriorityJmsTemplate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PriorityJmsTemplate.class);
 
     @Override
     protected void doSend(MessageProducer producer, Message message) throws JMSException {

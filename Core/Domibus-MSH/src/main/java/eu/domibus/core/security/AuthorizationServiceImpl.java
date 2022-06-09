@@ -10,9 +10,10 @@ import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
+import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Component
 public class AuthorizationServiceImpl {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationServiceImpl.class);
 
     protected static final String IAM_AUTHORIZATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
 

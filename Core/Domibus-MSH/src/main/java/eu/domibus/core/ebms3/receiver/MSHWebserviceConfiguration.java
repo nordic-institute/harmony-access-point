@@ -13,7 +13,7 @@ import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderOutInterceptor;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
 import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
 import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -34,7 +34,7 @@ import java.util.concurrent.Executor;
 @Configuration
 public class MSHWebserviceConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebserviceConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebserviceConfiguration.class);
 
     @Bean("msh")
     public Endpoint msh(DomibusBus domibusBus,

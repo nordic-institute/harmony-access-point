@@ -2,7 +2,7 @@ package eu.domibus.core.jpa;
 
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
@@ -25,7 +25,7 @@ import java.sql.SQLException;
 @Service
 public class DomibusConnectionProvider implements ConnectionProvider {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConnectionProvider.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConnectionProvider.class);
 
     @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     @Autowired
@@ -38,10 +38,10 @@ public class DomibusConnectionProvider implements ConnectionProvider {
     public Connection getConnection() throws SQLException {
         LOG.trace("Getting new connection");
 
-        String mdcUser = LOG.getMDC(IDomibusLogger.MDC_USER);
+        String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
         if (StringUtils.isBlank(mdcUser)) {
             String userName = databaseUtil.getDatabaseUserName();
-            LOG.putMDC(IDomibusLogger.MDC_USER, userName);
+            LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
 
         Connection connection = dataSource.getConnection(); //NOSONAR: For live connection of the datasource

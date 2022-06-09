@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.annotation.JmsListener;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AlertListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertListener.class);
 
     private final AlertDispatcherService alertDispatcherService;
 
@@ -44,7 +44,7 @@ public class AlertListener {
             domainContextProvider.clearCurrentDomain();
             LOG.debug("Super alert received:[{}]", alert);
         }
-        LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         alertDispatcherService.dispatch(alert);
     }
 

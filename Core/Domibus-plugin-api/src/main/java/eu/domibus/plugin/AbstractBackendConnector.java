@@ -2,7 +2,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public abstract class AbstractBackendConnector<U, T> implements BackendConnector<U, T>, EnableAware {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendConnector.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendConnector.class);
 
     protected final String name;
     protected List<NotificationType> requiredNotifications;
@@ -54,7 +54,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             final String messageId = this.messageSubmitter.submit(messageData, this.getName());
-            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
         } catch (IllegalArgumentException iaEx) {
@@ -71,11 +71,11 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public T downloadMessage(final Long messageEntityId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageEntityId);
         if (messageEntityId != null) {
-            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
         }
 
         try {
@@ -101,11 +101,11 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
         try {

@@ -2,7 +2,7 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.util.MultiPartFileUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 public class MultiPartFileUtilImpl implements MultiPartFileUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiPartFileUtilImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiPartFileUtilImpl.class);
 
     @Override
     public byte[] validateAndGetFileContent(MultipartFile file, List<MimeType> allowedTypes) throws RequestValidationException {

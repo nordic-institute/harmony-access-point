@@ -27,7 +27,7 @@ import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.MessageTestUtility;
 import mockit.*;
@@ -49,7 +49,7 @@ import javax.xml.transform.TransformerFactory;
 @RunWith(JMockit.class)
 public class IncomingEbms3PullRequestHandlerTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingEbms3PullRequestHandlerTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingEbms3PullRequestHandlerTest.class);
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
     @Injectable

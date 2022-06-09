@@ -7,7 +7,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 
@@ -18,7 +18,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 
 public class ErrorSignalLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorSignalLegConfigurationExtractor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorSignalLegConfigurationExtractor.class);
 
     private PModeProvider pModeProvider;
 

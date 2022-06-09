@@ -3,7 +3,7 @@ package eu.domibus.core.certificate;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.util.DateUtilImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNull;
 @Transactional
 public class CertificateDaoImplIT extends AbstractIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImplIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImplIT.class);
 
     //needed because CertificateDaoImpl implements an interface, so spring tries to convert it to interface based
     //proxy. But one of the method tested is not declared in the interface.
@@ -62,7 +62,7 @@ public class CertificateDaoImplIT extends AbstractIT {
 
     @Before
     public void setup() {
-        LOG.putMDC(IDomibusLogger.MDC_USER, "test_user");
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
 
         final LocalDateTime localDateTime = LocalDateTime.of(0, 1, 1, 0, 0);
         final LocalDateTime offset = localDateTime.minusDays(15);

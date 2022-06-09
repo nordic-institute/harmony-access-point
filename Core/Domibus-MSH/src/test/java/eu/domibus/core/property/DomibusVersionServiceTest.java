@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Mocked;
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class DomibusVersionServiceTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionServiceTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionServiceTest.class);
 
     @Tested
     DomibusVersionService service;

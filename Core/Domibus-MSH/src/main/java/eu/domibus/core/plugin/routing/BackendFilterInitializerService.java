@@ -9,7 +9,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class BackendFilterInitializerService implements DomainsAware {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFilterInitializerService.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFilterInitializerService.class);
 
     protected DomibusConfigurationService domibusConfigurationService;
     protected BackendConnectorProvider backendConnectorProvider;

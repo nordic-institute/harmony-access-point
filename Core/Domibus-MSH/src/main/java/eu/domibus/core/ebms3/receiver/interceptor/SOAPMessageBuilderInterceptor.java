@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.attachment.AttachmentDataSource;
@@ -25,7 +25,7 @@ import java.util.Iterator;
  */
 public class SOAPMessageBuilderInterceptor extends AbstractSoapInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SOAPMessageBuilderInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SOAPMessageBuilderInterceptor.class);
 
     public SOAPMessageBuilderInterceptor() {
         super(Phase.PRE_LOGICAL);

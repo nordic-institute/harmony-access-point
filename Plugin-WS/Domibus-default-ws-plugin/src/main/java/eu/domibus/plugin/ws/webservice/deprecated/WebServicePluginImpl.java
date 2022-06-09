@@ -10,7 +10,7 @@ import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 public class WebServicePluginImpl implements BackendInterface {
 
     public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServicePluginImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServicePluginImpl.class);
 
     public static final eu.domibus.plugin.webService.generated.ObjectFactory WEBSERVICE_OF = new eu.domibus.plugin.webService.generated.ObjectFactory();
 
@@ -302,7 +302,7 @@ public class WebServicePluginImpl implements BackendInterface {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
-    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
                                 Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {

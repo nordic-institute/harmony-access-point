@@ -6,7 +6,7 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class UserMessagePersistenceService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePersistenceService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePersistenceService.class);
 
     protected MessagingService messagingService;
     protected UserMessageLogDefaultService userMessageLogService;
@@ -42,7 +42,7 @@ public class UserMessagePersistenceService {
     @Transactional
     public void saveIncomingMessage(UserMessage userMessage, List<PartInfo> partInfoList, NotificationStatus notificationStatus, String backendName, UserMessageRaw userMessageRaw, SignalMessageResult signalMessageResult) {
         messagingService.saveUserMessageAndPayloads(userMessage, partInfoList);
-        LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
 
         userMessageLogService.save(
                 userMessage,

@@ -2,7 +2,7 @@ package eu.domibus.core.proxy;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -21,7 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @RunWith(JMockit.class)
 public class DomibusProxyServiceImplTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxyServiceImplTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxyServiceImplTest.class);
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;

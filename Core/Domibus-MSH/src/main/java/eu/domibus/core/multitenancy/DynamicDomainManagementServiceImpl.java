@@ -10,7 +10,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainsAwareExt;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import java.util.List;
 @Service
 public class DynamicDomainManagementServiceImpl implements DynamicDomainManagementService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDomainManagementServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDomainManagementServiceImpl.class);
 
     private final DomainService domainService;
 

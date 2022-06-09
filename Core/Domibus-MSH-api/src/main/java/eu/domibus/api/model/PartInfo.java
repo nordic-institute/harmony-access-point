@@ -3,7 +3,7 @@ package eu.domibus.api.model;
 import eu.domibus.api.ebms3.model.Ebms3Property;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.spring.SpringContextProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ import java.util.Set;
 @Table(name = "TB_PART_INFO")
 public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfo.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfo.class);
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_MESSAGE_ID_FK")

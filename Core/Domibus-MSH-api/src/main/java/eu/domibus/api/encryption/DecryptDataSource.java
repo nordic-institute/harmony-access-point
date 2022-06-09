@@ -1,7 +1,7 @@
 
 package eu.domibus.api.encryption;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,7 +18,7 @@ import java.io.OutputStream;
  */
 public class DecryptDataSource implements DataSource {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DecryptDataSource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DecryptDataSource.class);
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     protected final DataSource source;

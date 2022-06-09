@@ -2,7 +2,7 @@ package eu.domibus.ext.delegate.services.jms;
 
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
 import eu.domibus.ext.exceptions.DomainExtException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JMSExtServiceDelegateInterceptor extends ServiceInterceptor {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSExtServiceDelegateInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSExtServiceDelegateInterceptor.class);
 
     @Around(value = "execution(public * eu.domibus.ext.delegate.services.jms.JMSExtServiceDelegate.*(..))")
     @Override
@@ -35,7 +35,7 @@ public class JMSExtServiceDelegateInterceptor extends ServiceInterceptor {
     }
 
     @Override
-    public IDomibusLogger getLogger() {
+    public DomibusLogger getLogger() {
         return LOG;
     }
 }

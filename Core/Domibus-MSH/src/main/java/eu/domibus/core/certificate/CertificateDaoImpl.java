@@ -2,7 +2,7 @@ package eu.domibus.core.certificate;
 
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,7 +19,7 @@ import java.util.List;
 @Repository
 public class CertificateDaoImpl extends BasicDao<Certificate> implements CertificateDao {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateDaoImpl.class);
 
     @Autowired
     private DateUtil dateUtil;

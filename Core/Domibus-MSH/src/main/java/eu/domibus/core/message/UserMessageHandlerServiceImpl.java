@@ -43,7 +43,7 @@ import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -85,7 +85,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 @Service
 public class UserMessageHandlerServiceImpl implements UserMessageHandlerService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerServiceImpl.class);
     public static final String HASH_SIGN = "#";
 
     @Autowired
@@ -426,7 +426,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
-    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     protected String persistReceivedMessage(
             final SOAPMessage request,
             final LegConfiguration legConfiguration,
@@ -440,7 +440,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
         //add messageId to MDC map
         if (StringUtils.isNotBlank(userMessage.getMessageId())) {
-            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
         }
         LOG.info("Persisting received message");
 

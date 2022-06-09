@@ -2,7 +2,7 @@ package eu.domibus.core.cache;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,7 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.PLUGINS_CONFIG_H
 @EnableCaching
 public class DomibusCacheConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheConfiguration.class);
     public static final String CACHE_MANAGER = "cacheManager";
     public static final String CONFIG_EHCACHE_EHCACHE_DEFAULT_XML = "config/ehcache/ehcache-default.xml";
 

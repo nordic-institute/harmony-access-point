@@ -8,7 +8,7 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +24,7 @@ import javax.jms.MessageListener;
 @Component
 public class EArchiveNotificationDlqListener implements MessageListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationDlqListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationDlqListener.class);
 
     private final DatabaseUtil databaseUtil;
 
@@ -49,7 +49,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
-        LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
 

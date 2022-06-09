@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class DomainExtServiceDelegate implements DomainExtService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainExtServiceDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainExtServiceDelegate.class);
 
     protected DomainContextProvider domainContextProvider;
 

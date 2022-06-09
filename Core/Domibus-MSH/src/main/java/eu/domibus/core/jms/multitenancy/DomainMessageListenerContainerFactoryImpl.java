@@ -1,7 +1,7 @@
 package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -18,7 +18,7 @@ import static eu.domibus.core.jms.multitenancy.MessageListenerContainerConfigura
 @Service
 public class DomainMessageListenerContainerFactoryImpl implements DomainMessageListenerContainerFactory {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainMessageListenerContainerFactoryImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainMessageListenerContainerFactoryImpl.class);
 
     @Autowired
     protected ApplicationContext applicationContext;

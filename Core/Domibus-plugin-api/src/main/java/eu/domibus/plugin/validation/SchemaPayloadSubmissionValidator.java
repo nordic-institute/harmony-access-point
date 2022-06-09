@@ -1,6 +1,6 @@
 package eu.domibus.plugin.validation;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ import java.util.Set;
  */
 public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
 
-    protected static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaPayloadSubmissionValidator.class);
+    protected static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaPayloadSubmissionValidator.class);
 
     private static final ThreadLocal<XMLInputFactory> xmlInputFactoryThreadLocal =
             ThreadLocal.withInitial(() -> {

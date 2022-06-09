@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -35,7 +35,7 @@ import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
  */
 public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessage> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginImpl.class);
 
     public static final String PLUGIN_NAME = "backendWSPlugin";
 

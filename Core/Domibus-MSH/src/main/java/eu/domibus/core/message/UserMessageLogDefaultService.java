@@ -6,7 +6,7 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.logging.IDomibusLogger.MDC_MESSAGE_ENTITY_ID;
+import static eu.domibus.logging.DomibusLogger.MDC_MESSAGE_ENTITY_ID;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -27,7 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Service
 public class UserMessageLogDefaultService implements UserMessageLogService {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDefaultService.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDefaultService.class);
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;

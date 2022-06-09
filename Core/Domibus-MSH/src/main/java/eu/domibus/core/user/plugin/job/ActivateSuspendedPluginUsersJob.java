@@ -5,7 +5,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.core.user.plugin.PluginUserServiceImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -23,7 +23,7 @@ import java.util.Date;
 @DisallowConcurrentExecution
 public class ActivateSuspendedPluginUsersJob extends DomibusQuartzJobBean {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ActivateSuspendedPluginUsersJob.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ActivateSuspendedPluginUsersJob.class);
 
     @Autowired
     private PluginUserServiceImpl userService;

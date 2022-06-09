@@ -12,7 +12,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
@@ -44,7 +44,7 @@ import static eu.domibus.messaging.MessageConstants.MESSAGE_ID;
  */
 public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DownloadMessageJMSIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DownloadMessageJMSIT.class);
 
     @Autowired
     private ConnectionFactory jmsConnectionFactory;

@@ -7,7 +7,7 @@ import eu.domibus.core.cache.DomibusCacheConfiguration;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.property.*;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -39,7 +39,7 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class CRLServiceImplIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImplIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImplIT.class);
 
     @Configuration
     @EnableCaching

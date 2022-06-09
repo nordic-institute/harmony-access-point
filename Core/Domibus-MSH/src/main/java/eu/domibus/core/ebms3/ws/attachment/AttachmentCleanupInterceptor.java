@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.ws.attachment;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class AttachmentCleanupInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AttachmentCleanupInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AttachmentCleanupInterceptor.class);
 
     public AttachmentCleanupInterceptor() {
         super(Phase.PREPARE_SEND_ENDING);

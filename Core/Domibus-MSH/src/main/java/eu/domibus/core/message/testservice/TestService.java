@@ -17,7 +17,7 @@ import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.ProcessingType;
@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @Service
 public class TestService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TestService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestService.class);
 
     private static final String TEST_PAYLOAD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><hello>world</hello>";
 

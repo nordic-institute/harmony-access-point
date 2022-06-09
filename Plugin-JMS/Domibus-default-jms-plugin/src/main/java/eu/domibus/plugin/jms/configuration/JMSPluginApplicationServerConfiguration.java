@@ -1,10 +1,13 @@
 package eu.domibus.plugin.jms.configuration;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.environment.ApplicationServerCondition;
 import eu.domibus.plugin.jms.JMSMessageConstants;
 import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
@@ -18,7 +21,7 @@ import javax.jms.Queue;
  */
 public abstract class JMSPluginApplicationServerConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginApplicationServerConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginApplicationServerConfiguration.class);
 
     @Bean(name = "jndiDestinationResolver")
     public JndiDestinationResolver jndiDestinationResolver() {

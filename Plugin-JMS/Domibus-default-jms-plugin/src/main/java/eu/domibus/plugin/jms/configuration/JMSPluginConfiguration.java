@@ -6,7 +6,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.handler.MessageRetriever;
@@ -41,7 +41,7 @@ import java.util.Optional;
 @Configuration
 public class JMSPluginConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginConfiguration.class);
 
     public static final String JMSPLUGIN_QUEUE_IN_CONCURRENCY = "jmsplugin.queue.in.concurrency";
 

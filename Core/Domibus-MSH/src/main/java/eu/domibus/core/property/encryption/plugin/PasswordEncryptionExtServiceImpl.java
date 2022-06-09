@@ -11,7 +11,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,7 @@ import java.util.function.Function;
 @Service
 public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionExtServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionExtServiceImpl.class);
 
     protected final PasswordEncryptionService passwordEncryptionService;
 

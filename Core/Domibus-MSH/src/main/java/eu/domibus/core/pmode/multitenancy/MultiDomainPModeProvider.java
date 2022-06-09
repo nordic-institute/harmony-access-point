@@ -17,7 +17,7 @@ import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
@@ -37,7 +37,7 @@ import java.util.Map;
 @Primary
 public class MultiDomainPModeProvider extends PModeProvider {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainPModeProvider.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainPModeProvider.class);
 
     protected volatile Map<Domain, PModeProvider> providerMap = new HashMap<>();
 

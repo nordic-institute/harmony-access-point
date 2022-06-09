@@ -2,7 +2,7 @@ package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class PModeValidationHelperImpl implements PModeValidationHelper {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeValidationHelperImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeValidationHelperImpl.class);
 
     @Override
     public <T> T getAttributeValue(Object object, String attribute, Class<T> type) {

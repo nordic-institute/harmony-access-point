@@ -10,7 +10,7 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
@@ -38,7 +38,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class DomibusMultiTenantConnectionProvider implements MultiTenantConnectionProvider {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMultiTenantConnectionProvider.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMultiTenantConnectionProvider.class);
 
     @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     @Autowired
@@ -63,10 +63,10 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     public Connection getAnyConnection() throws SQLException {
         LOG.trace("Getting any connection");
 
-        String mdcUser = LOG.getMDC(IDomibusLogger.MDC_USER);
+        String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
         if(StringUtils.isBlank(mdcUser)) {
             String userName = databaseUtil.getDatabaseUserName();
-            LOG.putMDC(IDomibusLogger.MDC_USER, userName);
+            LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
         Connection connection = dataSource.getConnection(); //NOSONAR : For live connection of the datasource
         connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);

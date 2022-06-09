@@ -1,6 +1,6 @@
 package eu.domibus.plugin.notification;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +16,7 @@ import javax.jms.Queue;
  */
 public class PluginAsyncNotificationConfiguration implements AsyncNotificationConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationConfiguration.class);
 
     protected BackendConnector backendConnector;
     protected Queue queue;

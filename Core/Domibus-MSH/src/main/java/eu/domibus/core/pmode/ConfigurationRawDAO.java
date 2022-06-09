@@ -4,7 +4,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Repository
 public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ConfigurationRawDAO.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConfigurationRawDAO.class);
 
     public ConfigurationRawDAO() {
         super(ConfigurationRaw.class);

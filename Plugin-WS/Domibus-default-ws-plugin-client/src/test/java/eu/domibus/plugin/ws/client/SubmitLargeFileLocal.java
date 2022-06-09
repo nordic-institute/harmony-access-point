@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.client;
 
 import com.sun.xml.messaging.saaj.soap.XmlDataContentHandler;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.generated.body.*;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class SubmitLargeFileLocal {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmitLargeFileLocal.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmitLargeFileLocal.class);
 
     private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/test/resources/eu/domibus/plugin/ws/client/submitMessage_messaging.xml";
 

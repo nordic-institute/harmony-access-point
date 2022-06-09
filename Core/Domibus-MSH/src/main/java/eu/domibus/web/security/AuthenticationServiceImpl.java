@@ -4,7 +4,7 @@ import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,7 +20,7 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class AuthenticationServiceImpl extends AuthenticationServiceBase implements AuthenticationService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     public static final String INACTIVE = "Inactive";
 

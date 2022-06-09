@@ -2,7 +2,7 @@ package eu.domibus.ext.web.interceptor;
 
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -17,7 +17,7 @@ import java.net.HttpURLConnection;
  */
 public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationInterceptor.class);
 
     @Autowired
     AuthenticationExtService authenticationExtService;

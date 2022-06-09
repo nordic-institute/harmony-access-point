@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.webservice.configuration;
 
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.*;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
@@ -41,7 +41,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class WebServiceConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceConfiguration.class);
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
 

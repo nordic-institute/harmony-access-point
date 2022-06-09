@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.stereotype.Service;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserMessageContextKeyProviderImpl implements UserMessageContextKeyProvider {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageContextKeyProviderImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageContextKeyProviderImpl.class);
 
     @Override
     public void setKeyOnTheCurrentMessage(String key, String value) {

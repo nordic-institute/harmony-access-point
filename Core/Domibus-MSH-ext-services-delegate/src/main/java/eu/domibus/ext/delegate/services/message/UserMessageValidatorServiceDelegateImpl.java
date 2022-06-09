@@ -4,7 +4,7 @@ import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.UserMessageDTO;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.io.InputStream;
 @Service
 public class UserMessageValidatorServiceDelegateImpl implements UserMessageValidatorServiceDelegate {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorServiceDelegateImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorServiceDelegateImpl.class);
 
     protected UserMessageValidatorSpi userMessageValidatorSpi;
     protected DomibusExtMapper domibusExtMapper;

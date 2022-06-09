@@ -1,11 +1,11 @@
 package eu.domibus.api.property.validators;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
 public class RegexpValidator implements DomibusPropertyValidator {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(RegexpValidator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RegexpValidator.class);
 
     String regexp;
 

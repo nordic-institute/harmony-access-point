@@ -10,7 +10,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.JmsUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.BooleanUtils;
@@ -34,7 +34,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Component
 public class EArchiveListener implements MessageListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveListener.class);
 
     private final FileSystemEArchivePersistence fileSystemEArchivePersistence;
 
@@ -70,11 +70,11 @@ public class EArchiveListener implements MessageListener {
     @Timer(clazz = EArchiveListener.class, value = "earchive_process_1_batch")
     @Counter(clazz = EArchiveListener.class, value = "earchive_process_1_batch")
     public void onMessage(Message message) {
-        LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
         Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
-        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
         if (StringUtils.isBlank(batchId) || entityId == null) {
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;

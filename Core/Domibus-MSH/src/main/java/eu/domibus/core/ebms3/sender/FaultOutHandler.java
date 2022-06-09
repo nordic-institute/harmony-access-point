@@ -7,7 +7,7 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ import java.util.Set;
 @Service("faultOutHandler")
 public class FaultOutHandler extends AbstractFaultHandler {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultOutHandler.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultOutHandler.class);
 
     @Autowired
     private ErrorLogService errorLogService;

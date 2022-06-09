@@ -14,18 +14,18 @@ public class DomibusLoggerFactory {
 
     private DomibusLoggerFactory() {}
 
-    public static IDomibusLogger getLogger(String name) {
-        return (IDomibusLogger) Proxy.newProxyInstance(
-                IDomibusLogger.class.getClassLoader(),
-                new Class[]{IDomibusLogger.class},
+    public static DomibusLogger getLogger(String name) {
+        return (DomibusLogger) Proxy.newProxyInstance(
+                DomibusLogger.class.getClassLoader(),
+                new Class[]{DomibusLogger.class},
                 (proxy, method, methodArgs) -> {
-                    final IDomibusLogger logger = DomibusLoggersCache.getLogger(name);
+                    final DomibusLogger logger = DomibusLoggersCache.getLogger(name);
                     return method.invoke(logger, methodArgs);
                 }
         );
     }
 
-    public static IDomibusLogger getLogger(Class<?> clazz) {
+    public static DomibusLogger getLogger(Class<?> clazz) {
         return getLogger(clazz.getName());
     }
 }

@@ -12,7 +12,7 @@ import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.core.property.DomibusConfigLocationProvider;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.property.DomibusPropertyConfiguration;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +44,7 @@ import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZ
 @Order(SESSION_INITIALIZER_ORDER + 1)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
 
     public static final String PLUGINS_LOCATION = "/plugins/lib";
     public static final String EXTENSIONS_LOCATION = "/extensions/lib";

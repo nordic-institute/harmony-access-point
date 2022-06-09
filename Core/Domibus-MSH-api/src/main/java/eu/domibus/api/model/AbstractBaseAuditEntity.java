@@ -2,7 +2,7 @@ package eu.domibus.api.model;
 
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -21,7 +21,7 @@ import java.util.Date;
 @MappedSuperclass
 public abstract class AbstractBaseAuditEntity implements DomibusBaseEntity {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBaseAuditEntity.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBaseAuditEntity.class);
 
     @XmlTransient
     @Column(name = "CREATION_TIME", updatable = false, nullable = false)
@@ -43,7 +43,7 @@ public abstract class AbstractBaseAuditEntity implements DomibusBaseEntity {
 
     @PrePersist
     public void updateCreationDetails() {
-        String user = LOG.getMDC(IDomibusLogger.MDC_USER);
+        String user = LOG.getMDC(DomibusLogger.MDC_USER);
         if (StringUtils.isEmpty(user)) {
             user = getDataBaseUser();
         }
@@ -64,7 +64,7 @@ public abstract class AbstractBaseAuditEntity implements DomibusBaseEntity {
 
     @PreUpdate
     public void updateModificationDetails() {
-        String user = LOG.getMDC(IDomibusLogger.MDC_USER);
+        String user = LOG.getMDC(DomibusLogger.MDC_USER);
         if (StringUtils.isEmpty(user)) {
             user = getDataBaseUser();
         }

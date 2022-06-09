@@ -5,7 +5,7 @@ import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.*;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.UserMessageSampleUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.HashSet;
 
 /**
@@ -22,7 +23,7 @@ import java.util.HashSet;
 @Service
 public class UserMessageService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageService.class);
 
     @Autowired
     UserMessageDao userMessageDao;

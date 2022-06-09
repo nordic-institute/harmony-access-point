@@ -4,7 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class PropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyChangeNotifierImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyChangeNotifierImpl.class);
 
     protected List<DomibusPropertyChangeListener> allPropertyChangeListeners;
 

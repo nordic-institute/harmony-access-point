@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("domibusPrepareAttachmentInterceptor")
 public class DomibusPrepareAttachmentInterceptor extends AbstractSoapInterceptor {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPrepareAttachmentInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPrepareAttachmentInterceptor.class);
 
 
     public DomibusPrepareAttachmentInterceptor() {

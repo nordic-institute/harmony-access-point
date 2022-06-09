@@ -1,7 +1,7 @@
 package eu.domibus.ext.delegate.services.property;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPropertyChangeNotifierImpl.class);
 
     @Autowired(required = false)
     protected List<PluginPropertyChangeListener> pluginPropertyChangeListeners;

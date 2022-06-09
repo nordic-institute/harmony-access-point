@@ -34,7 +34,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections.CollectionUtils;
@@ -78,7 +78,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public static final String START = "start";
     public static final String FRAGMENT_FILENAME_SEPARATOR = "_";
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinDefaultService.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinDefaultService.class);
     public static final String ERROR_MESSAGE_GROUP_HAS_EXPIRED = "Group has expired";
     public static final String ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE = "Error generating the Signal SOAPMessage for SourceMessage [";
 

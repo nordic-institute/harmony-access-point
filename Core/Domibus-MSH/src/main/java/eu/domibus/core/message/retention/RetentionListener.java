@@ -7,7 +7,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import javax.jms.MessageListener;
 @Service
 public class RetentionListener implements MessageListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionListener.class);
 
     @Autowired
     private UserMessageDefaultService userMessageDefaultService;

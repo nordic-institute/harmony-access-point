@@ -3,7 +3,7 @@ package eu.domibus.test;
 import eu.domibus.core.logging.LogbackLoggingConfigurator;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.spring.DomibusApplicationInitializer;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class PropertyOverrideContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyOverrideContextInitializer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyOverrideContextInitializer.class);
 
     @Override
     public void initialize(ConfigurableApplicationContext configurableApplicationContext) {

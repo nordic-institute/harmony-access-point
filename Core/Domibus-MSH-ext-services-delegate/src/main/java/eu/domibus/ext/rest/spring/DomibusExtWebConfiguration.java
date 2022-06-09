@@ -7,7 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.domibus.api.spring.DomibusWebContext;
 import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.web.interceptor.AuthenticationInterceptor;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,7 +29,7 @@ import java.util.List;
 @ComponentScan(basePackages = {"eu.domibus.ext.rest", "eu.domibus.ext.domain"})
 public class DomibusExtWebConfiguration implements WebMvcConfigurer {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtWebConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtWebConfiguration.class);
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

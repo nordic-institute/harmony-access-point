@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.core.security.ISMPCertificateValidator;
 import network.oxalis.vefa.peppol.common.code.Service;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  */
 public class DomibusCertificateValidator extends Merlin implements CertificateValidator, ISMPCertificateValidator {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCertificateValidator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCertificateValidator.class);
     protected CertificateService certificateService;
 
     private Pattern subjectRegularExpressionPattern;

@@ -12,7 +12,7 @@ import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.util.JmsUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -50,7 +50,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Component
 public class EArchiveNotificationListener implements MessageListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListener.class);
 
     private final DatabaseUtil databaseUtil;
 
@@ -95,11 +95,11 @@ public class EArchiveNotificationListener implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
-        LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         String batchId = jmsUtil.getStringPropertySafely(message, MessageConstants.BATCH_ID);
         Long entityId = jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
-        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
         if (StringUtils.isBlank(batchId) || entityId == null) {
             LOG.error("Could not get the batchId [{}] and/or entityId [{}]", batchId, entityId);
             return;

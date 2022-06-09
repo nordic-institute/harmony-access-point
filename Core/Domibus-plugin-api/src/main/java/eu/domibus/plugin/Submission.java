@@ -1,6 +1,6 @@
 package eu.domibus.plugin;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.StringUtils;
@@ -23,7 +23,7 @@ import static org.apache.commons.lang3.StringUtils.*;
  */
 public class Submission {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(Submission.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(Submission.class);
 
     private final Set<Submission.Party> fromParties = new HashSet<>();
     private final Set<Submission.Party> toParties = new HashSet<>();

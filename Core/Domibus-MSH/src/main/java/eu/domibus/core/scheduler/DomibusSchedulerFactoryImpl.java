@@ -1,7 +1,7 @@
 package eu.domibus.core.scheduler;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 public class DomibusSchedulerFactoryImpl implements DomibusSchedulerFactory {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSchedulerFactoryImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSchedulerFactoryImpl.class);
 
     @Autowired
     protected ApplicationContext applicationContext;

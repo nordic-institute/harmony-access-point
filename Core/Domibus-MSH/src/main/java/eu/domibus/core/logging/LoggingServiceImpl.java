@@ -8,7 +8,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,7 +33,7 @@ import static org.apache.commons.lang3.reflect.FieldUtils.readField;
  */
 @Service
 public class LoggingServiceImpl implements LoggingService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingServiceImpl.class);
     protected static final String PREFIX_CLASS_ = "class ";
 
     @Autowired

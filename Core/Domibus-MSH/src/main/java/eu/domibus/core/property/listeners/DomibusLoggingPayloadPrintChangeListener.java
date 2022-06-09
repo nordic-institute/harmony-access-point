@@ -1,7 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.BooleanUtils;
@@ -21,7 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class DomibusLoggingPayloadPrintChangeListener implements PluginPropertyChangeListener {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingPayloadPrintChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingPayloadPrintChangeListener.class);
 
     private final DomibusLoggingEventSender domibusLoggingEventSender;
 

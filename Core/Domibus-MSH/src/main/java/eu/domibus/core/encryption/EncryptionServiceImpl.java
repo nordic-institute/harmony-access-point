@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class EncryptionServiceImpl implements EncryptionService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
 
     protected final PayloadEncryptionService payloadEncryptionService;
 

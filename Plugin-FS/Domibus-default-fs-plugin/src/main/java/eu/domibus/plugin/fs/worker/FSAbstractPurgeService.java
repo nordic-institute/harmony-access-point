@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs.worker;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class FSAbstractPurgeService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSAbstractPurgeService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSAbstractPurgeService.class);
 
     @Autowired
     protected FSPluginProperties fsPluginProperties;

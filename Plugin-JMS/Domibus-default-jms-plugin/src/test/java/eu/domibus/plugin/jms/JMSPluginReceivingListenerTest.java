@@ -3,7 +3,7 @@ package eu.domibus.plugin.jms;
 import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class JMSPluginReceivingListenerTest {
     JMSPluginReceivingListener JMSPluginReceivingListener;
 
     @Test
-    public void receiveMessage(@Injectable MapMessage map, @Mocked IDomibusLogger LOG) {
+    public void receiveMessage(@Injectable MapMessage map, @Mocked DomibusLogger LOG) {
         new Expectations(JMSPluginReceivingListener) {{
             authenticationExtService.isUnsecureLoginAllowed();
             result = false;
@@ -53,7 +53,7 @@ public class JMSPluginReceivingListenerTest {
     }
 
     @Test
-    public void authenticate(@Injectable MapMessage map, @Mocked IDomibusLogger LOG) throws JMSException {
+    public void authenticate(@Injectable MapMessage map, @Mocked DomibusLogger LOG) throws JMSException {
         String username = "cosmin";
         String password = "mypass";
         new Expectations() {{
@@ -72,7 +72,7 @@ public class JMSPluginReceivingListenerTest {
     }
 
     @Test(expected = DefaultJmsPluginException.class)
-    public void authenticateWithMissingUsername(@Injectable MapMessage map, @Mocked IDomibusLogger LOG) throws JMSException {
+    public void authenticateWithMissingUsername(@Injectable MapMessage map, @Mocked DomibusLogger LOG) throws JMSException {
         new Expectations() {{
             map.getStringProperty(JMSMessageConstants.USERNAME);
             result = null;
@@ -87,7 +87,7 @@ public class JMSPluginReceivingListenerTest {
     }
 
     @Test(expected = DefaultJmsPluginException.class)
-    public void authenticateWithMissingPassword(@Injectable MapMessage map, @Mocked IDomibusLogger LOG) throws JMSException {
+    public void authenticateWithMissingPassword(@Injectable MapMessage map, @Mocked DomibusLogger LOG) throws JMSException {
         String username = "cosmin";
         String password = null;
         new Expectations() {{

@@ -23,7 +23,7 @@ import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
@@ -401,7 +401,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void logCertificateRevocationWarning(@Mocked final IDomibusLogger LOG) {
+    public void logCertificateRevocationWarning(@Mocked final DomibusLogger LOG) {
         final Certificate soonRevokedCertificate = new Certificate();
         final Date now = new Date();
         final String soonRevokedAlias = "Cert1";

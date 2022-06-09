@@ -12,7 +12,7 @@ import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSConstants;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -37,7 +37,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class EArchivingDefaultService implements DomibusEArchiveService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingDefaultService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingDefaultService.class);
 
     public static final int CONTINUOUS_ID = 1;
 

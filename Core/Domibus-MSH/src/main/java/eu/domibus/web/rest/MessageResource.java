@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagesLogService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
@@ -27,7 +27,7 @@ import java.io.IOException;
 @RequestMapping(value = "/rest/message")
 public class MessageResource {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageResource.class);
 
     @Autowired
     UserMessageService userMessageService;

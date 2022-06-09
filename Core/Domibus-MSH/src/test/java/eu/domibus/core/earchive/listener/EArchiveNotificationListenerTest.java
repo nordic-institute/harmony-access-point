@@ -8,7 +8,7 @@ import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.util.JmsUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import gen.eu.domibus.archive.client.api.ArchiveWebhookApi;
@@ -32,7 +32,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @RunWith(JMockit.class)
 public class EArchiveNotificationListenerTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListenerTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListenerTest.class);
 
     @Tested
     private EArchiveNotificationListener eArchiveNotificationListener;
@@ -68,7 +68,7 @@ public class EArchiveNotificationListenerTest {
                                      @Injectable BatchNotification batchNotification,
                                      @Injectable ArchiveWebhookApi apiClient) {
 
-        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();
@@ -103,7 +103,7 @@ public class EArchiveNotificationListenerTest {
                                                @Injectable BatchNotification batchNotification,
                                                @Injectable ArchiveWebhookApi apiClient) {
 
-        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations(eArchiveNotificationListener) {{
             databaseUtil.getDatabaseUserName();
@@ -135,7 +135,7 @@ public class EArchiveNotificationListenerTest {
     public void onMessageExported_NotificationTypeUnknown(@Injectable Message message,
                                                           @Injectable EArchiveBatchEntity eArchiveBatch) {
 
-        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations() {{
             databaseUtil.getDatabaseUserName();

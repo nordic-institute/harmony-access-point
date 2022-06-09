@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -29,7 +29,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @RunWith(JMockit.class)
 public class GlobalPropertyMetadataManagerImplTest {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImplTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImplTest.class);
 
     @Tested
     GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;

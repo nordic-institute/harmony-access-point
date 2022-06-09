@@ -12,7 +12,7 @@ import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.services.MessageMonitorExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 public class MessageMonitoringServiceDelegate implements MessageMonitorExtService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringServiceDelegate.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringServiceDelegate.class);
 
     protected UserMessageService userMessageService;
 

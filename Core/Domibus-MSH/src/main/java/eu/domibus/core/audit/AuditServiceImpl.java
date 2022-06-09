@@ -17,7 +17,7 @@ import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.util.AnnotationsUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.reflections.Reflections;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @Service
 public class AuditServiceImpl implements AuditService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditServiceImpl.class);
 
     @Autowired
     private AuditDao auditDao;

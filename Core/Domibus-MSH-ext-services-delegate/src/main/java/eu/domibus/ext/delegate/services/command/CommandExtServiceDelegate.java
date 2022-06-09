@@ -5,7 +5,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.ext.services.CommandExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 public class CommandExtServiceDelegate implements CommandExtService {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CommandExtServiceDelegate.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(CommandExtServiceDelegate.class);
 
     protected SignalService signalService;
     protected DomainContextProvider domainContextProvider;

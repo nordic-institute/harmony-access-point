@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -23,7 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class PartitionService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionService.class);
 
     protected UserMessageDao userMessageDao;
 

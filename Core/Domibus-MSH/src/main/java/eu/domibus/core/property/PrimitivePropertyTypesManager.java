@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -11,7 +11,7 @@ import java.util.Properties;
 
 @Service
 public class PrimitivePropertyTypesManager {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PrimitivePropertyTypesManager.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrimitivePropertyTypesManager.class);
 
     private final Properties domibusDefaultProperties;
 

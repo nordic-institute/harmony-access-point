@@ -2,7 +2,7 @@ package eu.domibus.core.security;
 
 import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.security.X509CertificateService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.core.certificate.crl.CRLService;
@@ -22,7 +22,7 @@ import java.util.Locale;
 @Service("securityX509CertificateServiceImpl")
 public class X509CertificateServiceImpl implements X509CertificateService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(X509CertificateServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(X509CertificateServiceImpl.class);
 
     private static final Locale LOCALE = Locale.US;
 

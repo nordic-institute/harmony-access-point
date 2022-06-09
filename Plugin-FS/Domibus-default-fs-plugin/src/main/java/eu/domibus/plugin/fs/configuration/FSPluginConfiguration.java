@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs.configuration;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.fs.*;
@@ -31,7 +31,7 @@ import java.util.List;
 @Configuration
 public class FSPluginConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginConfiguration.class);
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.filesystem";
     public static final String NOTIFY_BACKEND_FS_QUEUE_NAME = "notifyBackendFSQueue";

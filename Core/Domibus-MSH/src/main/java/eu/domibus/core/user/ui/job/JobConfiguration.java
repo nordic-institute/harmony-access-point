@@ -2,7 +2,7 @@ package eu.domibus.core.user.ui.job;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.user.plugin.job.PluginUserPasswordPolicyAlertJob;
 import eu.domibus.core.user.multitenancy.SuperUserPasswordPolicyAlertJob;
@@ -24,7 +24,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Configuration
 public class JobConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JobConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JobConfiguration.class);
     private static final String GROUP_GENERAL = "GENERAL";
 
     @Autowired

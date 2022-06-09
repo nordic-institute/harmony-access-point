@@ -7,7 +7,7 @@ import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -28,7 +28,7 @@ import javax.xml.ws.WebServiceException;
 @RunWith(JMockit.class)
 public class MSHWebServiceTest {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebServiceTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebServiceTest.class);
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
     @Tested

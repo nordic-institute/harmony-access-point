@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RunWith(JMockit.class)
 public class DomainPropertiesTest {
 
-    public static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomainPropertiesTest.class);
+    public static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomainPropertiesTest.class);
 
     @Test
     public void testDomainPropertiesStartWith_domain_name() throws IOException {

@@ -8,7 +8,7 @@ import eu.domibus.ext.domain.ValidationResponseDTO;
 import eu.domibus.ext.exceptions.PModeExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PModeExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -34,7 +34,7 @@ import java.util.List;
 @Tag(name = "pmode", description = "Domibus PMode management API")
 public class PModeFileExtResource {
 
-    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileExtResource.class);
+    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeFileExtResource.class);
 
     final PModeExtService pModeExtService;
 

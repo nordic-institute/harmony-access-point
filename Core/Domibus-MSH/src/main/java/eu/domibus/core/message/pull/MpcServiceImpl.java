@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @Service
 public class MpcServiceImpl implements MpcService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MpcServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MpcServiceImpl.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

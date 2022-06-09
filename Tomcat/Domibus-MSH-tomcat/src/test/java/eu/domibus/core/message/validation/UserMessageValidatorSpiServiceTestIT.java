@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.MessageTestUtility;
 import org.apache.commons.io.IOUtils;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class UserMessageValidatorSpiServiceTestIT extends AbstractIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
 
     @Autowired
     UserMessageValidatorSpiService userMessageValidatorSpiService;

@@ -4,7 +4,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.core.util.EncryptionUtilImpl;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class PasswordEncryptionDaoImpl implements PasswordEncryptionDao {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionDaoImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordEncryptionDaoImpl.class);
 
     protected final EncryptionUtil encryptionUtil;
 

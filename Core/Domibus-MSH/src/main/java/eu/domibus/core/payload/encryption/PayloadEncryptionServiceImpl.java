@@ -10,7 +10,7 @@ import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.encryption.EncryptionKeyDao;
 import eu.domibus.core.encryption.EncryptionKeyEntity;
 import eu.domibus.core.encryption.EncryptionUsage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import java.util.List;
 @Service("EncryptionServiceImpl")
 public class PayloadEncryptionServiceImpl implements PayloadEncryptionService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadEncryptionServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadEncryptionServiceImpl.class);
 
     @Autowired
     protected EncryptionKeyDao encryptionKeyDao;

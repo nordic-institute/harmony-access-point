@@ -1,7 +1,7 @@
 package eu.domibus.core.payload.temp;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DisallowConcurrentExecution
 public class TemporaryPayloadCleanerJob extends DomibusQuartzJobBean {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TemporaryPayloadCleanerJob.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TemporaryPayloadCleanerJob.class);
 
     @Autowired
     protected TemporaryPayloadService temporaryPayloadService;

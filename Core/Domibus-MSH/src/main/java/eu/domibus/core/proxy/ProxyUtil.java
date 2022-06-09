@@ -1,6 +1,6 @@
 package eu.domibus.core.proxy;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.http.HttpHost;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProxyUtil {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ProxyUtil.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ProxyUtil.class);
 
     @Autowired
     DomibusProxyService domibusProxyService;

@@ -4,7 +4,7 @@ package eu.domibus.plugin.jms;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.FileUtilExtService;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
@@ -42,7 +42,7 @@ import static org.apache.commons.lang3.StringUtils.*;
 @Service("jmsMessageTransformer")
 public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMessage>, MessageSubmissionTransformer<MapMessage> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSMessageTransformer.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSMessageTransformer.class);
 
     @Autowired
     protected DomibusPropertyExtService domibusPropertyExtService;

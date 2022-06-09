@@ -3,7 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.core.clustering.CommandTask;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 public class ReloadTLSTruststoreCommandTask implements CommandTask {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ReloadTLSTruststoreCommandTask.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ReloadTLSTruststoreCommandTask.class);
 
     private final TLSReaderService tlsReaderService;
 

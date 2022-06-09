@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.webservice.interceptor;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component(value = "clearAuthenticationMDCInterceptor")
 public class ClearAuthenticationMDCInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ClearAuthenticationMDCInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ClearAuthenticationMDCInterceptor.class);
 
     public ClearAuthenticationMDCInterceptor() {
         super(Phase.SETUP_ENDING);
@@ -32,7 +32,7 @@ public class ClearAuthenticationMDCInterceptor extends AbstractPhaseInterceptor<
     }
 
     private void clearAuthenticationMDC() {
-        LOG.removeMDC(IDomibusLogger.MDC_USER);
-        LOG.debug("Cleared MDC property [{}]", LOG.getMDCKey(IDomibusLogger.MDC_USER));
+        LOG.removeMDC(DomibusLogger.MDC_USER);
+        LOG.debug("Cleared MDC property [{}]", LOG.getMDCKey(DomibusLogger.MDC_USER));
     }
 }

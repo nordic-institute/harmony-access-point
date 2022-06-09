@@ -1,7 +1,7 @@
 package eu.domibus.core.audit.envers;
 
 import eu.domibus.core.audit.CustomRevisionEntityListener;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Fetch;
@@ -28,7 +28,7 @@ import static eu.domibus.api.model.AbstractBaseEntity.DOMIBUS_SCALABLE_SEQUENCE;
 @RevisionEntity(CustomRevisionEntityListener.class)
 public class RevisionLog {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(RevisionLog.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RevisionLog.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = DOMIBUS_SCALABLE_SEQUENCE)

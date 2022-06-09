@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.clustering.CommandTask;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 public class PropertyChangeCommandTask implements CommandTask {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PropertyChangeCommandTask.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(PropertyChangeCommandTask.class);
 
     private DomibusPropertyProvider domibusPropertyProvider;
     protected DomainContextProvider domainContextProvider;

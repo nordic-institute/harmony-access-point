@@ -10,7 +10,7 @@ import org.apache.activemq.command.TransactionId;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
@@ -27,7 +27,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 @Component
 public class TransactionExceptionBrokerPlugin extends BrokerPluginSupport {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TransactionExceptionBrokerPlugin.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TransactionExceptionBrokerPlugin.class);
 
     public static final String XA_EXCEPTION_MESSAGE_PREFIX = "XAException: Cannot do 2 phase commit if the transaction has not been prepared";
 

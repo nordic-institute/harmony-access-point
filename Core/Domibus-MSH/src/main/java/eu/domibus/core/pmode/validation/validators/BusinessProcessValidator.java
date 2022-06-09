@@ -5,7 +5,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
@@ -26,7 +26,7 @@ import java.util.Set;
 @Component
 @Order(1)
 public class BusinessProcessValidator implements PModeValidator {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BusinessProcessValidator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BusinessProcessValidator.class);
     protected static final String ERROR_MESSAGE = "Forbidden characters '< >' found in the ";
 
     final PModeValidationHelper pModeValidationHelper;

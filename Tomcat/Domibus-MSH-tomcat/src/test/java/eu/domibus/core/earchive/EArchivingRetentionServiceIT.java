@@ -13,7 +13,7 @@ import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.job.EArchivingRetentionService;
 import eu.domibus.core.earchive.listener.EArchiveListener;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -43,7 +43,7 @@ import static java.util.Collections.singletonList;
 @Transactional
 public class EArchivingRetentionServiceIT extends AbstractIT {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingRetentionServiceIT.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingRetentionServiceIT.class);
 
     @Autowired
     EArchivingDefaultService eArchivingService;

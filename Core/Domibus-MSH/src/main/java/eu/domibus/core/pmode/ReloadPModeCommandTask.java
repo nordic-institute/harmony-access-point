@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.clustering.CommandTask;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Service
 public class ReloadPModeCommandTask implements CommandTask {
 
-    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ReloadPModeCommandTask.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ReloadPModeCommandTask.class);
 
     protected PModeProvider pModeProvider;
     protected MultiDomainCryptoService multiDomainCryptoService;

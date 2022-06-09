@@ -4,7 +4,7 @@ import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.core.converter.CommandCoreMapper;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections4.MapUtils;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Service
 public class CommandServiceImpl implements CommandService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandServiceImpl.class);
 
     protected CommandDao commandDao;
 

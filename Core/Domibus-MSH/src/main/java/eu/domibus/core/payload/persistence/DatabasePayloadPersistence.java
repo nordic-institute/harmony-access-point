@@ -7,7 +7,7 @@ import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import java.util.zip.GZIPOutputStream;
 @Service
 public class DatabasePayloadPersistence implements PayloadPersistence {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabasePayloadPersistence.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabasePayloadPersistence.class);
 
     @Autowired
     protected BackendNotificationService backendNotificationService;

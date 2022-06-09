@@ -22,7 +22,7 @@ import java.util.List;
 @Aspect
 public class MDCCleanAspect {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MDCCleanAspect.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MDCCleanAspect.class);
 
     @Around(value = "execution(public * eu.domibus..*(..)) && @annotation(MDCKey)")
     public Object process(ProceedingJoinPoint joinPoint) throws Throwable {

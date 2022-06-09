@@ -13,7 +13,7 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSConstants;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -35,7 +35,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Service
 public class EArchiveBatchDispatcherService {
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDispatcherService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchDispatcherService.class);
 
     private final JMSManager jmsManager;
 

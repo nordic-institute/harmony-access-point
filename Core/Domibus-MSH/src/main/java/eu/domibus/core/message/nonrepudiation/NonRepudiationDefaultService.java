@@ -9,7 +9,7 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class NonRepudiationDefaultService implements NonRepudiationService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(NonRepudiationDefaultService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NonRepudiationDefaultService.class);
     public static final String PERSIST_RAW_XML_ENVELOPE = "Persist raw XML envelope: [{}]";
     public static final String NON_REPUDIATION_AUDIT_IS_DISABLED_SKIP_SAVING_NON_REPUDIATION_DATA = "Non Repudiation Audit is disabled, skip saving non-repudiation data.";
 

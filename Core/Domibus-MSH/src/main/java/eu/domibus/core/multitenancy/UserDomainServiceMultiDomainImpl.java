@@ -6,7 +6,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 public class UserDomainServiceMultiDomainImpl implements UserDomainService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainServiceMultiDomainImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainServiceMultiDomainImpl.class);
 
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
@@ -92,7 +92,7 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
                 : new DomibusUserDetailsImpl("domibus", StringUtils.EMPTY, new ArrayList<>());
 
         domainTaskExecutor.submit(() -> authUtils.runWithSecurityContext(() -> {
-            LOG.putMDC(IDomibusLogger.MDC_USER, ud.getUsername());
+            LOG.putMDC(DomibusLogger.MDC_USER, ud.getUsername());
             method.run();
             domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
         }, ud.getUsername(), ud.getPassword()));

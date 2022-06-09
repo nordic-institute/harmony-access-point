@@ -1,7 +1,7 @@
 package eu.domibus.core.plugin;
 
 import eu.domibus.common.NotificationType;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class BackendConnectorHelper {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorHelper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorHelper.class);
 
     public List<NotificationType> getRequiredNotificationTypeList(BackendConnector<?, ?> backendConnector) {
         return backendConnector.getRequiredNotifications();

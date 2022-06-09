@@ -12,7 +12,7 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class RetryDefaultService implements RetryService {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(RetryDefaultService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetryDefaultService.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

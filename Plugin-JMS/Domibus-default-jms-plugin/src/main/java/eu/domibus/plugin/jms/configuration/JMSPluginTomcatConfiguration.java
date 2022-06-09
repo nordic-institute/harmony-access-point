@@ -1,7 +1,7 @@
 package eu.domibus.plugin.jms.configuration;
 
 import eu.domibus.common.DomibusJMSConstants;
-import eu.domibus.logging.IDomibusLogger;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.TomcatCondition;
 import eu.domibus.plugin.jms.JMSMessageConstants;
@@ -26,7 +26,7 @@ import javax.jms.Session;
 @Configuration
 public class JMSPluginTomcatConfiguration {
 
-    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginTomcatConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginTomcatConfiguration.class);
 
     @Bean("notifyBackendJmsQueue")
     public ActiveMQQueue notifyBackendQueue(JmsPluginPropertyManager jmsPluginPropertyManager) {
