@@ -2,14 +2,11 @@ package eu.domibus.plugin.ws.backend;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.ws.generated.body.FaultDetail;
-import eu.domibus.plugin.ws.webservice.WebServiceExceptionFactory;
+import eu.domibus.plugin.ws.exception.WSPluginException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -24,12 +21,8 @@ public class WSBackendMessageLogServiceImpl implements WSBackendMessageLogServic
 
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
 
-    private final WebServiceExceptionFactory createFaultMessageIdNotFound;
-
-    public WSBackendMessageLogServiceImpl(WSBackendMessageLogDao wsBackendMessageLogDao,
-                                          WebServiceExceptionFactory createFaultMessageIdNotFound) {
+    public WSBackendMessageLogServiceImpl(WSBackendMessageLogDao wsBackendMessageLogDao) {
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
-        this.createFaultMessageIdNotFound = createFaultMessageIdNotFound;
     }
 
 
@@ -55,27 +48,13 @@ public class WSBackendMessageLogServiceImpl implements WSBackendMessageLogServic
     }
 
     @Override
-    public FaultDetail updateForRetry(List<String> messageIDs) {
-        List<String> messageIdsNotFound = new ArrayList<>();
-        for (String messageId : messageIDs) {
-            WSBackendMessageLogEntity byMessageId = wsBackendMessageLogDao.findByMessageId(messageId);
-            if (byMessageId == null) {
-                messageIdsNotFound.add(messageId);
-                LOG.warn("WSBackendMessageLogEntity with id [{}] not found", messageId);
-            } else {
-                byMessageId.setSendAttempts(0);
-                byMessageId.setNextAttempt(new Date());
-                byMessageId.setFailed(null);
-                byMessageId.setBackendMessageStatus(WSBackendMessageStatus.WAITING_FOR_RETRY);
-                LOG.debug("Update WSBackendMessageLogEntity [{}] [{}]", messageIDs, byMessageId);
-            }
+    public void updateForRetry(List<String> messageIDs) throws WSPluginException {
+        int countUpdated = wsBackendMessageLogDao.updateForRetry(messageIDs);
+        int total = CollectionUtils.size(messageIDs);
+        if (countUpdated != total) {
+            throw new WSPluginException("Not all messages could be found [" + countUpdated + "/" + total + "]");
         }
-
-        if (CollectionUtils.isNotEmpty(messageIdsNotFound)) {
-            return createFaultMessageIdNotFound.createFaultMessageIdNotFound(String.join(",", messageIdsNotFound));
-        }
-
-        return null;
+        LOG.debug("[{}] messages updated for retry", total);
     }
 
 }

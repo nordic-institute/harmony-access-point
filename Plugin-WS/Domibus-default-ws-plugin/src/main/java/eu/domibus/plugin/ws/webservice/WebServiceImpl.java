@@ -42,6 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
+
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
         serviceName = "WebServicePlugin",
@@ -369,10 +371,19 @@ public class WebServiceImpl implements WebServicePluginInterface {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("rePushFailedMessages for domain [{}]", domainDTO);
 
-        FaultDetail faultDetail = wsBackendMessageLogService.updateForRetry(rePushFailedMessagesRequest.getMessageID());
-        if (faultDetail != null) {
-            throw new RePushFailedMessagesFault("RePush has failed", faultDetail);
+        final int repushMaxCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(PROP_LIST_REPUSH_MESSAGES_MAXCOUNT);
+
+        int nbrMessagesToRepush = CollectionUtils.size(rePushFailedMessagesRequest.getMessageID());
+        if (nbrMessagesToRepush > repushMaxCount) {
+            throw new RePushFailedMessagesFault("Invalid argument", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Too many messages. the limit is [" + PROP_LIST_REPUSH_MESSAGES_MAXCOUNT + "]:" + repushMaxCount + ". Actual is: " + nbrMessagesToRepush));
         }
+        try {
+            wsBackendMessageLogService.updateForRetry(rePushFailedMessagesRequest.getMessageID());
+        } catch (WSPluginException e) {
+            throw new RePushFailedMessagesFault("RePush has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0009, "At least one message was not found"));
+        }
+
+        LOG.info("Messages updated for retry successfully");
     }
 
     /**

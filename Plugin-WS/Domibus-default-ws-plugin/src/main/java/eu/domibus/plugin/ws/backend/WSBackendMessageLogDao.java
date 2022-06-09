@@ -8,10 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -33,6 +30,9 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
     private static final String CRIT_CREATION_TIME = "creationTime";
     private static final String CRIT_ORIGINAL_SENDER = "originalSender";
     public static final String CRIT_BACKEND_MESSAGE_STATUS = "backendMessageStatus";
+    public static final String CRIT_FAILED = "failed";
+    public static final String CRIT_SEND_ATTEMPTS = "sendAttempts";
+    public static final String CRIT_NEXT_ATTEMPT = "nextAttempt";
 
     private final DateExtService dateExtService;
 
@@ -143,4 +143,19 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
         return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
     }
 
+    public int updateForRetry(List<String> messageIDs) {
+        return em.createQuery(getCriteriaUpdate(messageIDs)).executeUpdate();
+    }
+
+    private CriteriaUpdate<WSBackendMessageLogEntity> getCriteriaUpdate(List<String> messageIDs) {
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaUpdate<WSBackendMessageLogEntity> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(WSBackendMessageLogEntity.class);
+        Root<WSBackendMessageLogEntity> root = criteriaUpdate.from(WSBackendMessageLogEntity.class);
+        criteriaUpdate.set(CRIT_FAILED, null);
+        criteriaUpdate.set(CRIT_SEND_ATTEMPTS, 0);
+        criteriaUpdate.set(CRIT_NEXT_ATTEMPT, new Date());
+        criteriaUpdate.set(CRIT_BACKEND_MESSAGE_STATUS, WSBackendMessageStatus.WAITING_FOR_RETRY);
+        criteriaUpdate.where(root.get(CRIT_MESSAGE_ID).in(messageIDs));
+        return criteriaUpdate;
+    }
 }

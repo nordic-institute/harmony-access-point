@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.backend;
 
-import eu.domibus.plugin.ws.generated.body.FaultDetail;
+import eu.domibus.plugin.ws.exception.WSPluginException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,8 +29,8 @@ public interface WSBackendMessageLogService {
      * Update the {@link WSBackendMessageLogEntity} for retry the push
      *
      * @param messageIDs list of messageId to update for retry the push
-     * @return null if all messageId are found
+     * @throws WSPluginException if not all messages are found/updated
      */
-    FaultDetail updateForRetry(List<String> messageIDs);
+    void updateForRetry(List<String> messageIDs) throws WSPluginException;
 }
 

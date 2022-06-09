@@ -80,7 +80,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     private WSBackendMessageLogDao wsBackendMessageLogDao;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    private javax.persistence.EntityManager em;
+    protected javax.persistence.EntityManager em;
 
     @Autowired
     protected WebServicePluginInterface webServicePluginInterface;

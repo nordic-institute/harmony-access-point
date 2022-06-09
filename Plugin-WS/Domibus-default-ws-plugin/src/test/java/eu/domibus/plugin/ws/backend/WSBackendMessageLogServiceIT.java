@@ -1,10 +1,8 @@
 package eu.domibus.plugin.ws.backend;
 
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
-import eu.domibus.plugin.ws.generated.body.FaultDetail;
-import org.hamcrest.CoreMatchers;
+import eu.domibus.plugin.ws.exception.WSPluginException;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,24 +39,20 @@ public class WSBackendMessageLogServiceIT extends AbstractBackendWSIT {
 
     @Test
     public void updateForRetry() {
-        FaultDetail faultDetail = wsBackendMessageLogService.updateForRetry(Arrays.asList(entityFailed2021.getMessageId(),
+        wsBackendMessageLogService.updateForRetry(Arrays.asList(entityFailed2021.getMessageId(),
                 entityFailed2022.getMessageId()));
 
-        Assert.assertNull(faultDetail);
+        em.refresh(entityFailed2022);
+        em.refresh(entityFailed2021);
         MatcherAssert.assertThat(entityFailed2022.getSendAttempts(), is(0));
         MatcherAssert.assertThat(entityFailed2021.getSendAttempts(), is(0));
         MatcherAssert.assertThat(entityFailed2021.getMessageStatus().name(), is(WSBackendMessageStatus.WAITING_FOR_RETRY.name()));
         MatcherAssert.assertThat(entityFailed2022.getMessageStatus().name(), is(WSBackendMessageStatus.WAITING_FOR_RETRY.name()));
     }
 
-    @Test
+    @Test(expected = WSPluginException.class)
     public void updateForRetry_error() {
-        FaultDetail faultDetail = wsBackendMessageLogService.updateForRetry(Arrays.asList("notFound", entityFailed2021.getMessageId(),
+        wsBackendMessageLogService.updateForRetry(Arrays.asList("notFound", entityFailed2021.getMessageId(),
                 entityFailed2022.getMessageId(), "notFound2"));
-
-        Assert.assertNotNull(faultDetail);
-        MatcherAssert.assertThat(faultDetail.getMessage(), CoreMatchers.allOf(
-                CoreMatchers.containsString("notFound"),
-                CoreMatchers.containsString("notFound2")));
     }
 }

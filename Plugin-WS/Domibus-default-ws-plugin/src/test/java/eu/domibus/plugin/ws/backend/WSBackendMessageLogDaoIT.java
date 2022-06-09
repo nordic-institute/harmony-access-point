@@ -51,6 +51,14 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
     }
 
     @Test
+    public void retry() {
+        int count = wsBackendMessageLogDao.updateForRetry(
+                Arrays.asList(entityFailed2021.getMessageId(),
+                        entityFailed2022.getMessageId()));
+        Assert.assertEquals(2, count);
+    }
+
+    @Test
     public void findByMessageId_notFound() {
         WSBackendMessageLogEntity byMessageId = wsBackendMessageLogDao.findByMessageId("");
         Assert.assertNull(byMessageId);
