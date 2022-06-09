@@ -111,7 +111,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         if (domainService.getDomains().size() == 1) {
-            throw new DomibusDomainException(String.format("There should be at least one enabled domain.", domainCode));
+            throw new DomibusDomainException(String.format("Domain [%s] is the only enabled domain.", domainCode));
         }
     }
 
