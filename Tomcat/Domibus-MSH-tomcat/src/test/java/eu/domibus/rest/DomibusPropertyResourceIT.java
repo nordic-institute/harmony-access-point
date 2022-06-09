@@ -152,6 +152,16 @@ public class DomibusPropertyResourceIT extends AbstractIT {
         String actualValue = list.get(0).getValue();
         Assert.assertEquals(newValue, actualValue);
 
+        //correct value
+        newValue = "-0.23";
+
+        domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
+
+        list = domibusPropertyResourceHelper.getAllProperties(filter);
+        Assert.assertEquals(1, list.size());
+        actualValue = list.get(0).getValue();
+        Assert.assertEquals(newValue, actualValue);
+        
         //wrong value
         list = domibusPropertyResourceHelper.getAllProperties(filter);
         String oldValue = list.get(0).getValue();
