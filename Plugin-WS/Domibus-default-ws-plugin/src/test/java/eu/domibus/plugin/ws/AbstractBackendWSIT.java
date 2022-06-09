@@ -3,6 +3,7 @@ package eu.domibus.plugin.ws;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -11,6 +12,9 @@ import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
+import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
+import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.test.AbstractIT;
@@ -26,6 +30,7 @@ import org.w3c.dom.Document;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
+import javax.persistence.PersistenceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -36,6 +41,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -66,6 +75,12 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     // TODO: François Gautier 03-02-21 @deprecated to be removed when deprecated endpoint /backend is removed
     @Autowired
     protected BackendInterface backendWebService;
+
+    @Autowired
+    private WSBackendMessageLogDao wsBackendMessageLogDao;
+
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
+    protected javax.persistence.EntityManager em;
 
     @Autowired
     protected WebServicePluginInterface webServicePluginInterface;
@@ -358,6 +373,43 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     public void waitUntilMessageIsReceived(String messageId) {
         waitUntilMessageHasStatus(messageId, MessageStatus.RECEIVED);
+    }
+
+    public void createEntityAndFlush(List<WSBackendMessageLogEntity> entities) {
+        for (WSBackendMessageLogEntity entity : entities) {
+            wsBackendMessageLogDao.create(entity);
+        }
+        em.flush();
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    public WSBackendMessageLogEntity create(WSBackendMessageStatus status) {
+        return create(status, null, null, null);
+    }
+
+    public WSBackendMessageLogEntity create(WSBackendMessageStatus status, LocalDateTime localDateTime, String originalSender, String finalRecipient) {
+        WSBackendMessageLogEntity entity = new WSBackendMessageLogEntity();
+        entity.setMessageId(UUID.randomUUID().toString());
+        entity.setMessageStatus(eu.domibus.common.MessageStatus.WAITING_FOR_RETRY);
+        entity.setBackendMessageStatus(status);
+        entity.setOriginalSender(originalSender);
+        entity.setFinalRecipient(finalRecipient);
+        entity.setSendAttempts(1);
+        entity.setSendAttemptsMax(3);
+        entity.setNextAttempt(yesterday());
+        if(localDateTime != null) {
+            entity.setCreationTime(getDate(localDateTime));
+        }
+        return entity;
+    }
+
+
+    private Date getDate(LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
+    }
+
+    private Date yesterday() {
+        return Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant());
     }
 
 }

@@ -1,22 +1,19 @@
 package eu.domibus.plugin.ws.backend;
 
-import eu.domibus.common.JPAConstants;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.ext.services.DateExtService;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.PersistenceContext;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+
+import static java.time.LocalDateTime.of;
 
 /**
  * @author François Gautier
@@ -28,13 +25,8 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
     @Autowired
     private WSBackendMessageLogDao wsBackendMessageLogDao;
 
-    @Autowired
-    private DateExtService dateExtService;
-
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    private javax.persistence.EntityManager em;
-
-    private WSBackendMessageLogEntity entityFailed;
+    private WSBackendMessageLogEntity entityFailed2021;
+    private WSBackendMessageLogEntity entityFailed2022;
 
     private WSBackendMessageLogEntity entityRetried1;
 
@@ -42,12 +34,28 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
 
     @Before
     public void setUp() {
-        entityFailed = create(WSBackendMessageStatus.SEND_FAILURE);
+        entityFailed2021 = create(WSBackendMessageStatus.SEND_FAILURE,
+                of(2021, 12, 31, 1, 1),
+                "SENDER1",
+                "BACKEND1");
+        entityFailed2022 = create(WSBackendMessageStatus.SEND_FAILURE,
+                of(2022, 5, 10, 1, 1),
+                "SENDER2",
+                "BACKEND2");
         entityRetried1 = create(WSBackendMessageStatus.WAITING_FOR_RETRY);
         entityRetried2 = create(WSBackendMessageStatus.WAITING_FOR_RETRY);
-        createEntityAndFlush(Arrays.asList(entityFailed,
+        createEntityAndFlush(Arrays.asList(entityFailed2021,
+                entityFailed2022,
                 entityRetried1,
                 entityRetried2));
+    }
+
+    @Test
+    public void retry() {
+        int count = wsBackendMessageLogDao.updateForRetry(
+                Arrays.asList(entityFailed2021.getMessageId(),
+                        entityFailed2022.getMessageId()));
+        Assert.assertEquals(2, count);
     }
 
     @Test
@@ -58,7 +66,7 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
 
     @Test
     public void findByMessageId_findOne() {
-        WSBackendMessageLogEntity byMessageId = wsBackendMessageLogDao.findByMessageId(entityFailed.getMessageId());
+        WSBackendMessageLogEntity byMessageId = wsBackendMessageLogDao.findByMessageId(entityFailed2021.getMessageId());
         Assert.assertNotNull(byMessageId);
     }
 
@@ -67,29 +75,46 @@ public class WSBackendMessageLogDaoIT extends AbstractBackendWSIT {
         List<WSBackendMessageLogEntity> messages = wsBackendMessageLogDao.findRetryMessages();
         Assert.assertNotNull(messages);
         Assert.assertEquals(2, messages.size());
-        //TODO FIXME
-//        Assert.assertThat(messages, CoreMatchers.hasItems(entityRetried1, entityRetried2));
+        MatcherAssert.assertThat(messages, CoreMatchers.hasItems(entityRetried1, entityRetried2));
     }
 
-    private void createEntityAndFlush(List<WSBackendMessageLogEntity> entities) {
-        for (WSBackendMessageLogEntity entity : entities) {
-            wsBackendMessageLogDao.create(entity);
-        }
-        em.flush();
+    @Test
+    public void findAllFailedWithFilter() {
+        List<WSBackendMessageLogEntity> allFailedWithFilter =
+                wsBackendMessageLogDao.findAllFailedWithFilter(null, null, null, null, null, 5);
+        MatcherAssert.assertThat(allFailedWithFilter.size(), Is.is(2));
+        MatcherAssert.assertThat(allFailedWithFilter, CoreMatchers.hasItems(entityFailed2021, entityFailed2022));
     }
 
-    private WSBackendMessageLogEntity create(WSBackendMessageStatus status) {
-        WSBackendMessageLogEntity entity = new WSBackendMessageLogEntity();
-        entity.setMessageId(UUID.randomUUID().toString());
-        entity.setMessageStatus(MessageStatus.WAITING_FOR_RETRY);
-        entity.setBackendMessageStatus(status);
-        entity.setSendAttempts(1);
-        entity.setSendAttemptsMax(3);
-        entity.setNextAttempt(yesterday());
-        return entity;
+    @Test
+    public void findAllFailedWithFilter_DateFrom() {
+        List<WSBackendMessageLogEntity> allFailedWithFilter =
+                wsBackendMessageLogDao.findAllFailedWithFilter(null, null, null, of(2022, 1, 1, 1, 1, 1), null, 5);
+        MatcherAssert.assertThat(allFailedWithFilter.size(), Is.is(1));
+        MatcherAssert.assertThat(allFailedWithFilter, CoreMatchers.hasItems(entityFailed2022));
     }
 
-    private Date yesterday() {
-        return Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant());
+    @Test
+    public void findAllFailedWithFilter_DateTo() {
+        List<WSBackendMessageLogEntity> allFailedWithFilter =
+                wsBackendMessageLogDao.findAllFailedWithFilter(null, null, null, null, of(2022, 1, 1, 1, 1, 1), 5);
+        MatcherAssert.assertThat(allFailedWithFilter.size(), Is.is(1));
+        MatcherAssert.assertThat(allFailedWithFilter, CoreMatchers.hasItems(entityFailed2021));
+    }
+
+    @Test
+    public void findAllFailedWithFilter_Sender() {
+        List<WSBackendMessageLogEntity> allFailedWithFilter =
+                wsBackendMessageLogDao.findAllFailedWithFilter(null, "SENDER1", null, null, null, 5);
+        MatcherAssert.assertThat(allFailedWithFilter.size(), Is.is(1));
+        MatcherAssert.assertThat(allFailedWithFilter, CoreMatchers.hasItems(entityFailed2021));
+    }
+
+    @Test
+    public void findAllFailedWithFilter_FinalRecipient() {
+        List<WSBackendMessageLogEntity> allFailedWithFilter =
+                wsBackendMessageLogDao.findAllFailedWithFilter(null, null, "BACKEND1", null, null, 5);
+        MatcherAssert.assertThat(allFailedWithFilter.size(), Is.is(1));
+        MatcherAssert.assertThat(allFailedWithFilter, CoreMatchers.hasItems(entityFailed2021));
     }
 }

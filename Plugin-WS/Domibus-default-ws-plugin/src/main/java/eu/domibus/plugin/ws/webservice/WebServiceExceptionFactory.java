@@ -30,10 +30,11 @@ public class WebServiceExceptionFactory {
         detail.setMessage(message);
         return detail;
     }
+
     public FaultDetail createFaultMessageIdNotFound(String messageId) {
         FaultDetail detail = WebServiceImpl.WEBSERVICE_OF.createFaultDetail();
         detail.setCode(ErrorCode.WS_PLUGIN_0009.getCode());
-        detail.setMessage(String.format(ErrorCode.WS_PLUGIN_0009.getMessage(),messageId));
+        detail.setMessage(String.format(ErrorCode.WS_PLUGIN_0009.getMessage(), messageId));
         return detail;
     }
 }

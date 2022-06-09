@@ -6,6 +6,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.plugin.handler.MessageRetriever;
+import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.generated.StatusFault;
@@ -40,6 +41,9 @@ public class WebServicePluginImplTest {
 
     @Injectable
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
+
+    @Injectable
+    private WSBackendMessageLogService wsBackendMessageLogService;
 
     @Injectable
     protected WebServiceExceptionFactory webServicePluginExceptionFactory;
