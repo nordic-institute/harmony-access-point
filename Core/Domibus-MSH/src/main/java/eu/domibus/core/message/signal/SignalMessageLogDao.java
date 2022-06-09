@@ -3,6 +3,7 @@ package eu.domibus.core.message.signal;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageLogDao;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
