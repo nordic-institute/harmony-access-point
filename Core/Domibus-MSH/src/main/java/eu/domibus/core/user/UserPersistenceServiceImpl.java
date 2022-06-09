@@ -17,7 +17,7 @@ import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserPersistenceServiceImpl implements UserPersistenceService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserPersistenceServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserPersistenceServiceImpl.class);
 
     protected final UserDao userDao;
 

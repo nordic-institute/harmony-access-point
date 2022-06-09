@@ -7,7 +7,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 public class CompressionService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CompressionService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CompressionService.class);
 
     @Autowired
     private CompressionMimeTypeBlacklist blacklist;

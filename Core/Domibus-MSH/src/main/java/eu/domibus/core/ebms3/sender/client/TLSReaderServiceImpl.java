@@ -4,7 +4,7 @@ package eu.domibus.core.ebms3.sender.client;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.jaxb.JAXBContextCache;
@@ -41,7 +41,7 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.DOMAINS_HOME;
 public class TLSReaderServiceImpl implements TLSReaderService {
     public static final String CLIENT_AUTHENTICATION_XML = "clientauthentication.xml";
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReaderServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReaderServiceImpl.class);
 
     public static final String REGEX_DOMIBUS_CONFIG_LOCATION = "\\Q${domibus.config.location}\\E";
 

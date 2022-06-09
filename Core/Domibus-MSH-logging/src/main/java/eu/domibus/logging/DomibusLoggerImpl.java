@@ -5,7 +5,6 @@ import eu.domibus.logging.api.MessageConverter;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import java.util.Map;
 
@@ -16,84 +15,82 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 3.3
  */
-public class DomibusLogger extends CategoryLogger {
+public class DomibusLoggerImpl extends CategoryLogger implements IDomibusLogger {
 
-    public static final String MDC_USER = "user";
-    public static final String MDC_MESSAGE_ID = "messageId";
-    public static final String MDC_MESSAGE_ENTITY_ID = "messageEntityId";
-    public static final String MDC_BATCH_ENTITY_ID = "batchEntityId";
-    public static final String MDC_DOMAIN = "domain";
-    public static final String MDC_FROM = "from";
-    public static final String MDC_TO = "to";
-    public static final String MDC_SERVICE = "service";
-    public static final String MDC_ACTION = "action";
-
-    public static final String MDC_PROPERTY_PREFIX = "d_";
-
-    public static final Marker BUSINESS_MARKER = MarkerFactory.getMarker("BUSINESS");
-    public static final Marker SECURITY_MARKER = MarkerFactory.getMarker("SECURITY");
-
-
-    public DomibusLogger(Logger logger, MessageConverter messageConverter) {
-        super(logger, DomibusLogger.class.getName(),messageConverter, MDC_PROPERTY_PREFIX);
+    public DomibusLoggerImpl(Logger logger, MessageConverter messageConverter) {
+        super(logger, DomibusLoggerImpl.class.getName(),messageConverter, MDC_PROPERTY_PREFIX);
     }
 
-    public DomibusLogger(Logger logger) {
+    public DomibusLoggerImpl(Logger logger) {
         this(logger, new DefaultMessageConverter());
     }
 
+    @Override
     public void businessTrace(DomibusMessageCode key, Object... args) {
         markerTrace(BUSINESS_MARKER, key, null, args);
     }
 
+    @Override
     public void businessDebug(DomibusMessageCode key, Object... args) {
         markerDebug(BUSINESS_MARKER, key, null, args);
     }
 
+    @Override
     public void businessInfo(DomibusMessageCode key, Object... args) {
         markerInfo(BUSINESS_MARKER, key, null, args);
     }
 
+    @Override
     public void businessWarn(DomibusMessageCode key, Object... args) {
         businessWarn(key, null, args);
     }
 
+    @Override
     public void businessWarn(DomibusMessageCode key, Throwable t, Object... args) {
         markerWarn(BUSINESS_MARKER, key, t, args);
     }
 
+    @Override
     public void businessError(DomibusMessageCode key, Object... args) {
         businessError(key, null, args);
     }
 
+    @Override
     public void businessError(DomibusMessageCode key, Throwable t, Object... args) {
         markerError(BUSINESS_MARKER, key, t, args);
     }
 
+    @Override
     public void securityTrace(DomibusMessageCode key, Object... args) {
         markerTrace(SECURITY_MARKER, key, null, args);
     }
 
+    @Override
     public void securityDebug(DomibusMessageCode key, Object... args) {
         markerDebug(SECURITY_MARKER, key, null, args);
     }
 
+    @Override
     public void securityInfo(DomibusMessageCode key, Object... args) {
         markerInfo(SECURITY_MARKER, key, null, args);
     }
 
+    @Override
     public void securityWarn(DomibusMessageCode key, Object... args) {
         securityWarn(key, null, args);
     }
 
+    @Override
     public void securityWarn(DomibusMessageCode key, Throwable t, Object... args) {
         markerWarn(SECURITY_MARKER, key, t, args);
     }
 
+    @Override
     public void securityError(DomibusMessageCode key, Object... args) {
         securityError(key, null, args);
     }
 
+    @Override
     public void securityError(DomibusMessageCode key, Throwable t, Object... args) {
         markerError(SECURITY_MARKER, key, t, args);
     }
@@ -138,6 +135,7 @@ public class DomibusLogger extends CategoryLogger {
         error(marker, key, args);
     }
 
+    @Override
     public Map<String, String> getCopyOfContextMap() {
         return MDC.getCopyOfContextMap();
     }
@@ -146,6 +144,7 @@ public class DomibusLogger extends CategoryLogger {
      * Sets the MDC context map with the provided one. For more info see javadoc {@link MDC#setContextMap(java.util.Map)}
      * @param newContextMap
      */
+    @Override
     public void setContextMap(Map<String, String> newContextMap) {
         MDC.setContextMap(newContextMap);
     }

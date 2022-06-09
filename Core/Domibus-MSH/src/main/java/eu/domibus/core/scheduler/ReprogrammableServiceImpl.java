@@ -3,14 +3,13 @@ package eu.domibus.core.scheduler;
 import eu.domibus.api.model.TimezoneOffset;
 import eu.domibus.api.scheduler.Reprogrammable;
 import eu.domibus.core.time.TimezoneOffsetService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
 
 /**
  *  Service that allows rescheduling and resetting of future events.
@@ -21,7 +20,7 @@ import java.util.Optional;
 @Service
 public class ReprogrammableServiceImpl implements ReprogrammableService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReprogrammableServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ReprogrammableServiceImpl.class);
 
     private final ZoneId defaultZone;
 

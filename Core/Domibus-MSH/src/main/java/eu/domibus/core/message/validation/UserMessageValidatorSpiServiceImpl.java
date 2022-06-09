@@ -9,7 +9,7 @@ import eu.domibus.api.usermessage.domain.PayloadInfo;
 import eu.domibus.api.usermessage.domain.Property;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class UserMessageValidatorSpiServiceImpl implements UserMessageValidatorSpiService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorSpiServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorSpiServiceImpl.class);
 
     protected MessageCoreMapper messageCoreMapper;
     protected UserMessageValidatorServiceDelegate userMessageValidatorServiceDelegate;

@@ -26,7 +26,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.Validate;
 import org.apache.cxf.interceptor.Fault;
@@ -191,5 +191,5 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     protected abstract SOAPMessage createSOAPMessage(final UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception;
 
-    protected abstract DomibusLogger getLog();
+    protected abstract IDomibusLogger getLog();
 }

@@ -4,7 +4,7 @@ package eu.domibus.core.message;
 import eu.domibus.ITTestsService;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,7 @@ import java.util.Map;
  */
 @Transactional
 public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentFailedMessageIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteSentFailedMessageIT.class);
 
     @Autowired
     private ITTestsService itTestsService;

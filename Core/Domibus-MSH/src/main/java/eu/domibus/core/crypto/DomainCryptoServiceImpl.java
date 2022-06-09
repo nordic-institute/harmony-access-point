@@ -16,7 +16,7 @@ import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -44,7 +44,7 @@ import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHEN
  */
 public class DomainCryptoServiceImpl implements DomainCryptoService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceImpl.class);
 
     protected static final String IAM_AUTHENTICATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 
@@ -138,7 +138,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
                     throw new WebServiceException(EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
                             .message("Sender certificate is not valid or has been revoked")
-                            .refToMessageId(LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID))
+                            .refToMessageId(LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ID))
                             .cause(e)
                             .mshRole(MSHRole.RECEIVING)
                             .build());
@@ -146,7 +146,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
                     throw new WebServiceException(EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                             .message("unknown error occurred")
-                            .refToMessageId(LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID))
+                            .refToMessageId(LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ID))
                             .cause(e)
                             .build());
             }

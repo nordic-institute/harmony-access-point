@@ -2,7 +2,7 @@ package eu.domibus.core.logging;
 
 import eu.domibus.api.cluster.Command;
 import eu.domibus.core.clustering.CommandTask;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 public class LoggingResetCommandTask implements CommandTask {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(LoggingResetCommandTask.class);
+    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(LoggingResetCommandTask.class);
 
     protected LoggingService loggingService;
 

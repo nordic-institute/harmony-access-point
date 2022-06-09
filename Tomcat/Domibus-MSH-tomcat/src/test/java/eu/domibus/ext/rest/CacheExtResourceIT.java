@@ -5,7 +5,7 @@ import eu.domibus.api.model.MpcEntity;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.core.message.dictionary.MpcDao;
 import eu.domibus.ext.services.CacheExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hamcrest.CoreMatchers;
 import org.hibernate.SessionFactory;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class CacheExtResourceIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
     public static final String NOT_FOUND = "not_found";
 
     @Rule

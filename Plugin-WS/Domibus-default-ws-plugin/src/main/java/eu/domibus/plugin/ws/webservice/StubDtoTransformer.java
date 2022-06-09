@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.webservice;
 
 
 import eu.domibus.api.util.DomibusStringUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ProcessingType;
@@ -28,7 +28,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
 @Component
 public class StubDtoTransformer implements MessageSubmissionTransformer<Messaging>, MessageRetrievalTransformer<UserMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);
 
     @Override
     public UserMessage transformFromSubmission(final Submission submission, final UserMessage target) {

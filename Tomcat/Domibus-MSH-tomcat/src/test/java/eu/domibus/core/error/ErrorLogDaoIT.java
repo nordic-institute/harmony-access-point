@@ -8,7 +8,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ import java.util.Map;
 @Transactional
 public class ErrorLogDaoIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -49,7 +49,7 @@ public class ErrorLogDaoIT extends AbstractIT {
 
         createErrorLog(MSHRole.RECEIVING, "messageId_2", ErrorCode.EBMS_0004, "error test filter", new Date());
 
-        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+        LOG.putMDC(IDomibusLogger.MDC_USER, "test_user");
     }
 
     private void createErrorLog(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail, Date timestamp) {

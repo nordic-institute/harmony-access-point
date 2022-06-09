@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.property.listeners;
 
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +17,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DISPATCHER_C
  */
 @Component
 public class WSPluginDispatcherCronExpressionChangeListener implements PluginPropertyChangeListener {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherCronExpressionChangeListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherCronExpressionChangeListener.class);
 
     protected final DomibusSchedulerExtService domibusSchedulerExt;
 

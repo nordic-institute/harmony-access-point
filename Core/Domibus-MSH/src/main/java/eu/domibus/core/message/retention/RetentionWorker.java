@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -23,7 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @DisallowConcurrentExecution
 public class RetentionWorker extends DomibusQuartzJobBean {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionWorker.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionWorker.class);
 
     @Autowired
     protected List<MessageRetentionService> messageRetentionServices;

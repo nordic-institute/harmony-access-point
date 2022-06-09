@@ -36,7 +36,7 @@ import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.*;
 import eu.domibus.plugin.ProcessingType;
@@ -69,7 +69,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JMockit.class)
 public class DatabaseMessageHandlerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandlerTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandlerTest.class);
     private static final String BACKEND = "backend";
 
     private static final String MESS_ID = UUID.randomUUID().toString();

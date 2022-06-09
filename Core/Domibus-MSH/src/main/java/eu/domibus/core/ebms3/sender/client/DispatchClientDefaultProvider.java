@@ -6,7 +6,7 @@ import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyCxfUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.Bus;
@@ -43,7 +43,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @DependsOn(Bus.DEFAULT_BUS_ID)
 public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DispatchClientDefaultProvider.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DispatchClientDefaultProvider.class);
 
     public static final String MESSAGING_KEY_CONTEXT_PROPERTY = "MESSAGING_KEY_CONTEXT_PROPERTY";
 

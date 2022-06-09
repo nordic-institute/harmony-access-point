@@ -5,7 +5,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +23,7 @@ import java.util.List;
 @Service(SuperUserManagementServiceImpl.BEAN_NAME)
 public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SuperUserManagementServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SuperUserManagementServiceImpl.class);
 
     public static final String BEAN_NAME = "superUserManagementService";
 

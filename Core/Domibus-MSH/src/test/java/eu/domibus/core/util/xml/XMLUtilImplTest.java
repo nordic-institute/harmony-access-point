@@ -5,7 +5,7 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;
 import mockit.Tested;
@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class XMLUtilImplTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImplTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImplTest.class);
 
     @Tested
     XMLUtilImpl xmlUtil;

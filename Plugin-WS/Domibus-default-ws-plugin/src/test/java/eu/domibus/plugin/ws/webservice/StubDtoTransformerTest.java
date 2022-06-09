@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
@@ -17,7 +17,7 @@ import java.util.Collection;
 
 
 public class StubDtoTransformerTest {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformerTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformerTest.class);
 
     private static final String MIME_TYPE = "MimeType";
     private static final String DEFAULT_MT = "text/xml";

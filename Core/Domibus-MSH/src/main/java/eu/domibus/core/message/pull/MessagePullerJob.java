@@ -6,7 +6,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DisallowConcurrentExecution //Only one SenderWorker runs at any time
 public class MessagePullerJob extends DomibusQuartzJobBean {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagePullerJob.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagePullerJob.class);
 
     @Autowired
     private MessageExchangeService messageExchangeService;

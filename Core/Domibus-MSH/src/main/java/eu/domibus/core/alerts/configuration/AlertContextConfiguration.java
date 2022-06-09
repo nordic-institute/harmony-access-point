@@ -5,7 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import freemarker.cache.ClassTemplateLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,7 +32,7 @@ import static org.springframework.jms.support.converter.MessageType.TEXT;
 @Configuration
 public class AlertContextConfiguration {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(AlertContextConfiguration.class);
+    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(AlertContextConfiguration.class);
 
     @Bean("jackson2MessageConverter")
     public MappingJackson2MessageConverter jackson2MessageConverter() {

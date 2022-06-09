@@ -7,7 +7,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -36,7 +36,7 @@ import static org.apache.cxf.helpers.IOUtils.copy;
 @Service
 public class SoapServiceImpl implements SoapService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapServiceImpl.class);
 
     @Autowired
     protected MessageUtil messageUtil;

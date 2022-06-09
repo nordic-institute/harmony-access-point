@@ -4,7 +4,7 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.JMSExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
@@ -34,7 +34,7 @@ import static java.lang.String.join;
 @Service
 public class WSPluginBackendScheduleRetryService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendScheduleRetryService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendScheduleRetryService.class);
 
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
 

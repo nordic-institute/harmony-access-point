@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -33,7 +33,7 @@ import static eu.domibus.core.property.DomibusPropertyConfiguration.MULTITENANT_
 @Component
 public class DomainDaoImpl implements DomainDao {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainDaoImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainDaoImpl.class);
 
     protected static final String DOMAIN_NAME_REGEX = "^[a-z0-9_]*$";
 

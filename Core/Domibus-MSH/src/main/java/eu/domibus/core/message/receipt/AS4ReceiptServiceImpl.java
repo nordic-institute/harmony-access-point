@@ -28,7 +28,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -57,7 +57,7 @@ import java.util.Iterator;
 @Service
 public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AS4ReceiptServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AS4ReceiptServiceImpl.class);
 
     private static final String XSLT_GENERATE_AS4_RECEIPT_XSL = "xslt/GenerateAS4Receipt.xsl";
 

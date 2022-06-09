@@ -13,7 +13,7 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -38,7 +38,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service
 public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceImpl.class);
 
     public static final String DOMIBUS_TRUSTSTORE_NAME = "domibus.truststore";
     public static final String DOMIBUS_KEYSTORE_NAME = "domibus.keystore";

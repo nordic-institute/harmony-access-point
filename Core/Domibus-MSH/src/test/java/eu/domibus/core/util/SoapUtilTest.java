@@ -5,7 +5,7 @@ import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -37,7 +37,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @RunWith(JMockit.class)
 public class SoapUtilTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtilTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtilTest.class);
 
     @Tested
     SoapUtil soapUtil;

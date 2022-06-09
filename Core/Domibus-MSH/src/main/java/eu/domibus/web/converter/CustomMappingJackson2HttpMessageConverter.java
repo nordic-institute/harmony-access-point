@@ -1,7 +1,7 @@
 package eu.domibus.web.converter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -22,7 +22,7 @@ import static eu.domibus.core.security.configuration.AbstractWebSecurityConfigur
  */
 public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomMappingJackson2HttpMessageConverter.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomMappingJackson2HttpMessageConverter.class);
 
     protected static final List<String> EXTERNAL_API_URLS = Arrays.asList(DOMIBUS_EXTERNAL_API_PREFIX, PLUGIN_API_PREFIX);
 

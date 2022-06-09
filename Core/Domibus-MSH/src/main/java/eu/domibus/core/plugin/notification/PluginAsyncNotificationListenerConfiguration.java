@@ -2,7 +2,7 @@ package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +19,7 @@ import org.springframework.jms.config.JmsListenerContainerFactory;
 @Configuration
 public class PluginAsyncNotificationListenerConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationListenerConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationListenerConfiguration.class);
 
     protected JmsListenerContainerFactory jmsListenerContainerFactory;
     protected AuthUtils authUtils;

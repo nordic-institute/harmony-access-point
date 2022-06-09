@@ -5,7 +5,7 @@ import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.exceptions.UserMessageExtException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMessageValidatorServiceInterceptor extends ServiceInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorServiceInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageValidatorServiceInterceptor.class);
 
     @Around(value = "execution(public * eu.domibus.ext.delegate.services.message.UserMessageValidatorServiceDelegateImpl.*(..))")
     @Override
@@ -36,7 +36,7 @@ public class UserMessageValidatorServiceInterceptor extends ServiceInterceptor {
     }
 
     @Override
-    public DomibusLogger getLogger() {
+    public IDomibusLogger getLogger() {
         return LOG;
     }
 }

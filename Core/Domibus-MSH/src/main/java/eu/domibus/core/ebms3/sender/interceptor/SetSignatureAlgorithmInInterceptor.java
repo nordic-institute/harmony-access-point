@@ -2,7 +2,7 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service("setSignatureAlgorithmInInterceptor")
 public class SetSignatureAlgorithmInInterceptor extends AbstractSoapInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetSignatureAlgorithmInInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetSignatureAlgorithmInInterceptor.class);
 
     public SetSignatureAlgorithmInInterceptor() {
         super(Phase.RECEIVE);

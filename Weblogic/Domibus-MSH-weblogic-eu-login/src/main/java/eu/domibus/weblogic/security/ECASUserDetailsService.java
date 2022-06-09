@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.DomibusUserDetails;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 @Service
 public class ECASUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>, UserDetailsService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ECASUserDetailsService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ECASUserDetailsService.class);
 
     private static final String WEBLOGIC_SECURITY_CLASS = "weblogic.security.Security";
 

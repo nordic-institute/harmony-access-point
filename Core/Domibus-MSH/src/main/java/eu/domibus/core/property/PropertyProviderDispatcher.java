@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PropertyProviderDispatcher {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProviderDispatcher.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProviderDispatcher.class);
 
     private static final String CACHE_KEY_EXPRESSION = "#root.target.getCacheKeyValue(#domain, #propertyName)";
 

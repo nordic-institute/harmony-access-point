@@ -30,7 +30,7 @@ import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.europa.ec.dynamicdiscovery.model.Endpoint;
@@ -67,7 +67,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicDiscoveryPModeProviderTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderTest.class);
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
     private static final String DYNRESPONDER_AND_PARTYSELF = "dynResponderAndPartySelf.xml";

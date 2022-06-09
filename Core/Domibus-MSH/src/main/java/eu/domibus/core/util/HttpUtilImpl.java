@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.HttpUtil;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +38,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class HttpUtilImpl implements HttpUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpUtilImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpUtilImpl.class);
 
     public static final String DEFAULT_SSL_PROTOCOL = "TLSv1.2";
 

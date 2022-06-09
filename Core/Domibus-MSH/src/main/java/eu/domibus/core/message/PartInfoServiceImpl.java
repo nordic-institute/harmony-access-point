@@ -16,7 +16,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -49,7 +49,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service //("PartInfoService")
 public class PartInfoServiceImpl implements PartInfoService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfoServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartInfoServiceImpl.class);
 
     public static final String PROPERTY_PAYLOADS_SCHEDULE_THRESHOLD = DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD;
 
@@ -104,7 +104,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void clearPayloadData(long entityId) {
         LOG.debug("Start clearing payloadData");
 

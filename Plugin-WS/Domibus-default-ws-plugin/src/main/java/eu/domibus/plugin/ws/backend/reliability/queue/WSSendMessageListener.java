@@ -4,7 +4,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
@@ -34,7 +34,7 @@ public class WSSendMessageListener implements MessageListener {
 
     public static final String WS_SEND_MESSAGE_LISTENER = "wsSendMessageListener";
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSSendMessageListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSSendMessageListener.class);
 
     public static final String ID = "ID";
 
@@ -58,7 +58,7 @@ public class WSSendMessageListener implements MessageListener {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(Message message) {
         authUtils.runWithSecurityContext(()-> doOnMessage(message),
                 "wsplugin_backend_notif", "wsplugin_backend_notif", AuthRole.ROLE_ADMIN);
@@ -110,7 +110,7 @@ public class WSSendMessageListener implements MessageListener {
             LOG.info("messageId: [{}]", messageId);
             return;
         }
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
     }
 
 }

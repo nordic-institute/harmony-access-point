@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.backend.dispatch;
 
 import eu.domibus.ext.services.ProxyCxfUtilExtService;
 import eu.domibus.ext.services.TLSReaderExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -31,7 +31,7 @@ import static java.lang.Integer.parseInt;
 @Service
 public class WSPluginDispatchClientProvider {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchClientProvider.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchClientProvider.class);
 
     public static final String NAMESPACE_DOMIBUS = "eu.domibus";
     public static final QName SERVICE_NAME = new QName(NAMESPACE_DOMIBUS, "wsplugin-dispatch-service");

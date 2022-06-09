@@ -4,7 +4,7 @@ import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.CacheExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.CacheExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/ext")
 @Tag(name = "cache", description = "Domibus Cache management services API")
 public class CacheExtResource {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CacheExtResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CacheExtResource.class);
 
     private final CacheExtService cacheExtService;
 

@@ -2,7 +2,7 @@ package eu.domibus.core.payload.temp;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -28,7 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service
 public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TemporaryPayloadServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TemporaryPayloadServiceImpl.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

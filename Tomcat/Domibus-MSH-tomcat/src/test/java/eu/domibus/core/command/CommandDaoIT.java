@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.clustering.CommandDao;
 import eu.domibus.core.clustering.CommandEntity;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +27,7 @@ import static junit.framework.TestCase.assertNotNull;
  */
 public class CommandDaoIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandDaoIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandDaoIT.class);
 
     @Autowired
     private CommandDao commandDao;
@@ -37,7 +37,7 @@ public class CommandDaoIT extends AbstractIT {
 
     @Before
     public void setup() {
-        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+        LOG.putMDC(IDomibusLogger.MDC_USER, "test_user");
     }
 
     @Test

@@ -9,7 +9,7 @@ import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 @Service
 public class FSSendMessagesService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSSendMessagesService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSSendMessagesService.class);
 
     public static final String METADATA_FILE_NAME = "metadata.xml";
     public static final String DEFAULT_DOMAIN = "default";
@@ -106,10 +106,10 @@ public class FSSendMessagesService {
         clearObservedFiles(domain);
     }
 
-    @MDCKey(value = DomibusLogger.MDC_DOMAIN, cleanOnStart = true)
+    @MDCKey(value = IDomibusLogger.MDC_DOMAIN, cleanOnStart = true)
     protected void sendMessagesSafely(String domain) {
         if (StringUtils.isNotEmpty(domain)) {
-            LOG.putMDC(DomibusLogger.MDC_DOMAIN, domain);
+            LOG.putMDC(IDomibusLogger.MDC_DOMAIN, domain);
         }
         try {
             sendMessages(domain);
@@ -157,7 +157,7 @@ public class FSSendMessagesService {
     }
 
     protected void clearDomainContext() {
-        LOG.removeMDC(DomibusLogger.MDC_USER);
+        LOG.removeMDC(IDomibusLogger.MDC_USER);
         domainContextExtService.clearCurrentDomain();
     }
 

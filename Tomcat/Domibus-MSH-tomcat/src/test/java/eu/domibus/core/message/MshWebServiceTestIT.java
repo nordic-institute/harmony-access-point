@@ -17,7 +17,7 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 
 public class MshWebServiceTestIT extends AbstractIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MshWebServiceTestIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MshWebServiceTestIT.class);
 
     @Configuration
     static class ContextConfiguration {

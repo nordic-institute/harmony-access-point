@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.backend.reliability.queue;
 
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
 import org.springframework.beans.factory.ObjectProvider;
@@ -23,7 +23,7 @@ import static eu.domibus.plugin.ws.backend.reliability.queue.WSMessageListenerCo
 @Service
 public class WSSendMessageListenerContainer implements PluginMessageListenerContainer {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSSendMessageListenerContainer.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSSendMessageListenerContainer.class);
 
     protected ObjectProvider<DefaultMessageListenerContainer> wsPluginOutContainerProvider;
 

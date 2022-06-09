@@ -25,7 +25,6 @@ import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
@@ -33,7 +32,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -73,7 +72,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Service
 public class DatabaseMessageHandler implements MessageSubmitter, MessageRetriever, MessagePuller {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandler.class);
     private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
@@ -253,7 +252,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     //TODO refactor this method in order to reuse existing code from the method submit
     @Transactional
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
         if (userMessage == null) {
             LOG.warn(USER_MESSAGE_IS_NULL);
@@ -265,7 +264,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (StringUtils.isEmpty(messageId)) {
             throw new MessagingProcessingException("Message fragment id is empty");
         }
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
         LOG.debug("Preparing to submit message fragment");
 
         try {
@@ -332,12 +331,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
     @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(submission.getMessageId())) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
+            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
             LOG.debug("Add message ID to LOG MDC [{}]", submission.getMessageId());
         }
         LOG.debug("Preparing to submit message");
@@ -365,7 +364,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             populateMessageIdIfNotPresent(userMessage);
             messageId = userMessage.getMessageId();
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
 
             userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 

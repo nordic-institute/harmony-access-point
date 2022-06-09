@@ -8,7 +8,7 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNull;
 public class UserMessageLogDaoIT extends AbstractIT {
     public static final String TIMEZONE_ID_AMERICA_LOS_ANGELES = "America/Los_Angeles";
     public static final String MPC = "UserMessageLogDaoITMpc";
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
 
     private final static String NUMBER_FORMAT_DEFAULT = "%010d";
 
@@ -109,7 +109,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .plusDays(1)
                 .format(ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH)) + String.format(NUMBER_FORMAT_DEFAULT, 0));
 
-        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+        LOG.putMDC(IDomibusLogger.MDC_USER, "test_user");
     }
 
     @BeforeClass

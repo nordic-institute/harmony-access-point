@@ -5,7 +5,7 @@ import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +27,7 @@ import java.util.List;
 @Component(value = "securityCustomAuthenticationProvider")
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomAuthenticationProvider.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomAuthenticationProvider.class);
 
     @Autowired
     @Qualifier("securityAuthenticationDAO")

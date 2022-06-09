@@ -1,7 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.util.FileServiceUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FileServiceUtilImpl implements FileServiceUtil {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileServiceUtilImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FileServiceUtilImpl.class);
 
     /**
      * {@inheritDoc}

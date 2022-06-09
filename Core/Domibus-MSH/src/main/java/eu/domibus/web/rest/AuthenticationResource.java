@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.WarningUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -45,7 +45,7 @@ import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_
 @Validated
 public class AuthenticationResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationResource.class);
 
     public static final String CSRF_COOKIE_NAME = "XSRF-TOKEN";
 

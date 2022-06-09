@@ -4,10 +4,8 @@ import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.dss.listeners.CertificateVerifierListener;
 import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
 import eu.domibus.core.crypto.spi.dss.listeners.TriggerChangeListener;
-import eu.domibus.core.crypto.spi.dss.listeners.encryption.DssPropertyEncryptionListener;
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.alert.ExceptionOnStatusAlert;
 import eu.europa.esig.dss.service.crl.OnlineCRLSource;
@@ -37,7 +35,6 @@ import eu.europa.esig.dss.tsl.source.TLSource;
 import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.springframework.beans.factory.ObjectProvider;
@@ -82,7 +79,7 @@ import static java.util.Arrays.asList;
 @PropertySource(ignoreResourceNotFound = true, value = "file:${domibus.config.location}/" + EXTENSIONS_CONFIG_HOME + "/" + DSS_EXTENSION_PROPERTIES)
 public class DssConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DssConfiguration.class);
 
     private static final String DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
 

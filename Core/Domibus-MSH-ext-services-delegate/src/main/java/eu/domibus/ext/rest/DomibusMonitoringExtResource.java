@@ -5,7 +5,7 @@ import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,7 +27,7 @@ import java.util.List;
 @RequestMapping(value = "/ext/monitoring/application")
 @Tag(name = "status", description = "Domibus monitoring service API")
 public class DomibusMonitoringExtResource {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringExtResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringExtResource.class);
 
     @Autowired
     DomibusMonitoringExtService domibusMonitoringExtService;

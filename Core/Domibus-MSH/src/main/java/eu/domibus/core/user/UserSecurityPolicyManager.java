@@ -10,7 +10,7 @@ import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.UserAlertsService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +40,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 @Service
 public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserSecurityPolicyManager.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserSecurityPolicyManager.class);
 
     private static final String CREDENTIALS_EXPIRED = "Expired";
 

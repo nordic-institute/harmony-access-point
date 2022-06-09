@@ -1,7 +1,7 @@
 package eu.domibus.test.common;
 
 import eu.domibus.common.JPAConstants;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ import java.util.Map;
 @Component
 public class MessageDBUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageDBUtil.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageDBUtil.class);
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;

@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Cosmin Baciu
  * @since 3.3
  */
-public class CategoryLogger extends LoggerWrapper implements Logger {
+public class CategoryLogger extends LoggerWrapper implements Logger, MDCAccessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CategoryLogger.class);
 
@@ -146,18 +146,21 @@ public class CategoryLogger extends LoggerWrapper implements Logger {
         return messageConverter.getMessage(marker, key, args);
     }
 
+    @Override
     public void putMDC(String key, String val) {
         final String mdcKey = getMDCKey(key);
         MDC.put(mdcKey, val);
         LOG.trace("Added key [{}] with value [{}] to MDC", mdcKey, val);
     }
 
+    @Override
     public void removeMDC(String key) {
         final String mdcKey = getMDCKey(key);
         MDC.remove(mdcKey);
         LOG.trace("Removed key [{}] from MDC", mdcKey);
     }
 
+    @Override
     public String getMDC(String key) {
         final String mdcKey = getMDCKey(key);
         String val = MDC.get(mdcKey);
@@ -165,6 +168,7 @@ public class CategoryLogger extends LoggerWrapper implements Logger {
         return val;
     }
 
+    @Override
     public String getMDCKey(String key) {
         String keyValue = key;
         if (StringUtils.isNotEmpty(mdcPropertyPrefix)) {
@@ -173,6 +177,7 @@ public class CategoryLogger extends LoggerWrapper implements Logger {
         return keyValue;
     }
 
+    @Override
     public void clearCustomKeys() {
         if (mdcPropertyPrefix == null) {
             LOG.trace("No custom keys defined: mdcPropertyPrefix is empty");
@@ -193,6 +198,7 @@ public class CategoryLogger extends LoggerWrapper implements Logger {
         }
     }
 
+    @Override
     public void clearAll() {
         MDC.clear();
         LOG.trace("Cleared MDC");

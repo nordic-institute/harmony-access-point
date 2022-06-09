@@ -3,7 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -26,7 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class PropertyProviderHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProviderHelper.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProviderHelper.class);
 
     private volatile Boolean isMultiTenantAware;
 
@@ -86,7 +86,7 @@ public class PropertyProviderHelper {
             return DomainService.DEFAULT_DOMAIN.getCode();
         }
 
-        String domainCode = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
+        String domainCode = LOG.getMDC(IDomibusLogger.MDC_DOMAIN);
         LOG.trace("Multi-tenancy aware: returning the domain [{}]", domainCode);
 
         return domainCode;

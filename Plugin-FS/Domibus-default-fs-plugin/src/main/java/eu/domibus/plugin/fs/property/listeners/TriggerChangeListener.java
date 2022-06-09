@@ -1,7 +1,7 @@
 package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
@@ -24,7 +24,7 @@ import static java.util.stream.Stream.of;
  */
 @Component
 public class TriggerChangeListener implements PluginPropertyChangeListener {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
 
     @Autowired
     protected DomibusSchedulerExtService domibusSchedulerExt;

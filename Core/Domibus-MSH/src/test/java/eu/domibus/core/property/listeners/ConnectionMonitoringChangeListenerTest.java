@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -29,7 +29,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @RunWith(Parameterized.class)
 public class ConnectionMonitoringChangeListenerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListenerTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListenerTest.class);
 
     @Injectable
     protected PModeProvider pModeProvider;

@@ -4,7 +4,7 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.dictionary.*;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,7 +20,7 @@ import java.util.*;
 @org.springframework.stereotype.Service
 public class SubmissionAS4Transformer {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmissionAS4Transformer.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmissionAS4Transformer.class);
 
     @Autowired
     private MessageIdGenerator messageIdGenerator;

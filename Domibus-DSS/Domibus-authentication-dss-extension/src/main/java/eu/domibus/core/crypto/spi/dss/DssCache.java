@@ -1,6 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.cache.Cache;
 
@@ -12,7 +12,7 @@ import org.springframework.cache.Cache;
  */
 public class DssCache {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssCache.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DssCache.class);
 
     private org.springframework.cache.Cache cache;
 

@@ -18,7 +18,7 @@ import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
@@ -50,7 +50,7 @@ import java.util.Objects;
 @Validated
 public class UserResource extends BaseResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
 
     @Autowired
     @Lazy

@@ -1,6 +1,6 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
@@ -19,7 +19,7 @@ public abstract class AbstractDynamicDiscoveryService {
      *
      * @return Domibus logger.
      */
-    protected abstract DomibusLogger getLogger();
+    protected abstract IDomibusLogger getLogger();
 
     /**
      * Return trimmed domibus property value

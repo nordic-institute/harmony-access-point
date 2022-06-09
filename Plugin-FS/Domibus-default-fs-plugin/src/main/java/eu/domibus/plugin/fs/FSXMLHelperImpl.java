@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
@@ -23,7 +23,7 @@ import java.io.OutputStream;
  */
 public class FSXMLHelperImpl implements FSXMLHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSXMLHelperImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSXMLHelperImpl.class);
 
     private static final String XSD_FILES_LOCATION = "xsd";
     private static final String DEFAULT_SCHEMA = "fs-plugin.xsd";

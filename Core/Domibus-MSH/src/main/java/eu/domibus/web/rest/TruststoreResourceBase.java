@@ -9,7 +9,7 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
@@ -33,7 +33,7 @@ import java.util.List;
  * @since 5.0
  */
 public abstract class TruststoreResourceBase extends BaseResource {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResourceBase.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResourceBase.class);
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 

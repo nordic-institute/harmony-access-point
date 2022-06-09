@@ -2,7 +2,7 @@ package eu.domibus.core.exception;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.util.AOPUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 /**
@@ -39,5 +39,5 @@ public abstract class CoreServiceExceptionInterceptor {
 
     public abstract Exception convertCoreException(Exception e);
 
-    public abstract DomibusLogger getLogger();
+    public abstract IDomibusLogger getLogger();
 }

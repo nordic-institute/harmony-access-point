@@ -14,7 +14,7 @@ import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +42,7 @@ import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
 @Service
 public class EArchivingFileService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingFileService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingFileService.class);
 
     public static final String SOAP_ENVELOPE_XML = "soap.envelope.xml";
 

@@ -1,13 +1,12 @@
 package eu.domibus.core.jpa;
 
 import eu.domibus.api.datasource.DataSourceConstants;
-import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.cache.DomibusCacheConfiguration;
 import eu.domibus.core.property.PrefixedProperties;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.MultiTenancyStrategy;
@@ -20,7 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -30,7 +28,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN;
@@ -42,7 +39,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Configuration
 public class DomibusJPAConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
 
     public static final String JPA_PROPERTIES = "jpaProperties";
     public static final String JPA_PROPERTY_TIMEZONE_UTC = "UTC";

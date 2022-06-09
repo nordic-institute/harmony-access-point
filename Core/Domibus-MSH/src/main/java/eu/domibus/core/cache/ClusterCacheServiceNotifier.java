@@ -1,7 +1,7 @@
 package eu.domibus.core.cache;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClusterCacheServiceNotifier implements DomibusCacheServiceNotifier {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ClusterCacheServiceNotifier.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ClusterCacheServiceNotifier.class);
 
     protected SignalService signalService;
 

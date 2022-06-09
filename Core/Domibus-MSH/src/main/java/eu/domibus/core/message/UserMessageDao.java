@@ -6,7 +6,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
@@ -29,7 +29,7 @@ import java.util.Set;
 @Repository
 public class UserMessageDao extends BasicDao<UserMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDao.class);
 
     private static final String GROUP_ID = "GROUP_ID";
 

@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,7 +21,7 @@ import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 @Configuration
 public class FSWorkersConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSWorkersConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSWorkersConfiguration.class);
 
     protected final DomainContextExtService domainContextExtService;
 

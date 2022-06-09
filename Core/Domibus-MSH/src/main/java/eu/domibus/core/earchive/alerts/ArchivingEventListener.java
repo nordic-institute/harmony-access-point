@@ -5,7 +5,7 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class ArchivingEventListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ArchivingEventListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ArchivingEventListener.class);
 
     private final EventService eventService;
 

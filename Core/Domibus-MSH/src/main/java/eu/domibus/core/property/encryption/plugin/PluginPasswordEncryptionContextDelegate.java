@@ -1,7 +1,7 @@
 package eu.domibus.core.property.encryption.plugin;
 
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class PluginPasswordEncryptionContextDelegate implements PasswordEncryptionContext {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPasswordEncryptionContextDelegate.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPasswordEncryptionContextDelegate.class);
 
     protected PluginPasswordEncryptionContext pluginPasswordEncryptionContext;
     protected PasswordEncryptionContext domibusEncryptionContext;

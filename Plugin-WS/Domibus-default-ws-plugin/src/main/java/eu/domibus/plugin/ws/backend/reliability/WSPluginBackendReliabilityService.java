@@ -4,7 +4,7 @@ import eu.domibus.ext.domain.AlertEventDTOBuilder;
 import eu.domibus.ext.domain.AlertLevelDTO;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.PluginEventExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
@@ -33,7 +33,7 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_MINUTE;
 @Service
 public class WSPluginBackendReliabilityService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendReliabilityService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendReliabilityService.class);
 
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
 

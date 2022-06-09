@@ -12,7 +12,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
@@ -43,7 +43,7 @@ public class MSHDispatcher {
     public static final String HEADER_DOMIBUS_MESSAGE_ID = "DOMIBUS-MESSAGE_ID";
     public static final String HEADER_DOMIBUS_SPLITTING_COMPRESSION = "DOMIBUS-SPLITTING-COMPRESSION";
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHDispatcher.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHDispatcher.class);
 
     @Autowired
     private DispatchClientProvider dispatchClientProvider;

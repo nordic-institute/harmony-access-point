@@ -7,7 +7,7 @@ import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -55,7 +55,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     private final ReprogrammableService reprogrammableService;
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
     public UserMessageLogDao(DateUtil dateUtil,
                              UserMessageLogInfoFilter userMessageLogInfoFilter,
@@ -465,7 +465,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLogInfoFilter;
     }
 
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
         MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(messageStatus);
         messageLog.setMessageStatus(messageStatusEntity);

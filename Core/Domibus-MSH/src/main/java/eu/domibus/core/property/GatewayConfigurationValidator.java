@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.util.WarningUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -26,7 +26,7 @@ import static eu.domibus.api.property.DomibusPropertyProvider.DOMIBUS_PROPERTY_F
 @Component
 public class GatewayConfigurationValidator implements DomainsAware {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GatewayConfigurationValidator.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(GatewayConfigurationValidator.class);
 
     private static final String BLUE_GW_ALIAS = "blue_gw";
     private static final String DOMIBUS_PROPERTIES_SHA256 = "domibus.properties.sha256";

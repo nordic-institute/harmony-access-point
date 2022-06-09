@@ -1,6 +1,6 @@
 package eu.domibus.web.security;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
@@ -20,7 +20,7 @@ import java.util.Arrays;
  */
 public class DomibusCookieClearingLogoutHandler implements LogoutHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCookieClearingLogoutHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCookieClearingLogoutHandler.class);
 
     private final CookieClearingLogoutHandler defaultHandler;
 

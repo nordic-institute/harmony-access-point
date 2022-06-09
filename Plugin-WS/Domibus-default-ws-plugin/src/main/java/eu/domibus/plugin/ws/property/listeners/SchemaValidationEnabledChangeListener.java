@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.property.listeners;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +20,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.SCHEMA_VALID
 @Service
 public class SchemaValidationEnabledChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaValidationEnabledChangeListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaValidationEnabledChangeListener.class);
 
     private final Endpoint backendInterfaceEndpoint;
     private final Endpoint backendInterfaceEndpointDeprecated;

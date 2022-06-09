@@ -1,7 +1,7 @@
 package eu.domibus.core.encryption;
 
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.support.DataAccessUtils;
@@ -17,7 +17,7 @@ import javax.persistence.TypedQuery;
 @Repository
 public class EncryptionKeyDao extends BasicDao<EncryptionKeyEntity> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionKeyDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionKeyDao.class);
 
     public EncryptionKeyDao() {
         super(EncryptionKeyEntity.class);

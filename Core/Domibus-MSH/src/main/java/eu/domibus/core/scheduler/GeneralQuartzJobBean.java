@@ -3,7 +3,7 @@ package eu.domibus.core.scheduler;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -16,7 +16,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
  */
 public abstract class GeneralQuartzJobBean extends QuartzJobBean {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GeneralQuartzJobBean.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(GeneralQuartzJobBean.class);
 
     @Autowired
     protected DomainService domainService;
@@ -32,7 +32,7 @@ public abstract class GeneralQuartzJobBean extends QuartzJobBean {
         try {
             LOG.clearCustomKeys();
             domainContextProvider.clearCurrentDomain();
-            LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+            LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
             executeJob(context);
         } finally {
             domainContextProvider.clearCurrentDomain();

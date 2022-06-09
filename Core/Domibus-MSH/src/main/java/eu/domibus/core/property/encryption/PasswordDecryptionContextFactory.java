@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.encryption.PasswordDecryptionContext;
 import eu.domibus.core.property.PropertyRetrieveManager;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PasswordDecryptionContextFactory {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionContextFactory.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionContextFactory.class);
 
     private final DomibusConfigurationService domibusConfigurationService;
 

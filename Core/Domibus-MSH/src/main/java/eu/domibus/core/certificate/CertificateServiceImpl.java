@@ -29,7 +29,7 @@ import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
@@ -86,7 +86,7 @@ import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED
 @Service
 public class CertificateServiceImpl implements CertificateService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateServiceImpl.class);
 
     public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
     private static final DateTimeFormatter BACKUP_SUFFIX_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");

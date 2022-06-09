@@ -3,7 +3,7 @@ package eu.domibus.test;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +20,7 @@ public class PModeUtil {
 
     protected static final int SERVICE_PORT = 8892;
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeUtil.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeUtil.class);
 
     @Autowired
     protected PModeProvider pModeProvider;

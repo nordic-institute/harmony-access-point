@@ -8,7 +8,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import javax.xml.soap.SOAPMessage;
 @Service
 public class IncomingSignalErrorHandler implements IncomingMessageHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingSignalErrorHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingSignalErrorHandler.class);
 
     @Autowired
     protected UserMessageDao userMessageDao;

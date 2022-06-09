@@ -12,7 +12,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import java.util.List;
 @Service
 public class PModeDefaultService implements PModeService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeDefaultService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeDefaultService.class);
 
     @Autowired
     UserMessageDao userMessageDao;

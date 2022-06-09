@@ -4,7 +4,7 @@ package eu.domibus.core.ebms3.receiver.interceptor;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.core.certificate.CertificateExchangeType;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -23,7 +23,7 @@ import javax.xml.soap.SOAPMessage;
 @Service
 public class PropertyValueExchangeInterceptor extends AbstractSoapInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyValueExchangeInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyValueExchangeInterceptor.class);
 
     public PropertyValueExchangeInterceptor() {
         super(Phase.PRE_INVOKE);

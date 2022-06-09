@@ -6,7 +6,7 @@ import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,7 +23,7 @@ import java.util.List;
  */
 @Service
 public class MessageConverterDefaultService implements MessageConverterService {
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageConverterDefaultService.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageConverterDefaultService.class);
 
     @Autowired
     @Qualifier("jaxbContextEBMS")

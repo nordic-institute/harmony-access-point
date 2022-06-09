@@ -11,7 +11,7 @@ import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DomibusContextRefreshedListener {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
 
     public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 

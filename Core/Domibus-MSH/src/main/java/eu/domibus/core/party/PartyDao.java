@@ -4,7 +4,7 @@ package eu.domibus.core.party;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Repository
 public class PartyDao extends BasicDao<Party> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyDao.class);
 
     public PartyDao() {
         super(Party.class);

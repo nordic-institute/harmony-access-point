@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscovery;
 import eu.europa.ec.dynamicdiscovery.DynamicDiscoveryBuilder;
@@ -55,7 +55,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
 @Qualifier("dynamicDiscoveryServiceOASIS")
 public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^(?<scheme>.+?)::(?<value>.+)$");
 
@@ -135,7 +135,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
 
     @Override
-    protected DomibusLogger getLogger() {
+    protected IDomibusLogger getLogger() {
         return LOG;
     }
 

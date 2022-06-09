@@ -7,7 +7,7 @@ import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.ClientInMessageLegConfigurationFactory;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 @Service("setPolicyInInterceptorClient")
 public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInClientInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInClientInterceptor.class);
 
     protected PModeProvider pModeProvider;
     protected ClientInMessageLegConfigurationFactory clientInMessageLegConfigurationFactory;
@@ -56,7 +56,7 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
 
     protected void throwFault(SoapMessage message, ErrorCode.EbMS3ErrorCode ebMS3ErrorCode, String errorMessage) {
         setBindingOperation(message);
-        String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
+        String messageId = LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ID);
 
         throw new Fault(EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ebMS3ErrorCode)

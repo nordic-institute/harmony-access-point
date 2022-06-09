@@ -5,8 +5,6 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.core.ebms3.sender.interceptor.SoapInterceptorTest;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;

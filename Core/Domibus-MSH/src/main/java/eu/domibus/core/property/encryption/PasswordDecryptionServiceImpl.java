@@ -5,7 +5,7 @@ import eu.domibus.api.property.encryption.PasswordDecryptionContext;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +27,7 @@ import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.
 @Service
 public class PasswordDecryptionServiceImpl implements PasswordDecryptionService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionServiceImpl.class);
 
     private final PasswordEncryptionDao passwordEncryptionDao;
 

@@ -6,7 +6,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -21,7 +21,7 @@ import java.security.KeyStore;
 @DisallowConcurrentExecution
 public class SaveCertificateAndLogRevocationJob extends DomibusQuartzJobBean {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveCertificateAndLogRevocationJob.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveCertificateAndLogRevocationJob.class);
 
     @Autowired
     private CertificateService certificateService;

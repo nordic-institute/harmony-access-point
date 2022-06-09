@@ -1,7 +1,7 @@
 package eu.domibus.core.earchive.storage;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EArchiveFileStorageFactoryImpl implements EArchiveFileStorageFactory {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorageFactoryImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveFileStorageFactoryImpl.class);
 
     @Autowired
     protected ApplicationContext applicationContext;

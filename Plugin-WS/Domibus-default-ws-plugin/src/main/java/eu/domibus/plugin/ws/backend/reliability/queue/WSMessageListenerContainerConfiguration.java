@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.backend.reliability.queue;
 
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
@@ -32,7 +32,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DISPATCHER_S
 @Configuration
 public class WSMessageListenerContainerConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSMessageListenerContainerConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSMessageListenerContainerConfiguration.class);
     public static final String WS_PLUGIN_SEND_QUEUE = "wsPluginSendQueue";
     public static final String WS_PLUGIN_OUT_CONTAINER = "wsPluginOutContainer";
 

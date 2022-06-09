@@ -2,7 +2,7 @@ package eu.domibus.core.spring;
 
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.security.configuration.SecurityInternalAuthProviderCondition;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Conditional(SecurityInternalAuthProviderCondition.class)
 public class DomibusSessionConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSessionConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSessionConfiguration.class);
 
     public static final String SESSION_COOKIE_NAME = "JSESSIONID";
 

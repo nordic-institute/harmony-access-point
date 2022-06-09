@@ -31,7 +31,7 @@ public class DefaultMessageConverterTest {
                 return "test message {}";
             }
         };
-        final String message = defaultMessageConverter.getMessage(DomibusLogger.BUSINESS_MARKER, testMessageCode, "param1");
+        final String message = defaultMessageConverter.getMessage(IDomibusLogger.BUSINESS_MARKER, testMessageCode, "param1");
         assertEquals("[BUSINESS - myTestCode] test message param1", message);
     }
 

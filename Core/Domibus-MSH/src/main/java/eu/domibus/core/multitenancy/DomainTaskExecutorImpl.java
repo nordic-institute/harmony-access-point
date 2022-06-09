@@ -3,7 +3,7 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +19,7 @@ import java.util.concurrent.*;
 @Service
 public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorImpl.class);
     public static final long DEFAULT_WAIT_TIMEOUT_IN_SECONDS = 60L;
 
     @Autowired

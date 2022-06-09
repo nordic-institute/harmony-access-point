@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.clustering.CommandTask;
 import eu.domibus.api.pki.MultiDomainCryptoService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 public class ReloadTruststoreCommandTask implements CommandTask {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ReloadTruststoreCommandTask.class);
+    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ReloadTruststoreCommandTask.class);
 
     protected MultiDomainCryptoService multiDomainCryptoService;
     protected DomainContextProvider domainContextProvider;

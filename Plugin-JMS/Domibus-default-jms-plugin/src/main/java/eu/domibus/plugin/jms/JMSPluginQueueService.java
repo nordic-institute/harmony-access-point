@@ -5,10 +5,8 @@ import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +19,7 @@ import java.util.List;
  */
 public class JMSPluginQueueService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginQueueService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginQueueService.class);
 
     protected DomibusPropertyExtService domibusPropertyExtService;
 

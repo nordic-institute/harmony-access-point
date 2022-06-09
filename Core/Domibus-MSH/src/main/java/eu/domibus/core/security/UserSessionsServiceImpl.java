@@ -6,7 +6,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.user.UserBase;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserSessionsServiceImpl implements UserSessionsService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserSessionsServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserSessionsServiceImpl.class);
 
     SessionRegistry sessionRegistry;
 

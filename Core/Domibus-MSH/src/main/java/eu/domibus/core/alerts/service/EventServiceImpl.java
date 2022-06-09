@@ -19,7 +19,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.ALERT_MESSAGE_QUEUE;
 @Service
 public class EventServiceImpl implements EventService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
 
     static final String MESSAGE_EVENT_SELECTOR = "message";
 

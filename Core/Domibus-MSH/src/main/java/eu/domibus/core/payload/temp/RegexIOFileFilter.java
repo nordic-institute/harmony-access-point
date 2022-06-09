@@ -1,6 +1,6 @@
 package eu.domibus.core.payload.temp;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.filefilter.IOFileFilter;
 
@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  */
 public class RegexIOFileFilter implements IOFileFilter {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RegexIOFileFilter.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(RegexIOFileFilter.class);
 
     protected Pattern pattern;
 

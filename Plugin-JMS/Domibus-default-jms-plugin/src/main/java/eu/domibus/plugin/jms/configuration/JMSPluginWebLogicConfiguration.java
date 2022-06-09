@@ -1,6 +1,6 @@
 package eu.domibus.plugin.jms.configuration;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.WebLogicCondition;
 import eu.domibus.plugin.jms.JMSMessageConstants;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @Configuration
 public class JMSPluginWebLogicConfiguration extends JMSPluginApplicationServerConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginWebLogicConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginWebLogicConfiguration.class);
 
     @Bean("mshToBackendTemplate")
     public JmsTemplate mshToBackendTemplate(@Qualifier(JMSMessageConstants.CACHING_CONNECTION_FACTORY_NAME) ConnectionFactory connectionFactory,

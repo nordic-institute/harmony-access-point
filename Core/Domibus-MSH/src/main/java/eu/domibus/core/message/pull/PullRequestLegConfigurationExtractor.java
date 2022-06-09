@@ -13,7 +13,7 @@ import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationVisitor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 
@@ -24,7 +24,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 
 public class PullRequestLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullRequestLegConfigurationExtractor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PullRequestLegConfigurationExtractor.class);
 
     private MessageExchangeService messageExchangeService;
 

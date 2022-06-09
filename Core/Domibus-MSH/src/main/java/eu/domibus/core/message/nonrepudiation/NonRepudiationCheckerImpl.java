@@ -4,7 +4,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NonRepudiationCheckerImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(NonRepudiationCheckerImpl.class);
     public static final String REFERENCE = "Reference";
     public static final String MESSAGE_PART_NRINFORMATION = "MessagePartNRInformation";
     public static final String URI = "URI";

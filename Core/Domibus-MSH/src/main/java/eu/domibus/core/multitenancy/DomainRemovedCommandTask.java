@@ -3,7 +3,7 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
 import eu.domibus.core.clustering.CommandTask;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.Map;
 @Service
 public class DomainRemovedCommandTask implements CommandTask {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainRemovedCommandTask.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainRemovedCommandTask.class);
 
     final DynamicDomainManagementService dynamicDomainManagementService;
 

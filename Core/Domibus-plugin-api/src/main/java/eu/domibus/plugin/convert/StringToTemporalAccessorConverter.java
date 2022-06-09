@@ -1,7 +1,7 @@
 package eu.domibus.plugin.convert;
 
 import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.convert.converter.Converter;
 
@@ -19,7 +19,7 @@ import java.time.temporal.TemporalAccessor;
  */
 public class StringToTemporalAccessorConverter implements Converter<String, TemporalAccessor> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StringToTemporalAccessorConverter.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(StringToTemporalAccessorConverter.class);
 
     private final DateTimeFormatter formatter;
 

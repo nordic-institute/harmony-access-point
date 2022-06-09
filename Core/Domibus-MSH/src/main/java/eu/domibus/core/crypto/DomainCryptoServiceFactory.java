@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @Component
 public class DomainCryptoServiceFactory {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceFactory.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceFactory.class);
 
     protected final Provider<List<DomainCryptoServiceSpi>> domainCryptoServiceSpiListProvider;
 

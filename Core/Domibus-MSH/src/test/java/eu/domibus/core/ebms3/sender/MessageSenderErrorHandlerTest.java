@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class MessageSenderErrorHandlerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderErrorHandlerTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderErrorHandlerTest.class);
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
     public static final String PMODE_KEY = "PMODE_KEY";

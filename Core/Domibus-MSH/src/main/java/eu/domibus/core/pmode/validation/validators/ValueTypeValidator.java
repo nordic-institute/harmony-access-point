@@ -3,7 +3,7 @@ package eu.domibus.core.pmode.validation.validators;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.validation.PModeValidator;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ import java.util.List;
 @Order(7)
 public class ValueTypeValidator  implements PModeValidator {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ValueTypeValidator.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ValueTypeValidator.class);
 
     @Override
     public List<ValidationIssue> validate(Configuration configuration) {

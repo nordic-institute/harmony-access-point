@@ -9,7 +9,7 @@ import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.exceptions.PayloadExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PayloadExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -43,7 +43,7 @@ import java.util.zip.GZIPInputStream;
 })
 public class UserMessagePayloadExtResource {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePayloadExtResource.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePayloadExtResource.class);
 
     @Autowired
     PayloadExtService payloadExtService;

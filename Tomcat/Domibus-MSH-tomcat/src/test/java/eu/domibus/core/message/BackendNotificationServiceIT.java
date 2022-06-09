@@ -19,7 +19,7 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
@@ -178,7 +178,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Qualifier("messageSenderErrorHandler")
     protected MessageSenderErrorHandler messageSenderErrorHandler;
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationServiceIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationServiceIT.class);
 
     BackendConnectorMock backendConnector;
     String messageId, filename;
@@ -360,7 +360,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         userMessageLog.setNotificationStatus(entity);
         userMessageLogDao.update(userMessageLog);
 
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
         messageSenderErrorHandler.handleError(new Exception());
 
         assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);

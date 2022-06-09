@@ -3,7 +3,7 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.core.spring.lock.LockDao;
 import eu.domibus.core.spring.lock.LockEntity;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class LockDaoIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(LockDaoIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(LockDaoIT.class);
 
     @Autowired
     private LockDao lockDao;

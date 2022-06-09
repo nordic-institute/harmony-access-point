@@ -2,7 +2,7 @@ package eu.domibus.ext.delegate.services.cache;
 
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
 import eu.domibus.ext.exceptions.CacheExtServiceException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CacheServiceInterceptor extends ServiceInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CacheServiceInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CacheServiceInterceptor.class);
 
     @Around(value = "execution(public * eu.domibus.ext.delegate.services.cache.CacheServiceDelegate.*(..))")
     @Override
@@ -31,7 +31,7 @@ public class CacheServiceInterceptor extends ServiceInterceptor {
     }
 
     @Override
-    public DomibusLogger getLogger() {
+    public IDomibusLogger getLogger() {
         return LOG;
     }
 }

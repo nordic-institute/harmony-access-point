@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
@@ -21,7 +21,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @RunWith(JMockit.class)
 public class PropertyValueExchangeOutInterceptorTest extends SoapInterceptorTest {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyValueExchangeOutInterceptorTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyValueExchangeOutInterceptorTest.class);
 
     @Tested
     PropertyValueExchangeOutInterceptor propertyValueExchangeOutInterceptor;

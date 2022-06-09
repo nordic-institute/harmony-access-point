@@ -6,7 +6,7 @@ import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class UserAccountListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAccountListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserAccountListener.class);
 
     @Autowired
     private EventService eventService;
@@ -51,7 +51,7 @@ public class UserAccountListener {
             domainContextProvider.clearCurrentDomain();
             LOG.debug("Authentication event:[{}] for super user.", event);
         }
-        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+        LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         eventService.persistEvent(event);
         final Alert alertOnEvent = alertService.createAlertOnEvent(event);
         alertService.enqueueAlert(alertOnEvent);

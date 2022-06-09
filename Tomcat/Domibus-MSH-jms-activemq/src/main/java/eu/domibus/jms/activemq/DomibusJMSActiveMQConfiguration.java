@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
@@ -32,7 +32,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class DomibusJMSActiveMQConfiguration {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQConfiguration.class);
+    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQConfiguration.class);
 
     public static final String MQ_BROKER_NAME = "org.apache.activemq:type=Broker,brokerName=";
     public static final String MQ_CONNECTION_FACTORY = "jmsConnectionFactory";

@@ -2,9 +2,8 @@ package eu.domibus.core.plugin.validation;
 
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.validation.SubmissionValidationException;
@@ -21,7 +20,7 @@ import java.util.List;
 @Service
 public class SubmissionValidatorService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmissionValidatorService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmissionValidatorService.class);
 
     protected SubmissionValidatorListProvider submissionValidatorListProvider;
     protected SubmissionAS4Transformer submissionAS4Transformer;

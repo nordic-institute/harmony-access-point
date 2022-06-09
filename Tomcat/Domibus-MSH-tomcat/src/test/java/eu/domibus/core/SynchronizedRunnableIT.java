@@ -3,10 +3,9 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,7 @@ import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_K
 @Transactional
 public class SynchronizedRunnableIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);
 
     @Autowired
     SynchronizedRunnableFactory synchronizedRunnableFactory;

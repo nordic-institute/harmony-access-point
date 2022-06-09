@@ -2,7 +2,7 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.MultiDomainCryptoService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.security.cert.X509Certificate;
  */
 @Service
 public class DomibusX509TrustManager implements X509TrustManager {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusX509TrustManager.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusX509TrustManager.class);
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;

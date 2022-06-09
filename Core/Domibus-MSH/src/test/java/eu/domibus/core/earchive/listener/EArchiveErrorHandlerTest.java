@@ -3,7 +3,7 @@ package eu.domibus.core.earchive.listener;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import mockit.Expectations;
@@ -21,7 +21,7 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class EArchiveErrorHandlerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveErrorHandlerTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveErrorHandlerTest.class);
 
     @Tested
     private EArchiveErrorHandler eArchiveErrorHandler;
@@ -34,7 +34,7 @@ public class EArchiveErrorHandlerTest {
     @Test
     public void handleError_ok(@Injectable EArchiveBatchEntity eArchiveBatch) {
 
-        LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
+        LOG.putMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
         new Expectations() {{
 

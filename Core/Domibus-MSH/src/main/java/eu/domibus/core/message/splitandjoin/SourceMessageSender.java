@@ -20,7 +20,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.Validate;
@@ -42,7 +42,7 @@ import java.util.List;
 @Service
 public class SourceMessageSender implements MessageSender {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SourceMessageSender.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SourceMessageSender.class);
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -88,7 +88,7 @@ public class SourceMessageSender implements MessageSender {
 
     protected void doSendMessage(final UserMessage userMessage) {
         String messageId = userMessage.getMessageId();
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
 
         LOG.debug("Sending SourceMessage");
 

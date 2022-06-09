@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.backend.reliability.queue;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.TomcatCondition;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
@@ -21,7 +21,7 @@ import static eu.domibus.plugin.ws.backend.reliability.queue.WSMessageListenerCo
 @Configuration
 public class WSBackendTomcatConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendTomcatConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendTomcatConfiguration.class);
 
     @Bean(WS_PLUGIN_SEND_QUEUE)
     public ActiveMQQueue wsPluginSendQueue(WSPluginPropertyManager wsPluginPropertyManager) {

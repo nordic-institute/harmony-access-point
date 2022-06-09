@@ -1,6 +1,6 @@
 package eu.domibus.core.cxf;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.rt.security.utils.SecurityUtils;
@@ -19,7 +19,7 @@ import java.net.URL;
 @Configuration
 public class CXFCacheConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CXFCacheConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CXFCacheConfiguration.class);
 
     @Bean("ehCacheTokenStore")
     public EHCacheTokenStore ehCacheTokenStore(DomibusBus bus) throws TokenStoreException {

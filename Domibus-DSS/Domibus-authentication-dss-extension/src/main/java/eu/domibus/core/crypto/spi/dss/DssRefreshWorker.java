@@ -3,7 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.quartz.DomibusQuartzJobExtBean;
 import eu.domibus.ext.services.CommandExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 @DisallowConcurrentExecution
 public class DssRefreshWorker extends DomibusQuartzJobExtBean {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshWorker.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshWorker.class);
 
     @Autowired
     private CommandExtService commandExtService;

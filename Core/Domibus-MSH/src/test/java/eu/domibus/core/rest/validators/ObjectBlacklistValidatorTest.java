@@ -2,7 +2,7 @@ package eu.domibus.core.rest.validators;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class ObjectBlacklistValidatorTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidatorTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidatorTest.class);
 
     @Tested
     ObjectBlacklistValidator blacklistValidator;

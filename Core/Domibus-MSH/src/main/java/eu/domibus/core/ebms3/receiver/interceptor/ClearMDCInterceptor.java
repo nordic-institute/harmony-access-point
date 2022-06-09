@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component(value = "clearMDCInterceptor")
 public class ClearMDCInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ClearMDCInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ClearMDCInterceptor.class);
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -35,12 +35,12 @@ public class ClearMDCInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     private void clearMDC() {
-        LOG.debug("Clearing message ID MDC property [{}]", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID));
-        LOG.debug("Clearing message entity ID MDC property [{}]", LOG.getMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID));
-        LOG.debug("Clearing message batch entity ID MDC property [{}]", LOG.getMDC(DomibusLogger.MDC_BATCH_ENTITY_ID));
-        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ID);
-        LOG.removeMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
-        LOG.removeMDC(DomibusLogger.MDC_BATCH_ENTITY_ID);
+        LOG.debug("Clearing message ID MDC property [{}]", LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ID));
+        LOG.debug("Clearing message entity ID MDC property [{}]", LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ENTITY_ID));
+        LOG.debug("Clearing message batch entity ID MDC property [{}]", LOG.getMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID));
+        LOG.removeMDC(IDomibusLogger.MDC_MESSAGE_ID);
+        LOG.removeMDC(IDomibusLogger.MDC_MESSAGE_ENTITY_ID);
+        LOG.removeMDC(IDomibusLogger.MDC_BATCH_ENTITY_ID);
 
         LOG.debug("Clearing domain [{}]", domainContextProvider.getCurrentDomainSafely());
         domainContextProvider.clearCurrentDomain();

@@ -42,7 +42,7 @@ import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
@@ -80,7 +80,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Service
 public class UserMessageDefaultService implements UserMessageService {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
     static final String MESSAGE = "Message [";
     public static final int BATCH_SIZE = 100;
     static final String PAYLOAD_NAME = "PayloadName";
@@ -551,14 +551,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId) {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map
         if (isNotBlank(messageId)) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);

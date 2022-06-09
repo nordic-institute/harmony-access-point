@@ -1,7 +1,7 @@
 package eu.domibus.jms.activemq;
 
 import eu.domibus.jms.spi.InternalJMSConstants;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DomibusJMSActiveMQQueueConfiguration {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQQueueConfiguration.class);
+    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQQueueConfiguration.class);
 
     @Bean(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     public ActiveMQQueue sendMessageQueue() {

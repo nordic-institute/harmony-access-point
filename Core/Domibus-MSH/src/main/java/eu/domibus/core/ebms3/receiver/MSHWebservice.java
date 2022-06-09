@@ -14,7 +14,7 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -39,7 +39,7 @@ import javax.xml.ws.soap.SOAPBinding;
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
 public class MSHWebservice implements Provider<SOAPMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebservice.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebservice.class);
 
     @Autowired
     protected MessageUtil messageUtil;
@@ -52,7 +52,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
 
     @Timer(clazz = MSHWebservice.class,value = "incoming_user_message")
     @Counter(clazz = MSHWebservice.class,value = "incoming_user_message")
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
@@ -96,7 +96,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     }
 
     protected void setUserMessageEntityIdOnContext() {
-        final String userMessageEntityId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
+        final String userMessageEntityId = LOG.getMDC(IDomibusLogger.MDC_MESSAGE_ENTITY_ID);
         PhaseInterceptorChain.getCurrentMessage().getExchange().put(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY, userMessageEntityId);
     }
 

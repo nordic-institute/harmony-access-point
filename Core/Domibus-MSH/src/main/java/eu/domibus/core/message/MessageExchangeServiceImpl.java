@@ -25,7 +25,7 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequest;
 import eu.domibus.core.pulling.PullRequestDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,7 +62,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.PULL_MESSAGE_QUEUE;
 @Service
 public class MessageExchangeServiceImpl implements MessageExchangeService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageExchangeServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageExchangeServiceImpl.class);
 
     private static final String PULL = "pull";
 

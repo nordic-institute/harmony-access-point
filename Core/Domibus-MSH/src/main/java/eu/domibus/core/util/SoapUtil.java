@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.message.Attachment;
@@ -40,7 +40,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class SoapUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtil.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtil.class);
 
     protected DomibusPropertyProvider domibusPropertyProvider;
     protected XMLUtil xmlUtil;

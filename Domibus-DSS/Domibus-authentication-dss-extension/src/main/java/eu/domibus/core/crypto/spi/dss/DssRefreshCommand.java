@@ -1,12 +1,11 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.CommandExtTask;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.tsl.cache.CacheCleaner;
 import eu.europa.esig.dss.tsl.job.TLValidationJob;
-import org.apache.commons.io.FileUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -29,7 +28,7 @@ public class DssRefreshCommand implements CommandExtTask {
 
     public static final String COMMAND_NAME="DSS_REFRESH";
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshCommand.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshCommand.class);
 
     private TLValidationJob domibusTSLValidationJob;
 

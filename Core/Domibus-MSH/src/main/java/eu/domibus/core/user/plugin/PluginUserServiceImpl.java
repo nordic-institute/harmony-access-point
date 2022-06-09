@@ -14,7 +14,7 @@ import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ import static eu.domibus.core.property.DomibusGeneralConstants.*;
  */
 @Service
 public class PluginUserServiceImpl implements PluginUserService {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginUserServiceImpl.class);
 
     @Autowired
     @Qualifier("securityAuthenticationDAO")

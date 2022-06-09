@@ -10,7 +10,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 
@@ -21,7 +21,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 
 public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigurationExtractor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReceiptLegConfigurationExtractor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ReceiptLegConfigurationExtractor.class);
 
     private UserMessageDao userMessageDao;
     private PModeProvider pModeProvider;

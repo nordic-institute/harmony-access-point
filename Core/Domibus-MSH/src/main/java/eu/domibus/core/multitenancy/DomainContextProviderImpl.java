@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DomainContextProviderImpl implements DomainContextProvider {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);
 
     @Autowired
     protected DomainService domainService;
@@ -33,7 +33,7 @@ public class DomainContextProviderImpl implements DomainContextProvider {
             return DomainService.DEFAULT_DOMAIN;
         }
 
-        String domainCode = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
+        String domainCode = LOG.getMDC(IDomibusLogger.MDC_DOMAIN);
         if (StringUtils.isBlank(domainCode)) {
             throw new DomainTaskException("Could not get current domain");
         }
@@ -70,7 +70,7 @@ public class DomainContextProviderImpl implements DomainContextProvider {
 
         domainService.validateDomain(domainCode);
 
-        LOG.putMDC(DomibusLogger.MDC_DOMAIN, domainCode);
+        LOG.putMDC(IDomibusLogger.MDC_DOMAIN, domainCode);
         LOG.trace("Set domain to [{}]", domainCode);
     }
 
@@ -81,6 +81,6 @@ public class DomainContextProviderImpl implements DomainContextProvider {
 
     @Override
     public void clearCurrentDomain() {
-        LOG.removeMDC(DomibusLogger.MDC_DOMAIN);
+        LOG.removeMDC(IDomibusLogger.MDC_DOMAIN);
     }
 }

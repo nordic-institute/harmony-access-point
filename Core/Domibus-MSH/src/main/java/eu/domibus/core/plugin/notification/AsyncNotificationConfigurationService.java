@@ -1,6 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class AsyncNotificationConfigurationService {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationConfigurationService.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationConfigurationService.class);
 
     @Autowired(required = false)
     @Lazy //Lazy loading of AsyncNotificationConfiguration to avoid the circular dependency triggered by loading the BackendConnectors(SPIs) at startup

@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.property.listeners;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.soap.SOAPBinding;
 
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.MTOM_ENABLED_PROPERTY;
 
@@ -21,7 +20,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.MTOM_ENABLED
 @Service
 public class MtomEnabledChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MtomEnabledChangeListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MtomEnabledChangeListener.class);
 
     private final Endpoint backendInterfaceEndpoint;
     private final Endpoint backendInterfaceEndpointDeprecated;

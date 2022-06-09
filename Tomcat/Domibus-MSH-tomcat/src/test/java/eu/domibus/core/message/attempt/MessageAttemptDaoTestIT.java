@@ -5,7 +5,7 @@ import eu.domibus.ITTestsService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 @Transactional
 public class MessageAttemptDaoTestIT extends AbstractIT {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
 
     @Autowired
     MessageAttemptDao messageAttemptDao;

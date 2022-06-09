@@ -5,7 +5,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.ws.policy.PolicyBuilder;
@@ -36,7 +36,7 @@ import java.util.List;
 @DependsOn("algorithmSuiteLoader")
 public class PolicyServiceImpl implements PolicyService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImpl.class);
     public static final String POLICIES = "policies";
     public static final String ENCRYPTEDPARTS = "EncryptedParts";
 

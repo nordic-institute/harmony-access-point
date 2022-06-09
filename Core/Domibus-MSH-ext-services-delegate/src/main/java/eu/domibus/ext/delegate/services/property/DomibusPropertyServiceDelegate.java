@@ -8,7 +8,7 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceDelegate.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceDelegate.class);
 
     protected DomibusPropertyProvider domibusPropertyProvider;
     protected DomainService domainService;

@@ -12,7 +12,7 @@ import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 @Transactional
 public class AlertDaoIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertDaoIT.class);
 
     @Autowired
     private AlertDao alertDao;
@@ -50,7 +50,7 @@ public class AlertDaoIT extends AbstractIT {
     public void setUp(){
         createAlert("blue_gw","red_gw",false,null);
         createAlert("blue_gw","red_gw",true,null);
-        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+        LOG.putMDC(IDomibusLogger.MDC_USER, "test_user");
     }
 
 

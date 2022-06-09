@@ -4,7 +4,7 @@ import eu.domibus.api.earchive.*;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -21,7 +21,7 @@ import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerat
  */
 @Service
 public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveServiceDelegate.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveServiceDelegate.class);
     private final DomibusEArchiveService domibusEArchiveService;
     private final EArchiveExtMapper eArchiveExtMapper;
 

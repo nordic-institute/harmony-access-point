@@ -7,12 +7,11 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,7 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service
 public class SuperCronExpressionChangeListener implements DomibusPropertyChangeListener {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(SuperCronExpressionChangeListener.class);
+    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(SuperCronExpressionChangeListener.class);
 
     @Autowired
     protected DomainService domainService;

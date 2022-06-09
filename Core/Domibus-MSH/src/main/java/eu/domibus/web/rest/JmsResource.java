@@ -6,7 +6,7 @@ import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.jms.spi.InternalJMSException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
@@ -31,7 +31,7 @@ public class JmsResource extends BaseResource {
 
     private ErrorHandlerService errorHandlerService;
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsResource.class);
 
     public JmsResource(JMSManager jmsManager, ErrorHandlerService errorHandlerService) {
         this.jmsManager = jmsManager;

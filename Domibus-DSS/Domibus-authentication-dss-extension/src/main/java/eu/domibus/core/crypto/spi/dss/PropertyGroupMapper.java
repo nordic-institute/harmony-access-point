@@ -1,7 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public abstract class PropertyGroupMapper<E> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyGroupMapper.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyGroupMapper.class);
 
     protected final DomibusPropertyExtService domibusPropertyExtService;
 

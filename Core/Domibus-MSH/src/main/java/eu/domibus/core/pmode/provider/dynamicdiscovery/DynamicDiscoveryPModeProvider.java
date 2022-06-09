@@ -17,7 +17,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ProcessingType;
@@ -25,7 +25,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
@@ -58,7 +57,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     private static final String DYNAMIC_DISCOVERY_CLIENT_SPECIFICATION = DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProvider.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProvider.class);
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;

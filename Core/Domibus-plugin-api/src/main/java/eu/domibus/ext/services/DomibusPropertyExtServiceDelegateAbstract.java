@@ -3,7 +3,7 @@ package eu.domibus.ext.services;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 public abstract class DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyExtServiceDelegateAbstract.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyExtServiceDelegateAbstract.class);
 
     @Autowired
     protected DomibusPropertyExtService domibusPropertyExtService;

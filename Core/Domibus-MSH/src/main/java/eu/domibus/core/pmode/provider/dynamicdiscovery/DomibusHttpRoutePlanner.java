@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.ssl.offload.SslOffloadService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -22,7 +22,7 @@ import java.net.URL;
 @Service
 public class DomibusHttpRoutePlanner extends DefaultRoutePlanner {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusHttpRoutePlanner.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusHttpRoutePlanner.class);
 
     private final SslOffloadService sslOffloadService;
 

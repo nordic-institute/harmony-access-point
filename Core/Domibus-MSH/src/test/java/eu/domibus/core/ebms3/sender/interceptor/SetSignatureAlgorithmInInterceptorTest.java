@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.api.spring.SpringContextProvider;
 import mockit.Mocked;
@@ -29,7 +29,7 @@ import java.security.cert.CertificateException;
  */
 @RunWith(JMockit.class)
 public class SetSignatureAlgorithmInInterceptorTest extends SoapInterceptorTest {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetSignatureAlgorithmInInterceptorTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetSignatureAlgorithmInInterceptorTest.class);
 
     @Tested
     SetSignatureAlgorithmInInterceptor setSignatureAlgorithmInInterceptor;

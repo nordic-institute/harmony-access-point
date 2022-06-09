@@ -1,6 +1,6 @@
 package eu.domibus.core.cache;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public class DomibusCacheRegionFactory extends JCacheRegionFactory {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheRegionFactory.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheRegionFactory.class);
 
     private static volatile ClassLoader classLoader;
 

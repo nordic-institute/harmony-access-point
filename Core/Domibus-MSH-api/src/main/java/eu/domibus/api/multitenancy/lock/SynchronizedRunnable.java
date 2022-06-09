@@ -1,7 +1,7 @@
 package eu.domibus.api.multitenancy.lock;
 
 import eu.domibus.api.multitenancy.DomainTaskException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import javax.persistence.NoResultException;
  */
 public class SynchronizedRunnable implements Runnable {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnable.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnable.class);
 
     private SynchronizationService synchronizationService;
     private String lockKey;

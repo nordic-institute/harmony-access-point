@@ -12,7 +12,7 @@ import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ import static eu.domibus.core.message.MessageLogInfoFilter.*;
 @Validated
 public class MessageLogResource extends BaseResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
 
     public static final int DEFAULT_MESSAGES_SEARCH_INTERVAL_IN_MINUTES = 60;
 

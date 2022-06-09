@@ -1,6 +1,6 @@
 package eu.domibus.core.spring;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -16,7 +16,7 @@ import java.util.Arrays;
  */
 public class BouncyCastleInitializer {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BouncyCastleInitializer.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BouncyCastleInitializer.class);
 
     // As recommended, make sure that the Sun security provider remains at a higher preference (i.e. index 2 on Weblogic)
     private static final int HIGHEST_RECOMMENDED_POSITION_IN_ORDER_OF_PREFERENCES = 3;

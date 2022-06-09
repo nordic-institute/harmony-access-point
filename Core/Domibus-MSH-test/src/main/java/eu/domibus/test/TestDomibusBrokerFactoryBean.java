@@ -10,7 +10,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
@@ -24,7 +24,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
  */
 public class TestDomibusBrokerFactoryBean extends DomibusBrokerFactoryBean {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestDomibusBrokerFactoryBean.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TestDomibusBrokerFactoryBean.class);
 
     @Autowired(required = false)
     private List<BrokerPlugin> brokerPlugins;

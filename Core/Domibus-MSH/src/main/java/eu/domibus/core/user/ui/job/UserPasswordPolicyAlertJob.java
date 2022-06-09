@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -24,7 +24,7 @@ import java.time.ZoneOffset;
 @DisallowConcurrentExecution
 public class UserPasswordPolicyAlertJob extends DomibusQuartzJobBean {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserPasswordPolicyAlertJob.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserPasswordPolicyAlertJob.class);
 
     @Autowired
     @Qualifier(UserManagementServiceImpl.BEAN_NAME)

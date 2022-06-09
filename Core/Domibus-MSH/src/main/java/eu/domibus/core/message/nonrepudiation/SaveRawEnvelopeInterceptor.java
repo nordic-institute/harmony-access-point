@@ -2,7 +2,7 @@ package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.UserMessageContextKeyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -26,7 +26,7 @@ import javax.xml.soap.SOAPMessage;
 @Service
 public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRawEnvelopeInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRawEnvelopeInterceptor.class);
 
     @Autowired
     NonRepudiationService nonRepudiationService;

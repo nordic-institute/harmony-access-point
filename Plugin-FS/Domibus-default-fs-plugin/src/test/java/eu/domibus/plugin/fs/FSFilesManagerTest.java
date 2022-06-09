@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -22,7 +22,7 @@ import javax.activation.DataHandler;
 @RunWith(JMockit.class)
 public class FSFilesManagerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManagerTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManagerTest.class);
 
     @Tested
     private FSFilesManager instance;

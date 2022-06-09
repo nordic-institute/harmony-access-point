@@ -1,7 +1,7 @@
 package eu.domibus.core.user.ui;
 
 import eu.domibus.core.dao.ListDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import java.util.Map;
 @Transactional
 public class UserFilteringDao extends ListDao<User> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserFilteringDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserFilteringDao.class);
     protected static final String USER_NAME = "userName";
     protected static final String USER_ROLE = "userRole";
     protected static final String DELETED_USER = "deleted";

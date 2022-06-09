@@ -8,7 +8,7 @@ import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.JMSExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
@@ -36,7 +36,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 */
 public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginImpl.class);
 
     public static final String PLUGIN_NAME = "Jms";
 
@@ -80,7 +80,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
      *
      * @param map The incoming JMS Message
      */
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = JMSPluginImpl.class, value = "receiveMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
@@ -89,7 +89,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             if (StringUtils.isNotBlank(messageID)) {
                 //trim the empty space
                 messageID = messageExtService.cleanMessageIdentifier(messageID);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageID);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageID);
             }
             final String jmsCorrelationID = map.getJMSCorrelationID();
             final String messageType = map.getStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY);
@@ -231,7 +231,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         }
 
         @Override
-        @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+        @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
         public MapMessage createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {

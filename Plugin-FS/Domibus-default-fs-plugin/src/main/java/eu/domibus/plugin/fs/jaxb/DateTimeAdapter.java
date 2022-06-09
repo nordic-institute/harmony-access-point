@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs.jaxb;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.convert.StringToTemporalAccessorConverter;
 
@@ -17,7 +17,7 @@ import java.time.temporal.TemporalAccessor;
  */
 public class DateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateTimeAdapter.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DateTimeAdapter.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 

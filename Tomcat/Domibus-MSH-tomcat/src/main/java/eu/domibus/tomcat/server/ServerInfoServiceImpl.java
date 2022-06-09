@@ -2,7 +2,7 @@ package eu.domibus.tomcat.server;
 
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.server.ServerInfoService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.Set;
 @Service
 public class ServerInfoServiceImpl implements ServerInfoService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInfoServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInfoServiceImpl.class);
 
     private static final String DOMIBUS_NODE_ID = "domibus.node.id";
     private static final String JMX_SERVER_NAME_ATTR = "name";

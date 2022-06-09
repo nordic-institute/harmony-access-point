@@ -7,7 +7,7 @@ import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +37,7 @@ import java.util.List;
 @Tag(name = "archive", description = "Domibus eArchive services API")
 @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
 public class DomibusEArchiveExtResource {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResource.class);
     public static final String RETURN_RESULTS_OF_TOTAL = "Return [{}] results of total: [{}].";
     public static final String NO_RESULTS_FOUND = "No results found!";
 

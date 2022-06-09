@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.util.Map;
@@ -17,7 +17,7 @@ class TestResult {
     private final String pMode;
     private final String notifyBusiness;
     private TestResult next;
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestResult.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TestResult.class);
 
     TestResult(String mpc, String pMode, String notifyBusiness) {
         this.mpc = mpc;

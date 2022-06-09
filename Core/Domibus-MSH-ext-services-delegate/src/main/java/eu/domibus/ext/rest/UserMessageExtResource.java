@@ -5,7 +5,7 @@ import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.UserMessageExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 })
 public class UserMessageExtResource {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageExtResource.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageExtResource.class);
 
     @Autowired
     UserMessageExtService userMessageExtService;

@@ -3,7 +3,7 @@ package eu.domibus.web.rest.error;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
@@ -38,7 +38,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class ErrorHandlerService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorHandlerService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorHandlerService.class);
 
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;

@@ -7,7 +7,7 @@ import eu.domibus.api.user.UserState;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.security.UserDetailServiceImpl;
 import eu.domibus.core.user.ui.*;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
 import org.junit.Assert;
@@ -28,7 +28,7 @@ import java.util.*;
 @Transactional
 public class UserManagementServiceTestIT extends AbstractIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceTestIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceTestIT.class);
 
     private static final String LOGGED_USER = "test_user";
 

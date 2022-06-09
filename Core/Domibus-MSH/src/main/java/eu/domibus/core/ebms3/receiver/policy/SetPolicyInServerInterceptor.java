@@ -2,7 +2,6 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -16,7 +15,7 @@ import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +34,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -45,7 +43,7 @@ import java.util.List;
 @Service
 public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
     protected ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
     protected BackendNotificationService backendNotificationService;

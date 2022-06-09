@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +17,7 @@ import java.util.Map;
 @Component
 public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultServiceHelper.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultServiceHelper.class);
 
     @Override
     public String getOriginalSender(UserMessage userMessage) {

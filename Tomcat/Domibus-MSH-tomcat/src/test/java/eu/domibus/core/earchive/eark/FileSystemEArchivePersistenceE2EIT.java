@@ -12,7 +12,7 @@ import eu.domibus.core.earchive.storage.EArchiveFileStorageFactory;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.FileUtils;
@@ -48,7 +48,7 @@ import static org.junit.Assert.*;
 @Transactional
 public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceE2EIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceE2EIT.class);
 
     @Autowired
     private UserMessageDao userMessageDao;

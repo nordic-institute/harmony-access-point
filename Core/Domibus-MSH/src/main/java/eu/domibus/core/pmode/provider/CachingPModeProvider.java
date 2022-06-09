@@ -18,7 +18,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
@@ -45,7 +45,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  */
 public class CachingPModeProvider extends PModeProvider {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProvider.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProvider.class);
     private static final String DOES_NOT_MATCH_END_STRING = "] does not match";
     private static final String CURRENTLY_UNAVAILABLE = "currently unavailable";
 

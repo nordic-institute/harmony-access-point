@@ -8,7 +8,7 @@ import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.interceptor.SoapInterceptorTest;
 import eu.domibus.core.pki.PKIUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -51,7 +51,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Ignore("EDELIVERY-8892")
 public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptorTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptorTest.class);
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/receiver/";
 
@@ -181,8 +181,8 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
             result = true;
         }};
         trustSenderInterceptor.handleMessage(soapMessage);
-        String senderPartyName = LOG.getMDC(DomibusLogger.MDC_FROM);
-        String receiverPartyName = LOG.getMDC(DomibusLogger.MDC_TO);
+        String senderPartyName = LOG.getMDC(IDomibusLogger.MDC_FROM);
+        String receiverPartyName = LOG.getMDC(IDomibusLogger.MDC_TO);
 
         Assert.assertEquals("blue_gw", senderPartyName);
         Assert.assertEquals("red_gw", receiverPartyName);

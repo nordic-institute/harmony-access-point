@@ -8,7 +8,7 @@ import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.api.user.plugin.PluginUserService;
 import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.PluginUserMapper;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @Validated
 public class PluginUserResource extends BaseResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserResource.class);
 
     @Autowired
     private PluginUserService pluginUserService;

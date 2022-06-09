@@ -19,7 +19,7 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -50,7 +50,7 @@ import java.util.Locale;
 @Service
 public class EbMS3MessageBuilder {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EbMS3MessageBuilder.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EbMS3MessageBuilder.class);
 
     public static final String ID_PREFIX_MESSAGING = "_1";
     public static final String ID_PREFIX_SOAP_BODY = "_2";

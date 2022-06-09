@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.webService.generated.BackendInterface;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public abstract class AbstractBackendWSIT extends AbstractIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendWSIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendWSIT.class);
 
     public static final String STRING_TYPE = "string";
 

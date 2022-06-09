@@ -11,7 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -43,7 +43,7 @@ import java.lang.reflect.InvocationTargetException;
 @RunWith(JMockit.class)
 public class MSHDispatcherTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHDispatcherTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHDispatcherTest.class);
 
     private static final String TEST_RESOURCES_DIR = "./src/test/resources";
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";

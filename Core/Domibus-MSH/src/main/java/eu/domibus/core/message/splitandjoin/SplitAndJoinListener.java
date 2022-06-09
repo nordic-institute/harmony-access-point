@@ -7,7 +7,7 @@ import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
@@ -28,7 +28,7 @@ import java.io.File;
  */
 @Service
 public class SplitAndJoinListener implements MessageListener {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinListener.class);
 
     @Autowired
     protected SplitAndJoinService splitAndJoinService;
@@ -47,7 +47,7 @@ public class SplitAndJoinListener implements MessageListener {
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(final Message message) {
         try {
             LOG.clearCustomKeys();
@@ -71,7 +71,7 @@ public class SplitAndJoinListener implements MessageListener {
             if (StringUtils.equals(messageType, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN_FILE)) {
                 final String groupId = message.getStringProperty(UserMessageService.MSG_GROUP_ID);
                 //for SplitAndJoin the groupId is identical with the SourceMessage id
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, groupId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, groupId);
 
                 final String backendName = message.getStringProperty(UserMessageService.MSG_BACKEND_NAME);
                 final Domain currentDomain = domainContextProvider.getCurrentDomain();
@@ -85,7 +85,7 @@ public class SplitAndJoinListener implements MessageListener {
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN)) {
                 final String groupId = message.getStringProperty(UserMessageService.MSG_GROUP_ID);
                 //for SplitAndJoin the groupId is identical with the SourceMessage id
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, groupId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, groupId);
 
                 final String sourceMessageFile = message.getStringProperty(UserMessageService.MSG_SOURCE_MESSAGE_FILE);
                 final String backendName = message.getStringProperty(UserMessageService.MSG_BACKEND_NAME);
@@ -96,7 +96,7 @@ public class SplitAndJoinListener implements MessageListener {
                         currentDomain);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)) {
                 final String sourceMessageId = message.getStringProperty(UserMessageService.MSG_SOURCE_MESSAGE_ID);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, sourceMessageId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, sourceMessageId);
 
                 final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
 
@@ -104,17 +104,17 @@ public class SplitAndJoinListener implements MessageListener {
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SPLIT_AND_JOIN_SEND_FAILED)) {
                 final String groupId = message.getStringProperty(UserMessageService.MSG_GROUP_ID);
                 //for SplitAndJoin the groupId is identical with the SourceMessage id
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, groupId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, groupId);
 
                 final String errorDetail = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_DETAIL);
                 splitAndJoinService.splitAndJoinSendFailed(groupId, errorDetail);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED)) {
                 final String messageId = message.getStringProperty(UserMessageService.MSG_USER_MESSAGE_ID);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
                 splitAndJoinService.setUserMessageFragmentAsFailed(messageId);
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SEND_SIGNAL_ERROR)) {
                 final String messageId = message.getStringProperty(UserMessageService.MSG_USER_MESSAGE_ID);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
                 final String ebms3ErrorCode = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_CODE);
                 final String ebms3ErrorDetail = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_DETAIL);
                 final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
@@ -123,7 +123,7 @@ public class SplitAndJoinListener implements MessageListener {
             } else if (StringUtils.equals(messageType, UserMessageService.COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED)) {
                 final String groupId = message.getStringProperty(UserMessageService.MSG_GROUP_ID);
                 final String messageId = message.getStringProperty(UserMessageService.MSG_SOURCE_MESSAGE_ID);
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
                 final String ebms3ErrorCode = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_CODE);
                 final String ebms3ErrorDetail = message.getStringProperty(UserMessageService.MSG_EBMS3_ERROR_DETAIL);
 

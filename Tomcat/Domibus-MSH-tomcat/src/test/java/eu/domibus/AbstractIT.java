@@ -16,7 +16,7 @@ import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.util.WarningUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
@@ -73,7 +73,7 @@ import static org.awaitility.Awaitility.with;
                 DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 public abstract class AbstractIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
 
     protected static final int SERVICE_PORT = 8892;
 

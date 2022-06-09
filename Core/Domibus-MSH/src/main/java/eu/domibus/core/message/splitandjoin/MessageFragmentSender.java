@@ -9,7 +9,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.message.MessageFragmentDao;
 import eu.domibus.core.message.PartInfoDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 public class MessageFragmentSender extends AbstractUserMessageSender {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageFragmentSender.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageFragmentSender.class);
 
     @Autowired
     protected MessageGroupDao messageGroupDao;
@@ -60,7 +60,7 @@ public class MessageFragmentSender extends AbstractUserMessageSender {
     }
 
     @Override
-    protected DomibusLogger getLog() {
+    protected IDomibusLogger getLog() {
         return LOG;
     }
 }

@@ -4,7 +4,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FSDomainService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSDomainService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSDomainService.class);
 
     @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;

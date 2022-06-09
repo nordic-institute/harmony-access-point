@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceHelperImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceHelperImpl.class);
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 

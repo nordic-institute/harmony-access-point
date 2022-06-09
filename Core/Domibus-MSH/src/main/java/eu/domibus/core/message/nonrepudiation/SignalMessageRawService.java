@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.SignalMessageRaw;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SignalMessageRawService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageRawService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageRawService.class);
 
     protected SignalMessageDao signalMessageDao;
     protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;

@@ -3,7 +3,7 @@ package eu.domibus.core.clustering;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +26,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.CLUSTER_COMMAND_TOPIC;
  */
 @Configuration
 public class ControllerListenerConfiguration {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerConfiguration.class);
 
     @Bean("controllerListener")
     public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,

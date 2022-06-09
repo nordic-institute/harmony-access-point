@@ -2,7 +2,7 @@ package eu.domibus.plugin.ws.backend.dispatch;
 
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WSPluginMessageSender {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMessageSender.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMessageSender.class);
 
     protected final WSPluginBackendReliabilityService reliabilityService;
 

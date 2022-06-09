@@ -5,7 +5,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class PolicyServiceImplTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImplTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImplTest.class);
     private static final String TEST_RESOURCES_DIR = "./src/test/resources/policy";
 
     @Injectable

@@ -7,7 +7,7 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 @Ignore("EDELIVERY-8892")
 public class FileSystemEArchivePersistenceIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemEArchivePersistenceIT.class);
     public static final String MESSAGE_ATTACHMENT_MSG1 = "message.attachment.txt";
     public static final String MESSAGE_ATTACHMENT_MSG2 = "message.attachment.xml";
 

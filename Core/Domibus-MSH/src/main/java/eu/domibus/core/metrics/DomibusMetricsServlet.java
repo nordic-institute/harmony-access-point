@@ -6,9 +6,8 @@ import com.codahale.metrics.servlets.MetricsServlet;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import javax.servlet.ServletConfig;
@@ -25,7 +24,7 @@ import java.util.Map;
  */
 public class DomibusMetricsServlet extends MetricsServlet {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMetricsServlet.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMetricsServlet.class);
 
     @Override
     public void init(ServletConfig config) throws ServletException {

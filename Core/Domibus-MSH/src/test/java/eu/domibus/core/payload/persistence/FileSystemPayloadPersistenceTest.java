@@ -11,7 +11,7 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -30,7 +30,7 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class FileSystemPayloadPersistenceTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistenceTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistenceTest.class);
 
     @Injectable
     protected PayloadFileStorageProvider storageProvider;

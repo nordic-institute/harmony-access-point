@@ -4,7 +4,7 @@ import eu.domibus.api.party.PartyService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
@@ -28,7 +28,7 @@ import java.util.Map;
 @Validated
 public class TestServiceResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestServiceResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TestServiceResource.class);
 
     @Autowired
     protected TestService testService;

@@ -1,6 +1,6 @@
 package eu.domibus.core.error;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ErrorLogEntryTruncateUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogEntryTruncateUtil.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogEntryTruncateUtil.class);
 
     public void truncate(ErrorLogEntry errorLogEntry) {
         final String initialMessageId = errorLogEntry.getMessageInErrorId();

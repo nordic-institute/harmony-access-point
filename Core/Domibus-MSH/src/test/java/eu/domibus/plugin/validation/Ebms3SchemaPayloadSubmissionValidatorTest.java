@@ -1,6 +1,6 @@
 package eu.domibus.plugin.validation;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;
 import mockit.Expectations;
@@ -23,7 +23,7 @@ import java.util.Set;
 @RunWith(JMockit.class)
 public class Ebms3SchemaPayloadSubmissionValidatorTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaPayloadSubmissionValidator.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaPayloadSubmissionValidator.class);
 
     @Injectable
     JAXBContext jaxbContext;

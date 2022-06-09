@@ -3,7 +3,7 @@ package eu.domibus.ext.delegate.services.authentication;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 public class AuthenticationServiceDelegate implements AuthenticationExtService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceDelegate.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceDelegate.class);
 
     @Autowired
     protected eu.domibus.api.security.AuthenticationService authenticationService;

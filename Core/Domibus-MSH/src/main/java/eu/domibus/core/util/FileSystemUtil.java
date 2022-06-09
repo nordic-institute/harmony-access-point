@@ -2,7 +2,7 @@ package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 @Service
 public class FileSystemUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemUtil.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemUtil.class);
 
     /**
      * It attempts to create the directory whenever is not present.

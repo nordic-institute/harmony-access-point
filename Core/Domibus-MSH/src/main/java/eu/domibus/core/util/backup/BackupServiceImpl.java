@@ -1,7 +1,7 @@
 package eu.domibus.core.util.backup;
 
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class BackupServiceImpl implements BackupService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackupServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(BackupServiceImpl.class);
 
     protected static final String BACKUP_EXT = ".backup-";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");

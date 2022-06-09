@@ -11,7 +11,7 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
@@ -26,7 +26,7 @@ import java.time.LocalDate;
 @Component
 public class PartitionCheckListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionCheckListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartitionCheckListener.class);
     private AlertService alertService;
     private DomainContextProvider domainContextProvider;
     private EventDao eventDao;

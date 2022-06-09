@@ -1,6 +1,6 @@
 package eu.domibus.api.multitenancy;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
@@ -11,7 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
  */
 public class DomainRunnable implements Runnable {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainRunnable.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainRunnable.class);
 
     protected DomainContextProvider domainContextProvider;
     protected Runnable runnable;

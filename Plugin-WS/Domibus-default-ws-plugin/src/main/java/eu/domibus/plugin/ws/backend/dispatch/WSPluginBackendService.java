@@ -4,7 +4,7 @@ import eu.domibus.common.MessageDeletedBatchEvent;
 import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.MessageEvent;
 import eu.domibus.ext.services.UserMessageExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
@@ -30,7 +30,7 @@ import static org.apache.cxf.common.util.CollectionUtils.isEmpty;
  */
 @Service
 public class WSPluginBackendService {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendService.class);
 
     final WSPluginBackendScheduleRetryService scheduleService;
     final WSPluginDispatchRulesService wsBackendRulesService;

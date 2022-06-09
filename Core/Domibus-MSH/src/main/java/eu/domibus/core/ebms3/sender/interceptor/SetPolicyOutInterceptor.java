@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -34,7 +34,7 @@ import javax.xml.soap.SOAPMessage;
  */
 @Service("setPolicyOutInterceptor")
 public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyOutInterceptor.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyOutInterceptor.class);
 
     @Autowired
     private PModeProvider pModeProvider;

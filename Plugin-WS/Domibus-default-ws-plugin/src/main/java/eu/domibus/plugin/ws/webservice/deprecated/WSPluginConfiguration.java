@@ -4,7 +4,7 @@ import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
@@ -33,7 +33,7 @@ import java.util.*;
 @Configuration(value = "WSPluginConfigurationDeprecated")
 public class WSPluginConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginConfiguration.class);
 
     @Bean("backendWebserviceDeprecated")
     public WebServicePluginImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,

@@ -20,7 +20,7 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class PullMessageServiceImpl implements PullMessageService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageServiceImpl.class);
 
     public static final String MPC = "mpc";
 

@@ -1,6 +1,6 @@
 package eu.domibus.plugin.validation;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class XmlValidationEventHandler implements ValidationEventHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XmlValidationEventHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(XmlValidationEventHandler.class);
 
     protected List<String> errors = new ArrayList<>();
 

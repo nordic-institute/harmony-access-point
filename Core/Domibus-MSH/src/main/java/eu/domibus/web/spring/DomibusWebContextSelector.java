@@ -1,6 +1,6 @@
 package eu.domibus.web.spring;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.api.spring.DomibusWebContext;
 import org.reflections.Reflections;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class DomibusWebContextSelector implements ImportSelector {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusWebContextSelector.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusWebContextSelector.class);
 
     @Override
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {

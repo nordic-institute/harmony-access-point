@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -26,7 +26,7 @@ import java.io.OutputStreamWriter;
 @Component
 public class FSFilesManager {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManager.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManager.class);
 
     private static final String FTP_PREFIX = "ftp:";
     private static final String PARENT_RELATIVE_PATH = "../";

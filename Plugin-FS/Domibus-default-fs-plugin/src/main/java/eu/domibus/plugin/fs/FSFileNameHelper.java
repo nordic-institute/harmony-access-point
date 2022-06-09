@@ -1,7 +1,7 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.MessageStatus;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class FSFileNameHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFileNameHelper.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFileNameHelper.class);
 
     public static final String NAME_SEPARATOR = "_";
     public static final String EXTENSION_SEPARATOR = ".";

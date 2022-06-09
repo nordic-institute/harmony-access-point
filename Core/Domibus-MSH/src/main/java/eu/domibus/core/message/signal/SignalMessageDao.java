@@ -5,7 +5,7 @@ import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -22,7 +22,7 @@ import java.util.List;
 @Repository
 public class SignalMessageDao extends BasicDao<SignalMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageDao.class);
 
     public SignalMessageDao() {
         super(SignalMessage.class);

@@ -7,7 +7,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class MessageAttemptDefaultService implements MessageAttemptService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAttemptDefaultService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAttemptDefaultService.class);
 
     @Autowired
     MessageAttemptDao messageAttemptDao;

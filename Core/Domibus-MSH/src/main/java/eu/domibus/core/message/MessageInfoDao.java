@@ -1,16 +1,8 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageType;
-import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.util.List;
 
 /**
  * @author idragusa
@@ -20,7 +12,7 @@ import java.util.List;
 @Repository
 public class MessageInfoDao {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageInfoDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageInfoDao.class);
 
 
     /*@Timer(clazz = MessageInfoDao.class,value = "findSignalMessageIds")

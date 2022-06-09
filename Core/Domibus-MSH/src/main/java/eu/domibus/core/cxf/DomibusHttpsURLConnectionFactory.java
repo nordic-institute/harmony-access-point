@@ -1,7 +1,7 @@
 package eu.domibus.core.cxf;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -25,7 +25,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Component
 public class DomibusHttpsURLConnectionFactory extends HttpsURLConnectionFactory {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusHttpsURLConnectionFactory.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusHttpsURLConnectionFactory.class);
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 

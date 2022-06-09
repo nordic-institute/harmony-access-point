@@ -1,6 +1,6 @@
 package eu.domibus.plugin.environment;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
@@ -13,7 +13,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  */
 public class ApplicationServerCondition implements Condition {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ApplicationServerCondition.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ApplicationServerCondition.class);
 
     /**
      * Returns true if the current server is WildFly or WebLogic

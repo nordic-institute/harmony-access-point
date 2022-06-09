@@ -13,7 +13,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.party.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @Validated
 public class PartyResource extends BaseResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
     private static final String DELIMITER = ", ";
 
     private PartyCoreMapper partyCoreMapper;

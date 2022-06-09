@@ -9,7 +9,7 @@ import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.ext.services.UserMessageExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserMessageServiceDelegate implements UserMessageExtService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageServiceDelegate.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageServiceDelegate.class);
 
     protected eu.domibus.api.usermessage.UserMessageService userMessageCoreService;
     protected DomibusExtMapper domibusExtMapper;

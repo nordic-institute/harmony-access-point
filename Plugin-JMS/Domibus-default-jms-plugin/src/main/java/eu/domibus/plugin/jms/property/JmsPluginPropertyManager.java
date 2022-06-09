@@ -5,7 +5,7 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.jms.JMSMessageConstants;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
  */
 @Service
 public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsPluginPropertyManager.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsPluginPropertyManager.class);
 
     private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
             new DomibusPropertyMetadataDTO(CONNECTION_FACTORY, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),

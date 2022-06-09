@@ -1,6 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ProxyHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ProxyHelper.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ProxyHelper.class);
 
     private DssExtensionPropertyManager dssExtensionPropertyManager;
 

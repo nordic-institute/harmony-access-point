@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs.worker;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.*;
@@ -27,7 +27,7 @@ import java.util.Map;
 @Service
 public class FSProcessFileService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
     //Constructor injection produces circular dependencies FSProcessFileService -> backendFSPlugin -> FSProcessFileService
     @Resource(name = "backendFSPlugin")
@@ -71,7 +71,7 @@ public class FSProcessFileService {
                 FSMessage message = new FSMessage(fsPayloads, metadata);
                 String messageId = backendFSPlugin.submit(message);
 
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+                LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
                 LOG.info("Message [{}] submitted: [{}]", messageId, processableFile.getName());
 
             } else {

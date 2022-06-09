@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.*;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.bouncycastle.util.encoders.Base64;
@@ -24,7 +24,7 @@ import java.security.cert.X509Certificate;
 @Component(value = "domibusAuthenticationService")
 public class AuthenticationDefaultService implements AuthenticationService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationDefaultService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationDefaultService.class);
 
     public static final String BASIC_AUTH_HEADER_KEY = "Authorization";
     public static final String BASIC_AUTH_SCHEME_PREFIX = "Basic ";
@@ -64,7 +64,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
 
         /* if domibus allows unsecure login, do not authenticate anymore, just go on */
         if (authUtils.isUnsecureLoginAllowed()) {
-            LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
+            LOG.putMDC(IDomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
             LOG.securityInfo(DomibusMessageCode.SEC_UNSECURED_LOGIN_ALLOWED);
             return;
         }
@@ -153,7 +153,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
             LOG.debug("Request authenticated. Storing the authentication result in the security context");
             LOG.debug("Authentication result: [{}]", authenticationResult);
             SecurityContextHolder.getContext().setAuthentication(authenticationResult);
-            LOG.putMDC(DomibusLogger.MDC_USER, authenticationResult.getName());
+            LOG.putMDC(IDomibusLogger.MDC_USER, authenticationResult.getName());
         } else {
             throw new AuthenticationException("The certificate is not valid or is not present or the basic authentication credentials are invalid");
         }

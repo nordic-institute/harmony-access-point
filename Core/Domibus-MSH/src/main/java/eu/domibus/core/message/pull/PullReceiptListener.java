@@ -20,7 +20,7 @@ import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
@@ -43,7 +43,7 @@ import java.nio.charset.StandardCharsets;
  */
 @Service
 public class PullReceiptListener implements MessageListener {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullReceiptListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PullReceiptListener.class);
 
     private static final int MAX_RETRY_COUNT = 3;
 
@@ -72,7 +72,7 @@ public class PullReceiptListener implements MessageListener {
     protected ReceiptDao receiptDao;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     @Counter(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     public void onMessage(final Message message) {

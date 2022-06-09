@@ -8,7 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class StaticDictionaryServiceImpl implements StaticDictionaryService {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StaticDictionaryServiceImpl.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(StaticDictionaryServiceImpl.class);
 
     protected MessageStatusDao messageStatusDao;
     protected NotificationStatusDao notificationStatusDao;

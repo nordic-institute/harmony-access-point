@@ -6,7 +6,7 @@ import eu.domibus.core.converter.BackendFilterCoreMapper;
 import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/rest/messagefilters")
 public class MessageFilterResource extends BaseResource {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageFilterResource.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageFilterResource.class);
 
     private final RoutingService routingService;
 

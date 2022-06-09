@@ -7,7 +7,7 @@ import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  */
 public abstract class AuthenticationServiceBase implements AuthenticationService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceBase.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceBase.class);
 
     @Autowired
     protected DomainService domainService;

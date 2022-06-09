@@ -3,7 +3,7 @@ package eu.domibus.core.cache;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.spring.SpringContextProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.ehcache.expiry.ExpiryPolicy;
 import org.springframework.context.ApplicationContext;
@@ -30,7 +30,7 @@ import java.util.function.Supplier;
  */
 public class DomibusCacheDynamicExpiryPolicy implements ExpiryPolicy {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheDynamicExpiryPolicy.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusCacheDynamicExpiryPolicy.class);
 
     protected volatile Duration expiryDuration = null;
 

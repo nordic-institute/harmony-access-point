@@ -1,7 +1,7 @@
 package eu.domibus.core.proxy;
 
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
@@ -13,7 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
  */
 public class DomibusProxy {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxy.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxy.class);
 
     protected Boolean enabled;
     protected String httpProxyHost;

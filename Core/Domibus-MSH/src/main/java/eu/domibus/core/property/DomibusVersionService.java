@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.TimeZone;
 @Service
 public class DomibusVersionService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionService.class);
 
     private static Properties versionProps = new Properties();
 

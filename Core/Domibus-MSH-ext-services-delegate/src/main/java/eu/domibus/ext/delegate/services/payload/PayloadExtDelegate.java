@@ -14,7 +14,7 @@ import eu.domibus.ext.domain.PartInfoDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.PayloadExtException;
 import eu.domibus.ext.services.PayloadExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.io.InputStream;
 @Service
 public class PayloadExtDelegate implements PayloadExtService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadExtDelegate.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadExtDelegate.class);
 
     protected UserMessageValidatorSpi userMessageValidatorSpi;
     protected PartInfoService partInfoService;

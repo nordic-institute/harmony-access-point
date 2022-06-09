@@ -11,7 +11,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.BackendPlugin;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections4.CollectionUtils;
@@ -39,7 +39,7 @@ import static java.util.Comparator.comparing;
  */
 @Service
 public class RoutingService {
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RoutingService.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(RoutingService.class);
 
     @Autowired
     protected BackendFilterDao backendFilterDao;

@@ -9,7 +9,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class PluginAsyncNotificationListener implements MessageListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationListener.class);
 
     protected AuthUtils authUtils;
     protected DomainContextProvider domainContextProvider;
@@ -48,7 +48,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
         this.authUtils = authUtils;
     }
 
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {IDomibusLogger.MDC_MESSAGE_ID, IDomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Transactional
     @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
@@ -60,7 +60,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
     public void doOnMessage(final Message message) {
         try {
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, messageId);
 
             final long messageEntityId = message.getLongProperty(MessageConstants.MESSAGE_ENTITY_ID);
 

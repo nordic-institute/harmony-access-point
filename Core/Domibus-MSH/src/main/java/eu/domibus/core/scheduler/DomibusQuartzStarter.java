@@ -11,7 +11,7 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +53,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     /**
      * logger
      */
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzStarter.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzStarter.class);
 
     @Autowired
     protected DomibusSchedulerFactory domibusSchedulerFactory;
@@ -160,6 +160,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         scheduler.start();
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
+        LOG.debug("--------------------------DEBUG LOG" + System.currentTimeMillis());
+        LOG.info("--------------------------INFO LOG" + System.currentTimeMillis());
 
         pauseJobsForCurrentDomain();
 

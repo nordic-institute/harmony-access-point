@@ -2,7 +2,7 @@ package eu.domibus.core.metrics;
 
 import com.codahale.metrics.servlets.AdminServlet;
 import com.codahale.metrics.servlets.MetricsServlet;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import javax.servlet.ServletConfig;
@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class DomibusAdminServlet extends AdminServlet {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAdminServlet.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAdminServlet.class);
 
     @SuppressWarnings("squid:S2226") // Following the pattern of AdminServlet
     private transient MetricsServlet domibusMetricsServlet;

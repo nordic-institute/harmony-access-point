@@ -6,7 +6,7 @@ import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,7 +24,7 @@ import java.util.List;
 @Service
 public class DomibusMonitoringDefaultService implements DomibusMonitoringService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringDefaultService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringDefaultService.class);
 
     @Autowired
     @Qualifier(UserManagementServiceImpl.BEAN_NAME)

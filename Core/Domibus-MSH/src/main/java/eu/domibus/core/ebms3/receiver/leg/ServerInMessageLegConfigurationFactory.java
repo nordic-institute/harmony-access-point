@@ -2,8 +2,7 @@ package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import javax.annotation.PostConstruct;
 @Qualifier("serverInMessageLegConfigurationFactory")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ServerInMessageLegConfigurationFactory implements MessageLegConfigurationFactory {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInMessageLegConfigurationFactory.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ServerInMessageLegConfigurationFactory.class);
 
     @Autowired
     private UserMessageLegConfigurationFactory userMessageLegConfigurationFactory;

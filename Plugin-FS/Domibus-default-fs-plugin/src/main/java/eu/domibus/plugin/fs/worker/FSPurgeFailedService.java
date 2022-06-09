@@ -2,7 +2,7 @@ package eu.domibus.plugin.fs.worker;
 
 import org.springframework.stereotype.Service;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSFilesManager;
 
@@ -12,7 +12,7 @@ import eu.domibus.plugin.fs.FSFilesManager;
 @Service
 public class FSPurgeFailedService extends FSAbstractPurgeService {
     
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeFailedService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeFailedService.class);
     
     @Override
     public void purgeMessages() {

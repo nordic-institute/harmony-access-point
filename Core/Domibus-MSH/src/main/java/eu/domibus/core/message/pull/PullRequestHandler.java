@@ -23,7 +23,7 @@ import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult
 @Component
 public class PullRequestHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullRequestHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PullRequestHandler.class);
 
     @Autowired
     private UserMessageDao userMessageDao;

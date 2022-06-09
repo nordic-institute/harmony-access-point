@@ -2,7 +2,7 @@ package eu.domibus.core.multitenancy.dao;
 
 
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,7 +20,7 @@ import java.util.List;
 @Repository
 public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements UserDomainDao {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainDaoImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainDaoImpl.class);
 
     public UserDomainDaoImpl() {
         super(UserDomainEntity.class);

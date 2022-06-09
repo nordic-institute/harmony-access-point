@@ -1,7 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.io.File;
@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public abstract class PluginPasswordEncryptionContextAbstract implements PluginPasswordEncryptionContext {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPasswordEncryptionContextAbstract.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginPasswordEncryptionContextAbstract.class);
 
     protected DomibusPropertyManagerExt propertyProvider;
 

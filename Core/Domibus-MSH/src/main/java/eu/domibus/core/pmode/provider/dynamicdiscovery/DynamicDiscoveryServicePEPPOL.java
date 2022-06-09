@@ -6,7 +6,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import network.oxalis.vefa.peppol.common.lang.EndpointNotFoundException;
 import network.oxalis.vefa.peppol.common.lang.PeppolLoadingException;
@@ -43,7 +43,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
 @Qualifier("dynamicDiscoveryServicePEPPOL")
 public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
 
     private static final String DEFAULT_RESPONDER_ROLE = "urn:fdc:peppol.eu:2017:roles:ap:as4";
 
@@ -94,7 +94,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
         this.endpointInfos = endpointInfos;
     }
 
-    protected DomibusLogger getLogger() {
+    protected IDomibusLogger getLogger() {
         return LOG;
     }
 

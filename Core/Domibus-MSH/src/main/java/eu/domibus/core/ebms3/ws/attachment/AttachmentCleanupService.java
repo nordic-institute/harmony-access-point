@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.ws.attachment;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.attachment.AttachmentDataSource;
 import org.apache.cxf.message.Attachment;
@@ -22,7 +22,7 @@ import java.util.Iterator;
 @Service
 public class AttachmentCleanupService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AttachmentCleanupService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AttachmentCleanupService.class);
 
     public void cleanAttachments(SOAPMessage soapMessage) {
         final Iterator iterator = soapMessage.getAttachments();

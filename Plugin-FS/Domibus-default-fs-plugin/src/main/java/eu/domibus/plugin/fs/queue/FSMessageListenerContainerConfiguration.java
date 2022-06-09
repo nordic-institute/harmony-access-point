@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs.queue;
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -30,7 +30,7 @@ import javax.jms.Session;
  */
 @Configuration
 public class FSMessageListenerContainerConfiguration {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSMessageListenerContainerConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSMessageListenerContainerConfiguration.class);
 
     @Autowired
     @Qualifier("fsPluginSendQueue")

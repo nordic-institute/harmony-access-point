@@ -13,7 +13,7 @@ import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +40,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 @Service
 public class EArchivingJobService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingJobService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingJobService.class);
     private final EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     private final DomibusPropertyProvider domibusPropertyProvider;

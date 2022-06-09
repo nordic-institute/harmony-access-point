@@ -7,7 +7,7 @@ import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class ExtExceptionHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ExtExceptionHelper.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ExtExceptionHelper.class);
 
     protected static final HttpStatus HTTP_STATUS_INVALID_REQUEST = HttpStatus.NOT_ACCEPTABLE;
 

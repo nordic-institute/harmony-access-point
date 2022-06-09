@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
@@ -22,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service("wsPluginLoggingPayloadPrintChangeListener")
 public class WSPluginLoggingPayloadPrintChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingPayloadPrintChangeListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingPayloadPrintChangeListener.class);
 
     private final WSPluginLoggingEventSender wsPluginLoggingEventSender;
 

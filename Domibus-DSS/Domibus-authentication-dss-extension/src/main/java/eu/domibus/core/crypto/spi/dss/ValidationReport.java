@@ -2,7 +2,7 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.detailedreport.jaxb.XmlConstraint;
 import eu.europa.esig.dss.detailedreport.jaxb.XmlDetailedReport;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Component
 public class ValidationReport {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ValidationReport.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ValidationReport.class);
 
     public static final String INVALID_CONSTRAINT_NAME = "INVALID_CONSTRAINT_NAME";
 

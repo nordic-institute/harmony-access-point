@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class MessageMonitoringExtResourceIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResourceIT.class);
+    private final static IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResourceIT.class);
 
     // The endpoints to test
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/monitoring/messages";

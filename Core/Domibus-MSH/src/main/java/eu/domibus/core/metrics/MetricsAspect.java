@@ -1,7 +1,7 @@
 package eu.domibus.core.metrics;
 
 import com.codahale.metrics.MetricRegistry;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -22,7 +22,7 @@ import static com.codahale.metrics.MetricRegistry.name;
 @Component
 public class MetricsAspect {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MetricsAspect.class);
+    public static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MetricsAspect.class);
 
     @Autowired
     protected MetricRegistry metricRegistry;

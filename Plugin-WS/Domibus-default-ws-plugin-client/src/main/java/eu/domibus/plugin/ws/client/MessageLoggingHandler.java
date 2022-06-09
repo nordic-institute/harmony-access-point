@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.client;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import javax.xml.namespace.QName;
@@ -20,7 +20,7 @@ import java.util.Set;
  */
 public class MessageLoggingHandler implements SOAPHandler<SOAPMessageContext> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLoggingHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLoggingHandler.class);
 
     @Override
     public Set<QName> getHeaders() {

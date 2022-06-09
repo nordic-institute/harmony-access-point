@@ -5,7 +5,7 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.JPAConstants;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,7 +26,7 @@ import static eu.domibus.core.message.pull.PullMessageState.RETRY;
 @Repository
 public class MessagingLockDaoImpl implements MessagingLockDao {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagingLockDaoImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagingLockDaoImpl.class);
 
     private static final String MESSAGE_ID = "MESSAGE_ID";
 

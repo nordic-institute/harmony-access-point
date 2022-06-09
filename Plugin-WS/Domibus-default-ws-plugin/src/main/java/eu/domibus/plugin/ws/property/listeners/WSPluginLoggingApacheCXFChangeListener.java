@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.property.listeners;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
@@ -27,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service
 public class WSPluginLoggingApacheCXFChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingApacheCXFChangeListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingApacheCXFChangeListener.class);
 
     private final LoggingFeature wsLoggingFeature;
     private final WSPluginLoggingEventSender wsPluginLoggingEventSender;

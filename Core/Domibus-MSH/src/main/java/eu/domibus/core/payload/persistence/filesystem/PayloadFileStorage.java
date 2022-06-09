@@ -5,7 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.util.WarningUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class PayloadFileStorage {
     public static final String ATTACHMENT_STORAGE_LOCATION = DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
     public static final String TEMPORARY_ATTACHMENT_STORAGE_LOCATION = DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION;
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadFileStorage.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(PayloadFileStorage.class);
 
     private File storageDirectory = null;
 

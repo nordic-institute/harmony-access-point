@@ -8,7 +8,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
@@ -34,7 +34,7 @@ import java.util.List;
 @Validated
 public class ErrorLogResource extends BaseResource {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ErrorLogResource.class);
+    private static final IDomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ErrorLogResource.class);
 
     @Autowired
     private ErrorLogService errorLogService;

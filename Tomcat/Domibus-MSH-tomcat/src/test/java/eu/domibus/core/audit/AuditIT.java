@@ -2,7 +2,7 @@ package eu.domibus.core.audit;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.core.user.ui.User;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,14 +17,14 @@ import javax.persistence.PersistenceContext;
 @Transactional
 public class AuditIT extends AbstractIT {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditIT.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditIT.class);
 
     @PersistenceContext
     private javax.persistence.EntityManager em;
 
     @Before
     public void setup() {
-        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
+        LOG.putMDC(IDomibusLogger.MDC_USER, "test_user");
     }
 
     //just inserting audited entity to verify that envers does not cause any problems.

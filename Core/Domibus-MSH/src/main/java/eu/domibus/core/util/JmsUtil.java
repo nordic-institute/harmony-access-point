@@ -1,7 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +17,7 @@ import javax.jms.Message;
 @Service
 public class JmsUtil {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsUtil.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsUtil.class);
 
     private final DomainContextProvider domainContextProvider;
 

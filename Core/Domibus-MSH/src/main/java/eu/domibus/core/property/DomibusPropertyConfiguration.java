@@ -1,6 +1,6 @@
 package eu.domibus.core.property;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +31,7 @@ public class DomibusPropertyConfiguration {
 
     public static final String MULTITENANT_DOMIBUS_PROPERTIES_SUFFIX = "-domibus.properties";
     public static final String SUPER_DOMIBUS_PROPERTIES = "super" + MULTITENANT_DOMIBUS_PROPERTIES_SUFFIX;
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyConfiguration.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyConfiguration.class);
 
     @Bean("domibusDefaultProperties")
     public PropertiesFactoryBean domibusDefaultProperties() throws IOException {

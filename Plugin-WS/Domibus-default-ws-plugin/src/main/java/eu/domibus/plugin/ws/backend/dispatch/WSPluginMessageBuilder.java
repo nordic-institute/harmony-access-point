@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
 import eu.domibus.ext.services.XMLUtilExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
@@ -36,7 +36,7 @@ import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 @Service
 public class WSPluginMessageBuilder {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMessageBuilder.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMessageBuilder.class);
     public static final String MIME_TYPE = "MimeType";
     public static final String PAYLOAD_NAME = "PayloadName";
 

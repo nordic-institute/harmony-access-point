@@ -1,7 +1,7 @@
 package eu.domibus.core.message.acknowledge;
 
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class MessageAcknowledgementPropertyDao extends BasicDao<MessageAcknowledgementProperty> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementPropertyDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementPropertyDao.class);
 
     public MessageAcknowledgementPropertyDao() {
         super(MessageAcknowledgementProperty.class);

@@ -1,6 +1,6 @@
 package eu.domibus.plugin.fs.worker;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSFilesManager;
 import org.apache.commons.vfs2.FileObject;
@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class FSPurgeReceivedService extends FSAbstractPurgeService {
     
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeReceivedService.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeReceivedService.class);
     
     @Override
     public void purgeMessages() {

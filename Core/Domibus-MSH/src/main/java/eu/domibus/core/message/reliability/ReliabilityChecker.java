@@ -19,7 +19,7 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.wss4j.dom.WSConstants;
@@ -56,7 +56,7 @@ import java.util.List;
  */
 @Service
 public class ReliabilityChecker {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityChecker.class);
 
     @Autowired
     @Qualifier("jaxbContextEBMS")

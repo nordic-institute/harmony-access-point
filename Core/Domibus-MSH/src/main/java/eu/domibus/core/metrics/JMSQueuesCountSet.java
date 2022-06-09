@@ -6,7 +6,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class JMSQueuesCountSet implements MetricSet {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSQueuesCountSet.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSQueuesCountSet.class);
 
     private JMSManager jmsManager;
 

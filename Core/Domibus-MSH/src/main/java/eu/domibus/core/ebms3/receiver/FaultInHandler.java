@@ -12,7 +12,7 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +38,7 @@ import java.util.Set;
  */
 @Service
 public class FaultInHandler extends AbstractFaultHandler {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultInHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultInHandler.class);
 
     @Autowired
     private EbMS3MessageBuilder messageBuilder;
@@ -179,10 +179,10 @@ public class FaultInHandler extends AbstractFaultHandler {
             LOG.trace("Messaging header is null, error log not created");
             return;
         }
-        final String senderParty = LOG.getMDC(DomibusLogger.MDC_FROM);
-        final String receiverParty = LOG.getMDC(DomibusLogger.MDC_TO);
-        final String service = LOG.getMDC(DomibusLogger.MDC_SERVICE);
-        final String action = LOG.getMDC(DomibusLogger.MDC_ACTION);
+        final String senderParty = LOG.getMDC(IDomibusLogger.MDC_FROM);
+        final String receiverParty = LOG.getMDC(IDomibusLogger.MDC_TO);
+        final String service = LOG.getMDC(IDomibusLogger.MDC_SERVICE);
+        final String action = LOG.getMDC(IDomibusLogger.MDC_ACTION);
 
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(service, action);
         LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId());

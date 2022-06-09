@@ -3,7 +3,7 @@ package eu.domibus.core.proxy;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service("domibusProxyService")
 public class DomibusProxyServiceImpl implements DomibusProxyService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxyServiceImpl.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxyServiceImpl.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;

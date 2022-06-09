@@ -7,7 +7,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -31,7 +31,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 @Service
 public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstract {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
     public static final String PLUGIN_PROPERTIES_FILE_NAME = "fs-plugin.properties";
 

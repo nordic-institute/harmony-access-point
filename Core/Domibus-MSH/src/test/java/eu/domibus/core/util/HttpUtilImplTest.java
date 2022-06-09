@@ -6,7 +6,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -35,7 +35,7 @@ import java.security.cert.X509CRL;
 @RunWith(JMockit.class)
 public class HttpUtilImplTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpUtilImplTest.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpUtilImplTest.class);
 
 
     private static final String RESOURCE_PATH = "src/main/conf/domibus/keystore/";

@@ -1,13 +1,11 @@
 package eu.domibus.api.ebms3.model;
 
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.activation.DataHandler;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -30,7 +28,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlType(name = "PartInfo", propOrder = {"schema", "description", "partProperties"})
 public class Ebms3PartInfo implements Comparable<Ebms3PartInfo> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(Ebms3PartInfo.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(Ebms3PartInfo.class);
 
     @XmlElement(name = "Schema")
     protected Ebms3Schema schema; //NOSONAR

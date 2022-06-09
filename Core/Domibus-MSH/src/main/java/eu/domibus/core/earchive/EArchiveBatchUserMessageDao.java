@@ -2,7 +2,7 @@ package eu.domibus.core.earchive;
 
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.util.QueryUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public class EArchiveBatchUserMessageDao extends BasicDao<EArchiveBatchUserMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchUserMessageDao.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveBatchUserMessageDao.class);
 
     private final QueryUtil queryUtil;
 

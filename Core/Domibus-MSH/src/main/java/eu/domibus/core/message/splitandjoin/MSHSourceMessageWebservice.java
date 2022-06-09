@@ -11,7 +11,7 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import java.io.File;
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
 public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHSourceMessageWebservice.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHSourceMessageWebservice.class);
 
     public static final String SOURCE_MESSAGE_FILE = "sourceMessageFile";
 

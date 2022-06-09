@@ -9,7 +9,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.core.security.AuthorizationServiceImpl;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingUserMessageHandler.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingUserMessageHandler.class);
 
     @Autowired
     protected AttachmentCleanupService attachmentCleanupService;
@@ -46,7 +46,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         LOG.debug("Processing UserMessage");
 
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
+        LOG.putMDC(IDomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
         Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
         List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
         partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));

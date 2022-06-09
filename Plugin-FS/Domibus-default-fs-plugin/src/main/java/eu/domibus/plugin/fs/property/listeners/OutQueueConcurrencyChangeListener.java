@@ -2,7 +2,7 @@ package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.IDomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
@@ -21,7 +21,7 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
  */
 @Component
 public class OutQueueConcurrencyChangeListener implements PluginPropertyChangeListener {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
+    private static final IDomibusLogger LOG = DomibusLoggerFactory.getLogger(TriggerChangeListener.class);
 
     @Autowired
     private FSSendMessageListenerContainer messageListenerContainer;
