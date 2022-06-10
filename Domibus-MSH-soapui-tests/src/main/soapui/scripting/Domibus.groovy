@@ -9,6 +9,10 @@ import groovy.sql.Sql
 
 import javax.swing.JOptionPane
 import java.sql.SQLException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 import static javax.swing.JOptionPane.showConfirmDialog
 import com.eviware.soapui.support.GroovyUtils
@@ -603,6 +607,84 @@ class Domibus{
 		}
 		debugLog("  ====  ENDING \"getMsgStatusNames\".", log)
 		return STATUS_MAP		
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def displayList(inputList,title){	
+		def strResult=""
+		inputList.each{
+			v ->
+			strResult=strResult+" | "+v 
+		}
+		log.info "============================="
+		log.info "list[$title] contains "+inputList.size()+" elements."
+		log.info "list[$title]:"+strResult		
+		log.info "============================="
+		log.info "\n"
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+	def DisplayMessagesStatus(sideName){
+	
+		def messageList=[]
+		def ackList=[]
+		def recList=[]
+		def delList=[]
+		def downList=[]
+		def wfrList=[]		
+		def sfList=[]
+		def readypullList=[]
+		def msgPK=null
+		def messageStatus=null
+		
+		def sqlConn = retrieveSqlConnectionRefFromDomainId(sideName)
+		
+		// Fill in message list 
+		sqlConn.eachRow("Select MESSAGE_ID from TB_USER_MESSAGE") {
+			messageList << it.MESSAGE_ID
+		}
+		
+		messageList.each{
+			k ->
+			sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${k}),' ','')") {
+				msgPK = it.ID_PK
+			}
+			sqlConn.eachRow("select d.STATUS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
+				messageStatus = it.STATUS
+				switch(messageStatus.toLowerCase()){
+					case "acknowledged":
+						ackList << k
+						break
+					case "received":
+						recList << k
+						break
+					case "deleted":
+						delList << k
+						break
+					case "downloaded":
+						downList << k
+						break
+					case "waiting_for_retry":
+						wfrList << k
+						break
+					case "send_failure":
+						sfList << k
+						break
+					case "ready_to_pull":
+						readypullList << k
+						break
+					default:
+						log.error "Could not assess the status of message: "+k
+						break							
+				}
+			}
+		}
+		displayList(ackList,"ACKNOWLEDGED")
+		displayList(recList,"RECEIVED")
+		displayList(delList,"DELETED")
+		displayList(downList,"DOWNLOADED")
+		displayList(wfrList,"WAITING_FOR_RETRY")
+		displayList(sfList,"SEND_FAILURE")
+		displayList(readypullList,"READY_TO_PULL")
+		
 	}
 //---------------------------------------------------------------------------------------------------------------------------------
 	def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null){
@@ -2319,20 +2401,17 @@ class Domibus{
 // Copy file from source to destination
     static void  copyFile(String source, String destination, log, overwriteOpt = true){
         debugLog("  ====  Calling \"copyFile\".",log)
-        // Check that destination folder exists.
-        //def destFolder = new File("${destination}")
-        //assert destFolder.exists(), "Error while trying to copy file to folder " + destination + ": Destination folder doesn't exist."
-
-        def builder = new AntBuilder()
-        try {
-            builder.sequential {
-                copy(tofile: destination, file:source, overwrite:overwriteOpt)
-            }
-            log.info "  copyFile  [][]  File ${source} was successfuly copied to ${destination}"
+		
+		def sourceFile=new File(source)
+		def destFile=new File(destination)
+		try {
+			FileUtils.copyFile(sourceFile,destFile)
         } catch (Exception ex) {
             log.error "  copyFile  [][]  Error while trying to copy files: " + ex
             assert 0
         }
+		
+		debugLog("  ====  \"copyFile\" DONE.",log)
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
@@ -2718,7 +2797,6 @@ class Domibus{
     static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null,message = "successfully"){
         def authenticationUser = authUser
         def authenticationPwd = authPwd
-		def isClustered="false"
 
         debugLog("  ====  Calling \"changePropertyAtRuntime\".", log)
         log.info "  changePropertyAtRuntime  [][]  Start procedure to change property at runtime for Domibus \"" + side + "\"."
@@ -2738,8 +2816,7 @@ class Domibus{
 
             if(message == "successfully"){
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change property at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
-				isClustered=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, "Default", authenticationUser, authenticationPwd) ?: "false"
-				if(isClustered.toLowerCase().equals("true")){
+				if(isClustered(side,context,log, domainValue,authenticationUser, authenticationPwd)){
 					log.info "  changePropertyAtRuntime  [][]  Cluster detected, will sleep for few seconds ..."
 					sleep(CLUSTER_WAIT_TIME)
 				}
@@ -2754,7 +2831,7 @@ class Domibus{
         debugLog("  ====  Finished \"changePropertyAtRuntime\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def getPropertyAtRuntime(String side, String propName, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+    static def getPropertyAtRuntime(String side, String propName, context, log, String domainValue = "Default",showDomain="true", String authUser = null, authPwd = null){
         def authenticationUser = authUser
         def authenticationPwd = authPwd
         def jsonSlurper = new JsonSlurper()
@@ -2766,7 +2843,7 @@ class Domibus{
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/$propName",
+            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties?showDomain=$showDomain&name=$propName",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H",  "Content-Type: text/xml",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
@@ -2777,7 +2854,7 @@ class Domibus{
             debugLog("  getPropertyAtRuntime  [][]  Property get result: $propMetadata", log)
             def propMap = jsonSlurper.parseText(propMetadata)
             assert(propMap != null),"Error:getPropertyAtRuntime: Error while parsing the returned property value: null result found."
-            propValue = propMap.value
+            propValue = propMap.items[0].value
 
             //assert(propValue!= null), "Error: getPropertyAtRuntime: no property found matching name \"$propName\""
             log.info "  getPropertyAtRuntime  [][]  Property \"$propName\" value = \"$propValue\"."
@@ -2789,9 +2866,9 @@ class Domibus{
         return propValue
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def testPropertyAtRuntime(String side, String propName, String propTestValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+    static def testPropertyAtRuntime(String side, String propName, String propTestValue, context, log, String domainValue = "Default",showDomain="false", String authUser = null, authPwd = null){
         debugLog("  ====  Calling \"testPropertyAtRuntime\".", log)
-        def returnedPropValue = getPropertyAtRuntime(side,propName,context,log,domainValue,authUser,authPwd)
+        def returnedPropValue = getPropertyAtRuntime(side,propName,context,log,domainValue,showDomain,authUser,authPwd)
         debugLog("  testPropertyAtRuntime  [][]  Comparing property fetched value \"$returnedPropValue\" against input value \"$propTestValue\".",log)
         assert(returnedPropValue.equals(propTestValue)),"Error: testPropertyAtRuntime: property fetched value = \"$returnedPropValue\" instead of \"$propTestValue\""
         log.info "  testPropertyAtRuntime  [][]  Success: property fetched value \"$returnedPropValue\" and input value \"$propTestValue\" are equal."
@@ -3931,22 +4008,47 @@ class Domibus{
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
         debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
         def folder = new File(fsPayloadPath)
-        FileUtils.cleanDirectory(folder)
+		try{
+			FileUtils.cleanDirectory(folder)
+		}catch(Exception ex){
+			log.error "Not possible to clean directory: "+fsPayloadPath
+			log.error "encountered exception: "+ex
+		}
 
         fsPayloadPath = fsPayloadPathBase + "/OUT"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
         debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
         folder = new File(fsPayloadPath)
-        FileUtils.cleanDirectory(folder)
+		try{
+			FileUtils.cleanDirectory(folder)
+		}catch(Exception ex){
+			log.error "Not possible to clean directory: "+fsPayloadPath
+			log.error "encountered exception: "+ex
+		}
 
         fsPayloadPath = fsPayloadPathBase + "/FAILED"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
         debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
         folder = new File(fsPayloadPath)
-        FileUtils.cleanDirectory(folder)
+		try{
+			FileUtils.cleanDirectory(folder)
+		}catch(Exception ex){
+			log.error "Not possible to clean directory: "+fsPayloadPath
+			log.error "encountered exception: "+ex
+		}
 
         debugLog("  ====  \"cleanFSPluginFolders\" DONE.", log)
     }
+//---------------------------------------------------------------------------------------------------------------------------------
+	def static isClustered(String side,context,log,String domainValue = "default",String authUser = null, authPwd = null){
+	    def authenticationUser = authUser
+        def authenticationPwd = authPwd
+		def isClusteredValue=false
+		
+		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+		isClusteredValue=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, domainValue,"false", authenticationUser, authenticationPwd) ?: "false"
+		return isClusteredValue.toLowerCase().toBoolean() 
+	}
 //---------------------------------------------------------------------------------------------------------------------------------
     def static getCurrentPmodeID(String side,context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
         debugLog("  ====  Calling \"getCurrentPmodeID\".", log)
@@ -4081,6 +4183,60 @@ class Domibus{
         }
 
         debugLog("  ====  \"updatePmodeParameter\" DONE.", log)
+
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    def static updatePmodeStringRest(String side,context,log,testRunner,String domainValue = "default",target="",targetRep = "",String authUser = null, authPwd = null){
+        debugLog("  ====  Calling \"updatePmodeStringRest\".", log)
+		
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
+        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+		
+        String pmodeText = getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd)
+		
+		debugLog("  updatePmodeStringRest  [][]  Current Pmode successfully retrieved.", log)
+        def pmodeFile = null
+        def pmDescription = "SoapUI sample test description for PMode upload."
+		def formattedPath=null
+
+        // Re-upload new Pmode file
+        File tempfile = null
+        try {
+            // creates temporary file
+            tempfile = File.createTempFile("tmp", ".xml")
+            tempfile.write(pmodeText.replaceAll(target,targetRep))
+            // deletes file when the virtual machine terminate
+            tempfile.deleteOnExit()
+        } catch(Exception ex) {
+            // if any error occurs
+			assert (0),"Error while creating temp file ... " + ex
+        }
+		formattedPath=tempfile.getAbsolutePath()
+		if (System.properties['os.name'].toLowerCase().contains('windows'))
+            formattedPath = formattedPath.replace("\\", "\\\\")
+        else
+            formattedPath = formattedPath.replace("\\", "/")
+		
+		debugLog("  updatePmodeStringRest  [][]  formattedPath: "+formattedPath, log)
+		
+		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+        try{
+            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode",
+                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+                                 "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+                                 "-F", "description=" + pmDescription,
+                                 "-F", "file=@" + tempfile,
+                                 "-v"]
+            def commandResult = runCommandInShell(commandString, log)
+            assert(commandResult[0].contains("successfully")),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected string \"successfully\"."
+        }finally {
+            resetAuthTokens(log)
+			tempfile.delete()  
+        }
+
+        debugLog("  ====  \"updatePmodeStringRest\" DONE.", log)
 
     }
 //---------------------------------------------------------------------------------------------------------------------------------
