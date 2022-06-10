@@ -11,7 +11,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author François Gautier
- * @since 5.0
+ * @since 5.1
  */
 @Configuration
 public class WSPluginLoggingConfiguration {

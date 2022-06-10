@@ -27,7 +27,6 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
     static final String SUBMIT_REQUEST = "submitRequest";
     static final String OPERATION_SUBMIT_MESSAGE = "submitMessage";
-    static final String OPERATION_DISPATCH = "{http://cxf.apache.org/jaxws/dispatch}Invoke";
     static final String OPERATION_RETRIEVE_MESSAGE = "retrieveMessage";
     static final String HEADERS_AUTHORIZATION = "Authorization";
     public static final String DISPATCH_SERVICE = "{eu.domibus}wsplugin-dispatch-service";
