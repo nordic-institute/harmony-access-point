@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
-import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
@@ -19,8 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 
@@ -53,9 +50,6 @@ public class WSPluginMessageSenderTest {
 
     @Injectable
     protected WSPluginImpl wsPlugin;
-
-    @Injectable
-    protected XMLUtil xmlUtil;
 
 
     @Test(expected = WSPluginException.class)
@@ -113,11 +107,6 @@ public class WSPluginMessageSenderTest {
             result = soapMessage;
             times = 1;
 
-            soapMessage.getSOAPPart();
-
-            transformerFactory.newTransformer().transform((Source) any, (Result) any);
-
-            xmlUtil.getTransformerFactory();
         }};
 
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
@@ -146,12 +135,6 @@ public class WSPluginMessageSenderTest {
 
             wsBackendMessageLogEntity.getType();
             result = WSBackendMessageType.SEND_SUCCESS;
-
-            transformerFactory.newTransformer().transform((Source) any, (Result) any);
-
-            xmlUtil.getTransformerFactory();
-
-            soapMessage.getSOAPPart();
 
             wsBackendMessageLogEntity.getEntityId();
             result = ID;
