@@ -361,7 +361,7 @@ public class DomibusPropertyMetadata {
      * More types can be added later without any breaking changes
      */
     public enum Type {
-        NUMERIC("^(-?[1-9]\\d*|0)$"),
+        NUMERIC("^-?[0-9]+(\\.[0-9]{1,2})?$"),
         BOOLEAN("^(true|false)$"),
         CONCURRENCY("^(\\d+(\\-\\d+)*)$"),
         EMAIL("^(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{1,})[\\s\\;]*)*$"),
