@@ -361,4 +361,148 @@ class ExtRestUtils {
 		LogUtils.debugLog("  ====  \"testDownloadPayloadEntityIDRequest\" DONE.",log)
 	}
 
+    def static updateBatchStatusRequest(log,context, String side, String batchId, String batchStatus="ARCHIVED", String pluginUser = null, String pluginPassword = null){	
+        LogUtils.debugLog("  ====  Calling \"updateBatchStatusRequest\".",log)
+		
+		log.info "  updateBatchStatusRequest  [][]  Sending request to update the status of batch \"$batchId\" to \"$batchStatus\"."
+        def commandString = ["curl ",Domibus.urlToDomibus(side, log, context) + "/ext/archive/batches/exported/$batchId/close?status=$batchStatus",
+								"-H", "accept: application/json",
+								"-H", "Authorization: Basic ${"$pluginUser:$pluginPassword".bytes.encodeBase64().toString()}",
+								"-X", "PUT",
+                                "-v"]	
+
+		def commandResult = ShellUtils.runCommandInShell(commandString)
+		
+		LogUtils.debugLog("  ====  \"updateBatchStatusRequest\" DONE.",log)
+		
+		return commandResult		
+    }
+	
+	def static testUpdateBatchStatusRequest(log,context, String side, String status, String batchId, String batchStatus="ARCHIVED", String pluginUser = null, String pluginPassword = null, String message=null){
+		LogUtils.debugLog("  ====  Calling \"testUpdateBatchStatusRequest\".",log)
+
+		log.info "  testUpdateBatchStatusRequest  [][]  Test that status=\"$status\" for request to update the status of batch \"$batchId\" to \"$batchStatus\"."
+		def outcome=updateBatchStatusRequest(log, context, side, batchId, batchStatus, pluginUser, pluginPassword)
+		assertRestRequestOutcome(log, outcome,status,message)
+
+		LogUtils.debugLog("  ====  \"testUpdateBatchStatusRequest\" DONE.",log)
+	}
+
+    def static getContinuousStartDateRequest(log,context,side,String pluginUser = null, String pluginPassword = null, returnSet=false){	
+        LogUtils.debugLog("  ====  Calling \"getContinuousStartDateRequest\".",log)
+		
+		log.info "  getContinuousStartDateRequest  [][]  Sending request to get the continuous start date."
+        def commandString = ["curl ",Domibus.urlToDomibus(side, log, context) + "/ext/archive/continuous-mechanism/start-date",
+								"-H", "accept: application/json",
+								"-H", "Authorization: Basic ${"$pluginUser:$pluginPassword".bytes.encodeBase64().toString()}",
+								"-X", "GET",
+                                "-v"]	
+
+		def commandResult = ShellUtils.runCommandInShell(commandString)
+		
+		LogUtils.debugLog("  ====  \"getContinuousStartDateRequest\" DONE.",log)
+		if(returnSet){
+			return commandResult	
+		}else{
+			return commandResult[0]
+		}		
+    }
+	
+	def static testGetContinuousStartDateRequest(log,context, String side, String status, String pluginUser = null, String pluginPassword = null, String message=null){
+		LogUtils.debugLog("  ====  Calling \"testGetContinuousStartDateRequest\".",log)
+
+		log.info "  testGetContinuousStartDateRequest  [][]  Test that status=\"$status\" for request to get the continuous start date."
+		def outcome=getContinuousStartDateRequest(log, context, side, pluginUser, pluginPassword,true)
+		assertRestRequestOutcome(log, outcome,status,message)
+
+		LogUtils.debugLog("  ====  \"testGetContinuousStartDateRequest\" DONE.",log)
+	}
+
+    def static putContinuousStartDateRequest(log,context, side, String dateValue,String pluginUser = null, String pluginPassword = null){	
+        LogUtils.debugLog("  ====  Calling \"putContinuousStartDateRequest\".",log)
+		
+		log.info "  putContinuousStartDateRequest  [][]  Sending request to update the continuous start date."
+        def commandString = ["curl ",Domibus.urlToDomibus(side, log, context) + "/ext/archive/continuous-mechanism/start-date?messageStartDate=$dateValue",
+								"-H", "accept: */*",
+								"-H", "Authorization: Basic ${"$pluginUser:$pluginPassword".bytes.encodeBase64().toString()}",
+								"-X", "PUT",
+                                "-v"]	
+
+		def commandResult = ShellUtils.runCommandInShell(commandString)
+		
+		LogUtils.debugLog("  ====  \"putContinuousStartDateRequest\" DONE.",log)
+		
+		return commandResult		
+    }
+	
+	def static testPutContinuousStartDateRequest(log,context, String side, String dateValue, String status, String pluginUser = null, String pluginPassword = null, String message=null){
+		LogUtils.debugLog("  ====  Calling \"testPutContinuousStartDateRequest\".",log)
+
+		log.info "  testPutContinuousStartDateRequest  [][]  Test that status=\"$status\" for request to update the continuous start date."
+		def outcome=putContinuousStartDateRequest(log, context, side, dateValue, pluginUser, pluginPassword)
+		assertRestRequestOutcome(log, outcome,status,message)
+
+		LogUtils.debugLog("  ====  \"testPutContinuousStartDateRequest\" DONE.",log)
+	}
+	
+// ----------------------------------------------------------------------------------------------------------------------	
+    def static getSanityStartDateRequest(log,context, side,String pluginUser = null, String pluginPassword = null, returnSet=false){	
+        LogUtils.debugLog("  ====  Calling \"getSanityStartDateRequest\".",log)
+		
+		log.info "  getSanityStartDateRequest  [][]  Sending request to get the sanity mecanism start date."
+        def commandString = ["curl ",Domibus.urlToDomibus(side, log, context) + "/ext/archive/sanity-mechanism/start-date",
+								"-H", "accept: application/json",
+								"-H", "Authorization: Basic ${"$pluginUser:$pluginPassword".bytes.encodeBase64().toString()}",
+								"-X", "GET",
+                                "-v"]	
+
+		def commandResult = ShellUtils.runCommandInShell(commandString)
+		
+		LogUtils.debugLog("  ====  \"getSanityStartDateRequest\" DONE.",log)
+		
+		if(returnSet){
+			return commandResult	
+		}else{
+			return commandResult[0]
+		}		
+    }
+	
+	def static testGetSanityStartDateRequest(log,context, String side, String status, String pluginUser = null, String pluginPassword = null, String message=null){
+		LogUtils.debugLog("  ====  Calling \"testGetSanityStartDateRequest\".",log)
+
+		log.info "  testGetSanityStartDateRequest  [][]  Test that status=\"$status\" for request to get the sanity mecanism start date."
+		def outcome=getSanityStartDateRequest(log, context, side, pluginUser, pluginPassword,true)
+		assertRestRequestOutcome(log, outcome,status,message)
+
+		LogUtils.debugLog("  ====  \"testGetSanityStartDateRequest\" DONE.",log)
+	}
+
+    def static putSanityStartDateRequest(log,context, side, String dateValue,String pluginUser = null, String pluginPassword = null){	
+        LogUtils.debugLog("  ====  Calling \"putSanityStartDateRequest\".",log)
+		
+		log.info "  putSanityStartDateRequest  [][]  Sending request to update the sanity mecanism start date."
+        def commandString = ["curl ",Domibus.urlToDomibus(side, log, context) + "/ext/archive/sanity-mechanism/start-date?messageStartDate=$dateValue",
+								"-H", "accept: */*",
+								"-H", "Authorization: Basic ${"$pluginUser:$pluginPassword".bytes.encodeBase64().toString()}",
+								"-X", "PUT",
+                                "-v"]	
+
+		def commandResult = ShellUtils.runCommandInShell(commandString)
+		
+		LogUtils.debugLog("  ====  \"putSanityStartDateRequest\" DONE.",log)
+		
+		return commandResult		
+    }
+	
+	def static testPutSanityStartDateRequest(log,context, String side, String dateValue, String status, String pluginUser = null, String pluginPassword = null, String message=null){
+		LogUtils.debugLog("  ====  Calling \"testPutSanityStartDateRequest\".",log)
+
+		log.info "  testPutSanityStartDateRequest  [][]  Test that status=\"$status\" for request to update the sanity mecanism start date."
+		def outcome=putSanityStartDateRequest(log, context, side, dateValue, pluginUser, pluginPassword)
+		assertRestRequestOutcome(log, outcome,status,message)
+
+		LogUtils.debugLog("  ====  \"testPutSanityStartDateRequest\" DONE.",log)
+	}
+	
+
 }

@@ -12,4 +12,11 @@ class DomibusConstants {
 	public static final def FS_DEF_MAP = [FS_DEF_SENDER:"domibus-blue",FS_DEF_P_TYPE:"urn:oasis:names:tc:ebcore:partyid-type:unregistered",FS_DEF_S_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator",FS_DEF_RECEIVER:"domibus-red",FS_DEF_R_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4",FS_DEF_PROC_TYPE:"PUSH"]
 	public static final def SLEEP_DELAY = 50_000
 	public static final def DEFAULT_LOG_LEVEL = "1"
+	public static final FOLDER_REPRESENTATIONS = "representations"
+    public static final FOLDER_REPRESENTATION1 = "representation1"
+    public static final FOLDER_DATA = "data"
+    public static final BATCH_JSON_NAME = "batch.json"
+    public static final BATCH_METS_NAME = "METS.xml"
+	public static final def BATCH_SUCCESS_STATUS="success" // Status value assigned to a batch in case of a successfull export
+	public static final def BATCH_FAILURE_STATUS="failure" // Status value assigned to a batch in case of a failed export
 }
