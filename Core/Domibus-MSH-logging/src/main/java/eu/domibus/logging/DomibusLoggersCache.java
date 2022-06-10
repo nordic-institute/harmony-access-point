@@ -10,7 +10,6 @@ import static eu.domibus.logging.DomibusLogger.MDC_DOMAIN;
 import static eu.domibus.logging.DomibusLogger.MDC_PROPERTY_PREFIX;
 
 public class DomibusLoggersCache {
-    public static final String COMMON_PREFIX = "domibus";
     private final static Map<String, DomibusLogger> cache = new ConcurrentHashMap<>();
 
     public static DomibusLogger getLogger(String name){
@@ -24,11 +23,12 @@ public class DomibusLoggersCache {
     }
 
     public static String getLoggerName(String name) {
-        final String domainName = MDC.get(MDC_PROPERTY_PREFIX + MDC_DOMAIN);
-        String loggerNamePrefix = COMMON_PREFIX + ".";
-        if(domainName != null){
-            loggerNamePrefix = loggerNamePrefix + domainName + ".";
+        String domainName = MDC.get(MDC_PROPERTY_PREFIX + MDC_DOMAIN);
+        if(domainName == null){
+            domainName = "";
+        } else {
+            domainName = domainName + ".";
         }
-        return loggerNamePrefix + name;
+        return domainName + name;
     }
 }
