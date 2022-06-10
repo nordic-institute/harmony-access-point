@@ -67,6 +67,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
     protected From getFrom(UserMessage userMessage) {
         if (userMessage == null
                 || userMessage.getPartyInfo() == null) {
+            return null;
         }
         return userMessage.getPartyInfo().getFrom();
     }

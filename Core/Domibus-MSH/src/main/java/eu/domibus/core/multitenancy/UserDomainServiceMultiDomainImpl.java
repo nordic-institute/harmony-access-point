@@ -69,14 +69,14 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     public void setDomainForUser(String user, String domainCode) {
         LOG.debug("Setting domain [{}] for user [{}]", domainCode, user);
 
-        executeInContext(() -> userDomainDao.setDomainByUser(user, domainCode));
+        executeInContext(() -> setDomainByUser(user, domainCode));
     }
 
     @Override
     public void setPreferredDomainForUser(String user, String domainCode) {
         LOG.debug("Setting preferred domain [{}] for user [{}]", domainCode, user);
 
-        executeInContext(() -> userDomainDao.setPreferredDomainByUser(user, domainCode));
+        executeInContext(() -> setPreferredDomainByUser(user, domainCode));
     }
 
     @Override
@@ -84,6 +84,16 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
         LOG.debug("Deleting domain for user [{}]", user);
 
         executeInContext(() -> userDomainDao.deleteDomainByUser(user));
+    }
+
+    private void setDomainByUser(String user, String domainCode) {
+        userDomainDao.setDomainByUser(user, domainCode);
+        domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
+    }
+
+    private void setPreferredDomainByUser(String user, String domainCode) {
+        userDomainDao.setPreferredDomainByUser(user, domainCode);
+        domibusCacheService.clearCache(DomibusCacheService.PREFERRED_USER_DOMAIN_CACHE);
     }
 
     protected void executeInContext(Runnable method) {
@@ -94,7 +104,6 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
         domainTaskExecutor.submit(() -> authUtils.runWithSecurityContext(() -> {
             LOG.putMDC(DomibusLogger.MDC_USER, ud.getUsername());
             method.run();
-            domibusCacheService.clearCache(DomibusCacheService.USER_DOMAIN_CACHE);
         }, ud.getUsername(), ud.getPassword()));
     }
 }

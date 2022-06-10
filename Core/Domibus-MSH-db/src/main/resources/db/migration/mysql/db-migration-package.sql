@@ -1854,7 +1854,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate_raw_envelope_log()
                 LEAVE read_loop;
             END IF;
 
-            IF @v_type = 'USER' THEN
+            IF type = 'USER' THEN
                 BEGIN
                     DECLARE EXIT HANDLER FOR SQLEXCEPTION
                         BEGIN
@@ -9266,11 +9266,9 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
         CALL MIGRATE_42_TO_50_migrate_command();
         CALL MIGRATE_42_TO_50_migrate_command_property();
         --
-        CALL MIGRATE_42_TO_50_migrate_encryption_key; -- SECRET_KEY & INIT_VECTOR (BLOB > LONGBLOB)
+        CALL MIGRATE_42_TO_50_migrate_encryption_key;
         --
         CALL MIGRATE_42_TO_50_migrate_message_acknw_prop();
-        --
-        -- CALL MIGRATE_42_TO_50_migrate_message_ui;
         --
         CALL MIGRATE_42_TO_50_migrate_messaging_lock();
         --
@@ -9304,7 +9302,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
         CALL MIGRATE_42_TO_50_migrate_pm_join_process_leg();
         CALL MIGRATE_42_TO_50_migrate_pm_join_process_resp_party();
         --
-        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw(); -- XML (BLOB > LONGBLOB)
+        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw();
         --
         CALL MIGRATE_42_TO_50_migrate_user();
         CALL MIGRATE_42_TO_50_migrate_user_password_history();
@@ -9321,7 +9319,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_migrate()
         CALL MIGRATE_42_TO_50_migrate_backend_filter_aud(@missing_entity_date_prefix);
         CALL MIGRATE_42_TO_50_migrate_certificate_aud(@missing_entity_date_prefix);
         CALL MIGRATE_42_TO_50_migrate_pm_configuration_aud(@missing_entity_date_prefix);
-        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(@missing_entity_date_prefix); -- XML (BLOB > LONGBLOB)
+        CALL MIGRATE_42_TO_50_migrate_pm_configuration_raw_aud(@missing_entity_date_prefix);
         CALL MIGRATE_42_TO_50_migrate_pm_party_aud(@missing_entity_date_prefix);
         CALL MIGRATE_42_TO_50_migrate_pm_party_id_type_aud(@missing_entity_date_prefix);
         CALL MIGRATE_42_TO_50_migrate_pm_party_identifier_aud(@missing_entity_date_prefix);

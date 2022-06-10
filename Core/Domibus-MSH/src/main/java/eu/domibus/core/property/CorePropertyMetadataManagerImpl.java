@@ -26,6 +26,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_NAME, Type.STRING),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CONFIG_LOCATION, Type.URI),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED, Type.BOOLEAN),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
             new DomibusPropertyMetadata(DOMIBUS_DATABASE_SCHEMA, false, Usage.DOMAIN, false),
@@ -180,6 +181,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_JMS_CONCURRENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY, Type.BOOLEAN, Usage.DOMAIN, true),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_ENABLED, Type.BOOLEAN),
@@ -207,6 +209,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD, Type.NUMERIC, Usage.DOMAIN, true),
@@ -216,7 +219,6 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST, Type.REGEXP),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_LENGTH_MAX, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED, Type.BOOLEAN),
-
 
             new DomibusPropertyMetadata(DOMIBUS_ACCOUNT_UNLOCK_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_CERTIFICATE_CHECK_CRON, Type.CRON, Usage.DOMAIN, true),

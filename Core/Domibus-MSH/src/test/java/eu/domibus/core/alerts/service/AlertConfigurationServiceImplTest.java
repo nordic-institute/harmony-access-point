@@ -106,10 +106,7 @@ public class AlertConfigurationServiceImplTest {
         AlertConfigurationManager res = configurationService.getModuleConfigurationManager(alertType1);
         Assert.assertTrue(res == alertConfigurationManager1);
 
-        try {
-            AlertConfigurationManager res2 = configurationService.getModuleConfigurationManager(alertType3);
-            Assert.fail();
-        } catch (IllegalArgumentException ex) {
-        }
+        AlertConfigurationManager res3 = configurationService.getModuleConfigurationManager(alertType3);
+        Assert.assertNull(res3);
     }
 }

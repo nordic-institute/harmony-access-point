@@ -6,7 +6,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -17,7 +16,6 @@ import java.net.URL;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE;
 
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DomibusHttpsURLConnectionFactoryTest {
 

@@ -12,13 +12,9 @@ import eu.domibus.core.earchive.eark.FileSystemEArchivePersistence;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +29,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class EArchiveListenerTest {
 
     @Tested
@@ -124,11 +119,11 @@ public class EArchiveListenerTest {
     public void onMessage_noMessages(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
-        String firstUserMessageEntityId = "220511070000001204";
+        Long firstUserMessageEntityId = 220511070000001204L;
 
-        String lastUserMessageEntityId = "220511080000001204";
+        Long lastUserMessageEntityId = 220511080000001204L;
 
-        new Expectations(eArchiveListener) {{
+        new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -139,7 +134,7 @@ public class EArchiveListenerTest {
             result = entityId;
 
             jmsUtil.getMessageTypeSafely(message);
-            result=EArchiveBatchStatus.EXPORTED.name();
+            result = EArchiveBatchStatus.EXPORTED.name();
 
             eArchivingDefaultService.getEArchiveBatch(entityId, true);
             result = eArchiveBatch;
@@ -156,16 +151,16 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = EArchiveRequestType.CONTINUOUS;
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, 0);
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, eArchiveListener.getLastIndex(batchUserMessages));
-            result =lastUserMessageEntityId;
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+            result = lastUserMessageEntityId;
 
-            userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
             result = new Date();
 
-            userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
@@ -180,7 +175,7 @@ public class EArchiveListenerTest {
 
         eArchiveListener.onMessage(message);
 
-        new FullVerifications() {{
+        new Verifications() {{
             jmsUtil.setDomain(message);
             times = 1;
 
@@ -195,6 +190,8 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
+
+            domibusEARKSIPResult.getDirectory().toAbsolutePath().toString();
         }};
     }
 
@@ -203,10 +200,10 @@ public class EArchiveListenerTest {
                              @Injectable EArchiveBatchEntity eArchiveBatch,
                              @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
 
-        String firstUserMessageEntityId = "220511070000001204";
-        String lastUserMessageEntityId = "220511080000001204";
+        Long firstUserMessageEntityId = 220511070000001204L;
+        Long lastUserMessageEntityId = 220511080000001204L;
 
-        new Expectations(eArchiveListener) {{
+        new NonStrictExpectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -214,7 +211,7 @@ public class EArchiveListenerTest {
             result = batchId;
 
             jmsUtil.getMessageTypeSafely(message);
-            result=EArchiveBatchStatus.EXPORTED.name();
+            result = EArchiveBatchStatus.EXPORTED.name();
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;
@@ -234,16 +231,16 @@ public class EArchiveListenerTest {
             domibusEARKSIPResult.getManifestChecksum();
             result = "sha256:test";
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, 0);
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveListener.getMessageStartDate(batchUserMessages, eArchiveListener.getLastIndex(batchUserMessages));
-            result =lastUserMessageEntityId;
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+            result = lastUserMessageEntityId;
 
-            userMessageLogDao.findByEntityId(Long.parseLong(firstUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
             result = new Date();
 
-            userMessageLogDao.findByEntityId(Long.parseLong(lastUserMessageEntityId)).getReceived();
+            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
@@ -259,7 +256,7 @@ public class EArchiveListenerTest {
 
         eArchiveListener.onMessage(message);
 
-        new FullVerifications() {{
+        new Verifications() {{
             jmsUtil.setDomain(message);
             times = 1;
 
@@ -274,12 +271,16 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;
+
+            domibusEARKSIPResult.getDirectory().toAbsolutePath().toString();
+
+            databaseUtil.getDatabaseUserName();
         }};
     }
 
     @Test
     public void onMessage_ArchiveOK(@Injectable Message message,
-                                   @Injectable EArchiveBatchEntity eArchiveBatch){
+                                    @Injectable EArchiveBatchEntity eArchiveBatch) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -288,7 +289,7 @@ public class EArchiveListenerTest {
             result = batchId;
 
             jmsUtil.getMessageTypeSafely(message);
-            result=EArchiveBatchStatus.ARCHIVED.name();
+            result = EArchiveBatchStatus.ARCHIVED.name();
 
             jmsUtil.getLongPropertySafely(message, MessageConstants.BATCH_ENTITY_ID);
             result = entityId;

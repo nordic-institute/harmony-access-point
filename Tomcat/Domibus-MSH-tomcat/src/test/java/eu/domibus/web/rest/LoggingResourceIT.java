@@ -36,7 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author François Gautier
  * @since 4.2
  */
-@Ignore("EDELIVERY-8892")
 public class LoggingResourceIT extends AbstractIT {
 
     @Autowired
@@ -77,8 +76,6 @@ public class LoggingResourceIT extends AbstractIT {
     @Test(expected = NestedServletException.class)
     @WithMockUser
     public void getLogLevel_accessDenied() throws Exception {
-        Mockito.when(authUtils.isAdminMultiAware()).thenReturn(false);
-
         // the order of the items are not checked
         mockMvc.perform(get("/rest/logging/loglevel"));
     }
@@ -86,9 +83,6 @@ public class LoggingResourceIT extends AbstractIT {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void getLogLevel_ok() throws Exception {
-       /* List<LoggingEntry> loggingEntryList = new ArrayList<>();
-        loggingEntryList.add(new LoggingEntry());*/
-
         final List<LoggingEntry> loggingEntryList = new ArrayList<>();
         LoggingEntry loggingLevelRO1 = new LoggingEntry();
         loggingLevelRO1.setLevel("INFO");
@@ -111,7 +105,6 @@ public class LoggingResourceIT extends AbstractIT {
         loggingFilterRequestRO.setPage(0);
         loggingFilterRequestRO.setShowClasses(true);
 
-        Mockito.when(authUtils.isAdminMultiAware()).thenReturn(true);
         Mockito.when(loggingService.getLoggingLevel(loggingFilterRequestRO.getLoggerName(), loggingFilterRequestRO.isShowClasses())).thenReturn(loggingEntryList);
 
         // the order of the items are not checked

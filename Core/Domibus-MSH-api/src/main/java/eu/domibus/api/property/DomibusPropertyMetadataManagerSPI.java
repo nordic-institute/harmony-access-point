@@ -126,6 +126,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE = "domibus.retentionWorker.message.retention.batch.delete";
     String DOMIBUS_RETENTION_JMS_CONCURRENCY = "domibus.retention.jms.concurrency";
     String DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK = "domibus.partitions.creation.days_to_check";
+    String DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED = "domibus.partitions.drop.check.messages.earchived";
     String DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY = "domibus.dispatch.ebms.error.unrecoverable.retry";
     String DOMIBUS_PROXY_ENABLED = DOMIBUS_PROXY_PREFIX + "enabled";
     String DOMIBUS_PROXY_HTTP_HOST = DOMIBUS_PROXY_PREFIX + "http.host";
@@ -259,10 +260,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION = "domibus.payload.temp.job.retention.expiration";
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES = "domibus.payload.temp.job.retention.directories";
     String DOMIBUS_PAYLOAD_LIMIT_28ATTACHMENTS_PER_MESSAGE = "domibus.payload.limit.28attachments.per.message";
+    String DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE = "domibus.payload.decompression.validation.active";
     String DOMIBUS_INSTANCE_NAME = "domibus.instance.name";
 
     String DOMIBUS_CONFIG_LOCATION = "domibus.config.location";
     String DOMIBUS_DEPLOYMENT_CLUSTERED = "domibus.deployment.clustered";
+    String DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED = "domibus.scheduler.bootstrap.synchronized";
     String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
     String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
     String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";

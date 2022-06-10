@@ -1,6 +1,9 @@
 package eu.domibus.core.message.compression;
 
+import eu.domibus.api.message.compression.DecompressionDataSource;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -16,10 +19,9 @@ import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 /**
  * This class is responsible for compression handling of incoming and outgoing ebMS3 messages.
@@ -40,6 +42,9 @@ public class CompressionService {
 
     @Autowired
     protected PartPropertyDictionaryService partPropertyDictionaryService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * This method is responsible for compression of payloads in a ebMS3 AS4 conformant way in case of {@link eu.domibus.api.model.MSHRole#SENDING}
@@ -105,7 +110,7 @@ public class CompressionService {
             return false;
         }
 
-        final PartProperty compressionProperty = partPropertyDictionaryService.findOrCreatePartProperty(MessageConstants .COMPRESSION_PROPERTY_KEY, MessageConstants .COMPRESSION_PROPERTY_VALUE, null);
+        final PartProperty compressionProperty = partPropertyDictionaryService.findOrCreatePartProperty(MessageConstants.COMPRESSION_PROPERTY_KEY, MessageConstants.COMPRESSION_PROPERTY_VALUE, null);
         partInfo.getPartProperties().add(compressionProperty);
         final CompressedDataSource compressedDataSource = new CompressedDataSource(partInfo.getPayloadDatahandler().getDataSource());
         DataHandler gZipDataHandler = new DataHandler(compressedDataSource);
@@ -143,7 +148,7 @@ public class CompressionService {
                 if (Property.MIME_TYPE.equalsIgnoreCase(property.getName())) {
                     mimeType = property.getValue();
                 }
-                if (MessageConstants .COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && MessageConstants .COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
+                if (MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName()) && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(property.getValue())) {
                     payloadCompressed = true;
                 }
             }
@@ -155,8 +160,8 @@ public class CompressionService {
         }
 
         final PartProperty compressionProperty = new PartProperty();
-        compressionProperty.setName(MessageConstants .COMPRESSION_PROPERTY_KEY);
-        compressionProperty.setValue(MessageConstants .COMPRESSION_PROPERTY_VALUE);
+        compressionProperty.setName(MessageConstants.COMPRESSION_PROPERTY_KEY);
+        compressionProperty.setValue(MessageConstants.COMPRESSION_PROPERTY_VALUE);
         partInfo.getPartProperties().remove(compressionProperty);
 
         if (mimeType == null) {
@@ -170,8 +175,50 @@ public class CompressionService {
         }
         partInfo.setCompressed(true);
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DECOMPRESSION, partInfo.getHref());
+        if (!domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE)) {
+            LOG.debug("Property [{}] is not enabled, ", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE);
+            return;
+        }
+
+        validateDecompression(messageId, partInfo, mimeType);
     }
 
+    public void validateDecompression(String messageId, PartInfo partInfo, String mimeType) throws EbMS3Exception {
+        LOG.debug("Property [{}] is enabled, performing decompression validation for partInfo [{}].", DomibusPropertyMetadataManagerSPI.DOMIBUS_PAYLOAD_DECOMPRESSION_VALIDATION_ACTIVE, partInfo.getHref());
+
+        try (InputStream is = new DecompressionDataSource(partInfo.getPayloadDatahandler().getDataSource(), mimeType).getInputStream()) {
+            if (is.available() > 0) {
+                LOG.debug("Creating decompression data source was successful", partInfo.getHref());
+            }
+        } catch (IOException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref(), e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("Decompression exception")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream();
+             GZIPInputStream gis = new GZIPInputStream(partInfo.getPayloadDatahandler().getDataSource().getInputStream())) {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = gis.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+        } catch (IOException e) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, partInfo.getHref(), e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message("Decompression exception")
+                    .refToMessageId(messageId)
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        LOG.info("The validation of the decompression for partInfo [{}] was successful", partInfo.getHref());
+    }
 
     private class CompressedDataSource implements DataSource {
         private DataSource ds;
@@ -192,7 +239,7 @@ public class CompressionService {
 
         @Override
         public String getContentType() {
-            return MessageConstants .COMPRESSION_PROPERTY_VALUE;
+            return MessageConstants.COMPRESSION_PROPERTY_VALUE;
         }
 
         @Override

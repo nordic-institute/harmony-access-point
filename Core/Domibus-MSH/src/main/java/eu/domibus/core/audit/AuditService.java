@@ -128,8 +128,10 @@ public interface AuditService {
 
     /**
      * Add TLS Truststore uploaded
+     *
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
      **/
-    void addTLSTruststoreUploadedAudit();
+    void addTLSTruststoreUploadedAudit(String id);
 
     /**
      * Add Certificate added to TLS

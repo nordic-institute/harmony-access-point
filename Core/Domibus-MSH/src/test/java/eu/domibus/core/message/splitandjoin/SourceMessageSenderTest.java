@@ -22,7 +22,6 @@ import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +32,6 @@ import javax.xml.soap.SOAPMessage;
  * @author Soumya Chandran
  * @since 4.2
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class SourceMessageSenderTest {
 
@@ -132,9 +130,6 @@ public class SourceMessageSenderTest {
                 times = 1;
                 messageExchangeService.verifySenderCertificate(legConfiguration, senderParty);
                 times = 1;
-                messageBuilder.buildSOAPMessage(userMessage, null, legConfiguration);
-                result = soapMessage;
-
             }
         };
 

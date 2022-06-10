@@ -3,7 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.messaging.MessageConstants;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -22,6 +22,9 @@ public class ReloadTLSTruststoreCommandTaskTest {
     @Injectable
     TLSReaderService tlsReaderService;
 
+    @Injectable
+    DomainContextProvider domainContextProvider;
+
     @Test
     public void canHandle() {
         assertTrue(reloadTLSTruststoreCommandTask.canHandle(Command.RELOAD_TLS_TRUSTSTORE));
@@ -33,9 +36,11 @@ public class ReloadTLSTruststoreCommandTaskTest {
     }
 
     @Test
-    public void execute(@Injectable Map<String, String> properties, @Injectable String domainCode) {
+    public void execute(@Injectable Map<String, String> properties, @Injectable Domain domain, @Injectable String domainCode) {
         new Expectations() {{
-            properties.get(MessageConstants.DOMAIN);
+            domainContextProvider.getCurrentDomain();
+            result = domain;
+            domain.getCode();
             result = domainCode;
         }};
 

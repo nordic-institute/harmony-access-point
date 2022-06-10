@@ -14,6 +14,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
@@ -206,16 +208,22 @@ public class JMSManagerImpl implements JMSManager {
         });
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_text")
     @Override
     public void sendMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.TEXT_MESSAGE);
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map1")
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination, JmsOperations jmsOperations) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE, jmsOperations);
     }
 
+    @Timer(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
+    @Counter(clazz = JMSManagerImpl.class, value = "sendMessageToQueue_map2")
     @Override
     public void sendMapMessageToQueue(JmsMessage message, String destination) {
         sendMessageToQueue(message, destination, InternalJmsMessage.MessageType.MAP_MESSAGE);

@@ -19,7 +19,7 @@
         <com.smartbear.soapui.version>5.1.2</com.smartbear.soapui.version>
         <org.codehaus.groovy.version>2.9.2-01</org.codehaus.groovy.version>
         <org.codehaus.groovy.eclipse-batch.version>2.5.13-01</org.codehaus.groovy.eclipse-batch.version>
-        <org.apache.activemq.version>5.16.4</org.apache.activemq.version>
+        <org.apache.activemq.version>5.16.5</org.apache.activemq.version>
 
 
         <soapui.root.folder>${project.basedir}/src/main/soapui</soapui.root.folder>

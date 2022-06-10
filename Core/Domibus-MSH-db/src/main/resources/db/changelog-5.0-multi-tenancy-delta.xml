@@ -63,6 +63,13 @@
         </insert>
     </changeSet>
 
+    <changeSet author="ion perpegel" id="EDELIVERY-9451">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="LOCK_KEY" value="scheduler-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
     <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
         <createTable tableName="TB_USER_DOMAIN_AUD">
             <column name="ID_PK" type="BIGINT">

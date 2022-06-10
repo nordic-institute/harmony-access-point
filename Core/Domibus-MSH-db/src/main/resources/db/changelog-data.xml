@@ -32,6 +32,12 @@
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
         </insert>
     </changeSet>
+    <changeSet author="ion perpegel" id="EDELIVERY-9451">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="LOCK_KEY" value="scheduler-synchronization.lock"/>
+        </insert>
+    </changeSet>
 
     <changeSet id="insert_last_pk_in_TB_EARCHIVE_START" author="gautifr">
         <!-- DO NOT CHANGE ID of entries the values 1 and 2 have special meaning in code! -->

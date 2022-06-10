@@ -15,6 +15,8 @@ import {ComponentName} from '../common/component-name-decorator';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
+import { UserService } from 'app/user/support/user.service';
+import { SecurityService } from 'app/security/security.service';
 
 /**
  * @author Ion Perpegel
@@ -35,7 +37,8 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) statusTemplate: TemplateRef<any>;
 
-  constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef) {
+  constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef, 
+      private userService: UserService, private securityService: SecurityService) {
     super();
   }
 
@@ -96,14 +99,30 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
     let active = domain.active;
     try {
       super.isLoading = true;
+
+      if (!active) {
+        let currentDomain = await this.domainService.retrieveCurrentDomain();
+        if (currentDomain && currentDomain.code == domain.code) {
+          throw `Cannot disable the current domain`;
+        }
+        let currentUserName: string = (await this.securityService.getCurrentUserFromServer()).username;
+        let users = await this.userService.getUsers();
+        let currentUser = users.find(u => u.userName == currentUserName);
+        if (currentUser.domain == domain.code) {
+          throw `Cannot disable the domain of the current user`;
+        }
+      }
+
       await this.domainService.setActiveState(domain, active);
       this.alertService.success(`Successfully ${active ? 'added' : 'removed'} domain ${domain.name}`);
+      super.isLoading = false;
     } catch (err) {
       this.alertService.exception(`Error while ${active ? 'adding' : 'removing'} domain ${domain.name}`, err);
-      setTimeout(() => domain.active = !active, 200);
-    } finally {
-      super.isLoading = false;
-    }
+      setTimeout(() => { 
+        domain.active = !active; 
+        super.isLoading = false;
+      }, 200);
+    } 
   }
 
   refresh() {
