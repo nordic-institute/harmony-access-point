@@ -107,7 +107,11 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         if (!domainService.getDomains().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
-            throw new DomibusDomainException(String.format("Cannot remove domain [%s] since it is not present.", domainCode));
+            throw new DomibusDomainException(String.format("Cannot find domain [%s] to remove.", domainCode));
+        }
+
+        if (domainService.getDomains().size() == 1) {
+            throw new DomibusDomainException(String.format("Domain [%s] is the only enabled domain.", domainCode));
         }
     }
 
