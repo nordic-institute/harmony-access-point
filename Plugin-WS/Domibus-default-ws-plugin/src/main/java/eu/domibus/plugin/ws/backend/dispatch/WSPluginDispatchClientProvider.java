@@ -7,6 +7,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.DispatchImpl;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
@@ -41,15 +42,18 @@ public class WSPluginDispatchClientProvider {
     private final TLSReaderExtService tlsReaderDelegate;
     private final ProxyCxfUtilExtService proxyUtilExtService;
     private final WSPluginPropertyManager wsPluginPropertyManager;
+    private final LoggingFeature wsLoggingFeature;
 
     public WSPluginDispatchClientProvider(@Qualifier("taskExecutor") Executor executor,
                                           TLSReaderExtService tlsReaderDelegate,
                                           ProxyCxfUtilExtService proxyUtilExtService,
-                                          WSPluginPropertyManager wsPluginPropertyManager) {
+                                          WSPluginPropertyManager wsPluginPropertyManager,
+                                          @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
         this.executor = executor;
         this.tlsReaderDelegate = tlsReaderDelegate;
         this.proxyUtilExtService = proxyUtilExtService;
         this.wsPluginPropertyManager = wsPluginPropertyManager;
+        this.wsLoggingFeature = wsLoggingFeature;
     }
 
     public Dispatch<SOAPMessage> getClient(String domain, String endpoint) {
@@ -77,10 +81,15 @@ public class WSPluginDispatchClientProvider {
     }
 
     protected Dispatch<SOAPMessage> createWSServiceDispatcher(String endpoint) {
+
         final javax.xml.ws.Service service = javax.xml.ws.Service.create(SERVICE_NAME);
         service.setExecutor(executor);
         service.addPort(PORT_NAME, SOAPBinding.SOAP12HTTP_BINDING, endpoint);
-        return service.createDispatch(PORT_NAME, SOAPMessage.class, javax.xml.ws.Service.Mode.MESSAGE);
+        return service.createDispatch(
+                PORT_NAME,
+                SOAPMessage.class,
+                javax.xml.ws.Service.Mode.MESSAGE,
+                wsLoggingFeature);
     }
 
     public void setHttpClientPolicy(HTTPClientPolicy httpClientPolicy) {

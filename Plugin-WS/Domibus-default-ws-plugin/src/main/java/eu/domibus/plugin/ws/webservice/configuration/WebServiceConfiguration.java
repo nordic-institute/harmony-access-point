@@ -10,7 +10,6 @@ import eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
@@ -30,8 +29,6 @@ import org.springframework.core.env.Environment;
 import javax.jms.Queue;
 import javax.xml.ws.Endpoint;
 import java.util.*;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * Class responsible for the configuration of the plugin, independent of any server
@@ -93,19 +90,6 @@ public class WebServiceConfiguration {
         return pluginAsyncNotificationConfiguration;
     }
 
-    @Bean("wsPluginLoggingEventSender")
-    public WSPluginLoggingEventSender wsPluginLoggingEventSender(DomibusPropertyExtService domibusPropertyExtService) {
-        Boolean payloadPrint = domibusPropertyExtService.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT);
-        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_PAYLOAD_PRINT, payloadPrint);
-        Boolean metadataPrint = domibusPropertyExtService.getBooleanProperty(DOMIBUS_LOGGING_METADATA_PRINT);
-        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_METADATA_PRINT, metadataPrint);
-
-        WSPluginLoggingEventSender wsPluginLoggingEventSender = new WSPluginLoggingEventSender();
-        wsPluginLoggingEventSender.setPrintPayload(payloadPrint);
-        wsPluginLoggingEventSender.setPrintMetadata(metadataPrint);
-        return wsPluginLoggingEventSender;
-    }
-
     @Bean("backendInterfaceEndpoint")
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                              WebServiceImpl backendWebService,
@@ -127,20 +111,6 @@ public class WebServiceConfiguration {
         endpoint.publish("/wsplugin");
         return endpoint;
     }
-
-    @Bean("wsLoggingFeature")
-    public LoggingFeature wsLoggingFeature(WSPluginLoggingEventSender wsPluginLoggingEventSender,
-                                           DomibusPropertyExtService domibusPropertyExtService) {
-        LoggingFeature loggingFeature = new LoggingFeature();
-        loggingFeature.setSender(wsPluginLoggingEventSender);
-
-        Integer loggingLimit = domibusPropertyExtService.getIntegerProperty(DOMIBUS_LOGGING_CXF_LIMIT);
-        LOG.debug("Using logging limit [{}]", loggingLimit);
-        loggingFeature.setLimit(loggingLimit);
-
-        return loggingFeature;
-    }
-
 
     private List<String> getSchemaLocations() {
         return Arrays.asList(
