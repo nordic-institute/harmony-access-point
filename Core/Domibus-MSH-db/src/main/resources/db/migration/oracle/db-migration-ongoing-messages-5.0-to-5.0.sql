@@ -1,7 +1,12 @@
 -- ********************************************************************************************************
--- Domibus 5.0to 5.0 ongoing messages data migration package
+-- Domibus 5.0 to 5.0 ongoing messages data migration package
 --
--- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
+-- Main entry point is the procedure 'migrate'. To be executed into a begin/end; anonymous block. Uncomment trailing
+-- lines, edit values in the migration anonymous block and execute this full script: preparation anonymous blocks, PKs
+-- temporary tables creation, package and package body definitions, migration and cleanup anonymous blocks.
+--
+-- NOTE: Oracle allows users to manipulate global temporary tables in the session where they have been created! Execute
+-- this file as a whole script to ensure this happens so you don't need to manipulate user sessions later on.
 --
 -- Parameters to be adjusted:
 -- BULK_COLLECT_LIMIT - limit to avoid reading a high number of records into memory; default value is 100
@@ -1546,7 +1551,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
             EXIT WHEN messaging_lock.COUNT = 0;
 
             FOR i IN messaging_lock.FIRST .. messaging_lock.LAST LOOP
-                SELECT REMOTE_ID INTO v_fk_timezone_offset FROM MIGR_TB_PKS_TIMEZONE_OFFSET WHERE LOCAL_ID = messaging_lock(i).FK_TIMEZONE_OFFSET;
+                BEGIN
+                    SELECT REMOTE_ID INTO v_fk_timezone_offset FROM MIGR_TB_PKS_TIMEZONE_OFFSET WHERE LOCAL_ID = messaging_lock(i).FK_TIMEZONE_OFFSET;
+                EXCEPTION
+                    WHEN NO_DATA_FOUND THEN
+                        DBMS_OUTPUT.PUT_LINE('No FK_TIMEZONE_OFFSET remote key found for local key = ' || messaging_lock(i).FK_TIMEZONE_OFFSET);
+                END;
 
                 EXECUTE IMMEDIATE 'INSERT INTO TB_MESSAGING_LOCK@' || db_link || ' (ID_PK, MESSAGE_TYPE, MESSAGE_RECEIVED, MESSAGE_STATE, MESSAGE_ID, INITIATOR, MPC, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, NEXT_ATTEMPT, FK_TIMEZONE_OFFSET, MESSAGE_STALED, CREATION_TIME, CREATED_BY) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14)'
                     USING messaging_lock(i).ID_PK,

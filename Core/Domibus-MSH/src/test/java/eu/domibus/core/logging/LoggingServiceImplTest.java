@@ -16,7 +16,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ import static eu.domibus.core.logging.LoggingServiceImpl.PREFIX_CLASS_;
  * @author Catalin Enache
  * @since 4.1
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class LoggingServiceImplTest {
 

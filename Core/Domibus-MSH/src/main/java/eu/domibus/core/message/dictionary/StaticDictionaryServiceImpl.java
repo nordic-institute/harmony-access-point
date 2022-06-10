@@ -88,7 +88,7 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
         Runnable transactionWrappedCall = transactionWrappedCall(createEntriesCall());
         for (Domain domain : domains) {
             LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
-            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 1L, TimeUnit.MINUTES);
+            domainTaskExecutor.submit(transactionWrappedCall, domain, true, 3L, TimeUnit.MINUTES);
         }
     }
 

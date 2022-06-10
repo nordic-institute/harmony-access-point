@@ -1,13 +1,12 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.core.alerts.model.common.AlertCriteria;
+import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Thomas Dussart
@@ -22,12 +21,14 @@ public class AlertDispatcherServiceImpl implements AlertDispatcherService {
     private AlertService alertService;
 
     @Autowired
+    private AlertDao alertDao;
+
+    @Autowired
     protected AlertMethodFactory alertMethodFactory;
 
     @Override
-    @Transactional
     public void dispatch(Alert alert) {
-        if (findAlert(alert.getEntityId()) == null) {
+        if (alertDao.read(alert.getEntityId()) == null) {
             if (alert.getAttempts() >= alert.getMaxAttempts()) {
                 LOG.debug("Alert not found in the database, skip dispatching: [{}]", alert);
                 return;
@@ -45,13 +46,6 @@ public class AlertDispatcherServiceImpl implements AlertDispatcherService {
         } finally {
             alertService.handleAlertStatus(alert);
         }
-    }
-
-    protected Alert findAlert(long alertId) {
-        AlertCriteria alertCriteria = new AlertCriteria();
-        alertCriteria.setPageSize(1);
-        alertCriteria.setAlertID(alertId);
-        return alertService.findAlerts(alertCriteria).stream().findFirst().orElse(null);
     }
 
 }

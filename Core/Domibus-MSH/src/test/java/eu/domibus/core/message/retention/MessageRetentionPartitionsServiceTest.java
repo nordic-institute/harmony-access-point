@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.alerts.configuration.partitions.PartitionsConfigurationManager;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -13,11 +14,15 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED;
 
 /**
  * @author idragusa
@@ -59,6 +64,9 @@ public class MessageRetentionPartitionsServiceTest {
     @Injectable
     PartitionService partitionService;
 
+    @Injectable
+    PartitionsConfigurationManager partitionsConfigurationManager;
+
     @Test
     public void deleteExpiredMessagesTest() {
 
@@ -84,5 +92,18 @@ public class MessageRetentionPartitionsServiceTest {
 
         messageRetentionPartitionsService.deleteExpiredMessages();
 
+    }
+
+    @Test
+    public void verifySafeGuard() {
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_ACTIVE);
+            result = false;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED);
+            result = false;
+
+        }};
+
+        Assert.assertTrue(messageRetentionPartitionsService.verifyIfAllMessagesAreArchived("mypart"));
     }
 }

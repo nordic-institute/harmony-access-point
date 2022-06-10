@@ -17,6 +17,12 @@
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
         </insert>
     </changeSet>
+    <changeSet author="ion perpegel" id="EDELIVERY-9451">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="LOCK_KEY" value="scheduler-synchronization.lock"/>
+        </insert>
+    </changeSet>
 
     <!-- this file must be included in every future changelog-data.xml or changelog-multi-tenancy-data.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>

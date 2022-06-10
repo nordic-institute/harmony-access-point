@@ -45,7 +45,6 @@ import static org.junit.Assert.*;
  * @author Sebastian-Ion TINCU
  * @since 3.2.5
  */
-//@Ignore("EDELIVERY-8892")
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServiceOASISTest {

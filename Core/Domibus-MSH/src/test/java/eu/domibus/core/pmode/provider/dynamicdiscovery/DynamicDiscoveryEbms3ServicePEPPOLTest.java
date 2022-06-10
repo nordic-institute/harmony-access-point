@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -17,7 +18,6 @@ import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
 import network.oxalis.vefa.peppol.mode.Mode;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
@@ -36,7 +36,6 @@ import static org.junit.Assert.assertNotNull;
  * @author Sebastian-Ion TINCU
  * @since 3.2.5
  */
-@Ignore("EDELIVERY-8892")
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
@@ -113,7 +112,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     @Before
     public void setup() {
-        new Expectations() {{
+        new NonStrictExpectations() {{
             domibusCertificateValidators.getObject(any, any, anyString, anyString);
             result = domibusCertificateValidator;
 

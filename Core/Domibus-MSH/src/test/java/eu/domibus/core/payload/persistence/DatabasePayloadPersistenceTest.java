@@ -1,17 +1,17 @@
 package eu.domibus.core.payload.persistence;
 
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
-import eu.domibus.api.model.*;
-import eu.domibus.common.model.configuration.*;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.apache.commons.io.IOUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -25,7 +25,6 @@ import java.util.zip.GZIPOutputStream;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-@Ignore("EDELIVERY-8892")
 public class DatabasePayloadPersistenceTest {
 
     @Injectable

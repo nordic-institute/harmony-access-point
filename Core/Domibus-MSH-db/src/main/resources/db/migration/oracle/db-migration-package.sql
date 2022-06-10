@@ -10403,7 +10403,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_command;
         migrate_command_property;
         --
-        migrate_encryption_key; -- SECRET_KEY & INIT_VECTOR (BLOB > LONGBLOB)
+        migrate_encryption_key;
         --
         migrate_message_acknw_prop;
         --
@@ -10466,7 +10466,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_user_role_aud(missing_entity_date_prefix);
         migrate_user_roles_aud(missing_entity_date_prefix);
         -- END migrate primary keys to new format
-
     END migrate;
 
 END MIGRATE_42_TO_50;

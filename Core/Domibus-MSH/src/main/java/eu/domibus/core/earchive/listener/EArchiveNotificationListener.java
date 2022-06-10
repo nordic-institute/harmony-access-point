@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
@@ -39,6 +40,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -63,7 +66,10 @@ public class EArchiveNotificationListener implements MessageListener {
     private final DomibusProxyService domibusProxyService;
 
     private final ObjectMapper objectMapper;
+
     private ArchiveWebhookApi earchivingClientApi;
+
+    private final EArchiveBatchUtils eArchiveBatchUtils;
 
     private Object earchivingClientApiLock = new Object();
 
@@ -73,13 +79,15 @@ public class EArchiveNotificationListener implements MessageListener {
             JmsUtil jmsUtil,
             DomibusPropertyProvider domibusPropertyProvider,
             DomibusProxyService domibusProxyService,
-            @Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
+            @Qualifier("domibusJsonMapper") ObjectMapper objectMapper,
+            EArchiveBatchUtils eArchiveBatchUtils) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusProxyService = domibusProxyService;
         this.objectMapper = objectMapper;
+        this.eArchiveBatchUtils = eArchiveBatchUtils;
     }
 
     public ArchiveWebhookApi getEarchivingClientApi() {
@@ -196,10 +204,33 @@ public class EArchiveNotificationListener implements MessageListener {
             batchNotification.setRequestType(BatchNotification.RequestTypeEnum.MANUAL);
         }
         batchNotification.setTimestamp(OffsetDateTime.ofInstant(eArchiveBatch.getDateRequested().toInstant(), ZoneOffset.UTC));
-
+        setStartDateAndEndDateInNotification(eArchiveBatch, batchNotification);
         batchNotification.setMessages(eArchiveBatch.geteArchiveBatchUserMessages().stream().map(EArchiveBatchUserMessage::getMessageId).collect(Collectors.toList()));
 
         return batchNotification;
     }
+
+    protected BatchNotification setStartDateAndEndDateInNotification(EArchiveBatchEntity eArchiveBatch, BatchNotification batchNotification) {
+
+        final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
+        if (BooleanUtils.isNotTrue(isNotificationWithStartAndEndDate)) {
+            LOG.debug("EArchive client with batch Id [{}] needs to receive notifications without message start date and end date [{}]", eArchiveBatch.getBatchId(), isNotificationWithStartAndEndDate);
+            return batchNotification;
+        }
+        List<EArchiveBatchUserMessage> batchUserMessages = eArchiveBatch.geteArchiveBatchUserMessages();
+        Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
+        Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+
+        Date messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
+        Date messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
+        if (messageStartDate != null && messageEndDate != null) {
+            batchNotification.setMessageStartDate(OffsetDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC));
+            batchNotification.setMessageEndDate(OffsetDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC));
+        }
+        LOG.debug("EArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, eArchiveBatch.getBatchId());
+
+        return batchNotification;
+    }
+
 
 }

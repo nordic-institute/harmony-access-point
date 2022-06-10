@@ -123,7 +123,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         RawEnvelopeDto rawEnvelopeDto = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
         if (rawEnvelopeDto == null) {
-            LOG.info("User message envelope with entity id [{}] was not found.", userMessage.getEntityId());
+            LOG.debug("User message envelope with entity id [{}] was not found.", userMessage.getEntityId());
             return null;
         }
 
@@ -139,7 +139,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             if (userMessageDao.findByMessageId(userMessageId) == null) {
                 throw new MessageNotFoundException(userMessageId);
             }
-            LOG.info("Signal message with corresponding user message id [{}] was not found.", userMessageId);
+            LOG.debug("Signal message with corresponding user message id [{}] was not found.", userMessageId);
             return null;
         }
 

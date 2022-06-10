@@ -94,7 +94,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         notifyExternalModulesOfRemoval(domain);
 
-        if(notifyClusterNodes) {
+        if(notifyClusterNodes && domibusConfigurationService.isClusterDeployment()) {
             notifyClusterNodesOfRemoval(domainCode);
         }
 

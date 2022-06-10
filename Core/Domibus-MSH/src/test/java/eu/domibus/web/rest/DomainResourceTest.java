@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -52,6 +53,9 @@ public class DomainResourceTest {
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    private DomainContextProvider domainContextProvider;
 
     @Test
     public void testGetDomains_IgnoringActiveFlag(@Injectable List<Domain> domainEntries,

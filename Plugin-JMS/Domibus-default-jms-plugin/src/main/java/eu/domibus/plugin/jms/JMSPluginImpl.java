@@ -19,6 +19,7 @@ import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
@@ -162,12 +163,20 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
-        final String messageId = event.getMessageId();
-        List<ErrorResult> errors = super.getErrorsForMessage(messageId);
-        final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errors.get(errors.size() - 1), null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
+        final ErrorResult errorResult = getErrorResult(event.getMessageId());
+        final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errorResult, null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
 
         QueueContext queueContext = createQueueContext(event);
         sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
+    }
+
+    protected ErrorResult getErrorResult(String messageId) {
+        List<ErrorResult> errors = super.getErrorsForMessage(messageId);
+        if(CollectionUtils.isEmpty(errors)) {
+            return null;
+        }
+
+        return errors.get(errors.size() - 1);
     }
 
     private QueueContext createQueueContext(MessageEvent event) {

@@ -165,6 +165,12 @@
             <column name="LOCK_KEY" value="bootstrap-synchronization.lock"/>
         </insert>
     </changeSet>
+    <changeSet author="ion perpegel" id="EDELIVERY-9451">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="LOCK_KEY" value="scheduler-synchronization.lock"/>
+        </insert>
+    </changeSet>
 
     <changeSet author="ion perpegel" id="EDELIVERY-8532">
         <createTable tableName="TB_TRUSTSTORE">

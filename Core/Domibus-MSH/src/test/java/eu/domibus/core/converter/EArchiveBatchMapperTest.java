@@ -5,12 +5,12 @@ import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.util.JsonFormatterConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -19,16 +19,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
-        classes = {EArchiveBatchMapperImpl.class, JsonFormatterConfiguration.class, EArchiveBatchUtils.class}
+        classes = {EArchiveBatchMapperImpl.class, JsonFormatterConfiguration.class}
 )
-public class EArchiveBatchMapperTest {
+public class EArchiveBatchMapperTest extends AbstractMapperTest {
 
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Qualifier("eArchiveBatchMapper")
     @Autowired
     EArchiveBatchMapper testInstance;
 

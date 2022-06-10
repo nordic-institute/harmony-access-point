@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.messaging.MessageNotFoundException;
-import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
@@ -10,12 +10,19 @@ import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRulesService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 
 /**
  * @author François Gautier
@@ -42,13 +49,14 @@ public class WSPluginMessageSenderTest {
     protected WSPluginDispatchRulesService wsPluginDispatchRulesService;
 
     @Injectable
-    protected WSBackendMessageLogDao wsBackendMessageLogDao;
-
-    @Injectable
     protected WSPluginBackendReliabilityService reliabilityService;
 
     @Injectable
     protected WSPluginImpl wsPlugin;
+
+    @Injectable
+    protected XMLUtil xmlUtil;
+
 
     @Test(expected = WSPluginException.class)
     public void sendSubmitMessage_noRule(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity) {
@@ -76,7 +84,8 @@ public class WSPluginMessageSenderTest {
     @Test
     public void sendSubmitMessage(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
                                    @Injectable SOAPMessage soapMessage,
-                                   @Injectable WSPluginDispatchRule wsPluginDispatchRule) throws MessageNotFoundException {
+                                   @Injectable WSPluginDispatchRule wsPluginDispatchRule,
+                                  @Injectable TransformerFactory transformerFactory) throws MessageNotFoundException, TransformerException {
         new Expectations() {{
 
             wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
@@ -103,6 +112,12 @@ public class WSPluginMessageSenderTest {
             wsPluginDispatcher.dispatch(soapMessage, END_POINT);
             result = soapMessage;
             times = 1;
+
+            soapMessage.getSOAPPart();
+
+            transformerFactory.newTransformer().transform((Source) any, (Result) any);
+
+            xmlUtil.getTransformerFactory();
         }};
 
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
@@ -118,7 +133,8 @@ public class WSPluginMessageSenderTest {
     @Test
     public void sendMessageSuccess(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
                                    @Injectable SOAPMessage soapMessage,
-                                   @Injectable WSPluginDispatchRule wsPluginDispatchRule) {
+                                   @Injectable WSPluginDispatchRule wsPluginDispatchRule,
+                                   @Injectable TransformerFactory transformerFactory) throws TransformerException {
         new Expectations() {{
 
             wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
@@ -130,6 +146,12 @@ public class WSPluginMessageSenderTest {
 
             wsBackendMessageLogEntity.getType();
             result = WSBackendMessageType.SEND_SUCCESS;
+
+            transformerFactory.newTransformer().transform((Source) any, (Result) any);
+
+            xmlUtil.getTransformerFactory();
+
+            soapMessage.getSOAPPart();
 
             wsBackendMessageLogEntity.getEntityId();
             result = ID;
