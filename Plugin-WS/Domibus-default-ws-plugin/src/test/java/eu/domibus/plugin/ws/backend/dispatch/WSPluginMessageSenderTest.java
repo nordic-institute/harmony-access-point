@@ -57,6 +57,8 @@ public class WSPluginMessageSenderTest {
     @Injectable
     protected XMLUtil xmlUtil;
 
+    @Injectable
+    protected WSBackendMessageLogDao wsBackendMessageLogDao;
 
     @Test(expected = WSPluginException.class)
     public void sendSubmitMessage_noRule(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity) {
