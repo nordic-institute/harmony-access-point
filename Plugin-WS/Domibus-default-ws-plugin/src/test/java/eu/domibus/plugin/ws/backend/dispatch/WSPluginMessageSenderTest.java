@@ -116,8 +116,6 @@ public class WSPluginMessageSenderTest {
             result = soapMessage;
             times = 1;
 
-            soapMessage.getSOAPPart();
-
             transformerFactory.newTransformer().transform((Source) any, (Result) any);
 
             xmlUtil.getTransformerFactory();
@@ -149,8 +147,6 @@ public class WSPluginMessageSenderTest {
 
             wsBackendMessageLogEntity.getType();
             result = WSBackendMessageType.SEND_SUCCESS;
-
-            transformerFactory.newTransformer().transform((Source) any, (Result) any);
 
             xmlUtil.getTransformerFactory();
 
