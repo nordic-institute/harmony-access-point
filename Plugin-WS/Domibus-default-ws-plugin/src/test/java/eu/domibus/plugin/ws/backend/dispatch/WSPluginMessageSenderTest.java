@@ -8,6 +8,7 @@ import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.WSPluginBackendReliabilityService;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRulesService;
+import eu.domibus.plugin.ws.backend.*;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import mockit.Expectations;
