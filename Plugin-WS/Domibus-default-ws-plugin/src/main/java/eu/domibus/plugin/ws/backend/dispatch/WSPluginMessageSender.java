@@ -4,7 +4,6 @@ import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
@@ -28,8 +27,6 @@ public class WSPluginMessageSender {
 
     protected final WSPluginBackendReliabilityService reliabilityService;
 
-    protected final WSBackendMessageLogDao wsBackendMessageLogDao;
-
     protected final WSPluginDispatchRulesService rulesService;
 
     protected final WSPluginMessageBuilder messageBuilder;
@@ -39,13 +36,11 @@ public class WSPluginMessageSender {
     protected final WSPluginImpl wsPlugin;
 
     public WSPluginMessageSender(WSPluginBackendReliabilityService reliabilityService,
-                                 WSBackendMessageLogDao wsBackendMessageLogDao,
                                  WSPluginDispatchRulesService rulesService,
                                  WSPluginMessageBuilder messageBuilder,
                                  WSPluginDispatcher dispatcher,
                                  WSPluginImpl wsPlugin) {
         this.reliabilityService = reliabilityService;
-        this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.rulesService = rulesService;
         this.messageBuilder = messageBuilder;
         this.dispatcher = dispatcher;
