@@ -53,9 +53,6 @@ public class WSPluginMessageSenderTest {
     protected WSPluginImpl wsPlugin;
 
     @Injectable
-    protected XMLUtil xmlUtil;
-
-    @Injectable
     protected WSBackendMessageLogDao wsBackendMessageLogDao;
 
     @Test(expected = WSPluginException.class)
