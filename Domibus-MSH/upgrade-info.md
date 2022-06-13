@@ -1,6 +1,9 @@
 # Domibus upgrade information
 
-  ## Domibus 5.0 (from 4.2.9)
+## Domibus 5.0.1 (from 5.0):
+                - Replace the Domibus war
+
+## Domibus 5.0 (from 4.2.9)
 
   ### Multitenancy only
                     - domibus.security.keystore.* and domibus.security.truststore.* properties are used only the first time domibus starts and persisted in the DB to be used from there on;

@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>5.0</version>
+        <version>5.0.1-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>domibus-db</artifactId>
@@ -156,7 +156,7 @@
                    </execution>
                    <!-- partitioning ends here -->
 
-                   <!-- 5.0 starts here -->
+                   <!-- 5.0.1 starts here -->
                    <execution>
                        <id>generate-mysql-script-data</id>
                        <phase>generate-resources</phase>
@@ -301,7 +301,10 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
-                   <!-- 5.0 ends here -->
+                   <!-- 5.0.1 ends here -->
+
+                   <!-- data migration 5.0 to 5.0.1 starts here -->
+                   <!-- data migration 5.0 to 5.0.1 ends here -->
 
                    <!-- data migration 4.2 to 5.0 starts here -->
                    <execution>
