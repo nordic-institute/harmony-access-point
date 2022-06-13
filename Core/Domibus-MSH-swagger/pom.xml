@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>eu.domibus</groupId>
+        <artifactId>core</artifactId>
+        <version>5.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>domibus-msh-swagger</artifactId>
+    <packaging>war</packaging>
+    <name>Domibus MSH REST API documentation</name>
+    <properties>
+        <openapi.output>${project.build.directory}/generated-sources</openapi.output>
+        <generator.sourceDirectory>${project.basedir}/src/generator/java</generator.sourceDirectory>
+        <upstream.url>https://github.com/swagger-api/swagger-ui/archive/v${swagger-ui.version}.zip</upstream.url>
+    </properties>
+
+    <dependencies>
+        <!-- import dependency with the REST API definitions-->
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-ext-model</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-msh-ext-services-delegate</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-msh-logging</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- springdoc and spring dependencies to run MockMVC with RESTAPI-->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-webmvc-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Jackson-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- End Jackson-->
+    </dependencies>
+
+    <build>
+        <testSourceDirectory>${generator.sourceDirectory}</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webappDirectory>${openapi.output}</webappDirectory>
+                </configuration>
+            </plugin>
+            <!-- Purpose of the ANT plugin is to download and extract swagger-ui pages to folder ${project.basedir}/src/main/webapp-->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- download and extract swagger-ui scripts/html pages -->
+                                <echo message="download archive"/>
+                                <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip"/>
+                                <echo message="unzip archive"/>
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip"
+                                       dest="${project.build.directory}"/>
+                                <echo message="moving resources"/>
+                                <move todir="${openapi.output}">
+                                    <fileset dir="${project.build.directory}/swagger-ui-${swagger-ui.version}/dist"/>
+                                </move>
+                                <echo message="Set openapi.json as default file (openapi.json is generated in test OpenApiGenerator.java)"/>
+                                <replace file="${openapi.output}/index.html"
+                                         token="https://petstore.swagger.io/v2/swagger.json" value="openapi.json" />
+                               <!-- generate openAPI document using springdoc -->
+<!-- start maven plugin with java instead of mvn because some maven applications does not have execute permission as example
+   maven in intellij -->
+                                <exec dir="${project.basedir}" executable="${java.home}/bin/java">
+                                    <arg value="-cp"/>
+                                    <arg value='${maven.home}/boot/*'/>
+                                    <arg value="-Dmaven.multiModuleProjectDirectory=${maven.multiModuleProjectDirectory}" />
+                                    <arg value="-Dmaven.home=${maven.home}" />
+                                    <arg value="-Dclassworlds.conf=${maven.home}/bin/m2.conf" />
+                                    <arg value="-Dfile.encoding=UTF-8" />
+                                    <arg value="-Dproject.reporting.outputEncoding=UTF-8" />
+                                    <arg value="org.codehaus.classworlds.Launcher" />
+                                    <arg value="org.apache.maven.plugins:maven-failsafe-plugin:${maven-failsafe-plugin.version}:integration-test" />
+                                    <arg value="-Dit.test=OpenApiGenerator" />
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-files</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireFilesExist>
+                                    <files>
+                                        <file>${openapi.output}/openapi.json</file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
