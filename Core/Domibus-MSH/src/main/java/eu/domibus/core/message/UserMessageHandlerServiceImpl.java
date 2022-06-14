@@ -352,8 +352,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         String messageId = userMessage.getMessageId();
         partInfoService.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
-        //ignore if sent from different thread (avoids duplicate messageId)
-        messageExists = messageExists || !messageId.startsWith(String.valueOf(Thread.currentThread().getId()));
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (!messageExists) {

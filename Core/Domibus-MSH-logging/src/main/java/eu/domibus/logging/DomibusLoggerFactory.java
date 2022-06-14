@@ -11,14 +11,10 @@ import java.lang.reflect.Proxy;
  */
 public class DomibusLoggerFactory {
     private final static Logger LOG = LoggerFactory.getLogger(DomibusLoggerFactory.class);
-    public static boolean USE_PREVIOUS_LOGGING_APPROACH = false;
 
     private DomibusLoggerFactory() {}
 
     public static DomibusLogger getLogger(String name) {
-        if(USE_PREVIOUS_LOGGING_APPROACH){
-            return new DomibusLoggerImpl(LoggerFactory.getLogger(name));
-        }
         return (DomibusLogger) Proxy.newProxyInstance(
                 DomibusLogger.class.getClassLoader(),
                 new Class[]{DomibusLogger.class},
