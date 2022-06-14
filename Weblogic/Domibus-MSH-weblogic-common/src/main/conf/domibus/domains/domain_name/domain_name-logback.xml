@@ -89,7 +89,7 @@
         </encoder>
     </appender>
 
-    <logger name="eu.domibus" level="INFO">
+    <logger name="${domainName}.eu.domibus" level="INFO">
         <appender-ref ref="${domainName}-security-file"/>
         <appender-ref ref="${domainName}-business-file"/>
     </logger>
