@@ -10,8 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static eu.domibus.api.multitenancy.DomainService.DEFAULT_DOMAIN;
+import static org.junit.Assert.fail;
 
 /* Receiving 20 messages on 2 domains:
     Average execution time with previous logging approach   5.598 seconds
@@ -46,23 +50,39 @@ public class LoggingSegregationImpactOnReceive extends ReceiveMessageIT {
         int nrMessages = 10;
         int nrIterations = 3;
 
-        Duration duration = Duration.ZERO;
+        Duration totalDuration = Duration.ZERO;
         setCurrentDomain(DEFAULT_DOMAIN);
         for (int i = 0; i < nrIterations; i++) {
-            duration = duration.plus(getDurationForReceivingMessages(nrMessages));
+            Duration duration = getDurationForReceivingMessages(nrMessages);
+            totalDuration = totalDuration.plus(duration);
         }
         setCurrentDomain(ANOTHER_DOMAIN);
         for (int i = 0; i < nrIterations; i++) {
-            duration = duration.plus(getDurationForReceivingMessages(nrMessages));
+            Duration duration = getDurationForReceivingMessages(nrMessages);
+            totalDuration = totalDuration.plus(duration);
         }
-        duration = duration.dividedBy(nrIterations*2);
-        return duration;
+        totalDuration = totalDuration.dividedBy(nrIterations*2);
+        return totalDuration;
     }
 
     private Duration getDurationForReceivingMessages(int nrMessages) throws Exception {
+        ExecutorService workers = Executors.newFixedThreadPool(nrMessages);
+        final ReceiveMessageIT tester = this;
+        List<Callable<Boolean>> messageHandlers = Collections.nCopies(nrMessages, () -> {
+            tester.testReceiveMessage();
+            return true;
+        });
+
         Instant beforeExecution = Instant.now();
-        for (int i = 0; i < nrMessages; i++) {
-            super.testReceiveMessage();
+        List<Future<Boolean>> results = workers.invokeAll(messageHandlers);
+        for (Future<?> result : results) {
+            try {
+                result.get();
+            }
+            catch (ExecutionException ex) {
+                ex.getCause().printStackTrace();
+                fail();
+            }
         }
         Instant afterExecution = Instant.now();
         return Duration.between(beforeExecution, afterExecution);

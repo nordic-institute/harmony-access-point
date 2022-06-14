@@ -15,6 +15,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -49,7 +50,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     @Test
     public void testReceiveMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         String filename = "SOAPMessage2.xml";
-        String messageId = UUID.randomUUID() + "@domibus.eu";
+        String messageId = Thread.currentThread().getId()+""+ UUID.randomUUID() + "@domibus.eu";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
