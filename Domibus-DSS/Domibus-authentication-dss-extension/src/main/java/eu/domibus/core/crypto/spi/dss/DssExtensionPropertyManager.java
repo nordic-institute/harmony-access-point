@@ -108,6 +108,7 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(CUSTOM_TRUSTED_LISTS_PREFIX, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(CONSTRAINTS_PREFIX, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_1_URL, DomibusPropertyMetadataDTO.Type.URI, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_1_CODE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_2_URL, DomibusPropertyMetadataDTO.Type.URI, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
