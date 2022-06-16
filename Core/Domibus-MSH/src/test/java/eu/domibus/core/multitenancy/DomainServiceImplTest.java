@@ -2,6 +2,7 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.cache.DomibusCacheService;
@@ -33,6 +34,9 @@ public class DomainServiceImplTest {
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
     protected DomainDao domainDao;
