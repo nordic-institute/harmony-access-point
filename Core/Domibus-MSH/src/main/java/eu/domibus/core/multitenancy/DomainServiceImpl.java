@@ -3,6 +3,7 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
@@ -43,15 +44,19 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
+    protected final DomibusConfigurationService domibusConfigurationService;
+
     protected final DomainDao domainDao;
 
     private final DomibusCacheService domibusCacheService;
 
     private final AuthenticationService authenticationService;
 
-    public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider, DomainDao domainDao,
+    public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
+                             DomibusConfigurationService domibusConfigurationService, DomainDao domainDao,
                              DomibusCacheService domibusCacheService, @Lazy AuthenticationService authenticationService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusConfigurationService = domibusConfigurationService;
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
         this.authenticationService = authenticationService;
@@ -200,6 +205,10 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     @Override
     public void validateDomain(String domainCode) {
+        if (!domibusConfigurationService.isMultiTenantAware()) {
+            return;
+        }
+
         if (StringUtils.isEmpty(domainCode)) {
             throw new DomibusDomainException("Domain is empty.");
         }
