@@ -65,7 +65,7 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
         } catch (DomibusDomainException ex) {
             throw new Fault(
                     EbMS3ExceptionBuilder.getInstance()
-                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0020)
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                             .message(ex.getMessage())
                             .refToMessageId(message.getId())
                             .cause(ex)
