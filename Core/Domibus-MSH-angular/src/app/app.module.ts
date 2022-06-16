@@ -109,6 +109,7 @@ import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.
 import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-property-dialog/add-nested-property-dialog.component';
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
+import {KeystoreComponent} from './truststore/keystore.component';
 import {CertificateUploadComponent} from './truststore/certificate-upload/certificate-upload.component';
 import {PluginUserValidatorService} from './pluginuser/support/pluginuservalidator.service';
 import {DomibusFutureDatePipe} from './common/customDate/domibusFutureDatePipe';
@@ -130,6 +131,7 @@ import {DataTablePagerComponent} from './common/page-grid/datatable-pager.comone
         BaseTruststoreComponent,
         TLSTruststoreComponent,
         TruststoreComponent,
+        KeystoreComponent,
         PmodeUploadComponent,
         PmodeViewComponent,
         YesNoDialogComponent,

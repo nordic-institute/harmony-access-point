@@ -42,9 +42,8 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected ADD_CERTIFICATE_URL: string;
   protected REMOVE_CERTIFICATE_URL: string;
 
-  protected canHandleCertificates: boolean;
+  protected canHandleCertificates: boolean = false;
   protected storeExists: boolean;
-  showResetOperation: boolean;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 

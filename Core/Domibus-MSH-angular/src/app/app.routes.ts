@@ -7,7 +7,6 @@ import {PModeArchiveComponent} from './pmode/archive/pmodeArchive.component';
 import {MessageFilterComponent} from './messagefilter/messagefilter.component';
 import {MessageLogComponent} from './messagelog/messagelog.component';
 import {UserComponent} from './user/user.component';
-import {BaseTruststoreComponent} from 'app/truststore/base-truststore.component';
 import {JmsComponent} from './jms/jms.component';
 import {DirtyGuard} from './common/guards/dirty.guard';
 import {AuditComponent} from './audit/audit.component';
@@ -27,6 +26,7 @@ import {ConnectionsComponent} from './testservice/connections.component';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
+import {KeystoreComponent} from './truststore/keystore.component';
 import {DomainsComponent} from './domains/domains.component';
 
 export const appRoutes: Routes = [
@@ -102,6 +102,16 @@ export const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Truststore'
+    },
+    runGuardsAndResolvers: 'always'
+  },
+  {
+    path: 'keystore',
+    component: KeystoreComponent,
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    data: {
+      checkRoles: SecurityService.ADMIN_ROLES,
+      helpPage: 'Keystore'
     },
     runGuardsAndResolvers: 'always'
   },

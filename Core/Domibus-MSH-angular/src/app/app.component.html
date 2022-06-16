@@ -54,18 +54,22 @@
     <mat-expansion-panel *ngIf="isAdmin()">
       <mat-expansion-panel-header>
         <button mat-raised-button class="sideNavButton" id="truststores_id">
-          <mat-icon mat-tooltip="Truststores">vpn_key</mat-icon>
-          <span *ngIf="fullMenu">Truststores</span>
+          <mat-icon mat-tooltip="Keystores">vpn_key</mat-icon>
+          <span *ngIf="fullMenu">Keystores</span>
         </button>
       </mat-expansion-panel-header>
 
       <div class="sideNavSubmenu">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/keystore']" *ngIf="isAdmin()" id="keystore_id">
+          <mat-icon mat-tooltip="Keystore">vpn_key</mat-icon>
+          <span>Keystore</span>
+        </button>
         <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
           <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
-          <span>Domibus</span>
+          <span>Truststore</span>
         </button>
         <button mat-raised-button class="sideNavButton" [routerLink]="['/tlstruststore']" *ngIf="isAdmin()" id="tls_truststore_id">
-          <mat-icon mat-tooltip="TLS Truststore">vpn_key</mat-icon>
+          <mat-icon mat-tooltip="TLS Truststore">https</mat-icon>
           <span>TLS</span>
         </button>
       </div>
