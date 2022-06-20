@@ -55,12 +55,12 @@ class Domibus{
     static def XSFRTOKEN_C2 = null
     static def XSFRTOKEN_C3 = null
     static def XSFRTOKEN_C_Other = null
-	static def MSG_STATUS_MAX_WAIT_TIME = 120_000 // Maximum time to wait to check the message status.
-	static def MSG_STATUS_MAX_WAIT_TIME_EXT = 180_000 // Maximum time to wait to check the message status extended.
-	static def MSG_STATUS_STEP_WAIT_TIME = 2_000 // Time to wait before re-checking the message status.
-	static def CLUSTER_WAIT_TIME=15000	// Time to wait for property changes to be propagated accross clusters
+    static def MSG_STATUS_MAX_WAIT_TIME = 120_000 // Maximum time to wait to check the message status.
+    static def MSG_STATUS_MAX_WAIT_TIME_EXT = 180_000 // Maximum time to wait to check the message status extended.
+    static def MSG_STATUS_STEP_WAIT_TIME = 2_000 // Time to wait before re-checking the message status.
+    static def CLUSTER_WAIT_TIME=15000	// Time to wait for property changes to be propagated accross clusters
 
-	
+
     static def CLEAR_CACHE_COMMAND_TOMCAT = $/rmdir /S /Q ..\work & rmdir /S /Q ..\logs & del /S /Q ..\temp\* & FOR /D %p IN ("..\temp\*.*") DO rmdir /s /q "%p"  & rmdir /S /Q ..\webapps\domibus & rmdir /S /Q ..\conf\domibus\work/$
 
     // Short constructor of the Domibus Class
@@ -354,28 +354,28 @@ class Domibus{
     def cleanDatabaseForDomains(domainIdList) {
         debugLog("  ====  Calling \"cleanDatabaseForDomains\" ${domainIdList}.", log)
         def sqlQueriesList = [
-				"UPDATE TB_EARCHIVE_START SET LAST_PK_USER_MESSAGE=000101000000000000",
-				"delete from TB_EARCHIVEBATCH_UM",
-				"delete from TB_EARCHIVE_BATCH",
-		        "delete from TB_USER_MESSAGE_RAW",				
-				"delete from TB_SEND_ATTEMPT",
-				"delete from TB_PART_PROPERTIES",
-				"delete from TB_PART_INFO",
-				"delete from TB_RECEIPT",
-				"delete from TB_SIGNAL_MESSAGE_RAW",
-				"delete from TB_SIGNAL_MESSAGE_LOG",
-				"delete from TB_SIGNAL_MESSAGE",
-				"delete from TB_USER_MESSAGE_LOG",
-				"delete from TB_SJ_MESSAGE_FRAGMENT",
-				"delete from TB_SJ_MESSAGE_GROUP",
-				"delete from TB_MESSAGE_PROPERTIES",
-				"delete from TB_MESSAGE_ACKNW_PROP",
-				"delete from TB_MESSAGE_ACKNW",
-				"delete from TB_ERROR_LOG",
-				"delete from TB_USER_MESSAGE where ID_PK NOT IN (19700101)",	
-                "delete from TB_MESSAGING_LOCK",				
+                "UPDATE TB_EARCHIVE_START SET LAST_PK_USER_MESSAGE=000101000000000000",
+                "delete from TB_EARCHIVEBATCH_UM",
+                "delete from TB_EARCHIVE_BATCH",
+                "delete from TB_USER_MESSAGE_RAW",
+                "delete from TB_SEND_ATTEMPT",
+                "delete from TB_PART_PROPERTIES",
+                "delete from TB_PART_INFO",
+                "delete from TB_RECEIPT",
+                "delete from TB_SIGNAL_MESSAGE_RAW",
+                "delete from TB_SIGNAL_MESSAGE_LOG",
+                "delete from TB_SIGNAL_MESSAGE",
+                "delete from TB_USER_MESSAGE_LOG",
+                "delete from TB_SJ_MESSAGE_FRAGMENT",
+                "delete from TB_SJ_MESSAGE_GROUP",
+                "delete from TB_MESSAGE_PROPERTIES",
+                "delete from TB_MESSAGE_ACKNW_PROP",
+                "delete from TB_MESSAGE_ACKNW",
+                "delete from TB_ERROR_LOG",
+                "delete from TB_USER_MESSAGE where ID_PK NOT IN (19700101)",
+                "delete from TB_MESSAGING_LOCK",
                 "delete from WS_PLUGIN_TB_MESSAGE_LOG",
-				"delete from WS_PLUGIN_TB_BACKEND_MSG_LOG"
+                "delete from WS_PLUGIN_TB_BACKEND_MSG_LOG"
         ] as String[]
 
 
@@ -425,25 +425,25 @@ class Domibus{
 
         def select_ID_PK = "select ID_PK from TB_USER_MESSAGE where MESSAGE_ID ${messageIDCheck}" //extracted as common part of queries below
         def sqlQueriesList = [
-				"delete from TB_USER_MESSAGE_RAW where ID_PK IN (" + select_ID_PK + ")",
-		        "delete from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
-		        "delete from TB_PART_PROPERTIES where PART_INFO_ID_FK IN (select ID_PK from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
-				"delete from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
-		        "delete from TB_RECEIPT where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",		
+                "delete from TB_USER_MESSAGE_RAW where ID_PK IN (" + select_ID_PK + ")",
+                "delete from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+                "delete from TB_PART_PROPERTIES where PART_INFO_ID_FK IN (select ID_PK from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
+                "delete from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+                "delete from TB_RECEIPT where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",
                 "delete from TB_SIGNAL_MESSAGE_RAW where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",
-				"delete from TB_SIGNAL_MESSAGE_LOG where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",				
-				"delete from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + ")",
-				"delete from TB_USER_MESSAGE_LOG where ID_PK IN (" + select_ID_PK + ")",
-				"delete from TB_SJ_MESSAGE_FRAGMENT where ID_PK IN (" + select_ID_PK + ")",
-				"delete from TB_SJ_MESSAGE_GROUP where ID_PK IN (" + select_ID_PK + ")",
-				"delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
-		        "delete from TB_MESSAGE_ACKNW_PROP where FK_MSG_ACKNOWLEDGE IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
-				"delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
-				"delete from TB_ERROR_LOG where (USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")) OR (MESSAGE_IN_ERROR_ID "+messageIDCheck+")",
-				"delete from TB_USER_MESSAGE where (MESSAGE_ID " + messageIDCheck + ") AND (ID_PK NOT IN (19700101))",
-				"delete from TB_MESSAGING_LOCK where MESSAGE_ID " + messageIDCheck + "",
-				"delete from WS_PLUGIN_TB_MESSAGE_LOG where MESSAGE_ID " + messageIDCheck + "",
-				"delete from WS_PLUGIN_TB_BACKEND_MSG_LOG where MESSAGE_ID " + messageIDCheck + ""
+                "delete from TB_SIGNAL_MESSAGE_LOG where ID_PK IN (select ID_PK from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + "))",
+                "delete from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + ")",
+                "delete from TB_USER_MESSAGE_LOG where ID_PK IN (" + select_ID_PK + ")",
+                "delete from TB_SJ_MESSAGE_FRAGMENT where ID_PK IN (" + select_ID_PK + ")",
+                "delete from TB_SJ_MESSAGE_GROUP where ID_PK IN (" + select_ID_PK + ")",
+                "delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+                "delete from TB_MESSAGE_ACKNW_PROP where FK_MSG_ACKNOWLEDGE IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
+                "delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+                "delete from TB_ERROR_LOG where (USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")) OR (MESSAGE_IN_ERROR_ID "+messageIDCheck+")",
+                "delete from TB_USER_MESSAGE where (MESSAGE_ID " + messageIDCheck + ") AND (ID_PK NOT IN (19700101))",
+                "delete from TB_MESSAGING_LOCK where MESSAGE_ID " + messageIDCheck + "",
+                "delete from WS_PLUGIN_TB_MESSAGE_LOG where MESSAGE_ID " + messageIDCheck + "",
+                "delete from WS_PLUGIN_TB_BACKEND_MSG_LOG where MESSAGE_ID " + messageIDCheck + ""
         ] as String[]
 
         domainIdList.each { domainName ->
@@ -595,133 +595,133 @@ class Domibus{
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     def getMsgStatusNames(sqlConn){
-		debugLog("  ====  Calling \"getMsgStatusNames\".", log)
-		def STATUS_MAP = [:]
-		
-		sqlConn.eachRow("Select * from TB_D_MESSAGE_STATUS") {
-			STATUS_MAP[it.ID_PK] = it.STATUS
-		}
-		
-		STATUS_MAP.each { key, val ->
-			debugLog("  $key:$val", log)
-		}
-		debugLog("  ====  ENDING \"getMsgStatusNames\".", log)
-		return STATUS_MAP		
-	}
+        debugLog("  ====  Calling \"getMsgStatusNames\".", log)
+        def STATUS_MAP = [:]
+
+        sqlConn.eachRow("Select * from TB_D_MESSAGE_STATUS") {
+            STATUS_MAP[it.ID_PK] = it.STATUS
+        }
+
+        STATUS_MAP.each { key, val ->
+            debugLog("  $key:$val", log)
+        }
+        debugLog("  ====  ENDING \"getMsgStatusNames\".", log)
+        return STATUS_MAP
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
-	def displayList(inputList,title){	
-		def strResult=""
-		inputList.each{
-			v ->
-			strResult=strResult+" | "+v 
-		}
-		log.info "============================="
-		log.info "list[$title] contains "+inputList.size()+" elements."
-		log.info "list[$title]:"+strResult		
-		log.info "============================="
-		log.info "\n"
-	}
+    def displayList(inputList,title){
+        def strResult=""
+        inputList.each{
+            v ->
+                strResult=strResult+" | "+v
+        }
+        log.info "============================="
+        log.info "list[$title] contains "+inputList.size()+" elements."
+        log.info "list[$title]:"+strResult
+        log.info "============================="
+        log.info "\n"
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
-	def DisplayMessagesStatus(sideName){
-	
-		def messageList=[]
-		def ackList=[]
-		def recList=[]
-		def delList=[]
-		def downList=[]
-		def wfrList=[]		
-		def sfList=[]
-		def readypullList=[]
-		def msgPK=null
-		def messageStatus=null
-		
-		def sqlConn = retrieveSqlConnectionRefFromDomainId(sideName)
-		
-		// Fill in message list 
-		sqlConn.eachRow("Select MESSAGE_ID from TB_USER_MESSAGE") {
-			messageList << it.MESSAGE_ID
-		}
-		
-		messageList.each{
-			k ->
-			sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${k}),' ','')") {
-				msgPK = it.ID_PK
-			}
-			sqlConn.eachRow("select d.STATUS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
-				messageStatus = it.STATUS
-				switch(messageStatus.toLowerCase()){
-					case "acknowledged":
-						ackList << k
-						break
-					case "received":
-						recList << k
-						break
-					case "deleted":
-						delList << k
-						break
-					case "downloaded":
-						downList << k
-						break
-					case "waiting_for_retry":
-						wfrList << k
-						break
-					case "send_failure":
-						sfList << k
-						break
-					case "ready_to_pull":
-						readypullList << k
-						break
-					default:
-						log.error "Could not assess the status of message: "+k
-						break							
-				}
-			}
-		}
-		displayList(ackList,"ACKNOWLEDGED")
-		displayList(recList,"RECEIVED")
-		displayList(delList,"DELETED")
-		displayList(downList,"DOWNLOADED")
-		displayList(wfrList,"WAITING_FOR_RETRY")
-		displayList(sfList,"SEND_FAILURE")
-		displayList(readypullList,"READY_TO_PULL")
-		
-	}
+    def DisplayMessagesStatus(sideName){
+
+        def messageList=[]
+        def ackList=[]
+        def recList=[]
+        def delList=[]
+        def downList=[]
+        def wfrList=[]
+        def sfList=[]
+        def readypullList=[]
+        def msgPK=null
+        def messageStatus=null
+
+        def sqlConn = retrieveSqlConnectionRefFromDomainId(sideName)
+
+        // Fill in message list
+        sqlConn.eachRow("Select MESSAGE_ID from TB_USER_MESSAGE") {
+            messageList << it.MESSAGE_ID
+        }
+
+        messageList.each{
+            k ->
+                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${k}),' ','')") {
+                    msgPK = it.ID_PK
+                }
+                sqlConn.eachRow("select d.STATUS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
+                    messageStatus = it.STATUS
+                    switch(messageStatus.toLowerCase()){
+                        case "acknowledged":
+                            ackList << k
+                            break
+                        case "received":
+                            recList << k
+                            break
+                        case "deleted":
+                            delList << k
+                            break
+                        case "downloaded":
+                            downList << k
+                            break
+                        case "waiting_for_retry":
+                            wfrList << k
+                            break
+                        case "send_failure":
+                            sfList << k
+                            break
+                        case "ready_to_pull":
+                            readypullList << k
+                            break
+                        default:
+                            log.error "Could not assess the status of message: "+k
+                            break
+                    }
+                }
+        }
+        displayList(ackList,"ACKNOWLEDGED")
+        displayList(recList,"RECEIVED")
+        displayList(delList,"DELETED")
+        displayList(downList,"DOWNLOADED")
+        displayList(wfrList,"WAITING_FOR_RETRY")
+        displayList(sfList,"SEND_FAILURE")
+        displayList(readypullList,"READY_TO_PULL")
+
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
-	def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null){
-		debugLog("  ====  Calling \"checkStatus\".", log)
-		debugLog("  checkStatus  [][]  params: sideName: " + sideName + " targetStatus: " + targetStatus + " messageID: " + messageID + " bonusTime: " + bonusTime,log)
-	    def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME 
+    def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null){
+        debugLog("  ====  Calling \"checkStatus\".", log)
+        debugLog("  checkStatus  [][]  params: sideName: " + sideName + " targetStatus: " + targetStatus + " messageID: " + messageID + " bonusTime: " + bonusTime,log)
+        def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
-		def messageStatus = "INIT"
+        def messageStatus = "INIT"
         def wait = false
-		def msgPK=null
-		def numberAttempts = 0
-        def maxNumberAttempts = 5	
-		
+        def msgPK=null
+        def numberAttempts = 0
+        def maxNumberAttempts = 5
+
         if (bonusTime) {
             if (bonusTime.isInteger()) MAX_WAIT_TIME = (bonusTime as Integer) * 1000
             else MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME_EXT
 
             log.info "  checkStatus  [][]  Waiting time for $sideName extended to ${MAX_WAIT_TIME/1000} seconds"
         }
-		
 
-			
-			
+
+
+
         while ( ( (messageStatus != targetStatus) && (MAX_WAIT_TIME > 0) ) || (wait) ) {
             sleep(STEP_WAIT_TIME)
             if (MAX_WAIT_TIME > 0) {
                 MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
             }
             log.info "  checkStatus  [][]  WAIT: " + MAX_WAIT_TIME
-			// Extract message ID PK
-			if(msgPK==null){
-				sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-					msgPK = it.ID_PK
-				}
-			}
-			
-			sqlConn.eachRow("select d.STATUS, m.SEND_ATTEMPTS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
+            // Extract message ID PK
+            if(msgPK==null){
+                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+                    msgPK = it.ID_PK
+                }
+            }
+
+            sqlConn.eachRow("select d.STATUS, m.SEND_ATTEMPTS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
                 messageStatus = it.STATUS
                 numberAttempts = it.SEND_ATTEMPTS
             }
@@ -742,16 +742,16 @@ class Domibus{
             }
         }
         log.info "  checkStatus  [][]  finished checking $sideName, messageStatus: " + messageStatus + " MAX_WAIT_TIME: " + MAX_WAIT_TIME
-		assert(msgPK != null),locateTest(context) + "Error:checkStatus: Message " + messageID + " is not present in $sideName side."
+        assert(msgPK != null),locateTest(context) + "Error:checkStatus: Message " + messageID + " is not present in $sideName side."
         assert(messageStatus.toLowerCase() == targetStatus.toLowerCase()),locateTest(context) + "Error:checkStatus: Message in $sideName side has status " + messageStatus + " instead of " + targetStatus + "."
-		debugLog("  ====  END \"checkStatus\".", log)
-	}
+        debugLog("  ====  END \"checkStatus\".", log)
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
 
     // Wait until status or timer expire
     def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
-	    def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME 
+        def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
         def messageID=null;
 
@@ -768,29 +768,29 @@ class Domibus{
         def sqlC2 = retrieveSqlConnectionRefFromDomainId(C2DomainId)
         def sqlC3 = retrieveSqlConnectionRefFromDomainId(C3DomainId)
         def usedDomains = [C2DomainId, C3DomainId]
-		
-        openDbConnections(usedDomains)		
+
+        openDbConnections(usedDomains)
 
         if (SMSH) {
-		    try {
+            try {
                 checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
-            }			
+            }
         }
-		
-		if (RMSH) {
-			try {
+
+        if (RMSH) {
+            try {
                 checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
-            }			
+            }
         }
-		
+
         closeDbConnections(usedDomains)
-		debugLog("  ====  END \"waitForStatus\".", log)
+        debugLog("  ====  END \"waitForStatus\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     // Check that an entry is created in the table TB_SEND_ATTEMPT
@@ -799,19 +799,19 @@ class Domibus{
         def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
         int total = 0
-		def msgPK=null
+        def msgPK=null
         openAllDbConnections()
 
         def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
-		
+
 
         while ( (MAX_WAIT_TIME > 0) && (total == 0) ) {
-			// Extract message ID PK
-			if(msgPK==null){
-				sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-					msgPK = it.ID_PK
-				}
-			}
+            // Extract message ID PK
+            if(msgPK==null){
+                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+                    msgPK = it.ID_PK
+                }
+            }
             sqlSender.eachRow("Select count(*) lignes from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK = ${msgPK}") {
                 total = it.lignes
             }
@@ -832,17 +832,17 @@ class Domibus{
         debugLog("  retrieveMessageEntityID  [][]  domainId = " + domainId + " message ID = " + messageID, log)
         def sqlConn = retrieveSqlConnectionRefFromDomainId(domainId)
         def usedDomains = [domainId]
-		try {
-			sqlConn.eachRow("Select ID_PK from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-				entID = it.ID_PK
-			}
-		}catch (SQLException ex) {
+        try {
+            sqlConn.eachRow("Select ID_PK from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+                entID = it.ID_PK
+            }
+        }catch (SQLException ex) {
             closeDbConnections(usedDomains)
             assert 0,"SQLException occurred: " + ex
         }
         assert(entID!=null),"  retrieveMessageEntityID  [][]  Error: Message " + messageID + " not found."
         closeDbConnections(usedDomains)
-		return entID.toString()
+        return entID.toString()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     static def getStatusRetriveStatus(log, context, messageExchange) {
@@ -1149,71 +1149,7 @@ class Domibus{
             log.info "  stopMSH  [][]  DONE - " + side.toUpperCase() + " stopped."
         }
     }
-//---------------------------------------------------------------------------------------------------------------------------------
-    static def uploadPmode(String side, String baseFilePath, String extFilePath, context, log, String domainValue = "Default", String outcome = "successfully", String message = null, String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"uploadPmode\".", log)
-        log.info "  uploadPmode  [][]  Start upload PMode for Domibus \"" + side + "\"."
-        def pmDescription = "SoapUI sample test description for PMode upload."
-        def authenticationUser = authUser
-        def authenticationPwd = authPwd
-        String pmodeFile = computePathRessources(baseFilePath, extFilePath, context, log)
 
-        log.info "  uploadPmode  [][]  PMODE FILE PATH: " + pmodeFile
-
-        try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-
-
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode",
-                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-F", "description=" + pmDescription,
-                                 "-F", "file=@" + pmodeFile,
-                                 "-v"]
-            def commandResult = runCommandInShell(commandString, log)
-            assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected outcome \"" + outcome + "\"."
-            if (outcome.toLowerCase() == "successfully") {
-                log.info "  uploadPmode  [][]  " + commandResult[0] + " Domibus: \"" + side + "\"."
-                if (message != null) {
-                    assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload done but expected message \"" + message + "\" was not returned."
-                }
-            } else {
-                log.info "  uploadPmode  [][]  Upload PMode was not done for Domibus: \"" + side + "\"."
-                if (message != null) {
-                    assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload was not done but expected message \"" + message + "\" was not returned.\n Result:"  + commandResult[0]
-                }
-            }
-        } finally {
-            resetAuthTokens(log)
-        }
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    static def uploadPmodeWithoutToken(String side, String baseFilePath, String extFilePath, context, log, String outcome = "successfully", String message =null){
-        debugLog("  ====  Calling \"uploadPmodeWithoutToken\".", log)
-        log.info "  uploadPmodeWithoutToken  [][]  Start upload PMode for Domibus \"" + side + "\"."
-        def pmDescription = "Dummy"
-
-//        String output = fetchCookieHeader(side, context, log)
-        String pmodeFile = computePathRessources(baseFilePath, extFilePath, context, log)
-
-        def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode",
-                             "-F", "description=" + pmDescription,
-                             "-F", "file=@" + pmodeFile,
-                             "-v"]
-        def commandResult = runCommandInShell(commandString, log)
-        assert(commandResult[0].contains(outcome)),"Error:uploadPmode: Error while trying to connect to domibus."
-        if (outcome.toLowerCase() == "successfully") {
-            log.info "  uploadPmodeWithoutToken  [][]  " + commandResult[0] + " Domibus: \"" + side + "\"."
-            if (message != null) {
-                assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload done but expected message \"" + message + "\" was not returned."
-            }
-        } else {
-            log.info "  uploadPmodeWithoutToken  [][]  Upload PMode was not done for Domibus: \"" + side + "\"."
-            if (message != null) {
-                assert(commandResult[0].contains(message)),"Error:uploadPmode: Upload was not done but expected message \"" + message + "\" was not returned."
-            }
-        }
-    }
 //---------------------------------------------------------------------------------------------------------------------------------
     static def uploadTruststore(String side, String baseFilePath, String extFilePath, context, log, String domainValue = "Default", String outcome = "successfully", String tsPassword = TRUSTSTORE_PASSWORD, String authUser = null, authPwd = null){
         debugLog("  ====  Calling \"uploadTruststore\".", log)
@@ -2014,12 +1950,12 @@ class Domibus{
         debugLog("  ====  Calling \"adminConsoleUserSuspended\".", log)
         def jsonSlurper = new JsonSlurper()
         def userStatus = null
-		def authenticationUser = authUser
+        def authenticationUser = authUser
         def authenticationPwd = authPwd
         int i = 0
 
         try{
-			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  adminConsoleUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log, authenticationUser,authenticationPwd))
             debugLog("  adminConsoleUserSuspended  [][]  Admin console users map: $usersMap.", log)
@@ -2044,13 +1980,13 @@ class Domibus{
         debugLog("  ====  Calling \"pluginUserSuspended\".", log)
         def jsonSlurper = new JsonSlurper()
         def userStatus = null
-		def authenticationUser = authUser
+        def authenticationUser = authUser
         def authenticationPwd = authPwd
 
         int i = 0
 
         try{
-		    (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  pluginUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log, authenticationUser, authenticationPwd))
             debugLog("  pluginUserSuspended  [][]  Plugin users map: $usersMap.", log)
@@ -2099,9 +2035,9 @@ class Domibus{
         debugLog("  ====  Calling \"formatFilters\".", log)
         log.info "  formatFilters  [][]  Analysing backends filters order ..."
         def swapBck
-		def secondaryNameExists=false
-		def secondaryName="backendwebservice"
-		def i = 0
+        def secondaryNameExists=false
+        def secondaryName="backendwebservice"
+        def i = 0
 
         assert(filtersMap != null),"Error:formatFilters: Not able to get the backend details."
         debugLog("  formatFilters  [][]  FILTERS:" + filtersMap, log)
@@ -2113,14 +2049,14 @@ class Domibus{
         debugLog("  formatFilters  [][]  Loop over :" + filtersMap.messageFilterEntries.size() + " backend filters.", log)
         debugLog("  formatFilters  [][]  extraCriteria = --" + extraCriteria + "--.", log)
 
-		if(filterChoice.toLowerCase().equals("backendwebservice")||filterChoice.toLowerCase().equals("backendwsplugin")){
-		    debugLog("  formatFilters  [][]  Filter chosen is WS: 2 names ", log)
-			secondaryNameExists=true
-			if(filterChoice.toLowerCase().equals("backendwebservice")){
-				secondaryName="backendwsplugin"
-			}
-		}		
-		
+        if(filterChoice.toLowerCase().equals("backendwebservice")||filterChoice.toLowerCase().equals("backendwsplugin")){
+            debugLog("  formatFilters  [][]  Filter chosen is WS: 2 names ", log)
+            secondaryNameExists=true
+            if(filterChoice.toLowerCase().equals("backendwebservice")){
+                secondaryName="backendwsplugin"
+            }
+        }
+
         while (i < filtersMap.messageFilterEntries.size()) {
             assert(filtersMap.messageFilterEntries[i] != null),"Error:formatFilters: Error while parsing filter details."
             if ( (filtersMap.messageFilterEntries[i].backendName.toLowerCase().equals(filterChoice.toLowerCase())) || (secondaryNameExists && filtersMap.messageFilterEntries[i].backendName.toLowerCase().equals(secondaryName.toLowerCase())) ) {
@@ -2158,7 +2094,7 @@ class Domibus{
             def filtersMap = jsonSlurper.parseText(getMessageFilters(side,context,log))
             debugLog("  setMessageFilters  [][]  filtersMap:" + filtersMap, log)
             assert(filtersMap != null),"Error:setMessageFilter: Not able to get the backend details."
-	    // Skip the following step since ws plugin can have 2 different names. Maybe restore it in the future ...
+            // Skip the following step since ws plugin can have 2 different names. Maybe restore it in the future ...
             //assert(filtersMap.toString().toLowerCase().contains(filterChoice.toLowerCase())),"Error:setMessageFilter: The backend you want to set is not installed."
             filtersMap = formatFilters(filtersMap, filterChoice, context, log, extraCriteria)
             assert(filtersMap != "ko"),"Error:setMessageFilter: The backend you want to set is not installed."
@@ -2401,17 +2337,17 @@ class Domibus{
 // Copy file from source to destination
     static void  copyFile(String source, String destination, log, overwriteOpt = true){
         debugLog("  ====  Calling \"copyFile\".",log)
-		
-		def sourceFile=new File(source)
-		def destFile=new File(destination)
-		try {
-			FileUtils.copyFile(sourceFile,destFile)
+
+        def sourceFile=new File(source)
+        def destFile=new File(destination)
+        try {
+            FileUtils.copyFile(sourceFile,destFile)
         } catch (Exception ex) {
             log.error "  copyFile  [][]  Error while trying to copy files: " + ex
             assert 0
         }
-		
-		debugLog("  ====  \"copyFile\" DONE.",log)
+
+        debugLog("  ====  \"copyFile\" DONE.",log)
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
@@ -2550,7 +2486,7 @@ class Domibus{
             testRunner.cancel( "One of smoke tests failed. Aborting whole test suite run." )
         }
     }
-	
+
     static void  skipIfOldPluginSelected(testRunner, context, log) {
         debugLog("  ====  Calling \"skipIfOldPluginSelected\".", log)
         if (context.expand('${#Project#endpointUrl}').contains("backend")) {
@@ -2666,8 +2602,8 @@ class Domibus{
         assert(mockRunner.isRunning()),"  startRestMockService  [][]  Mock service did not start."
         log.info ("  startRestMockService  [][]  Rest mock service " + restMockServiceName + " is running.")
     }
-	
-	// Handle soap mock service
+
+    // Handle soap mock service
     static void  stopAllMockService(log,testRunner) {
         log.info("  ====  Calling \"stopAllMockService\".")
         def project = testRunner.testCase.testSuite.project
@@ -2680,7 +2616,7 @@ class Domibus{
         }
         log.info ("  stopAllMockService  [][]  All mock services are stopped.")
     }
-	
+
     static void  stopMockService(String mockServiceName,log,testRunner) {
         log.info("  ====  Calling \"stopMockService\".")
         debugLog("  stopMockService  [][]  Mock service name: \"" + mockServiceName+"\"",log)
@@ -2700,7 +2636,7 @@ class Domibus{
         }
         log.info ("  stopMockService  [][]  Mock service \"" + mockServiceName + "\" is stopped.")
     }
-	
+
     static void  startMockService(String mockServiceName,log,testRunner,stopAll=true) {
         log.info("  ====  Calling \"startMockService\".")
         debugLog("  startMockService  [][]  Mock service name: \"" + mockServiceName+"\"",log)
@@ -2724,73 +2660,6 @@ class Domibus{
         log.info ("  startMockService  [][]  Mock service \"" + mockServiceName + "\" is running.")
     }
 
-    //---------------------------------------------------------------------------------------------------------------------------------
-    // Methods handling Pmode properties overwriting
-    static def processFile(log, file, String newFileSuffix, Closure processText) {
-        def text = file.text
-        debugLog("New file to be created: " + file.path.toString() + newFileSuffix, log)
-        def outputTextFile = new File(file.path + newFileSuffix)
-        outputTextFile.write(processText(text))
-        if (outputTextFile.text == text)
-            log.warn "processFile method returned file with same content! filePath = ${file.path}, newFileSuffix = ${newFileSuffix}."
-    }
-
-    static def changeConfigurationFile(log, testRunner, filePath, newFileSuffix, Closure processText) {
-        // Check that file exists
-        def file = new File(filePath)
-        if (!file.exists()) {
-            testRunner.fail("File [${filePath}] does not exist. Can't change value.")
-            return null
-        } else log.info "  changeConfigurationFile  [][]  File [${filePath}] exists."
-
-        processFile(log, file, newFileSuffix, processText)
-
-        log.info "  changeDomibusProperties  [][]  Configuration file [${filePath}] amended"
-    }
-    static def updatePmodeEndpoints(log, context, testRunner, filePath, newFileSuffix) {
-        def defaultEndpointBlue = 'http://localhost:8080/domibus'
-        def newEndpointBlue = context.expand('${#Project#localUrl}')
-        def defaultEndpointRed = 'http://localhost:8180/domibus'
-        def newEndpointRed = context.expand('${#Project#remoteUrl}')
-
-        debugLog("For file: ${filePath} change endpoint value ${defaultEndpointBlue} to ${newEndpointBlue} and change endpoint value: ${defaultEndpointRed} to ${newEndpointRed} value", log)
-        changeConfigurationFile(log, testRunner, filePath, newFileSuffix) { text ->
-            text = text.replaceAll("${defaultEndpointBlue}", "${newEndpointBlue}")
-            text.replaceAll("${defaultEndpointRed}", "${newEndpointRed}")
-        }
-    }
-
-    //---------------------------------------------------------------------------------------------------------------------------------
-    def static updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix){
-        debugLog("  ====  Calling \"updatePmodeParameter\".", log)
-        def i = 0
-        def swap = null
-
-        debugLog("For file: ${filePath} change values:", log)
-        changeConfigurationFile(log, testRunner, filePath, newFileSuffix) { text ->
-            swap = text
-            for(i = 0;i<currentValue.size;i++){
-                debugLog("== \"${currentValue[i]}\" to \"${newValue[i]}\" ", log)
-                swap = swap.replaceAll("${currentValue[i]}", "${newValue[i]}")
-            }
-            text = swap
-        }
-
-        debugLog("  ====  \"updatePmodeParameter\" DONE.", log)
-    }
-
-    //---------------------------------------------------------------------------------------------------------------------------------
-
-    static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToCheckName, pmodeUploadStepToExecuteName) {
-        //Check status of step reverting Pmode configuration if needed run step
-        Map resultOf = testRunner.getResults().collectEntries { result ->  [ (result.testStep): result.status ] }
-        def myStep = context.getTestCase().getTestStepByName(testStepToCheckName)
-        if (resultOf[myStep]?.toString() != "OK")  {
-            log.info "As test step ${testStepToCheckName} failed or was not run reset PMode in tear down script using ${pmodeUploadStepToExecuteName} test step"
-            def tStep = testRunner.testCase.testSuite.project.testSuites["Administration"].testCases["Pmode Update"].testSteps[pmodeUploadStepToExecuteName]
-            tStep.run(testRunner, context)
-        }
-    }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 // Handling domibus properties at runtime
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
@@ -2816,10 +2685,10 @@ class Domibus{
 
             if(message == "successfully"){
                 assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change property at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
-				if(isClustered(side,context,log, domainValue,authenticationUser, authenticationPwd)){
-					log.info "  changePropertyAtRuntime  [][]  Cluster detected, will sleep for few seconds ..."
-					sleep(CLUSTER_WAIT_TIME)
-				}
+                if(isClustered(side,context,log, domainValue,authenticationUser, authenticationPwd)){
+                    log.info "  changePropertyAtRuntime  [][]  Cluster detected, will sleep for few seconds ..."
+                    sleep(CLUSTER_WAIT_TIME)
+                }
                 log.info "  changePropertyAtRuntime  [][]  Property value was changed"
             }else{
                 assert(commandResult[0].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: string $message not found in returned value."
@@ -3205,26 +3074,26 @@ class Domibus{
         def i = 0
         def found = false
         def jsonSlurper = new JsonSlurper()
-		def returnedMessage=null
-		def queueTypeList=["replyQueue","outQueue","errorNotifyConsumer","errorNotifyProducer","inQueue","DLQ"]
-		def queueType="";
-		def patternTable=[]
+        def returnedMessage=null
+        def queueTypeList=["replyQueue","outQueue","errorNotifyConsumer","errorNotifyProducer","inQueue","DLQ"]
+        def queueType="";
+        def patternTable=[]
 
         def jmsMessagesMap = jsonSlurper.parseText(browseJmsQueue(side,context,log,queueName,domainValue,authUser,authPwd))
         debugLog("  SearchMessageJmsQueue  [][]  jmsMessagesMap:" + jmsMessagesMap, log)
         assert(jmsMessagesMap != null),"Error:SearchMessageJmsQueue: Not able to get the jms queue details."
         log.info ("jmsMessagesMap size = " + jmsMessagesMap.size())
 
-		for(item in queueTypeList){
-			if(queueName.toLowerCase().contains(item.toLowerCase())){
-				queueType=item
-				break
-			}
-		}
-		
+        for(item in queueTypeList){
+            if(queueName.toLowerCase().contains(item.toLowerCase())){
+                queueType=item
+                break
+            }
+        }
+
         switch(queueType){
             case "replyQueue":
-				debugLog("  SearchMessageJmsQueue  [][]  queueType=\"replyQueue\".", log)
+                debugLog("  SearchMessageJmsQueue  [][]  queueType=\"replyQueue\".", log)
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3247,7 +3116,7 @@ class Domibus{
                 }
                 break
             case "errorNotifyConsumer":
-				debugLog("  SearchMessageJmsQueue  [][]  queueType=\"errorNotifyConsumer\".", log)
+                debugLog("  SearchMessageJmsQueue  [][]  queueType=\"errorNotifyConsumer\".", log)
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
@@ -3270,28 +3139,28 @@ class Domibus{
                 }
                 break
 
-			case "outQueue":
-				debugLog("  SearchMessageJmsQueue  [][]  queueType=\"outQueue\".", log)
+            case "outQueue":
+                debugLog("  SearchMessageJmsQueue  [][]  queueType=\"outQueue\".", log)
                 while ((i < jmsMessagesMap.messages.size())&&(!found)) {
                     assert(jmsMessagesMap.messages[i] != null),"Error:SearchMessageJmsQueue: Error while parsing jms queue details."
                     if(jmsMessagesMap.messages[i].customProperties.messageId!= null){
                         if (jmsMessagesMap.messages[i].customProperties.messageId.toLowerCase() == searchKey.toLowerCase()) {
                             debugLog("  SearchMessageJmsQueue  [][]  Found message with ID \"" + jmsMessagesMap.messages[i].customProperties.messageId + "\".", log)
-							if(pattern!=null){
-								patternTable=pattern.split("#")
-								assert(patternTable.size() == 2),"Error:SearchMessageJmsQueue: Error while parsing parsing parameter $pattern."
-								debugLog("  SearchMessageJmsQueue  [][]  pattern key =\"" + patternTable[0] + "\".", log)
-								debugLog("  SearchMessageJmsQueue  [][]  pattern value =\"" + patternTable[1] + "\".", log)
-								if(jmsMessagesMap.messages[i].customProperties."${patternTable[0]}"!=null){
-									if(jmsMessagesMap.messages[i].customProperties."${patternTable[0]}" =~ patternTable[1]){
-										found=true
-									}else{
-										log.error "  SearchMessageJmsQueue  [][]  pattern value ="+jmsMessagesMap.messages[i].customProperties."${patternTable[0]}"
-									}
-								}								
-							}else{
-								found=true
-							}
+                            if(pattern!=null){
+                                patternTable=pattern.split("#")
+                                assert(patternTable.size() == 2),"Error:SearchMessageJmsQueue: Error while parsing parsing parameter $pattern."
+                                debugLog("  SearchMessageJmsQueue  [][]  pattern key =\"" + patternTable[0] + "\".", log)
+                                debugLog("  SearchMessageJmsQueue  [][]  pattern value =\"" + patternTable[1] + "\".", log)
+                                if(jmsMessagesMap.messages[i].customProperties."${patternTable[0]}"!=null){
+                                    if(jmsMessagesMap.messages[i].customProperties."${patternTable[0]}" =~ patternTable[1]){
+                                        found=true
+                                    }else{
+                                        log.error "  SearchMessageJmsQueue  [][]  pattern value ="+jmsMessagesMap.messages[i].customProperties."${patternTable[0]}"
+                                    }
+                                }
+                            }else{
+                                found=true
+                            }
                         }
                     }
                     else{
@@ -3300,20 +3169,20 @@ class Domibus{
                     i++
                 }
                 break
-        // Put here other cases (queues ...)
-        // ...
+                // Put here other cases (queues ...)
+                // ...
 
             default:
                 log.error "Unknown queue \"$queueName\""
         }
 
-		
-		if(pattern==null){
-			returnedMessage="Message with key \"$searchKey\""
-		}else{
-			returnedMessage="Message with key \"$searchKey\" and pattern \"$pattern\""
-		}
-		
+
+        if(pattern==null){
+            returnedMessage="Message with key \"$searchKey\""
+        }else{
+            returnedMessage="Message with key \"$searchKey\" and pattern \"$pattern\""
+        }
+
         if(outcome){
             assert(found),"Error:SearchMessageJmsQueue: $returnedMessage not found in queue \"$queueName\"."
             log.info("  SearchMessageJmsQueue  [][]  Success: $returnedMessage was found in queue \"$queueName\".")
@@ -3612,13 +3481,13 @@ class Domibus{
     def countCurrentMessagesNumber(testRunner,C2Status = "acknowledged", C3Status = "received",String senderDomainId = blueDomainID, String receiverDomanId = redDomainID){
         debugLog("  ====  Calling \"countCurrentMessagesNumber\".", log)
         def countC2 = 0; def countC3 = 0
-		
+
 
         def sqlSender = retrieveSqlConnectionRefFromDomainId(senderDomainId)
         def sqlReceiver = retrieveSqlConnectionRefFromDomainId(receiverDomanId)
         def usedDomains = [senderDomainId, receiverDomanId]
         openDbConnections(usedDomains)
-        	                  
+
         sqlSender.eachRow("select count(m.ID_PK) lignes from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where LOWER(d.STATUS) = LOWER(${C2Status})") {
             countC2 = it.lignes
         }
@@ -4008,260 +3877,48 @@ class Domibus{
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
         debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
         def folder = new File(fsPayloadPath)
-		try{
-			FileUtils.cleanDirectory(folder)
-		}catch(Exception ex){
-			log.error "Not possible to clean directory: "+fsPayloadPath
-			log.error "encountered exception: "+ex
-		}
+        try{
+            FileUtils.cleanDirectory(folder)
+        }catch(Exception ex){
+            log.error "Not possible to clean directory: "+fsPayloadPath
+            log.error "encountered exception: "+ex
+        }
 
         fsPayloadPath = fsPayloadPathBase + "/OUT"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
         debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
         folder = new File(fsPayloadPath)
-		try{
-			FileUtils.cleanDirectory(folder)
-		}catch(Exception ex){
-			log.error "Not possible to clean directory: "+fsPayloadPath
-			log.error "encountered exception: "+ex
-		}
+        try{
+            FileUtils.cleanDirectory(folder)
+        }catch(Exception ex){
+            log.error "Not possible to clean directory: "+fsPayloadPath
+            log.error "encountered exception: "+ex
+        }
 
         fsPayloadPath = fsPayloadPathBase + "/FAILED"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
         debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
         folder = new File(fsPayloadPath)
-		try{
-			FileUtils.cleanDirectory(folder)
-		}catch(Exception ex){
-			log.error "Not possible to clean directory: "+fsPayloadPath
-			log.error "encountered exception: "+ex
-		}
+        try{
+            FileUtils.cleanDirectory(folder)
+        }catch(Exception ex){
+            log.error "Not possible to clean directory: "+fsPayloadPath
+            log.error "encountered exception: "+ex
+        }
 
         debugLog("  ====  \"cleanFSPluginFolders\" DONE.", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-	def static isClustered(String side,context,log,String domainValue = "default",String authUser = null, authPwd = null){
-	    def authenticationUser = authUser
-        def authenticationPwd = authPwd
-		def isClusteredValue=false
-		
-		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-		isClusteredValue=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, domainValue,"false", authenticationUser, authenticationPwd) ?: "false"
-		return isClusteredValue.toLowerCase().toBoolean() 
-	}
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static getCurrentPmodeID(String side,context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"getCurrentPmodeID\".", log)
-        def commandResult = ""
+    def static isClustered(String side,context,log,String domainValue = "default",String authUser = null, authPwd = null){
         def authenticationUser = authUser
         def authenticationPwd = authPwd
+        def isClusteredValue=false
 
-
-        try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-
-
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode/current",
-                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H", "Content-Type: application/json",
-                                 "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-v"]
-            commandResult = runCommandInShell(commandString, log)
-            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getCurrentPmodeID: Error in the getCurrentPmodeID response."
-        } finally {
-            resetAuthTokens(log)
-        }
-
-        assert(commandResult[0]!= null),"Error:getCurrentPmodeID: getCurrentPmodeID returned null value."
-        assert(commandResult[0].size() >= 5),"Error:getCurrentPmodeID: getCurrentPmodeID returned wrong value: " + commandResult[0]
-        def jsonSlurper = new JsonSlurper()
-        def pmodeMap = jsonSlurper.parseText(commandResult[0].substring(5))
-        assert(pmodeMap.id != null),"Error:getCurrentPmodeID: Pmode data is corrupted: $pmodeMap."
-        debugLog("  ====  \"getCurrentPmodeID\" DONE.", log)
-        return pmodeMap.id
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static getCurrentPmodeText(String side,context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"getCurrentPmodeText\".", log)
-        def commandResult = ""
-        def authenticationUser = authUser
-        def authenticationPwd = authPwd
-
-        def retrievedID = getCurrentPmodeID(side,context,log,testRunner,domainValue,authUser, authPwd)
-        try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode/" + retrievedID + "?noAudit=true",
-                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H", "Accept: application/json, text/plain, */*",
-                                 "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-v"]
-            commandResult = runCommandInShell(commandString, log)
-            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getCurrentPmodeText: Error in the getCurrentPmodeText response."
-        } finally {
-            resetAuthTokens(log)
-        }
-
-        debugLog("  ====  \"getCurrentPmodeText\" DONE.", log)
-        return commandResult[0]
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static updatePmodeParameterRest(String side,context,log,testRunner,String domainValue = "default",target = "endpoint",targetID = "blue_gw",targetRep = "",String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"updatePmodeParameter\".", log)
-
-        def authenticationUser = authUser
-        def authenticationPwd = authPwd
         (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-
-        String pmodeText = getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd)
-		debugLog("  updatePmodeParameterRest  [][]  Current Pmode successfully retrieved.", log)
-        def pmodeFile = null
-        def pmDescription = "SoapUI sample test description for PMode upload."
-        def swapText = null
-		def formattedPath=null
-
-        // Read Pmode file
-        try{
-            pmodeFile = new XmlSlurper().parseText(pmodeText)
-        }catch(Exception ex) {
-            assert (0),"Error:updatePmodeParameter: Error parsing the pmode as xml file. " + ex
-        }
-
-        // Fetch value to change
-        switch (target.toLowerCase()){
-            case "endpoint":
-                pmodeFile.depthFirst().each {
-                    if (it.name().equals("party")){
-                        if(it.@name.text().equals(targetID)){
-                            swapText = it.@endpoint.text()
-                        }
-                    }
-                }
-                break
-
-        // Put other cases here ...
-
-            default:
-                // Do nothing
-                log.info "updatePmodeParameter [][] Operation not recognized."
-                break
-
-        }
-
-        // Re-upload new Pmode file
-        File tempfile = null
-        try {
-            // creates temporary file
-            tempfile = File.createTempFile("tmp", ".xml")
-            tempfile.write(pmodeText.replaceAll(swapText,targetRep))
-            // deletes file when the virtual machine terminate
-            tempfile.deleteOnExit()
-        } catch(Exception ex) {
-            // if any error occurs
-			assert (0),"Error while creating temp file ... " + ex
-            //log.info "Error while creating temp file ... " + ex
-        }
-		formattedPath=tempfile.getAbsolutePath()
-		if (System.properties['os.name'].toLowerCase().contains('windows'))
-            formattedPath = formattedPath.replace("\\", "\\\\")
-        else
-            formattedPath = formattedPath.replace("\\", "/")
-		
-		debugLog("  updatePmodeParameterRest  [][]  formattedPath: "+formattedPath, log)
-
-        try{
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode",
-                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-F", "description=" + pmDescription,
-                                 "-F", "file=@" + tempfile,
-                                 "-v"]
-            def commandResult = runCommandInShell(commandString, log)
-            assert(commandResult[0].contains("successfully")),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected string \"successfully\"."
-        }finally {
-            resetAuthTokens(log)
-			tempfile.delete()  
-        }
-
-        debugLog("  ====  \"updatePmodeParameter\" DONE.", log)
-
+        isClusteredValue=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, domainValue,"false", authenticationUser, authenticationPwd) ?: "false"
+        return isClusteredValue.toLowerCase().toBoolean()
     }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static updatePmodeStringRest(String side,context,log,testRunner,String domainValue = "default",target="",targetRep = "",String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"updatePmodeStringRest\".", log)
-		
-        def authenticationUser = authUser
-        def authenticationPwd = authPwd
-        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-		
-        String pmodeText = getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd)
-		
-		debugLog("  updatePmodeStringRest  [][]  Current Pmode successfully retrieved.", log)
-        def pmodeFile = null
-        def pmDescription = "SoapUI sample test description for PMode upload."
-		def formattedPath=null
 
-        // Re-upload new Pmode file
-        File tempfile = null
-        try {
-            // creates temporary file
-            tempfile = File.createTempFile("tmp", ".xml")
-            tempfile.write(pmodeText.replaceAll(target,targetRep))
-            // deletes file when the virtual machine terminate
-            tempfile.deleteOnExit()
-        } catch(Exception ex) {
-            // if any error occurs
-			assert (0),"Error while creating temp file ... " + ex
-        }
-		formattedPath=tempfile.getAbsolutePath()
-		if (System.properties['os.name'].toLowerCase().contains('windows'))
-            formattedPath = formattedPath.replace("\\", "\\\\")
-        else
-            formattedPath = formattedPath.replace("\\", "/")
-		
-		debugLog("  updatePmodeStringRest  [][]  formattedPath: "+formattedPath, log)
-		
-		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-
-        try{
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/pmode",
-                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-F", "description=" + pmDescription,
-                                 "-F", "file=@" + tempfile,
-                                 "-v"]
-            def commandResult = runCommandInShell(commandString, log)
-            assert(commandResult[0].contains("successfully")),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected string \"successfully\"."
-        }finally {
-            resetAuthTokens(log)
-			tempfile.delete()  
-        }
-
-        debugLog("  ====  \"updatePmodeStringRest\" DONE.", log)
-
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static getPartyListFromPmode(String side,context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"getPartyListFromPmode\".", log)
-        def commandResult = ""
-        def authenticationUser = authUser
-        def authenticationPwd = authPwd
-
-        try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/list?pageSize=100",
-                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H", "Content-Type: application/json",
-                                 "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-v"]
-            commandResult = runCommandInShell(commandString, log)
-            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getPartyListFromPmode: Error in the getPartyListFromPmode response."
-        } finally {
-            resetAuthTokens(log)
-        }
-
-        debugLog("  ====  \"getPartyListFromPmode\" DONE.", log)
-        return commandResult[0].substring(5)
-    }
 //---------------------------------------------------------------------------------------------------------------------------------
     def static addPartyMap(mainMap,extraMap,context,log){
         debugLog("  ====  Calling \"addPartyMap\".", log)
