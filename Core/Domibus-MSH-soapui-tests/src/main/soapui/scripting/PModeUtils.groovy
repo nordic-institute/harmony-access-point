@@ -13,6 +13,19 @@ class PModeUtils {
         this.log = log
     }
 
+    /**
+     * The function uploads a pmode file into specified side(sender/receiver)
+     * @param side
+     * @param baseFilePath
+     * @param extFilePath
+     * @param context
+     * @param log
+     * @param domainValue
+     * @param outcome
+     * @param message
+     * @param authUser
+     * @param authPwd
+     */
     //---------------------------------------------------------------------------------------------------------------------------------
     static def uploadPmode(String side, String baseFilePath, String extFilePath, context, log, String domainValue = "Default", String outcome = "successfully", String message = null, String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"uploadPmode\".", log)
@@ -52,6 +65,16 @@ class PModeUtils {
         }
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method uploads a pmode file into specified side without using authentication
+     * @param side
+     * @param baseFilePath
+     * @param extFilePath
+     * @param context
+     * @param log
+     * @param outcome
+     * @param message
+     */
     static def uploadPmodeWithoutToken(String side, String baseFilePath, String extFilePath, context, log, String outcome = "successfully", String message =null){
         LogUtils.debugLog("  ====  Calling \"uploadPmodeWithoutToken\".", log)
         log.info "  uploadPmodeWithoutToken  [][]  Start upload PMode for Domibus \"" + side + "\"."
@@ -80,6 +103,14 @@ class PModeUtils {
     }
     //---------------------------------------------------------------------------------------------------------------------------------
     // Methods handling Pmode properties overwriting
+    /**
+     * This method is used for creating a new file from existing one
+     * @param log
+     * @param file
+     * @param newFileSuffix
+     * @param processText
+     * @return
+     */
     static def processFile(log, file, String newFileSuffix, Closure processText) {
         def text = file.text
         LogUtils.debugLog("New file to be created: " + file.path.toString() + newFileSuffix, log)
@@ -89,6 +120,15 @@ class PModeUtils {
             log.warn "processFile method returned file with same content! filePath = ${file.path}, newFileSuffix = ${newFileSuffix}."
     }
 
+    /**
+     * This method is used for updating configuration file
+     * @param log
+     * @param testRunner
+     * @param filePath
+     * @param newFileSuffix
+     * @param processText
+     * @return
+     */
     static def changeConfigurationFile(log, testRunner, filePath, newFileSuffix, Closure processText) {
         // Check that file exists
         def file = new File(filePath)
@@ -101,6 +141,15 @@ class PModeUtils {
 
         log.info "  changeDomibusProperties  [][]  Configuration file [${filePath}] amended"
     }
+    /**
+     * This method upaates pmode enpoints(sender/receiver)
+     * @param log
+     * @param context
+     * @param testRunner
+     * @param filePath
+     * @param newFileSuffix
+     * @return
+     */
     static def updatePmodeEndpoints(log, context, testRunner, filePath, newFileSuffix) {
         def defaultEndpointBlue = 'http://localhost:8080/domibus'
         def newEndpointBlue = context.expand('${#Project#localUrl}')
@@ -115,6 +164,17 @@ class PModeUtils {
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method updates the specified parameter from pmode file
+     * @param log
+     * @param context
+     * @param testRunner
+     * @param currentValue
+     * @param newValue
+     * @param filePath
+     * @param newFileSuffix
+     * @return
+     */
     def static updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix){
         LogUtils.debugLog("  ====  Calling \"updatePmodeParameter\".", log)
         def i = 0
@@ -135,6 +195,15 @@ class PModeUtils {
 
     //---------------------------------------------------------------------------------------------------------------------------------
 
+    /**
+     * In case of step failure or skip, the original pmode file is uploaded
+     * @param log
+     * @param context
+     * @param testRunner
+     * @param testStepToCheckName
+     * @param pmodeUploadStepToExecuteName
+     * @return
+     */
     static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToCheckName, pmodeUploadStepToExecuteName) {
         //Check status of step reverting Pmode configuration if needed run step
         Map resultOf = testRunner.getResults().collectEntries { result ->  [ (result.testStep): result.status ] }
@@ -147,6 +216,17 @@ class PModeUtils {
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method returns the pmode ID
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param domainValue
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
     def static getCurrentPmodeID(String side,context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"getCurrentPmodeID\".", log)
         def commandResult = ""
@@ -178,6 +258,17 @@ class PModeUtils {
         return pmodeMap.id
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method returns current pmode text
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param domainValue
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
     def static getCurrentPmodeText(String side,context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"getCurrentPmodeText\".", log)
         def commandResult = ""
@@ -202,6 +293,20 @@ class PModeUtils {
         return commandResult[0]
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method updated the specified parameter using REST calls
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param domainValue
+     * @param target
+     * @param targetID
+     * @param targetRep
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
     def static updatePmodeParameterRest(String side,context,log,testRunner,String domainValue = "default",target = "endpoint",targetID = "blue_gw",targetRep = "",String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"updatePmodeParameter\".", log)
 
@@ -283,6 +388,19 @@ class PModeUtils {
 
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method updates pmode using REST calls
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param domainValue
+     * @param target
+     * @param targetRep
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
     def static updatePmodeStringRest(String side,context,log,testRunner,String domainValue = "default",target="",targetRep = "",String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"updatePmodeStringRest\".", log)
 
@@ -337,6 +455,17 @@ class PModeUtils {
 
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This function returns the list of parties from pmode file
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param domainValue
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
     def static getPartyListFromPmode(String side,context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"getPartyListFromPmode\".", log)
         def commandResult = ""
@@ -361,6 +490,21 @@ class PModeUtils {
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method is used to handle(add/delete/update) the parties in pmode file
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param operation
+     * @param partyParams
+     * @param domainValue
+     * @param outcome
+     * @param message
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
     def static managePartyInPmode(String side,context,log,testRunner,String operation = "add",partyParams,String domainValue = "default",outcome = "success",message = null,String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"managePartyInPmode\".", log)
         def authenticationUser = authUser
