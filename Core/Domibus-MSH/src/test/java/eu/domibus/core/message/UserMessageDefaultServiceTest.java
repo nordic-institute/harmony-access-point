@@ -213,58 +213,6 @@ public class UserMessageDefaultServiceTest {
     private FileServiceUtil fileServiceUtil;
 
     @Test
-    public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
-                                           @Injectable MessageGroupEntity messageGroupEntity,
-                                           @Injectable UserMessage userMessageFragment) throws MessagingProcessingException {
-        String backendName = "mybackend";
-
-        final String fragment1 = "fragment1";
-
-        new Expectations() {{
-            userMessageFactory.createUserMessageFragment(sourceMessage, messageGroupEntity, 1L, fragment1);
-            result = userMessageFragment;
-        }};
-
-        userMessageDefaultService.createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragment1, 1);
-
-        new Verifications() {{
-            userMessageFactory.createUserMessageFragment(sourceMessage, messageGroupEntity, 1L, fragment1);
-        }};
-    }
-
-    @Test
-    public void createMessageFragments(@Injectable UserMessage sourceMessage,
-                                       @Injectable MessageGroupEntity messageGroupEntity
-    ) throws MessagingProcessingException {
-        String messageId = "123";
-        String backendName = "mybackend";
-
-        List<String> fragmentFiles = new ArrayList<>();
-        final String fragment1 = "fragment1";
-        fragmentFiles.add(fragment1);
-
-
-        new Expectations(userMessageDefaultService) {{
-            sourceMessage.getMessageId();
-            result = messageId;
-
-            userMessageLogDao.findBackendForMessageId(messageId);
-            result = backendName;
-
-            userMessageDefaultService.createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragment1, 1);
-            times = 1;
-        }};
-
-        userMessageDefaultService.createMessageFragments(sourceMessage, messageGroupEntity, fragmentFiles);
-
-        new Verifications() {{
-            messageGroupDao.create(messageGroupEntity);
-
-
-        }};
-    }
-
-    @Test
     public void testGetFinalRecipient(@Injectable final UserMessage userMessage) {
         final String messageId = "1";
 

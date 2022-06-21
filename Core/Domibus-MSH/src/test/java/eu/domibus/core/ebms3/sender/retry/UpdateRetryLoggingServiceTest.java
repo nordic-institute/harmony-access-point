@@ -487,4 +487,45 @@ public class UpdateRetryLoggingServiceTest {
         new FullVerifications() {{
         }};
     }
+
+    @Test
+    public void setSourceMessageAsFailed_null(@Injectable UserMessage userMessage) {
+        String messageId = "123";
+
+        new Expectations() {{
+            userMessage.getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = null;
+        }};
+
+        updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
+
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void setSourceMessageAsFailed(@Injectable UserMessage userMessage,
+                                         @Injectable UserMessageLog messageLog) {
+        String messageId = "123";
+
+        new Expectations() {{
+            userMessage.getMessageId();
+            result = messageId;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = messageLog;
+        }};
+
+        updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
+
+        new Verifications() {{
+            userMessageLogDao.findByMessageIdSafely(messageId);
+
+            updateRetryLoggingService.messageFailed(userMessage, messageLog);
+            times = 1;
+        }};
+    }
+
 }
