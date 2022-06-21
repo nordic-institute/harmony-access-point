@@ -96,10 +96,6 @@ public class DomibusPropertyMetadataDTO {
         this(name, Type.STRING, module, writable, usage, withFallback, clusterAware, encrypted, isComposable);
     }
 
-    public DomibusPropertyMetadataDTO(String name, String type, String module, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
-        this(name, Type.STRING, module, false, usage, withFallback, clusterAware, encrypted, isComposable);
-    }
-
     public DomibusPropertyMetadataDTO(String name, String type, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
         this.name = name;
         this.type = type;
