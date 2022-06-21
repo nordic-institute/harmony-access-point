@@ -239,7 +239,7 @@ public class TruststoreResourceBaseTest {
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
         Assert.assertNotNull(responseEntity);
         Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
-        Assert.assertEquals("attachment; filename=TrustStore.jks", responseEntity.getHeaders().get("content-disposition").get(0));
+        Assert.assertTrue(responseEntity.getHeaders().get("content-disposition").get(0).contains("attachment; filename="));
         Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
     }
 }
