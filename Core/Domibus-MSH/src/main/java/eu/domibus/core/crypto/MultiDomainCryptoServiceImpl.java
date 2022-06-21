@@ -160,12 +160,13 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
-        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), storeFileLocation);
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        domainCertificateProvider.replaceKeyStore(storeFileLocation, storePassword);
+    public void replaceKeyStore(Domain domain, String storeFileName, byte[] storeContent, String storePassword) throws CryptoException {
+        doReplaceKeyStore(domain, storeFileName, storeContent, storePassword);
+    }
 
-        saveCertificateAndLogRevocation(domain);
+    @Override
+    public void replaceKeyStore(Domain domain, String storeFileLocation, String storePassword) throws CryptoException {
+        doReplaceKeyStore(domain, storeFileLocation, null, storePassword);
     }
 
     @Override
@@ -260,6 +261,20 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     private void removeTruststores(Domain domain) {
         certificateService.removeTruststore(DOMIBUS_TRUSTSTORE_NAME, domain);
         certificateService.removeTruststore(DOMIBUS_KEYSTORE_NAME, domain);
+    }
+
+    private void doReplaceKeyStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {
+        certificateHelper.validateStoreType(domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE), storeFileNameOrLocation);
+
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        if (storeContent != null) {
+            domainCertificateProvider.replaceKeyStore(storeContent, storeFileNameOrLocation, storePassword);
+        } else {
+            domainCertificateProvider.replaceKeyStore(storeFileNameOrLocation, storePassword);
+        }
+
+//        domibusCacheService.clearCache(CERT_VALIDATION_BY_ALIAS); // TODO check if any cache clearing is needed here
+        saveCertificateAndLogRevocation(domain);
     }
 
     private void doReplaceTrustStore(Domain domain, String storeFileNameOrLocation, byte[] storeContent, String storePassword) {

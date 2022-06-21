@@ -29,9 +29,8 @@ export class TrustStoreService {
    * Local persister for the jks file
    * @param data
    */
-  saveTrustStoreFile(data: any) {
+  saveTrustStoreFile(data: any, filename: string = 'TrustStore.jks') {
     const blob = new Blob([data], {type: 'application/octet-stream'});
-    let filename = 'TrustStore.jks';
     FileSaver.saveAs(blob, filename, false);
   }
 

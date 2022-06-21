@@ -57,7 +57,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
     @GetMapping(path = "/entries/csv")
     public ResponseEntity<String> getTLSEntriesAsCsv() {
-        return getEntriesAsCSV("tlsTruststore");
+        return getEntriesAsCSV(getStoreName());
     }
 
     @PostMapping(value = "/entries")
@@ -100,4 +100,9 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return tlsCertificateManager.getTrustStoreEntries();
     }
 
+
+    @Override
+    protected String getStoreName() {
+        return "tlsTruststore";
+    }
 }

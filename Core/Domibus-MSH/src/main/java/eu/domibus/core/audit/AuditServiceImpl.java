@@ -233,6 +233,11 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
+    public void addKeystoreDownloadedAudit(String id) {
+        auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
+    }
+
+    @Override
     public void addCertificateAddedAudit(String id) {
         auditDao.saveTruststoreAudit(new TruststoreAudit(id, authUtils.getAuthenticatedUser(), new Date(), ModificationType.ADD));
     }

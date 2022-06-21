@@ -135,7 +135,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     super.isLoading = true;
     this.http.get(this.DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
       .subscribe(res => {
-        this.trustStoreService.saveTrustStoreFile(res.body);
+        this.trustStoreService.saveTrustStoreFile(res.body, this.name + '.jks');
         super.isLoading = false;
       }, err => {
         super.isLoading = false;

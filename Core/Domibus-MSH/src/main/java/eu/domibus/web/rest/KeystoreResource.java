@@ -2,24 +2,28 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.crypto.TrustStoreContentDTO;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.TrustStoreRO;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
+import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_KEYSTORE_NAME;
 
 /**
  * @author Ion Perpegel
@@ -56,22 +60,18 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.replaceKeyStore(currentDomain, fileName, truststoreFileContent, password);
     }
 
     @Override
-    protected void auditDownload(Long id) {
-
+    protected void auditDownload(Long entityId) {
+        auditService.addTruststoreDownloadedAudit(entityId != null ? entityId.toString() : getStoreName());
     }
 
     @Override
     protected TrustStoreContentDTO getTrustStoreContent() {
-        return null;
-    }
-
-    @Override
-    protected List<TrustStoreEntry> doGetTrustStoreEntries() {
-        return null;
+        return certificateService.getTruststoreContent(DOMIBUS_KEYSTORE_NAME);
     }
 
     @PostMapping(value = "/resets")
@@ -80,4 +80,36 @@ public class KeystoreResource extends TruststoreResourceBase {
         multiDomainCertificateProvider.resetKeyStore(currentDomain);
     }
 
+    @GetMapping(value = {"/list"})
+    public List<TrustStoreRO> listEntries() {
+        return getTrustStoreEntries();
+    }
+
+    @GetMapping(path = "/csv")
+    public ResponseEntity<String> getEntriesAsCsv() {
+        return getEntriesAsCSV(getStoreName());
+    }
+
+    @Override
+    protected List<TrustStoreEntry> doGetTrustStoreEntries() {
+        return certificateService.getTrustStoreEntries(DOMIBUS_KEYSTORE_NAME);
+    }
+
+    @GetMapping(value = "/download", produces = "application/octet-stream")
+    public ResponseEntity<ByteArrayResource> downloadKeystore() {
+        return downloadTruststoreContent();
+    }
+
+    @PostMapping(value = "/save")
+    public String uploadKeystoreFile(@RequestPart("file") MultipartFile keystoreFile,
+                                       @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
+        replaceTruststore(keystoreFile, password);
+
+        return "Keystore file has been successfully replaced.";
+    }
+
+    @Override
+    protected String getStoreName() {
+        return "keystore";
+    }
 }
