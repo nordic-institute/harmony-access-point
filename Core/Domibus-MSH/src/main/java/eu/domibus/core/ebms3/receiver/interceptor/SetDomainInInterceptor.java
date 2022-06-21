@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +41,9 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    protected DomainService domainService;
+
     protected SetDomainInInterceptor(String phase) {
         super(phase);
         this.addBefore(SetPolicyInInterceptor.class.getName());
@@ -56,6 +60,19 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
     public void handleMessage(final SoapMessage message) throws Fault {
         HttpServletRequest httpRequest = (HttpServletRequest) message.get("HTTP.REQUEST");
         String domainCode = StringUtils.lowerCase(getDomainCode(httpRequest));
+        try {
+            domainService.validateDomain(domainCode);
+        } catch (DomibusDomainException ex) {
+            throw new Fault(
+                    EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                            .message(ex.getMessage())
+                            .refToMessageId(message.getId())
+                            .cause(ex)
+                            .mshRole(MSHRole.RECEIVING)
+                            .build()
+            );
+        }
         LOG.debug("Using domain [{}]", domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
         message.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
