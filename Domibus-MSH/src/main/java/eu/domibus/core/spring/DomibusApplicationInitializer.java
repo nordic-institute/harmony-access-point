@@ -80,6 +80,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
+        dispatcherContext.setClassLoader(pluginClassLoader);
 
         Set<SessionTrackingMode> sessionTrackingModes = new HashSet<>();
         sessionTrackingModes.add(SessionTrackingMode.COOKIE);
