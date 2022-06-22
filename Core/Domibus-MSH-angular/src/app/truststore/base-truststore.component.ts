@@ -189,6 +189,4 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     }
   }
 
-  reloadKeyStore() {
-  }
 }

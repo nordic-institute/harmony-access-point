@@ -34,12 +34,4 @@ export class KeystoreComponent extends BaseTruststoreComponent implements OnInit
     super.ngOnInit();
   }
 
-  async reloadKeyStore() {
-    try {
-      await this.trustStoreService.reloadKeyStore();
-      this.alertService.success('Keystore was successfully reset.')
-    } catch (ex) {
-      this.alertService.exception('Error reseting the keystore:', ex);
-    }
-  }
 }

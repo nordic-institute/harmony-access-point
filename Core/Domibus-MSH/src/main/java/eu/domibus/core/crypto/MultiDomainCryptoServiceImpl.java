@@ -182,7 +182,7 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    @Cacheable(value = "certValidationByAlias", key = "#domain.code + #alias")
+    @Cacheable(value = CERT_VALIDATION_BY_ALIAS, key = "#domain.code + #alias")
     public boolean isCertificateChainValid(Domain domain, String alias) throws DomibusCertificateException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
         return domainCertificateProvider.isCertificateChainValid(alias);
@@ -273,7 +273,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
             domainCertificateProvider.replaceKeyStore(storeFileNameOrLocation, storePassword);
         }
 
-//        domibusCacheService.clearCache(CERT_VALIDATION_BY_ALIAS); // TODO check if any cache clearing is needed here
         saveCertificateAndLogRevocation(domain);
     }
 
