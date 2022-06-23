@@ -96,7 +96,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected List<TrustStoreEntry> doGetTrustStoreEntries() {
+    protected List<TrustStoreEntry> doGetStoreEntries() {
         return tlsCertificateManager.getTrustStoreEntries();
     }
 

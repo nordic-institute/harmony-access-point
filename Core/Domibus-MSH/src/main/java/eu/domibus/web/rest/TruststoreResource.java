@@ -88,7 +88,7 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected List<TrustStoreEntry> doGetTrustStoreEntries() {
+    protected List<TrustStoreEntry> doGetStoreEntries() {
         return certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
     }
 

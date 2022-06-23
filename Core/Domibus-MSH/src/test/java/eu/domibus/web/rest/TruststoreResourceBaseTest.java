@@ -117,7 +117,7 @@ public class TruststoreResourceBaseTest {
         trustStoreEntryList.add(trustStoreEntry);
 
         new Expectations(truststoreResourceBase) {{
-            truststoreResourceBase.doGetTrustStoreEntries();
+            truststoreResourceBase.doGetStoreEntries();
             result = trustStoreEntryList;
             partyCoreConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntryList);
             result = getTestTrustStoreROList(date);
@@ -201,7 +201,7 @@ public class TruststoreResourceBaseTest {
                                      @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries, @Mocked List<TrustStoreRO> entries) {
 
         new Expectations(truststoreResourceBase) {{
-            truststoreResourceBase.doGetTrustStoreEntries();
+            truststoreResourceBase.doGetStoreEntries();
             result = trustStoreEntries;
             partyCoreConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
             result = entries;

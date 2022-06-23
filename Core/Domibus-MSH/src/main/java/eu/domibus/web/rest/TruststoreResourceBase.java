@@ -93,11 +93,11 @@ public abstract class TruststoreResourceBase extends BaseResource {
     protected abstract TrustStoreContentDTO getTrustStoreContent();
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
-        List<TrustStoreEntry> trustStoreEntries = doGetTrustStoreEntries();
+        List<TrustStoreEntry> trustStoreEntries = doGetStoreEntries();
         return partyConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
     }
 
-    protected abstract List<TrustStoreEntry> doGetTrustStoreEntries();
+    protected abstract List<TrustStoreEntry> doGetStoreEntries();
 
     protected abstract String getStoreName();
 
@@ -106,7 +106,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         try {
             entries = getTrustStoreEntries();
         } catch (ConfigurationException ex) {
-            LOG.error("Could not find " + getStoreName() + ".", ex);
+            LOG.error("Could not find [{}]", getStoreName(), ex);
         }
         getCsvService().validateMaxRows(entries.size());
 
