@@ -386,13 +386,11 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     @Transactional
     @Override
-    // removed??
     public void setSourceMessageAsFailed(UserMessage userMessage) {
         updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
     }
 
     @Override
-    // moved??
     public void setUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Setting the UserMessage fragment [{}] as failed", messageId);
 
