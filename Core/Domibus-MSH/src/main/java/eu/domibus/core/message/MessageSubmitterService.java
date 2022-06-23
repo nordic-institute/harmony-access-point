@@ -54,6 +54,12 @@ import java.util.Map;
 import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+/**
+ * Utility class used for submitting messages 
+ *
+ * @author Ion Perpegel
+ * @since 5.0
+ */
 @Service
 public class MessageSubmitterService {
 

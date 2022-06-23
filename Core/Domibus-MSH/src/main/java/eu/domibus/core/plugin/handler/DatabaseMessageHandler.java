@@ -57,7 +57,7 @@ import java.util.Map;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * This class is responsible of handling the plugins requests for all the operations exposed.
+ * This class is responsible for handling the plugins requests for all the operations exposed.
  * During submit, it manages the user authentication and the AS4 message's validation, compression and saving.
  * During download, it manages the user authentication and the AS4 message's reading, data clearing and status update.
  *

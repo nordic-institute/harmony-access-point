@@ -221,7 +221,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         messageHeaderEntity.setStart(StringUtils.replaceEach(start, new String[]{"<", ">"}, new String[]{"", ""}));
         messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
 
-        splitAndJoinHelper.createMessageFragments (dbUserMessage, messageGroupEntity, fragmentFiles);
+        splitAndJoinHelper.createMessageFragments(dbUserMessage, messageGroupEntity, fragmentFiles);
 
         attachmentCleanupService.cleanAttachments(sourceMessageRequest);
 
