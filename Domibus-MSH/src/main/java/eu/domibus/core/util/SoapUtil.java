@@ -173,4 +173,11 @@ public class SoapUtil {
         LOG.error("An EbMS3 error was received check the raw xml message: {}", xmlMessage);
     }
 
+    public Node getChildElement(SOAPMessage request) throws SOAPException {
+        if (request.getSOAPBody().hasChildNodes()) {
+            return ((Node) request.getSOAPBody().getChildElements().next());
+        }
+        return null;
+    }
+
 }

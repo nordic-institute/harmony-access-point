@@ -34,14 +34,9 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
     protected AgreementDictionaryService agreementDictionaryService;
     protected ServiceDictionaryService serviceDictionaryService;
     protected ActionDictionaryService actionDictionaryService;
+    protected MpcDictionaryService mpcDictionaryService;
 
-    public UserMessageDefaultFactory(PartPropertyDictionaryService partPropertyDictionaryService,
-                                     MessagePropertyDictionaryService messagePropertyDictionaryService,
-                                     PartyIdDictionaryService partyIdDictionaryService,
-                                     PartyRoleDictionaryService partyRoleDictionaryService,
-                                     AgreementDictionaryService agreementDictionaryService,
-                                     ServiceDictionaryService serviceDictionaryService,
-                                     ActionDictionaryService actionDictionaryService) {
+    public UserMessageDefaultFactory(PartPropertyDictionaryService partPropertyDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartyIdDictionaryService partyIdDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService, AgreementDictionaryService agreementDictionaryService, ServiceDictionaryService serviceDictionaryService, ActionDictionaryService actionDictionaryService, MpcDictionaryService mpcDictionaryService) {
         this.partPropertyDictionaryService = partPropertyDictionaryService;
         this.messagePropertyDictionaryService = messagePropertyDictionaryService;
         this.partyIdDictionaryService = partyIdDictionaryService;
@@ -49,6 +44,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         this.agreementDictionaryService = agreementDictionaryService;
         this.serviceDictionaryService = serviceDictionaryService;
         this.actionDictionaryService = actionDictionaryService;
+        this.mpcDictionaryService = mpcDictionaryService;
     }
 
     @Override
@@ -61,6 +57,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         result.setTimestamp(sourceMessage.getTimestamp());
         result.setConversationId(sourceMessage.getConversationId());
         result.setAgreementRef(getAgreementRef(sourceMessage));
+        result.setMpc(mpcDictionaryService.findOrCreateMpc(sourceMessage.getMpcValue()));
         result.setAction(actionDictionaryService.findOrCreateAction(sourceMessage.getActionValue()));
         result.setService(serviceDictionaryService.findOrCreateService(sourceMessage.getService().getValue(), sourceMessage.getService().getType()));
         result.setPartyInfo(createPartyInfo(sourceMessage.getPartyInfo()));

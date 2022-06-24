@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
@@ -85,9 +84,6 @@ public interface UserMessageHandlerService {
      */
 
     Boolean checkTestMessage(final LegConfiguration legConfiguration);
-
-    List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging, Ebms3MessageFragmentType ebms3MessageFragmentType)
-            throws EbMS3Exception, SOAPException, TransformerException;
 
     ErrorResult createErrorResult(EbMS3Exception ebm3Exception);
 

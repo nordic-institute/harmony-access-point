@@ -1,10 +1,13 @@
 package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -66,6 +69,8 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1
@@ -81,6 +86,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinDefaultService.class);
     public static final String ERROR_MESSAGE_GROUP_HAS_EXPIRED = "Group has expired";
     public static final String ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE = "Error generating the Signal SOAPMessage for SourceMessage [";
+
+    @Autowired
+    protected MessageFragmentDao messageFragmentDao;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -116,7 +124,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected AttachmentCleanupService attachmentCleanupService;
 
     @Autowired
-    protected UserMessageHandlerService userMessageHandlerService;
+    protected UserMessagePayloadService userMessagePayloadService;
 
     @Autowired
     protected MessagingService messagingService;
@@ -247,17 +255,18 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         List<PartInfo> partInfos;
         try {
-            partInfos = userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging, null);
+            partInfos = userMessagePayloadService.handlePayloads(sourceRequest, ebms3Messaging, null);
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
             throw new SplitAndJoinException("Error handling payloads", e);
         }
 
         messagingService.storePayloads(userMessage, partInfos, MSHRole.RECEIVING, legConfiguration, backendName);
 
+        incomingSourceMessageHandler.processMessage(sourceRequest, ebms3Messaging);
+
         final String sourceMessageId = userMessage.getMessageId();
         messageGroupService.setSourceMessageId(sourceMessageId, groupId);
 
-        incomingSourceMessageHandler.processMessage(sourceRequest, ebms3Messaging);
         userMessageService.scheduleSourceMessageReceipt(sourceMessageId, userMessageExchangeContext.getReversePmodeKey());
 
         LOG.debug("Finished rejoining SourceMessage for group [{}]", groupId);
@@ -819,4 +828,92 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
 
+    @Transactional
+    @Override
+    public void persistReceivedUserFragment(UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, LegConfiguration legConfiguration) throws EbMS3Exception {
+        MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(ebms3MessageFragmentType.getGroupId());
+
+        if (messageGroupEntity == null) {
+            LOG.debug("Creating messageGroupEntity");
+
+            messageGroupEntity = new MessageGroupEntity();
+            MessageHeaderEntity messageHeaderEntity = new MessageHeaderEntity();
+            final Ebms3MessageHeaderType messageHeader = ebms3MessageFragmentType.getMessageHeader();
+            messageHeaderEntity.setStart(messageHeader.getStart());
+            messageHeaderEntity.setBoundary(messageHeader.getBoundary());
+
+            MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
+            messageGroupEntity.setMshRole(role);
+            messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
+            messageGroupEntity.setSoapAction(ebms3MessageFragmentType.getAction());
+            messageGroupEntity.setCompressionAlgorithm(ebms3MessageFragmentType.getCompressionAlgorithm());
+            messageGroupEntity.setMessageSize(ebms3MessageFragmentType.getMessageSize());
+            messageGroupEntity.setCompressedMessageSize(ebms3MessageFragmentType.getCompressedMessageSize());
+            messageGroupEntity.setGroupId(ebms3MessageFragmentType.getGroupId());
+            messageGroupEntity.setFragmentCount(ebms3MessageFragmentType.getFragmentCount());
+            messageGroupDao.create(messageGroupEntity);
+        }
+
+        validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+
+        MessageFragmentEntity messageFragmentEntity = new MessageFragmentEntity();
+        messageFragmentEntity.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
+        messageFragmentEntity.setGroup(messageGroupEntity);
+        messageFragmentEntity.setFragmentNumber(ebms3MessageFragmentType.getFragmentNum());
+        messageFragmentDao.create(messageFragmentEntity);
+    }
+
+    protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
+        if (legConfiguration.getSplitting() == null) {
+            LOG.error("No splitting configuration found on leg [{}]", legConfiguration.getName());
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
+                    .message("No splitting configuration found")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
+            LOG.error("SplitAndJoin feature works only with payload storage configured on the file system");
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
+                    .message("SplitAndJoin feature needs payload storage on the file system")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+
+        final String groupId = ebms3MessageFragmentType.getGroupId();
+        if (messageGroupEntity == null) {
+            LOG.warn("Could not validate UserMessage fragment [[{}] for group [{}]: messageGroupEntity is null", userMessage.getMessageId(), groupId);
+            return;
+        }
+        if (isTrue(messageGroupEntity.getExpired())) {
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0051)
+                    .message("More time than Pmode[].Splitting.JoinInterval has passed since the first fragment was received but not all other fragments are received")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+        if (isTrue(messageGroupEntity.getRejected())) {
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0040)
+                    .message("A fragment is received that relates to a group that was previously rejected")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+        final Long fragmentCount = messageGroupEntity.getFragmentCount();
+        if (fragmentCount != null && ebms3MessageFragmentType.getFragmentCount() != null && ebms3MessageFragmentType.getFragmentCount() > fragmentCount) {
+            LOG.error("An incoming message fragment has a a value greater than the known FragmentCount for group [{}]", groupId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0048)
+                    .message("An incoming message fragment has a a value greater than the known FragmentCount")
+                    .refToMessageId(userMessage.getMessageId())
+                    .mshRole(MSHRole.RECEIVING)
+                    .build();
+        }
+    }
 }

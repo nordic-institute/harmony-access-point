@@ -82,6 +82,10 @@ public interface MessageCoreMapper {
     eu.domibus.api.usermessage.domain.Property convertToProperty(PartProperty property);
 
     default PartProperties convertPartProperties(Set<PartProperty> value) {
+        if(CollectionUtils.isEmpty(value)) {
+            return null;
+        }
+
         PartProperties partProperties = new PartProperties();
         partProperties.setProperty(value.stream().map(this::convertToProperty).collect(Collectors.toSet()));
         return partProperties;

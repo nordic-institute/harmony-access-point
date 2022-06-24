@@ -3,6 +3,8 @@ package eu.domibus.core.message.splitandjoin;
 import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.Domain;
@@ -72,6 +74,9 @@ public class SplitAndJoinDefaultServiceTest {
     public static final String MESSAGE_ID = "messageId";
     @Tested
     SplitAndJoinDefaultService splitAndJoinDefaultService;
+
+    @Injectable
+    MessageFragmentDao messageFragmentDao;
 
     @Injectable
     protected DomainContextProvider domainContextProvider;
@@ -150,6 +155,9 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Injectable
     public UserMessageDao userMessageDao;
+
+    @Injectable
+    UserMessagePayloadService userMessagePayloadService;
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -245,7 +253,7 @@ public class SplitAndJoinDefaultServiceTest {
             ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             result = userMessage;
 
-            userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging, null);
+            userMessagePayloadService.handlePayloads(sourceRequest, ebms3Messaging, null);
             result = partInfos;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
@@ -267,7 +275,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.rejoinSourceMessage(sourceMessageId, sourceMessageFile, backendName);
 
         new Verifications() {{
-            userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging, null);
+            userMessagePayloadService.handlePayloads(sourceRequest, ebms3Messaging, null);
             messagingService.storePayloads(userMessage, partInfos, MSHRole.RECEIVING, legConfiguration, backendName);
             messageGroupService.setSourceMessageId(sourceMessageId, sourceMessageId);
             incomingSourceMessageHandler.processMessage(sourceRequest, ebms3Messaging);
@@ -1139,5 +1147,323 @@ public class SplitAndJoinDefaultServiceTest {
             times = 2;
         }};
 
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentWithWrongFragmentsCount(@Injectable UserMessage userMessage,
+                                                                       @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                                       @Injectable MessageGroupEntity messageGroupEntity,
+                                                                       @Injectable LegConfiguration legConfiguration) {
+
+        long totalFragmentCount = 5;
+
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupEntity.getRejected();
+            result = false;
+
+            messageGroupEntity.getExpired();
+            result = false;
+
+            messageGroupEntity.getFragmentCount();
+            result = totalFragmentCount;
+
+            ebms3MessageFragmentType.getFragmentCount();
+            result = 7;
+
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
+        try {
+            splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+            fail();
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0048, e.getErrorCode());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentNoMessageGroupEntity(@Injectable UserMessage userMessage,
+                                                                    @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                                    @Injectable MessageGroupEntity messageGroupEntity,
+                                                                    @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
+
+        splitAndJoinDefaultService.validateUserMessageFragment(userMessage, null, ebms3MessageFragmentType, legConfiguration);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragment_ok(@Injectable UserMessage userMessage,
+                                                   @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                   @Injectable MessageGroupEntity messageGroupEntity,
+                                                   @Injectable LegConfiguration legConfiguration)
+            throws EbMS3Exception {
+
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupEntity.getRejected();
+            result = false;
+
+            messageGroupEntity.getExpired();
+            result = false;
+
+            messageGroupEntity.getFragmentCount();
+            result = null;
+        }};
+
+        splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentWithNoSplittingConfigured(@Injectable UserMessage userMessage,
+                                                                         @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                                         @Injectable MessageGroupEntity messageGroupEntity,
+                                                                         @Injectable LegConfiguration legConfiguration) {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = null;
+
+            legConfiguration.getName();
+            result = "legName";
+
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
+        try {
+            splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+            fail("Not possible to use SplitAndJoin without PMode leg configuration");
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentWithDatabaseStorage(@Injectable UserMessage userMessage,
+                                                                   @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                                   @Injectable MessageGroupEntity messageGroupEntity,
+                                                                   @Injectable LegConfiguration legConfiguration) {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = true;
+
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
+        try {
+            splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+            fail("Not possible to use SplitAndJoin with database payloads");
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentWithRejectedGroup(@Injectable UserMessage userMessage,
+                                                                 @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                                 @Injectable MessageGroupEntity messageGroupEntity,
+                                                                 @Injectable LegConfiguration legConfiguration) {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupEntity.getExpired();
+            result = false;
+
+            messageGroupEntity.getRejected();
+            result = true;
+
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
+        try {
+            splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+            fail();
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getErrorCode());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateUserMessageFragmentWithExpired(@Injectable UserMessage userMessage,
+                                                           @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                           @Injectable MessageGroupEntity messageGroupEntity,
+                                                           @Injectable LegConfiguration legConfiguration) {
+        new Expectations() {{
+            legConfiguration.getSplitting();
+            result = new Splitting();
+
+            storageProvider.isPayloadsPersistenceInDatabaseConfigured();
+            result = false;
+
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupEntity.getExpired();
+            result = true;
+
+            userMessage.getMessageId();
+            result = "messageId";
+        }};
+
+        try {
+            splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+            fail();
+        } catch (EbMS3Exception e) {
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getErrorCode());
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testHandleMessageFragment_createMessageGroup(@Injectable UserMessage userMessage,
+                                                             @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                             @Injectable LegConfiguration legConfiguration,
+                                                             @Injectable Ebms3MessageHeaderType ebms3MessageHeaderType) throws EbMS3Exception {
+        new Expectations(splitAndJoinDefaultService) {{
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupDao.findByGroupId("groupId");
+            result = null;
+            times = 1;
+
+            ebms3MessageFragmentType.getMessageHeader();
+            result = ebms3MessageHeaderType;
+
+            ebms3MessageHeaderType.getStart();
+            result = "Start";
+
+            ebms3MessageHeaderType.getBoundary();
+            result = "Boundary";
+
+            ebms3MessageFragmentType.getAction();
+            result = "action";
+
+            ebms3MessageFragmentType.getCompressionAlgorithm();
+            result = "compressionAlgorithm";
+
+            ebms3MessageFragmentType.getMessageSize();
+            result = BigInteger.TEN;
+
+            ebms3MessageFragmentType.getCompressedMessageSize();
+            result = BigInteger.TEN;
+
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            ebms3MessageFragmentType.getFragmentCount();
+            result = 5L;
+
+            userMessage.toString();
+            result = "userMessage";
+
+            splitAndJoinDefaultService.validateUserMessageFragment(userMessage, (MessageGroupEntity) any, ebms3MessageFragmentType, legConfiguration);
+            times = 1;
+
+            ebms3MessageFragmentType.getFragmentNum();
+            result = 41L;
+
+//            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+//            times = 1;
+        }};
+
+        splitAndJoinDefaultService.persistReceivedUserFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
+
+        new Verifications() {{
+            messageGroupDao.create((MessageGroupEntity) any);
+            times = 1;
+
+        }};
+    }
+
+    @Test
+    public void testHandleMessageFragmentWithGroupAlreadyExisting(@Injectable UserMessage userMessage,
+                                                                  @Injectable Ebms3MessageFragmentType ebms3MessageFragmentType,
+                                                                  @Injectable MessageGroupEntity messageGroupEntity,
+                                                                  @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
+        new Expectations(splitAndJoinDefaultService) {{
+            ebms3MessageFragmentType.getGroupId();
+            result = "groupId";
+
+            messageGroupDao.findByGroupId("groupId");
+            result = messageGroupEntity;
+            times = 1;
+
+            splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+            times = 1;
+
+            ebms3MessageFragmentType.getFragmentNum();
+            result = 41L;
+
+//            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+//            times = 1;
+        }};
+
+        splitAndJoinDefaultService.persistReceivedUserFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
+
+        new Verifications() {{
+
+        }};
     }
 }
