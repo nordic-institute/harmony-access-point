@@ -11,29 +11,28 @@ import {BaseTruststoreComponent} from './base-truststore.component';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
 
 @Component({
-  selector: 'app-truststore',
+  selector: 'app-keystore',
   templateUrl: './base-truststore.component.html',
   providers: [TrustStoreService]
 })
-@ComponentName('TrustStore')
-export class TruststoreComponent extends BaseTruststoreComponent implements OnInit {
+@ComponentName('KeyStore')
+export class KeystoreComponent extends BaseTruststoreComponent implements OnInit {
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
               fileUploadValidatorService: FileUploadValidatorService) {
     super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
 
-    this.BASE_URL = 'rest/truststore';
+    this.BASE_URL = 'rest/keystore';
     this.CSV_URL = this.BASE_URL + '/csv';
     this.DOWNLOAD_URL = this.BASE_URL + '/download';
     this.UPLOAD_URL = this.BASE_URL + '/save';
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
-
+    
     this.showResetOperation = true;
   }
 
   ngOnInit(): void {
     super.ngOnInit();
   }
-  
 }

@@ -81,7 +81,7 @@ public class TruststoreResourceTest {
             result = trustStoreEntries;
         }};
 
-        List<TrustStoreEntry> res = truststoreResource.doGetTrustStoreEntries();
+        List<TrustStoreEntry> res = truststoreResource.doGetStoreEntries();
 
         Assert.assertEquals(trustStoreEntries, res);
     }

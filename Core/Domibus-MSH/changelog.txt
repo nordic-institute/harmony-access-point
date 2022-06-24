@@ -1,3 +1,5 @@
+Domibus 5.1
+- New Keystore page in the Domibus Admin Console
 Domibus 5.0
 - Send alert when partitions are not properly created in advance
 - Fixed issue when MessageProperties is missing in ebMS3 message
