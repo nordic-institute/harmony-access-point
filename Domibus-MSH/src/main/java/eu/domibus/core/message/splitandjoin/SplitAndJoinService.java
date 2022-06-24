@@ -1,7 +1,9 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 
 import javax.xml.soap.SOAPMessage;
 import java.io.File;
@@ -100,4 +102,6 @@ public interface SplitAndJoinService {
     void incrementSentFragments(String groupId);
 
     void incrementReceivedFragments(String groupId, String backendName);
+
+    void persistReceivedUserFragment(UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception;
 }

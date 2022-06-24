@@ -75,6 +75,9 @@ public class MessagingServiceImpl implements MessagingService {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    protected UserMessagePayloadService userMessagePayloadService;
+
     @Override
     @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
     @Counter(clazz = MessagingServiceImpl.class, value = "storeMessage")
@@ -88,22 +91,14 @@ public class MessagingServiceImpl implements MessagingService {
 
         if (MSHRole.SENDING == mshRole && userMessage.isSourceMessage()) {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
-
-            if (partInfoService.scheduleSourceMessagePayloads(partInfoList)) {
-               partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
-
-                //stores the payloads asynchronously
-                domainTaskExecutor.submitLongRunningTask(
-                        () -> {
-                            LOG.debug("Scheduling the SourceMessage saving");
-                            storeSourceMessagePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
-                        },
-                        () -> splitAndJoinService.setSourceMessageAsFailed(userMessage),
-                        currentDomain);
-            } else {
-                //stores the payloads synchronously
-                storeSourceMessagePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
-            }
+            //stores the payloads asynchronously
+            domainTaskExecutor.submitLongRunningTask(
+                    () -> {
+                        LOG.debug("Scheduling the SourceMessage saving");
+                        storeSourceMessagePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
+                    },
+                    () -> splitAndJoinService.setSourceMessageAsFailed(userMessage),
+                    currentDomain);
         } else {
             storePayloads(userMessage, partInfoList, mshRole, legConfiguration, backendName);
         }
@@ -122,6 +117,10 @@ public class MessagingServiceImpl implements MessagingService {
     protected void storeSourceMessagePayloads(UserMessage userMessage, List<PartInfo> partInfos, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         LOG.debug("Saving the SourceMessage payloads");
         storePayloads(userMessage, partInfos, mshRole, legConfiguration, backendName);
+
+        partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfos);
+
+        userMessagePayloadService.persistUpdatedPayloads(partInfos);
 
         final String messageId = userMessage.getMessageId();
         LOG.debug("Scheduling the SourceMessage sending");

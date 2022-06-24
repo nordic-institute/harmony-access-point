@@ -8,6 +8,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.message.UserMessagePayloadService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -35,6 +36,9 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
     @Autowired
     protected PayloadFileStorageProvider storageProvider;
 
+    @Autowired
+    protected UserMessagePayloadService userMessagePayloadService;
+
     @Override
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging ebms3Messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing SourceMessage");
@@ -49,7 +53,7 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
                     .build();
         }
 
-        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, null);
+        List<PartInfo> partInfoList = userMessagePayloadService.handlePayloads(request, ebms3Messaging, null);
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         return userMessageHandlerService.handleNewSourceUserMessage(legConfiguration, pmodeKey, request, userMessage, partInfoList, testMessage);
     }

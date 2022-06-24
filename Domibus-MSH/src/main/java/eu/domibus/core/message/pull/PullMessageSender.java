@@ -23,6 +23,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessagePayloadService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -99,6 +100,9 @@ public class PullMessageSender {
     @Autowired
     private PullRequestDao pullRequestDao;
 
+    @Autowired
+    protected UserMessagePayloadService userMessagePayloadService;
+
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     //@TODO unit test this method.
     @Timer(clazz = PullMessageSender.class, value = "outgoing_pull_request")
@@ -154,7 +158,7 @@ public class PullMessageSender {
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             messageId = userMessage.getMessageId();
 
-            partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging, null);
+            partInfos = userMessagePayloadService.handlePayloads(response, ebms3Messaging, null);
             handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;

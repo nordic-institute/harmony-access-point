@@ -8,6 +8,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
+import eu.domibus.core.message.UserMessagePayloadService;
 import eu.domibus.core.security.AuthorizationServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -41,6 +42,9 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     @Autowired
     protected UserMessageValidatorSpiService userMessageValidatorSpiService;
 
+    @Autowired
+    protected UserMessagePayloadService userMessagePayloadService;
+
     @Override
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging ebms3Messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
@@ -48,7 +52,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, userMessage.getMessageId());
         Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
-        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
+        List<PartInfo> partInfoList = userMessagePayloadService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
         partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));
 
         userMessageValidatorSpiService.validate(userMessage, partInfoList);

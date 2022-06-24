@@ -1,18 +1,12 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
-import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
-import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
-import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.ErrorResultImpl;
@@ -23,7 +17,6 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
-import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
@@ -52,29 +45,16 @@ import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.cxf.attachment.AttachmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Node;
 
-import javax.activation.DataHandler;
-import javax.mail.util.ByteArrayDataSource;
-import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
-
-import static org.apache.commons.lang3.BooleanUtils.isTrue;
+import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -86,13 +66,9 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 public class UserMessageHandlerServiceImpl implements UserMessageHandlerService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHandlerServiceImpl.class);
-    public static final String HASH_SIGN = "#";
 
     @Autowired
     protected SoapUtil soapUtil;
-
-    @Autowired
-    protected XMLUtil xmlUtil;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -159,9 +135,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected PartInfoServiceImpl partInfoService;
-
-    @Autowired
-    protected PartPropertyDictionaryService partPropertyDictionaryService;
 
     @Autowired
     protected MshRoleDao mshRoleDao;
@@ -449,7 +422,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         final String messageId = saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult);
 
         if (ebms3MessageFragmentType != null) {
-            handleMessageFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
+            splitAndJoinService.persistReceivedUserFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
         }
         return messageId;
     }
@@ -460,7 +433,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected String persistReceivedSourceMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, Ebms3MessageFragmentType ebms3MessageFragmentType, final String backendName, UserMessage userMessage, List<PartInfo> partInfoList, SignalMessageResult signalMessageResult) throws EbMS3Exception {
         LOG.info("Persisting received SourceMessage");
         userMessage.setSourceMessage(true);
-
         return saveReceivedMessage(request, legConfiguration, pmodeKey, ebms3MessageFragmentType, backendName, userMessage, partInfoList, signalMessageResult);
     }
 
@@ -524,95 +496,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return userMessage.getMessageId();
     }
 
-    protected void handleMessageFragment(UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
-        MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(ebms3MessageFragmentType.getGroupId());
-
-        if (messageGroupEntity == null) {
-            LOG.debug("Creating messageGroupEntity");
-
-            messageGroupEntity = new MessageGroupEntity();
-            MessageHeaderEntity messageHeaderEntity = new MessageHeaderEntity();
-            final Ebms3MessageHeaderType messageHeader = ebms3MessageFragmentType.getMessageHeader();
-            messageHeaderEntity.setStart(messageHeader.getStart());
-            messageHeaderEntity.setBoundary(messageHeader.getBoundary());
-
-            MSHRoleEntity role = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
-            messageGroupEntity.setMshRole(role);
-            messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
-            messageGroupEntity.setSoapAction(ebms3MessageFragmentType.getAction());
-            messageGroupEntity.setCompressionAlgorithm(ebms3MessageFragmentType.getCompressionAlgorithm());
-            messageGroupEntity.setMessageSize(ebms3MessageFragmentType.getMessageSize());
-            messageGroupEntity.setCompressedMessageSize(ebms3MessageFragmentType.getCompressedMessageSize());
-            messageGroupEntity.setGroupId(ebms3MessageFragmentType.getGroupId());
-            messageGroupEntity.setFragmentCount(ebms3MessageFragmentType.getFragmentCount());
-            messageGroupDao.create(messageGroupEntity);
-        }
-
-        validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
-
-        MessageFragmentEntity messageFragmentEntity = new MessageFragmentEntity();
-        messageFragmentEntity.setUserMessage(userMessage);
-        messageFragmentEntity.setGroup(messageGroupEntity);
-        messageFragmentEntity.setFragmentNumber(ebms3MessageFragmentType.getFragmentNum());
-        messageFragmentDao.create(messageFragmentEntity);
-
-
-    }
-
-    protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
-        if (legConfiguration.getSplitting() == null) {
-            LOG.error("No splitting configuration found on leg [{}]", legConfiguration.getName());
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
-                    .message("No splitting configuration found")
-                    .refToMessageId(userMessage.getMessageId())
-                    .mshRole(MSHRole.RECEIVING)
-                    .build();
-        }
-
-        if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
-            LOG.error("SplitAndJoin feature works only with payload storage configured on the file system");
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0002)
-                    .message("SplitAndJoin feature needs payload storage on the file system")
-                    .refToMessageId(userMessage.getMessageId())
-                    .mshRole(MSHRole.RECEIVING)
-                    .build();
-        }
-
-        final String groupId = ebms3MessageFragmentType.getGroupId();
-        if (messageGroupEntity == null) {
-            LOG.warn("Could not validate UserMessage fragment [[{}] for group [{}]: messageGroupEntity is null", userMessage.getMessageId(), groupId);
-            return;
-        }
-        if (isTrue(messageGroupEntity.getExpired())) {
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0051)
-                    .message("More time than Pmode[].Splitting.JoinInterval has passed since the first fragment was received but not all other fragments are received")
-                    .refToMessageId(userMessage.getMessageId())
-                    .mshRole(MSHRole.RECEIVING)
-                    .build();
-        }
-        if (isTrue(messageGroupEntity.getRejected())) {
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0040)
-                    .message("A fragment is received that relates to a group that was previously rejected")
-                    .refToMessageId(userMessage.getMessageId())
-                    .mshRole(MSHRole.RECEIVING)
-                    .build();
-        }
-        final Long fragmentCount = messageGroupEntity.getFragmentCount();
-        if (fragmentCount != null && ebms3MessageFragmentType.getFragmentCount() != null && ebms3MessageFragmentType.getFragmentCount() > fragmentCount) {
-            LOG.error("An incoming message fragment has a a value greater than the known FragmentCount for group [{}]", groupId);
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0048)
-                    .message("An incoming message fragment has a a value greater than the known FragmentCount")
-                    .refToMessageId(userMessage.getMessageId())
-                    .mshRole(MSHRole.RECEIVING)
-                    .build();
-        }
-    }
-
     /**
      * If message with same messageId is already in the database return <code>true</code> else <code>false</code>
      *
@@ -622,155 +505,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected Boolean checkDuplicate(final UserMessage userMessage) {
         LOG.debug("Checking for duplicate messages");
         return userMessageLogDao.findByMessageId(userMessage.getMessageId(), MSHRole.RECEIVING) != null;
-    }
-
-    protected PartInfo getPartInfoFromFragment(final Ebms3MessageFragmentType messageFragment) {
-        if (messageFragment == null) {
-            LOG.debug("No message fragment found");
-            return null;
-        }
-        PartInfo partInfo = new PartInfo();
-        partInfo.setHref(messageFragment.getHref());
-        partInfo.setMime(messageFragment.getMessageHeader().getType().value());
-
-        return partInfo;
-    }
-
-    @Override
-    public List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging, Ebms3MessageFragmentType ebms3MessageFragmentType)
-            throws EbMS3Exception, SOAPException, TransformerException {
-        LOG.debug("Start handling payloads");
-
-        final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
-
-        List<PartInfo> partInfoList = getPartInfoList(ebms3Messaging);
-        if (ebms3MessageFragmentType != null) {
-            final PartInfo partInfoFromFragment = getPartInfoFromFragment(ebms3MessageFragmentType);
-            partInfoList.add(partInfoFromFragment);
-        }
-
-        boolean bodyloadFound = false;
-        for (final PartInfo partInfo : partInfoList) {
-            final String cid = partInfo.getHref();
-            LOG.debug("looking for attachment with cid: {}", cid);
-            boolean payloadFound = false;
-            if (isBodyloadCid(cid)) {
-                if (bodyloadFound) {
-                    LOG.businessError(DomibusMessageCode.BUS_MULTIPLE_PART_INFO_REFERENCING_SOAP_BODY);
-                    throw EbMS3ExceptionBuilder.getInstance()
-                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                            .message("More than one Partinfo referencing the soap body found")
-                            .refToMessageId(messageId)
-                            .mshRole(MSHRole.RECEIVING)
-                            .build();
-                }
-                LOG.info("Using soap body payload");
-                bodyloadFound = true;
-                payloadFound = true;
-                Node bodyContent = getChildElement(request);
-                LOG.debug("Soap BodyContent when handling payloads: [{}]", bodyContent);
-
-                partInfo.setPayloadDatahandler(getDataHandler(bodyContent));
-                partInfo.setInBody(true);
-            }
-            @SuppressWarnings("unchecked") final Iterator<AttachmentPart> attachmentIterator = request.getAttachments();
-            AttachmentPart attachmentPart;
-            while (attachmentIterator.hasNext() && !payloadFound) {
-
-                attachmentPart = attachmentIterator.next();
-                //remove square brackets from cid for further processing
-                attachmentPart.setContentId(AttachmentUtil.cleanContentId(attachmentPart.getContentId()));
-                LOG.debug("comparing with: " + attachmentPart.getContentId());
-                if (attachmentPart.getContentId().equals(AttachmentUtil.cleanContentId(cid))) {
-                    partInfo.setPayloadDatahandler(attachmentPart.getDataHandler());
-                    partInfo.setInBody(false);
-                    payloadFound = true;
-                }
-            }
-            if (!payloadFound) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_ATTACHMENT_NOT_FOUND, cid);
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0011)
-                        .message("No Attachment found for cid: " + cid + " of message: " + messageId)
-                        .refToMessageId(messageId)
-                        .mshRole(MSHRole.RECEIVING)
-                        .build();
-            }
-        }
-        LOG.debug("Finished handling payloads");
-
-        return partInfoList;
-    }
-
-    protected List<PartInfo> getPartInfoList(Ebms3Messaging ebms3Messaging) {
-        List<PartInfo> result = new ArrayList<>();
-
-        if (ebms3Messaging.getUserMessage().getPayloadInfo() == null) {
-            LOG.trace("UserMessage has no payload info");
-            return result;
-        }
-        final List<Ebms3PartInfo> ebms3PartInfos = ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
-        if (CollectionUtils.isEmpty(ebms3PartInfos)) {
-            return result;
-        }
-
-        for (final Ebms3PartInfo ebms3PartInfo : ebms3PartInfos) {
-            PartInfo partInfo = convert(ebms3PartInfo);
-            partInfo.setPartOrder(result.size());
-            result.add(partInfo);
-        }
-
-        return result;
-    }
-
-    protected PartInfo convert(Ebms3PartInfo ebms3PartInfo) {
-        PartInfo result = new PartInfo();
-
-        final Ebms3Description ebms3PartInfoDescription = ebms3PartInfo.getDescription();
-        if (ebms3PartInfoDescription != null) {
-            Description description = new Description();
-            description.setValue(ebms3PartInfoDescription.getValue());
-            description.setLang(ebms3PartInfoDescription.getLang());
-            result.setDescription(description);
-        }
-        result.setHref(ebms3PartInfo.getHref());
-
-        final Ebms3PartProperties ebms3PartInfoPartProperties = ebms3PartInfo.getPartProperties();
-        if (ebms3PartInfoPartProperties != null) {
-            final Set<Ebms3Property> ebms3Properties = ebms3PartInfoPartProperties.getProperty();
-            Set<PartProperty> partProperties = new HashSet<>();
-
-            for (Ebms3Property ebms3Property : ebms3Properties) {
-                final PartProperty property = partPropertyDictionaryService.findOrCreatePartProperty(ebms3Property.getName(), ebms3Property.getValue(), ebms3Property.getType());
-                if (property != null) {
-                    partProperties.add(property);
-                }
-            }
-
-            result.setPartProperties(partProperties);
-        }
-
-        return result;
-    }
-
-    protected Node getChildElement(SOAPMessage request) throws SOAPException {
-        if (request.getSOAPBody().hasChildNodes()) {
-            return ((Node) request.getSOAPBody().getChildElements().next());
-        }
-        return null;
-    }
-
-    private boolean isBodyloadCid(String cid) {
-        return cid == null || cid.isEmpty() || cid.startsWith(HASH_SIGN);
-    }
-
-    protected DataHandler getDataHandler(Node bodyContent) throws TransformerException {
-        final Source source = new DOMSource(bodyContent);
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final Result result = new StreamResult(out);
-        final Transformer transformer = xmlUtil.getTransformerFactory().newTransformer();
-        transformer.transform(source, result);
-        return new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml"));
     }
 
     protected String getFinalRecipientName(UserMessage userMessage) {
@@ -785,7 +519,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
         return null;
     }
-
 
     @Override
     public ErrorResult createErrorResult(EbMS3Exception ebm3Exception) {
