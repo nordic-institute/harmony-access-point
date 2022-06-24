@@ -10,6 +10,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessagePayloadService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.security.AuthorizationServiceImpl;
@@ -38,6 +39,9 @@ public class IncomingUserMessageHandlerTest {
 
     @Tested
     IncomingUserMessageHandler incomingUserMessageHandler;
+
+    @Injectable
+    UserMessagePayloadService userMessagePayloadService;
 
     @Injectable
     BackendNotificationService backendNotificationService;

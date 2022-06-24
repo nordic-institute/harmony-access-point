@@ -47,6 +47,9 @@ public class MessagingServiceImplTest {
     protected PayloadPersistenceProvider payloadPersistenceProvider;
 
     @Injectable
+    UserMessagePayloadService userMessagePayloadService;
+
+    @Injectable
     PayloadFileStorage storage;
 
     @Injectable
