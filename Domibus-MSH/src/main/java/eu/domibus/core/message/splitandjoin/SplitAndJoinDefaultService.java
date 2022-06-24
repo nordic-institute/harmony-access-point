@@ -907,7 +907,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
         final Long fragmentCount = messageGroupEntity.getFragmentCount();
         if (fragmentCount != null && ebms3MessageFragmentType.getFragmentCount() != null && ebms3MessageFragmentType.getFragmentCount() > fragmentCount) {
-            LOG.error("An incoming message fragment has a a value greater than the known FragmentCount for group [{}]", groupId);
+            LOG.error("An incoming message fragment has a value greater than the known FragmentCount for group [{}]", groupId);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0048)
                     .message("An incoming message fragment has a a value greater than the known FragmentCount")

@@ -35,6 +35,10 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0.1
+ */
 @Service
 public class UserMessagePayloadServiceImpl implements UserMessagePayloadService {
 

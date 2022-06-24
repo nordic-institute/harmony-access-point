@@ -10,6 +10,10 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.util.List;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0.1
+ */
 public interface UserMessagePayloadService {
 
     List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging, Ebms3MessageFragmentType ebms3MessageFragmentType)
