@@ -61,6 +61,13 @@ public class TruststoreResource extends TruststoreResourceBase {
         return downloadTruststoreContent();
     }
 
+    @PostMapping(value = "/reset")
+    public void reset() {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.resetTrustStore(currentDomain);
+    }
+
+
     @GetMapping(value = {"/list"})
     public List<TrustStoreRO> trustStoreEntries() {
         return getTrustStoreEntries();

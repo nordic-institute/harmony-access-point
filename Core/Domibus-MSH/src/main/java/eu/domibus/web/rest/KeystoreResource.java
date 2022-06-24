@@ -74,7 +74,7 @@ public class KeystoreResource extends TruststoreResourceBase {
         return certificateService.getTruststoreContent(DOMIBUS_KEYSTORE_NAME);
     }
 
-    @PostMapping(value = "/resets")
+    @PostMapping(value = "/reset")
     public void reset() {
         Domain currentDomain = domainProvider.getCurrentDomain();
         multiDomainCertificateProvider.resetKeyStore(currentDomain);

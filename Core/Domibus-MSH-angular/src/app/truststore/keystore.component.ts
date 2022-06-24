@@ -15,7 +15,7 @@ import {FileUploadValidatorService} from '../common/file-upload-validator.servic
   templateUrl: './base-truststore.component.html',
   providers: [TrustStoreService]
 })
-@ComponentName('Domibus KeyStore')
+@ComponentName('KeyStore')
 export class KeystoreComponent extends BaseTruststoreComponent implements OnInit {
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
@@ -28,10 +28,11 @@ export class KeystoreComponent extends BaseTruststoreComponent implements OnInit
     this.DOWNLOAD_URL = this.BASE_URL + '/download';
     this.UPLOAD_URL = this.BASE_URL + '/save';
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
+    
+    this.showResetOperation = true;
   }
 
   ngOnInit(): void {
     super.ngOnInit();
   }
-
 }

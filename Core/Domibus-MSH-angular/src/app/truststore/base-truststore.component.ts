@@ -30,7 +30,7 @@ import {ComponentType} from 'angular-md2';
   styleUrls: ['./base-truststore.component.css'],
   providers: [TrustStoreService]
 })
-@ComponentName('TrustStore')
+@ComponentName('Key Store')
 export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
@@ -44,6 +44,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
 
   protected canHandleCertificates: boolean = false;
   protected storeExists: boolean;
+  showResetOperation: boolean;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
@@ -188,5 +189,20 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
       }
     }
   }
+
+  async reloadStore() {
+    try {
+      super.isLoading = true;
+      await this.trustStoreService.reloadStore(this.BASE_URL + '/reset');
+      this.alertService.success('The ' + this.name + ' was successfully reset.')
+      
+      await this.getTrustStoreEntries();
+    } catch (ex) {
+      this.alertService.exception('Error reseting the ' + this.name + ':', ex);
+    } finally {
+      super.isLoading = false;
+    }
+  }
+
 
 }

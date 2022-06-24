@@ -39,4 +39,7 @@ export class TrustStoreService {
     return this.http.delete<string>(deleteUrl).toPromise();
   }
 
+  reloadStore(url = 'rest/truststore/reset') {
+    return this.http.post<any>(url, null).toPromise();
+  }
 }
