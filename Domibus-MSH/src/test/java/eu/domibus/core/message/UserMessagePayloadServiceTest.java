@@ -38,6 +38,9 @@ public class UserMessagePayloadServiceTest {
     protected XMLUtil xmlUtil;
 
     @Injectable
+    protected PartInfoDao partInfoDao;
+
+    @Injectable
     protected PartPropertyDictionaryService partPropertyDictionaryService;
 
 
