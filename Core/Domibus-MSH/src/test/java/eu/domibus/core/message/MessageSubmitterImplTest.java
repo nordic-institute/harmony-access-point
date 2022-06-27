@@ -29,7 +29,6 @@ import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.handler.BackendMessageValidator;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandlerTest;
 import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
@@ -65,7 +64,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JMockit.class)
 public class MessageSubmitterImplTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandlerTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSubmitterImplTest.class);
     private static final String BACKEND = "backend";
 
     private static final String MESS_ID = UUID.randomUUID().toString();

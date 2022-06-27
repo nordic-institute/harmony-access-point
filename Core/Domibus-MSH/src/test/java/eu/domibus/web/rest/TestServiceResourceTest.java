@@ -1,12 +1,12 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceRequestRO;
 import mockit.Expectations;
@@ -29,7 +29,7 @@ import java.util.Map;
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class TestEbms3ServiceResourceTest {
+public class TestServiceResourceTest {
 
     @Tested
     TestServiceResource testServiceResource;
@@ -41,7 +41,7 @@ public class TestEbms3ServiceResourceTest {
     PartyService partyService;
 
     @Injectable
-    DatabaseMessageHandler databaseMessageHandler;
+    MessageSubmitterImpl messageSubmitter;
 
     @Injectable
     PModeProvider pModeProvider;

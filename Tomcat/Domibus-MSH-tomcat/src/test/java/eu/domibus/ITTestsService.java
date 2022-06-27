@@ -5,7 +5,7 @@ import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.*;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.test.common.MessageTestUtility;
@@ -31,7 +31,7 @@ public class ITTestsService {
     protected SubmissionUtil submissionUtil;
 
     @Autowired
-    protected DatabaseMessageHandler databaseMessageHandler;
+    protected MessageSubmitterImpl messageSubmitter;
 
     @Autowired
     protected MpcDao mpcDao;
@@ -70,7 +70,7 @@ public class ITTestsService {
     public String sendMessageWithStatus(MessageStatus endStatus) throws MessagingProcessingException {
 
         Submission submission = submissionUtil.createSubmission();
-        final String messageId = databaseMessageHandler.submit(submission, "mybackend");
+        final String messageId = messageSubmitter.submit(submission, "mybackend");
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         userMessageLogDao.setMessageStatus(userMessageLog, endStatus);
