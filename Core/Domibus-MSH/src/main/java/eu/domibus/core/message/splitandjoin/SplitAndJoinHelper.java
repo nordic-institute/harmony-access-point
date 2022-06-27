@@ -6,7 +6,7 @@ import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Splitting;
-import eu.domibus.core.message.MessageSubmitterService;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -33,7 +33,7 @@ public class SplitAndJoinHelper {
     protected UserMessageFactory userMessageFactory;
 
     @Autowired
-    MessageSubmitterService messageSubmitter;
+    MessageSubmitterImpl messageSubmitter;
 
     @Autowired
     protected MessageGroupDao messageGroupDao;
