@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.message.UserMessageSecurityService;
@@ -19,6 +19,7 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
+import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
@@ -27,7 +28,6 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.plugin.handler.BackendMessageValidator;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -55,15 +55,16 @@ import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_MET
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * Utility class used for submitting messages 
+ * Service used for submitting messages (split from DatabaseMessageHandler)
  *
  * @author Ion Perpegel
  * @since 5.0
  */
 @Service
-public class MessageSubmitterService {
+public class MessageSubmitterImpl implements MessageSubmitter {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSubmitterService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSubmitterImpl.class);
+
     private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
@@ -208,8 +209,8 @@ public class MessageSubmitterService {
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
-    @Timer(clazz = MessageSubmitterService.class, value = "submit")
-    @Counter(clazz = MessageSubmitterService.class, value = "submit")
+    @Timer(clazz = MessageSubmitterImpl.class, value = "submit")
+    @Counter(clazz = MessageSubmitterImpl.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(submission.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
