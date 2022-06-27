@@ -89,7 +89,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageEntityId));
             }
 
-            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageEntityId), target);
+            Submission submission = messageRetriever.downloadMessage(messageEntityId);
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return t;
@@ -119,7 +120,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
             }
 
-            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+            Submission submission = messageRetriever.downloadMessage(messageId);
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return t;

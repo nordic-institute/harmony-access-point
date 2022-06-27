@@ -49,12 +49,6 @@ public class MessageRetrieverImpl implements MessageRetriever {
     protected UserMessageDefaultService userMessageService;
 
     @Autowired
-    protected SplitAndJoinHelper splitAndJoinHelper;
-
-    @Autowired
-    protected PModeDefaultService pModeDefaultService;
-
-    @Autowired
     private MessagingService messagingService;
 
     @Autowired
@@ -64,22 +58,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     private ErrorLogService errorLogService;
 
     @Autowired
-    protected MessageFragmentDao messageFragmentDao;
-
-    @Autowired
-    protected MpcDictionaryService mpcDictionaryService;
-
-    @Autowired
-    protected UserMessageHandlerServiceImpl userMessageHandlerService;
-
-    @Autowired
-    protected UserMessageValidatorSpiService userMessageValidatorSpiService;
-
-    @Autowired
     protected UserMessageSecurityService userMessageSecurityService;
-
-    @Autowired
-    protected PartInfoService partInfoService;
 
     @Autowired
     protected ApplicationEventPublisher applicationEventPublisher;
