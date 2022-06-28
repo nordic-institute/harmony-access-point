@@ -15,6 +15,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -88,6 +89,9 @@ public abstract class PModeProvider {
 
     @Autowired
     private MpcService mpcService;
+
+    @Autowired
+    private DomibusCacheService domibusCacheService;
 
     protected abstract void init();
 
@@ -183,6 +187,9 @@ public abstract class PModeProvider {
         configurationRawDAO.create(configurationRaw);
 
         LOG.info("Configuration successfully updated");
+
+        domibusCacheService.clearAllCaches(true);
+
         this.refresh();
 
         // Sends a message into the topic queue in order to refresh all the singleton instances of the PModeProvider.
