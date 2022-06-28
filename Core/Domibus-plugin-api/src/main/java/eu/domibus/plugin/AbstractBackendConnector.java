@@ -2,6 +2,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.MessageSubmitterExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -12,7 +13,6 @@ import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -37,7 +37,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected MessageRetriever messageRetriever;
 
     @Autowired
-    protected MessageSubmitter messageSubmitter;
+    protected MessageSubmitterExtService messageSubmitterExtService;
 
     @Autowired
     protected MessagePuller messagePuller;
@@ -53,7 +53,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
-            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            final String messageId = this.messageSubmitterExtService.submit(messageData, this.getName());
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;

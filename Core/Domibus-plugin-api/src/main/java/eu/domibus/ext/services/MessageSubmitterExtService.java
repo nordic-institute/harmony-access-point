@@ -1,17 +1,9 @@
-
-package eu.domibus.plugin.handler;
-
+package eu.domibus.ext.services;
 
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 
-/**
- * Implementations of this interface handle the submit of messages from the backend to Domibus.
- *
- * @author Christian Koch, Stefan Mueller
- */
-public interface MessageSubmitter {
-
+public interface MessageSubmitterExtService {
     /**
      * Submits a message to Domibus to be processed.
      *
@@ -21,5 +13,4 @@ public interface MessageSubmitter {
      * @throws MessagingProcessingException if the message was rejected by the Domibus MSH
      */
     String submit(Submission messageData, String submitterName) throws MessagingProcessingException;
-
 }

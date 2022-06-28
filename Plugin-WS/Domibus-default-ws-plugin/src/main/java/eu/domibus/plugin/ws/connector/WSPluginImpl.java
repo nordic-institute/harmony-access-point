@@ -86,7 +86,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             messageData.setProcessingType(null);
-            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            final String messageId = this.messageSubmitterExtService.submit(messageData, this.getName());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
         } catch (IllegalArgumentException iaEx) {
