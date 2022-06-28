@@ -2,6 +2,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.MessagePullerExtService;
 import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.ext.services.MessageSubmitterExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -41,7 +42,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected MessageSubmitterExtService messageSubmitterExtService;
 
     @Autowired
-    protected MessagePuller messagePuller;
+    protected MessagePullerExtService messagePullerExtService;
 
     @Autowired
     protected MessageExtService messageExtService;
@@ -165,7 +166,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void initiatePull(final String mpc) {
-        messagePuller.initiatePull(mpc);
+        messagePullerExtService.initiatePull(mpc);
     }
 
     @Override
