@@ -13,8 +13,6 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
-import eu.domibus.plugin.handler.MessagePuller;
-import eu.domibus.plugin.handler.MessageRetriever;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,13 +34,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected List<NotificationType> requiredNotifications;
 
     @Autowired
-    protected MessageRetrieverExtService messageRetrieverExtService;
+    protected MessageRetrieverExtService messageRetriever;
 
     @Autowired
-    protected MessageSubmitterExtService messageSubmitterExtService;
+    protected MessageSubmitterExtService messageSubmitter;
 
     @Autowired
-    protected MessagePullerExtService messagePullerExtService;
+    protected MessagePullerExtService messagePuller;
 
     @Autowired
     protected MessageExtService messageExtService;
@@ -55,7 +53,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
-            final String messageId = this.messageSubmitterExtService.submit(messageData, this.getName());
+            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
@@ -81,7 +79,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
-            MessageStatus status = messageRetrieverExtService.getStatus(messageEntityId);
+            MessageStatus status = messageRetriever.getStatus(messageEntityId);
             if (MessageStatus.NOT_FOUND == status) {
                 LOG.debug("Message with id [{}] was not found", messageEntityId);
                 throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageEntityId));
@@ -91,7 +89,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageEntityId));
             }
 
-            Submission submission = messageRetrieverExtService.downloadMessage(messageEntityId);
+            Submission submission = messageRetriever.downloadMessage(messageEntityId);
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
@@ -112,7 +110,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
-            MessageStatus status = messageRetrieverExtService.getStatus(messageId);
+            MessageStatus status = messageRetriever.getStatus(messageId);
             if (MessageStatus.NOT_FOUND == status) {
                 LOG.debug("Message with id [{}] was not found", messageId);
                 throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
@@ -122,7 +120,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
             }
 
-            Submission submission = messageRetrieverExtService.downloadMessage(messageId);
+            Submission submission = messageRetriever.downloadMessage(messageId);
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
@@ -137,7 +135,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public T browseMessage(String messageId, T target) throws MessageNotFoundException {
         LOG.debug("Browsing message [{}]", messageId);
 
-        final Submission submission = messageRetrieverExtService.browseMessage(messageId);
+        final Submission submission = messageRetriever.browseMessage(messageId);
         return this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
     }
 
@@ -145,28 +143,28 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public T browseMessage(final Long messageEntityId, T target) throws MessageNotFoundException {
         LOG.debug("Browsing message [{}]", messageEntityId);
 
-        final Submission submission = messageRetrieverExtService.browseMessage(messageEntityId);
+        final Submission submission = messageRetriever.browseMessage(messageEntityId);
         return this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
     }
 
     @Override
     public MessageStatus getStatus(final String messageId) {
-        return this.messageRetrieverExtService.getStatus(messageExtService.cleanMessageIdentifier(messageId));
+        return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId));
     }
 
     @Override
     public MessageStatus getStatus(final Long messageEntityId) {
-        return this.messageRetrieverExtService.getStatus(messageEntityId);
+        return this.messageRetriever.getStatus(messageEntityId);
     }
 
     @Override
     public List<ErrorResult> getErrorsForMessage(final String messageId) {
-        return new ArrayList<>(this.messageRetrieverExtService.getErrorsForMessage(messageId));
+        return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
     }
 
     @Override
     public void initiatePull(final String mpc) {
-        messagePullerExtService.initiatePull(mpc);
+        messagePuller.initiatePull(mpc);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -86,7 +87,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
             messageData.setProcessingType(null);
-            final String messageId = this.messageSubmitterExtService.submit(messageData, this.getName());
+            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
         } catch (IllegalArgumentException iaEx) {
@@ -151,7 +152,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         return this.defaultTransformer;
     }
 
-    public MessageRetriever getMessageRetriever() {
+    public MessageRetrieverExtService getMessageRetriever() {
         return this.messageRetriever;
     }
 }
