@@ -2,6 +2,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.ext.services.MessageSubmitterExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -34,7 +35,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected List<NotificationType> requiredNotifications;
 
     @Autowired
-    protected MessageRetriever messageRetriever;
+    protected MessageRetrieverExtService messageRetrieverExtService;
 
     @Autowired
     protected MessageSubmitterExtService messageSubmitterExtService;
@@ -79,7 +80,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
-            MessageStatus status = messageRetriever.getStatus(messageEntityId);
+            MessageStatus status = messageRetrieverExtService.getStatus(messageEntityId);
             if (MessageStatus.NOT_FOUND == status) {
                 LOG.debug("Message with id [{}] was not found", messageEntityId);
                 throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageEntityId));
@@ -89,7 +90,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageEntityId));
             }
 
-            Submission submission = messageRetriever.downloadMessage(messageEntityId);
+            Submission submission = messageRetrieverExtService.downloadMessage(messageEntityId);
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
@@ -110,7 +111,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
-            MessageStatus status = messageRetriever.getStatus(messageId);
+            MessageStatus status = messageRetrieverExtService.getStatus(messageId);
             if (MessageStatus.NOT_FOUND == status) {
                 LOG.debug("Message with id [{}] was not found", messageId);
                 throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
@@ -120,7 +121,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
             }
 
-            Submission submission = messageRetriever.downloadMessage(messageId);
+            Submission submission = messageRetrieverExtService.downloadMessage(messageId);
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
@@ -135,7 +136,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public T browseMessage(String messageId, T target) throws MessageNotFoundException {
         LOG.debug("Browsing message [{}]", messageId);
 
-        final Submission submission = messageRetriever.browseMessage(messageId);
+        final Submission submission = messageRetrieverExtService.browseMessage(messageId);
         return this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
     }
 
@@ -143,23 +144,23 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public T browseMessage(final Long messageEntityId, T target) throws MessageNotFoundException {
         LOG.debug("Browsing message [{}]", messageEntityId);
 
-        final Submission submission = messageRetriever.browseMessage(messageEntityId);
+        final Submission submission = messageRetrieverExtService.browseMessage(messageEntityId);
         return this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
     }
 
     @Override
     public MessageStatus getStatus(final String messageId) {
-        return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId));
+        return this.messageRetrieverExtService.getStatus(messageExtService.cleanMessageIdentifier(messageId));
     }
 
     @Override
     public MessageStatus getStatus(final Long messageEntityId) {
-        return this.messageRetriever.getStatus(messageEntityId);
+        return this.messageRetrieverExtService.getStatus(messageEntityId);
     }
 
     @Override
     public List<ErrorResult> getErrorsForMessage(final String messageId) {
-        return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
+        return new ArrayList<>(this.messageRetrieverExtService.getErrorsForMessage(messageId));
     }
 
     @Override

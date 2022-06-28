@@ -5,11 +5,11 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
 
-public class MessageSubmitterDelegate implements MessageSubmitterExtService {
+public class MessageSubmitterServiceDelegate implements MessageSubmitterExtService {
 
     private final MessageSubmitter messageSubmitter;
 
-    public MessageSubmitterDelegate(MessageSubmitter messageSubmitter) {
+    public MessageSubmitterServiceDelegate(MessageSubmitter messageSubmitter) {
         this.messageSubmitter = messageSubmitter;
     }
 
