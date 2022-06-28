@@ -188,7 +188,7 @@ public abstract class PModeProvider {
 
         LOG.info("Configuration successfully updated");
 
-        domibusCacheService.clearAllCaches(true);
+        domibusCacheService.clearCache("dictionary-queries");
 
         this.refresh();
 
