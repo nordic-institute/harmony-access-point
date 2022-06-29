@@ -1817,8 +1817,8 @@ Domibus.startSetMSHs(1,1,0,context,log);
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="63787218-6a20-4641-9ed1-fc14d0102b75"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="eb0f9a78-570b-4743-9175-af541ff94086"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
 PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
 PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="dde79d96-7769-48c1-9587-80790e1e040a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload default truststores Blue-Red" id="78b0bad4-275d-4e9c-965c-52c11269dfe0"><con:settings/><con:config><script>// Upload truststores: default truststores (blue for sender and red for receiver)
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="e513202b-f3b9-475d-bbea-135e60ab2f83"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS Blue-Red" id="e0770222-357d-4945-8dc3-359ac88d14ca"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendFSPlugin",context,log);
+TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="e513202b-f3b9-475d-bbea-135e60ab2f83"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS Blue-Red" id="e0770222-357d-4945-8dc3-359ac88d14ca"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendFSPlugin",context,log);
 Domibus.setMessageFilters("receiver","backendFSPlugin",context,log);
 
 
@@ -1859,9 +1859,9 @@ Domibus.startSetMSHs(1,1,1,context,log);
 PModeUtils.uploadPmode("sender","special","\\Threegateways\\blue\\domibus-pmode-blue.xml",context,log);
 PModeUtils.uploadPmode("receiver","special","\\Threegateways\\red\\domibus-pmode-red.xml",context,log);
 PModeUtils.uploadPmode("receivergreen","special","\\Threegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="d43ba76f-a0a6-41c9-ad41-d092833c6714"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="13538478-2163-44b9-bca7-1b8552495fe6"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadTruststore("sender","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","special","\\Threegateways\\red\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receivergreen","special","\\Threegateways\\green\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("sender","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","special","\\Threegateways\\red\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receivergreen","special","\\Threegateways\\green\\gateway_truststore.jks",context,log);
 </script></con:config></con:testStep><con:testStep type="delay" name="D3" id="8d6dac94-92a2-4a88-9103-7eac71ddae12"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS Blue-Red-Green" id="9f24cf9c-ed68-4324-958b-003cf8d498ec"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log);
 Domibus.setMessageFilters("receiver","backendWebservice",context,log);
 Domibus.setMessageFilters("receivergreen","backendWebservice",context,log);
@@ -2065,9 +2065,9 @@ log.info "Update done.";
 PModeUtils.uploadPmode("sender","special","\\CloudThreegateways\\blue\\domibus-pmode-blue.xml",context,log);
 PModeUtils.uploadPmode("receiver","special","\\CloudThreegateways\\red\\domibus-pmode-red.xml",context,log);
 PModeUtils.uploadPmode("receivergreen","special","\\CloudThreegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="00399fd9-8e42-4234-b454-8369810f82ba"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS Blue-Red-Green" id="f8226f4b-3ed8-4d7a-a87e-1737cd50c557"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log);
 Domibus.setMessageFilters("receiver","backendWebservice",context,log);
 Domibus.setMessageFilters("receivergreen","backendWebservice",context,log);
@@ -2103,9 +2103,9 @@ log.info "Update done.";
 PModeUtils.uploadPmode("sender","special","\\CloudThreegateways\\blue\\domibus-pmode-blue.xml",context,log);
 PModeUtils.uploadPmode("receiver","special","\\CloudThreegateways\\red\\domibus-pmode-red.xml",context,log);
 PModeUtils.uploadPmode("receivergreen","special","\\CloudThreegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="d51164bc-2bc5-43f9-91f1-a441b7c909b7"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS Blue-Red-Green" id="5afc46f7-9b85-41d9-a9cf-3ab31ea50cb1"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log);
 Domibus.setMessageFilters("receiver","backendWebservice",context,log);
 Domibus.setMessageFilters("receivergreen","backendWebservice",context,log);
@@ -2530,15 +2530,15 @@ def groovyutils = new com.eviware.soapui.support.GroovyUtils(context)
 def path = groovyutils.projectPath
 Domibus.deleteFiles(log, path, ".jks")
 
-Domibus.generateKeyStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword)
-Domibus.generateKeyStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, 2, keystoreFileName)
-Domibus.generateKeyStore(context, log, workingDirectory, "red_gw", keystorePassword, privateKeyPassword, -2, keystoreFileName)
-Domibus.generateKeyStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, 0, keystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, 2, keystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "red_gw", keystorePassword, privateKeyPassword, -2, keystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, 0, keystoreFileName)
 
-Domibus.updateTrustStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword, keystoreFileName, truststoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "red_gw",, keystorePassword, privateKeyPassword, keystoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, keystoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, keystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword, keystoreFileName, truststoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "red_gw",, keystorePassword, privateKeyPassword, keystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, keystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, keystoreFileName)
 
 Domibus.deleteFiles(log, path, ".pem") 	</script></con:config></con:testStep><con:testStep type="groovy" name="Import keystore, truststore and change name" id="4fc25155-8524-4e41-9d4d-43944eb739e8"><con:settings/><con:config><script>//Create iminent certificate
 def workingDirectory = context.expand('${#Project#tempFilesDir}')
@@ -2550,10 +2550,10 @@ def redTruststoreFileName = "aa1_red_gateway_truststore.jks"
 Domibus.deleteFiles(log, workingDirectory, "aa1_blue_gateway")
 Domibus.deleteFiles(log, workingDirectory, "aa1_red_gateway")
 
-Domibus.generateKeyStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", 2, blueKeystoreFileName)
-Domibus.generateKeyStore(context, log, workingDirectory, "red_gw", "test123", "test123", 100, redKeystoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", blueKeystoreFileName, redTruststoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "red_gw", "test123", "test123", redKeystoreFileName, blueTruststoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", 2, blueKeystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "red_gw", "test123", "test123", 100, redKeystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", blueKeystoreFileName, redTruststoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "red_gw", "test123", "test123", redKeystoreFileName, blueTruststoreFileName)
 
 // Copy keystore blue
 def source = workingDirectory + "\\" + blueKeystoreFileName
@@ -2570,8 +2570,8 @@ Domibus.changePropertyAtRuntime("C2", "domibus.security.keystore.location", "\${
 Domibus.changePropertyAtRuntime("C3", "domibus.security.keystore.location", "\${domibus.config.location}/keystores/" + redKeystoreFileName, context, log)
 
 // Upload truststores: blue for sender and red for receiver.
-Domibus.uploadTruststore("sender","temp", blueTruststoreFileName, context, log)
-Domibus.uploadTruststore("receiver", "temp", redTruststoreFileName, context, log)
+TruststoreUtils.uploadTruststore("sender","temp", blueTruststoreFileName, context, log)
+TruststoreUtils.uploadTruststore("receiver", "temp", redTruststoreFileName, context, log)
 
 Domibus.deleteFiles(log, workingDirectory, ".jks")
 </script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="7e255bed-d512-44bd-ad57-ac96bdfd2669" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Default Pmodes Load" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Default Pmodes upload step for reuse" id="68bf5313-59f0-4a2a-a63e-5e34e678e429"><con:settings/><con:config><script>import java.nio.file.Paths
@@ -3663,19 +3663,19 @@ def superPassword=context.expand('${#Project#superAdminPassword}');
 log.info "===================================================";
 log.info " Start uploading truststores for C2 domains"
 log.info "===================================================";
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C2","1",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C2","1",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C2","2",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C2","2",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom3.jks",context,log,Domibus.retDomName("C2","3",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom3.jks",context,log,Domibus.retDomName("C2","3",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom4.jks",context,log,Domibus.retDomName("C2","4",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom4.jks",context,log,Domibus.retDomName("C2","4",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
 log.info "===================================================";
@@ -3686,13 +3686,13 @@ log.info "===================================================";
 log.info "---------------------------------------------------";
 log.info " Start uploading truststores for C3 domains"
 log.info "---------------------------------------------------";
-Domibus.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C3","1",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C3","1",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C3","2",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C3","2",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
 log.info "---------------------------------------------------";

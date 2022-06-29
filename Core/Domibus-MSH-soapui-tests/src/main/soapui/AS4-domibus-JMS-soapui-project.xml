@@ -1039,8 +1039,8 @@ Domibus.startSetMSHs(1,1,0,context,log)
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="bc1ecd10-b264-4a11-9ed1-f2d66c752037"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="4e1dc271-b80c-4da3-936e-662976830164"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
 PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log)
 PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="4a46de03-4211-4650-8b2a-c38cf4a9dc3f"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload default truststores Blue-Red" id="56097e58-3c8d-4ab9-9d41-abc8801410c8"><con:settings/><con:config><script>// Upload truststores: default truststores (blue for sender and red for receiver)
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
-Domibus.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="87360477-ba31-4df1-9840-087877e309b1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to JMS Blue-Red" id="42f80b76-a0f6-4335-ad36-ed96e8475b38"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log)
+TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="87360477-ba31-4df1-9840-087877e309b1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to JMS Blue-Red" id="42f80b76-a0f6-4335-ad36-ed96e8475b38"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log)
 Domibus.setMessageFilters("receiver","Jms",context,log)
 </script></con:config></con:testStep><con:tearDownScript/><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>65ecdf7b-e0e2-477b-b020-da4c7fb8c855</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>3bc33515-eae2-46e7-a50f-1104a8d1a301</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>7aefe4d7-98b5-43b1-8f34-4aa71764de77</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="825f027b-a1ab-4821-871e-4a40b42a5dc6" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Start 3 gateways configuration" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set custom properties" id="b231a9cb-56bb-4be9-a248-7d83b2ce2b21"><con:settings/><con:config><script>// blue: tomcat (edeltest1)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus")
@@ -1064,9 +1064,9 @@ Domibus.startSetMSHs(1,1,1,context,log)
 PModeUtils.uploadPmode("sender","special","\\Threegateways\\blue\\domibus-pmode-blue.xml",context,log)
 PModeUtils.uploadPmode("receiver","special","\\Threegateways\\red\\domibus-pmode-red.xml",context,log)
 PModeUtils.uploadPmode("receivergreen","special","\\Threegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="f3c9b1ad-9af8-4048-a442-8625f0144dc8"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="ed31e288-5d5f-4a3f-ad2e-584863076557"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadTruststore("sender","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log)
-Domibus.uploadTruststore("receiver","special","\\Threegateways\\red\\gateway_truststore.jks",context,log)
-Domibus.uploadTruststore("receivergreen","special","\\Threegateways\\green\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("sender","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("receiver","special","\\Threegateways\\red\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("receivergreen","special","\\Threegateways\\green\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="delay" name="D3" id="afff02a3-ec9b-405c-80f1-3b4f92787cdc"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to JMS Blue-Red-Green" id="a3c04dfb-510d-4a2c-9a87-80388c800b29"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log)
 Domibus.setMessageFilters("receiver","Jms",context,log)
 Domibus.setMessageFilters("receivergreen","Jms",context,log)
@@ -4278,7 +4278,7 @@ Domibus.reportTestCaseCsv(testRunner, log)
 
 
             <con:testStep type="groovy" name="Upload unsuitable truststore Blue" id="e4c0f7ff-ff3f-415d-8b2b-fadf7529030c"><con:settings/><con:config><script>// Upload unsuitable truststore to blue.
-Domibus.uploadTruststore("sender","special","/DynamicDiscovery/C2/oasis/gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("sender","special","/DynamicDiscovery/C2/oasis/gateway_truststore.jks",context,log)
 
 
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="a2d65ffb-9fdb-405d-8525-d3b7dab5709a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 1" id="a23e0478-e68e-4f36-8311-a5529aeb515c"><con:settings/><con:config><script>import javax.jms.*
@@ -4316,7 +4316,7 @@ domUtils.finalize()</script></con:config></con:testStep><con:testStep type="dela
 test.waitForStatus("WAITING_FOR_RETRY",null,"-DomJMS052-1-")
 test.verifyMessagePresence(1,0,"-DomJMS052-1-")
 test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="963365e3-361f-4d63-ab54-3fe71daef886"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Restore Truststore" id="49bbe55e-c3de-4f2b-bf82-bf10017907d2"><con:settings/><con:config><script>// Upload default truststore for blue.
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="delay" name="D4" id="90e17fde-0b22-4b43-be17-fe81104370ff"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="cf4aa1aa-86d1-4a62-8df6-37383d08ae7b"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
@@ -6271,9 +6271,9 @@ log.info "================ Upload PModes for C3 ================";
 log.info "================================================";
 PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststore" id="81f128c8-cb64-4c8f-8eec-8b6fcda576f7" disabled="true"><con:settings/><con:config><script>// Upload truststore for C2
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
 // Upload truststore for C3
-Domibus.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="bb074728-1ac0-445a-8242-0b09e3a935b7" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
+TruststoreUtils.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="bb074728-1ac0-445a-8242-0b09e3a935b7" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","Jms",context,log)
 // Select message filters for C3
 Domibus.setMessageFilters("C3","Jms",context,log)
@@ -6312,9 +6312,9 @@ log.info "================ Upload PModes for C3 ================";
 log.info "================================================";
 PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststore" id="ed19ec3f-9441-4150-a97f-edabe8626965" disabled="true"><con:settings/><con:config><script>// Upload truststore for C2
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log)
 // Upload truststore for C3
-Domibus.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="1cf79b6f-f099-4973-b231-72e5b69e6c53" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
+TruststoreUtils.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="1cf79b6f-f099-4973-b231-72e5b69e6c53" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log)
 // Select message filters for C3
 Domibus.setMessageFilters("C3","backendFSPlugin",context,log)
@@ -6351,9 +6351,9 @@ log.info "================ Upload PModes for C3 ================";
 log.info "================================================";
 PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststore" id="d73fea49-5cd8-4608-ad3b-2b40291f9c7e" disabled="true"><con:settings/><con:config><script>// Upload truststore for C2
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log, "Default", "successfully","test123", "super","DomibusEdel-12345")
+TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log, "Default", "successfully","test123", "super","DomibusEdel-12345")
 // Upload truststore for C3
-Domibus.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="282044c8-a235-4f24-b986-67e94d79696b" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
+TruststoreUtils.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="282044c8-a235-4f24-b986-67e94d79696b" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"Default", null, "super", "123456")
 // Select message filters for C3
 Domibus.setMessageFilters("C3","backendFSPlugin",context,log)
@@ -6395,10 +6395,10 @@ PModeUtils.uploadPmode("C2","default","\\blue\\domibus-pmode-blue.xml",context,l
 log.info "================ Upload pmodes C3 ================"
 PModeUtils.uploadPmode("C3","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="10262c95-8877-41b9-85b4-7599a940a765" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter FS" id="be9a25df-94f3-40f2-b179-4f852973116d" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 // Select message filters for C3
@@ -6453,11 +6453,11 @@ PModeUtils.uploadPmode("C2","default","\\blue\\domibus-pmode-blue.xml",context,l
 log.info "================ Upload pmodes C3 ================"
 PModeUtils.uploadPmode("C3","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="fb378766-1b11-4c22-aa94-254e7f9c2c54" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter FS" id="113c5d3f-0f9d-41ac-9c1e-70747d192dcc" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -6513,11 +6513,11 @@ PModeUtils.uploadPmode("C2","default","\\blue\\domibus-pmode-blue.xml",context,l
 log.info "================ Upload pmodes C3 ================"
 PModeUtils.uploadPmode("C3","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="790f0e25-f5dc-4974-a0e4-2d7bf06b6a17" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter FS" id="2bd3d61a-5586-4e97-bcde-fe3878ccff3b" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -6575,11 +6575,11 @@ PModeUtils.uploadPmode("C2","default","\\blue\\domibus-pmode-blue.xml",context,l
 log.info "================ Upload pmodes C3 ================"
 PModeUtils.uploadPmode("C3","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="100c26d1-a1c2-4274-ab39-28c39a3bc8e9" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"a")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"a")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter FS" id="b993ed5a-f35d-4da4-aa94-2e5de389ad03" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"a")
@@ -6637,11 +6637,11 @@ PModeUtils.uploadPmode("C2","default","\\blue\\domibus-pmode-blue.xml",context,l
 log.info "================ Upload pmodes C3 ================"
 PModeUtils.uploadPmode("C3","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="d1d54f9b-958a-4487-bccd-eefaba30de3d" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter FS" id="0ad7c861-025f-4afb-a6f3-588262b9edc1" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc")
@@ -6702,12 +6702,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="de0e1784-ab2a-4a61-9b5d-425ef1b676fb" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -6771,12 +6771,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS" id="750fa41f-1b7d-4dad-a4b0-fc6173f8e489" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 //Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom1")
 //Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom2")
@@ -6870,12 +6870,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS" id="d22f651c-bb61-41a8-9395-524a8678b07a" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom2")
@@ -6969,12 +6969,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS" id="db21608b-bf9d-482a-89ec-6652bed85cc4" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom2")
@@ -7067,12 +7067,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="25c71d9b-d480-4c21-a6b0-8c5f092896b7" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -7135,12 +7135,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="0a0fca07-489c-41b8-a268-82808bec5760" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -7203,12 +7203,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="733b3db4-f304-46db-bdac-0522c32a7be2" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -7271,12 +7271,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="d55e2f61-86a4-46aa-923a-16978dbdaf3e" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -7305,12 +7305,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus-pmode-red.xml",context,log
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="c057c45e-e8ab-4ac4-b91f-0b23c5a05b04"><con:settings/><con:config><script>// Copy xml payload
 def source = context.expand('${projectDir}')+"\\resources\\PModesandKeystoresSpecialTests\\fsPlugin\\standard\\Test_file.xml";
 def dest = context.expand('${#Project#pathBlue}')+"\\..\\fs_plugin_data\\domibus_C2Dom1\\OUT\\Test_file.xml";
@@ -7367,12 +7367,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS" id="ef10cf65-1f08-4748-880a-d3d071180d40" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom2")
@@ -7547,9 +7547,9 @@ log.info "================ Upload pmodes C2 Domain2 ================";
 PModeUtils.uploadPmode("C2","default","\\red\\domibus_C2Dom1ToC2Dom2\\domibus-pmode-red.xml",context,log,"domibus_C2Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="6682df59-56f6-4d06-8f91-298505a3b3a1" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 Domain1 ================";
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
 log.info "================ Upload truststores C2 Domain2 ================";
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 
 
 </script></con:config></con:testStep><con:testStep type="request" id="3c1a1829-7dfa-4490-913b-5e7b69a2680d" name="Submit Message"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
@@ -7759,9 +7759,9 @@ log.info "================ Upload pmodes C2 Domain2 ================";
 PModeUtils.uploadPmode("C2","default","\\blue\\domibus_C2Dom1ToC2Dom2\\domibus-pmode-blue.xml",context,log,"domibus_C2Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="a7930a1a-cfcb-45b5-8fe5-8c0108ade5b8" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 Domain1 ================";
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
 log.info "================ Upload truststores C2 Domain2 ================";
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 
 
 </script></con:config></con:testStep><con:testStep type="request" id="bf061936-f04e-4170-a19c-15a17567a945" name="Submit Message"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>BackendService_1_1SoapBinding</con:interface><con:operation>submitMessage</con:operation><con:request name="Submit Message" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="e022ccff-cc86-4b74-9723-3e474bc04cd9"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:_1="http://org.ecodex.backend/1_1/" xmlns:xm="http://www.w3.org/2005/05/xmlmime">
@@ -7950,12 +7950,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS" id="c1150eed-bab6-4cf6-9a39-ecf28820c235" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom2")
@@ -8178,12 +8178,12 @@ PModeUtils.uploadPmode("C3","default","\\red\\domibus_C2Dom1ToC3Dom2\\domibus-pm
 
 // C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
+TruststoreUtils.uploadTruststore("C3","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log,"domibus_C3Dom1")
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log,"domibus_C3Dom2")
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS" id="cbefc5d5-0a15-498d-add9-480c4e488a44" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendFSPlugin",context,log,"domibus_C2Dom2")
@@ -8241,11 +8241,11 @@ PModeUtils.uploadPmode("C2","default","\\blue\\domibus-pmode-blue.xml",context,l
 log.info "================ Upload pmodes C3 ================"
 PModeUtils.uploadPmode("C3","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload Truststores" id="db01f1b4-f1b3-44ad-8f55-d13ca690d351" disabled="true"><con:settings/><con:config><script>// C2
 log.info "================ Upload truststores C2 ================"
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
-Domibus.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom1")
+TruststoreUtils.uploadTruststore("C2","default","\\blue\\gateway_truststore.jks",context,log,"domibus_C2Dom2")
 // C3
 log.info "================ Upload truststores C3 ================"
-Domibus.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
+TruststoreUtils.uploadTruststore("C3","default","\\red\\gateway_truststore.jks",context,log)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter WS" id="5c8172cc-92f0-48ec-a8eb-706736c659de" disabled="true"><con:settings/><con:config><script>// Select message filters for C2
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom1")
 Domibus.setMessageFilters("C2","backendWebservice",context,log,"domibus_C2Dom2")
