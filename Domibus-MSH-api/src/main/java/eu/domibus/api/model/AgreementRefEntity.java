@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -15,10 +16,10 @@ import javax.persistence.*;
 @Table(name = "TB_D_AGREEMENT")
 @NamedQueries({
         @NamedQuery(name = "AgreementRef.findByValueAndType", hints = {
-                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
                 @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from AgreementRefEntity serv where serv.value=:VALUE and serv.type=:TYPE"),
         @NamedQuery(name = "AgreementRef.findByValue", hints = {
-                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
                 @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from AgreementRefEntity serv where serv.value=:VALUE and serv.type is null")
 })
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

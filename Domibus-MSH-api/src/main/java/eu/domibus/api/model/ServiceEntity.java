@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -14,10 +15,10 @@ import javax.persistence.*;
 @Table(name = "TB_D_SERVICE")
 @NamedQueries({
         @NamedQuery(name = "Service.findByValueAndType", hints = {
-                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
                 @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type=:TYPE"),
         @NamedQuery(name = "Service.findByValue", hints = {
-                @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
                 @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select serv from ServiceEntity serv where serv.value=:VALUE and serv.type is null")
 })
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

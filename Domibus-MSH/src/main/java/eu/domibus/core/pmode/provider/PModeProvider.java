@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.provider;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
@@ -188,7 +189,7 @@ public abstract class PModeProvider {
 
         LOG.info("Configuration successfully updated");
 
-        domibusCacheService.clearCache("dictionary-queries");
+        domibusCacheService.clearCache(CacheConstants.DICTIONARY_QUERIES);
 
         this.refresh();
 
