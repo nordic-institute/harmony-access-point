@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -15,7 +16,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_MPC")
 @NamedQuery(name = "Mpc.findByValue", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select mpc from MpcEntity mpc where mpc.value=:MPC")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MpcEntity extends AbstractBaseEntity {

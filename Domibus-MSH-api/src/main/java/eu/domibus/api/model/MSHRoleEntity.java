@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_MSH_ROLE")
 @NamedQuery(name = "MSHRoleEntity.findByValue", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select role from MSHRoleEntity role where role.role=:ROLE")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MSHRoleEntity extends AbstractBaseEntity {

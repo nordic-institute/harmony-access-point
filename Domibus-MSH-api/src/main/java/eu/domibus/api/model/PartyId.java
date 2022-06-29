@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -15,10 +16,10 @@ import java.io.Serializable;
 @Table(name = "TB_D_PARTY")
 @NamedQueries({
 @NamedQuery(name = "PartyId.findByValueAndType", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select part from PartyId part where part.value=:VALUE and part.type=:TYPE"),
 @NamedQuery(name = "PartyId.findByValue", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select part from PartyId part where part.value=:VALUE and part.type is null")
 })
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
