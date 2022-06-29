@@ -29,4 +29,6 @@ public interface ReliabilityService {
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
     void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+    void updatePartyState(String status, String party);
+    String getPartyState(String partyName);
 }

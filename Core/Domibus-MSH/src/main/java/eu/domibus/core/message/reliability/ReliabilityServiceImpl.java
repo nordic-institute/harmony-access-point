@@ -55,6 +55,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
+    private PartyStatusDao partyStatusDao;
+
+    @Autowired
     protected UserMessageService userMessageService;
 
     @Autowired
@@ -133,6 +136,31 @@ public class ReliabilityServiceImpl implements ReliabilityService {
         }
 
         LOG.debug("Finished handling reliability");
+    }
+
+    @Override
+    public void updatePartyState(String status, String partyName) {
+        if (!partyStatusDao.existsWithName(partyName)) {
+            PartyStatusEntity newPs = new PartyStatusEntity();
+            newPs.setConnectivityStatus(status);
+            newPs.setPartyName(partyName);
+            partyStatusDao.create(newPs);
+        } else {
+            PartyStatusEntity existingPs = partyStatusDao.findByNameSafely(partyName);
+            if (!existingPs.getConnectivityStatus().equals(status)) {
+                existingPs.setConnectivityStatus(status);
+                partyStatusDao.update(existingPs);
+            }
+        }
+    }
+
+    @Override
+    public String getPartyState(String partyName) {
+        PartyStatusEntity existingPs = partyStatusDao.findByNameSafely(partyName);
+        if (existingPs!=null) {
+            return existingPs.getConnectivityStatus();
+        }
+        return "SUCCESS";
     }
 
 
