@@ -92,7 +92,7 @@ public class MessageSenderService {
             // check if the destination is available. If not, then don't do the retry (see EDELIVERY-9563, EDELIVERY-9084)
             String destinationConnetivityStatus = reliabilityService.getPartyState(userMessage.getPartyInfo().getToParty());
             if (!"SUCCESS".equals(destinationConnetivityStatus)) {
-                LOG.warn("Message [{}] retry suspended because destination party [{}] is not yet reachable", messageId, userMessage.getPartyInfo().getToParty());
+                LOG.warn("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", messageId, userMessage.getPartyInfo().getToParty());
                 MessageAttempt attempt = new MessageAttempt();
                 attempt.setError("Destination party not reachable");
                 attempt.setStatus(MessageAttemptStatus.ERROR);
