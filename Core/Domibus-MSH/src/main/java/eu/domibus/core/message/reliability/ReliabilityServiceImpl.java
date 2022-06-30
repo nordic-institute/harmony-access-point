@@ -168,7 +168,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
         if (existingPs!=null) {
             return existingPs.getConnectivityStatus();
         }
-        return "SUCCESS";
+        return SUCCESS;
     }
 
     @Override
