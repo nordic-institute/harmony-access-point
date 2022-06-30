@@ -27,6 +27,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SMART_RETRY_ENABLED;
 
 /**
  * @author Thomas Dussart
@@ -145,11 +150,13 @@ public class ReliabilityServiceImpl implements ReliabilityService {
             newPs.setConnectivityStatus(status);
             newPs.setPartyName(partyName);
             partyStatusDao.create(newPs);
+            LOG.debug("Connectivity status entry created for party [{}] with value: [{}]", partyName, status);
         } else {
             PartyStatusEntity existingPs = partyStatusDao.findByNameSafely(partyName);
             if (!existingPs.getConnectivityStatus().equals(status)) {
                 existingPs.setConnectivityStatus(status);
                 partyStatusDao.update(existingPs);
+                LOG.debug("Connectivity status for party [{}] is now: [{}]", partyName, status);
             }
         }
     }
@@ -161,6 +168,19 @@ public class ReliabilityServiceImpl implements ReliabilityService {
             return existingPs.getConnectivityStatus();
         }
         return "SUCCESS";
+    }
+
+    @Override
+    public boolean isSmartRetryEnabledForParty(String partyName) {
+        String smartRetryPropVal = domibusPropertyProvider.getProperty(DOMIBUS_SMART_RETRY_ENABLED);
+        if (StringUtils.isBlank(smartRetryPropVal)) {
+            return false;
+        }
+        List<String> smartRetryEnabledParties = Arrays.asList(smartRetryPropVal.split(","));
+        smartRetryEnabledParties = smartRetryEnabledParties.stream()
+                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
+                .collect(Collectors.toList());
+        return smartRetryEnabledParties.contains(partyName);
     }
 
 
