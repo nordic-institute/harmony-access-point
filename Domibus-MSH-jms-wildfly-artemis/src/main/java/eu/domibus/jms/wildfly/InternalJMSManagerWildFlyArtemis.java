@@ -39,6 +39,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
 
 /**
@@ -58,7 +59,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
     /**
      * The old Artemis 1.x JMS prefix.
      *
-     * @see org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl#OLD_QUEUE_PREFIX
+     * See also {@code org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl#OLD_QUEUE_PREFIX}.
      */
     public static final String JMS_QUEUE_PREFIX = "jms.queue.";
 
@@ -186,8 +187,13 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         String[] addressNames = activeMQServerControl.getAddressNames();
         LOG.debug("Address names: {}", Arrays.toString(addressNames));
 
+        final String internalAddressesRegex = StringUtils.trimToEmpty(domibusPropertyProvider.getProperty(DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION));
+        LOG.debug("Ignoring internal addresses that match regular expression: [{}]", internalAddressesRegex);
+
         Arrays.stream(addressNames)
-                .filter(addressName -> !StringUtils.startsWith(addressName, "$.artemis.internal"))
+                .filter(StringUtils::isNotEmpty)
+                .filter(addressName -> !addressName.equalsIgnoreCase("jms.topic.DomibusClusterCommandTopic"))
+                .filter(addressName -> !addressName.matches(internalAddressesRegex))
                 .forEach(addressName -> {
             try {
                 ObjectName addressObjectName = objectNameBuilder.getAddressObjectName(toSimpleString(addressName));
