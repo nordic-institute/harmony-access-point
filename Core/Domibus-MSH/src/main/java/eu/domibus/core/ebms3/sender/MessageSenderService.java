@@ -4,13 +4,16 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.message.*;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -24,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.EnumSet;
 import java.util.Set;
 
+import static eu.domibus.core.message.reliability.ReliabilityServiceImpl.SUCCESS;
 
 /**
  * Entrypoint for sending AS4 messages to C3. Contains common validation and rescheduling logic
@@ -91,23 +95,9 @@ public class MessageSenderService {
         if (MessageStatus.WAITING_FOR_RETRY == messageStatus) {
             // check if the destination is available. If not, then don't do the retry (see EDELIVERY-9563, EDELIVERY-9084)
             String destinationConnetivityStatus = reliabilityService.getPartyState(userMessage.getPartyInfo().getToParty());
-            if (!"SUCCESS".equals(destinationConnetivityStatus)) {
-                LOG.warn("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", messageId, userMessage.getPartyInfo().getToParty());
-                MessageAttempt attempt = new MessageAttempt();
-                attempt.setError("Destination party not reachable");
-                attempt.setStatus(MessageAttemptStatus.ERROR);
-                attempt.setMessageId(messageId);
-                attempt.setStartDate(new Timestamp(System.currentTimeMillis()));
-                LegConfiguration legConfiguration = null;
-                try {
-                    String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-                    legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-                    reliabilityService.handleReliability(userMessage, userMessageLog, ReliabilityChecker.CheckResult.SEND_FAIL,
-                            null, null, null,
-                            legConfiguration, attempt); // recalculate next attempt for retry
-                } catch (EbMS3Exception e) {
-                    // TODO Razvan
-                }
+            if (!SUCCESS.equals(destinationConnetivityStatus)) {
+                LOG.debug("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", messageId, userMessage.getPartyInfo().getToParty());
+                calculateNextAttemptForRetry(userMessage, userMessageLog);
                 return; //skip the retry altogether
             }
         }
@@ -119,6 +109,24 @@ public class MessageSenderService {
             return MessageStatus.NOT_FOUND;
         }
         return userMessageLog.getMessageStatus();
+    }
+
+
+    private void calculateNextAttemptForRetry(UserMessage userMessage, UserMessageLog userMessageLog) {
+        MessageAttempt attempt = new MessageAttempt();
+        attempt.setError("Destination party not reachable");
+        attempt.setStatus(MessageAttemptStatus.ERROR);
+        attempt.setMessageId(userMessage.getMessageId());
+        attempt.setStartDate(new Timestamp(System.currentTimeMillis()));
+        try {
+            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+            reliabilityService.handleReliability(userMessage, userMessageLog, ReliabilityChecker.CheckResult.SEND_FAIL,
+                    null, null, null,
+                    legConfiguration, attempt); // recalculate next attempt for retry
+        } catch (EbMS3Exception e) {
+            LOG.warn("Exception while retrieving the pModeKey. Error message is: [{}]", e.getMessage());
+        }
     }
 
 }

@@ -28,7 +28,25 @@ public interface ReliabilityService {
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
     void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+
+    /**
+     * Update the connectivity status of a remote party
+     * @param status - the state of connectivity
+     * @param party - the name of the party
+     */
     void updatePartyState(String status, String party);
+
+    /**
+     * Retrieve the connectivity status of a party
+     * @param partyName - the name of the party
+     * @return the connectivity status
+     */
     String getPartyState(String partyName);
+
+    /**
+     * Check if the smart retry feature is configured
+     * @param partyName
+     * @return true if smart retry feature is active
+     */
     boolean isSmartRetryEnabledForParty(String partyName);
 }

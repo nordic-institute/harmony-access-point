@@ -43,6 +43,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class ReliabilityServiceImpl implements ReliabilityService {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityServiceImpl.class);
+    public static final String SUCCESS = "SUCCESS";
 
     @Autowired
     private UserMessageLogDefaultService userMessageLogService;
