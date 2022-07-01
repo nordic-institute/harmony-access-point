@@ -239,6 +239,8 @@ public class DomibusApplicationInitializerTest {
             times = 1;
             propertySources.addLast(domibusPropertiesPropertySource);
             times = 1;
+            propertySources.stream();
+            times = 1;
         }};
     }
 
