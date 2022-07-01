@@ -11,7 +11,7 @@
     <changeSet author="Razvan Cretu" id="EDELIVERY-9563">
         <createTable tableName="TB_PARTY_STATUS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TRUSTSTORE"/>
+                <constraints primaryKey="true" primaryKeyName="PK_PARTY_STATUS"/>
             </column>
             <column name="PARTY_NAME" type="VARCHAR(100)">
                 <constraints nullable="false"/>
