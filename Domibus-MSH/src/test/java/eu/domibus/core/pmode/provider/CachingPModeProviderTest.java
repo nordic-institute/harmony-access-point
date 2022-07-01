@@ -16,6 +16,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
@@ -128,6 +129,9 @@ public class CachingPModeProviderTest {
 
     @Injectable
     private MpcService mpcService;
+
+    @Injectable
+    private DomibusCacheService domibusCacheService;
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         LOG.debug("Inside sample PMode configuration");

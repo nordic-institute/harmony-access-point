@@ -8,6 +8,7 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
@@ -72,6 +73,9 @@ public class PModeProviderTest {
 
     @Injectable
     private MpcService mpcService;
+
+    @Injectable
+    private DomibusCacheService domibusCacheService;
 
     @Test
     public void test_checkSelfSending_DifferentAPs_False() throws Exception {
