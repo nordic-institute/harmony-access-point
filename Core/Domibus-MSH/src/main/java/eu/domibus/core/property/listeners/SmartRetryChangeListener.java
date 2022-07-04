@@ -64,8 +64,8 @@ public class SmartRetryChangeListener implements DomibusPropertyChangeListener {
     protected List<String> parsePropertyValue(String propertyValue) {
         String[] propertyValueParts = StringUtils.split(StringUtils.trimToEmpty(propertyValue), ',');
         return Arrays.stream(propertyValueParts)
-                .map(name -> name.trim().toLowerCase())
-                .filter(name -> !name.isEmpty())
+                .map(name ->  name.trim().toLowerCase())
+                .filter(name -> StringUtils.isNotBlank(name))
                 .distinct()
                 .collect(Collectors.toList());
     }

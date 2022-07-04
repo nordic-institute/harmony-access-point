@@ -1,6 +1,7 @@
 package eu.domibus.core.message.reliability;
 
 import eu.domibus.core.dao.BasicDao;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -21,21 +22,14 @@ public class PartyStatusDao extends BasicDao<PartyStatusEntity> {
     public PartyStatusEntity findByName(String name) {
         TypedQuery<PartyStatusEntity> q = em.createNamedQuery("PartyStatus.findByName", PartyStatusEntity.class);
         q.setParameter("PARTY_NAME", name);
-        return q.getSingleResult();
+        return DataAccessUtils.singleResult(q.getResultList());
     }
 
-    public PartyStatusEntity findByNameSafely(String name) {
-        try {
-            return findByName(name);
-        } catch (NoResultException ex) {
-            return null;
-        }
-    }
 
     public boolean existsWithName(String name) {
-        Query q = em.createNamedQuery("PartyStatus.countByName", Long.class);
+        TypedQuery<Long> q = em.createNamedQuery("PartyStatus.countByName", Long.class);
         q.setParameter("PARTY_NAME", name);
-        return (Long) q.getSingleResult() > 0;
+        return q.getSingleResult() > 0;
     }
 
 }

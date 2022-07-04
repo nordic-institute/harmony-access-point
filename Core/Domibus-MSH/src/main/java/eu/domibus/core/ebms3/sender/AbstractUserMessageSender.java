@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.security.ChainCertificateInvalidException;
@@ -18,6 +19,7 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.PartInfoDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -36,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
+
+import static eu.domibus.core.message.reliability.ReliabilityServiceImpl.SUCCESS;
 
 /**
  * Common logic for sending AS4 messages to C3
@@ -84,6 +88,12 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
 
+    @Autowired
+    MessageSenderService messageSenderService;
+
+    @Autowired
+    UserMessageLogDao userMessageLogDao;
+
     @Override
     @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
     @Counter(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
@@ -106,6 +116,20 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         try {
             try {
                 validateBeforeSending(userMessage);
+                String destinationParty = userMessage.getPartyInfo().getToParty();
+                if (reliabilityService.isSmartRetryEnabledForParty(destinationParty)) {
+                    if (MessageStatus.WAITING_FOR_RETRY == messageSenderService.getMessageStatus(userMessageLog)) {
+                        // check if the destination is available. If not, then don't do the retry (see EDELIVERY-9563, EDELIVERY-9084)
+                        if (!reliabilityService.isPartyReachable(userMessage.getPartyInfo().getToParty())) {
+                            getLog().debug("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", userMessage.getMessageId(), userMessage.getPartyInfo().getToParty());
+                            attempt.setError("Destination party not reachable");
+                            attempt.setStatus(MessageAttemptStatus.ERROR);
+                            reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
+                        }
+                    } else {
+                        getLog().info("Monitored party [{}] connectivity status is: [{}]", destinationParty, SUCCESS);
+                    }
+                }
             } catch (DomibusCoreException e) {
                 getLog().error("Validation exception: message [{}] will not be send", messageId, e);
                 attempt.setError(e.getMessage());

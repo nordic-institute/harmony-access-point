@@ -32,16 +32,16 @@ public interface ReliabilityService {
     /**
      * Update the connectivity status of a remote party
      * @param status - the state of connectivity
-     * @param party - the name of the party
+     * @param partyName - the name of the party
      */
-    void updatePartyState(String status, String party);
+    void updatePartyState(String status, String partyName);
 
     /**
      * Retrieve the connectivity status of a party
      * @param partyName - the name of the party
-     * @return the connectivity status
+     * @return true if party is reachable (the connectivity status = SUCCESS)
      */
-    String getPartyState(String partyName);
+    boolean isPartyReachable(String partyName);
 
     /**
      * Check if the smart retry feature is configured

@@ -153,7 +153,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
             partyStatusDao.create(newPs);
             LOG.debug("Connectivity status entry created for party [{}] with value: [{}]", partyName, status);
         } else {
-            PartyStatusEntity existingPs = partyStatusDao.findByNameSafely(partyName);
+            PartyStatusEntity existingPs = partyStatusDao.findByName(partyName);
             if (!existingPs.getConnectivityStatus().equals(status)) {
                 existingPs.setConnectivityStatus(status);
                 partyStatusDao.update(existingPs);
@@ -163,12 +163,12 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     }
 
     @Override
-    public String getPartyState(String partyName) {
-        PartyStatusEntity existingPs = partyStatusDao.findByNameSafely(partyName);
+    public boolean isPartyReachable(String partyName) {
+        PartyStatusEntity existingPs = partyStatusDao.findByName(partyName);
         if (existingPs!=null) {
-            return existingPs.getConnectivityStatus();
+            return SUCCESS.equals(existingPs.getConnectivityStatus());
         }
-        return SUCCESS;
+        return true; //if no entry exists for the party in the status table, let the send attempt to execute for the first time
     }
 
     @Override
