@@ -125,9 +125,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                             attempt.setError("Destination party not reachable");
                             attempt.setStatus(MessageAttemptStatus.ERROR);
                             reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
+                        } else {
+                            getLog().info("Monitored party [{}] connectivity status is: [{}]", destinationParty, SUCCESS);
                         }
-                    } else {
-                        getLog().info("Monitored party [{}] connectivity status is: [{}]", destinationParty, SUCCESS);
                     }
                 }
             } catch (DomibusCoreException e) {

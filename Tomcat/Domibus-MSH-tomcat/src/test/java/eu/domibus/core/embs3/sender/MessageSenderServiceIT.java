@@ -2,20 +2,19 @@ package eu.domibus.core.embs3.sender;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.core.ebms3.sender.MessageSenderService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.PartyIdDao;
-import eu.domibus.core.security.UserDetailServiceImpl;
-import eu.domibus.core.user.ui.UserDao;
-import eu.domibus.core.user.ui.UserRoleDao;
+import eu.domibus.core.message.reliability.PartyStatusDao;
+import eu.domibus.core.message.reliability.PartyStatusEntity;
+import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.user.UserManagementServiceTestIT;
-import eu.domibus.web.security.AuthenticationService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,61 +22,53 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.validation.ConstraintViolationException;
+import java.io.IOException;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SMART_RETRY_ENABLED;
 
 @Transactional
 public class MessageSenderServiceIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserManagementServiceTestIT.class);
-
     private static final String LOGGED_USER = "test_user";
-
     @Autowired
     MessageSenderService messageSenderService;
-
     @Autowired
     UserMessageLogDao userMessageLogDao;
-
     @Autowired
     UserMessageDao userMessageDao;
-
     @Autowired
     MessageStatusDao messageStatusDao;
-
     @Autowired
     MshRoleDao mshRoleDao;
-
     @Autowired
     protected PartyIdDao partyIdDao;
 
+    @Autowired
+    DomibusPropertyResourceHelper domibusPropertyResourceHelper;
+
+    @Autowired
+    PartyStatusDao partyStatusDao;
 
     ///////////////////////////////////////
 
-    @Autowired
-    UserDetailServiceImpl userDetailService;
-
-    @Autowired
-    protected UserDao userDao;
-    @Autowired
-    protected AuthenticationService authenticationService;
-
-    @Autowired
-    protected UserRoleDao userRoleDao;
-
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    protected EntityManager entityManager;
-
     @Before
     public void before() {
-        userDao.delete(userDao.listUsers());
+        try {
+            uploadPmode(18001);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (XmlProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     @Transactional
     @WithUserDetails(value = LOGGED_USER, userDetailsServiceBeanName = "testUserDetailService")
     public void testDestinationIsReachable() {
+        domibusPropertyResourceHelper.setPropertyValue(DOMIBUS_SMART_RETRY_ENABLED, true,"domibus-red");
         final String partyIdType = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
         UserMessageLog userMessageLog = new UserMessageLog();
         MessageStatusEntity messageStatus = new MessageStatusEntity();
@@ -90,7 +81,7 @@ public class MessageSenderServiceIT extends AbstractIT {
 
         From from = new From();
         PartyId fromParty = new PartyId();
-        fromParty.setValue("1");
+        fromParty.setValue("domibus-blue");
         fromParty.setType(partyIdType);
         partyIdDao.create(fromParty);
 
@@ -98,7 +89,7 @@ public class MessageSenderServiceIT extends AbstractIT {
 
         To to = new To();
         PartyId toParty = new PartyId();
-        toParty.setValue("2");
+        toParty.setValue("domibus-red");
         toParty.setType(partyIdType);
         partyIdDao.create(toParty);
 
@@ -118,6 +109,11 @@ public class MessageSenderServiceIT extends AbstractIT {
 
         userMessageLogDao.create(userMessageLog);
 
+        PartyStatusEntity partyStatus = new PartyStatusEntity();
+        partyStatus.setPartyName("domibus-red");
+        partyStatus.setConnectivityStatus("SUCCESS");
+        partyStatusDao.create(partyStatus);
+
         try {
             messageSenderService.sendUserMessage("messageId", userMessageLog.getEntityId(), 5);
         } catch (ConstraintViolationException e) {
@@ -126,9 +122,6 @@ public class MessageSenderServiceIT extends AbstractIT {
         }
 
 
-
     }
-
-
 
 }

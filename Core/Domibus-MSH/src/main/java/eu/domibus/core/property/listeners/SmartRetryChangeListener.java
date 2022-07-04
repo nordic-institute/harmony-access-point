@@ -44,7 +44,6 @@ public class SmartRetryChangeListener implements DomibusPropertyChangeListener {
         List<String> newPartyIds = parsePropertyValue(propertyValue);
 
         List<Party> knownParties = pModeProvider.findAllParties();
-        List<String> testablePartyIds = pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         newPartyIds.forEach(partyId -> {
             LOG.trace("Checking that [{}] is a known party", partyId);
@@ -52,11 +51,6 @@ public class SmartRetryChangeListener implements DomibusPropertyChangeListener {
                     party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
                 throw new DomibusPropertyException("Could not change the list of parties for smart retry feature: "
                         + partyId + " is not configured in Pmode");
-            }
-            LOG.trace("Checking that [{}] is a known testable party", partyId);
-            if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
-                throw new DomibusPropertyException("Could not change the list of parties for smart retry feature: "
-                        + partyId + " is not configured to receive test messages in Pmode");
             }
         });
     }
