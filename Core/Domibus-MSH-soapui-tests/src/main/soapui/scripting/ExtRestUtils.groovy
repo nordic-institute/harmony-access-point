@@ -503,6 +503,51 @@ class ExtRestUtils {
 
 		LogUtils.debugLog("  ====  \"testPutSanityStartDateRequest\" DONE.",log)
 	}
+//IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+//  Messages acknowledgments 
+//IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+    /**
+     * Acknowledges that a message has been delivered to the backend
+     * @param messageId
+     * @param acknowledgeDate
+     * @param properties
+     * @return commandResult
+     */	
+    def static createAckDeliveredRequest(log,context, String side, String messageId = null, String acknowledgeDate = null,properties=[],String pluginUser = null, String pluginPassword = null, returnSet=false){	
+        LogUtils.debugLog("  ====  Calling \"createAckDeliveredRequest\".",log)
+
+		def json=null
+		if(properties==[]){
+			properties["additionalProp1"]="string"
+			properties["additionalProp2"]="string"
+			properties["additionalProp3"]="string"
+		}
+		
+		json=Domibus.ifWindowsEscapeJsonString('{\"messageId\":\"' + "${messageId}" + '\",\"acknowledgeDate\":\"' + "${acknowledgeDate}"+ '\", \"properties\":{\"additionalProp1\":\"' + "${properties["additionalProp1"]}"+ '\",\"additionalProp2\":\"' + "${properties["additionalProp2"]}"+ '\",\"additionalProp3\":\"' + "${properties["additionalProp3"]}"+ '\"}}')
+        def commandString = ["curl ",Domibus.urlToDomibus(side, log, context) + "/ext/messages/acknowledgments/delivered",
+								"-H", "content-type: application/json",
+								"-H", "Authorization: Basic ${"$pluginUser:$pluginPassword".bytes.encodeBase64().toString()}",
+								"-d", json,
+                                "-v"]	
+
+		def commandResult = ShellUtils.runCommandInShell(commandString)
+		
+		LogUtils.debugLog("  ====  \"createAckDeliveredRequest\" DONE.",log)
+		
+		if(returnSet){
+			return commandResult	
+		}else{
+			return commandResult[0]
+		}		
+    }
 	
+	def static testCreateAckDeliveredRequest(log,context, String side, String messageId = null, String acknowledgeDate = null,properties=[], String status,String pluginUser = null, String pluginPassword = null, String message=null){
+		LogUtils.debugLog("  ====  Calling \"testCreateAckDeliveredRequest\".",log)
+
+		def outcome=createAckDeliveredRequest(log,context, side, messageId, acknowledgeDate, properties, pluginUser, pluginPassword, true)
+		assertRestRequestOutcome(log, outcome,status,message)
+
+		LogUtils.debugLog("  ====  \"testCreateAckDeliveredRequest\" DONE.",log)
+	}
 
 }
