@@ -217,14 +217,26 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
          */
         private String nodeID;
 
+        /**
+         * The hostname and port where this server instance can be reached at.
+         */
+        private String live;
+
         public String getNodeID() {
             return nodeID;
+        }
+
+        // Unused in the current setup but mapped to avoid errors when reading the response from the network topology API
+        @SuppressWarnings("unused")
+        public String getLive() {
+            return live;
         }
 
         @Override
         public String toString() {
             final StringBuilder sb = new StringBuilder("ServerInstance{");
             sb.append("nodeID='").append(nodeID).append('\'');
+            sb.append("live='").append(live).append('\'');
             sb.append('}');
             return sb.toString();
         }
