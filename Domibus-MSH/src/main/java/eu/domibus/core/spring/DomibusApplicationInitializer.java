@@ -22,6 +22,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
+import org.springframework.jndi.JndiPropertySource;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -33,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZER_ORDER;
 
@@ -152,6 +155,14 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = createDomibusPropertiesPropertySource(domibusConfigLocation);
         propertySources.addLast(domibusPropertiesPropertySource);
+
+        Set<PropertySource> toRemove = propertySources.stream()
+                .filter(ps -> ps instanceof JndiPropertySource)
+                .collect(Collectors.toSet());
+        toRemove.forEach(ps -> {
+            LOG.debug("Removing Jndi property source: [{}]", ps.getName());
+            propertySources.remove(ps.getName());
+        });
     }
 
     public DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation) throws IOException {
