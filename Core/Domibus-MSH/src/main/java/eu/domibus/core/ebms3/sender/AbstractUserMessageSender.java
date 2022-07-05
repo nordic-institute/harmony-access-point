@@ -228,7 +228,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         String destinationPartyName = userMessage.getPartyInfo().getToParty();
         if (reliabilityService.isSmartRetryEnabledForParty(destinationPartyName)) {
             MessageStatus messageStatus = messageSenderService.getMessageStatus(userMessageLog);
-            if (MessageStatus.WAITING_FOR_RETRY == messageSenderService.getMessageStatus(userMessageLog)) {
+            if (MessageStatus.WAITING_FOR_RETRY == messageStatus) {
                 // check if the destination is available. If not, then don't do the retry (see EDELIVERY-9563, EDELIVERY-9084)
                 if (!reliabilityService.isPartyReachable(destinationPartyName)) {
                     getLog().debug("Destination party [{}] is not reachable (connectivity status: [{}])",
