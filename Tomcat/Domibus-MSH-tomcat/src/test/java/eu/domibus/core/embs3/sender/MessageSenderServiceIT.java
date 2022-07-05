@@ -127,19 +127,4 @@ public class MessageSenderServiceIT extends AbstractIT {
     }
 
 
-    @Test
-    public void test2TriesOneFinally() {
-
-        try {
-            try {
-                throw new RuntimeException("");
-            } catch (RuntimeException re) {
-                int i=1;
-                return;
-            }
-        } finally {
-            int j = 2;
-        }
-    }
-
 }
