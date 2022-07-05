@@ -1,6 +1,5 @@
 package eu.domibus.core.message.reliability;
 
-import com.sun.tools.javac.util.List;
 import eu.domibus.AbstractIT;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.logging.DomibusLogger;
@@ -85,7 +84,8 @@ public class ReliabilityServiceIT extends AbstractIT {
     public void isSmartRetryEnabledForLongList() {
         String testedPartyRed = "domibus-red";
         String testedPartyBlue = "domibus-blue";
-        List<String> longListOfPartiesWithDuplicates = List.of(testedPartyRed, testedPartyBlue, testedPartyRed, testedPartyBlue,
+        String longListOfPartiesWithDuplicates = String.join(",",testedPartyRed, testedPartyBlue,
+                testedPartyRed, testedPartyBlue,
                 testedPartyRed, "", "", testedPartyBlue);
         domibusPropertyResourceHelper.setPropertyValue(DOMIBUS_SMART_RETRY_ENABLED, true, longListOfPartiesWithDuplicates.toString());
 
