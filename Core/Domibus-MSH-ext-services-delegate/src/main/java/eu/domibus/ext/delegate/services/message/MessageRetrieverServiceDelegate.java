@@ -39,16 +39,14 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
 
     @Override
     public Submission downloadMessage(String messageId) throws MessageNotFoundException {
-        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
-        checkMessageAuthorization(userMessage);
+        checkMessageAuthorization(messageId);
 
         return messageRetriever.downloadMessage(messageId);
     }
 
     @Override
     public Submission downloadMessage(Long messageEntityId) throws MessageNotFoundException {
-        final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
-        checkMessageAuthorization(userMessage);
+        checkMessageAuthorization(messageEntityId);
 
         return messageRetriever.downloadMessage(messageEntityId);
     }
@@ -56,8 +54,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     @Override
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
         LOG.info("Browsing message with id [{}]", messageId);
-        UserMessage userMessage = userMessageService.getByMessageId(messageId);
-        checkMessageAuthorization(userMessage);
+        checkMessageAuthorization(messageId);
 
         return messageRetriever.browseMessage(messageId);
     }
@@ -65,8 +62,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     @Override
     public Submission browseMessage(Long messageEntityId) throws MessageNotFoundException {
         LOG.info("Browsing message with entity id [{}]", messageEntityId);
-        UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
-        checkMessageAuthorization(userMessage);
+        checkMessageAuthorization(messageEntityId);
 
         return messageRetriever.browseMessage(messageEntityId);
     }
@@ -100,13 +96,28 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         return messageRetriever.getErrorsForMessage(messageId);
     }
 
-    protected void checkMessageAuthorization(UserMessage userMessage) {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
+    private void checkMessageAuthorization(Long messageEntityId) {
+        checkUnsecure();
+
+        final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
+        checkMessageAuthorization(userMessage);
+    }
+
+    private void checkMessageAuthorization(String messageId) {
+        checkUnsecure();
+
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
+        checkMessageAuthorization(userMessage);
+    }
+
+    private void checkUnsecure() {
+        if (authUtils.isUnsecureLoginAllowed()) {
+            return;
         }
+        authUtils.hasUserOrAdminRole();
+    }
 
-
-
+    protected void checkMessageAuthorization(UserMessage userMessage) {
         String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = originalUser == null ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
