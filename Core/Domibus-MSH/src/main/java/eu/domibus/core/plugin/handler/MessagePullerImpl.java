@@ -2,7 +2,6 @@ package eu.domibus.core.plugin.handler;
 
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.plugin.handler.MessagePuller;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class MessagePullerImpl implements MessagePuller {
-    @Autowired
-    private MessageExchangeService messageExchangeService;
+
+    private final MessageExchangeService messageExchangeService;
+
+    public MessagePullerImpl(MessageExchangeService messageExchangeService) {
+        this.messageExchangeService = messageExchangeService;
+    }
 
     @Override
     @Transactional

@@ -43,7 +43,6 @@ import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,65 +68,74 @@ public class MessageSubmitterImpl implements MessageSubmitter {
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
 
-    @Autowired
-    protected AuthUtils authUtils;
+    protected final AuthUtils authUtils;
 
-    @Autowired
-    protected UserMessageDefaultService userMessageService;
+    protected final UserMessageDefaultService userMessageService;
 
-    @Autowired
-    protected SplitAndJoinHelper splitAndJoinHelper;
+    protected final SplitAndJoinHelper splitAndJoinHelper;
 
-    @Autowired
-    protected PModeDefaultService pModeDefaultService;
+    protected final PModeDefaultService pModeDefaultService;
 
-    @Autowired
-    private SubmissionAS4Transformer transformer;
+    private final SubmissionAS4Transformer transformer;
 
-    @Autowired
-    private MessagingService messagingService;
+    private final MessagingService messagingService;
 
-    @Autowired
-    private UserMessageLogDefaultService userMessageLogService;
+    private final UserMessageLogDefaultService userMessageLogService;
 
-    @Autowired
-    private PayloadFileStorageProvider storageProvider;
+    private final PayloadFileStorageProvider storageProvider;
 
-    @Autowired
-    private ErrorLogService errorLogService;
+    private final ErrorLogService errorLogService;
 
-    @Autowired
-    private PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    @Autowired
-    private MessageIdGenerator messageIdGenerator;
+    private final MessageIdGenerator messageIdGenerator;
 
-    @Autowired
-    private BackendMessageValidator backendMessageValidator;
+    private final BackendMessageValidator backendMessageValidator;
 
-    @Autowired
-    private MessageExchangeService messageExchangeService;
+    private final MessageExchangeService messageExchangeService;
 
-    @Autowired
-    private PullMessageService pullMessageService;
+    private final PullMessageService pullMessageService;
 
-    @Autowired
-    protected MessageFragmentDao messageFragmentDao;
+    protected final MessageFragmentDao messageFragmentDao;
 
-    @Autowired
-    protected MpcDictionaryService mpcDictionaryService;
+    protected final MpcDictionaryService mpcDictionaryService;
 
-    @Autowired
-    protected UserMessageHandlerServiceImpl userMessageHandlerService;
+    protected final UserMessageHandlerServiceImpl userMessageHandlerService;
 
-    @Autowired
-    protected UserMessageValidatorSpiService userMessageValidatorSpiService;
+    protected final UserMessageValidatorSpiService userMessageValidatorSpiService;
 
-    @Autowired
-    protected UserMessageSecurityService userMessageSecurityService;
+    protected final UserMessageSecurityService userMessageSecurityService;
 
-    @Autowired
-    protected PartInfoService partInfoService;
+    protected final PartInfoService partInfoService;
+
+    public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinHelper splitAndJoinHelper,
+                                PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
+                                UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
+                                PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
+                                MessageExchangeService messageExchangeService, PullMessageService pullMessageService, MessageFragmentDao messageFragmentDao,
+                                MpcDictionaryService mpcDictionaryService, UserMessageHandlerServiceImpl userMessageHandlerService,
+                                UserMessageValidatorSpiService userMessageValidatorSpiService, UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService) {
+        this.authUtils = authUtils;
+        this.userMessageService = userMessageService;
+        this.splitAndJoinHelper = splitAndJoinHelper;
+        this.pModeDefaultService = pModeDefaultService;
+        this.transformer = transformer;
+        this.messagingService = messagingService;
+        this.userMessageLogService = userMessageLogService;
+        this.storageProvider = storageProvider;
+        this.errorLogService = errorLogService;
+        this.pModeProvider = pModeProvider;
+        this.messageIdGenerator = messageIdGenerator;
+        this.backendMessageValidator = backendMessageValidator;
+        this.messageExchangeService = messageExchangeService;
+        this.pullMessageService = pullMessageService;
+        this.messageFragmentDao = messageFragmentDao;
+        this.mpcDictionaryService = mpcDictionaryService;
+        this.userMessageHandlerService = userMessageHandlerService;
+        this.userMessageValidatorSpiService = userMessageValidatorSpiService;
+        this.userMessageSecurityService = userMessageSecurityService;
+        this.partInfoService = partInfoService;
+    }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = MessageSubmitterImpl.class, value = "submit")
@@ -138,9 +146,9 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.debug("Add message ID to LOG MDC [{}]", submission.getMessageId());
         }
         LOG.debug("Preparing to submit message");
-//        if (!authUtils.isUnsecureLoginAllowed()) {
-//            authUtils.hasUserOrAdminRole();
-//        }
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.hasUserOrAdminRole();
+        }
 
         String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = (originalUser == null) ? "super user" : originalUser;
@@ -172,7 +180,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             MessageStatus messageStatus = null;
             if (messageExchangeService.forcePullOnMpc(userMessage)) {
                 submission.setProcessingType(ProcessingType.PULL);
-                // UserMesages submited with the optional mpc attribute are
+                // UserMesages submitted with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, submission.getProcessingType());
                 to = createNewParty(userMessage.getMpcValue());

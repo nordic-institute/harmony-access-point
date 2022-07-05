@@ -14,7 +14,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,26 +31,24 @@ import java.util.List;
 public class MessageRetrieverImpl implements MessageRetriever {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetrieverImpl.class);
 
-//    @Autowired
-//    protected AuthUtils authUtils;
+    protected final UserMessageDefaultService userMessageService;
 
-    @Autowired
-    protected UserMessageDefaultService userMessageService;
+    private final MessagingService messagingService;
 
-    @Autowired
-    private MessagingService messagingService;
+    private final UserMessageLogDefaultService userMessageLogService;
 
-    @Autowired
-    private UserMessageLogDefaultService userMessageLogService;
+    private final ErrorLogService errorLogService;
 
-    @Autowired
-    private ErrorLogService errorLogService;
+    protected final ApplicationEventPublisher applicationEventPublisher;
 
-//    @Autowired
-//    protected UserMessageSecurityService userMessageSecurityService;
-
-    @Autowired
-    protected ApplicationEventPublisher applicationEventPublisher;
+    public MessageRetrieverImpl(UserMessageDefaultService userMessageService, MessagingService messagingService, UserMessageLogDefaultService userMessageLogService,
+                                ErrorLogService errorLogService, ApplicationEventPublisher applicationEventPublisher) {
+        this.userMessageService = userMessageService;
+        this.messagingService = messagingService;
+        this.userMessageLogService = userMessageLogService;
+        this.errorLogService = errorLogService;
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
 
 
     @Override
@@ -78,11 +75,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
         UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
-//        checkMessageAuthorization(userMessage);
-
         return messagingService.getSubmission(userMessage);
     }
-
 
     @Override
     public Submission browseMessage(final Long messageEntityId) {
@@ -90,40 +84,23 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
         UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
-//        checkMessageAuthorization(userMessage);
-
         return messagingService.getSubmission(userMessage);
-
     }
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-//        try {
-//            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
-//        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
-//            LOG.debug(e.getMessage());
-//            return eu.domibus.common.MessageStatus.NOT_FOUND;
-//        }
         final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
-//        try {
-//            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageEntityId);
-//        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
-//            LOG.debug(e.getMessage());
-//            return eu.domibus.common.MessageStatus.NOT_FOUND;
-//        }
         final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageEntityId);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
-
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-//        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
         return errorLogService.getErrors(messageId);
     }
 
@@ -136,8 +113,6 @@ public class MessageRetrieverImpl implements MessageRetriever {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
             return messagingService.getSubmission(userMessage);
         }
-
-//        checkMessageAuthorization(userMessage);
 
         userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
 
@@ -155,16 +130,4 @@ public class MessageRetrieverImpl implements MessageRetriever {
         applicationEventPublisher.publishEvent(downloadEvent);
     }
 
-    //    protected void checkMessageAuthorization(UserMessage userMessage) {
-//        if (!authUtils.isUnsecureLoginAllowed()) {
-//            authUtils.hasUserOrAdminRole();
-//        }
-//
-//        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-//        String displayUser = originalUser == null ? "super user" : originalUser;
-//        LOG.debug("Authorized as [{}]", displayUser);
-//
-//        // Authorization check
-//        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
-//    }
 }

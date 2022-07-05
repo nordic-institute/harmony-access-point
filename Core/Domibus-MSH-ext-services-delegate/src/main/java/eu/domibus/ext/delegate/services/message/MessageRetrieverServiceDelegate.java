@@ -105,6 +105,8 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
             authUtils.hasUserOrAdminRole();
         }
 
+
+
         String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = originalUser == null ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
