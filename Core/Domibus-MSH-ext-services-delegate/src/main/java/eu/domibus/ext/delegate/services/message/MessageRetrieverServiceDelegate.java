@@ -94,14 +94,14 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         return messageRetriever.getErrorsForMessage(messageId);
     }
 
-    private void checkMessageAuthorization(Long messageEntityId) {
+    protected void checkMessageAuthorization(Long messageEntityId) {
         checkUnsecure();
 
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
         checkMessageAuthorization(userMessage);
     }
 
-    private void checkMessageAuthorization(String messageId) {
+    protected void checkMessageAuthorization(String messageId) {
         checkUnsecure();
 
         final UserMessage userMessage = userMessageService.getByMessageId(messageId);
