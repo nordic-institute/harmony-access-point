@@ -7,8 +7,7 @@ from yaml import dump
 from requests.auth import HTTPBasicAuth
 import xml.etree.ElementTree as ET
 
-# file_name = "../../../docker/development/corners/docker-compose-wf-mysql-mt.yml"
-file_name = "../../../docker/development/corners/docker-compose-tc-mysql-mt.yml"
+file_name = "../../../../docker/development/corners/docker-compose-tc-mysql-mt.yml"
 my_webserver_key = "tomcat"
 
 # GET YML FILE CONTENT
