@@ -29,7 +29,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertNotNull;
 
 @Transactional
-public class DatabaseMessageHandlerTestIT extends AbstractIT {
+public class MessageSubmitterTestIT extends AbstractIT {
 
     @Configuration
     static class ContextConfiguration {
