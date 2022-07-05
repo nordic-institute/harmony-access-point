@@ -72,37 +72,9 @@ public class MessageRetrieverImpl implements MessageRetriever {
         return getSubmission(userMessage);
     }
 
-    protected Submission getSubmission(final UserMessage userMessage) {
-        final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
-
-        publishDownloadEvent(userMessage.getMessageId());
-
-        if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
-            LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
-            return messagingService.getSubmission(userMessage);
-        }
-
-//        checkMessageAuthorization(userMessage);
-
-        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
-
-        return messagingService.getSubmission(userMessage);
-    }
-
-    /**
-     * Publishes a download event to be caught in case of transaction rollback
-     *
-     * @param messageId message id of the message that is being downloaded
-     */
-    protected void publishDownloadEvent(String messageId) {
-        UserMessageDownloadEvent downloadEvent = new UserMessageDownloadEvent();
-        downloadEvent.setMessageId(messageId);
-        applicationEventPublisher.publishEvent(downloadEvent);
-    }
-
     @Override
     public Submission browseMessage(String messageId) {
-//        LOG.info("Browsing message with id [{}]", messageId);
+        LOG.info("Browsing message with id [{}]", messageId);
 
         UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
@@ -114,7 +86,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public Submission browseMessage(final Long messageEntityId) {
-//        LOG.info("Browsing message with entity id [{}]", messageEntityId);
+        LOG.info("Browsing message with entity id [{}]", messageEntityId);
 
         UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
@@ -123,20 +95,6 @@ public class MessageRetrieverImpl implements MessageRetriever {
         return messagingService.getSubmission(userMessage);
 
     }
-
-//    protected void checkMessageAuthorization(UserMessage userMessage) {
-//        if (!authUtils.isUnsecureLoginAllowed()) {
-//            authUtils.hasUserOrAdminRole();
-//        }
-//
-//        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-//        String displayUser = originalUser == null ? "super user" : originalUser;
-//        LOG.debug("Authorized as [{}]", displayUser);
-//
-//        // Authorization check
-//        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
-//    }
-
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
@@ -169,4 +127,44 @@ public class MessageRetrieverImpl implements MessageRetriever {
         return errorLogService.getErrors(messageId);
     }
 
+    protected Submission getSubmission(final UserMessage userMessage) {
+        final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
+
+        publishDownloadEvent(userMessage.getMessageId());
+
+        if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
+            LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
+            return messagingService.getSubmission(userMessage);
+        }
+
+//        checkMessageAuthorization(userMessage);
+
+        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
+
+        return messagingService.getSubmission(userMessage);
+    }
+
+    /**
+     * Publishes a download event to be caught in case of transaction rollback
+     *
+     * @param messageId message id of the message that is being downloaded
+     */
+    protected void publishDownloadEvent(String messageId) {
+        UserMessageDownloadEvent downloadEvent = new UserMessageDownloadEvent();
+        downloadEvent.setMessageId(messageId);
+        applicationEventPublisher.publishEvent(downloadEvent);
+    }
+
+    //    protected void checkMessageAuthorization(UserMessage userMessage) {
+//        if (!authUtils.isUnsecureLoginAllowed()) {
+//            authUtils.hasUserOrAdminRole();
+//        }
+//
+//        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
+//        String displayUser = originalUser == null ? "super user" : originalUser;
+//        LOG.debug("Authorized as [{}]", displayUser);
+//
+//        // Authorization check
+//        userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
+//    }
 }

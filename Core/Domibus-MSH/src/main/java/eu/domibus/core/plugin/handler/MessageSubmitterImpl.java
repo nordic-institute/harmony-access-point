@@ -129,85 +129,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
     @Autowired
     protected PartInfoService partInfoService;
 
-    @Transactional
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
-    public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
-        if (userMessage == null) {
-            LOG.warn(USER_MESSAGE_IS_NULL);
-            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
-        }
-
-        String messageId = userMessage.getMessageId();
-
-        if (StringUtils.isEmpty(messageId)) {
-            throw new MessagingProcessingException("Message fragment id is empty");
-        }
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        LOG.debug("Preparing to submit message fragment");
-
-        try {
-            // handle if the messageId is unique.
-            backendMessageValidator.validateMessageIsUnique(messageId);
-
-            MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-
-            List<PartInfo> partInfos = new ArrayList<>();
-            partInfos.add(partInfo);
-
-            Party to = messageValidations(userMessage, partInfos, pModeKey, backendName);
-            LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            fillMpc(userMessage, legConfiguration, to);
-
-            saveMessageFragment(userMessage, messageFragmentEntity, backendName, messageId, partInfos, legConfiguration);
-            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
-            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
-                    backendName);
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
-
-            LOG.info("Message fragment submitted");
-            return messageId;
-
-        } catch (EbMS3Exception ebms3Ex) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
-            throw MessagingExceptionFactory.transform(ebms3Ex);
-        } catch (PModeException p) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage(), MSHRole.SENDING, userMessage);
-            throw new PModeMismatchException(p.getMessage(), p);
-        }
-    }
-
-    private void saveMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, String backendName, String messageId, List<PartInfo> partInfos, LegConfiguration legConfiguration) throws EbMS3Exception {
-        try {
-            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-            messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
-            messageFragmentEntity.setUserMessage(userMessage);
-            messageFragmentDao.create(messageFragmentEntity);
-        } catch (CompressionException exc) {
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message(exc.getMessage())
-                    .refToMessageId(messageId)
-                    .cause(exc)
-                    .mshRole(MSHRole.SENDING)
-                    .build();
-        }
-    }
-
-    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
-        if (MessageStatus.READY_TO_PULL != messageStatus) {
-            // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(userMessage, userMessageLog);
-        } else {
-            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
-            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
-        }
-    }
-
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = MessageSubmitterImpl.class, value = "submit")
     @Counter(clazz = MessageSubmitterImpl.class, value = "submit")
@@ -217,9 +138,9 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.debug("Add message ID to LOG MDC [{}]", submission.getMessageId());
         }
         LOG.debug("Preparing to submit message");
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
-        }
+//        if (!authUtils.isUnsecureLoginAllowed()) {
+//            authUtils.hasUserOrAdminRole();
+//        }
 
         String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         String displayUser = (originalUser == null) ? "super user" : originalUser;
@@ -307,6 +228,86 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             throw MessagingExceptionFactory.transform(ex, ErrorCode.EBMS_0004);
         }
     }
+
+    @Transactional
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
+        if (userMessage == null) {
+            LOG.warn(USER_MESSAGE_IS_NULL);
+            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
+        }
+
+        String messageId = userMessage.getMessageId();
+
+        if (StringUtils.isEmpty(messageId)) {
+            throw new MessagingProcessingException("Message fragment id is empty");
+        }
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.debug("Preparing to submit message fragment");
+
+        try {
+            // handle if the messageId is unique.
+            backendMessageValidator.validateMessageIsUnique(messageId);
+
+            MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+
+            List<PartInfo> partInfos = new ArrayList<>();
+            partInfos.add(partInfo);
+
+            Party to = messageValidations(userMessage, partInfos, pModeKey, backendName);
+            LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+            fillMpc(userMessage, legConfiguration, to);
+
+            saveMessageFragment(userMessage, messageFragmentEntity, backendName, messageId, partInfos, legConfiguration);
+            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
+            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
+                    backendName);
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
+
+            LOG.info("Message fragment submitted");
+            return messageId;
+
+        } catch (EbMS3Exception ebms3Ex) {
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
+            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
+            throw MessagingExceptionFactory.transform(ebms3Ex);
+        } catch (PModeException p) {
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage(), MSHRole.SENDING, userMessage);
+            throw new PModeMismatchException(p.getMessage(), p);
+        }
+    }
+
+    private void saveMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, String backendName, String messageId, List<PartInfo> partInfos, LegConfiguration legConfiguration) throws EbMS3Exception {
+        try {
+            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+            messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+            messageFragmentEntity.setUserMessage(userMessage);
+            messageFragmentDao.create(messageFragmentEntity);
+        } catch (CompressionException exc) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message(exc.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(exc)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        }
+    }
+
+    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
+        if (MessageStatus.READY_TO_PULL != messageStatus) {
+            // Sends message to the proper queue if not a message to be pulled.
+            userMessageService.scheduleSending(userMessage, userMessageLog);
+        } else {
+            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
+            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
+        }
+    }
+
 
     private void saveMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
         try {
