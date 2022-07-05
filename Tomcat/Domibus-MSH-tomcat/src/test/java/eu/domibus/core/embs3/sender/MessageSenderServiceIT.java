@@ -76,7 +76,6 @@ public class MessageSenderServiceIT extends AbstractIT {
         messageStatusDao.create(messageStatus);
         userMessageLog.setMessageStatus(messageStatus);
 
-        UserMessage userMsg = new UserMessage();
         PartyInfo partyInfo = new PartyInfo();
 
         From from = new From();
@@ -98,11 +97,14 @@ public class MessageSenderServiceIT extends AbstractIT {
         partyInfo.setFrom(from);
         partyInfo.setTo(to);
 
-        userMsg.setPartyInfo(partyInfo);
+        UserMessage message = new UserMessage();
+        message.setMessageId("id-123");
+        message.setConversationId("convid-123");
+        message.setPartyInfo(partyInfo);
 
-        userMessageDao.create(userMsg);
+        userMessageDao.create(message);
 
-        userMessageLog.setUserMessage(userMsg);
+        userMessageLog.setUserMessage(message);
         MSHRoleEntity mshRole = new MSHRoleEntity();
         mshRoleDao.create(mshRole);
         userMessageLog.setMshRole(mshRole);
@@ -118,10 +120,26 @@ public class MessageSenderServiceIT extends AbstractIT {
             messageSenderService.sendUserMessage("messageId", userMessageLog.getEntityId(), 5);
         } catch (ConstraintViolationException e) {
             // this means the service did try to send the message because the destination is reachable
-            Assert.assertNotNull(userMsg.getEntityId());
+            Assert.assertNotNull(message.getEntityId());
         }
 
 
+    }
+
+
+    @Test
+    public void test2TriesOneFinally() {
+
+        try {
+            try {
+                throw new RuntimeException("");
+            } catch (RuntimeException re) {
+                int i=1;
+                return;
+            }
+        } finally {
+            int j = 2;
+        }
     }
 
 }

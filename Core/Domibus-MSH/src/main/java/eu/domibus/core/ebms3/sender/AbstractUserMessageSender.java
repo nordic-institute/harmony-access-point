@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
@@ -7,6 +8,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.party.PartyNotReachableException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -116,20 +118,17 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         try {
             try {
                 validateBeforeSending(userMessage);
-                String destinationParty = userMessage.getPartyInfo().getToParty();
-                if (reliabilityService.isSmartRetryEnabledForParty(destinationParty)) {
-                    if (MessageStatus.WAITING_FOR_RETRY == messageSenderService.getMessageStatus(userMessageLog)) {
-                        // check if the destination is available. If not, then don't do the retry (see EDELIVERY-9563, EDELIVERY-9084)
-                        if (!reliabilityService.isPartyReachable(userMessage.getPartyInfo().getToParty())) {
-                            getLog().debug("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", userMessage.getMessageId(), userMessage.getPartyInfo().getToParty());
-                            attempt.setError("Destination party not reachable");
-                            attempt.setStatus(MessageAttemptStatus.ERROR);
-                            reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
-                        } else {
-                            getLog().info("Monitored party [{}] connectivity status is: [{}]", destinationParty, SUCCESS);
-                        }
-                    }
-                }
+                smartCheckDestinationParty(userMessage, userMessageLog);
+            } catch (PartyNotReachableException e) {
+                getLog().debug("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", userMessage.getMessageId(), userMessage.getPartyInfo().getToParty());
+                attempt.setError("Destination party not reachable");
+                attempt.setStatus(MessageAttemptStatus.ERROR);
+                // this flag is used in the final clause
+                reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
+                // calculate legConfiguration because it's needed in finally block in reliabilityService.handleReliability()
+                pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+                legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+                return;
             } catch (DomibusCoreException e) {
                 getLog().error("Validation exception: message [{}] will not be send", messageId, e);
                 attempt.setError(e.getMessage());
@@ -204,6 +203,12 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } finally {
+            if (userMessage.isTestMessage()) {
+                String destinationParty = userMessage.getPartyInfo().getToParty();
+                if (reliabilityService.isSmartRetryEnabledForParty(destinationParty)) {
+                    reliabilityService.updatePartyState(attempt.getStatus().name(), destinationParty);
+                }
+            }
             getLog().debug("Finally handle reliability");
             reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckResult, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
         }
@@ -211,6 +216,29 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     protected void validateBeforeSending(final UserMessage userMessage) {
         //can be overridden by child implementations
+    }
+
+    /**
+     * If smart retry feature is activated then check the reachability of the destination party and
+     * if not reachable avoid sending the user message.
+     * @param userMessage
+     * @throws PartyNotReachableException if destination party connectivity status is not SUCCESS (set by monitoring feature)
+     */
+    protected void smartCheckDestinationParty(final UserMessage userMessage, final UserMessageLog userMessageLog) {
+        String destinationPartyName = userMessage.getPartyInfo().getToParty();
+        if (reliabilityService.isSmartRetryEnabledForParty(destinationPartyName)) {
+            MessageStatus messageStatus = messageSenderService.getMessageStatus(userMessageLog);
+            if (MessageStatus.WAITING_FOR_RETRY == messageSenderService.getMessageStatus(userMessageLog)) {
+                // check if the destination is available. If not, then don't do the retry (see EDELIVERY-9563, EDELIVERY-9084)
+                if (!reliabilityService.isPartyReachable(destinationPartyName)) {
+                    getLog().debug("Destination party [{}] is not reachable (connectivity status: [{}])",
+                            destinationPartyName, messageStatus.name());
+                    throw new PartyNotReachableException(DomibusCoreErrorCode.DOM_010, messageStatus.name());
+                } else {
+                    getLog().info("Monitored party [{}] connectivity status is: [{}]", destinationPartyName, SUCCESS);
+                }
+            }
+        }
     }
 
     protected abstract SOAPMessage createSOAPMessage(final UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception;
