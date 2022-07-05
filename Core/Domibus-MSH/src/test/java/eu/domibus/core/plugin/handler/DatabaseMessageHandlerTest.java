@@ -196,6 +196,7 @@
 //    @Injectable
 //    MessageSubmitterImpl messageSubmitterImpl;
 //
+
 //    public void testStoreMessageToBePulled(@Injectable final Submission messageData, @Injectable PartInfo partInfo,
 //                                           @Injectable MessageStatusEntity messageStatus) throws EbMS3Exception {
 //        new Expectations() {{
@@ -255,6 +256,7 @@
 //    }
 //
 //
+
 //    @Test
 //    public void testDownloadMessageOK(@Injectable UserMessage userMessage,
 //                                      @Injectable UserMessageLog userMessageLog,

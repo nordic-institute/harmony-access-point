@@ -53,7 +53,6 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
 
     @Override
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
-        LOG.info("Browsing message with id [{}]", messageId);
         checkMessageAuthorization(messageId);
 
         return messageRetriever.browseMessage(messageId);
@@ -61,7 +60,6 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
 
     @Override
     public Submission browseMessage(Long messageEntityId) throws MessageNotFoundException {
-        LOG.info("Browsing message with entity id [{}]", messageEntityId);
         checkMessageAuthorization(messageEntityId);
 
         return messageRetriever.browseMessage(messageEntityId);
