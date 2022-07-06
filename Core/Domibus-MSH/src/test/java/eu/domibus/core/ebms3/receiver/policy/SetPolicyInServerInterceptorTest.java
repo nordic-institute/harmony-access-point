@@ -15,6 +15,7 @@ import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageHelper;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.property.DomibusVersionService;
 import mockit.*;
@@ -70,7 +71,8 @@ public class SetPolicyInServerInterceptorTest {
                                           final @Injectable Ebms3UserMessage ebms3UserMessage,
                                           final @Injectable UserMessage userMessage,
                                           final @Injectable PartInfo partInfo,
-                                          final @Injectable ErrorResult errorResult) {
+                                          final @Injectable ErrorResult errorResult,
+                                          final @Injectable UserMessageHelper userMessageHelper) {
         List<PartInfo> partInfos = Arrays.asList(partInfo);
 
         new Expectations(setPolicyInServerInterceptor) {{
@@ -99,7 +101,8 @@ public class SetPolicyInServerInterceptorTest {
     }
 
     @Test
-    public void logIncomingMessaging(final @Injectable SoapMessage soapMessage) throws Exception {
+    public void logIncomingMessaging(final @Injectable SoapMessage soapMessage,
+                                     final @Injectable UserMessageHelper userMessageHelper) throws Exception {
 
         //tested method
         setPolicyInServerInterceptor.logIncomingMessaging(soapMessage);
@@ -111,7 +114,8 @@ public class SetPolicyInServerInterceptorTest {
 
     @Test
     public void handleMessage(@Injectable SoapMessage message,
-                              @Injectable HttpServletResponse response) throws JAXBException, IOException, EbMS3Exception {
+                              @Injectable HttpServletResponse response,
+                              final @Injectable UserMessageHelper userMessageHelper) throws JAXBException, IOException, EbMS3Exception {
 
         setPolicyInServerInterceptor.handleMessage(message);
 
@@ -125,7 +129,8 @@ public class SetPolicyInServerInterceptorTest {
 
     @Test(expected = Fault.class)
     public void handleMessageThrowsIOException(@Injectable SoapMessage message,
-                                               @Injectable HttpServletResponse response
+                                               @Injectable HttpServletResponse response,
+                                               final @Injectable UserMessageHelper userMessageHelper
     ) throws JAXBException, IOException, EbMS3Exception {
 
 
@@ -147,7 +152,8 @@ public class SetPolicyInServerInterceptorTest {
     @Test(expected = Fault.class)
     public void handleMessageEbMS3Exception(@Injectable SoapMessage message,
                                             @Injectable HttpServletResponse response,
-                                            @Injectable Messaging messaging) throws JAXBException, IOException, EbMS3Exception {
+                                            @Injectable Messaging messaging,
+                                            final @Injectable UserMessageHelper userMessageHelper) throws JAXBException, IOException, EbMS3Exception {
 
         new Expectations() {{
             soapService.getMessage(message);

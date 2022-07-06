@@ -24,11 +24,13 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.handler.BackendMessageValidator;
+import eu.domibus.core.plugin.handler.MessageSubmitterHelper;
 import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
@@ -194,6 +196,12 @@ public class MessageSubmitterImplTest {
 
     @Injectable
     protected SplitAndJoinHelper splitAndJoinHelper;
+
+    @Injectable
+    protected SplitAndJoinConfigurationService splitAndJoinConfigurationService;
+
+    @Injectable
+    protected MessageSubmitterHelper messageSubmitterHelper;
 
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {

@@ -10,6 +10,7 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
@@ -89,6 +90,11 @@ public class MessageSubmitterImplTest {
     @Injectable
     protected PartInfoService partInfoService;
 
+    @Injectable
+    protected SplitAndJoinConfigurationService splitAndJoinConfigurationService;
+
+    @Injectable
+    protected MessageSubmitterHelper messageSubmitterHelper;
 
     @Test
     public void testcreateNewParty() {
