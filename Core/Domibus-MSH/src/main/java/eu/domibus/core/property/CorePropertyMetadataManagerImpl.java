@@ -272,6 +272,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_SMART_RETRY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_ALERT_ACTIVE, Type.BOOLEAN, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_MAIL_SENDING_ACTIVE, Type.BOOLEAN, Usage.DOMAIN_AND_SUPER, true),

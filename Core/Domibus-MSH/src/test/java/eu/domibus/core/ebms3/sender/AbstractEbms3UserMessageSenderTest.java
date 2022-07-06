@@ -93,9 +93,11 @@ public class AbstractEbms3UserMessageSenderTest {
     @Injectable
     SoapUtil soapUtil;
 
-
     @Injectable
     protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Injectable
+    MessageSenderService messageSenderService;
 
     private final String messageId = UUID.randomUUID().toString();
 
@@ -416,6 +418,11 @@ public class AbstractEbms3UserMessageSenderTest {
                     null);
 
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+
+            String ToPartyName = userMessage.getPartyInfo().getToParty();
+            Assert.assertFalse(reliabilityService.isSmartRetryEnabledForParty(ToPartyName));
+            Assert.assertFalse(userMessage.isTestMessage());
+
         }};
     }
 
