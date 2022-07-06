@@ -38,14 +38,6 @@ public class SplitAndJoinHelper {
     @Autowired
     protected MessageGroupDao messageGroupDao;
 
-    public boolean mayUseSplitAndJoin(LegConfiguration legConfiguration) {
-        final Splitting splitting = legConfiguration.getSplitting();
-        if (splitting == null) {
-            return false;
-        }
-        return true;
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);

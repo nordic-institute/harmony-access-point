@@ -23,6 +23,7 @@ import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -72,7 +73,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final UserMessageDefaultService userMessageService;
 
-    protected final SplitAndJoinHelper splitAndJoinHelper;
+    protected final SplitAndJoinConfigurationService splitAndJoinConfigurationService;
 
     protected final PModeDefaultService pModeDefaultService;
 
@@ -108,7 +109,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final PartInfoService partInfoService;
 
-    public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinHelper splitAndJoinHelper,
+    public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
                                 PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
                                 PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
@@ -117,7 +118,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
                                 UserMessageValidatorSpiService userMessageValidatorSpiService, UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
-        this.splitAndJoinHelper = splitAndJoinHelper;
+        this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
         this.pModeDefaultService = pModeDefaultService;
         this.transformer = transformer;
         this.messagingService = messagingService;
@@ -206,7 +207,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             backendMessageValidator.validatePayloadProfile(userMessage, partInfos, pModeKey);
             backendMessageValidator.validatePropertyProfile(userMessage, pModeKey);
 
-            final boolean splitAndJoin = splitAndJoinHelper.mayUseSplitAndJoin(legConfiguration);
+            final boolean splitAndJoin = splitAndJoinConfigurationService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSourceMessage(splitAndJoin);
 
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
