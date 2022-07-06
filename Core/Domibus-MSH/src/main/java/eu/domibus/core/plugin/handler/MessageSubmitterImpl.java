@@ -24,7 +24,6 @@ import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
@@ -107,13 +106,15 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final PartInfoService partInfoService;
 
+    protected final MessageSubmitterHelper messageSubmitterHelper;
+
     public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
                                 PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
                                 PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
                                 MessageExchangeService messageExchangeService, PullMessageService pullMessageService, MessageFragmentDao messageFragmentDao,
                                 MpcDictionaryService mpcDictionaryService, UserMessageValidatorSpiService userMessageValidatorSpiService,
-                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService) {
+                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
         this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
@@ -133,6 +134,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         this.userMessageValidatorSpiService = userMessageValidatorSpiService;
         this.userMessageSecurityService = userMessageSecurityService;
         this.partInfoService = partInfoService;
+        this.messageSubmitterHelper = messageSubmitterHelper;
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
@@ -268,9 +270,9 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             saveMessageFragment(userMessage, messageFragmentEntity, backendName, messageId, partInfos, legConfiguration);
             MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
             final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
+                    MSHRole.SENDING.toString(), messageSubmitterHelper.getMaxAttempts(legConfiguration),
                     backendName);
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
+            messageSubmitterHelper.prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
 
             LOG.info("Message fragment submitted");
             return messageId;
@@ -304,21 +306,11 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
     }
 
-    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
-        if (MessageStatus.READY_TO_PULL != messageStatus) {
-            // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(userMessage, userMessageLog);
-        } else {
-            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
-            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
-        }
-    }
-
     private void saveMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
         try {
             messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
 
-            persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
+            messageSubmitterHelper.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
         } catch (CompressionException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -405,10 +397,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
     }
 
-    private int getMaxAttempts(LegConfiguration legConfiguration) {
-        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
-    }
-
     private void fillMpc(UserMessage userMessage, LegConfiguration legConfiguration, Party to) {
         final Map<Party, Mpc> mpcMap = legConfiguration.getPartyMpcMap();
         String mpc = Ebms3Constants.DEFAULT_MPC;
@@ -437,21 +425,5 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
         return party;
     }
-
-
-    @Timer(clazz = MessageSubmitterImpl.class, value = "persistSentMessage")
-    @Counter(clazz = MessageSubmitterImpl.class, value = "persistSentMessage")
-    protected void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
-        messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
-
-        final boolean sourceMessage = userMessage.isSourceMessage();
-        final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
-                backendName);
-        if (!sourceMessage) {
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
-        }
-    }
-
 
 }
