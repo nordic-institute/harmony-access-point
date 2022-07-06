@@ -9,10 +9,6 @@ import groovy.sql.Sql
 
 import javax.swing.JOptionPane
 import java.sql.SQLException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 
 import static javax.swing.JOptionPane.showConfirmDialog
 import com.eviware.soapui.support.GroovyUtils
@@ -1523,24 +1519,13 @@ class Domibus{
      */
     static def disableDomain(String side, context, log, String domainName, String authUser = SUPER_USER, String authPwd = SUPER_USER_PWD){
         debugLog("  ====  Calling \"disableDomain\".", log)
-        def jsonSlurper = new JsonSlurper()
-
         try {
-            debugLog("  disableDomain  [][]  Fetch domains list and verify that domain \"$domainName\" exists.",log)
-            def domainsMap = jsonSlurper.parseText(getDomains(side, context, log))
-            if (!domainExists(domainsMap, domainName, log)) {
-                log.info "  disableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
-            } else {
-                def activeDomainsMap = jsonSlurper.parseText(getDomains(side, context, log, true))
-                if (!domainExists(activeDomainsMap, domainName, log)) {
-                    log.info "  disableDomain  [][]  Domain \"$domainName\" is already disabled. No action needed."
-                } else {
-                    //def curlParams = "[ { \"userName\": \"$userAC\", \"roles\": \"$roleAC\", \"active\": true, \"authorities\": [ \"$roleAC\" ], \"status\": \"REMOVED\", \"suspended\": false, \"deleted\": true } ]"
-                    def commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/domains/$domainName", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authUser, authPwd) + "\"", "-v","-X", "DELETE"]
-                    def commandResult = runCommandInShell(commandString, log)
-                    assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:disableDomain: Error while trying to disable domain $domainName."
-                    log.info "  disableDomain  [][]  Domain \"$domainName\" was disabled."
-                }
+            debugLog("  disableDomain  [][]  Fetch domains list and verify that domain \"$domainName\" exists and is enabled.",log)
+            if (checkDomainExistsAndIsEnabledDisabled(side, context, log, domainName, true)) {
+                def commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/domains/$domainName", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authUser, authPwd) + "\"", "-v","-X", "DELETE"]
+                def commandResult = runCommandInShell(commandString, log)
+                assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:disableDomain: Error while trying to disable domain $domainName."
+                log.info "  disableDomain  [][]  Domain \"$domainName\" was disabled."
             }
         } finally {
             resetAuthTokens(log)
@@ -1559,32 +1544,52 @@ class Domibus{
      */
     static def enableDomain(String side, context, log, String domainName, String userLogin = SUPER_USER, String passwordLogin = SUPER_USER_PWD){
         debugLog("  ====  Calling \"enableDomain\".", log)
-        def jsonSlurper = new JsonSlurper()
-
         try {
-            debugLog("  enableDomain  [][]  Fetch domains list and verify that domain \"$domainName\" exists.",log)
-            def domainsMap = jsonSlurper.parseText(getDomains(side, context, log))
-            if (!domainExists(domainsMap, domainName, log)) {
-                log.info "  enableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
-            } else {
-                def activeDomainsMap = jsonSlurper.parseText(getDomains(side, context, log, true))
-                if (domainExists(activeDomainsMap, domainName, log)) {
-                    log.info "  enableDomain  [][]  Domain \"$domainName\" is already active. No action needed."
-                } else {
-                    debugLog("  enableDomain  [][]  Calling curl command to enable domain \"$domainName\"", log)
-                    def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/domains",
-                                         "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                         "-H", "Content-Type: text/plain",
-                                         "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
-                                         "-X", "POST","-v",
-                                         "--data-binary", "$domainName"]
-                    def commandResult = runCommandInShell(commandString, log)
-                    assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:enableDomain: Error while trying to enable the domain: $domainName ."
-                    log.info "  enableDomain  [][]  Domain \"$domainName\" was enabled."
-                }
+            debugLog("  enableDomain  [][]  Fetch domains list and verify that domain \"$domainName\" exists and is disabled.",log)
+            if (checkDomainExistsAndIsEnabledDisabled(side, context, log, domainName, false)) {
+                debugLog("  enableDomain  [][]  Calling curl command to enable domain \"$domainName\"", log)
+                def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/domains",
+                                     "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+                                     "-H", "Content-Type: text/plain",
+                                     "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
+                                     "-X", "POST","-v",
+                                     "--data-binary", "$domainName"]
+                def commandResult = runCommandInShell(commandString, log)
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:enableDomain: Error while trying to enable the domain: $domainName ."
+                log.info "  enableDomain  [][]  Domain \"$domainName\" was enabled."
             }
+
         } finally {
             resetAuthTokens(log)
+        }
+    }
+
+    static def checkDomainExistsAndIsEnabledDisabled(String side, context, log, String domainName, boolean isEnabled) {
+        def jsonSlurper = new JsonSlurper()
+        def domainsMap = jsonSlurper.parseText(getDomains(side, context, log))
+        def activeDomainsMap = jsonSlurper.parseText(getDomains(side, context, log, true))
+        if (isEnabled) {
+            if (!domainExists(domainsMap, domainName, log)) {
+                log.info "  disableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
+                return false
+            } else {
+                if (!domainExists(activeDomainsMap, domainName, log)) {
+                    log.info "  disableDomain  [][]  Domain \"$domainName\" is already disabled. No action needed."
+                    return false
+                }
+            }
+            return true
+        } else {
+            if (!domainExists(domainsMap, domainName, log)) {
+                log.info "  enableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
+                return false
+            } else {
+                if (domainExists(activeDomainsMap, domainName, log)) {
+                    log.info "  enableDomain  [][]  Domain \"$domainName\" is already active. No action needed."
+                    return false
+                }
+            }
+            return true
         }
     }
 
@@ -1634,13 +1639,7 @@ class Domibus{
         debugLog("  domainExists  [][]  Checking if adomain \"$targetedDomain\" exists.", log)
         debugLog("  domainExists  [][]  Domains map: $domainsMap.", log)
         assert(domainsMap != null),"Error:domainExists: Error while parsing the list of domains."
-        while ( (i < domainsMap.size()) && !domainFound) {
-            assert(domainsMap[i] != null),"Error:domainExists: Error while parsing the list of domains."
-            if (domainsMap[i].name == targetedDomain) {
-                domainFound = true
-            }
-            i++
-        }
+        domainsMap.each {domainMap -> domainFound = domainMap.any { code, name -> domainMap.name == targetedDomain}}
         return domainFound
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
