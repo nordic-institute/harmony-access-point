@@ -317,12 +317,11 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
     }
 
-
     private void saveMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
         try {
             messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
 
-            userMessageHandlerService.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
+            persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
         } catch (CompressionException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -441,5 +440,21 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
         return party;
     }
+
+
+    @Timer(clazz = MessageSubmitterImpl.class, value = "persistSentMessage")
+    @Counter(clazz = MessageSubmitterImpl.class, value = "persistSentMessage")
+    public void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
+        messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+
+        final boolean sourceMessage = userMessage.isSourceMessage();
+        final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
+                backendName);
+        if (!sourceMessage) {
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
+        }
+    }
+
 
 }
