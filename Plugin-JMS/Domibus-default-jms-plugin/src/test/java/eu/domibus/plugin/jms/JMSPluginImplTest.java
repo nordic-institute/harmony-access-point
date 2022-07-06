@@ -5,10 +5,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.ext.domain.JmsMessageDTO;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.JMSExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
@@ -41,13 +38,13 @@ import static org.junit.Assert.assertNull;
 public class JMSPluginImplTest {
 
     @Injectable
-    protected MessageRetriever messageRetriever;
+    protected MessageRetrieverExtService messageRetriever;
 
     @Injectable
-    protected MessageSubmitter messageSubmitter;
+    protected MessageSubmitterExtService messageSubmitter;
 
     @Injectable
-    protected MessagePuller messagePuller;
+    protected MessagePullerExtService messagePuller;
 
     @Injectable
     private JmsOperations replyJmsTemplate;
