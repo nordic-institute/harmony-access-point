@@ -118,17 +118,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         try {
             try {
                 validateBeforeSending(userMessage);
-                smartCheckDestinationParty(userMessage, userMessageLog);
-            } catch (PartyNotReachableException e) {
-                getLog().debug("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", userMessage.getMessageId(), userMessage.getPartyInfo().getToParty());
-                attempt.setError("Destination party not reachable");
-                attempt.setStatus(MessageAttemptStatus.ERROR);
-                // this flag is used in the final clause
-                reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
-                // calculate legConfiguration because it's needed in finally block in reliabilityService.handleReliability()
-                pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
-                legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-                return;
             } catch (DomibusCoreException e) {
                 getLog().error("Validation exception: message [{}] will not be send", messageId, e);
                 attempt.setError(e.getMessage());
@@ -142,6 +131,17 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             getLog().debug("PMode found [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             getLog().info("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+
+            try {
+                smartCheckDestinationParty(userMessage, userMessageLog);
+            } catch (PartyNotReachableException e) {
+                getLog().debug("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", userMessage.getMessageId(), userMessage.getPartyInfo().getToParty());
+                attempt.setError("Destination party not reachable");
+                attempt.setStatus(MessageAttemptStatus.ERROR);
+                // this flag is used in the final clause
+                reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
+                return;
+            }
 
             Policy policy;
             try {

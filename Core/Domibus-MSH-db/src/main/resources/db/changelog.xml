@@ -2928,6 +2928,7 @@
         <addUniqueConstraint columnNames="NAME" constraintName="UK_NAME" tableName="TB_TRUSTSTORE"/>
     </changeSet>
 
+    <!-- Table used for smart retry feature (keeps the connectivity status for monitored party names. Monitoring feature needs to be also activated) -->
     <changeSet author="Razvan Cretu" id="EDELIVERY-9563">
         <createTable tableName="TB_PARTY_STATUS">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
