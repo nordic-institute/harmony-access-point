@@ -1,11 +1,14 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.party.PartyNotReachableException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -18,6 +21,7 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.PartInfoDao;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
@@ -36,6 +40,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
+
+import static eu.domibus.core.message.reliability.ReliabilityServiceImpl.SUCCESS;
 
 /**
  * Common logic for sending AS4 messages to C3
@@ -84,6 +90,12 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
 
+    @Autowired
+    MessageSenderService messageSenderService;
+
+    @Autowired
+    UserMessageLogDao userMessageLogDao;
+
     @Override
     @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
     @Counter(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
@@ -119,6 +131,17 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             getLog().debug("PMode found [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             getLog().info("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+
+            try {
+                smartCheckDestinationParty(userMessage, userMessageLog);
+            } catch (PartyNotReachableException e) {
+                getLog().debug("Retry attempt for message [{}] skipped because destination party [{}] is not yet reachable. Calculating the next attempt ...", userMessage.getMessageId(), userMessage.getPartyInfo().getToParty());
+                attempt.setError("Destination party not reachable");
+                attempt.setStatus(MessageAttemptStatus.ERROR);
+                // this flag is used in the final clause
+                reliabilityCheckResult = ReliabilityChecker.CheckResult.SEND_FAIL;
+                return;
+            }
 
             Policy policy;
             try {
@@ -180,6 +203,12 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setError(t.getMessage());
             attempt.setStatus(MessageAttemptStatus.ERROR);
         } finally {
+            if (userMessage.isTestMessage()) {
+                String destinationParty = userMessage.getPartyInfo().getToParty();
+                if (reliabilityService.isSmartRetryEnabledForParty(destinationParty)) {
+                    reliabilityService.updatePartyState(attempt.getStatus().name(), destinationParty);
+                }
+            }
             getLog().debug("Finally handle reliability");
             reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckResult, requestRawXMLMessage, responseSoapMessage, responseResult, legConfiguration, attempt);
         }
@@ -187,6 +216,29 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     protected void validateBeforeSending(final UserMessage userMessage) {
         //can be overridden by child implementations
+    }
+
+    /**
+     * If smart retry feature is activated then check the reachability of the destination party and
+     * if not reachable avoid sending the user message.
+     * @param userMessage
+     * @throws PartyNotReachableException if destination party connectivity status is not SUCCESS (set by monitoring feature)
+     */
+    protected void smartCheckDestinationParty(final UserMessage userMessage, final UserMessageLog userMessageLog) {
+        String destinationPartyName = userMessage.getPartyInfo().getToParty();
+        if (reliabilityService.isSmartRetryEnabledForParty(destinationPartyName)) {
+            MessageStatus messageStatus = messageSenderService.getMessageStatus(userMessageLog);
+            if (MessageStatus.WAITING_FOR_RETRY == messageStatus) {
+                // check if the destination is available. If not, then don't do the retry (see EDELIVERY-9563, EDELIVERY-9084)
+                if (!reliabilityService.isPartyReachable(destinationPartyName)) {
+                    getLog().debug("Destination party [{}] is not reachable (connectivity status: [{}])",
+                            destinationPartyName, messageStatus.name());
+                    throw new PartyNotReachableException(DomibusCoreErrorCode.DOM_010, messageStatus.name());
+                } else {
+                    getLog().info("Monitored party [{}] connectivity status is: [{}]", destinationPartyName, SUCCESS);
+                }
+            }
+        }
     }
 
     protected abstract SOAPMessage createSOAPMessage(final UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception;

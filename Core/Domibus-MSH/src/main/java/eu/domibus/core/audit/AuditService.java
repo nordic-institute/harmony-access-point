@@ -134,6 +134,13 @@ public interface AuditService {
     void addTLSTruststoreUploadedAudit(String id);
 
     /**
+     * Add keystore downloaded
+     *
+     * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}
+     */
+    void addKeystoreDownloadedAudit(String id);
+
+    /**
      * Add Certificate added to TLS
      *
      * @param id    the id of the {@link eu.domibus.core.crypto.TruststoreEntity}

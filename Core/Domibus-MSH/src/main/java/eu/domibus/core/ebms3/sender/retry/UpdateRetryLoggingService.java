@@ -220,6 +220,19 @@ public class UpdateRetryLoggingService {
         messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
     }
 
+    public void setSourceMessageAsFailed(UserMessage userMessage) {
+        final String messageId = userMessage.getMessageId();
+        LOG.debug("Setting the SourceMessage [{}] as failed", messageId);
+
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        if (messageLog == null) {
+            LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
+            return;
+        }
+        messageFailed(userMessage, messageLog);
+    }
+
+
     @Transactional
     public void updateWaitingReceiptMessageRetryLogging(final UserMessage userMessage, final LegConfiguration legConfiguration) {
         LOG.debug("Updating waiting receipt retry for message");

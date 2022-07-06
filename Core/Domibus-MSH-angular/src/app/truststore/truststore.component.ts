@@ -15,12 +15,12 @@ import {FileUploadValidatorService} from '../common/file-upload-validator.servic
   templateUrl: './base-truststore.component.html',
   providers: [TrustStoreService]
 })
-@ComponentName('Domibus TrustStore')
+@ComponentName('TrustStore')
 export class TruststoreComponent extends BaseTruststoreComponent implements OnInit {
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
-              fileUploadValidatorService: FileUploadValidatorService, truststoreService: TrustStoreService) {
+              fileUploadValidatorService: FileUploadValidatorService) {
     super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
 
     this.BASE_URL = 'rest/truststore';
@@ -29,20 +29,11 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
     this.UPLOAD_URL = this.BASE_URL + '/save';
     this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
 
-    this.canHandleCertificates = false;
     this.showResetOperation = true;
   }
 
   ngOnInit(): void {
     super.ngOnInit();
   }
-
-  async reloadKeyStore() {
-    try {
-      await this.trustStoreService.reloadKeyStore();
-      this.alertService.success('Keystore was successfully reset.')
-    } catch (ex) {
-      this.alertService.exception('Error reseting the keystore:', ex);
-    }
-  }
+  
 }
