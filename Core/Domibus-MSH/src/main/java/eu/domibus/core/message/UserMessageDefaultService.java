@@ -287,8 +287,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, jmsMessage);
     }
 
-    @Timer(clazz = MessageSubmitterImpl.class, value = "scheduleSending")
-    @Counter(clazz = MessageSubmitterImpl.class, value = "scheduleSending")
+    @Timer(clazz = UserMessageDefaultService.class, value = "scheduleSending")
+    @Counter(clazz = UserMessageDefaultService.class, value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessage.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");

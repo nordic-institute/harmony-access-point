@@ -113,9 +113,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private UserMessageLogDefaultService userMessageLogService;
-
-    @Autowired
     private PayloadProfileValidator payloadProfileValidator;
 
     @Autowired
@@ -180,35 +177,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
-
-//    @Transactional
-//    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
-//    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistSentMessage")
-//    public void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
-//        messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
-//
-//        final boolean sourceMessage = userMessage.isSourceMessage();
-//        final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-//                MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
-//                backendName);
-//        if (!sourceMessage) {
-//            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
-//        }
-//    }
-
-//    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
-//        if (MessageStatus.READY_TO_PULL != messageStatus) {
-//            // Sends message to the proper queue if not a message to be pulled.
-//            userMessageService.scheduleSending(userMessage, userMessageLog);
-//        } else {
-//            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
-//            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
-//        }
-//    }
-
-//    private int getMaxAttempts(LegConfiguration legConfiguration) {
-//        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
-//    }
 
     @Override
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")

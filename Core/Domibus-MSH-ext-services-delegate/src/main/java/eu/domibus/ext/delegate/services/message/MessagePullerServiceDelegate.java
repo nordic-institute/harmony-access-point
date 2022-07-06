@@ -4,6 +4,12 @@ import eu.domibus.ext.services.MessagePullerExtService;
 import eu.domibus.plugin.handler.MessagePuller;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.1
+ * <p>
+ * Delegate class to enable access of plugins to the MessagePuller
+ */
 @Service
 public class MessagePullerServiceDelegate implements MessagePullerExtService {
     private final MessagePuller messagePuller;

@@ -20,7 +20,7 @@ import java.util.List;
  * Service used for submitting messages (split from MessageSubmitterImpl)
  *
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.1
  */
 @Service
 public class MessageSubmitterHelper {
