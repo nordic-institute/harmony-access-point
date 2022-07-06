@@ -27,6 +27,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SMART_RETRY_ENABLED;
 
 /**
  * @author Thomas Dussart
@@ -38,6 +43,7 @@ import javax.xml.soap.SOAPMessage;
 public class ReliabilityServiceImpl implements ReliabilityService {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ReliabilityServiceImpl.class);
+    public static final String SUCCESS = "SUCCESS";
 
     @Autowired
     private UserMessageLogDefaultService userMessageLogService;
@@ -53,6 +59,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
+
+    @Autowired
+    private PartyStatusDao partyStatusDao;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -133,6 +142,46 @@ public class ReliabilityServiceImpl implements ReliabilityService {
         }
 
         LOG.debug("Finished handling reliability");
+    }
+
+    @Override
+    public void updatePartyState(String status, String partyName) {
+        if (!partyStatusDao.existsWithName(partyName)) {
+            PartyStatusEntity newPs = new PartyStatusEntity();
+            newPs.setConnectivityStatus(status);
+            newPs.setPartyName(partyName);
+            partyStatusDao.create(newPs);
+            LOG.debug("Connectivity status entry created for party [{}] with value: [{}]", partyName, status);
+        } else {
+            PartyStatusEntity existingPs = partyStatusDao.findByName(partyName);
+            if (!existingPs.getConnectivityStatus().equals(status)) {
+                existingPs.setConnectivityStatus(status);
+                partyStatusDao.update(existingPs);
+                LOG.debug("Connectivity status for party [{}] is now: [{}]", partyName, status);
+            }
+        }
+    }
+
+    @Override
+    public boolean isPartyReachable(String partyName) {
+        PartyStatusEntity existingPs = partyStatusDao.findByName(partyName);
+        if (existingPs!=null) {
+            return SUCCESS.equals(existingPs.getConnectivityStatus());
+        }
+        return true; //if no entry exists for the party in the status table, let the send attempt to execute for the first time
+    }
+
+    @Override
+    public boolean isSmartRetryEnabledForParty(String partyName) {
+        String smartRetryPropVal = domibusPropertyProvider.getProperty(DOMIBUS_SMART_RETRY_ENABLED);
+        if (StringUtils.isBlank(smartRetryPropVal)) {
+            return false;
+        }
+        List<String> smartRetryEnabledParties = Arrays.asList(smartRetryPropVal.split(","));
+        smartRetryEnabledParties = smartRetryEnabledParties.stream()
+                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
+                .collect(Collectors.toList());
+        return smartRetryEnabledParties.contains(partyName);
     }
 
 
