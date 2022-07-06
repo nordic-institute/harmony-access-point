@@ -4,6 +4,7 @@ import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
+import eu.domibus.core.ebms3.sender.MessageSenderService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -95,9 +96,11 @@ public class MessageFragmentSenderTest {
     @Injectable
     MessageGroupEntity groupEntity;
 
-
     @Injectable
     protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Injectable
+    MessageSenderService messageSenderService;
 
     @Test
     public void validateBeforeSendingSuccessful() {
