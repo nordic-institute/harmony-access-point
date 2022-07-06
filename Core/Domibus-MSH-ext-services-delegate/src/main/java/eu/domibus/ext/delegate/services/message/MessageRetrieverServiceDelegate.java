@@ -13,9 +13,11 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class MessageRetrieverServiceDelegate implements MessageRetrieverExtService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetrieverServiceDelegate.class);
 

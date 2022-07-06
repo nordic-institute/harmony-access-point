@@ -2,7 +2,9 @@ package eu.domibus.ext.delegate.services.message;
 
 import eu.domibus.ext.services.MessagePullerExtService;
 import eu.domibus.plugin.handler.MessagePuller;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MessagePullerServiceDelegate implements MessagePullerExtService {
     private final MessagePuller messagePuller;
 

@@ -4,7 +4,9 @@ import eu.domibus.ext.services.MessageSubmitterExtService;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MessageSubmitterServiceDelegate implements MessageSubmitterExtService {
 
     private final MessageSubmitter messageSubmitter;
