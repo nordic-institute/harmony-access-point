@@ -101,8 +101,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final MpcDictionaryService mpcDictionaryService;
 
-    protected final UserMessageHandlerServiceImpl userMessageHandlerService;
-
     protected final UserMessageValidatorSpiService userMessageValidatorSpiService;
 
     protected final UserMessageSecurityService userMessageSecurityService;
@@ -114,8 +112,8 @@ public class MessageSubmitterImpl implements MessageSubmitter {
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
                                 PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
                                 MessageExchangeService messageExchangeService, PullMessageService pullMessageService, MessageFragmentDao messageFragmentDao,
-                                MpcDictionaryService mpcDictionaryService, UserMessageHandlerServiceImpl userMessageHandlerService,
-                                UserMessageValidatorSpiService userMessageValidatorSpiService, UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService) {
+                                MpcDictionaryService mpcDictionaryService, UserMessageValidatorSpiService userMessageValidatorSpiService,
+                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
         this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
@@ -132,7 +130,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         this.pullMessageService = pullMessageService;
         this.messageFragmentDao = messageFragmentDao;
         this.mpcDictionaryService = mpcDictionaryService;
-        this.userMessageHandlerService = userMessageHandlerService;
         this.userMessageValidatorSpiService = userMessageValidatorSpiService;
         this.userMessageSecurityService = userMessageSecurityService;
         this.partInfoService = partInfoService;
@@ -444,7 +441,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     @Timer(clazz = MessageSubmitterImpl.class, value = "persistSentMessage")
     @Counter(clazz = MessageSubmitterImpl.class, value = "persistSentMessage")
-    public void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
+    protected void persistSentMessage(UserMessage userMessage, MessageStatus messageStatus, List<PartInfo> partInfos, String pModeKey, LegConfiguration legConfiguration, final String backendName) {
         messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
 
         final boolean sourceMessage = userMessage.isSourceMessage();
