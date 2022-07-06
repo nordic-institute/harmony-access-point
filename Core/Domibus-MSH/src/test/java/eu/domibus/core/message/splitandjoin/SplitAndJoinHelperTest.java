@@ -39,16 +39,6 @@ public class SplitAndJoinHelperTest extends TestCase {
     @Tested
     SplitAndJoinHelper splitAndJoinHelper;
 
-//    @Test
-//    public void mayUseSplitAndJoin(@Injectable LegConfiguration legConfiguration, @Injectable Splitting splitting) {
-//        new Expectations() {{
-//            legConfiguration.getSplitting();
-//            result = splitting;
-//        }};
-//
-//        Assert.assertTrue(splitAndJoinHelper.mayUseSplitAndJoin(legConfiguration));
-//    }
-
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
                                            @Injectable MessageGroupEntity messageGroupEntity,
