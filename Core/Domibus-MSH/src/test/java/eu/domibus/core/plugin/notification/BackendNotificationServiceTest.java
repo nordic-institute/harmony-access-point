@@ -994,8 +994,8 @@ public class BackendNotificationServiceTest {
         List<PayloadSubmittedEvent> valueHolderForMultipleInvocations = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
-//            userMessageHandlerService.checkTestMessage(userMessage);
-//            result = false;
+            userMessageHelper.checkTestMessage(userMessage);
+            result = false;
 
             userMessage.getEntityId();
             result = 1L;
@@ -1052,8 +1052,8 @@ public class BackendNotificationServiceTest {
         List<PayloadProcessedEvent> payloadList = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
-//            userMessageHandlerService.checkTestMessage(userMessage);
-//            result = false;
+            userMessageHelper.checkTestMessage(userMessage);
+            result = false;
 
             userMessage.getEntityId();
             result = 1L;
@@ -1092,8 +1092,8 @@ public class BackendNotificationServiceTest {
             @Mocked PartInfo partInfo) {
 
         new Expectations() {{
-//            userMessageHandlerService.checkTestMessage(userMessage);
-//            result = true;
+            userMessageHelper.checkTestMessage(userMessage);
+            result = true;
         }};
 
         backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
