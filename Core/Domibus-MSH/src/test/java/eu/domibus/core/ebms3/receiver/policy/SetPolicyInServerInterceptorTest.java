@@ -80,14 +80,14 @@ public class SetPolicyInServerInterceptorTest {
             ebms3Converter.convertFromEbms3(ebms3UserMessage);
             result = userMessage;
 
-            userMessageHandlerService.checkTestMessage(userMessage);
-            result = false;
+//            userMessageHandlerService.checkTestMessage(userMessage);
+//            result = false;
 
             legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer();
             result = true;
 
-            userMessageHandlerService.createErrorResult(ebMS3Exception);
-            result = errorResult;
+//            userMessageHandlerService.createErrorResult(ebMS3Exception);
+//            result = errorResult;
         }};
 
         //tested method

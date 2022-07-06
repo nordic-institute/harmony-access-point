@@ -65,7 +65,7 @@ public interface UserMessageHandlerService {
      * @return result of test service and action handle
      */
 
-    Boolean checkTestMessage(UserMessage message);
+//    Boolean checkTestMessage(UserMessage message);
 
     /**
      * Checks if this message is a test message.
@@ -75,7 +75,7 @@ public interface UserMessageHandlerService {
      *
      * @return result of test service and action handle
      */
-    Boolean checkTestMessage(String service, String action);
+//    Boolean checkTestMessage(String service, String action);
 
     /**
      * Checks if this message is a test message.
@@ -84,12 +84,12 @@ public interface UserMessageHandlerService {
      * @return result of test service and action handle
      */
 
-    Boolean checkTestMessage(final LegConfiguration legConfiguration);
+//    Boolean checkTestMessage(final LegConfiguration legConfiguration);
 
     List<PartInfo> handlePayloads(SOAPMessage request, Ebms3Messaging ebms3Messaging, Ebms3MessageFragmentType ebms3MessageFragmentType)
             throws EbMS3Exception, SOAPException, TransformerException;
 
-    ErrorResult createErrorResult(EbMS3Exception ebm3Exception);
+//    ErrorResult createErrorResult(EbMS3Exception ebm3Exception);
 
 
 }

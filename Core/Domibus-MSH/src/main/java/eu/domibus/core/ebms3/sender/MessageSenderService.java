@@ -47,7 +47,7 @@ public class MessageSenderService {
     protected ReliabilityService reliabilityService;
 
     @Autowired
-    protected UserMessageHandlerService userMessageHandlerService;
+    protected UserMessageHelper userMessageHelper;
 
     @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
     @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
@@ -72,7 +72,7 @@ public class MessageSenderService {
 
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
-        final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        final Boolean testMessage = userMessageHelper.checkTestMessage(userMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());

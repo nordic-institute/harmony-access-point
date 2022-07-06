@@ -2,7 +2,6 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -14,7 +13,7 @@ import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageHelper;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -35,7 +34,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author Thomas Dussart
@@ -47,19 +45,21 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
-    protected ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
-    protected BackendNotificationService backendNotificationService;
-    protected UserMessageHandlerService userMessageHandlerService;
-    protected Ebms3Converter ebms3Converter;
+    protected final ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
+
+    protected final BackendNotificationService backendNotificationService;
+
+    protected final UserMessageHelper userMessageHelper;
+
+    protected final Ebms3Converter ebms3Converter;
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         BackendNotificationService backendNotificationService,
-                                        UserMessageHandlerService userMessageHandlerService,
-                                        Ebms3Converter ebms3Converter
-                                        ) {
+                                        UserMessageHelper userMessageHelper, Ebms3Converter ebms3Converter
+    ) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.backendNotificationService = backendNotificationService;
-        this.userMessageHandlerService = userMessageHandlerService;
+        this.userMessageHelper = userMessageHelper;
         this.ebms3Converter = ebms3Converter;
     }
 
@@ -140,10 +140,10 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
             return;
         }
-        boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        boolean testMessage = userMessageHelper.checkTestMessage(userMessage);
         try {
             if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
+                backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHelper.createErrorResult(e));
             }
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
