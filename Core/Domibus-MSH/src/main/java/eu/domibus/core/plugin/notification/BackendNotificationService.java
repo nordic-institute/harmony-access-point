@@ -86,7 +86,7 @@ public class BackendNotificationService {
     private UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
-    protected UserMessageHelper userMessageHelper;
+    protected TestMessageValidator testMessageValidator;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -237,7 +237,7 @@ public class BackendNotificationService {
 
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(userMessageHelper.checkTestMessage(userMessage))) {
+        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
             return;
         }
@@ -254,7 +254,7 @@ public class BackendNotificationService {
 
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(userMessageHelper.checkTestMessage(userMessage))) {
+        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
             return;
         }

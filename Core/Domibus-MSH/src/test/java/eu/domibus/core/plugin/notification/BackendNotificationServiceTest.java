@@ -26,7 +26,6 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -127,7 +126,7 @@ public class BackendNotificationServiceTest {
     MessagingModuleConfiguration messageCommunicationConfiguration;
 
     @Injectable
-    UserMessageHelper userMessageHelper;
+    TestMessageValidator testMessageValidator;
 
     @Test
     public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage) {
@@ -994,7 +993,7 @@ public class BackendNotificationServiceTest {
         List<PayloadSubmittedEvent> valueHolderForMultipleInvocations = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
-            userMessageHelper.checkTestMessage(userMessage);
+            testMessageValidator.checkTestMessage(userMessage);
             result = false;
 
             userMessage.getEntityId();
@@ -1052,7 +1051,7 @@ public class BackendNotificationServiceTest {
         List<PayloadProcessedEvent> payloadList = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
-            userMessageHelper.checkTestMessage(userMessage);
+            testMessageValidator.checkTestMessage(userMessage);
             result = false;
 
             userMessage.getEntityId();
@@ -1092,7 +1091,7 @@ public class BackendNotificationServiceTest {
             @Mocked PartInfo partInfo) {
 
         new Expectations() {{
-            userMessageHelper.checkTestMessage(userMessage);
+            testMessageValidator.checkTestMessage(userMessage);
             result = true;
         }};
 

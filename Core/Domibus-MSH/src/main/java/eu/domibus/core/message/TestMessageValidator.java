@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
  * Spin-off from UserMessageHandlerServiceImpl to break a cyclic dependency
  */
 @Service
-public class UserMessageHelper {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageHelper.class);
+public class TestMessageValidator {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestMessageValidator.class);
 
     public Boolean checkTestMessage(final UserMessage message) {
         return checkTestMessage(message.getServiceValue(), message.getActionValue());
@@ -37,19 +37,6 @@ public class UserMessageHelper {
         }
 
         return checkTestMessage(legConfiguration.getService().getValue(), legConfiguration.getAction().getValue());
-    }
-
-    public ErrorResult createErrorResult(EbMS3Exception ebm3Exception) {
-        ErrorResultImpl result = new ErrorResultImpl();
-        result.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
-        result.setMessageInErrorId(ebm3Exception.getRefToMessageId());
-        try {
-            result.setErrorCode(ebm3Exception.getErrorCodeObject());
-        } catch (IllegalArgumentException e) {
-            LOG.warn("Could not find error code for [" + ebm3Exception.getErrorCode() + "]");
-        }
-        result.setErrorDetail(ebm3Exception.getErrorDetail());
-        return result;
     }
 
 }

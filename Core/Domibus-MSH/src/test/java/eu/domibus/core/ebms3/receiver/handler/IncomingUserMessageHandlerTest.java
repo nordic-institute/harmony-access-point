@@ -9,8 +9,9 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
+import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.UserMessageHelper;
+import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.security.AuthorizationServiceImpl;
@@ -71,7 +72,10 @@ public class IncomingUserMessageHandlerTest {
     UserMessageValidatorSpiService userMessageValidatorSpiService;
 
     @Injectable
-    UserMessageHelper userMessageHelper;
+    TestMessageValidator testMessageValidator;
+
+    @Injectable
+    UserMessageErrorCreator userMessageErrorCreator;
 
     /**
      * Happy flow unit testing with actual data

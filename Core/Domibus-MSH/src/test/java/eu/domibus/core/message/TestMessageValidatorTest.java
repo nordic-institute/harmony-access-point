@@ -17,7 +17,7 @@ import static eu.domibus.common.ErrorCode.EBMS_0001;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class UserMessageHelperTest {
+public class TestMessageValidatorTest {
     String pmodeKey = "pmodeKey";
 
     private static final String STRING_TYPE = "string";
@@ -27,14 +27,14 @@ public class UserMessageHelperTest {
     private static final String FINAL_RECEIPIENT_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
 
     @Tested
-    UserMessageHelper userMessageHelper;
+    TestMessageValidator testMessageValidator;
 
     @Test
     public void testCheckTestMessage_false() {
         UserMessage userMessage = createSampleUserMessage();
 
         Assert.assertFalse("Expecting false for test message as valid data message is supplied ",
-                userMessageHelper.checkTestMessage(userMessage));
+                testMessageValidator.checkTestMessage(userMessage));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class UserMessageHelperTest {
         userMessage.getAction().setValue(Ebms3Constants.TEST_ACTION);
 
         Assert.assertTrue("Expecting true for Check Test Message with modified data",
-                userMessageHelper.checkTestMessage(userMessage));
+                testMessageValidator.checkTestMessage(userMessage));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class UserMessageHelperTest {
             result = Ebms3Constants.TEST_ACTION;
         }};
 
-        assertTrue(userMessageHelper.checkTestMessage(legConfiguration));
+        assertTrue(testMessageValidator.checkTestMessage(legConfiguration));
 
         new FullVerifications() {
         };
@@ -76,7 +76,7 @@ public class UserMessageHelperTest {
             result = "action";
         }};
 
-        assertFalse(userMessageHelper.checkTestMessage(legConfiguration));
+        assertFalse(testMessageValidator.checkTestMessage(legConfiguration));
 
         new FullVerifications() {
         };
@@ -84,31 +84,10 @@ public class UserMessageHelperTest {
 
     @Test
     public void checkTestMessageTest_noLeg() {
-        assertFalse(userMessageHelper.checkTestMessage((LegConfiguration) null));
+        assertFalse(testMessageValidator.checkTestMessage((LegConfiguration) null));
         new FullVerifications() {
         };
     }
-
-    @Test
-    public void createErrorResultTest(@Injectable EbMS3Exception ebm3Exception) {
-
-        new Expectations() {{
-            ebm3Exception.getRefToMessageId();
-            result = "refToMessageId";
-
-            ebm3Exception.getErrorCodeObject();
-            result = EBMS_0001;
-
-            ebm3Exception.getErrorDetail();
-            result = "errorDetail";
-        }};
-        //when
-        Assert.assertNotNull(userMessageHelper.createErrorResult(ebm3Exception));
-
-        new FullVerifications() {
-        };
-    }
-
 
     protected UserMessage createSampleUserMessage() {
         UserMessage userMessage = new UserMessage();
