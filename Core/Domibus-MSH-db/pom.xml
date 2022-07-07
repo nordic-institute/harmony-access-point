@@ -301,7 +301,7 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
-                   <!-- 5.0 ends here -->
+                   <!-- 5.1 ends here -->
 
                    <!-- delta 5.0 to 5.1 starts here -->
                    <execution>
