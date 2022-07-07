@@ -16,6 +16,7 @@ import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
@@ -44,6 +45,7 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,6 +123,9 @@ public class CertificateServiceImpl implements CertificateService {
     private final DomainContextProvider domainContextProvider;
 
     private final DomibusCoreMapper coreMapper;
+
+    @Autowired
+    private DbSchemaUtil dbSchemaUtil;
 
     public CertificateServiceImpl(CRLService crlService,
                                   DomibusPropertyProvider domibusPropertyProvider,
@@ -757,7 +762,9 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Persisting the truststore [{}] for all domains if not yet exists", name);
         for (Domain domain : domains) {
             try {
-                domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
+                if (dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
+                    domainTaskExecutor.submit(() -> persistCurrentDomainTruststoreIfApplicable(name, optional, filePathSupplier, typeSupplier, passwordSupplier), domain);
+                }
             } catch (DomibusCertificateException dce) {
                 LOG.warn("The truststore [{}] for domain [{}] could not be persisted!", name, domain, dce);
             }

@@ -102,7 +102,13 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
         verifyDatabaseSchema(currentDomain, databaseSchema);
 
-        setSchema(connection, databaseSchema);
+        try {
+            setSchema(connection, databaseSchema);
+        } catch (Exception e) {
+            LOG.trace("Error setting database schema to [{}] which is configured for domain [{}]", databaseSchema, currentDomain.getCode());
+            return null;
+        }
+
         return connection;
     }
 
