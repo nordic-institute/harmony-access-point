@@ -15,7 +15,6 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -60,7 +59,7 @@ public class TestService {
     private PModeProvider pModeProvider;
 
     @Autowired
-    private MessageSubmitterImpl messageSubmitter;
+    private MessageSubmitter messageSubmitter;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;

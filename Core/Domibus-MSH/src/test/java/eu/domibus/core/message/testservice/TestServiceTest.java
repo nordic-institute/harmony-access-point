@@ -11,10 +11,10 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -57,7 +57,7 @@ public class TestServiceTest {
     private ErrorLogService errorLogService;
 
     @Injectable
-    private MessageSubmitterImpl messageSubmitter;
+    private MessageSubmitter messageSubmitter;
 
     @Injectable
     private SignalMessageDao signalMessageDao;

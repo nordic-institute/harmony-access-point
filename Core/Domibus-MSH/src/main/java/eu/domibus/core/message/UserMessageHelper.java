@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.1
  * <p>
  * Spin-off from UserMessageHandlerServiceImpl to break a cyclic dependency
  */

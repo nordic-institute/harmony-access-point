@@ -7,10 +7,10 @@ import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.core.message.MessagesLogServiceImpl;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.test.common.SubmissionUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,7 +47,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
     BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
-    MessageSubmitterImpl messageSubmitter;
+    MessageSubmitter messageSubmitter;
 
     @Autowired
     MessagesLogServiceImpl messagesLogService;

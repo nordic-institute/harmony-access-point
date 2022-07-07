@@ -722,19 +722,4 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         return null;
     }
 
-
-//    @Override
-//    public ErrorResult createErrorResult(EbMS3Exception ebm3Exception) {
-//        ErrorResultImpl result = new ErrorResultImpl();
-//        result.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
-//        result.setMessageInErrorId(ebm3Exception.getRefToMessageId());
-//        try {
-//            result.setErrorCode(ebm3Exception.getErrorCodeObject());
-//        } catch (IllegalArgumentException e) {
-//            LOG.warn("Could not find error code for [" + ebm3Exception.getErrorCode() + "]");
-//        }
-//        result.setErrorDetail(ebm3Exception.getErrorDetail());
-//        return result;
-//    }
-
 }
