@@ -11,6 +11,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateModuleConfiguration;
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
@@ -128,6 +129,9 @@ public class CertificateServiceImplTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
+
+    @Injectable
+    DbSchemaUtil dbSchemaUtil;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

@@ -1,9 +1,9 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.multitenancy.ClearDomainRunnable;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.util.DbSchemaUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -11,10 +11,8 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
-import java.io.File;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -39,6 +37,9 @@ public class DomainTaskExecutorImplTest {
 
     @Injectable
     SynchronizedRunnableFactory synchronizedRunnableFactory;
+
+    @Injectable
+    DbSchemaUtil dbSchemaUtil;
 
     @Tested
     DomainTaskExecutorImpl domainTaskExecutor;

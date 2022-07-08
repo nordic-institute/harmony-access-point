@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DbSchemaUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -69,6 +70,9 @@ public class DomibusQuartzStarterTest {
 
     @Injectable
     private SynchronizedRunnableFactory synchronizedRunnableFactory;
+
+    @Injectable
+    DbSchemaUtil dbSchemaUtil;
 
     @Before
     public void setUp() throws Exception {
