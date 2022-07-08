@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.message.UserMessageSecurityService;
@@ -19,15 +19,15 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
+import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.plugin.handler.BackendMessageValidator;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -43,7 +43,6 @@ import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,161 +54,92 @@ import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_MET
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * Utility class used for submitting messages 
+ * Service used for submitting messages (split from DatabaseMessageHandler)
  *
  * @author Ion Perpegel
  * @since 5.0
  */
 @Service
-public class MessageSubmitterService {
+public class MessageSubmitterImpl implements MessageSubmitter {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSubmitterService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSubmitterImpl.class);
+
     private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
 
-    @Autowired
-    protected AuthUtils authUtils;
+    protected final AuthUtils authUtils;
 
-    @Autowired
-    protected UserMessageDefaultService userMessageService;
+    protected final UserMessageDefaultService userMessageService;
 
-    @Autowired
-    protected SplitAndJoinHelper splitAndJoinHelper;
+    protected final SplitAndJoinConfigurationService splitAndJoinConfigurationService;
 
-    @Autowired
-    protected PModeDefaultService pModeDefaultService;
+    protected final PModeDefaultService pModeDefaultService;
 
-    @Autowired
-    private SubmissionAS4Transformer transformer;
+    private final SubmissionAS4Transformer transformer;
 
-    @Autowired
-    private MessagingService messagingService;
+    private final MessagingService messagingService;
 
-    @Autowired
-    private UserMessageLogDefaultService userMessageLogService;
+    private final UserMessageLogDefaultService userMessageLogService;
 
-    @Autowired
-    private PayloadFileStorageProvider storageProvider;
+    private final PayloadFileStorageProvider storageProvider;
 
-    @Autowired
-    private ErrorLogService errorLogService;
+    private final ErrorLogService errorLogService;
 
-    @Autowired
-    private PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    @Autowired
-    private MessageIdGenerator messageIdGenerator;
+    private final MessageIdGenerator messageIdGenerator;
 
-    @Autowired
-    private BackendMessageValidator backendMessageValidator;
+    private final BackendMessageValidator backendMessageValidator;
 
-    @Autowired
-    private MessageExchangeService messageExchangeService;
+    private final MessageExchangeService messageExchangeService;
 
-    @Autowired
-    private PullMessageService pullMessageService;
+    private final PullMessageService pullMessageService;
 
-    @Autowired
-    protected MessageFragmentDao messageFragmentDao;
+    protected final MessageFragmentDao messageFragmentDao;
 
-    @Autowired
-    protected MpcDictionaryService mpcDictionaryService;
+    protected final MpcDictionaryService mpcDictionaryService;
 
-    @Autowired
-    protected UserMessageHandlerServiceImpl userMessageHandlerService;
+    protected final UserMessageValidatorSpiService userMessageValidatorSpiService;
 
-    @Autowired
-    protected UserMessageValidatorSpiService userMessageValidatorSpiService;
+    protected final UserMessageSecurityService userMessageSecurityService;
 
-    @Autowired
-    protected UserMessageSecurityService userMessageSecurityService;
+    protected final PartInfoService partInfoService;
 
-    @Autowired
-    protected PartInfoService partInfoService;
+    protected final MessageSubmitterHelper messageSubmitterHelper;
 
-    @Transactional
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
-    public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
-        if (userMessage == null) {
-            LOG.warn(USER_MESSAGE_IS_NULL);
-            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
-        }
-
-        String messageId = userMessage.getMessageId();
-
-        if (StringUtils.isEmpty(messageId)) {
-            throw new MessagingProcessingException("Message fragment id is empty");
-        }
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        LOG.debug("Preparing to submit message fragment");
-
-        try {
-            // handle if the messageId is unique.
-            backendMessageValidator.validateMessageIsUnique(messageId);
-
-            MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-            String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-
-            List<PartInfo> partInfos = new ArrayList<>();
-            partInfos.add(partInfo);
-
-            Party to = messageValidations(userMessage, partInfos, pModeKey, backendName);
-            LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
-            fillMpc(userMessage, legConfiguration, to);
-
-            saveMessageFragment(userMessage, messageFragmentEntity, backendName, messageId, partInfos, legConfiguration);
-            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
-            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration),
-                    backendName);
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
-
-            LOG.info("Message fragment submitted");
-            return messageId;
-
-        } catch (EbMS3Exception ebms3Ex) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
-            throw MessagingExceptionFactory.transform(ebms3Ex);
-        } catch (PModeException p) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage(), MSHRole.SENDING, userMessage);
-            throw new PModeMismatchException(p.getMessage(), p);
-        }
-    }
-
-    private void saveMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, String backendName, String messageId, List<PartInfo> partInfos, LegConfiguration legConfiguration) throws EbMS3Exception {
-        try {
-            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-            messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
-            messageFragmentEntity.setUserMessage(userMessage);
-            messageFragmentDao.create(messageFragmentEntity);
-        } catch (CompressionException exc) {
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message(exc.getMessage())
-                    .refToMessageId(messageId)
-                    .cause(exc)
-                    .mshRole(MSHRole.SENDING)
-                    .build();
-        }
-    }
-
-    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
-        if (MessageStatus.READY_TO_PULL != messageStatus) {
-            // Sends message to the proper queue if not a message to be pulled.
-            userMessageService.scheduleSending(userMessage, userMessageLog);
-        } else {
-            LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
-            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
-        }
+    public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
+                                PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
+                                UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
+                                PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
+                                MessageExchangeService messageExchangeService, PullMessageService pullMessageService, MessageFragmentDao messageFragmentDao,
+                                MpcDictionaryService mpcDictionaryService, UserMessageValidatorSpiService userMessageValidatorSpiService,
+                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper) {
+        this.authUtils = authUtils;
+        this.userMessageService = userMessageService;
+        this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
+        this.pModeDefaultService = pModeDefaultService;
+        this.transformer = transformer;
+        this.messagingService = messagingService;
+        this.userMessageLogService = userMessageLogService;
+        this.storageProvider = storageProvider;
+        this.errorLogService = errorLogService;
+        this.pModeProvider = pModeProvider;
+        this.messageIdGenerator = messageIdGenerator;
+        this.backendMessageValidator = backendMessageValidator;
+        this.messageExchangeService = messageExchangeService;
+        this.pullMessageService = pullMessageService;
+        this.messageFragmentDao = messageFragmentDao;
+        this.mpcDictionaryService = mpcDictionaryService;
+        this.userMessageValidatorSpiService = userMessageValidatorSpiService;
+        this.userMessageSecurityService = userMessageSecurityService;
+        this.partInfoService = partInfoService;
+        this.messageSubmitterHelper = messageSubmitterHelper;
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
-    @Timer(clazz = MessageSubmitterService.class, value = "submit")
-    @Counter(clazz = MessageSubmitterService.class, value = "submit")
+    @Timer(clazz = MessageSubmitterImpl.class, value = "submit")
+    @Counter(clazz = MessageSubmitterImpl.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(submission.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
@@ -250,7 +180,7 @@ public class MessageSubmitterService {
             MessageStatus messageStatus = null;
             if (messageExchangeService.forcePullOnMpc(userMessage)) {
                 submission.setProcessingType(ProcessingType.PULL);
-                // UserMesages submited with the optional mpc attribute are
+                // UserMesages submitted with the optional mpc attribute are
                 // meant for pulling (if the configuration property is enabled)
                 userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true, submission.getProcessingType());
                 to = createNewParty(userMessage.getMpcValue());
@@ -276,7 +206,7 @@ public class MessageSubmitterService {
             backendMessageValidator.validatePayloadProfile(userMessage, partInfos, pModeKey);
             backendMessageValidator.validatePropertyProfile(userMessage, pModeKey);
 
-            final boolean splitAndJoin = splitAndJoinHelper.mayUseSplitAndJoin(legConfiguration);
+            final boolean splitAndJoin = splitAndJoinConfigurationService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSourceMessage(splitAndJoin);
 
             if (splitAndJoin && storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {
@@ -307,11 +237,80 @@ public class MessageSubmitterService {
         }
     }
 
+    @Transactional
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
+        if (userMessage == null) {
+            LOG.warn(USER_MESSAGE_IS_NULL);
+            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
+        }
+
+        String messageId = userMessage.getMessageId();
+
+        if (StringUtils.isEmpty(messageId)) {
+            throw new MessagingProcessingException("Message fragment id is empty");
+        }
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        LOG.debug("Preparing to submit message fragment");
+
+        try {
+            // handle if the messageId is unique.
+            backendMessageValidator.validateMessageIsUnique(messageId);
+
+            MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+
+            List<PartInfo> partInfos = new ArrayList<>();
+            partInfos.add(partInfo);
+
+            Party to = messageValidations(userMessage, partInfos, pModeKey, backendName);
+            LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+            fillMpc(userMessage, legConfiguration, to);
+
+            saveMessageFragment(userMessage, messageFragmentEntity, backendName, messageId, partInfos, legConfiguration);
+            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatusForPush();
+            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.getMessageStatus().toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                    MSHRole.SENDING.toString(), messageSubmitterHelper.getMaxAttempts(legConfiguration),
+                    backendName);
+            messageSubmitterHelper.prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
+
+            LOG.info("Message fragment submitted");
+            return messageId;
+
+        } catch (EbMS3Exception ebms3Ex) {
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
+            errorLogService.createErrorLog(ebms3Ex, MSHRole.SENDING, userMessage);
+            throw MessagingExceptionFactory.transform(ebms3Ex);
+        } catch (PModeException p) {
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
+            errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0010, p.getMessage(), MSHRole.SENDING, userMessage);
+            throw new PModeMismatchException(p.getMessage(), p);
+        }
+    }
+
+    private void saveMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, String backendName, String messageId, List<PartInfo> partInfos, LegConfiguration legConfiguration) throws EbMS3Exception {
+        try {
+            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+            messagingService.saveUserMessageAndPayloads(userMessage, partInfos);
+            messageFragmentEntity.setUserMessage(userMessage);
+            messageFragmentDao.create(messageFragmentEntity);
+        } catch (CompressionException exc) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message(exc.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(exc)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        }
+    }
+
     private void saveMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
         try {
             messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
 
-            userMessageHandlerService.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
+            messageSubmitterHelper.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
         } catch (CompressionException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
             throw EbMS3ExceptionBuilder.getInstance()
@@ -396,10 +395,6 @@ public class MessageSubmitterService {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageId() + TO_STR + backendName + "]", runTimEx);
             throw MessagingExceptionFactory.transform(runTimEx, ErrorCode.EBMS_0003);
         }
-    }
-
-    private int getMaxAttempts(LegConfiguration legConfiguration) {
-        return (legConfiguration.getReceptionAwareness() == null ? 1 : legConfiguration.getReceptionAwareness().getRetryCount()) + 1; // counting retries after the first send attempt
     }
 
     private void fillMpc(UserMessage userMessage, LegConfiguration legConfiguration, Party to) {

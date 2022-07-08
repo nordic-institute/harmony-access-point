@@ -1,21 +1,14 @@
-
-package eu.domibus.plugin.handler;
+package eu.domibus.ext.services;
 
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.messaging.MessageNotFoundException;
+import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 
 import java.util.List;
 
-/**
- * Implementation of this interface handles the retrieval of messages from Domibus to the backend.
- *
- * @author Christian Koch, Stefan Mueller, Cosmin Baciu
- * @since 3.0
- */
-public interface MessageRetriever {
-
+public interface MessageRetrieverExtService {
     /**
      * provides the message with the corresponding messageId
      *

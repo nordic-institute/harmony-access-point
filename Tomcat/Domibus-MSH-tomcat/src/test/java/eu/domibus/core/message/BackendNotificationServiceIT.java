@@ -16,7 +16,7 @@ import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -145,7 +145,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     protected SubmissionUtil submissionUtil;
 
     @Autowired
-    DatabaseMessageHandler databaseMessageHandler;
+    MessageSubmitterImpl messageSubmitter;
 
     @Autowired
     MessagesLogServiceImpl messagesLogService;
@@ -278,7 +278,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Transactional
     public void notifyPayloadEvent() throws MessagingProcessingException {
         Submission submission = submissionUtil.createSubmission();
-        messageId = databaseMessageHandler.submit(submission, backendConnector.getName());
+        messageId = messageSubmitter.submit(submission, backendConnector.getName());
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         assertNotNull(userMessageLog);

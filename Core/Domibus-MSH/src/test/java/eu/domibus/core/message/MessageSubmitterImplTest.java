@@ -24,13 +24,14 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.handler.BackendMessageValidator;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandlerTest;
+import eu.domibus.core.plugin.handler.MessageSubmitterHelper;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -63,9 +64,9 @@ import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
-public class MessageSubmitterServiceTest {
+public class MessageSubmitterImplTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandlerTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSubmitterImplTest.class);
     private static final String BACKEND = "backend";
 
     private static final String MESS_ID = UUID.randomUUID().toString();
@@ -86,7 +87,7 @@ public class MessageSubmitterServiceTest {
             LEG;
 
     @Tested
-    private MessageSubmitterService messageSubmitterService;
+    private MessageSubmitterImpl messageSubmitterImpl;
 
     @Injectable
     private PModeDefaultService pModeDefaultService;
@@ -196,6 +197,12 @@ public class MessageSubmitterServiceTest {
     @Injectable
     protected SplitAndJoinHelper splitAndJoinHelper;
 
+    @Injectable
+    protected SplitAndJoinConfigurationService splitAndJoinConfigurationService;
+
+    @Injectable
+    protected MessageSubmitterHelper messageSubmitterHelper;
+
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
         new Expectations() {{
@@ -217,7 +224,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(messageData, BACKEND);
+            messageSubmitterImpl.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (PModeMismatchException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -249,7 +256,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(submission, BACKEND);
+            messageSubmitterImpl.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -312,7 +319,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(messageData, BACKEND);
+            messageSubmitterImpl.submit(messageData, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -378,7 +385,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(submission, BACKEND);
+            messageSubmitterImpl.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -407,7 +414,7 @@ public class MessageSubmitterServiceTest {
                                           @Injectable UserMessage userMessage) throws Exception {
 
         String originalUser = "mycorner";
-        new Expectations(messageSubmitterService) {{
+        new Expectations(messageSubmitterImpl) {{
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = originalUser;
 
@@ -419,7 +426,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(messageData, BACKEND);
+            messageSubmitterImpl.submit(messageData, BACKEND);
             Assert.fail("It should throw AccessDeniedException");
         } catch (AccessDeniedException ex) {
             LOG.debug("AccessDeniedException catched: " + ex.getMessage());
@@ -444,7 +451,7 @@ public class MessageSubmitterServiceTest {
         String messageId = UUID.randomUUID().toString();
         String pModeKey = "pmodeKey";
 
-        new Expectations(messageSubmitterService) {{
+        new Expectations(messageSubmitterImpl) {{
             userMessage.getMessageId();
             result = messageId;
 
@@ -464,7 +471,7 @@ public class MessageSubmitterServiceTest {
             result = MessageStatus.SEND_ENQUEUED;
         }};
 
-        messageSubmitterService.submitMessageFragment(userMessage, new MessageFragmentEntity(), null, backendName);
+        messageSubmitterImpl.submitMessageFragment(userMessage, new MessageFragmentEntity(), null, backendName);
 
     }
 
@@ -508,7 +515,7 @@ public class MessageSubmitterServiceTest {
             result = legConfiguration;
         }};
 
-        final String messageId = messageSubmitterService.submit(messageData, BACKEND);
+        final String messageId = messageSubmitterImpl.submit(messageData, BACKEND);
         assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
@@ -570,7 +577,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(submission, BACKEND);
+            messageSubmitterImpl.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -610,7 +617,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(submission, BACKEND);
+            messageSubmitterImpl.submit(submission, BACKEND);
             Assert.fail("It should throw " + DuplicateMessageException.class.getCanonicalName());
         } catch (DuplicateMessageException ex) {
             LOG.debug("DuplicateMessageException catched: " + ex.getMessage());
@@ -651,7 +658,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(submission, BACKEND);
+            messageSubmitterImpl.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
@@ -726,7 +733,7 @@ public class MessageSubmitterServiceTest {
             result = legConfiguration;
         }};
 
-        final String messageId = messageSubmitterService.submit(messageData, BACKEND);
+        final String messageId = messageSubmitterImpl.submit(messageData, BACKEND);
         assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
@@ -756,7 +763,7 @@ public class MessageSubmitterServiceTest {
         }};
 
         try {
-            messageSubmitterService.submit(submission, BACKEND);
+            messageSubmitterImpl.submit(submission, BACKEND);
             Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
