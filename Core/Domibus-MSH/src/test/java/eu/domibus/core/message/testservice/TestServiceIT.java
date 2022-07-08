@@ -6,9 +6,9 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -32,9 +32,6 @@ public class TestServiceIT {
     private PModeProvider pModeProvider;
 
     @Injectable
-    private DatabaseMessageHandler databaseMessageHandler;
-
-    @Injectable
     private UserMessageLogDao userMessageLogDao;
 
     @Injectable
@@ -48,6 +45,9 @@ public class TestServiceIT {
 
     @Injectable
     private ActionDictionaryService actionDictionaryService;
+
+    @Injectable
+    MessageSubmitter messageSubmitter;
 
     @Test
     public void createSubmission() throws IOException {

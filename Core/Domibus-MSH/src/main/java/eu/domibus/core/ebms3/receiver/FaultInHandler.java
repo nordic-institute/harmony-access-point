@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
-import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -47,7 +47,7 @@ public class FaultInHandler extends AbstractFaultHandler {
     private ErrorLogService errorLogService;
 
     @Autowired
-    protected UserMessageHandlerService userMessageHandlerService;
+    protected TestMessageValidator testMessageValidator;
 
     @Autowired
     SoapUtil soapUtil;
@@ -184,7 +184,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         final String service = LOG.getMDC(DomibusLogger.MDC_SERVICE);
         final String action = LOG.getMDC(DomibusLogger.MDC_ACTION);
 
-        final Boolean testMessage = userMessageHandlerService.checkTestMessage(service, action);
+        final Boolean testMessage = testMessageValidator.checkTestMessage(service, action);
         LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId());
 
         //log the raw xml Signal message

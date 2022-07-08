@@ -8,8 +8,6 @@ import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
@@ -34,11 +32,9 @@ import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
@@ -46,7 +42,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -55,7 +50,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -293,8 +287,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, jmsMessage);
     }
 
-    @Timer(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
-    @Counter(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
+    @Timer(clazz = UserMessageDefaultService.class, value = "scheduleSending")
+    @Counter(clazz = UserMessageDefaultService.class, value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessage.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");

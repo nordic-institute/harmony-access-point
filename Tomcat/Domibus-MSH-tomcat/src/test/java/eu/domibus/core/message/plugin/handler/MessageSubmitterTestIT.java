@@ -7,10 +7,10 @@ import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.core.message.MessagesLogServiceImpl;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.test.common.SubmissionUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,7 +29,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertNotNull;
 
 @Transactional
-public class DatabaseMessageHandlerTestIT extends AbstractIT {
+public class MessageSubmitterTestIT extends AbstractIT {
 
     @Configuration
     static class ContextConfiguration {
@@ -47,7 +47,7 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
-    DatabaseMessageHandler databaseMessageHandler;
+    MessageSubmitter messageSubmitter;
 
     @Autowired
     MessagesLogServiceImpl messagesLogService;
@@ -65,7 +65,7 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
     public void submit() throws MessagingProcessingException, IOException {
         Submission submission = submissionUtil.createSubmission();
         uploadPmode();
-        final String messageId = databaseMessageHandler.submit(submission, "mybackend");
+        final String messageId = messageSubmitter.submit(submission, "mybackend");
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         assertNotNull(userMessageLog);
@@ -82,7 +82,7 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
 
         uploadPmode();
         try {
-            databaseMessageHandler.submit(submission, "mybackend");
+            messageSubmitter.submit(submission, "mybackend");
             Assert.fail("Messaging exception should have been thrown");
         } catch (Exception e) {
             Assert.assertTrue(e instanceof MessagingProcessingException);
@@ -97,7 +97,7 @@ public class DatabaseMessageHandlerTestIT extends AbstractIT {
 
         uploadPmode();
         try {
-            databaseMessageHandler.submit(submission, "mybackend");
+            messageSubmitter.submit(submission, "mybackend");
             Assert.fail("Messaging exception should have been thrown");
         } catch (Exception e) {
             Assert.assertTrue(e instanceof MessagingProcessingException);
