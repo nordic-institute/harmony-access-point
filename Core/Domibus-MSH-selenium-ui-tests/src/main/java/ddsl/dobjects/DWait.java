@@ -1,5 +1,6 @@
 package ddsl.dobjects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.DFileUtils;
 import utils.TestRunData;
+
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 
 /**
@@ -158,7 +161,10 @@ public class DWait {
 	}
 
 	public void forElementToContainText(WebElement element, String text) {
-		defaultWait.until(ExpectedConditions.textToBePresentInElement(element, text));
+//		defaultWait.until(ExpectedConditions.textToBePresentInElement(element, text));
+
+		defaultWait.until((ExpectedCondition<Boolean>) driver -> containsIgnoreCase(element.getText(), text));
+
 	}
 
 	public void forFileToBeDownloaded(String filePath) throws Exception {

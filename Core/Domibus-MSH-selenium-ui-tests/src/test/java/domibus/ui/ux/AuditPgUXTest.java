@@ -453,9 +453,14 @@ public class AuditPgUXTest extends SeleniumTest {
 
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
 
-		if(page.getAlertArea().isShown()){
-			page.getAlertArea().closeAlert();
+		if (page.getAlertArea().isShown() || page.grid().getRowsNo() == 0) {
+			try {
+				page.getAlertArea().closeAlert();
+			} catch (Exception e) {
+
+			}
 			page.uploadTruststore(path, "test123");
+			page.wait.forXMillis(1000);
 		}
 
 		page.getDownloadButton().click();
