@@ -148,14 +148,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
-    protected MessageGroupDao messageGroupDao;
-
-    @Autowired
     protected UserMessageFactory userMessageFactory;
-
-    @Autowired
-    @Lazy       //temporary fix of circular bean dependency (see EDELIVERY-9389)
-    protected DatabaseMessageHandler databaseMessageHandler;
 
     @Autowired
     private ErrorLogService errorLogService;
@@ -201,29 +194,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
-    public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
-        messageGroupDao.create(messageGroupEntity);
-
-        String backendName = userMessageLogDao.findBackendForMessageId(sourceMessage.getMessageId());
-        for (int index = 0; index < fragmentFiles.size(); index++) {
-            try {
-                final String fragmentFile = fragmentFiles.get(index);
-                createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragmentFile, index + 1);
-            } catch (MessagingProcessingException e) {
-                throw new SplitAndJoinException("Could not create Messaging for fragment " + index, e);
-            }
-        }
-    }
-
-    protected void createMessagingForFragment(UserMessage sourceUserMessage, MessageGroupEntity messageGroupEntity, String backendName, String fragmentFile, int index) throws MessagingProcessingException {
-        Long fragmentNumber = Long.valueOf(index);
-        final UserMessage userMessageFragment = userMessageFactory.createUserMessageFragment(sourceUserMessage, messageGroupEntity, fragmentNumber, fragmentFile);
-        MessageFragmentEntity messageFragmentEntity = userMessageFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
-        PartInfo messageFragmentPartInfo = userMessageFactory.createMessageFragmentPartInfo(fragmentFile, fragmentNumber);
-        databaseMessageHandler.submitMessageFragment(userMessageFragment, messageFragmentEntity, messageFragmentPartInfo, backendName);
-    }
 
     @Override
     public String getFinalRecipient(String messageId) {

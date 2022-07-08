@@ -30,7 +30,7 @@ import {ComponentType} from 'angular-md2';
   styleUrls: ['./base-truststore.component.css'],
   providers: [TrustStoreService]
 })
-@ComponentName('TrustStore')
+@ComponentName('Key Store')
 export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
@@ -42,7 +42,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected ADD_CERTIFICATE_URL: string;
   protected REMOVE_CERTIFICATE_URL: string;
 
-  protected canHandleCertificates: boolean;
+  protected canHandleCertificates: boolean = false;
   protected storeExists: boolean;
   showResetOperation: boolean;
 
@@ -136,7 +136,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     super.isLoading = true;
     this.http.get(this.DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
       .subscribe(res => {
-        this.trustStoreService.saveTrustStoreFile(res.body);
+        this.trustStoreService.saveTrustStoreFile(res.body, this.name + '.jks');
         super.isLoading = false;
       }, err => {
         super.isLoading = false;
@@ -190,6 +190,19 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     }
   }
 
-  reloadKeyStore() {
+  async reloadStore() {
+    try {
+      super.isLoading = true;
+      await this.trustStoreService.reloadStore(this.BASE_URL + '/reset');
+      this.alertService.success('The ' + this.name + ' was successfully reset.')
+      
+      await this.getTrustStoreEntries();
+    } catch (ex) {
+      this.alertService.exception('Error reseting the ' + this.name + ':', ex);
+    } finally {
+      super.isLoading = false;
+    }
   }
+
+
 }

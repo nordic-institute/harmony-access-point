@@ -22,7 +22,7 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
               dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
-              fileUploadValidatorService: FileUploadValidatorService, truststoreService: TrustStoreService) {
+              fileUploadValidatorService: FileUploadValidatorService) {
     super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
 
     this.BASE_URL = 'rest/tlstruststore';

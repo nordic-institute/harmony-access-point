@@ -2,9 +2,8 @@ package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 
 import javax.xml.soap.SOAPMessage;
@@ -29,4 +28,25 @@ public interface ReliabilityService {
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
     void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+
+    /**
+     * Update the connectivity status of a remote party
+     * @param status - the state of connectivity
+     * @param partyName - the name of the party
+     */
+    void updatePartyState(String status, String partyName);
+
+    /**
+     * Retrieve the connectivity status of a party
+     * @param partyName - the name of the party
+     * @return true if party is reachable (the connectivity status = SUCCESS)
+     */
+    boolean isPartyReachable(String partyName);
+
+    /**
+     * Check if the smart retry feature is configured
+     * @param partyName
+     * @return true if smart retry feature is active
+     */
+    boolean isSmartRetryEnabledForParty(String partyName);
 }

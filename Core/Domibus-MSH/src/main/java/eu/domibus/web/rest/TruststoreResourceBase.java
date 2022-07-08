@@ -84,7 +84,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=TrustStore.jks")
+                .header("content-disposition", "attachment; filename=" + getStoreName() + ".jks")
                 .body(resource);
     }
 
@@ -93,18 +93,20 @@ public abstract class TruststoreResourceBase extends BaseResource {
     protected abstract TrustStoreContentDTO getTrustStoreContent();
 
     protected List<TrustStoreRO> getTrustStoreEntries() {
-        List<TrustStoreEntry> trustStoreEntries = doGetTrustStoreEntries();
+        List<TrustStoreEntry> trustStoreEntries = doGetStoreEntries();
         return partyConverter.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
     }
 
-    protected abstract List<TrustStoreEntry> doGetTrustStoreEntries();
+    protected abstract List<TrustStoreEntry> doGetStoreEntries();
+
+    protected abstract String getStoreName();
 
     protected ResponseEntity<String> getEntriesAsCSV(String moduleName) {
         List<TrustStoreRO> entries = Collections.emptyList();
         try {
             entries = getTrustStoreEntries();
         } catch (ConfigurationException ex) {
-            LOG.error("Could not find TLS truststore.", ex);
+            LOG.error("Could not find [{}]", getStoreName(), ex);
         }
         getCsvService().validateMaxRows(entries.size());
 

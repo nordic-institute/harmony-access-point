@@ -160,6 +160,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Autowired
     protected UserMessageDao userMessageDao;
 
+    @Autowired
+    SplitAndJoinHelper splitAndJoinHelper;
+
     @Override
     public void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression) {
         MessageGroupEntity messageGroupEntity = new MessageGroupEntity();
@@ -218,7 +221,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         messageHeaderEntity.setStart(StringUtils.replaceEach(start, new String[]{"<", ">"}, new String[]{"", ""}));
         messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
 
-        userMessageDefaultService.createMessageFragments(dbUserMessage, messageGroupEntity, fragmentFiles);
+        splitAndJoinHelper.createMessageFragments(dbUserMessage, messageGroupEntity, fragmentFiles);
 
         attachmentCleanupService.cleanAttachments(sourceMessageRequest);
 
@@ -384,15 +387,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Transactional
     @Override
     public void setSourceMessageAsFailed(UserMessage userMessage) {
-        final String messageId = userMessage.getMessageId();
-        LOG.debug("Setting the SourceMessage [{}] as failed", messageId);
-
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        if (messageLog == null) {
-            LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
-            return;
-        }
-        updateRetryLoggingService.messageFailed(userMessage, messageLog);
+        updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
     }
 
     @Override

@@ -161,11 +161,21 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     @Override
+    public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
+        try {
+            certificateService.replaceStore(storeFileName, storeContent, storePassword, DOMIBUS_KEYSTORE_NAME);
+        } catch (CryptoException ex) {
+            throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
+        }
+        refreshKeyStore();
+    }
+
+    @Override
     public synchronized void replaceKeyStore(String storeFileLocation, String storePassword) {
         try {
             certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
         } catch (CryptoException ex) {
-            throw new CryptoSpiException("Error while replacing the keytstore from " + storeFileLocation, ex);
+            throw new CryptoSpiException("Error while replacing the keystore from " + storeFileLocation, ex);
         }
         refreshKeyStore();
     }

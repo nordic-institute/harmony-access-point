@@ -61,6 +61,13 @@ public class TruststoreResource extends TruststoreResourceBase {
         return downloadTruststoreContent();
     }
 
+    @PostMapping(value = "/reset")
+    public void reset() {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        multiDomainCertificateProvider.resetTrustStore(currentDomain);
+    }
+
+
     @GetMapping(value = {"/list"})
     public List<TrustStoreRO> trustStoreEntries() {
         return getTrustStoreEntries();
@@ -68,7 +75,7 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getEntriesAsCsv() {
-        return getEntriesAsCSV("truststore");
+        return getEntriesAsCSV(getStoreName());
     }
 
     @Override
@@ -79,7 +86,7 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @Override
     protected void auditDownload(Long entityId) {
-        auditService.addTruststoreDownloadedAudit(entityId != null ? entityId.toString() : "truststore");
+        auditService.addTruststoreDownloadedAudit(entityId != null ? entityId.toString() : getStoreName());
     }
 
     @Override
@@ -88,8 +95,12 @@ public class TruststoreResource extends TruststoreResourceBase {
     }
 
     @Override
-    protected List<TrustStoreEntry> doGetTrustStoreEntries() {
+    protected List<TrustStoreEntry> doGetStoreEntries() {
         return certificateService.getTrustStoreEntries(DOMIBUS_TRUSTSTORE_NAME);
     }
 
+    @Override
+    protected String getStoreName() {
+        return "truststore";
+    }
 }

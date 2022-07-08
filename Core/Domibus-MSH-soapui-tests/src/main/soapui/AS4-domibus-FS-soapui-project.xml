@@ -1487,8 +1487,8 @@ testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC2", "0"
 testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0");
 
 log.info "Update done.";</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="ea5898b0-6b18-42a2-885c-68778c567789"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\cloud\\weblogic\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\cloud\\weblogic\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
+PModeUtils.uploadPmode("sender","default","\\cloud\\weblogic\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\cloud\\weblogic\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-cloud-wildfly-tomcat" searchProperties="true" id="cd2bbf68-7b19-4a53-a0cf-9931a8e5cc90">
             <con:settings/>
 
@@ -1523,8 +1523,8 @@ testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC2", "0"
 testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0");
 
 log.info "Update done.";</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="963be318-57cf-49ca-acb4-c22d8f9a7fa7"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\cloud\\wildfly\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\cloud\\wildfly\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
+PModeUtils.uploadPmode("sender","default","\\cloud\\wildfly\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\cloud\\wildfly\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-cloud-tomcat-tomcat" searchProperties="true" id="e3a6b85c-54ab-4079-85ef-faa75c77a2f7">
             <con:settings/>
 
@@ -1559,8 +1559,8 @@ testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
 
 log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="f3649904-524d-4247-ac56-165045265460"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\cloud\\tomcat\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\cloud\\tomcat\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
+PModeUtils.uploadPmode("sender","default","\\cloud\\tomcat\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\cloud\\tomcat\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-localhost-tomcat-tomcat-bugfix" searchProperties="true" id="709740f4-55e6-4cb8-99e2-ec66d7e81f9c">
             <con:settings/>
 
@@ -1602,8 +1602,8 @@ testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0"
 
 log.info "Update done.";
 ]]></script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="8643c684-8fd8-4038-bcbe-56df90e97205"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-localhost-DynamicDiscovery-bugfix" searchProperties="true" id="992c4668-6a29-4f68-80ac-0f57b66145d7">
             <con:settings/>
 
@@ -1671,8 +1671,8 @@ testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
 
 log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="72b781dc-d580-4a53-9b49-881860361e76"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\cloud\\weblogic\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\cloud\\weblogic\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
+PModeUtils.uploadPmode("sender","default","\\cloud\\weblogic\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\cloud\\weblogic\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-cloud-wildfly-tomcat-bugfix" searchProperties="true" id="e09664e3-a969-44b7-a0ca-d6a2d462585c">
             <con:settings/>
 
@@ -1707,8 +1707,8 @@ testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
 
 log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="e25e683e-bcd5-4e00-a4a8-582d02ad0a6b"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\cloud\\wildfly\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\cloud\\wildfly\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
+PModeUtils.uploadPmode("sender","default","\\cloud\\wildfly\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\cloud\\wildfly\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-cloud-tomcat-tomcat-bugfix" searchProperties="true" id="c623d027-54d4-454c-878f-b5314f2b3a44">
             <con:settings/>
 
@@ -1743,8 +1743,8 @@ testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
 
 log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="ea8fe5fb-696d-438e-90c7-c178bc17b3ed"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\cloud\\tomcat\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\cloud\\tomcat\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
+PModeUtils.uploadPmode("sender","default","\\cloud\\tomcat\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\cloud\\tomcat\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript/><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-setLocalInstallationsPaths" searchProperties="true" id="02393bb8-9d26-467d-a438-fd170d9748db">
             <con:settings/>
 
@@ -1815,10 +1815,10 @@ log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Start Blue-Red" id="cbf3007c-e26e-4eeb-9c9c-10af2e26518e"><con:settings/><con:config><script>// Start 2 Domibus: sender and receiver
 Domibus.startSetMSHs(1,1,0,context,log);
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="63787218-6a20-4641-9ed1-fc14d0102b75"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="eb0f9a78-570b-4743-9175-af541ff94086"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="dde79d96-7769-48c1-9587-80790e1e040a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload default truststores Blue-Red" id="78b0bad4-275d-4e9c-965c-52c11269dfe0"><con:settings/><con:config><script>// Upload truststores: default truststores (blue for sender and red for receiver)
-Domibus.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="e513202b-f3b9-475d-bbea-135e60ab2f83"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS Blue-Red" id="e0770222-357d-4945-8dc3-359ac88d14ca"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendFSPlugin",context,log);
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="dde79d96-7769-48c1-9587-80790e1e040a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload default truststores Blue-Red" id="78b0bad4-275d-4e9c-965c-52c11269dfe0"><con:settings/><con:config><script>// Upload truststores: default truststores (blue for sender and red for receiver)
+TruststoreUtils.uploadTruststore("sender","default","\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","default","\\red\\gateway_truststore.jks",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="e513202b-f3b9-475d-bbea-135e60ab2f83"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to FS Blue-Red" id="e0770222-357d-4945-8dc3-359ac88d14ca"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendFSPlugin",context,log);
 Domibus.setMessageFilters("receiver","backendFSPlugin",context,log);
 
 
@@ -1856,12 +1856,12 @@ log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Start Blue-Red-Green" id="88b330c5-b031-4ede-80e5-5de5f34c5412"><con:settings/><con:config><script>// Start 3 Domibus: sender, receiver and green.
 Domibus.startSetMSHs(1,1,1,context,log);
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="c1640a93-60ca-459d-bc4d-2ac0411c7cdc"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload PModes Blue-Red-Green" id="c844be46-6075-498c-8bbe-78d3ad2c8889"><con:settings/><con:config><script>// Upload PModes: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadPmode("sender","special","\\Threegateways\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","special","\\Threegateways\\red\\domibus-pmode-red.xml",context,log);
-Domibus.uploadPmode("receivergreen","special","\\Threegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="d43ba76f-a0a6-41c9-ad41-d092833c6714"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="13538478-2163-44b9-bca7-1b8552495fe6"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadTruststore("sender","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","special","\\Threegateways\\red\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receivergreen","special","\\Threegateways\\green\\gateway_truststore.jks",context,log);
+PModeUtils.uploadPmode("sender","special","\\Threegateways\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","special","\\Threegateways\\red\\domibus-pmode-red.xml",context,log);
+PModeUtils.uploadPmode("receivergreen","special","\\Threegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="d43ba76f-a0a6-41c9-ad41-d092833c6714"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="13538478-2163-44b9-bca7-1b8552495fe6"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
+TruststoreUtils.uploadTruststore("sender","special","\\Threegateways\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","special","\\Threegateways\\red\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receivergreen","special","\\Threegateways\\green\\gateway_truststore.jks",context,log);
 </script></con:config></con:testStep><con:testStep type="delay" name="D3" id="8d6dac94-92a2-4a88-9103-7eac71ddae12"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS Blue-Red-Green" id="9f24cf9c-ed68-4324-958b-003cf8d498ec"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log);
 Domibus.setMessageFilters("receiver","backendWebservice",context,log);
 Domibus.setMessageFilters("receivergreen","backendWebservice",context,log);
@@ -2062,12 +2062,12 @@ log.info "thirdGateway custom property set to true."
 
 log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload PModes Blue-Red-Green" id="6f42cc71-7cec-4560-95cd-f3729c8e8dc5"><con:settings/><con:config><script>// Upload PModes: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadPmode("sender","special","\\CloudThreegateways\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","special","\\CloudThreegateways\\red\\domibus-pmode-red.xml",context,log);
-Domibus.uploadPmode("receivergreen","special","\\CloudThreegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="00399fd9-8e42-4234-b454-8369810f82ba"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
+PModeUtils.uploadPmode("sender","special","\\CloudThreegateways\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","special","\\CloudThreegateways\\red\\domibus-pmode-red.xml",context,log);
+PModeUtils.uploadPmode("receivergreen","special","\\CloudThreegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="00399fd9-8e42-4234-b454-8369810f82ba"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
+TruststoreUtils.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS Blue-Red-Green" id="f8226f4b-3ed8-4d7a-a87e-1737cd50c557"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log);
 Domibus.setMessageFilters("receiver","backendWebservice",context,log);
 Domibus.setMessageFilters("receivergreen","backendWebservice",context,log);
@@ -2100,12 +2100,12 @@ log.info "thirdGateway custom property set to true."
 
 log.info "Update done.";
 </script></con:config></con:testStep><con:testStep type="groovy" name="Upload PModes Blue-Red-Green" id="25382160-55c6-4f0b-b434-2d841e22ff04"><con:settings/><con:config><script>// Upload PModes: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadPmode("sender","special","\\CloudThreegateways\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","special","\\CloudThreegateways\\red\\domibus-pmode-red.xml",context,log);
-Domibus.uploadPmode("receivergreen","special","\\CloudThreegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="d51164bc-2bc5-43f9-91f1-a441b7c909b7"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
-Domibus.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
-Domibus.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
+PModeUtils.uploadPmode("sender","special","\\CloudThreegateways\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","special","\\CloudThreegateways\\red\\domibus-pmode-red.xml",context,log);
+PModeUtils.uploadPmode("receivergreen","special","\\CloudThreegateways\\green\\domibus-pmode-green.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload truststores Blue-Red-Green" id="d51164bc-2bc5-43f9-91f1-a441b7c909b7"><con:settings/><con:config><script>// Upload truststores: blue for sender, red for receiver and green for the third Domibus.
+TruststoreUtils.uploadTruststore("sender","special","\\CloudThreegateways\\blue\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receiver","special","\\CloudThreegateways\\red\\gateway_truststore.jks",context,log);
+TruststoreUtils.uploadTruststore("receivergreen","special","\\CloudThreegateways\\green\\gateway_truststore.jks",context,log);
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filters to WS Blue-Red-Green" id="5afc46f7-9b85-41d9-a9cf-3ab31ea50cb1"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log);
 Domibus.setMessageFilters("receiver","backendWebservice",context,log);
 Domibus.setMessageFilters("receivergreen","backendWebservice",context,log);
@@ -2446,24 +2446,24 @@ log.warn "Windows"</script></con:config></con:testStep><con:testStep type="restr
 </con:parameters><con:parameterOrder><con:entry>passwordPl</con:entry><con:entry>userPl</con:entry><con:entry>userRole</con:entry></con:parameterOrder></con:restRequest></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="13f5a92c-be5e-4ee4-948e-31fb006cbb37" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Pmode Update" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Default Pmodes upload step for reuse" id="5a600d69-75e9-4470-ac29-31826841d259"><con:settings/><con:config><script>import java.nio.file.Paths
 def suffix =  "_SoapuiStringReplace"
 def joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/domibus-pmode-blue.xml").toUri()
-Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
-Domibus.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + suffix, context, log)
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + suffix, context, log)
 
 joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"/red/domibus-pmode-red.xml").toUri()
-Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
-Domibus.uploadPmode("receiver","default","/red/domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:testStep type="groovy" name="Default blue Pmodes upload step for reuse" id="eb76a45b-2107-4ce9-8054-0898fa3994b6"><con:settings/><con:config><script>import java.nio.file.Paths
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("receiver","default","/red/domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:testStep type="groovy" name="Default blue Pmodes upload step for reuse" id="eb76a45b-2107-4ce9-8054-0898fa3994b6"><con:settings/><con:config><script>import java.nio.file.Paths
 def suffix =  "_SoapuiStringReplace"
 def joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/domibus-pmode-blue.xml").toUri()
-Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
-Domibus.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + suffix, context, log)</script></con:config></con:testStep><con:testStep type="groovy" name="Sample Pmode upload" id="2374d3cc-57ec-4bb3-b3c6-a2ab0b1cea95" disabled="true"><con:settings/><con:config><script>import java.nio.file.Paths
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + suffix, context, log)</script></con:config></con:testStep><con:testStep type="groovy" name="Sample Pmode upload" id="2374d3cc-57ec-4bb3-b3c6-a2ab0b1cea95" disabled="true"><con:settings/><con:config><script>import java.nio.file.Paths
 def suffix =  "_SoapuiStringReplace"
 def joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"\\blue\\domibus-pmode-blue.xml").toUri()
-Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml" + suffix, context, log)
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml" + suffix, context, log)
 
 joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"\\red\\domibus-pmode-red.xml").toUri()
-Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
-Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="7b67cf62-31d1-4dfa-9e89-4dd8ef4a8106" failOnError="true" failTestCaseOnErrors="true" keepSession="true" maxResults="0" name="Change property at runtime" searchProperties="true" timeout="0" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword=""><con:settings/><con:testStep type="restrequest" name="Authentication" id="58cf4daf-49a2-4fa9-b05e-2ebef87ee2e8"><con:settings/><con:config service="http://${localUrl}" resourcePath="/rest/security/authentication" methodName="Authentication 1" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Authentication" id="c0cd0de1-98d1-4b07-89a7-4495c89e24cc" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#localUrl}</con:endpoint><con:request>{"username":"admin","password":"123456"}</con:request><con:originalUri>http://localhost/domibus/domibus/rest/security/authentication</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="6cbbf1cd-ec7a-4756-bef6-91e6f7cc133a" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:restRequest></con:config></con:testStep><con:testStep type="groovy" name="Transfer cookies" id="f002dd92-c3ff-4aee-a9b6-e80a451dc589"><con:settings/><con:config><script>// This is the Script Assertion for extracted header check current step response
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="7b67cf62-31d1-4dfa-9e89-4dd8ef4a8106" failOnError="true" failTestCaseOnErrors="true" keepSession="true" maxResults="0" name="Change property at runtime" searchProperties="true" timeout="0" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword=""><con:settings/><con:testStep type="restrequest" name="Authentication" id="58cf4daf-49a2-4fa9-b05e-2ebef87ee2e8"><con:settings/><con:config service="http://${localUrl}" resourcePath="/rest/security/authentication" methodName="Authentication 1" xsi:type="con:RestRequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:restRequest name="Authentication" id="c0cd0de1-98d1-4b07-89a7-4495c89e24cc" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#localUrl}</con:endpoint><con:request>{"username":"admin","password":"123456"}</con:request><con:originalUri>http://localhost/domibus/domibus/rest/security/authentication</con:originalUri><con:assertion type="Valid HTTP Status Codes" id="6cbbf1cd-ec7a-4756-bef6-91e6f7cc133a" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:restRequest></con:config></con:testStep><con:testStep type="groovy" name="Transfer cookies" id="f002dd92-c3ff-4aee-a9b6-e80a451dc589"><con:settings/><con:config><script>// This is the Script Assertion for extracted header check current step response
 //log.info testRunner.testCase.getTestStepByName("Authentication 1").httpRequest.getResponse().getRequestHeaders()
 
 
@@ -2530,15 +2530,15 @@ def groovyutils = new com.eviware.soapui.support.GroovyUtils(context)
 def path = groovyutils.projectPath
 Domibus.deleteFiles(log, path, ".jks")
 
-Domibus.generateKeyStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword)
-Domibus.generateKeyStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, 2, keystoreFileName)
-Domibus.generateKeyStore(context, log, workingDirectory, "red_gw", keystorePassword, privateKeyPassword, -2, keystoreFileName)
-Domibus.generateKeyStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, 0, keystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, 2, keystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "red_gw", keystorePassword, privateKeyPassword, -2, keystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, 0, keystoreFileName)
 
-Domibus.updateTrustStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword, keystoreFileName, truststoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "red_gw",, keystorePassword, privateKeyPassword, keystoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, keystoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, keystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, keystoreAlias, keystorePassword, privateKeyPassword, keystoreFileName, truststoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "red_gw",, keystorePassword, privateKeyPassword, keystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "yellow_gw", keystorePassword, privateKeyPassword, keystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "purple_gw", keystorePassword, privateKeyPassword, keystoreFileName)
 
 Domibus.deleteFiles(log, path, ".pem") 	</script></con:config></con:testStep><con:testStep type="groovy" name="Import keystore, truststore and change name" id="4fc25155-8524-4e41-9d4d-43944eb739e8"><con:settings/><con:config><script>//Create iminent certificate
 def workingDirectory = context.expand('${#Project#tempFilesDir}')
@@ -2550,10 +2550,10 @@ def redTruststoreFileName = "aa1_red_gateway_truststore.jks"
 Domibus.deleteFiles(log, workingDirectory, "aa1_blue_gateway")
 Domibus.deleteFiles(log, workingDirectory, "aa1_red_gateway")
 
-Domibus.generateKeyStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", 2, blueKeystoreFileName)
-Domibus.generateKeyStore(context, log, workingDirectory, "red_gw", "test123", "test123", 100, redKeystoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", blueKeystoreFileName, redTruststoreFileName)
-Domibus.updateTrustStore(context, log, workingDirectory, "red_gw", "test123", "test123", redKeystoreFileName, blueTruststoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", 2, blueKeystoreFileName)
+TruststoreUtils.generateKeyStore(context, log, workingDirectory, "red_gw", "test123", "test123", 100, redKeystoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "blue_gw2", "test123", "test123", blueKeystoreFileName, redTruststoreFileName)
+TruststoreUtils.updateTrustStore(context, log, workingDirectory, "red_gw", "test123", "test123", redKeystoreFileName, blueTruststoreFileName)
 
 // Copy keystore blue
 def source = workingDirectory + "\\" + blueKeystoreFileName
@@ -2570,19 +2570,19 @@ Domibus.changePropertyAtRuntime("C2", "domibus.security.keystore.location", "\${
 Domibus.changePropertyAtRuntime("C3", "domibus.security.keystore.location", "\${domibus.config.location}/keystores/" + redKeystoreFileName, context, log)
 
 // Upload truststores: blue for sender and red for receiver.
-Domibus.uploadTruststore("sender","temp", blueTruststoreFileName, context, log)
-Domibus.uploadTruststore("receiver", "temp", redTruststoreFileName, context, log)
+TruststoreUtils.uploadTruststore("sender","temp", blueTruststoreFileName, context, log)
+TruststoreUtils.uploadTruststore("receiver", "temp", redTruststoreFileName, context, log)
 
 Domibus.deleteFiles(log, workingDirectory, ".jks")
 </script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="7e255bed-d512-44bd-ad57-ac96bdfd2669" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Default Pmodes Load" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Default Pmodes upload step for reuse" id="68bf5313-59f0-4a2a-a63e-5e34e678e429"><con:settings/><con:config><script>import java.nio.file.Paths
 def suffix =  "_SoapuiStringReplace"
 def joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/domibus-pmode-blue.xml").toUri()
-Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
-Domibus.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + suffix, context, log)
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + suffix, context, log)
 
 joinedPath = Paths.get(context.expand('${#Project#defaultPModesPath}'),"/red/domibus-pmode-red.xml").toUri()
-Domibus.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
-Domibus.uploadPmode("receiver","default","/red/domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-Custom-properties" searchProperties="true" id="d885e1fa-be61-43ef-8444-9f8f200130bf">
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("receiver","default","/red/domibus-pmode-red.xml" + suffix, context, log)</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-Custom-properties" searchProperties="true" id="d885e1fa-be61-43ef-8444-9f8f200130bf">
             <con:settings/>
 
 
@@ -3158,11 +3158,11 @@ def newValue=['&lt;party name="red_gw" endpoint="http://localhost:8181/domibus/s
 def filePath=Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/domibus-pmode-blue.xml").toUri();
 def newFileSuffix="_someSuffix.xml";
 
-Domibus.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
-Domibus.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + newFileSuffix, context, log);</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="8a44e90e-9e6a-479a-8890-cda4b7689d3a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="abea7edf-6abc-4384-aecb-35d52d33cfab"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+PModeUtils.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
+PModeUtils.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + newFileSuffix, context, log);</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="8a44e90e-9e6a-479a-8890-cda4b7689d3a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="abea7edf-6abc-4384-aecb-35d52d33cfab"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
 
 Domibus.submitFSmessage("C2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="e9044517-d453-4288-95dd-281cfbf7f5ab"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check WAITING FOR RETRY Status" id="f85edeac-4ba6-4447-92fa-1541fab644a7"><con:settings/><con:config><script>Domibus.checkFSpayloadPresentOUT("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default blue Pmode" id="2fc0fcda-6dfc-48c8-8c39-b5636af5d886" disabled="true"><con:settings/><con:config><script>// Upload PModes: default Pmode for C2
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Revert - upload default blue Pmode'].run(testRunner, context);
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Revert - upload default blue Pmode'].run(testRunner, context);
 
 //ExcelReporting.reportTestCase(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>16</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>4</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>e4dc722a-da83-4d6d-9cf8-262dc58f0585</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d96c0d09-2b87-4cfa-a0dc-f96081c863ec</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS003-Submit message-Exceptional flow-retry max not reached" searchProperties="true" id="84d67d0c-1f37-47a3-800e-de7b209a3ab3">
@@ -3186,12 +3186,12 @@ def newValue=['&lt;party name="red_gw" endpoint="http://localhost:8181/domibus/s
 def filePath=Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/domibus-pmode-blue.xml").toUri();
 def newFileSuffix="_someSuffix.xml";
 
-Domibus.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
-Domibus.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + newFileSuffix, context, log);</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="40677156-38f6-45ae-acec-a498284b20b1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="65c5b02a-8ad6-4365-8e2b-6961951bdb28"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+PModeUtils.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
+PModeUtils.uploadPmode("sender","default","/blue/domibus-pmode-blue.xml" + newFileSuffix, context, log);</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="40677156-38f6-45ae-acec-a498284b20b1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="65c5b02a-8ad6-4365-8e2b-6961951bdb28"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
 test.countCurrentMessagesNumber(testRunner,"acknowledged","downloaded");</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="1bbc7ec3-e7a5-44b6-a553-3624687ce2f4"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="06910edc-ec11-4bc0-a5ec-e795bc0135fc"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
 
 Domibus.submitFSmessage("C2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="9bd9b597-878a-45fd-a8c7-3ee32f7d2475"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check WAITING FOR RETRY Status" id="a4f7b468-9b5d-4c6e-80d2-95ff2386489c"><con:settings/><con:config><script>Domibus.checkFSpayloadPresentOUT("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D4" id="b4416092-fee4-4c77-b470-5069289bd7e0"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default blue Pmode" id="9dd85247-aea6-46ce-b332-07d938c999f1"><con:settings/><con:config><script>// Upload PModes: default Pmode for C2
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D5" id="ece9b6a0-f36c-4d44-a98c-1bbad6648fbf"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="c0ed7153-2c88-4e56-8e75-c22848b5b416"><con:settings/><con:config><script>def gap=2;
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D5" id="ece9b6a0-f36c-4d44-a98c-1bbad6648fbf"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="c0ed7153-2c88-4e56-8e75-c22848b5b416"><con:settings/><con:config><script>def gap=2;
 def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+gap).toString();
 def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+gap).toString();
 
@@ -3306,8 +3306,8 @@ def newValue=['59'];
 def filePath=Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/domibus-pmode-blue.xml").toUri();
 def newFileSuffix="_someSuffix.xml";
 
-Domibus.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="e214f930-8f2f-4c86-ad73-5cbc8d0f6a47"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter to FS for Blue and Red" id="b01831ee-3240-4338-aaaf-d3c76009d0f3"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendFSPlugin",context,log)
+PModeUtils.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="e214f930-8f2f-4c86-ad73-5cbc8d0f6a47"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter to FS for Blue and Red" id="b01831ee-3240-4338-aaaf-d3c76009d0f3"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendFSPlugin",context,log)
 Domibus.setMessageFilters("receiver","backendFSPlugin",context,log)
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="8fdab830-e86b-482d-82a1-c13d2b3d2f10"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number C2 Test 1" id="b18f1235-d52d-4223-827d-f5be8750a50a"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="a6f09653-4c6f-44f0-a4b9-b7db24f733db"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit message 1" id="971c8b4e-03fb-47ca-98fb-43a9364dad83"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
 
@@ -3319,13 +3319,13 @@ def newValue=['81'];
 def filePath=Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/domibus-pmode-blue.xml").toUri();
 def newFileSuffix="_someSuffix.xml";
 
-Domibus.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D6" id="e2486d94-72bc-4e88-a7c6-69ef724d7e87"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number C2 Test 2" id="c1383d41-c62d-4a01-9802-be8d6e26de60"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D7" id="6fe138ad-347a-4f56-84e2-9235f30b11a1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit message 2" id="7121b150-df05-4631-8a0c-a842830cbb41"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+PModeUtils.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="delay" name="D6" id="e2486d94-72bc-4e88-a7c6-69ef724d7e87"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number C2 Test 2" id="c1383d41-c62d-4a01-9802-be8d6e26de60"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D7" id="6fe138ad-347a-4f56-84e2-9235f30b11a1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit message 2" id="7121b150-df05-4631-8a0c-a842830cbb41"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
 
 Domibus.submitFSmessage("C2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D8" id="2efcd453-2593-4c1a-b4b5-611c6613d9c6"><con:settings/><con:config><delay>60000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file C2 - Error not present" id="d6cc8eac-bf71-4acb-ab1e-ca952ec8ed4d"><con:settings/><con:config><script>def logValueList =  ["Payload size.*is greater than.*maximum value.*"];
 LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="8c3126ae-8a84-4508-b5df-54a29808361d" disabled="true"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
-Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Upload default PModes Blue-Red'].run(testRunner, context);
+PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
+PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Upload default PModes Blue-Red'].run(testRunner, context);
 
 Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>1035</con:value></con:property></con:properties><con:reportParameters/><con:breakPoints><con:testStepId>32187c3e-10a4-4f74-bb76-0024b1cf6dc0</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="a28664fd-6519-4c03-8449-d8cc955439c0" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS024-EDELIVERY-4354 and EDELIVERY-4385 - Single Domain" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Save Current cxf log level" id="b0d2f9c7-caa8-40cd-a5e7-3250e38b5c64"><con:settings/><con:config><script>def custPropName="org.apache.cxf";
 // Get Domibus package log level
@@ -3621,19 +3621,19 @@ def superPassword=context.expand('${#Project#superAdminPassword}');
 log.info "===================================================";
 log.info " Start uploading pmodes for C2 domains"
 log.info "===================================================";
-Domibus.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom0.xml",context,log,"Default","successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom0.xml",context,log,"Default","successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom1.xml",context,log,Domibus.retDomName("C2","1",testRunner),"successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom1.xml",context,log,Domibus.retDomName("C2","1",testRunner),"successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom2.xml",context,log,Domibus.retDomName("C2","2",testRunner),"successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom2.xml",context,log,Domibus.retDomName("C2","2",testRunner),"successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom3.xml",context,log,Domibus.retDomName("C2","3",testRunner),"successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom3.xml",context,log,Domibus.retDomName("C2","3",testRunner),"successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom4.xml",context,log,Domibus.retDomName("C2","4",testRunner),"successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C2","special","\\multitenancy\\C2\\pmodes\\domibus-pmode-blue-dom4.xml",context,log,Domibus.retDomName("C2","4",testRunner),"successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
 log.info "===================================================";
@@ -3644,13 +3644,13 @@ log.info "===================================================";
 log.info "---------------------------------------------------";
 log.info " Start uploading pmodes for C3 domains"
 log.info "---------------------------------------------------";
-Domibus.uploadPmode("C3","special","\\multitenancy\\C3\\pmodes\\domibus-pmode-red-dom0.xml",context,log,"Default","successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C3","special","\\multitenancy\\C3\\pmodes\\domibus-pmode-red-dom0.xml",context,log,"Default","successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadPmode("C3","special","\\multitenancy\\C3\\pmodes\\domibus-pmode-red-dom1.xml",context,log,Domibus.retDomName("C3","1",testRunner),"successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C3","special","\\multitenancy\\C3\\pmodes\\domibus-pmode-red-dom1.xml",context,log,Domibus.retDomName("C3","1",testRunner),"successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadPmode("C3","special","\\multitenancy\\C3\\pmodes\\domibus-pmode-red-dom2.xml",context,log,Domibus.retDomName("C3","2",testRunner),"successfully",null,superUser,superPassword);
+PModeUtils.uploadPmode("C3","special","\\multitenancy\\C3\\pmodes\\domibus-pmode-red-dom2.xml",context,log,Domibus.retDomName("C3","2",testRunner),"successfully",null,superUser,superPassword);
 sleep(3000);
 // ----------------------------------
 log.info "---------------------------------------------------";
@@ -3663,19 +3663,19 @@ def superPassword=context.expand('${#Project#superAdminPassword}');
 log.info "===================================================";
 log.info " Start uploading truststores for C2 domains"
 log.info "===================================================";
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C2","1",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C2","1",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C2","2",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C2","2",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom3.jks",context,log,Domibus.retDomName("C2","3",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom3.jks",context,log,Domibus.retDomName("C2","3",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom4.jks",context,log,Domibus.retDomName("C2","4",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C2","special","\\multitenancy\\C2\\keystores\\gateway_truststore_dom4.jks",context,log,Domibus.retDomName("C2","4",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
 log.info "===================================================";
@@ -3686,13 +3686,13 @@ log.info "===================================================";
 log.info "---------------------------------------------------";
 log.info " Start uploading truststores for C3 domains"
 log.info "---------------------------------------------------";
-Domibus.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore.jks",context,log,"default","successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C3","1",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom1.jks",context,log,Domibus.retDomName("C3","1",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
-Domibus.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C3","2",testRunner),"successfully","test123",superUser,superPassword);
+TruststoreUtils.uploadTruststore("C3","special","\\multitenancy\\C3\\keystores\\gateway_truststore_dom2.jks",context,log,Domibus.retDomName("C3","2",testRunner),"successfully","test123",superUser,superPassword);
 sleep(3000);
 // ----------------------------------
 log.info "---------------------------------------------------";
