@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <!-- rename former tables to OLD_* -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7970-rename-former-tables-multitenancy">
@@ -60,7 +60,7 @@
     </changeSet>
 
     <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-multitenancy" author="Soumya">
-        <sqlFile path="src/main/resources/db/migration/oracle/db-multitenancy-migration-utc-conversion.sql" endDelimiter="\n/"
+        <sqlFile path="src/main/resources/db/archive/5.0/migration/oracle/db-multitenancy-migration-utc-conversion.sql" endDelimiter="\n/"
                  dbms="oracle"/>
     </changeSet>
 

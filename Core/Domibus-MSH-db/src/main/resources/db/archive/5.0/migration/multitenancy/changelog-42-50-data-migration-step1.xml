@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <!-- clean existing tables -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7970-prepare-multitenancy">
