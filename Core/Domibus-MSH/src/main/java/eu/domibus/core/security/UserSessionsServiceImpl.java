@@ -57,7 +57,7 @@ public class UserSessionsServiceImpl implements UserSessionsService, DomainsAwar
         LOG.debug("Invalidate sessions called for users of domain [{}]", domain);
         List<DomibusUserDetails> usersOfDomain = sessionRegistry.getAllPrincipals().stream()
                 .map(p -> ((DomibusUserDetails) p))
-                .filter(u -> u.getDomain().equals(domain))
+                .filter(u -> u.getDomain().equals(domain.getCode()))
                 .collect(Collectors.toList());
         invalidateSessionOfUsers(usersOfDomain);
     }
