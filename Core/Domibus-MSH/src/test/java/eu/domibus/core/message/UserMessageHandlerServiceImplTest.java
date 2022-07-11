@@ -729,23 +729,6 @@ public class UserMessageHandlerServiceImplTest {
     }
 
     @Test
-    public void testCheckTestMessage_false() {
-        UserMessage userMessage = createSampleUserMessage();
-
-        Assert.assertFalse("Expecting false for test message as valid data message is supplied ", userMessageHandlerService.checkTestMessage(userMessage));
-    }
-
-    @Test
-    public void testCheckTestMessage_true() {
-
-        UserMessage userMessage = createSampleUserMessage();
-        userMessage.getService().setValue(Ebms3Constants.TEST_SERVICE);
-        userMessage.getAction().setValue(Ebms3Constants.TEST_ACTION);
-
-        Assert.assertTrue("Expecting true for Check Test Message with modified data", userMessageHandlerService.checkTestMessage(userMessage));
-    }
-
-    @Test
     public void testGetFinalRecipientName() {
         final UserMessage userMessage = createSampleUserMessage();
         Assert.assertEquals(FINAL_RECEIPIENT_VALUE, userMessageHandlerService.getFinalRecipientName(userMessage));
@@ -1462,64 +1445,4 @@ public class UserMessageHandlerServiceImplTest {
         }};
     }
 
-    @Test
-    public void checkTestMessageTest(@Injectable LegConfiguration legConfiguration) {
-
-        new Expectations() {{
-            legConfiguration.getService().getValue();
-            result = Ebms3Constants.TEST_SERVICE;
-
-            legConfiguration.getAction().getValue();
-            result = Ebms3Constants.TEST_ACTION;
-        }};
-
-        assertTrue(userMessageHandlerService.checkTestMessage(legConfiguration));
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void checkTestMessageTest_true(@Injectable LegConfiguration legConfiguration) {
-
-        new Expectations() {{
-            legConfiguration.getService().getValue();
-            result = "service";
-
-            legConfiguration.getAction().getValue();
-            result = "action";
-        }};
-
-        assertFalse(userMessageHandlerService.checkTestMessage(legConfiguration));
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void checkTestMessageTest_noLeg() {
-        assertFalse(userMessageHandlerService.checkTestMessage((LegConfiguration) null));
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void createErrorResultTest(@Injectable EbMS3Exception ebm3Exception) {
-
-        new Expectations() {{
-            ebm3Exception.getRefToMessageId();
-            result = "refToMessageId";
-
-            ebm3Exception.getErrorCodeObject();
-            result = EBMS_0001;
-
-            ebm3Exception.getErrorDetail();
-            result = "errorDetail";
-        }};
-        //when
-        Assert.assertNotNull(userMessageHandlerService.createErrorResult(ebm3Exception));
-
-        new FullVerifications() {
-        };
-    }
 }

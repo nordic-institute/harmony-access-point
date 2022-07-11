@@ -6,7 +6,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.test.PModeUtil;
@@ -54,9 +53,6 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
 
     @Autowired
     protected SubmissionUtil submissionUtil;
-
-    @Autowired
-    DatabaseMessageHandler databaseMessageHandler;
 
     @Autowired
     JMSMessageTransformer jmsMessageTransformer;

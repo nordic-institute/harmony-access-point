@@ -45,7 +45,11 @@ public enum DomibusCoreErrorCode {
     /**
      * Not found exception
      */
-    DOM_009("009")
+    DOM_009("009"),
+    /**
+     * Party not reachable exceotion
+     */
+    DOM_010("010")
     ;
 
     private final String errorCode;

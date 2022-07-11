@@ -1,11 +1,10 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.core.message.*;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.message.*;
+import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
 import java.util.Set;
-
 
 /**
  * Entrypoint for sending AS4 messages to C3. Contains common validation and rescheduling logic
@@ -47,7 +45,7 @@ public class MessageSenderService {
     protected ReliabilityService reliabilityService;
 
     @Autowired
-    protected UserMessageHandlerService userMessageHandlerService;
+    protected TestMessageValidator testMessageValidator;
 
     @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
     @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
@@ -72,7 +70,7 @@ public class MessageSenderService {
 
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
-        final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());

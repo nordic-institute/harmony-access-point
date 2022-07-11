@@ -18,6 +18,7 @@ public interface UserMessageSecurityService {
      * @throws AuthenticationException in case the user doesn't have the permission
      */
     void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) throws AuthenticationException;
+
     void checkMessageAuthorization(String messageId) throws AuthenticationException;
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;

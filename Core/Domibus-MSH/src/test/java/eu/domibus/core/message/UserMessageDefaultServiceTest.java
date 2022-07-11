@@ -6,7 +6,6 @@ import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeService;
@@ -32,12 +31,10 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -136,9 +133,6 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     UserMessageFactory userMessageFactory;
-
-    @Injectable
-    DatabaseMessageHandler databaseMessageHandler;
 
     @Injectable
     PModeProvider pModeProvider;
@@ -995,7 +989,7 @@ public class UserMessageDefaultServiceTest {
         try {
             userMessageDefaultService.checkCanGetMessageContent("messageId");
             Assert.fail();
-        }catch(MessagingException ex){
+        } catch (MessagingException ex) {
             Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
         }
     }
@@ -1022,8 +1016,8 @@ public class UserMessageDefaultServiceTest {
         try {
             userMessageDefaultService.checkCanGetMessageContent("messageId");
             Assert.fail();
-        }catch(MessagingException ex){
-            Assert.assertEquals(ex.getMessage(),"[DOM_001]:No message found for message id: messageId");
+        } catch (MessagingException ex) {
+            Assert.assertEquals(ex.getMessage(), "[DOM_001]:No message found for message id: messageId");
         }
     }
 }

@@ -4,11 +4,9 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.Splitting;
-import eu.domibus.core.message.MessageSubmitterService;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.messaging.MessagingProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,7 @@ import java.util.List;
 /**
  * @author Ion Perpegel
  * @since 5.0
- *
+ * <p>
  * Spin-off from splitAndJoinService to break a cyclic dependency
  */
 @Service
@@ -33,18 +31,10 @@ public class SplitAndJoinHelper {
     protected UserMessageFactory userMessageFactory;
 
     @Autowired
-    MessageSubmitterService messageSubmitter;
+    MessageSubmitterImpl messageSubmitter;
 
     @Autowired
     protected MessageGroupDao messageGroupDao;
-
-    public boolean mayUseSplitAndJoin(LegConfiguration legConfiguration) {
-        final Splitting splitting = legConfiguration.getSplitting();
-        if (splitting == null) {
-            return false;
-        }
-        return true;
-    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {

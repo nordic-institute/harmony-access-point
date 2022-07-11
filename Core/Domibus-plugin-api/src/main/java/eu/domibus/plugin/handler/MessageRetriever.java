@@ -9,8 +9,7 @@ import eu.domibus.plugin.Submission;
 import java.util.List;
 
 /**
- * Implementations of this interface handle the retrieval of messages from
- * Domibus to the backend.
+ * Implementation of this interface handles the retrieval of messages from Domibus to the backend.
  *
  * @author Christian Koch, Stefan Mueller, Cosmin Baciu
  * @since 3.0

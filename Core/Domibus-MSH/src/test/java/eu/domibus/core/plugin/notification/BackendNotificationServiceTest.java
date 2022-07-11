@@ -15,10 +15,7 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.message.*;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
@@ -29,7 +26,6 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -128,6 +124,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     MessagingModuleConfiguration messageCommunicationConfiguration;
+
+    @Injectable
+    TestMessageValidator testMessageValidator;
 
     @Test
     public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage) {
@@ -994,7 +993,7 @@ public class BackendNotificationServiceTest {
         List<PayloadSubmittedEvent> valueHolderForMultipleInvocations = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
-            userMessageHandlerService.checkTestMessage(userMessage);
+            testMessageValidator.checkTestMessage(userMessage);
             result = false;
 
             userMessage.getEntityId();
@@ -1034,8 +1033,8 @@ public class BackendNotificationServiceTest {
             @Mocked PartInfo partInfo) {
 
         new Expectations() {{
-            userMessageHandlerService.checkTestMessage(userMessage);
-            result = true;
+//            userMessageHandlerService.checkTestMessage(userMessage);
+//            result = true;
         }};
 
         backendNotificationService.notifyPayloadSubmitted(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
@@ -1052,7 +1051,7 @@ public class BackendNotificationServiceTest {
         List<PayloadProcessedEvent> payloadList = new ArrayList<>();
 
         new Expectations(backendNotificationService) {{
-            userMessageHandlerService.checkTestMessage(userMessage);
+            testMessageValidator.checkTestMessage(userMessage);
             result = false;
 
             userMessage.getEntityId();
@@ -1092,7 +1091,7 @@ public class BackendNotificationServiceTest {
             @Mocked PartInfo partInfo) {
 
         new Expectations() {{
-            userMessageHandlerService.checkTestMessage(userMessage);
+            testMessageValidator.checkTestMessage(userMessage);
             result = true;
         }};
 
