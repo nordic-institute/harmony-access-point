@@ -3,6 +3,8 @@ package eu.domibus.core.security;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.user.UserBase;
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
  * @since 4.2
  */
 @Service
-public class UserSessionsServiceImpl implements UserSessionsService {
+public class UserSessionsServiceImpl implements UserSessionsService, DomainsAware {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserSessionsServiceImpl.class);
 
@@ -50,17 +52,31 @@ public class UserSessionsServiceImpl implements UserSessionsService {
         doInvalidateSessions(userName);
     }
 
+    @Override
+    public void invalidateSessions(Domain domain) {
+        LOG.debug("Invalidate sessions called for users of domain [{}]", domain);
+        List<DomibusUserDetails> usersOfDomain = sessionRegistry.getAllPrincipals().stream()
+                .map(p -> ((DomibusUserDetails) p))
+                .filter(u -> u.getDomain().equals(domain.getCode()))
+                .collect(Collectors.toList());
+        invalidateSessionOfUsers(usersOfDomain);
+    }
+
     protected void doInvalidateSessions(String userName) {
         LOG.debug("Invalidate sessions called for user [{}]", userName);
-        List<DomibusUserDetails> principals = sessionRegistry.getAllPrincipals().stream()
+        List<DomibusUserDetails> usersWithName = sessionRegistry.getAllPrincipals().stream()
                 .map(p -> ((DomibusUserDetails) p))
                 .filter(u -> u.getUsername().equals(userName))
                 .collect(Collectors.toList());
+        invalidateSessionOfUsers(usersWithName);
+    }
+
+    private void invalidateSessionOfUsers(List<DomibusUserDetails> principals) {
         principals.forEach(principal -> {
             LOG.info("Found principal [{}] in session registry", principal.getUsername());
-            List<SessionInformation> sess = sessionRegistry.getAllSessions(principal, false);
-            sess.forEach(session -> {
-                LOG.info("Expire session [{}] for user [{}]", session, userName);
+            List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
+            sessions.forEach(session -> {
+                LOG.info("Expire session [{}] for user [{}]", session, principal.getUsername());
                 session.expireNow();
             });
         });
@@ -74,5 +90,15 @@ public class UserSessionsServiceImpl implements UserSessionsService {
         } catch (Exception ex) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception signaling session invalidation event for user " + userName, ex);
         }
+    }
+
+    @Override
+    public void onDomainRemoved(Domain domain) {
+        invalidateSessions(domain);
+    }
+
+    @Override
+    public void onDomainAdded(Domain domain) {
+        // nothing here
     }
 }
