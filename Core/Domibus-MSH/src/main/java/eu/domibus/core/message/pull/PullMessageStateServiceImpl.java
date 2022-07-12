@@ -1,10 +1,7 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.MessageStatusEntity;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
@@ -76,7 +73,8 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         }
 
         LOG.debug("Setting [{}] message as failed", messageId);
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        // what mshRole?
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessage == null) {
             LOG.debug("Could not set [{}] message as failed: could not find userMessage", messageId);
             return;

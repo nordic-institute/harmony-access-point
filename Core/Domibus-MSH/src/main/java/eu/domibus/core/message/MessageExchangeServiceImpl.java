@@ -147,6 +147,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Override
     @Transactional(readOnly = true)
     public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId) {
+        // what mshRole? try both roles????
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (forcePullOnMpc(userMessage)) {
             return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
@@ -348,6 +349,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
         UserMessageRaw newRawEnvelopeLog = new UserMessageRaw();
         newRawEnvelopeLog.setRawXML(rawXml);
+        // what mshRole? probably have it as a param?
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         newRawEnvelopeLog.setUserMessage(userMessage);
         rawEnvelopeLogDao.create(newRawEnvelopeLog);

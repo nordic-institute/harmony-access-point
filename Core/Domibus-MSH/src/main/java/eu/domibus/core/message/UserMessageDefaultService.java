@@ -191,6 +191,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public String getFinalRecipient(String messageId) {
+        // what mshRole? receive it as param or have it in MDC context?
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             LOG.debug("Message [{}] does not exist", messageId);
@@ -201,6 +202,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public String getOriginalSender(String messageId) {
+        // what mshRole? receive it as param or have it in MDC context?
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             LOG.debug("Message [{}] does not exist", messageId);
@@ -231,6 +233,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public void sendEnqueuedMessage(String messageId) {
         LOG.info("Sending enqueued message [{}]", messageId);
 
+        // what mshRole? receive it as param or have it in MDC context?
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
@@ -249,7 +252,8 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
         }
 
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+//        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
 
         reprogrammableService.setRescheduleInfo(userMessageLog, new Date());
         userMessageLogDao.update(userMessageLog);
@@ -438,6 +442,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public UserMessage getMessageEntity(String messageId) {
+        // what mshRole? receive it as param
         return userMessageDao.findByMessageId(messageId);
     }
 
@@ -604,6 +609,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     public void checkCanGetMessageContent(String messageId) {
+        // what mshRole? could refactor here the below method
         MessageLogRO message = messagesLogService.findUserMessageById(messageId);
         if (message == null) {
             throw new MessagingException("No message found for message id: " + messageId, null);
@@ -612,7 +618,8 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.info("Could not find message content for message: [{}]", messageId);
             throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
         }
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+//        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, message.getMshRole());
         Long contentLength = partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         if (contentLength > maxDownLoadSize) {
@@ -663,6 +670,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public UserMessage getByMessageId(String messageId) throws MessageNotFoundException {
+        // what mshRole? receive it as param?
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
@@ -681,6 +689,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public UserMessage findByMessageId(String messageId) {
+        // what mshRole? receive it as param?
         return userMessageDao.findByMessageId(messageId);
     }
 
@@ -725,6 +734,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
+        // what mshRole? receive it as param?
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);

@@ -100,11 +100,11 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     protected SOAPMessage handlePullRequestReceipt(SOAPMessage request, String messageId) {
-
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.PULL_FAILED;
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        // what mshRole?
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING); //???
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
             LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());

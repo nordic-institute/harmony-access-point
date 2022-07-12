@@ -23,7 +23,7 @@ public interface UserMessageHandlerService {
     /**
      * to be appended to messageId when saving to DB on receiver side
      */
-    String SELF_SENDING_SUFFIX = "_1";
+//    String SELF_SENDING_SUFFIX = "_1";
 
     /**
      * Handles incoming UserMessages

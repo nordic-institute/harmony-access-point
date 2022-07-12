@@ -68,26 +68,26 @@ public class UserMessageDefaultRestoreServiceTest {
 
     @Test
     public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
-        final String messageId = "1";
+        final Long messageEntityId = 1L;
 
         new Expectations(restoreService) {{
-            pModeService.getLegConfiguration(messageId);
+            pModeService.getLegConfiguration(messageEntityId);
             result = null;
 
         }};
 
-        final Integer maxAttemptsConfiguration = restoreService.getMaxAttemptsConfiguration(messageId);
+        final Integer maxAttemptsConfiguration = restoreService.getMaxAttemptsConfiguration(messageEntityId);
         assertEquals(1, (int) maxAttemptsConfiguration);
 
     }
 
     @Test
     public void testMaxAttemptsConfiguration(@Injectable final LegConfiguration legConfiguration) {
-        final String messageId = "1";
+        final Long messageEntityId = 1L;
         final Integer pModeMaxAttempts = 5;
 
         new Expectations(restoreService) {{
-            pModeService.getLegConfiguration(messageId);
+            pModeService.getLegConfiguration(messageEntityId);
             result = legConfiguration;
 
             pModeServiceHelper.getMaxAttempts(legConfiguration);
@@ -95,17 +95,17 @@ public class UserMessageDefaultRestoreServiceTest {
 
         }};
 
-        final Integer maxAttemptsConfiguration = restoreService.getMaxAttemptsConfiguration(messageId);
+        final Integer maxAttemptsConfiguration = restoreService.getMaxAttemptsConfiguration(messageEntityId);
         Assert.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
     }
 
     @Test
     public void testComputeMaxAttempts(@Injectable final UserMessageLog userMessageLog) {
-        final String messageId = "1";
+        final Long messageEntityId = 1L;
         final Integer pModeMaxAttempts = 5;
 
         new Expectations(restoreService) {{
-            restoreService.getMaxAttemptsConfiguration(messageId);
+            restoreService.getMaxAttemptsConfiguration(messageEntityId);
             result = pModeMaxAttempts;
 
             userMessageLog.getSendAttemptsMax();
@@ -113,7 +113,7 @@ public class UserMessageDefaultRestoreServiceTest {
 
         }};
 
-        final Integer maxAttemptsConfiguration = restoreService.computeNewMaxAttempts(userMessageLog, messageId);
+        final Integer maxAttemptsConfiguration = restoreService.computeNewMaxAttempts(userMessageLog);
         assertEquals(11, (int) maxAttemptsConfiguration);
     }
 
@@ -148,7 +148,7 @@ public class UserMessageDefaultRestoreServiceTest {
             messageExchangeService.retrieveMessageRestoreStatus(messageId);
             result = messageStatusEntity;
 
-            restoreService.computeNewMaxAttempts(userMessageLog, messageId);
+            restoreService.computeNewMaxAttempts(userMessageLog);
             result = newMaxAttempts;
 
             userMessageLog.getMessageStatus();
@@ -192,7 +192,7 @@ public class UserMessageDefaultRestoreServiceTest {
             messageExchangeService.retrieveMessageRestoreStatus(messageId);
             result = messageStatusEntity;
 
-            restoreService.computeNewMaxAttempts(userMessageLog, messageId);
+            restoreService.computeNewMaxAttempts(userMessageLog);
             result = newMaxAttempts;
 
             userMessageDao.findByMessageId(messageId);

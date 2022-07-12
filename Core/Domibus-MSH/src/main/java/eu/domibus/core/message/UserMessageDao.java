@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.ActionEntity;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
@@ -64,6 +65,12 @@ public class UserMessageDao extends BasicDao<UserMessage> {
             userMessage.getPartyInfo().getTo().getToPartyId().getValue();
             userMessage.getPartyInfo().getTo().getRoleValue();
         }
+    }
+
+    @Transactional
+    public UserMessage findByMessageId(String messageId, MSHRole role) {
+        // change after DB changes
+        return findByMessageId(messageId);
     }
 
     @Transactional

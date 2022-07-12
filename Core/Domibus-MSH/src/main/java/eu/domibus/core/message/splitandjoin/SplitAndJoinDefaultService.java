@@ -187,7 +187,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         messageGroupEntity.setSoapAction(StringUtils.EMPTY);
-        final UserMessage dbUserMessage = userMessageDao.findByMessageId(userMessage.getMessageId());
+        final UserMessage dbUserMessage = userMessageDao.findByEntityId(userMessage.getEntityId());
         messageGroupEntity.setSourceMessage(dbUserMessage);
 
         MessageExchangeConfiguration userMessageExchangeConfiguration;
@@ -394,7 +394,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void setUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Setting the UserMessage fragment [{}] as failed", messageId);
 
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        // what role?
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
         if (userMessage == null) {
             LOG.error("UserMessage not found for message [{}]: could not mark the message as failed", messageId);
             return;

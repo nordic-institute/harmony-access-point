@@ -194,7 +194,8 @@ public class PullMessageServiceImpl implements PullMessageService {
                         return messageId;
                     case RETRY:
                         LOG.debug("[PULL_REQUEST]:message:[{}] retry pull attempt.", pullMessageId.getMessageId());
-                        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+                        // what mshRole?
+                        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
                         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
                         return messageId;
                 }

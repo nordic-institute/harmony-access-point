@@ -54,6 +54,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     }
 
     protected UserMessage getUserMessage(String messageId) {
+        // what mshRole? receive it as param?
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageAcknowledgeException(DomibusCoreErrorCode.DOM_001, "Message with ID [" + messageId + "] does not exist");
@@ -105,6 +106,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
 
     @Override
     public List<MessageAcknowledgement> getAcknowledgedMessages(String messageId) throws MessageAcknowledgeException {
+        // what mshRole? receive it as param?
         final List<MessageAcknowledgementEntity> entities = messageAcknowledgementDao.findByMessageId(messageId);
         if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId) == null) {
             throw new MessageNotFoundException(messageId);

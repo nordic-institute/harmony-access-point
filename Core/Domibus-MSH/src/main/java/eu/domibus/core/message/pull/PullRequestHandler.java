@@ -99,7 +99,8 @@ public class PullRequestHandler {
         SOAPMessage soapMessage = null;
         UserMessage userMessage = null;
         try {
-            userMessage = userMessageDao.findByMessageId(messageId);
+            // what mshRole?
+            userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             leg = pullContext.filterLegOnMpc();
             try {
                 String initiatorPartyName = null;

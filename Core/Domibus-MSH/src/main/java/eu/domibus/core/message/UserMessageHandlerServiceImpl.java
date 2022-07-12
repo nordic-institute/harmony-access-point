@@ -314,7 +314,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 /* we add a defined suffix in order to assure DB integrity - messageId uniqueness
                 basically we are generating another messageId for Signal Message on receiver side
                 */
-            userMessage.setMessageId(userMessage.getMessageId() + SELF_SENDING_SUFFIX);
+//            userMessage.setMessageId(userMessage.getMessageId() + SELF_SENDING_SUFFIX);
         }
 
         String messageId = userMessage.getMessageId();

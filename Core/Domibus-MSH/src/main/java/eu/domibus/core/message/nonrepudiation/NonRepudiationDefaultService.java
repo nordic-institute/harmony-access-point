@@ -136,6 +136,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     public String getSignalMessageEnvelope(String userMessageId) {
         RawEnvelopeDto rawEnvelopeDto = signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId);
         if (rawEnvelopeDto == null) {
+            // what mshRole? receive it as param or get from rawEnvelope?
             if (userMessageDao.findByMessageId(userMessageId) == null) {
                 throw new MessageNotFoundException(userMessageId);
             }
@@ -174,6 +175,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
+        // what mshRole? receive it as param?
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);

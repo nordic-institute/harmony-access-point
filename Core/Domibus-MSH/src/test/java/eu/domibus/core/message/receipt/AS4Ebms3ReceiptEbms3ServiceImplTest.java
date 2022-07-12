@@ -242,38 +242,38 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
         };
     }
 
-    @Test
-    public void testSaveResponse_selfSending(@Injectable Ebms3Messaging ebms3Messaging,
-                                             @Injectable Ebms3SignalMessage ebms3SignalMessage,
-                                             @Injectable Ebms3MessageInfo ebms3MessageInfo,
-                                             @Injectable Ebms3UserMessage ebms3UserMessage,
-                                             @Injectable SignalMessage signalMessage
-    ) throws SOAPException, EbMS3Exception {
-        new Expectations() {{
-            messageUtil.getMessagingWithDom(soapResponseMessage);
-            result = ebms3Messaging;
-
-            ebms3Converter.convertFromEbms3(ebms3Messaging);
-            result = signalMessageResult;
-
-            signalMessageResult.getSignalMessage();
-            result = signalMessage;
-
-            signalMessage.getRefToMessageId() ;
-            result = "refTomessageId";
-
-            signalMessage.getSignalMessageId() ;
-            result = "signalMessageId";
-        }};
-
-        as4ReceiptService.generateResponse(soapResponseMessage, true);
-
-        new FullVerifications() {{
-            signalMessage.setRefToMessageId("refTomessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-            signalMessage.setSignalMessageId("signalMessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-
-        }};
-    }
+//    @Test
+//    public void testSaveResponse_selfSending(@Injectable Ebms3Messaging ebms3Messaging,
+//                                             @Injectable Ebms3SignalMessage ebms3SignalMessage,
+//                                             @Injectable Ebms3MessageInfo ebms3MessageInfo,
+//                                             @Injectable Ebms3UserMessage ebms3UserMessage,
+//                                             @Injectable SignalMessage signalMessage
+//    ) throws SOAPException, EbMS3Exception {
+//        new Expectations() {{
+//            messageUtil.getMessagingWithDom(soapResponseMessage);
+//            result = ebms3Messaging;
+//
+//            ebms3Converter.convertFromEbms3(ebms3Messaging);
+//            result = signalMessageResult;
+//
+//            signalMessageResult.getSignalMessage();
+//            result = signalMessage;
+//
+//            signalMessage.getRefToMessageId() ;
+//            result = "refTomessageId";
+//
+//            signalMessage.getSignalMessageId() ;
+//            result = "signalMessageId";
+//        }};
+//
+//        as4ReceiptService.generateResponse(soapResponseMessage, true);
+//
+//        new FullVerifications() {{
+//            signalMessage.setRefToMessageId("refTomessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
+//            signalMessage.setSignalMessageId("signalMessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
+//
+//        }};
+//    }
 
     @Test
     public void testGenerateReceipt_NoReliability() throws EbMS3Exception {

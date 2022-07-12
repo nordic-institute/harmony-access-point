@@ -1,5 +1,6 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.UserMessageDao;
@@ -30,7 +31,8 @@ public class MessageGroupDefaultService implements MessageGroupService {
     public void setSourceMessageId(String sourceMessageId, String groupId) {
         LOG.debug("Updating the SourceMessage id [{}] for group [{}]", sourceMessageId, groupId);
         final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(groupId);
-        final UserMessage sourceMessage = userMessageDao.findByMessageId(sourceMessageId);
+        // what role?
+        final UserMessage sourceMessage = userMessageDao.findByMessageId(sourceMessageId, MSHRole.RECEIVING);
         messageGroupEntity.setSourceMessage(sourceMessage);
         messageGroupDao.update(messageGroupEntity);
     }

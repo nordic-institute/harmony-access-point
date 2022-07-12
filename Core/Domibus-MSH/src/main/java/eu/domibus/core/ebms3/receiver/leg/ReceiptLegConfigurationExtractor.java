@@ -41,7 +41,8 @@ public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigura
         LOG.debug("Extracting configuration for receipt");
         String messageId = ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
         //@thom check it the MessageAcknolegde service is not a better choice here. The getMessage is not exposed via the api.
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        // what mshRole? sending probably
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessage == null) {
             throw new MessageAcknowledgeException(DomibusCoreErrorCode.DOM_001, "Message with ID [" + messageId + "] does not exist");
         }

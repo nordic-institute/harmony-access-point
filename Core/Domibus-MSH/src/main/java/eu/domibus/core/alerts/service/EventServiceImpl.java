@@ -218,8 +218,8 @@ public class EventServiceImpl implements EventService {
             throw new IllegalStateException("Message id and role are mandatory for message event.");
         }
         final String messageId = messageIdProperty.get();
-        final String role = roleProperty.get();
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final MSHRole role = MSHRole.valueOf(roleProperty.get());
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, role);
         final MessageExchangeConfiguration userMessageExchangeContext;
         try {
             String errors = errorLogService
@@ -241,7 +241,7 @@ public class EventServiceImpl implements EventService {
                 receiverPartyName = mpcService.extractInitiator(userMessage.getMpcValue());
             } else {
                 LOG.debug("Find UserMessage exchange context");
-                userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.valueOf(role));
+                userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, role);
                 LOG.debug("Get receiverPartyName from exchange context pModeKey");
                 receiverPartyName = pModeProvider.getReceiverParty(userMessageExchangeContext.getPmodeKey()).getName();
             }
