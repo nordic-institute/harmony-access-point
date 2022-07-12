@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.ws.rs.QueryParam;
 
 /**
  * @author Tiago Miguel
@@ -54,9 +57,13 @@ public class UserMessageExtResource {
     @Operation(summary = "Get user message", description = "Retrieve the user message with the specified message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"usermessage"})
     @GetMapping(path = "/{messageId:.+}")
-    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) throws MessageNotFoundException {
+    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId,
+                                         @QueryParam("mshRole") eu.domibus.common.MSHRole role) throws MessageNotFoundException {
+        if (role == null) {
+            role = MSHRole.RECEIVING;
+        }
         LOG.debug("Getting User Message with id = '{}", messageId);
-        return userMessageExtService.getMessage(messageId);
+        return userMessageExtService.getMessage(messageId, role);
     }
 
     @Operation(summary = "Get user message envelope", description = "Retrieve the user message envelope with the specified message id",

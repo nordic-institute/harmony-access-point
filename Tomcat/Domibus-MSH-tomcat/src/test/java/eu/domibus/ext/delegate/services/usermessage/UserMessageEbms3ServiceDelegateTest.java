@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.usermessage;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.*;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
@@ -62,17 +63,17 @@ public class UserMessageEbms3ServiceDelegateTest {
         userMessage.setCollaborationInfo(collaborationInfo);
 
         new Expectations() {{
-            userMessageService.getMessage(messageId);
+            userMessageService.getMessage(messageId, MSHRole.RECEIVING);
             result = userMessage;
         }};
 
 
         // When
-        userMessageServiceDelegate.getMessage(messageId);
+        userMessageServiceDelegate.getMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
 
         // Then
         new Verifications() {{
-            userMessageService.getMessage(messageId);
+            userMessageService.getMessage(messageId, MSHRole.RECEIVING);
             domibusExtMapper.userMessageToUserMessageDTO(userMessage);
         }};
     }
@@ -83,13 +84,13 @@ public class UserMessageEbms3ServiceDelegateTest {
         final MessageNotFoundException notFoundException = new MessageNotFoundException(MESSAGE_ID);
 
         new Expectations() {{
-            userMessageService.getMessage(MESSAGE_ID);
+            userMessageService.getMessage(MESSAGE_ID, MSHRole.RECEIVING);
             result = notFoundException;
         }};
 
         // When
         try {
-            userMessageServiceDelegate.getMessage(MESSAGE_ID);
+            userMessageServiceDelegate.getMessage(MESSAGE_ID, eu.domibus.common.MSHRole.RECEIVING);
             Assert.fail();
         } catch (MessageNotFoundException e) {
             // Then
@@ -102,13 +103,13 @@ public class UserMessageEbms3ServiceDelegateTest {
     public void testGetMessage_null() throws MessageNotFoundException {
         // Given
         new Expectations() {{
-            userMessageService.getMessage(MESSAGE_ID);
+            userMessageService.getMessage(MESSAGE_ID, MSHRole.RECEIVING);
             result = null;
         }};
 
         UserMessageDTO message = null;
         try {
-            message = userMessageServiceDelegate.getMessage(MESSAGE_ID);
+            message = userMessageServiceDelegate.getMessage(MESSAGE_ID, eu.domibus.common.MSHRole.RECEIVING);
             Assert.fail();
         } catch (MessageNotFoundException e) {
             //OK
@@ -124,7 +125,7 @@ public class UserMessageEbms3ServiceDelegateTest {
     @Test
     public void getFinalRecipient() {
         new Expectations() {{
-            userMessageService.getFinalRecipient(MESSAGE_ID);
+            userMessageService.getFinalRecipient(MESSAGE_ID,  MSHRole.RECEIVING);
             times = 1;
             result = FINAL_RECIPIENT;
         }};
@@ -140,7 +141,7 @@ public class UserMessageEbms3ServiceDelegateTest {
     @Test
     public void getUserMessageEnvelope() {
         new Expectations() {{
-            userMessageService.getUserMessageEnvelope(MESSAGE_ID);
+            userMessageService.getUserMessageEnvelope(MESSAGE_ID, MSHRole.RECEIVING);
             times = 1;
             result = FINAL_RECIPIENT;
         }};
@@ -156,7 +157,7 @@ public class UserMessageEbms3ServiceDelegateTest {
     @Test
     public void getSignalMessageEnvelope() {
         new Expectations() {{
-            userMessageService.getSignalMessageEnvelope(MESSAGE_ID);
+            userMessageService.getSignalMessageEnvelope(MESSAGE_ID, MSHRole.RECEIVING);
             times = 1;
             result = FINAL_RECIPIENT;
         }};

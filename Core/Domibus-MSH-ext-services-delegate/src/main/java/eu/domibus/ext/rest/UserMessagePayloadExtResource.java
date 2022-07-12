@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.PartInfoDTO;
 import eu.domibus.ext.domain.PartPropertiesDTO;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.activation.DataHandler;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
@@ -81,10 +83,15 @@ public class UserMessagePayloadExtResource {
     @Operation(summary = "Download the UserMessage payload", description = "Download the UserMessage payload with a specific cid",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "{messageId}/payloads/{cid}", produces = MediaType.APPLICATION_XML_VALUE)
-    public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid, HttpServletResponse response) {
-        LOG.debug("Downloading the payload with cid [{}] for message with id [{}]", cid, messageId);
+    public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid,
+                                           @QueryParam("mshRole") eu.domibus.common.MSHRole role, HttpServletResponse response) {
+        if (role == null) {
+            role = MSHRole.RECEIVING;
+        }
+        LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, role);
 
-        final PartInfoDTO payload = payloadExtService.getPayload(messageId, cid);
+        // what role: how to get the msh role here????
+        final PartInfoDTO payload = payloadExtService.getPayload(messageId, role, cid);
         writePayloadToResponse(cid, response, payload);
     }
 

@@ -34,7 +34,6 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
@@ -190,7 +189,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected EntityManager em;
 
     @Override
-    public String getFinalRecipient(String messageId) {
+    public String getFinalRecipient(String messageId, MSHRole mshRole) {
         // what mshRole? receive it as param or have it in MDC context?
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
@@ -201,7 +200,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public String getOriginalSender(String messageId) {
+    public String getOriginalSender(String messageId, MSHRole mshRole) {
         // what mshRole? receive it as param or have it in MDC context?
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
@@ -435,15 +434,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
-        final UserMessage userMessageByMessageId = getMessageEntity(messageId);
+    public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId, MSHRole mshRole) {
+        final UserMessage userMessageByMessageId = getMessageEntity(messageId, mshRole);
         return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Override
-    public UserMessage getMessageEntity(String messageId) {
-        // what mshRole? receive it as param
-        return userMessageDao.findByMessageId(messageId);
+    public UserMessage getMessageEntity(String messageId, MSHRole role) {
+        return userMessageDao.findByMessageId(messageId, role);
     }
 
     @Override
@@ -659,12 +657,12 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public String getUserMessageEnvelope(String userMessageId) {
+    public String getUserMessageEnvelope(String userMessageId, MSHRole mshRole) {
         return nonRepudiationService.getUserMessageEnvelope(userMessageId);
     }
 
     @Override
-    public String getSignalMessageEnvelope(String userMessageId) {
+    public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
         return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
     }
 

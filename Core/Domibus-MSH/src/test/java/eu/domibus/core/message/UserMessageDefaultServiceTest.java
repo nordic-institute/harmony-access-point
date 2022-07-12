@@ -214,7 +214,7 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        userMessageDefaultService.getFinalRecipient(messageId);
+        userMessageDefaultService.getFinalRecipient(messageId, mshRole);
 
         new Verifications() {{
             userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -230,7 +230,7 @@ public class UserMessageDefaultServiceTest {
             result = null;
         }};
 
-        Assert.assertNull(userMessageDefaultService.getFinalRecipient(messageId));
+        Assert.assertNull(userMessageDefaultService.getFinalRecipient(messageId, mshRole));
     }
 
     @Test

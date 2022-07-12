@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.PartInfoDTO;
 import eu.domibus.ext.exceptions.PayloadExtException;
 
@@ -23,5 +24,5 @@ public interface PayloadExtService {
 
     PartInfoDTO getPayload(Long messageEntityId, String cid) throws PayloadExtException;
 
-    PartInfoDTO getPayload(String messageId, String cid) throws PayloadExtException;
+    PartInfoDTO getPayload(String messageId, MSHRole role, String cid) throws PayloadExtException;
 }

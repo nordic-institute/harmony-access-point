@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.usermessage;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.UserMessage;
+import eu.domibus.common.MSHRole;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -41,9 +42,17 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     @Override
     public UserMessageDTO getMessage(String messageId) throws MessageNotFoundException {
+        return getMessage(messageId, null);
+    }
+
+    @Override
+    public UserMessageDTO getMessage(String messageId, MSHRole role) throws MessageNotFoundException {
+
         LOG.debug("Getting message with messageId[{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
-        final UserMessage userMessage = userMessageCoreService.getMessage(messageId);
+
+        eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+        final UserMessage userMessage = userMessageCoreService.getMessage(messageId, mshRole);
 
         if (userMessage == null) {
             throw new MessageNotFoundException(String.format("Message [%s] was not found", messageId));
@@ -53,36 +62,59 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     @Override
     public String getUserMessageEnvelope(String messageId) {
+        return getUserMessageEnvelope(messageId, null);
+    }
+
+    @Override
+    public String getUserMessageEnvelope(String messageId, MSHRole role) {
         LOG.debug("Getting user message envelope with messageId [{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
-        return userMessageCoreService.getUserMessageEnvelope(messageId);
+        eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+        return userMessageCoreService.getUserMessageEnvelope(messageId, mshRole);
     }
 
     @Override
     public String getSignalMessageEnvelope(String messageId) {
+        return getSignalMessageEnvelope(messageId, null);
+    }
+
+    @Override
+    public String getSignalMessageEnvelope(String messageId, MSHRole role) {
         LOG.debug("Getting user message envelope with messageId [{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
-        return userMessageCoreService.getSignalMessageEnvelope(messageId);
+        eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+        return userMessageCoreService.getSignalMessageEnvelope(messageId, mshRole);
     }
 
     @Override
     public String getFinalRecipient(String messageId) {
+        return getFinalRecipient(messageId, null);
+    }
+
+    @Override
+    public String getFinalRecipient(String messageId, MSHRole role) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
-        return userMessageCoreService.getFinalRecipient(messageId);
+        eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+        return userMessageCoreService.getFinalRecipient(messageId, mshRole);
     }
 
     @Override
     public String getOriginalSender(String messageId) {
+        return getOriginalSender(messageId, null);
+    }
+
+    @Override
+    public String getOriginalSender(String messageId, MSHRole role) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
-        return userMessageCoreService.getOriginalSender(messageId);
+        eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+        return userMessageCoreService.getOriginalSender(messageId, mshRole);
     }
-
 
     @Override
     public void validateUserMessage(UserMessageDTO userMessage) throws UserMessageExtException {
