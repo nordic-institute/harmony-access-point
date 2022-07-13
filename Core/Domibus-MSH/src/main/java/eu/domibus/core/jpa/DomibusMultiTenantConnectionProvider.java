@@ -102,12 +102,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
         verifyDatabaseSchema(currentDomain, databaseSchema);
 
-        try {
-            setSchema(connection, databaseSchema);
-        } catch (Exception e) {
-            LOG.trace("Error setting database schema to [{}] which is configured for domain [{}]", databaseSchema, currentDomain.getCode());
-            return null;
-        }
+        setSchema(connection, databaseSchema);
 
         return connection;
     }
@@ -121,7 +116,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         }
     }
 
-    protected void setSchema(final Connection connection, String databaseSchema) throws SQLException {
+    protected void setSchema(final Connection connection, String databaseSchema) {
         try {
             try (final Statement statement = connection.createStatement()) {
                 final String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
