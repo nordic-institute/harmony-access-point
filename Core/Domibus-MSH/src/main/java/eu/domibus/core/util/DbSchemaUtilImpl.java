@@ -8,7 +8,7 @@ import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.persistence.*;
 
@@ -18,7 +18,7 @@ import javax.persistence.*;
  * @author Lucian FURCA
  * @since 5.1
  */
-@Component
+@Service
 public class DbSchemaUtilImpl implements DbSchemaUtil {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DbSchemaUtilImpl.class);
 
