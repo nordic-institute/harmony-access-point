@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
@@ -160,6 +161,5 @@ public interface MessageMonitorExtService {
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
      */
     List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException;
-
 
 }

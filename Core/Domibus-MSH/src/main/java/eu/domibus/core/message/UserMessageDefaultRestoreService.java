@@ -74,15 +74,14 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public void restoreFailedMessage(String messageId) {
-        LOG.info("Restoring message [{}]", messageId);
-        // what mshRole? receive it as param, override method or have it in MDC context?
+        LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
+
         final UserMessageLog userMessageLog = userMessageService.getFailedMessage(messageId);
 
         if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
         }
 
-//        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
 
         final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);

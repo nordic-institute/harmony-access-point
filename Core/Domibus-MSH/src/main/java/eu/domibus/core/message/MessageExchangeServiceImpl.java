@@ -147,8 +147,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Override
     @Transactional(readOnly = true)
     public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId) {
-        // what mshRole? try both roles????
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
         if (forcePullOnMpc(userMessage)) {
             return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
         }

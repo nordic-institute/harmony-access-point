@@ -84,10 +84,9 @@ public class UserMessagePayloadExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "{messageId}/payloads/{cid}", produces = MediaType.APPLICATION_XML_VALUE)
     public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid,
-                                           @QueryParam("mshRole") eu.domibus.common.MSHRole role, HttpServletResponse response) {
-        if (role == null) {
-            role = MSHRole.RECEIVING;
-        }
+                                           @RequestParam(value = "mshRole", required = false) String mshRole, HttpServletResponse response) {
+
+        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : MSHRole.RECEIVING;
         LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, role);
 
         // what role: how to get the msh role here????

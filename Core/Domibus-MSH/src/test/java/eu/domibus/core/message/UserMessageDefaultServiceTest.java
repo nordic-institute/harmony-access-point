@@ -214,7 +214,7 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        userMessageDefaultService.getFinalRecipient(messageId, mshRole);
+        userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING);
 
         new Verifications() {{
             userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -230,7 +230,7 @@ public class UserMessageDefaultServiceTest {
             result = null;
         }};
 
-        Assert.assertNull(userMessageDefaultService.getFinalRecipient(messageId, mshRole));
+        Assert.assertNull(userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING));
     }
 
     @Test
@@ -838,7 +838,7 @@ public class UserMessageDefaultServiceTest {
             result = null;
         }};
         try {
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             Assert.fail();
         } catch (MessageNotFoundException ex) {
             Assert.assertTrue(ex.getMessage().contains("Message [1] does not exist"));
@@ -861,7 +861,7 @@ public class UserMessageDefaultServiceTest {
             result = MessageStatus.SEND_ENQUEUED;
         }};
 
-        final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+        final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
         Assert.assertNotNull(message);
     }
 
@@ -881,7 +881,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         try {
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             fail();
         } catch (MessagingException ex) {
             Assert.assertTrue(ex.getMessage().contains("Message [1] in state [" + MessageStatus.ACKNOWLEDGED.name() + "] is already deleted. Delete time: [" + deleted + "]"));
@@ -904,7 +904,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         try {
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             fail();
         } catch (MessagingException ex) {
             Assert.assertTrue(ex.getMessage().contains("Message [1] is in final state [" + MessageStatus.ACKNOWLEDGED.name() + "]"));
@@ -916,16 +916,16 @@ public class UserMessageDefaultServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             times = 1;
             userMessageDefaultService.deleteMessage(messageId);
             times = 1;
         }};
 
-        userMessageDefaultService.deleteMessageNotInFinalStatus(messageId);
+        userMessageDefaultService.deleteMessageNotInFinalStatus(messageId, MSHRole.SENDING);
 
         new FullVerificationsInOrder(userMessageDefaultService) {{
-            userMessageDefaultService.getMessageNotInFinalStatus(messageId);
+            userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             userMessageDefaultService.deleteMessage(messageId);
         }};
     }

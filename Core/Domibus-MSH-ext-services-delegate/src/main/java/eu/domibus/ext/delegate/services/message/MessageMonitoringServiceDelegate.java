@@ -3,6 +3,8 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -67,19 +69,19 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public Long getFailedMessageInterval(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
         return userMessageService.getFailedMessageElapsedTime(messageId);
     }
 
     @Override
     public void restoreFailedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
         restoreService.restoreFailedMessage(messageId);
     }
 
     @Override
     public void sendEnqueuedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
         userMessageService.sendEnqueuedMessage(messageId);
     }
 
@@ -91,13 +93,13 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public void deleteFailedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
         userMessageService.deleteFailedMessage(messageId);
     }
 
     @Override
     public List<MessageAttemptDTO> getAttemptsHistory(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
         final List<MessageAttempt> attemptsHistory = messageAttemptService.getAttemptsHistory(messageId);
         return messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
     }
@@ -105,7 +107,12 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
-        userMessageService.deleteMessageNotInFinalStatus(messageId);
+        try {
+            userMessageService.deleteMessageNotInFinalStatus(messageId, MSHRole.SENDING);
+        } catch (MessageNotFoundException ex) {
+            LOG.info("Could not find a message with id [{}] and role [{}]. Trying RECEIVING role.", messageId, MSHRole.SENDING);
+            userMessageService.deleteMessageNotInFinalStatus(messageId, MSHRole.RECEIVING);
+        }
     }
 
     @Override
@@ -116,7 +123,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     private String getUser() {
         String originalUserFromSecurityContext = authUtils.getOriginalUser();
-        if(StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
+        if (StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
             throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
         }
         return originalUserFromSecurityContext;

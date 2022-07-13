@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.ext.domain.MessageAttemptDTO;

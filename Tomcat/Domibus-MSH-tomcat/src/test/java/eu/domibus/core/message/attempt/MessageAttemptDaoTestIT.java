@@ -3,6 +3,7 @@ package eu.domibus.core.message.attempt;
 import eu.domibus.AbstractIT;
 import eu.domibus.ITTestsService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.logging.DomibusLogger;
@@ -52,7 +53,7 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
         messageAttemptDao.create(entity);
         assertTrue(entity.getEntityId() > 0);
 
-        final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId(userMessage.getMessageId());
+        final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId(userMessage.getMessageId(), MSHRole.SENDING);
         assertEquals(1, entities.size());
         MessageAttemptEntity next = entities.iterator().next();
         assertEquals(entity, next);
@@ -68,7 +69,7 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     public void testSaveMessageAcknowledge_notFound() {
-        final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId("not_found");
+        final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId("not_found", MSHRole.SENDING);
         assertEquals(0, entities.size());
     }
 }

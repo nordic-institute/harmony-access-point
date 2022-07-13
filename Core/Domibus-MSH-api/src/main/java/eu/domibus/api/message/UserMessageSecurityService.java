@@ -1,5 +1,6 @@
 package eu.domibus.api.message;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthenticationException;
 
@@ -29,4 +30,5 @@ public interface UserMessageSecurityService {
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId);
 
+    void checkMessageAuthorization(String messageId, MSHRole mshRole);
 }

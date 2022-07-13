@@ -1,6 +1,7 @@
 package eu.domibus.api.usermessage;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
@@ -77,7 +78,7 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
-    void deleteMessageNotInFinalStatus(String messageId);
+    void deleteMessageNotInFinalStatus(String messageId, MSHRole sending) throws MessageNotFoundException, MessagingException;
 
     List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
 

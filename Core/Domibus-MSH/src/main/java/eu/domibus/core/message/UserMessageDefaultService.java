@@ -232,10 +232,9 @@ public class UserMessageDefaultService implements UserMessageService {
     public void sendEnqueuedMessage(String messageId) {
         LOG.info("Sending enqueued message [{}]", messageId);
 
-        // what mshRole? receive it as param or have it in MDC context?
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
@@ -251,7 +250,6 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
         }
 
-//        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
 
         reprogrammableService.setRescheduleInfo(userMessageLog, new Date());
@@ -453,20 +451,23 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public void deleteFailedMessage(String messageId) {
         getFailedMessage(messageId);
-        deleteMessage(messageId);
+        deleteMessage(messageId, MSHRole.SENDING);
+    }
+
+    private void deleteMessage(String messageId, MSHRole sending) {
     }
 
     @Transactional
     @Override
-    public void deleteMessageNotInFinalStatus(String messageId) {
-        getMessageNotInFinalStatus(messageId);
-        deleteMessage(messageId);
+    public void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
+        UserMessageLog mes = getMessageNotInFinalStatus(messageId, mshRole);
+        deleteMessage(messageId, mes.getMshRole().getRole());
     }
 
     protected UserMessageLog getFailedMessage(String messageId) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
@@ -474,8 +475,8 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog;
     }
 
-    protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+    protected UserMessageLog getMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }

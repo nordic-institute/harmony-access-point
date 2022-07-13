@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -173,7 +174,7 @@ public class MessageMonitoringServiceDelegateTest {
 
         new Verifications() {{
             userMessageSecurityService.checkMessageAuthorization(messageId);
-            userMessageService.deleteMessageNotInFinalStatus(messageId);
+            userMessageService.deleteMessageNotInFinalStatus(messageId, MSHRole.SENDING);
         }};
     }
 }

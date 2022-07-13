@@ -19,8 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.ws.rs.QueryParam;
-
 /**
  * @author Tiago Miguel
  * @since 3.3.1
@@ -58,11 +56,9 @@ public class UserMessageExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"usermessage"})
     @GetMapping(path = "/{messageId:.+}")
     public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId,
-                                         @QueryParam("mshRole") eu.domibus.common.MSHRole role) throws MessageNotFoundException {
-        if (role == null) {
-            role = MSHRole.RECEIVING;
-        }
-        LOG.debug("Getting User Message with id = '{}", messageId);
+                                         @RequestParam(value = "mshRole", required = false) String mshRole) throws MessageNotFoundException {
+        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : MSHRole.RECEIVING;
+        LOG.debug("Getting User Message with id = [{}] and mshRole = [{}]", messageId, role);
         return userMessageExtService.getMessage(messageId, role);
     }
 

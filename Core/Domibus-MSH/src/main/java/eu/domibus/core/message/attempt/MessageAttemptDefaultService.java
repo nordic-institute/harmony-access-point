@@ -3,6 +3,7 @@ package eu.domibus.core.message.attempt;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
@@ -43,10 +44,9 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
 
     @Override
     public List<MessageAttempt> getAttemptsHistory(String messageId) {
-        // what mshRole? receive it as param?
-        final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId(messageId);
+        final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId(messageId, MSHRole.SENDING);
         if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId) == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
         return messageCoreConverter.messageAttemptEntityListToMessageAttemptList(entities);
     }
