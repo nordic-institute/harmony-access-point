@@ -27,6 +27,9 @@ public class UserMessageSecurityDefaultServiceTest {
     UserMessageService userMessageService;
 
     @Injectable
+    UserMessageDao userMessageDao;
+
+    @Injectable
     AuthUtils authUtils;
 
     @Injectable
@@ -37,7 +40,7 @@ public class UserMessageSecurityDefaultServiceTest {
     public void testCheckMessageAuthorizationWithNonExistingMessage() {
         final String messageId = "1";
         new Expectations() {{
-            userMessageService.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId);
             result = null;
         }};
 
@@ -48,7 +51,7 @@ public class UserMessageSecurityDefaultServiceTest {
     public void testCheckMessageAuthorizationWithExistingMessage(@Injectable UserMessage userMessage) {
         final String messageId = "1";
         new Expectations(userMessageSecurityDefaultService) {{
-            userMessageService.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);

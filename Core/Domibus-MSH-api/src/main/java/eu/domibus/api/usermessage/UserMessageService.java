@@ -51,19 +51,6 @@ public interface UserMessageService {
      */
     eu.domibus.api.model.UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException;
 
-
-    /**
-     * @param messageId of the {@link eu.domibus.api.model.UserMessage}
-     * @return database object or null
-     */
-    eu.domibus.api.model.UserMessage findByMessageId(String messageId);
-
-    /**
-     * @param messageEntityId entity id of the {@link eu.domibus.api.model.UserMessage}
-     * @return database object or null
-     */
-    eu.domibus.api.model.UserMessage findByEntityId(final Long messageEntityId);
-
     Map<String, String> getProperties(Long messageEntityId);
 
     String getOriginalSender(String messageId, MSHRole mshRole);

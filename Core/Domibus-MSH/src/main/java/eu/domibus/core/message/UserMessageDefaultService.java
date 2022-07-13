@@ -686,17 +686,6 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessage;
     }
 
-    @Override
-    public UserMessage findByMessageId(String messageId) {
-        // what mshRole? receive it as param?
-        return userMessageDao.findByMessageId(messageId);
-    }
-
-    @Override
-    public UserMessage findByEntityId(final Long messageEntityId) {
-        return userMessageDao.findByEntityId(messageEntityId);
-    }
-
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 
         UserMessage userMessage = getUserMessageById(messageId);
