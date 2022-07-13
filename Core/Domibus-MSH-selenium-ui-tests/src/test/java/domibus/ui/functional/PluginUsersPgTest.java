@@ -158,9 +158,11 @@ public class PluginUsersPgTest extends SeleniumTest {
 	/* EDELIVERY-5216 - PU-6 - Admin edits an existing user and presses Cancel */
 	@Test(description = "PU-6", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndCancel() throws Exception {
+
 		SoftAssert soft = new SoftAssert();
 
-		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
+
+		String originalUserStr = Gen.rndStr(15);
 		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		Reporter.log("editing user " + username);
 		log.info("editing user " + username);
@@ -179,24 +181,16 @@ public class PluginUsersPgTest extends SeleniumTest {
 
 		PluginUserModal pum = new PluginUserModal(driver);
 
-		Reporter.log("fill Original User input with invalid string");
-		log.info("fill Original User input with invalid string");
-		pum.getOriginalUserInput().fill("testEdit");
-		pum.changeFocus();
-		Reporter.log("check error message");
-		log.info("check error message");
-		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID, "Invalid value cannot be saved in the Original User field");
-
-		Reporter.log("fill Original User input with valid string");
-		log.info("fill Original User input with valid string");
-		pum.getOriginalUserInput().fill(toAdd);
+		Reporter.log("fill Original User input with string");
+		log.info("fill Original User input with string");
+		pum.getOriginalUserInput().fill(originalUserStr);
 		pum.changeFocus();
 		pum.clickOK();
 
 		Reporter.log("check grid for updated info");
 		log.info("check grid for updated info");
 		HashMap<String, String> userInfo = grid.getRowInfo("User Name", username);
-		soft.assertEquals(userInfo.get("Original User"), toAdd, "Edited value is visible in the grid");
+		soft.assertEquals(userInfo.get("Original User"), originalUserStr, "Edited value is visible in the grid");
 
 		Reporter.log("click cancel");
 		log.info("click cancel");
@@ -207,7 +201,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		Reporter.log("check grid for updated info");
 		log.info("check grid for updated info");
 		userInfo = grid.getRowInfo("User Name", username);
-		soft.assertNotEquals(userInfo.get("Original User"), toAdd, "Edited value is NOT visible in the grid after Cancel");
+		soft.assertNotEquals(userInfo.get("Original User"), originalUserStr, "Edited value is NOT visible in the grid after Cancel");
 
 		soft.assertAll();
 
@@ -218,7 +212,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 	public void editAndSave() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:G" + Gen.randomNumber(100);
+		String originalUserStr = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:G" + Gen.randomNumber(100);
 		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		Reporter.log("editing user " + username);
 		log.info("editing user " + username);
@@ -237,19 +231,9 @@ public class PluginUsersPgTest extends SeleniumTest {
 
 		PluginUserModal pum = new PluginUserModal(driver);
 
-		Reporter.log("fill Original User input with invalid string");
-		log.info("fill Original User input with invalid string");
-		pum.getOriginalUserInput().fill("testEdit");
-		pum.changeFocus();
-
-		Reporter.log("check error message");
-		log.info("check error message");
-		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGINUSER_MODAL_ORIGINAL_USER_ERR, "Correct error message is shown when wrong original user is entered");
-		soft.assertTrue(!pum.getOkBtn().isEnabled(), "Invalid value cannot be saved in the Original User field");
-
-		Reporter.log("fill Original User input with valid string");
-		log.info("fill Original User input with valid string");
-		pum.getOriginalUserInput().fill(toAdd);
+		Reporter.log("fill Original User input with string");
+		log.info("fill Original User input with string");
+		pum.getOriginalUserInput().fill(originalUserStr);
 		pum.changeFocus();
 		pum.clickOK();
 
@@ -257,7 +241,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 
 		Reporter.log("check grid for updated info");
 		log.info("check grid for updated info");
-		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid");
+		soft.assertTrue(grid.scrollTo("Original User", originalUserStr) > -1, "Edited value is visible in the grid");
 
 		Reporter.log("click Save");
 		log.info("click Save");
@@ -266,7 +250,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 
 		Reporter.log("check grid for updated info");
 		log.info("check grid for updated info");
-		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid after Save");
+		soft.assertTrue(grid.scrollTo("Original User", originalUserStr) > -1, "Edited value is visible in the grid after Save");
 
 		soft.assertAll();
 

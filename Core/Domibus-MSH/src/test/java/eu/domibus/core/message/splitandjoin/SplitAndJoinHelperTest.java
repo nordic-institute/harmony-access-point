@@ -2,11 +2,9 @@ package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.Splitting;
-import eu.domibus.core.message.MessageSubmitterService;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.messaging.MessagingProcessingException;
 import junit.framework.TestCase;
 import mockit.Expectations;
@@ -14,7 +12,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,23 +28,13 @@ public class SplitAndJoinHelperTest extends TestCase {
     protected UserMessageFactory userMessageFactory;
 
     @Injectable
-    MessageSubmitterService messageSubmitter;
+    MessageSubmitterImpl messageSubmitter;
 
     @Injectable
     protected MessageGroupDao messageGroupDao;
 
     @Tested
     SplitAndJoinHelper splitAndJoinHelper;
-
-    @Test
-    public void mayUseSplitAndJoin(@Injectable LegConfiguration legConfiguration, @Injectable Splitting splitting) {
-        new Expectations() {{
-            legConfiguration.getSplitting();
-            result = splitting;
-        }};
-
-        Assert.assertTrue(splitAndJoinHelper.mayUseSplitAndJoin(legConfiguration));
-    }
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,

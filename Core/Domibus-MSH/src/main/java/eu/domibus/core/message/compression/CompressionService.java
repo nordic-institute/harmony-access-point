@@ -9,6 +9,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -38,7 +39,7 @@ public class CompressionService {
     private CompressionMimeTypeBlacklist blacklist;
 
     @Autowired
-    protected SplitAndJoinHelper splitAndJoinHelper;
+    protected SplitAndJoinConfigurationService splitAndJoinConfigurationService;
 
     @Autowired
     protected PartPropertyDictionaryService partPropertyDictionaryService;
@@ -71,7 +72,7 @@ public class CompressionService {
             return false;
         }
 
-        final boolean mayUseSplitAndJoin = splitAndJoinHelper.mayUseSplitAndJoin(legConfigForMessage);
+        final boolean mayUseSplitAndJoin = splitAndJoinConfigurationService.mayUseSplitAndJoin(legConfigForMessage);
         if (mayUseSplitAndJoin) {
             LOG.debug("SplitAndJoin compression is only applied for the multipart message");
             return false;

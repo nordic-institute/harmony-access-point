@@ -48,13 +48,13 @@ public class FSPluginImplTest {
     private static final String TEXT_XML = "text/xml";
 
     @Injectable
-    protected MessageRetriever messageRetriever;
+    protected MessageRetrieverExtService messageRetriever;
 
     @Injectable
-    protected MessageSubmitter messageSubmitter;
+    protected MessageSubmitterExtService messageSubmitter;
 
     @Injectable
-    protected MessagePuller messagePuller;
+    protected MessagePullerExtService messagePuller;
 
     @Injectable
     private FSFilesManager fsFilesManager;

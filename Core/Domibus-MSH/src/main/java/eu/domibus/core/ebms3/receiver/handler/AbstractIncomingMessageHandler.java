@@ -7,7 +7,9 @@ import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
+import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -39,6 +41,12 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     protected BackendNotificationService backendNotificationService;
 
     @Autowired
+    protected TestMessageValidator testMessageValidator;
+
+    @Autowired
+    UserMessageErrorCreator userMessageErrorCreator;
+
+    @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
 
     @Autowired
@@ -64,7 +72,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             assert false;
         }
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-        Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        Boolean testMessage = testMessageValidator.checkTestMessage(userMessage);
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
@@ -78,7 +86,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         } catch (final EbMS3Exception e) {
             try {
                 if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
-                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, ebms3Messaging.getUserMessage().getMessageInfo().getMessageId());

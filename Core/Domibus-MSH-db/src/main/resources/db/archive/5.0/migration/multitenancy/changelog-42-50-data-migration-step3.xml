@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <!-- rename former tables to OLD_* -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-rename-former-tables-multitenancy">
+        <renameTable oldTableName="TB_USER_DOMAIN" newTableName="OLD_TB_USER_DOMAIN"/>
+
+        <renameTable oldTableName="TB_REV_CHANGES" newTableName="OLD_TB_REV_CHANGES" />
+        <renameTable oldTableName="TB_USER_AUD" newTableName="OLD_TB_USER_AUD" />
+        <renameTable oldTableName="TB_USER_ROLE_AUD" newTableName="OLD_TB_USER_ROLE_AUD" />
+    </changeSet>
+
+    <!-- remove MIGR_ prefix from new tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-rename-MIGR-tables-multitenancy">
+        <renameTable oldTableName="MIGR_TB_USER_DOMAIN" newTableName="TB_USER_DOMAIN" />
+
+        <renameTable oldTableName="MIGR_TB_REV_CHANGES" newTableName="TB_REV_CHANGES" />
+        <renameTable oldTableName="MIGR_TB_USER_AUD" newTableName="TB_USER_AUD" />
+        <renameTable oldTableName="MIGR_TB_USER_ROLE_AUD" newTableName="TB_USER_ROLE_AUD" />
+    </changeSet>
+
+    <!-- add constraints and indexes -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7970-constraints-multitenancy">
+        <!-- TB_USER_DOMAIN -->
+        <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_DOMAIN_USER_NAME" tableName="TB_USER_DOMAIN"/>
+
+        <!-- TB_REV_CHANGES -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_REV_CHANGES_REV_INFO" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <!-- TB_USER_AUD -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
+                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USER_AUD_REV" tableName="TB_USER_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <!-- TB_USER_ROLE_AUD -->
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_ROLE_AUD"
+                                 constraintName="FK_USR_ROL_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_USR_ROL_AUD_REV_INFO" tableName="TB_USER_ROLE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+    </changeSet>
+
+    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-multitenancy" author="Soumya">
+        <sqlFile path="src/main/resources/db/archive/5.0/migration/oracle/db-multitenancy-migration-utc-conversion.sql" endDelimiter="\n/"
+                 dbms="oracle"/>
+    </changeSet>
+
+    <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
+
+        <createIndex indexName="IDX_FK_USR_DOM_AUD_REV_INFO" tableName="TB_USER_DOMAIN_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_DOMAIN_AUD"
+                                 constraintName="FK_USR_DOM_AUD_REV_INFO" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+    </changeSet>
+</databaseChangeLog>

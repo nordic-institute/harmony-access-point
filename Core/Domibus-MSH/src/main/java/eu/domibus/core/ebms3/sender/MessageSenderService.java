@@ -3,10 +3,7 @@ package eu.domibus.core.ebms3.sender;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.*;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -48,7 +45,7 @@ public class MessageSenderService {
     protected ReliabilityService reliabilityService;
 
     @Autowired
-    protected UserMessageHandlerService userMessageHandlerService;
+    protected TestMessageValidator testMessageValidator;
 
     @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
     @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
@@ -73,7 +70,7 @@ public class MessageSenderService {
 
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         final MessageSender messageSender = messageSenderFactory.getMessageSender(userMessage);
-        final Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());

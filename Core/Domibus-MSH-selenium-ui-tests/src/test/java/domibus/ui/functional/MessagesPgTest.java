@@ -275,7 +275,7 @@ public class MessagesPgTest extends SeleniumTest {
 		boolean foundXMLfile = false;
 		boolean foundMessfile = false;
 		for (String fileName : zipContent.keySet()) {
-			if (StringUtils.equalsIgnoreCase(fileName, "message")) {
+			if (StringUtils.equalsIgnoreCase(fileName, "messagePayload.xml")) {
 				foundMessfile = true;
 			}
 			if (StringUtils.equalsIgnoreCase(fileName, "message.xml")) {

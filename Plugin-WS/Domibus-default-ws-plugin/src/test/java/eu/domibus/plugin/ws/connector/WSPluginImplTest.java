@@ -2,6 +2,9 @@ package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.MessagePullerExtService;
+import eu.domibus.ext.services.MessageRetrieverExtService;
+import eu.domibus.ext.services.MessageSubmitterExtService;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
@@ -56,6 +59,15 @@ public class WSPluginImplTest {
 
     @Injectable
     protected MessageExtService messageExtService;
+
+    @Injectable
+    MessageRetrieverExtService messageRetrieverExtService;
+
+    @Injectable
+    MessageSubmitterExtService messageSubmitterExtService;
+
+    @Injectable
+    MessagePullerExtService messagePullerExtService;
 
     @Test
     public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,

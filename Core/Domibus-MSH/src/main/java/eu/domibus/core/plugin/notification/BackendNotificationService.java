@@ -10,10 +10,7 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorHelper;
@@ -89,7 +86,7 @@ public class BackendNotificationService {
     private UserMessageServiceHelper userMessageServiceHelper;
 
     @Autowired
-    protected UserMessageHandlerService userMessageHandlerService;
+    protected TestMessageValidator testMessageValidator;
 
     @Autowired
     protected UserMessageService userMessageService;
@@ -240,7 +237,7 @@ public class BackendNotificationService {
 
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
+        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
             return;
         }
@@ -257,7 +254,7 @@ public class BackendNotificationService {
 
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
+        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
             return;
         }

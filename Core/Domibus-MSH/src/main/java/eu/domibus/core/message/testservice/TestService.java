@@ -15,13 +15,13 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +59,7 @@ public class TestService {
     private PModeProvider pModeProvider;
 
     @Autowired
-    private DatabaseMessageHandler databaseMessageHandler;
+    private MessageSubmitter messageSubmitter;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
@@ -85,7 +85,7 @@ public class TestService {
         messageData.getToParties().clear();
         messageData.addToParty(receiver, pModeProvider.getPartyIdType(receiver));
 
-        return databaseMessageHandler.submit(messageData, BACKEND_NAME);
+        return messageSubmitter.submit(messageData, BACKEND_NAME);
     }
 
     public String submitTestDynamicDiscovery(String sender, String receiver, String receiverType) throws MessagingProcessingException, IOException {
@@ -104,7 +104,7 @@ public class TestService {
             }
         }
 
-        return databaseMessageHandler.submit(messageData, BACKEND_NAME);
+        return messageSubmitter.submit(messageData, BACKEND_NAME);
     }
 
     protected Submission createSubmission(String sender) throws IOException {
