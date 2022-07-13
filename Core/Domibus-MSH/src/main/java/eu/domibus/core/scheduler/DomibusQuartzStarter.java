@@ -13,7 +13,6 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
-import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
@@ -83,16 +82,12 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     @Autowired
     protected SynchronizedRunnableFactory synchronizedRunnableFactory;
 
-    @Autowired
-    private DbSchemaUtil dbSchemaUtil;
-
     protected Map<Domain, Scheduler> schedulers = new HashMap<>();
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
 
     protected List<DomibusDomainQuartzJob> jobsToDelete = new ArrayList<>();
     protected List<DomibusDomainQuartzJob> jobsToPause = new ArrayList<>();
-
 
     @PostConstruct
     public void initialize() {
@@ -136,9 +131,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     private void initQuartzSchedulers(List<Domain> domains) {
         for (Domain domain : domains) {
             try {
-                if (dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
-                    checkJobsAndStartScheduler(domain);
-                }
+                checkJobsAndStartScheduler(domain);
             } catch (SchedulerException e) {
                 LOG.error("Could not initialize the Quartz Scheduler for domain [{}]", domain, e);
             }

@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,14 +54,20 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private final AuthenticationService authenticationService;
 
+    private final DbSchemaUtil dbSchemaUtil;
+
     public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
-                             DomibusConfigurationService domibusConfigurationService, DomainDao domainDao,
-                             DomibusCacheService domibusCacheService, @Lazy AuthenticationService authenticationService) {
+                             DomibusConfigurationService domibusConfigurationService,
+                             DomainDao domainDao,
+                             DomibusCacheService domibusCacheService,
+                             @Lazy AuthenticationService authenticationService,
+                             @Lazy DbSchemaUtil dbSchemaUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
         this.authenticationService = authenticationService;
+        this.dbSchemaUtil = dbSchemaUtil;
     }
 
     @PostConstruct
@@ -70,6 +78,16 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
     @Override
     public synchronized List<Domain> getDomains() {
         LOG.debug("Getting active domains.");
+
+        List<Domain> domainsToRemove = new ArrayList<>();
+        for (Domain domain : domains) {
+            if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
+                domainsToRemove.add(domain);
+            }
+        }
+
+        domains.removeAll(domainsToRemove);
+
         return domains;
     }
 

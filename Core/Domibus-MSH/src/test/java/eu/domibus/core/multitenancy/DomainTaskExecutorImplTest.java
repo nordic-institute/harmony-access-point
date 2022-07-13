@@ -3,7 +3,6 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
-import eu.domibus.api.util.DbSchemaUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -37,9 +36,6 @@ public class DomainTaskExecutorImplTest {
 
     @Injectable
     SynchronizedRunnableFactory synchronizedRunnableFactory;
-
-    @Injectable
-    DbSchemaUtil dbSchemaUtil;
 
     @Tested
     DomainTaskExecutorImpl domainTaskExecutor;

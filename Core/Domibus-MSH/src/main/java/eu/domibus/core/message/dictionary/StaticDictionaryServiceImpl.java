@@ -7,12 +7,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -20,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +37,6 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
     protected DomainTaskExecutor domainTaskExecutor;
     protected DomainService domainService;
     protected PlatformTransactionManager transactionManager;
-    protected DbSchemaUtil dbSchemaUtil;
-    @Autowired
-    protected DynamicDomainManagementService dynamicDomainManagementService;
 
     public StaticDictionaryServiceImpl(MessageStatusDao messageStatusDao,
                                        NotificationStatusDao notificationStatusDao,
@@ -51,8 +44,7 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
                                        DomibusConfigurationService domibusConfigurationService,
                                        DomainTaskExecutor domainTaskExecutor,
                                        DomainService domainService,
-                                       PlatformTransactionManager transactionManager,
-                                       DbSchemaUtil dbSchemaUtil) {
+                                       PlatformTransactionManager transactionManager) {
         this.messageStatusDao = messageStatusDao;
         this.notificationStatusDao = notificationStatusDao;
         this.mshRoleDao = mshRoleDao;
@@ -60,7 +52,6 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
         this.domainTaskExecutor = domainTaskExecutor;
         this.domainService = domainService;
         this.transactionManager = transactionManager;
-        this.dbSchemaUtil = dbSchemaUtil;
     }
 
     @Transactional
@@ -95,21 +86,6 @@ public class StaticDictionaryServiceImpl implements StaticDictionaryService {
 
     private void createEntries(List<Domain> domains) {
         Runnable transactionWrappedCall = transactionWrappedCall(createEntriesCall());
-
-        List<Domain> domainsToRemove = new ArrayList<>();
-        for (Domain domain : domains) {
-            if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
-                domainsToRemove.add(domain);
-            }
-        }
-
-        for (Domain domain : domainsToRemove) {
-            dynamicDomainManagementService.removeDomain(domain.getCode(), false);
-            LOG.warn("Domain [{}] does not have a valid database schema and its thread will not start", domain.getCode());
-        }
-
-        domains.removeAll(domainsToRemove);
-
         for (Domain domain : domains) {
             LOG.debug("Start checking and creating static dictionary entries for domain [{}]", domain);
             domainTaskExecutor.submit(transactionWrappedCall, domain, true, 3L, TimeUnit.MINUTES);

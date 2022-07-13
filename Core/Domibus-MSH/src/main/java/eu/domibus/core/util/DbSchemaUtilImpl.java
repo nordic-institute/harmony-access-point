@@ -6,19 +6,14 @@ import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.common.JPAConstants;
-import eu.domibus.core.user.ui.User;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 
 /**
- * Provides functionality for testing if a domain has a valid database schema
+ * Provides functionality for testing if a domain has a valid database schema{@link DbSchemaUtil}
  *
  * @author Lucian FURCA
  * @since 5.1
@@ -27,17 +22,22 @@ import javax.persistence.TypedQuery;
 public class DbSchemaUtilImpl implements DbSchemaUtil {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DbSchemaUtilImpl.class);
 
-    @Autowired
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    private EntityManager entityManager;
+    @PersistenceUnit(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
+    private EntityManagerFactory entityManagerFactory;
 
     private final DomainService domainService;
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    public DbSchemaUtilImpl(DomainService domainService, DomibusConfigurationService domibusConfigurationService) {
+    private EntityManager entityManager;
+
+    public DbSchemaUtilImpl(DomainService domainService,
+                            DomibusConfigurationService domibusConfigurationService,
+                            EntityManagerFactory entityManagerFactory) {
+
         this.domainService = domainService;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     public boolean isDatabaseSchemaForDomainValid(Domain domain) {
@@ -45,20 +45,26 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             LOG.warn("Domain to be checked is null");
             return false;
         }
-        TypedQuery<User> namedQueryForTest = entityManager.createNamedQuery("User.findAll", User.class);
+
+        if (entityManager == null) {
+            entityManager = entityManagerFactory.createEntityManager();
+        }
 
         try {
             //set corresponding db schema
+            entityManager.getTransaction().begin();
             String databaseSchema = domainService.getDatabaseSchema(domain);
             String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
             Query q = entityManager.createNativeQuery(schemaChangeSQL);
             q.executeUpdate();
-            namedQueryForTest.getResultList();
-        } catch (Exception e) {
+            entityManager.getTransaction().commit();
+
+            return true;
+        } catch (PersistenceException e) {
             LOG.warn("Could not set schema for domain [{}]", domain.getCode());
+            entityManager.getTransaction().rollback();
             return false;
         }
-        return true;
     }
 
     public String getSchemaChangeSQL(String databaseSchema) {
