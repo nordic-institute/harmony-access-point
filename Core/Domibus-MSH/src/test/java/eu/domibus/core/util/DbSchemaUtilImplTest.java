@@ -21,6 +21,10 @@ import javax.persistence.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DbSchemaUtilImplTest {
 
+    private static final String DOMAIN = "domain";
+
+    private static final String DOMAIN_DB_SCHEMA = "domibus_domain";
+
     @InjectMocks
     private DbSchemaUtilImpl dbSchemaUtilImpl;
 
@@ -45,62 +49,62 @@ public class DbSchemaUtilImplTest {
     @Test
     public void givenDatabaseSchemaWhenDatabaseEngineIsOracleThenCorrespondingSqlIsGenerated() {
         //given
-        String databaseSchema = "domibus";
+        String databaseSchema = DOMAIN_DB_SCHEMA;
 
         //when
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.ORACLE);
         String actual = dbSchemaUtilImpl.getSchemaChangeSQL(databaseSchema);
 
         //then
-        Assert.assertEquals("ALTER SESSION SET CURRENT_SCHEMA = domibus", actual);
+        Assert.assertEquals("ALTER SESSION SET CURRENT_SCHEMA = "+ databaseSchema, actual);
     }
 
     @Test
     public void givenDatabaseSchemaWhenDatabaseEngineIsNotOracleThenCorrespondingSqlIsGenerated() {
         //given
-        String databaseSchema = "domibus";
+        String databaseSchema = DOMAIN_DB_SCHEMA;
 
         //when
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         String actual = dbSchemaUtilImpl.getSchemaChangeSQL(databaseSchema);
 
         //then
-        Assert.assertEquals("USE domibus", actual);
+        Assert.assertEquals("USE " + databaseSchema, actual);
     }
 
     @Test
     public void givenDomainWithValidDbSchemaWhenTestingValidityTrueShouldBeReturned() {
         //given
-        Domain domain = new Domain("domain_2","domain_2");
+        Domain domain = new Domain(DOMAIN,DOMAIN);
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn("domibus_domain_2");
+        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
-        Mockito.when(entityManager.createNativeQuery("USE domibus_domain_2")).thenReturn(query);
+        Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
         boolean actualResult = dbSchemaUtilImpl.isDatabaseSchemaForDomainValid(domain);
 
         //then
-        Assert.assertEquals(true, actualResult);
+        Assert.assertTrue(actualResult);
     }
 
     @Test
     public void givenDomainWithFaultyDbSchemaWhenTestingValidityFalseShouldBeReturned() {
         //given
-        Domain domain = new Domain("domain_2","domain_2");
+        Domain domain = new Domain(DOMAIN,DOMAIN);
 
         //when
-        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn("domibus_domain_3");
+        Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
         Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
-        Mockito.when(entityManager.createNativeQuery("USE domibus_domain_3")).thenReturn(query);
+        Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
         Mockito.when(query.executeUpdate()).thenThrow(PersistenceException.class);
         boolean actualResult = dbSchemaUtilImpl.isDatabaseSchemaForDomainValid(domain);
 
         //then
-        Assert.assertEquals(false, actualResult);
+        Assert.assertFalse(actualResult);
     }
 
 }
