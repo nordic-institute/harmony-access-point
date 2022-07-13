@@ -56,12 +56,15 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             String databaseSchema = domainService.getDatabaseSchema(domain);
             String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
             Query q = entityManager.createNativeQuery(schemaChangeSQL);
+            //check if the domain's database schema can be accessed
             q.executeUpdate();
-            entityManager.getTransaction().commit();
+
+            //revert changing of the current schema
+            entityManager.getTransaction().rollback();
 
             return true;
         } catch (PersistenceException e) {
-            LOG.warn("Could not set schema for domain [{}]", domain.getCode());
+            LOG.warn("Could not set database schema for domain [{}] so probably the schema is invalid", domain.getCode());
             entityManager.getTransaction().rollback();
             return false;
         }
