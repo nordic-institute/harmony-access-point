@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -106,7 +107,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     protected void checkMessageAuthorization(String messageId) {
         checkUnsecure();
 
-        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
         checkMessageAuthorization(userMessage);
     }
 

@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.pmode.PModeConstants;
@@ -69,7 +70,7 @@ public class MessageRetrieverImplTest {
                                       @Injectable UserMessageLog userMessageLog) throws Exception {
 
         new Expectations() {{
-            userMessageService.getByMessageId(MESS_ID);
+            userMessageService.getByMessageId(MESS_ID, MSHRole.RECEIVING);
             result = userMessage;
             userMessageLogService.findById(anyLong);
             result = userMessageLog;
@@ -87,7 +88,7 @@ public class MessageRetrieverImplTest {
     public void testDownloadMessageOK_RetentionNonZero(@Injectable UserMessage userMessage,
                                                        @Injectable final UserMessageLog messageLog) throws Exception {
         new Expectations(messageRetriever) {{
-            userMessageService.getByMessageId(MESS_ID);
+            userMessageService.getByMessageId(MESS_ID, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageLogService.findById(anyLong);
@@ -105,7 +106,7 @@ public class MessageRetrieverImplTest {
     @Test
     public void testDownloadMessageNoMsgFound() {
         new Expectations() {{
-            userMessageService.getByMessageId(MESS_ID);
+            userMessageService.getByMessageId(MESS_ID, MSHRole.RECEIVING);
             result = new eu.domibus.messaging.MessageNotFoundException(MESS_ID);
         }};
 
@@ -161,7 +162,7 @@ public class MessageRetrieverImplTest {
         String messageId = "123";
 
         new Expectations(messageRetriever) {{
-            userMessageService.getByMessageId(messageId);
+            userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
         }};
 

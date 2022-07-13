@@ -152,6 +152,11 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     }
 
     @Override
+    public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
+        return userMessageLogDao.getMessageStatus(messageId, mshRole);
+    }
+
+    @Override
     public MessageStatus getMessageStatus(final Long messageEntityId) {
         return userMessageLogDao.getMessageStatus(messageEntityId);
     }

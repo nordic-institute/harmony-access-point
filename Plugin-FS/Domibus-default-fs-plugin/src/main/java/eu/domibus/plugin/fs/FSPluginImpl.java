@@ -198,7 +198,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         }
     }
 
-
     protected void writePayloads(String messageId, FSMessage fsMessage, FileObject incomingFolderByMessageId) throws FSPluginException {
         LOG.debug("Writing payloads for message [{}]", messageId);
 

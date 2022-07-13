@@ -24,9 +24,10 @@ import java.util.Date;
 @Table(name = "TB_ERROR_LOG")
 @NamedQuery(name = "ErrorLogEntry.findUnnotifiedErrorsByMessageId", query = "select e from ErrorLogEntry e where e.messageInErrorId = :MESSAGE_ID and e.notified is null")
 @NamedQuery(name = "ErrorLogEntry.findErrorsByMessageId", query = "select e from ErrorLogEntry e where e.messageInErrorId = :MESSAGE_ID order by e.timestamp desc")
+@NamedQuery(name = "ErrorLogEntry.findErrorsByMessageId2", query = "select e from ErrorLogEntry e where e.messageInErrorId = :MESSAGE_ID and e.mshRole.role = :MSH_ROLE order by e.timestamp desc")
 @NamedQuery(name = "ErrorLogEntry.findEntries", query = "select e from ErrorLogEntry e")
 @NamedQuery(name = "ErrorLogEntry.countEntries", query = "select count(e.entityId)  from ErrorLogEntry e")
-@NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError", query = "delete from ErrorLogEntry e where messageInErrorId IN :MESSAGEIDS")
+@NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError", query = "delete from ErrorLogEntry e where e.messageInErrorId IN :MESSAGEIDS")
 @NamedQuery(name = "ErrorLogEntry.findErrorsWithoutMessageIds", query = "select e.entityId from ErrorLogEntry e where e.messageInErrorId is null and e.timestamp<:DELETION_DATE")
 @NamedQuery(name = "ErrorLogEntry.deleteErrorsWithoutMessageIds", query = "delete from ErrorLogEntry e where e.entityId IN :ENTITY_IDS")
 public class ErrorLogEntry extends AbstractBaseEntity {

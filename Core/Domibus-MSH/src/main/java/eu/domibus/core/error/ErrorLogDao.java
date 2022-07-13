@@ -1,5 +1,6 @@
 package eu.domibus.core.error;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.logging.DomibusLogger;
@@ -39,6 +40,14 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     public List<ErrorLogEntry> getErrorsForMessage(final String messageId) {
         final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId", ErrorLogEntry.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
+
+        return initializeChildren(query.getResultList());
+    }
+
+    public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole mshRole) {
+        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId2", ErrorLogEntry.class);
+        query.setParameter(STR_MESSAGE_ID, messageId);
+        query.setParameter("MSH_ROLE", mshRole);
 
         return initializeChildren(query.getResultList());
     }

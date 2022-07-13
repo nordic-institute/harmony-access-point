@@ -189,6 +189,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
+        try {
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus2", MessageStatusEntity.class);
+            query.setParameter(STR_MESSAGE_ID, messageId);
+            query.setParameter("MSH_ROLE", mshRole);
+            return query.getSingleResult().getMessageStatus();
+        } catch (NoResultException nrEx) {
+            LOG.debug("No result for message with id [{}]", messageId);
+            return MessageStatus.NOT_FOUND;
+        }
+    }
+
     public MessageStatus getMessageStatus(final Long messageEntityId) {
         try {
             TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByEntityId", MessageStatusEntity.class);
@@ -392,7 +404,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         messageLog.setNotificationStatus(status);
     }
 
-
     @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         if (LOG.isDebugEnabled()) {
@@ -492,7 +503,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", messageStatus);
     }
-
 
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<UserMessageLog> mle) {
@@ -595,4 +605,5 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
         }
     }
+
 }

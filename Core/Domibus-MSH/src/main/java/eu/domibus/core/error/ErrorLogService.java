@@ -37,4 +37,6 @@ public interface ErrorLogService {
     List<ErrorLogEntry> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters);
 
     long countEntries(Map<String, Object> filters);
+
+    List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole);
 }

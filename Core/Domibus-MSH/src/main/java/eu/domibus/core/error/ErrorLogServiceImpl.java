@@ -116,6 +116,12 @@ public class ErrorLogServiceImpl implements ErrorLogService {
         return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
     }
 
+    @Override
+    public List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole) {
+        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId, mshRole);
+        return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
+    }
+
     protected ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {
         ErrorResultImpl result = new ErrorResultImpl();
         result.setErrorCode(errorLogEntry.getErrorCode());
@@ -132,4 +138,5 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     public long countEntries(Map<String, Object> filters) {
         return errorLogDao.countEntries(filters);
     }
+
 }

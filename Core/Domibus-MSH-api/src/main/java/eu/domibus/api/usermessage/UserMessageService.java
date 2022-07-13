@@ -39,10 +39,11 @@ public interface UserMessageService {
 
     /**
      * @param messageId of the {@link eu.domibus.api.model.UserMessage}
+     * @param mshRole
      * @return database object
      * @throws MessageNotFoundException if not found
      */
-    eu.domibus.api.model.UserMessage getByMessageId(String messageId) throws MessageNotFoundException;
+    eu.domibus.api.model.UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException;
 
     /**
      * @param messageEntityId entity id of the {@link eu.domibus.api.model.UserMessage}

@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -55,7 +56,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Transactional(propagation = Propagation.REQUIRED)
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
-        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
 
         return getSubmission(userMessage);
     }
@@ -73,7 +74,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     public Submission browseMessage(String messageId) {
         LOG.info("Browsing message with id [{}]", messageId);
 
-        UserMessage userMessage = userMessageService.getByMessageId(messageId);
+        UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
 
         return messagingService.getSubmission(userMessage);
     }
@@ -89,7 +90,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId);
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId, MSHRole.RECEIVING);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
@@ -101,7 +102,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        return errorLogService.getErrors(messageId);
+        return errorLogService.getErrors(messageId, MSHRole.RECEIVING);
     }
 
     protected Submission getSubmission(final UserMessage userMessage) {

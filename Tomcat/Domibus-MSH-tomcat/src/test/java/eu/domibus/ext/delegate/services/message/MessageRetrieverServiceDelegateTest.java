@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -45,7 +46,7 @@ public class MessageRetrieverServiceDelegateTest  {
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            userMessageService.getByMessageId(messageId);
+            userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
