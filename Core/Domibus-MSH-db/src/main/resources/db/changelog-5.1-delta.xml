@@ -31,4 +31,11 @@
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
     </changeSet>
 
+    <changeSet author="Razvan Cretu" id="EDELIVERY-9594">
+        <addColumn tableName="TB_PM_RECEPTION_AWARENESS">
+            <column name="INITIAL_INTERVAL" type="INT"/>
+            <column name="MULTIPLYING_FACTOR" type="INT"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

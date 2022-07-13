@@ -51,6 +51,14 @@ public class ReceptionAwareness extends AbstractBaseEntity {
     protected int retryCount;
 
     @XmlTransient
+    @Column(name = "INITIAL_INTERVAL")
+    protected int initialInterval;
+
+    @XmlTransient
+    @Column(name = "MULTIPLYING_FACTOR")
+    protected int multiplyingFactor;
+
+    @XmlTransient
     @Column(name = "STRATEGY")
     @Enumerated(EnumType.STRING)
     protected RetryStrategy strategy = RetryStrategy.SEND_ONCE;
@@ -123,6 +131,22 @@ public class ReceptionAwareness extends AbstractBaseEntity {
         this.retryTimeout = retryTimeout;
     }
 
+    public int getMultiplyingFactor() {
+        return multiplyingFactor;
+    }
+
+    public void setMultiplyingFactor(int multiplyingFactor) {
+        this.multiplyingFactor = multiplyingFactor;
+    }
+
+    public int getInitialInterval() {
+        return initialInterval;
+    }
+
+    public void setInitialInterval(int initialInterval) {
+        this.initialInterval = initialInterval;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -149,7 +173,14 @@ public class ReceptionAwareness extends AbstractBaseEntity {
             if (this.retryXml != null) {
                 final String[] retryValues = this.retryXml.split(";");
                 this.retryTimeout = Integer.parseInt(retryValues[0]);
+                if (retryValues.length==4 && "PROGRESSIVE".equals(retryValues[3])) {
+                    this.initialInterval = Integer.parseInt(retryValues[1]);
+                    this.multiplyingFactor = Integer.parseInt(retryValues[2]);
+                    this.strategy = RetryStrategy.valueOf(retryValues[3]);
+                    return;
+                }
                 this.retryCount = Integer.parseInt(retryValues[1]);
+
                 this.strategy = RetryStrategy.valueOf(retryValues[2]);
             }
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
