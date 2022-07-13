@@ -12,15 +12,15 @@ public interface DbSchemaUtil {
 
     /**
      * Checks if the database schema associated to the domain can be accessed
-     * @param domain
-     * @return
+     * @param domain - the domain for which the schema is checked
+     * @return validity of the domain's db schema
      */
     boolean isDatabaseSchemaForDomainValid(Domain domain);
 
     /**
      * Create SQL command for changing the schema
-     * @param databaseSchema
-     * @return sql command string
+     * @param databaseSchema - schema name
+     * @return sql for schema change
      */
     String getSchemaChangeSQL(String databaseSchema);
 }
