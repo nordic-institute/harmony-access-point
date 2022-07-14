@@ -223,7 +223,7 @@ public class EventServiceImplTest {
             userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
             result = userMessageExchangeContext;
 
             userMessageExchangeContext.getPmodeKey();
@@ -237,7 +237,7 @@ public class EventServiceImplTest {
 
             result = toParty;
 
-            errorLogService.getErrorsForMessage(messageId);
+            errorLogService.getErrorsForMessage(messageId, MSHRole.RECEIVING);
             result = Lists.newArrayList(errorLogEntry);
         }};
         eventService.enrichMessageEvent(event);

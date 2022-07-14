@@ -101,25 +101,19 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     }
 
     @Override
-    public List<ErrorLogEntry> getErrorsForMessage(final String messageId) {
-        return errorLogDao.getErrorsForMessage(messageId);
-    }
-
-    @Override
     public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
         return errorLogDao.findPaged(from, max, sortColumn, asc, filters);
-    }
-
-    @Override
-    public List<ErrorResult> getErrors(String messageId) {
-        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId);
-        return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
     }
 
     @Override
     public List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole) {
         List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId, mshRole);
         return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole role) {
+        return errorLogDao.getErrorsForMessage(messageId, role);
     }
 
     protected ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {

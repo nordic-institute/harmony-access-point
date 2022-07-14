@@ -223,7 +223,7 @@ public class EventServiceImpl implements EventService {
         final MessageExchangeConfiguration userMessageExchangeContext;
         try {
             String errors = errorLogService
-                    .getErrorsForMessage(messageId)
+                    .getErrorsForMessage(messageId, role)
                     .stream()
                     .map(ErrorLogEntry::getErrorDetail)
                     .distinct()

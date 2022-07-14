@@ -55,6 +55,10 @@ public class UserMessage extends AbstractBaseEntity {
     @NotNull
     protected String messageId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MSH_ROLE_ID_FK")
+    private MSHRoleEntity mshRole;
+
     @Column(name = "REF_TO_MESSAGE_ID")
     protected String refToMessageId;
 
@@ -235,6 +239,14 @@ public class UserMessage extends AbstractBaseEntity {
 
     public void setMessageFragment(Boolean messageFragment) {
         this.messageFragment = messageFragment;
+    }
+
+    public MSHRoleEntity getMshRole() {
+        return mshRole;
+    }
+
+    public void setMshRole(MSHRoleEntity mshRole) {
+        this.mshRole = mshRole;
     }
 
     @Override

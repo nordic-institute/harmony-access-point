@@ -83,11 +83,11 @@ public class ErrorServiceImplTest {
         list.add(errorLogEntry);
 
         new Expectations(){{
-            errorLogDao.getErrorsForMessage("MESS_ID");
+            errorLogDao.getErrorsForMessage("MESS_ID", MSHRole.RECEIVING);
             result = list;
         }};
 
-        List<? extends ErrorResult> result = errorService.getErrors("MESS_ID");
+        List<? extends ErrorResult> result = errorService.getErrors("MESS_ID", MSHRole.RECEIVING);
 
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(errorLogEntry.getErrorCode(), result.get(0).getErrorCode());

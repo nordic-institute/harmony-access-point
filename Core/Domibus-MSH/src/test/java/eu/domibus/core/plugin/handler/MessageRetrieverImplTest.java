@@ -141,15 +141,15 @@ public class MessageRetrieverImplTest {
 
             list.add(errorLogEntry);
 
-            errorLogService.getErrors(MESS_ID);
+            errorLogService.getErrors(MESS_ID, MSHRole.RECEIVING);
             result = list;
 
         }};
 
         final List<? extends ErrorResult> results = messageRetriever.getErrorsForMessage(MESS_ID);
-        
+
         new Verifications() {{
-            errorLogService.getErrors(MESS_ID);
+            errorLogService.getErrors(MESS_ID, MSHRole.RECEIVING);
             Assert.assertNotNull(results);
             ErrorResult errRes = results.iterator().next();
             Assert.assertEquals(ErrorCode.EBMS_0008, errRes.getErrorCode());

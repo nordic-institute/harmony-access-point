@@ -3,10 +3,7 @@ package eu.domibus.core.message.testservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.model.ActionEntity;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -166,7 +163,7 @@ public class TestService {
         }
 
         if (result.getTimeReceived() == null) {
-            String errorDetails = getErrorsDetails(result.getMessageId());
+            String errorDetails = getErrorsDetails(result.getMessageId(), result.getMshRole());
             throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
         }
 
@@ -205,7 +202,7 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
         if (result == null) {
-            String errorDetails = getErrorsDetails(userMessageId);
+            String errorDetails = getErrorsDetails(userMessageId, MSHRole.RECEIVING);
             throw new TestServiceException("No Signal Message found. " + errorDetails);
         }
 
@@ -243,9 +240,9 @@ public class TestService {
         return getTestServiceMessageInfoRO(partyId, signalMessage);
     }
 
-    protected String getErrorsDetails(String userMessageId) {
+    protected String getErrorsDetails(String userMessageId, MSHRole mshRole) {
         String result;
-        String errorDetails = getErrorsForMessage(userMessageId);
+        String errorDetails = getErrorsForMessage(userMessageId, mshRole);
         if (StringUtils.isEmpty(errorDetails)) {
             result = "Please call the method again to see the details.";
         } else {
@@ -254,41 +251,43 @@ public class TestService {
         return result;
     }
 
-    protected String getErrorsForMessage(String userMessageId) {
-        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
+    protected String getErrorsForMessage(String userMessageId, MSHRole mshRole) {
+        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId, mshRole);
         return errorLogEntries.stream()
                 .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
                 .collect(Collectors.joining(", "));
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
-        TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
+        TestServiceMessageInfoRO messageInfoRO = new TestServiceMessageInfoRO();
         if (signalMessage != null) {
-            testServiceMessageInfoRO.setMessageId(signalMessage.getSignalMessageId());
-            testServiceMessageInfoRO.setTimeReceived(signalMessage.getTimestamp());
+            messageInfoRO.setMessageId(signalMessage.getSignalMessageId());
+            messageInfoRO.setTimeReceived(signalMessage.getTimestamp());
+            messageInfoRO.setMshRole(signalMessage.getUserMessage().getMshRole().getRole());
         }
 
-        testServiceMessageInfoRO.setPartyId(partyId);
+        messageInfoRO.setPartyId(partyId);
         Party party = pModeProvider.getPartyByIdentifier(partyId);
         if (party != null) {
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
+            messageInfoRO.setAccessPoint(party.getEndpoint());
         }
-        return testServiceMessageInfoRO;
+        return messageInfoRO;
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, String userMessageId, UserMessageLog userMessageLog) {
-        TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-        testServiceMessageInfoRO.setMessageId(userMessageId);
+        TestServiceMessageInfoRO messageInfoRO = new TestServiceMessageInfoRO();
+        messageInfoRO.setMessageId(userMessageId);
         if (userMessageLog != null) {
-            testServiceMessageInfoRO.setMessageStatus(userMessageLog.getMessageStatus());
-            testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
+            messageInfoRO.setMessageStatus(userMessageLog.getMessageStatus());
+            messageInfoRO.setTimeReceived(userMessageLog.getReceived());
+            messageInfoRO.setMshRole(userMessageLog.getMshRole().getRole());
         }
 
-        testServiceMessageInfoRO.setPartyId(partyId);
+        messageInfoRO.setPartyId(partyId);
         Party party = pModeProvider.getPartyByIdentifier(partyId);
         if (party != null) {
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
+            messageInfoRO.setAccessPoint(party.getEndpoint());
         }
-        return testServiceMessageInfoRO;
+        return messageInfoRO;
     }
 }
