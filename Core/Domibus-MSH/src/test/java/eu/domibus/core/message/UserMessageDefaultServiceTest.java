@@ -956,7 +956,7 @@ public class UserMessageDefaultServiceTest {
         String messageId = "messageId";
 
         new Expectations(userMessageDefaultService) {{
-            messagesLogService.findUserMessageById(anyString);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
             result = existingMessage;
             existingMessage.getDeleted();
             result = null;
@@ -969,8 +969,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         try {
-
-            userMessageDefaultService.checkCanGetMessageContent(messageId);
+            userMessageDefaultService.checkCanGetMessageContent(messageId, MSHRole.RECEIVING);
             Assert.fail();
         } catch (MessagingException ex) {
             Assert.assertEquals(ex.getMessage(), "[DOM_001]:The message size exceeds maximum download size limit: 1");
@@ -980,14 +979,14 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
         new Expectations(userMessageDefaultService) {{
-            messagesLogService.findUserMessageById(anyString);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
             result = deletedMessage;
             deletedMessage.getDeleted();
             result = new Date();
 
         }};
         try {
-            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            userMessageDefaultService.checkCanGetMessageContent("messageId", MSHRole.RECEIVING);
             Assert.fail();
         } catch (MessagingException ex) {
             Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
@@ -997,24 +996,24 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void test_checkCanDownloadWithExistingMessage(@Injectable MessageLogRO existingMessage) {
         new Expectations(userMessageDefaultService) {{
-            messagesLogService.findUserMessageById(anyString);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
             result = existingMessage;
             existingMessage.getDeleted();
             result = null;
         }};
 
-        userMessageDefaultService.checkCanGetMessageContent("messageId");
+        userMessageDefaultService.checkCanGetMessageContent("messageId", MSHRole.RECEIVING);
     }
 
     @Test
     public void test_checkCanDownloadWhenNoMessage() {
         new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
             result = null;
         }};
 
         try {
-            userMessageDefaultService.checkCanGetMessageContent("messageId");
+            userMessageDefaultService.checkCanGetMessageContent("messageId", MSHRole.RECEIVING);
             Assert.fail();
         } catch (MessagingException ex) {
             Assert.assertEquals(ex.getMessage(), "[DOM_001]:No message found for message id: messageId");

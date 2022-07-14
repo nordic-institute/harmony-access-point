@@ -23,6 +23,6 @@ public interface MessagesLogService {
      * @param messageId
      * @return the log entry or null
      */
-    MessageLogRO findUserMessageById(String messageId);
+//    MessageLogRO findUserMessageById(String messageId);
 
 }

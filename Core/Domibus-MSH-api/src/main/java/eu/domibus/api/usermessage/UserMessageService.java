@@ -160,7 +160,7 @@ public interface UserMessageService {
 
     eu.domibus.api.model.UserMessage getMessageEntity(Long messageEntityId);
 
-    void checkCanGetMessageContent(String messageId);
+    void checkCanGetMessageContent(String messageId, MSHRole mshRole);
 
     /**
      * Retrieves a message by id as a byte array
@@ -169,7 +169,7 @@ public interface UserMessageService {
      * @return the message serialized as byte array
      * @throws MessageNotFoundException in case there is no message with this id
      */
-    byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException;
+    byte[] getMessageAsBytes(String messageId, MSHRole mshRole) throws MessageNotFoundException;
 
     /**
      * Retrieves the message content as a zip file(used for downloading a message)
@@ -179,15 +179,16 @@ public interface UserMessageService {
      * @throws MessageNotFoundException in case the message does nor exists or the content could not be retrieved( already sent and deleted)
      * @throws IOException              in case a read error
      */
-    byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
+    byte[] getMessageWithAttachmentsAsZip(String messageId, MSHRole mshRole) throws MessageNotFoundException, IOException;
 
     /**
      * Retrieves the user and signal message envelopes xmls as a zip file(used for downloading a message)
      *
      * @param messageId user message id
+     * @param mshRole
      * @return a zip file with the envelopes
      */
-    byte[] getMessageEnvelopesAsZip(String messageId);
+    byte[] getMessageEnvelopesAsZip(String messageId, MSHRole mshRole);
 
     /**
      * Retrieves the user message envelope xml

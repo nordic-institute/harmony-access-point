@@ -56,17 +56,17 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
     public void convertMessageLogInfo() {
     }
 
-    @Test
-    @Transactional
-    public void findUserMessageById() throws Exception {
-        itTestsService.receiveMessage("msg1");
-        itTestsService.receiveMessage("msg2");
-
-        MessageLogRO result = messagesLogService.findUserMessageById("msg1");
-        Assert.assertNotNull(result);
-
-        MessageLogRO nullResult = messagesLogService.findUserMessageById("msg1-not-found");
-        Assert.assertNull(nullResult);
-    }
+//    @Test
+//    @Transactional
+//    public void findUserMessageById() throws Exception {
+//        itTestsService.receiveMessage("msg1");
+//        itTestsService.receiveMessage("msg2");
+//
+//        MessageLogRO result = messagesLogService.findUserMessageById("msg1");
+//        Assert.assertNotNull(result);
+//
+//        MessageLogRO nullResult = messagesLogService.findUserMessageById("msg1-not-found");
+//        Assert.assertNull(nullResult);
+//    }
 
 }

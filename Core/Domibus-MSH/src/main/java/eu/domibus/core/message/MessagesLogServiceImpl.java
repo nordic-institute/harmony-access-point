@@ -92,22 +92,22 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public MessageLogRO findUserMessageById(String messageId) {
-        HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageId", messageId);
-        MessageLogResultRO result = countAndFindPaged(MessageType.USER_MESSAGE, 0, 1, null, true, filters);
-
-        List<MessageLogRO> messages = result.getMessageLogEntries();
-        if (messages.size() == 0) {
-            LOG.info("Could not find message log entry for id [{}].", messageId);
-            return null;
-        }
-        if (messages.size() > 1) {
-            LOG.warn("Found more than one message log entry for id [{}].", messageId);
-        }
-        return messages.get(0);
-    }
+//    @Override
+//    public MessageLogRO findUserMessageById(String messageId) {
+//        HashMap<String, Object> filters = new HashMap<>();
+//        filters.put("messageId", messageId);
+//        MessageLogResultRO result = countAndFindPaged(MessageType.USER_MESSAGE, 0, 1, null, true, filters);
+//
+//        List<MessageLogRO> messages = result.getMessageLogEntries();
+//        if (messages.size() == 0) {
+//            LOG.info("Could not find message log entry for id [{}].", messageId);
+//            return null;
+//        }
+//        if (messages.size() > 1) {
+//            LOG.warn("Found more than one message log entry for id [{}].", messageId);
+//        }
+//        return messages.get(0);
+//    }
 
     protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters, MessageLogResultRO result) {
         List<MessageLogInfo> resultList = new ArrayList<>();

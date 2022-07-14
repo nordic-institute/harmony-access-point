@@ -41,7 +41,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.web.rest.ro.MessageLogRO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -610,9 +609,8 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
-    public void checkCanGetMessageContent(String messageId) {
-        // what mshRole? could refactor here the below method
-        MessageLogRO message = messagesLogService.findUserMessageById(messageId);
+    public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {
+        UserMessageLog message = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (message == null) {
             throw new MessagingException("No message found for message id: " + messageId, null);
         }
@@ -620,8 +618,7 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.info("Could not find message content for message: [{}]", messageId);
             throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
         }
-//        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId, message.getMshRole());
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, message.getMshRole().getRole());
         Long contentLength = partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         if (contentLength > maxDownLoadSize) {
@@ -631,7 +628,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
+    public byte[] getMessageAsBytes(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId);
         auditService.addMessageDownloadedAudit(messageId);
         final List<PartInfo> partInfoList = partInfoService.findPartInfo(userMessage);
@@ -639,14 +636,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException {
-        checkCanGetMessageContent(messageId);
+    public byte[] getMessageWithAttachmentsAsZip(String messageId, MSHRole mshRole) throws MessageNotFoundException, IOException {
+        checkCanGetMessageContent(messageId, mshRole);
         Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
         return zipFiles(message);
     }
 
     @Override
-    public byte[] getMessageEnvelopesAsZip(String messageId) {
+    public byte[] getMessageEnvelopesAsZip(String messageId, MSHRole mshRole) {
         Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId);
         if (envelopes.isEmpty()) {
             LOG.debug("Could not find message envelopes with id [{}].", messageId);
