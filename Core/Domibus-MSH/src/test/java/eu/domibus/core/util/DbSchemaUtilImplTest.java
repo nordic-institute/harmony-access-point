@@ -5,9 +5,9 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -25,7 +25,6 @@ public class DbSchemaUtilImplTest {
 
     private static final String DOMAIN_DB_SCHEMA = "domibus_domain";
 
-    @InjectMocks
     private DbSchemaUtilImpl dbSchemaUtilImpl;
 
     @Mock
@@ -45,6 +44,12 @@ public class DbSchemaUtilImplTest {
 
     @Mock
     private Query query;
+
+    @Before
+    public void init() {
+        Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
+        dbSchemaUtilImpl = new DbSchemaUtilImpl(domainService, domibusConfigurationService, entityManagerFactory);
+    }
 
     @Test
     public void givenDatabaseSchemaWhenDatabaseEngineIsOracleThenCorrespondingSqlIsGenerated() {
@@ -80,7 +85,6 @@ public class DbSchemaUtilImplTest {
         //when
         Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
-        Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
         boolean actualResult = dbSchemaUtilImpl.isDatabaseSchemaForDomainValid(domain);
@@ -97,7 +101,6 @@ public class DbSchemaUtilImplTest {
         //when
         Mockito.when(domainService.getDatabaseSchema(domain)).thenReturn(DOMAIN_DB_SCHEMA);
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.MYSQL);
-        Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         Mockito.when(entityManager.getTransaction()).thenReturn(transaction);
         Mockito.when(entityManager.createNativeQuery("USE " + DOMAIN_DB_SCHEMA)).thenReturn(query);
         Mockito.when(query.executeUpdate()).thenThrow(PersistenceException.class);
