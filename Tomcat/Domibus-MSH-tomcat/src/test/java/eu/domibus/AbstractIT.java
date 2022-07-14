@@ -1,6 +1,7 @@
 package eu.domibus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -178,24 +179,25 @@ public abstract class AbstractIT {
         with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(databaseIsInitialized());
     }
 
-    protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(5, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+    protected void waitUntilMessageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(5, TimeUnit.SECONDS)
+                .until(messageHasStatus(messageId, mshRole, messageStatus));
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
+        waitUntilMessageHasStatus(messageId,MSHRole.SENDING, MessageStatus.ACKNOWLEDGED);
     }
 
     protected void waitUntilMessageIsReceived(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.RECEIVED);
+        waitUntilMessageHasStatus(messageId, MSHRole.RECEIVING, MessageStatus.RECEIVED);
     }
 
     protected void waitUntilMessageIsInWaitingForRetry(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
+        waitUntilMessageHasStatus(messageId, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY);
     }
 
-    protected Callable<Boolean> messageHasStatus(String messageId, MessageStatus messageStatus) {
-        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId);
+    protected Callable<Boolean> messageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
+        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId, mshRole);
     }
 
     protected Callable<Boolean> databaseIsInitialized() {

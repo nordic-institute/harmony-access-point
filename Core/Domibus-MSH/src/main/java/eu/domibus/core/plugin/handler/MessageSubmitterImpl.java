@@ -255,7 +255,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
         try {
             // handle if the messageId is unique.
-            backendMessageValidator.validateMessageIsUnique(messageId);
+            backendMessageValidator.validateMessageIsUnique(messageId, userMessage.getMshRole().getRole());
 
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();

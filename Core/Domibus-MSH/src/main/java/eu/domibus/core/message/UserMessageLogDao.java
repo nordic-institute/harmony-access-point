@@ -186,16 +186,16 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         userMessageLog.getNotificationStatus();
     }
 
-    public MessageStatus getMessageStatus(String messageId) {
-        try {
-            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatusEntity.class);
-            query.setParameter(STR_MESSAGE_ID, messageId);
-            return query.getSingleResult().getMessageStatus();
-        } catch (NoResultException nrEx) {
-            LOG.debug("No result for message with id [{}]", messageId);
-            return MessageStatus.NOT_FOUND;
-        }
-    }
+//    public MessageStatus getMessageStatus(String messageId) {
+//        try {
+//            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatusEntity.class);
+//            query.setParameter(STR_MESSAGE_ID, messageId);
+//            return query.getSingleResult().getMessageStatus();
+//        } catch (NoResultException nrEx) {
+//            LOG.debug("No result for message with id [{}]", messageId);
+//            return MessageStatus.NOT_FOUND;
+//        }
+//    }
 
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
         try {

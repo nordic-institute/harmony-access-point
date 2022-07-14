@@ -246,7 +246,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
+        waitUntilMessageHasStatus(messageId,MSHRole.SENDING, MessageStatus.NOT_FOUND);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
@@ -266,7 +266,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageHasStatus(messageId, MessageStatus.NOT_FOUND);
+        waitUntilMessageHasStatus(messageId, MSHRole.RECEIVING, MessageStatus.NOT_FOUND);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);

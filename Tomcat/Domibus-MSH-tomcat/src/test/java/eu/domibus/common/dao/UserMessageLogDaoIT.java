@@ -462,7 +462,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void getMessageStatus_messageId() {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(msg1.getUserMessage().getMessageId());
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(msg1.getUserMessage().getEntityId());
 
         assertEquals(RECEIVED, messageStatus);
     }
@@ -478,7 +478,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void getMessageStatus_messageIdNotFound() {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus("notfound");
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus("notfound", MSHRole.RECEIVING);
 
         assertEquals(NOT_FOUND, messageStatus);
     }

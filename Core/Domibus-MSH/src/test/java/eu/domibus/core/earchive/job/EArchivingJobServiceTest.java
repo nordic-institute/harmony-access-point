@@ -155,7 +155,7 @@ public class EArchivingJobServiceTest {
             batchUserMessage.getMessageId();
             result = "messageId";
 
-            userMessageLogDao.getMessageStatus("messageId");
+            userMessageLogDao.getMessageStatus(batchUserMessage.getUserMessageEntityId());
             result = MessageStatus.NOT_FOUND;
         }};
         eArchivingJobService.createEventOnNonFinalMessages(0L, 1L);

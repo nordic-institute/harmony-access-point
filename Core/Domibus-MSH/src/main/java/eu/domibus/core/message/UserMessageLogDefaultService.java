@@ -147,9 +147,9 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 //        return userMessageLogDao.findByMessageId(messageId);
 //    }
 
-    public MessageStatus getMessageStatus(String messageId) {
-        return userMessageLogDao.getMessageStatus(messageId);
-    }
+//    public MessageStatus getMessageStatus(String messageId) {
+//        return userMessageLogDao.getMessageStatus(messageId);
+//    }
 
     @Override
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
