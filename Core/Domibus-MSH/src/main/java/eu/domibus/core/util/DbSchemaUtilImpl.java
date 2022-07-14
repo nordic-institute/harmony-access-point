@@ -40,7 +40,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         entityManager = entityManagerFactory.createEntityManager();
     }
 
-    public boolean isDatabaseSchemaForDomainValid(Domain domain) {
+    public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
         if (domain == null) {
             LOG.warn("Domain to be checked is null");
             return false;
@@ -60,18 +60,31 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
             return true;
         } catch (PersistenceException e) {
-            LOG.warn("Could not set database schema for domain [{}] so probably the schema is invalid", domain.getCode());
+            LOG.warn("Could not set database schema for domain [{}]", domain.getCode());
             entityManager.getTransaction().rollback();
             return false;
         }
     }
 
     public String getSchemaChangeSQL(String databaseSchema) {
-        final DataBaseEngine dataBaseEngine = domibusConfigurationService.getDataBaseEngine();
-        String result = "USE " + databaseSchema;
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema;
+        final DataBaseEngine databaseEngine = domibusConfigurationService.getDataBaseEngine();
+        String result;
+
+        switch (databaseEngine) {
+            case MYSQL:
+            case H2:
+                result = "USE " + databaseSchema;
+                break;
+            case ORACLE:
+                result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema;
+                break;
+            default:
+                LOG.error("Unsupported database engine: {}", databaseEngine);
+                throw new DomibusDatabaseNotSupportedException("Unsupported database engine ...");
         }
+
+        LOG.debug("Generated SQL string for changing the schema: {}", result);
+
         return result;
     }
 }
