@@ -53,6 +53,11 @@ public enum RetryStrategy {
                 }
                 return null;
             }
+
+            @Override
+            public Date computeProgressive(Date received, int maxAttempts, int timeoutInMinutes, int crtInterval, long delayInMillis) {
+                return null;
+            }
         }
     }
 
@@ -64,6 +69,11 @@ public enum RetryStrategy {
 
                 return null;
             }
+
+            @Override
+            public Date computeProgressive(Date received, int maxAttempts, int timeoutInMinutes, int crtInterval, long delayInMillis) {
+                return null;
+            }
         }
     }
 
@@ -72,6 +82,11 @@ public enum RetryStrategy {
         ALGORITHM {
             @Override
             public Date compute(final Date received, int maxAttempts, final int timeoutInMinutes, final long delayInMillis) {
+                return null;
+            }
+
+            @Override
+            public Date computeProgressive(Date received, int maxAttempts, int timeoutInMinutes, int crtInterval, long delayInMillis) {
                 if(maxAttempts <= 0 || timeoutInMinutes <= 0 || received == null) {
                     return null;
                 }
@@ -82,7 +97,7 @@ public enum RetryStrategy {
                 long retry = received.getTime();
                 final long stopTime = received.getTime() + ( (long)timeoutInMinutes * MILLIS_PER_MINUTE ) + delayInMillis; // We grant some extra time (configured in properties as milliseconds) to avoid not sending the last attempt
                 while (retry <= (stopTime)) {
-                    retry += (long)timeoutInMinutes * MILLIS_PER_MINUTE / maxAttempts;
+                    retry = retry + (long) crtInterval * MILLIS_PER_MINUTE;
                     if (retry > now && retry < stopTime) {
                         return new Date(retry);
                     }
@@ -94,5 +109,6 @@ public enum RetryStrategy {
 
     public interface AttemptAlgorithm extends Serializable {
         Date compute(Date received, int maxAttempts, int timeoutInMinutes, long delayInMillis);
+        Date computeProgressive(Date received, int maxAttempts, int timeoutInMinutes, int crtInterval, long delayInMillis);
     }
 }

@@ -31,11 +31,22 @@
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
     </changeSet>
 
-    <changeSet author="Razvan Cretu" id="EDELIVERY-9594">
+    <changeSet author="Razvan Cretu" id="EDELIVERY-9594_awareness_initial_interval">
         <addColumn tableName="TB_PM_RECEPTION_AWARENESS">
-            <column name="INITIAL_INTERVAL" type="INT"/>
-            <column name="MULTIPLYING_FACTOR" type="INT"/>
+            <column name="INITIAL_INTERVAL" type="INT" defaultValueNumeric="0"/>
         </addColumn>
+        <modifySql>
+            <append value=" AFTER RETRY_TIMEOUT"/>
+        </modifySql>
+    </changeSet>
+
+    <changeSet author="Razvan Cretu" id="EDELIVERY-9594_awareness_mult_factor">
+        <addColumn tableName="TB_PM_RECEPTION_AWARENESS">
+            <column name="MULTIPLYING_FACTOR" type="INT" defaultValueNumeric="0"/>
+        </addColumn>
+        <modifySql>
+            <append value=" AFTER INITIAL_INTERVAL"/>
+        </modifySql>
     </changeSet>
 
 </databaseChangeLog>

@@ -7,6 +7,8 @@ import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -49,6 +51,10 @@ public class ReceptionAwareness extends AbstractBaseEntity {
     @XmlTransient
     @Column(name = "RETRY_COUNT")
     protected int retryCount;
+
+    @Transient
+    @XmlTransient
+    private List<Integer> retryIntervals;
 
     @XmlTransient
     @Column(name = "INITIAL_INTERVAL")
@@ -124,7 +130,7 @@ public class ReceptionAwareness extends AbstractBaseEntity {
     }
 
     public int getRetryTimeout() {
-        return this.retryTimeout;
+         return this.retryTimeout;
     }
 
     public void setRetryTimeout(final int retryTimeout) {
@@ -145,6 +151,17 @@ public class ReceptionAwareness extends AbstractBaseEntity {
 
     public void setInitialInterval(int initialInterval) {
         this.initialInterval = initialInterval;
+    }
+
+    public List<Integer> getRetryIntervals() {
+        if (retryIntervals==null) {
+            retryIntervals = calculateRetryIntervals(this.initialInterval, this.multiplyingFactor, this.retryTimeout);
+        }
+        return retryIntervals;
+    }
+
+    public void setRetryIntervals(List<Integer> retryIntervals) {
+        this.retryIntervals = retryIntervals;
     }
 
     @Override
@@ -177,6 +194,8 @@ public class ReceptionAwareness extends AbstractBaseEntity {
                     this.initialInterval = Integer.parseInt(retryValues[1]);
                     this.multiplyingFactor = Integer.parseInt(retryValues[2]);
                     this.strategy = RetryStrategy.valueOf(retryValues[3]);
+                    this.retryIntervals = calculateRetryIntervals(this.initialInterval, this.multiplyingFactor, this.retryTimeout);
+                    this.retryCount = this.retryIntervals.size()-1;
                     return;
                 }
                 this.retryCount = Integer.parseInt(retryValues[1]);
@@ -190,4 +209,30 @@ public class ReceptionAwareness extends AbstractBaseEntity {
         }
 
     }
+
+    /**
+     * Calculates the list of retry intervals in a progressive strategy. Examples:
+     * (initialInterval,multiplyingFactor,timeout)=(1,2,9) => (1,2,4,8)
+     * (1,3,100) => [1,3,9,27,81]
+     * (2,3,100) => [2,6,18,54]
+     * (20,3,100) => [20,60]
+     * (3,2,100) => [3,6,12,24,48,96]
+     * @param initialInterval - the first retry interval
+     * @param multiplyingFactor - the next retry interval will be the current multiplied by this factor
+     * @param timeout - the maximum time interval for retrials since the first one
+     * @return
+     */
+    private List calculateRetryIntervals(int initialInterval, int multiplyingFactor, int timeout) {
+        List result = new ArrayList();
+        int x = 0;
+        int crtTriggerTime = initialInterval;
+        while (crtTriggerTime <= timeout) {
+            result.add(crtTriggerTime);
+            crtTriggerTime = crtTriggerTime * multiplyingFactor;
+            x++;
+        }
+        return result;
+    }
+
+
 }
