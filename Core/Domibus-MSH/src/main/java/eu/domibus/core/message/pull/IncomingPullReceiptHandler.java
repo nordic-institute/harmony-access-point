@@ -88,8 +88,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     @Override
-    @Timer(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
-    @Counter(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
+    @Timer(clazz = IncomingPullReceiptHandler.class, value = "incoming_pull_request_receipt")
+    @Counter(clazz = IncomingPullReceiptHandler.class, value = "incoming_pull_request_receipt")
     public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         LOG.trace("before pull receipt.");
 
@@ -105,7 +105,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         LegConfiguration legConfiguration = null;
         // what mshRole?
         UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING); //???
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
             LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
@@ -151,7 +151,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }
-        if((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
+        if ((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
                 (reliabilityCheckSuccessful != ReliabilityChecker.CheckResult.OK)) {
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)

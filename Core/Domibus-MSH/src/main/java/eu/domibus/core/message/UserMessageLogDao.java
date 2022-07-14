@@ -161,6 +161,16 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId) {
         final UserMessageLog userMessageLog = findByMessageId(messageId);
+        return initChildren(messageId, userMessageLog);
+    }
+
+    @Transactional
+    public UserMessageLog findByMessageIdSafely(String messageId, MSHRole mshRole) {
+        final UserMessageLog userMessageLog = findByMessageId(messageId, mshRole);
+        return initChildren(messageId, userMessageLog);
+    }
+
+    private UserMessageLog initChildren(String messageId, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
@@ -168,7 +178,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         initializeChildren(userMessageLog);
         return userMessageLog;
     }
-
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initializeChildren(UserMessageLog userMessageLog) {
         //initialize values from the second level cache
@@ -241,7 +250,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public UserMessageLog findByMessageId(String messageId) {
-
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());

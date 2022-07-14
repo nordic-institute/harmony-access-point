@@ -401,7 +401,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return;
         }
 
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.RECEIVING);
         if (messageLog == null) {
             LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
             return;
@@ -508,7 +508,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         final String messageId = userMessage.getMessageId();
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, userMessage.getMshRole().getRole());
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }

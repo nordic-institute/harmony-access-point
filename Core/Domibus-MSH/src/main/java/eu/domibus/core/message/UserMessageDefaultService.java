@@ -521,7 +521,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_MESSAGE_ROLE})
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId, MSHRole mshRole) {
         LOG.debug("Deleting message [{}]", messageId);
@@ -530,7 +530,10 @@ public class UserMessageDefaultService implements UserMessageService {
         if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        if (mshRole != null) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, mshRole.name());
+        }
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, mshRole);
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
         final UserMessage userMessage;
         if (signalMessage == null) {
