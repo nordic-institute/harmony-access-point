@@ -5,12 +5,14 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DbSchemaUtil;
-import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
 
 /**
  * Provides functionality for testing if a domain has a valid database schema{@link DbSchemaUtil}
@@ -22,14 +24,12 @@ import javax.persistence.*;
 public class DbSchemaUtilImpl implements DbSchemaUtil {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DbSchemaUtilImpl.class);
 
-    @PersistenceUnit(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    private EntityManagerFactory entityManagerFactory;
+    private final EntityManager entityManager;
 
     private final DomainService domainService;
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    private EntityManager entityManager;
 
     public DbSchemaUtilImpl(DomainService domainService,
                             DomibusConfigurationService domibusConfigurationService,
@@ -37,17 +37,13 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
         this.domainService = domainService;
         this.domibusConfigurationService = domibusConfigurationService;
-        this.entityManagerFactory = entityManagerFactory;
+        entityManager = entityManagerFactory.createEntityManager();
     }
 
     public boolean isDatabaseSchemaForDomainValid(Domain domain) {
         if (domain == null) {
             LOG.warn("Domain to be checked is null");
             return false;
-        }
-
-        if (entityManager == null) {
-            entityManager = entityManagerFactory.createEntityManager();
         }
 
         try {
