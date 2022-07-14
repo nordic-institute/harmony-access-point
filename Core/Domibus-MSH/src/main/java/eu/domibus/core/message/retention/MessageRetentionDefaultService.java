@@ -227,7 +227,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             JmsMessage message = JMSMessageBuilder.create()
                     .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
                     .property(MESSAGE_ID, messageLogDto.getMessageId())
-                    .property(MSH_ROLE, messageLogDto.getMshRole().name()) // role is not set!!!!
+                    .property(MSH_ROLE, messageLogDto.getMshRole().name()) // role might not be set!!!!
                     .property(FINAL_RECIPIENT, messageLogDto.getProperties().get(FINAL_RECIPIENT))
                     .property(ORIGINAL_SENDER, messageLogDto.getProperties().get(ORIGINAL_SENDER))
                     .build();

@@ -35,6 +35,7 @@ public class NotifyMessageCreator {
         }
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
+        jmsMessageBuilder.property(MessageConstants.MSH_ROLE, mshRole.name());
         jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
 
         return jmsMessageBuilder.build();
