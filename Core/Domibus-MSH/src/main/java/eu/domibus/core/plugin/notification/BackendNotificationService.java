@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -272,7 +273,8 @@ public class BackendNotificationService {
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageId(), unknownReceiverQueue);
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), notificationType, properties).createMessage(), unknownReceiverQueue);
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), userMessage.getMshRole().getRole(),
+                    notificationType, properties).createMessage(), unknownReceiverQueue);
             return;
         }
 
@@ -345,7 +347,7 @@ public class BackendNotificationService {
 
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
         if (shouldNotifyAsync(asyncNotificationConfiguration)) {
-            notifyAsync(asyncNotificationConfiguration, messageEntityId, messageId, notificationType, properties);
+            notifyAsync(asyncNotificationConfiguration, messageEntityId, messageId, userMessage.getMshRole().getRole(), notificationType, properties);
             return;
         }
 
@@ -356,10 +358,12 @@ public class BackendNotificationService {
         return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
     }
 
-    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Long messageEntityId, String messageId, NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Long messageEntityId,
+                               String messageId, MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
-        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageEntityId, messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(messageEntityId, messageId, mshRole, notificationType, properties);
+        jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(), backendNotificationQueue);
     }
 
     protected void notifySync(BackendConnector<?, ?> backendConnector,

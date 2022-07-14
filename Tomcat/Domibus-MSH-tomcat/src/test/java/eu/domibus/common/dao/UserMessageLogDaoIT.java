@@ -316,7 +316,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
 
-        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        List<UserMessageLogDto> message = userMessageLogDao.findMessagesToDelete(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(3, message.size());
     }
 

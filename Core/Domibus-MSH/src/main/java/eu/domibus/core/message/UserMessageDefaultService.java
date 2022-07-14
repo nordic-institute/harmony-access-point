@@ -454,9 +454,6 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteMessage(messageId, MSHRole.SENDING);
     }
 
-    private void deleteMessage(String messageId, MSHRole sending) {
-    }
-
     @Transactional
     @Override
     public void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
@@ -496,7 +493,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional
     @Override
     public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
-        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
+        final List<UserMessageLogDto> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
             LOG.debug("Cannot find messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
             return Collections.emptyList();
@@ -504,12 +501,12 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Found messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
 
         final List<String> deletedMessages = new ArrayList<>();
-        for (String messageId : messagesToDelete) {
+        for (UserMessageLogDto message : messagesToDelete) {
             try {
-                deleteMessage(messageId);
-                deletedMessages.add(messageId);
+                deleteMessage(message.getMessageId(), message.getMshRole());
+                deletedMessages.add(message.getMessageId());
             } catch (Exception e) {
-                LOG.error("Failed to delete message [" + messageId + "]", e);
+                LOG.error("Failed to delete message [{}] [{}]", e, message.getMessageId(), message.getMshRole());
             }
         }
 
@@ -521,7 +518,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMessage(String messageId) {
+    public void deleteMessage(String messageId, MSHRole mshRole) {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map

@@ -209,7 +209,7 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
-            backendNotificationService.notifyAsync(notificationListener, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
+            backendNotificationService.notifyAsync(notificationListener, entityId, MESSAGE_ID, MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
         backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
@@ -1372,7 +1372,7 @@ public class BackendNotificationServiceTest {
         }};
 
         long messageEntityId = 1L;
-        backendNotificationService.notifyAsync(asyncNotificationConfiguration, messageEntityId, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifyAsync(asyncNotificationConfiguration, messageEntityId, MESSAGE_ID, MSHRole.SENDING, notificationType, properties);
 
         new FullVerifications() {
         };

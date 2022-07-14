@@ -222,7 +222,7 @@ public class TestService {
 
         if (StringUtils.isNotBlank(userMessageId)) {
             // if userMessageId is provided, try to find its signal message
-            signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
+            signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId, MSHRole.RECEIVING);
             if (signalMessage == null) {
                 LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
                 return null;

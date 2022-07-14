@@ -47,7 +47,7 @@ import java.util.Date;
                         "AND uml.deleted < :DATE                                                                     " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false) "),
         @NamedQuery(name = "UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod",
-                query = "SELECT DISTINCT um.messageId                                                                 " +
+                query = "SELECT DISTINCT new UserMessageLogDto(um.entityId, um.messageId, um.mshRole.role)                                                                 " +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +

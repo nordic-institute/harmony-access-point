@@ -378,7 +378,7 @@ public class UserMessageDefaultServiceTest {
             backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
         }};
 
-        userMessageDefaultService.deleteMessage(messageId);
+        userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
 
         new Verifications() {{
             backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
@@ -465,7 +465,7 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        userMessageDefaultService.deleteMessage(messageId);
+        userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
 
         new FullVerifications() {{
             userMessageLog.setDeleted((Date) any);
@@ -500,7 +500,7 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        userMessageDefaultService.deleteMessage(messageId);
+        userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
 
         new FullVerifications() {{
             partInfoService.clearPayloadData(userMessage.getEntityId());
@@ -587,7 +587,7 @@ public class UserMessageDefaultServiceTest {
         new Expectations(userMessageDefaultService) {{
             userMessageDefaultService.getFailedMessage(messageId);
             times = 1;
-            userMessageDefaultService.deleteMessage(messageId);
+            userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
             times = 1;
         }};
 
@@ -595,7 +595,7 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerificationsInOrder(userMessageDefaultService) {{
             userMessageDefaultService.getFailedMessage(messageId);
-            userMessageDefaultService.deleteMessage(messageId);
+            userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
         }};
     }
 
@@ -918,7 +918,7 @@ public class UserMessageDefaultServiceTest {
         new Expectations(userMessageDefaultService) {{
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             times = 1;
-            userMessageDefaultService.deleteMessage(messageId);
+            userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
             times = 1;
         }};
 
@@ -926,7 +926,7 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerificationsInOrder(userMessageDefaultService) {{
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
-            userMessageDefaultService.deleteMessage(messageId);
+            userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
         }};
     }
 
@@ -941,7 +941,7 @@ public class UserMessageDefaultServiceTest {
         new Expectations(userMessageDefaultService) {{
             userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
-            userMessageDefaultService.deleteMessage(messageId);
+            userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
             times = 1;
         }};
 

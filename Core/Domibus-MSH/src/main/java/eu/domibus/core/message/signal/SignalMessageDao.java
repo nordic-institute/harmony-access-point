@@ -1,6 +1,7 @@
 package eu.domibus.core.message.signal;
 
 import eu.domibus.api.model.ActionEntity;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
@@ -49,6 +50,13 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
     public SignalMessage findByUserMessageIdWithUserMessage(final String messageId) {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageId", SignalMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public SignalMessage findByUserMessageIdWithUserMessage(String messageId, MSHRole mshRole) {
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageId2", SignalMessage.class);
+        query.setParameter("MESSAGE_ID", messageId);
+        query.setParameter("MSH_ROLE", mshRole);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
@@ -110,4 +118,5 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }
+
 }

@@ -22,8 +22,15 @@ public class UserMessageLogDto {
     protected String messageId;
     protected Boolean testMessage;
     protected String backend;
+    protected MSHRole mshRole;
 
     private Map<String, String> properties = new HashMap<>();
+
+    public UserMessageLogDto(Long entityId, String messageId, MSHRole mshRole) {
+        this.entityId = entityId;
+        this.messageId = messageId;
+        this.mshRole = mshRole;
+    }
 
     public UserMessageLogDto(Long entityId, String messageId, Boolean testMessage, String backend) {
         this.entityId = entityId;
@@ -84,5 +91,13 @@ public class UserMessageLogDto {
 
     public void setEntityId(Long entityId) {
         this.entityId = entityId;
+    }
+
+    public MSHRole getMshRole() {
+        return mshRole;
+    }
+
+    public void setMshRole(MSHRole mshRole) {
+        this.mshRole = mshRole;
     }
 }

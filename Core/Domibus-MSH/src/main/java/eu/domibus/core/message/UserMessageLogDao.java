@@ -143,9 +143,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return true;
     }
 
-    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
-
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+    public List<UserMessageLogDto> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
+        TypedQuery<UserMessageLogDto> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", UserMessageLogDto.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("START_DATE", startDate);

@@ -6,9 +6,11 @@ package eu.domibus.messaging;
  */
 public final class MessageConstants {
 
-    private MessageConstants() {}
+    private MessageConstants() {
+    }
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
+    public static final String MSH_ROLE = "MSH_ROLE";
     public static final String MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
     public static final String BATCH_ID = "BATCH_ID";
     public static final String BATCH_ENTITY_ID = "BATCH_ENTITY_ID";

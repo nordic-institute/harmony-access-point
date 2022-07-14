@@ -64,7 +64,7 @@ public interface UserMessageService {
 
     void deleteFailedMessage(String messageId);
 
-    void deleteMessage(String messageId);
+    void deleteMessage(String messageId, MSHRole mshRole);
 
     void deleteMessageNotInFinalStatus(String messageId, MSHRole sending) throws MessageNotFoundException, MessagingException;
 

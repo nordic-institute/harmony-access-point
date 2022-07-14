@@ -2,6 +2,7 @@ package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
 
@@ -14,14 +15,17 @@ public class NotifyMessageCreator {
 
     private final Long messageEntityId;
     private final String messageId;
+    private final  MSHRole mshRole;
     private NotificationType notificationType;
     private Map<String, String> properties;
 
-    public NotifyMessageCreator(final long messageEntityId, final String messageId, final NotificationType notificationType, final Map<String, String> properties) {
+    public NotifyMessageCreator(final long messageEntityId, final String messageId, MSHRole mshRole,
+                                final NotificationType notificationType, final Map<String, String> properties) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.notificationType = notificationType;
         this.properties = properties;
+        this.mshRole = mshRole;
     }
 
     public JmsMessage createMessage() {
@@ -42,6 +46,10 @@ public class NotifyMessageCreator {
 
     public String getMessageId() {
         return messageId;
+    }
+
+    public MSHRole getMshRole() {
+        return mshRole;
     }
 
     public NotificationType getNotificationType() {
