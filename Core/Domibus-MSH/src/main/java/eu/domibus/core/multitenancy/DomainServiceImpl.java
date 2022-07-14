@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,14 +78,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
     public synchronized List<Domain> getDomains() {
         LOG.debug("Getting active domains.");
 
-        List<Domain> domainsToRemove = new ArrayList<>();
-        for (Domain domain : domains) {
-            if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
-                domainsToRemove.add(domain);
-            }
-        }
-
-        domains.removeAll(domainsToRemove);
+        domains.removeIf(domain -> !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain));
 
         return domains;
     }
