@@ -552,7 +552,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         sendSplitAndJoinFailed(groupId);
 
         final List<UserMessage> groupUserMessages = userMessageDao.findUserMessageByGroupId(groupId);
-        groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId()));
+        groupUserMessages.forEach(userMessage ->
+                userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId(), userMessage.getMshRole().getRole()));
 
         LOG.debug("Creating error entry for message [{}]", groupId);
         errorLogService.createErrorLog(groupId, ErrorCode.EBMS_0004, "[SPLIT] " + errorDetail, MSHRole.SENDING, groupUserMessages.stream().findAny().orElse(null));

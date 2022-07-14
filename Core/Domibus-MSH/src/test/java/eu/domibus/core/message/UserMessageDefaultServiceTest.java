@@ -729,7 +729,7 @@ public class UserMessageDefaultServiceTest {
                                                            @Injectable UserMessageService userMessageService) {
         final String messageId = UUID.randomUUID().toString();
 
-        userMessageDefaultService.scheduleSetUserMessageFragmentAsFailed(messageId);
+        userMessageDefaultService.scheduleSetUserMessageFragmentAsFailed(messageId, MSHRole.SENDING);
 
         new Verifications() {{
             jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);

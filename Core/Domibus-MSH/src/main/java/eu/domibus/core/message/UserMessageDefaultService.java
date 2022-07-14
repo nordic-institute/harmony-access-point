@@ -327,13 +327,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSetUserMessageFragmentAsFailed(String messageId) {
+    public void scheduleSetUserMessageFragmentAsFailed(String messageId, MSHRole role) {
         LOG.debug("Scheduling marking the UserMessage fragment [{}] as failed", messageId);
 
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED)
                 .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, role.name())
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
     }
@@ -373,6 +374,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)
                 .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
@@ -386,6 +388,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SEND_SIGNAL_ERROR)
                 .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .property(UserMessageService.MSG_EBMS3_ERROR_CODE, ebMS3ErrorCode)
                 .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
@@ -402,6 +405,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED)
                 .property(UserMessageService.MSG_GROUP_ID, groupId)
                 .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, sourceMessageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.RECEIVING.name())
                 .property(UserMessageService.MSG_EBMS3_ERROR_CODE, errorCode)
                 .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
                 .build();
@@ -413,6 +417,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");
@@ -424,6 +429,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();

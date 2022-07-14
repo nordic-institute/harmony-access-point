@@ -30,6 +30,7 @@ public interface UserMessageService {
     String MSG_BACKEND_NAME = "backendName";
     String MSG_SOURCE_MESSAGE_ID = "sourceMessageId";
     String MSG_USER_MESSAGE_ID = "userMessageId";
+    String MSG_MSH_ROLE = "userMessageRole";
     String MSG_EBMS3_ERROR_CODE = "ebms3ErrorCode";
     String MSG_EBMS3_ERROR_DETAIL = "ebms3ErrorDetail";
 
@@ -66,10 +67,9 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId, MSHRole mshRole);
 
-    void deleteMessageNotInFinalStatus(String messageId, MSHRole sending) throws MessageNotFoundException, MessagingException;
+    void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException, MessagingException;
 
     List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
-
 
     /**
      * Schedules the handling of the SplitAndJoin send failed event
@@ -83,8 +83,9 @@ public interface UserMessageService {
      * Schedules the marking of the UserMessageFragment as failed
      *
      * @param messageId
+     * @param role
      */
-    void scheduleSetUserMessageFragmentAsFailed(String messageId);
+    void scheduleSetUserMessageFragmentAsFailed(String messageId, MSHRole role);
 
     /**
      * Schedules the sending of the SourceMessage
