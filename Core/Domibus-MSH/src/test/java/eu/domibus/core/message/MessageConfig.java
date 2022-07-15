@@ -22,10 +22,10 @@ public class MessageConfig {
         return new UserMessageLogDao(dateUtil, userMessageLogInfoFilter, messageStatusDao, notificationStatusDao, reprogrammableService);
     }
 
-    @Bean
-    public MessageInfoDao messageInfoDao() {
-        return new MessageInfoDao();
-    }
+//    @Bean
+//    public MessageInfoDao messageInfoDao() {
+//        return new MessageInfoDao();
+//    }
 
     @Bean
     public MessageStatusDao messageStatusDao() {

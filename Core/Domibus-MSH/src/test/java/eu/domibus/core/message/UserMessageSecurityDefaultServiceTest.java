@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -44,7 +45,7 @@ public class UserMessageSecurityDefaultServiceTest {
             result = null;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
     }
 
     @Test
@@ -58,7 +59,7 @@ public class UserMessageSecurityDefaultServiceTest {
             times = 1;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
 
     }
 

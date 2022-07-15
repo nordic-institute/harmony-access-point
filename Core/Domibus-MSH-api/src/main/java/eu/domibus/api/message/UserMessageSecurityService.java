@@ -20,6 +20,8 @@ public interface UserMessageSecurityService {
      */
     void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) throws AuthenticationException;
 
+    void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) throws AuthenticationException;
+
     void checkMessageAuthorization(String messageId) throws AuthenticationException;
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;

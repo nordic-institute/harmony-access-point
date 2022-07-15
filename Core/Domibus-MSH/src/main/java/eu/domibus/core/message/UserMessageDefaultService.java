@@ -467,7 +467,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected UserMessageLog getFailedMessage(String messageId) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING); // is it always???
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }

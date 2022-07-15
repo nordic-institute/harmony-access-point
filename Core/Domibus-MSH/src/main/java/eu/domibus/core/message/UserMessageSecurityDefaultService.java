@@ -118,8 +118,16 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+//    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
+//        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+//        if (userMessage == null) {
+//            throw new MessageNotFoundException(messageId);
+//        }
+//        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+//    }
+
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

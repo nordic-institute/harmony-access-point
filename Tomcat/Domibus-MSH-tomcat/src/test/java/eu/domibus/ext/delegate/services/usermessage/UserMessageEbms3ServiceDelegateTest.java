@@ -133,7 +133,7 @@ public class UserMessageEbms3ServiceDelegateTest {
         String finalRecipient = userMessageServiceDelegate.getFinalRecipient(MESSAGE_ID);
         Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
         new FullVerifications() {{
-            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESSAGE_ID);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESSAGE_ID, MSHRole.RECEIVING);
             times = 1;
         }};
     }

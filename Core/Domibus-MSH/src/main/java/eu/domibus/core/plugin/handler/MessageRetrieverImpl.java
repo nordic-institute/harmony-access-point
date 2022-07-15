@@ -108,7 +108,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     protected Submission getSubmission(final UserMessage userMessage) {
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
 
-        publishDownloadEvent(userMessage.getMessageId());
+        publishDownloadEvent(userMessage.getMessageId(), userMessage.getMshRole().getRole());
 
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
@@ -124,10 +124,12 @@ public class MessageRetrieverImpl implements MessageRetriever {
      * Publishes a download event to be caught in case of transaction rollback
      *
      * @param messageId message id of the message that is being downloaded
+     * @param role
      */
-    protected void publishDownloadEvent(String messageId) {
+    protected void publishDownloadEvent(String messageId, MSHRole role) {
         UserMessageDownloadEvent downloadEvent = new UserMessageDownloadEvent();
         downloadEvent.setMessageId(messageId);
+        downloadEvent.setMshRole(role.name());
         applicationEventPublisher.publishEvent(downloadEvent);
     }
 

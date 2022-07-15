@@ -96,9 +96,10 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     @Override
     public String getFinalRecipient(String messageId, MSHRole role) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
-
         eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, mshRole);
+
         return userMessageCoreService.getFinalRecipient(messageId, mshRole);
     }
 
@@ -110,9 +111,10 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
     @Override
     public String getOriginalSender(String messageId, MSHRole role) {
         LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
-
         eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, mshRole);
+
         return userMessageCoreService.getOriginalSender(messageId, mshRole);
     }
 
