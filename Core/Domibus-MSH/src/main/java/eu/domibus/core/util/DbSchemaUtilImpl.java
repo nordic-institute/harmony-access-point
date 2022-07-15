@@ -5,8 +5,10 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DbSchemaUtil;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -40,6 +42,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
         entityManager = entityManagerFactory.createEntityManager();
     }
 
+    @Cacheable(value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
         if (domain == null) {
             LOG.warn("Domain to be checked is null");

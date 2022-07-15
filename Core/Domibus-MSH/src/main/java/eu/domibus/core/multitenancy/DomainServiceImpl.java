@@ -121,7 +121,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
     /**
      * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
      *
-     * @param domain
+     * @param domain the domain for which the db schema is retrieved
      * @return database schema name
      */
     @Override
@@ -181,6 +181,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         }
         domainDao.refreshDomain(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override
@@ -194,6 +195,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
         authenticationService.addDomainCode(domain.getCode());
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override
@@ -211,6 +213,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
         authenticationService.removeDomainCode(domain.getCode());
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override

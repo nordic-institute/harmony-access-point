@@ -24,6 +24,7 @@
     <cache uses-template="ttl-3600-heap-5000" alias="allDomains"/>
     <cache uses-template="ttl-3600-heap-5000" alias="domainByCode"/>
     <cache uses-template="ttl-3600-heap-5000" alias="domainByScheduler"/>
+    <cache uses-template="ttl-3600-heap-5000" alias="domainValidity"/>
     <cache uses-template="ttl-3600-heap-5000" alias="domibusProperties"/>
     <cache uses-template="ttl-3600-heap-5000" alias="domibusPropertyMetadata"/>
     <cache uses-template="ttl-3600-heap-5000" alias="encryptionKey"/>
