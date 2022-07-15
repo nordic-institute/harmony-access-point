@@ -249,15 +249,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public UserMessageLog findByMessageId(String messageId) {
-        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
-        query.setParameter(STR_MESSAGE_ID, messageId);
-        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
-        if (userMessageLog == null) {
-            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
-        }
-        return userMessageLog;
-    }
+//    public UserMessageLog findByMessageId(String messageId) {
+//        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
+//        query.setParameter(STR_MESSAGE_ID, messageId);
+//        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
+//        if (userMessageLog == null) {
+//            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+//        }
+//        return userMessageLog;
+//    }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
