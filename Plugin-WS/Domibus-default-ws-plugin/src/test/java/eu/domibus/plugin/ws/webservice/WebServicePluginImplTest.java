@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.services.*;
+import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
@@ -9,19 +10,28 @@ import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.*;
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.activation.DataHandler;
+import javax.activation.URLDataSource;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.Holder;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Cosmin Baciu
@@ -143,6 +153,64 @@ public class WebServicePluginImplTest {
             String messageId;
             messageExtService.cleanMessageIdentifier(messageId = withCapture());
             assertEquals("The message identifier should have been cleaned before retrieving the message", "-Dom137-- ", messageId);
+        }};
+    }
+
+
+    @Test
+    public void test_SubmitMessage_PayloadAsFilepathReference(@Injectable SubmitRequest submitRequest,
+                                                              @Injectable RetrieveMessageResponse retrieveMessageResponse,
+
+                                                              @Mocked PayloadInfo payloadInfo,
+                                                              @Mocked DataHandler dataHandler) throws SubmitMessageFault, MalformedURLException, MessagingProcessingException {
+        final PartInfo partInfo = new PartInfo();
+        partInfo.setHref("cid:message");
+        PartProperties partProperties = new PartProperties();
+        partInfo.setPartProperties(partProperties);
+        Property mimeTypeProperty = new Property();
+        mimeTypeProperty.setName("MimeType");
+        mimeTypeProperty.setValue("text/xml");
+        Property filepathProperty = new Property();
+        filepathProperty.setName("filepath");
+        String filepathValue = "file:/some/path/someFile.txt";
+        filepathProperty.setValue(filepathValue);
+        List<Property> properties = new ArrayList<>();
+        properties.add(mimeTypeProperty);
+        properties.add(filepathProperty);
+        ReflectionTestUtils.setField(partProperties, "property", properties);
+        partInfo.setHref("cid:message");
+
+        Messaging ebMSHeaderInfo = new Messaging();
+        UserMessage userMessage = new UserMessage();
+        ebMSHeaderInfo.setUserMessage(userMessage);
+        MessageInfo messageInfo = new MessageInfo();
+        userMessage.setMessageInfo(messageInfo);
+        messageInfo.setMessageId("-Dom137-- ");
+        userMessage.setPayloadInfo(payloadInfo);
+
+        new Expectations() {{
+//            ebMSHeaderInfo.getUserMessage().getMessageInfo().getMessageId();
+//            result = "-Dom137-- ";
+//            ebMSHeaderInfo.getUserMessage().getPayloadInfo();
+//            result = payloadInfo;
+            payloadInfo.getPartInfo();
+            ArrayList<Object> partInfoList = new ArrayList<>();
+            partInfoList.add(partInfo);
+            result = partInfoList;
+
+//            new DataHandler(new URLDataSource(new URL(filepathValue)));
+//            result = dataHandler;
+
+//            wsPlugin.submit(ebMSHeaderInfo);
+//            result = "someMessageId";
+        }};
+
+        webServicePlugin.submitMessage(submitRequest, ebMSHeaderInfo);
+
+        new Verifications() {{
+            Messaging ebMSHeaderInfo;
+            wsPlugin.submit(ebMSHeaderInfo = withCapture());
+            assertNotNull(ebMSHeaderInfo.getUserMessage().getPayloadInfo().getPartInfo());
         }};
     }
 
