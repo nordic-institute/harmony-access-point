@@ -1,12 +1,10 @@
 # java -jar .\zap-2.10.0.jar -daemon -port 8281 -config api.key=8888
 
-from zapv2 import ZAPv2
-import os
 import logging as log
-import time
+import os
 import requests
-import shutil
-
+import time
+from zapv2 import ZAPv2
 
 log.basicConfig(level=log.DEBUG)
 
@@ -53,16 +51,16 @@ zap.ascan.enable_all_scanners()
 
 # start and wait for active scan to finish
 print("Active scan started for : " + domibus_url)
-scanId = zap.ascan.scan_as_user(contextid=context_id, userid=super_id, recurse=True, scanpolicyname=None, method=None, postdata=None)
+scanId = zap.ascan.scan_as_user(contextid=context_id, userid=super_id, recurse=True, scanpolicyname=None, method=None,
+                                postdata=None)
 
 progress = 0
-while (progress<100):
-	time.sleep(60)
-	progress = int(zap.ascan.status(scanId))
-	log.info("Active Scan progress : " + str(progress) + "%")
+while (progress < 100):
+    time.sleep(60)
+    progress = int(zap.ascan.status(scanId))
+    log.info("Active Scan progress : " + str(progress) + "%")
 
 log.info("Scan complete")
-
 
 # print PDF report to file
 log.info("Printing PDF report to file")
@@ -71,9 +69,9 @@ params = {"apikey": apiKey,
           "template": "traditional-pdf",
           "contexts": "DOMIBUS_CONTEXT",
           "reportFileName": "rest_zap_scan_report",
-          "reportDir" : os.getcwd()}
+          "reportDir": os.getcwd()}
 
 resp = requests.get(zap_url + "/JSON/reports/action/generate/", params=params)
 if resp.status_code != 200:
-	log.critical("CREATE PDF REPORT OPTERATION FAILED: ", resp)
-	exit(-1)
+    log.critical("CREATE PDF REPORT OPTERATION FAILED: ", resp)
+    exit(-1)

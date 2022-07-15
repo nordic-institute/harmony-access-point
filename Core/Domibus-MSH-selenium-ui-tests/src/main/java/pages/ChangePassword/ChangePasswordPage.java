@@ -5,7 +5,6 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -18,19 +17,19 @@ public class ChangePasswordPage extends DomibusPage {
 	public final String newPasswordFieldLabel = "New Password";
 	public final String currentPasswordFieldLabel = "Current Password";
 	public final String confirmationFieldLabel = "Confirmation";
-	
+
 	@FindBy(xpath = "//p[contains(text(),'Change Password')]")
 	protected WebElement fieldHeader;
-	
+
 	@FindBy(id = "currentPassword_id")
 	private WebElement currentPassField;
-	
+
 	@FindBy(id = "newPassword_id")
 	private WebElement newPassField;
 
 	@FindBy(css = "#newPassword_id ~ span div.ng-star-inserted")
 	private WebElement newPassFieldErrMess;
-	
+
 	@FindBy(id = "confirmation_id")
 	private WebElement confirmationField;
 
@@ -39,7 +38,7 @@ public class ChangePasswordPage extends DomibusPage {
 
 	@FindBy(id = "editbuttonok_id")
 	private WebElement updateButton;
-	
+
 	@FindBy(css = "mat-card > div:nth-child(5)")
 	private WebElement mandatoryFieldsText;
 
@@ -50,10 +49,10 @@ public class ChangePasswordPage extends DomibusPage {
 	}
 
 	@Override
-	public void waitForPageTitle(){
+	public void waitForPageTitle() {
 		wait.forElementToBeVisible(fieldHeader);
 	}
-	
+
 	public DInput getCPassField() {
 		return new DInput(driver, currentPassField);
 	}
@@ -142,7 +141,6 @@ public class ChangePasswordPage extends DomibusPage {
 	}
 
 
-
 	/*
 	This method print message under provided FieldLabel
 	*@param FieldName :- Name of Input Field
@@ -150,7 +148,7 @@ public class ChangePasswordPage extends DomibusPage {
 	 */
 	public Boolean isValidationMsgPresent(String fieldName) throws Exception {
 
-		switch (fieldName){
+		switch (fieldName) {
 			case confirmationFieldLabel:
 				try {
 					return weToDobject(confirmationFieldErrMess).isPresent();
@@ -176,7 +174,7 @@ public class ChangePasswordPage extends DomibusPage {
 	* @return : the string under the input
 	 */
 	public String getValidationMsg(String fieldName) throws Exception {
-		switch (fieldName){
+		switch (fieldName) {
 			case confirmationFieldLabel:
 				return weToDobject(confirmationFieldErrMess).getText();
 			case newPasswordFieldLabel:

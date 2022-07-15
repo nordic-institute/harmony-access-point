@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DatePicker;
 import ddsl.enums.DRoles;
@@ -11,12 +10,11 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.messages.MessageFilterArea;
 import pages.messages.MessagesPage;
-import rest.RestServicePaths;
 import utils.Gen;
 import utils.TestUtils;
 

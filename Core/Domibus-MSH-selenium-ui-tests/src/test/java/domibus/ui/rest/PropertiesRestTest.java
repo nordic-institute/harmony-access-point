@@ -12,12 +12,12 @@ import utils.Gen;
 import java.util.HashMap;
 
 public class PropertiesRestTest extends RestTest {
-	
-	
+
+
 	@Test(description = "PROP-x")
 	public void searchProperties() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		
+
 		JSONArray props = rest.properties().getAllProperties();
 		for (int i = 0; i < props.length(); i++) {
 			JSONObject prop = props.getJSONObject(i);
@@ -29,22 +29,22 @@ public class PropertiesRestTest extends RestTest {
 		}
 		soft.assertAll();
 	}
-	
+
 	@Test(description = "PROP-x")
 	public void updateProperty() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		
+
 		JSONArray props = rest.properties().searchDomainProperties("plugin");
 		JSONObject prop = props.getJSONObject(5);
 		log.debug("" + prop);
-		
+
 		String name = prop.getString("name");
 		String value = prop.optString("value");
 		String newValue = Gen.randomAlphaNumeric(20);
-		
+
 		ClientResponse response = rest.properties().updateDomibusProperty(name, newValue);
 		soft.assertTrue(response.getStatus() == 200, "Updated successfully");
-		
+
 		JSONArray arr = rest.properties().searchDomainProperties(name);
 		for (int i = 0; i < arr.length(); i++) {
 			JSONObject curProp = arr.getJSONObject(i);
@@ -53,10 +53,10 @@ public class PropertiesRestTest extends RestTest {
 				break;
 			}
 		}
-		
+
 		response = rest.properties().updateDomibusProperty(name, value);
 		soft.assertTrue(response.getStatus() == 200, "Reset successfully");
-		
+
 		arr = rest.properties().searchDomainProperties(name);
 		for (int i = 0; i < arr.length(); i++) {
 			JSONObject curProp = arr.getJSONObject(i);
@@ -65,29 +65,29 @@ public class PropertiesRestTest extends RestTest {
 				break;
 			}
 		}
-		
-		
+
+
 		soft.assertAll();
 	}
-	
+
 	@Test(description = "PROP-x", dataProvider = "readInvalidStrings")
 	public void updatePropertyNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
-		
+
 		JSONArray props = rest.properties().searchDomainProperties("plugin");
 		JSONObject prop = props.getJSONObject(5);
 		log.debug("" + prop);
-		
+
 		String name = prop.getString("name");
 		String value = prop.optString("value");
 		String newValue = evilStr;
-		
+
 		ClientResponse response = rest.properties().updateDomibusProperty(name, newValue);
 		validateInvalidResponse(response, soft);
-		
+
 		soft.assertAll();
 	}
-	
+
 	@Test(description = "PROP-x", dataProvider = "readInvalidStrings")
 	public void searchPropertiesNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -96,12 +96,12 @@ public class PropertiesRestTest extends RestTest {
 		params.put("name", evilStr);
 		params.put("page", "0");
 		params.put("pageSize", "10000");
-		
+
 		ClientResponse response = rest.properties().searchDomainProperties(params);
 		validateInvalidResponse(response, soft);
-		
+
 		soft.assertAll();
 	}
-	
-	
+
+
 }

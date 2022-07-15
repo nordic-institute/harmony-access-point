@@ -1,7 +1,5 @@
 package ddsl.dcomponents;
 
-import metricss.MyMetrics;
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,10 +8,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class SandwichMenu extends DComponent {
@@ -33,15 +27,15 @@ public class SandwichMenu extends DComponent {
 	public SandwichMenu(WebDriver driver) {
 
 		super(driver);
-		
+
 
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		log.debug("sandwich menu init");
-		
+
 	}
 
 	private void expandMenu() throws Exception {
-		
+
 
 		clickVoidSpace();
 
@@ -49,7 +43,7 @@ public class SandwichMenu extends DComponent {
 		wait.forElementToBeVisible(menuContainer);
 
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-		
+
 
 	}
 
@@ -58,11 +52,10 @@ public class SandwichMenu extends DComponent {
 	}
 
 	public boolean isLoggedIn() throws Exception {
-		
+
 
 		boolean toReturn = (null != new DomibusPage(driver).getCurrentLoggedInUser());
 
-		
 
 		return toReturn;
 	}

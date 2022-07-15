@@ -1,12 +1,11 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
-import com.mysql.cj.log.Log;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.logging.LoggingGrid;

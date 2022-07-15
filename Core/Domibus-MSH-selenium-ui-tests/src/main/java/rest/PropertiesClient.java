@@ -8,11 +8,11 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 public class PropertiesClient extends BaseRestClient {
-	
+
 	public PropertiesClient(String username, String password) {
 		super(username, password);
 	}
-	
+
 	// -------------------------------------------- Domibus Properties -----------------------------------------------------------
 	public JSONArray getDomibusPropertyDetail(String propName) throws Exception {
 		HashMap<String, String> params = new HashMap<>();
@@ -22,7 +22,7 @@ public class PropertiesClient extends BaseRestClient {
 			throw new DomibusRestException("Could not get properties ", clientResponse);
 		}
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("items");
-		
+
 	}
 
 	public JSONObject getDomibusPropertyDetail(String propName, String domain) throws Exception {
@@ -40,33 +40,32 @@ public class PropertiesClient extends BaseRestClient {
 	}
 
 
-	
 	public JSONArray searchDomainProperties(String name) throws Exception {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("showDomain", "true");
 		params.put("name", name);
 		params.put("page", "0");
 		params.put("pageSize", "10000");
-		
-		
+
+
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not get properties ", response);
 		}
 		return new JSONObject(sanitizeResponse(response.getEntity(String.class))).getJSONArray("items");
 	}
-	
+
 	public ClientResponse searchDomainProperties(HashMap<String, String> params) throws Exception {
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
 		return response;
 	}
-	
+
 	public JSONArray getAllProperties() throws Exception {
 		return searchDomainProperties("");
 	}
-	
+
 	public ClientResponse updateDomibusProperty(String propertyName, String value) throws Exception {
-		
+
 		String path = RestServicePaths.DOMIBUS_PROPERTIES + "/" + propertyName;
 		ClientResponse response = textPUT(resource.path(path), value);
 		return response;
@@ -88,31 +87,27 @@ public class PropertiesClient extends BaseRestClient {
 		String path = RestServicePaths.DOMIBUS_PROPERTIES + "/" + propertyName;
 
 
-
 		ClientResponse response = textPUT(resource.path(path).queryParam("isDomain", "false"), value);
 		return response;
 	}
-	
-
-
 
 
 //	-----------------------------------------------------------------------------------------------------
 
-	private JSONArray getAllProperties(String domain, boolean showDomain) throws Exception{
+	private JSONArray getAllProperties(String domain, boolean showDomain) throws Exception {
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put("page", "0");
 		params.put("pageSize", "1000");
-		params.put("showDomain", ""+showDomain);
+		params.put("showDomain", "" + showDomain);
 
-		if(showDomain){
+		if (showDomain) {
 			switchDomain(domain);
 		}
 
 		ClientResponse response = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
 
-		if(response.getStatus() != 200){
+		if (response.getStatus() != 200) {
 			throw new DomibusRestException("could not get properties", response);
 		}
 
@@ -121,7 +116,7 @@ public class PropertiesClient extends BaseRestClient {
 		return new JSONObject(respText).getJSONArray("items");
 	}
 
-	public JSONArray getAllDomainProperties(String domain) throws Exception{
+	public JSONArray getAllDomainProperties(String domain) throws Exception {
 		log.info("getting domain properties");
 		return getAllProperties(domain, true);
 	}
@@ -132,26 +127,24 @@ public class PropertiesClient extends BaseRestClient {
 	}
 
 
-
 	public String getPropertyValue(String propName, boolean isDomain, String domain) throws Exception {
 
 		JSONArray allProps;
-		if(isDomain) {
+		if (isDomain) {
 			allProps = getAllDomainProperties(domain);
-		}else {
+		} else {
 			allProps = getAllGlobalProperties();
 		}
 
 		for (int i = 0; i < allProps.length(); i++) {
 			JSONObject prop = allProps.getJSONObject(i);
 
-			if(StringUtils.equalsIgnoreCase(propName, prop.getString("name"))){
+			if (StringUtils.equalsIgnoreCase(propName, prop.getString("name"))) {
 				return prop.get("value").toString();
 			}
 		}
 		return null;
 	}
-
 
 
 }

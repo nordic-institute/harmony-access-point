@@ -1,114 +1,114 @@
 {
   "title": "Error Log",
   "filters": [
-	{
-	  "name": "signalMessIDInput",
-	  "placeholder": "Signal Message Id",
-	  "isDefault": true,
-	  "type": "INPUT"
-	},
-	{
-	  "name": "messageIDInput",
-	  "placeholder": "Message Id",
-	  "isDefault": true,
-	  "type": "INPUT"
-	},
-	{
-	  "name": "errFromContainer",
-	  "placeholder": "Error From:",
-	  "isDefault": true,
-	  "type": "DATE"
-	},
-	{
-	  "name": "errToContainer",
-	  "placeholder": "Error To:",
-	  "isDefault": true,
-	  "type": "DATE"
-	},
-	{
-	  "name": "errordetailInput",
-	  "placeholder": "Error Detail",
-	  "isDefault": false,
-	  "type": "INPUT"
-	},
-	{
-	  "name": "apRole",
-	  "placeholder": "AP Role",
-	  "isDefault": false,
-	  "type": "SELECT"
-	},
-	{
-	  "name": "errorCode",
-	  "placeholder": "Error Code",
-	  "isDefault": false,
-	  "type": "SELECT"
-	},
-	{
-	  "name": "notifiedFrom",
-	  "placeholder": "Notified From:",
-	  "isDefault": false,
-	  "type": "DATE"
-	},
-	{
-	  "name": "notifiedto",
-	  "placeholder": "Notified To:",
-	  "isDefault": false,
-	  "type": "DATE"
-	}
+    {
+      "name": "signalMessIDInput",
+      "placeholder": "Signal Message Id",
+      "isDefault": true,
+      "type": "INPUT"
+    },
+    {
+      "name": "messageIDInput",
+      "placeholder": "Message Id",
+      "isDefault": true,
+      "type": "INPUT"
+    },
+    {
+      "name": "errFromContainer",
+      "placeholder": "Error From:",
+      "isDefault": true,
+      "type": "DATE"
+    },
+    {
+      "name": "errToContainer",
+      "placeholder": "Error To:",
+      "isDefault": true,
+      "type": "DATE"
+    },
+    {
+      "name": "errordetailInput",
+      "placeholder": "Error Detail",
+      "isDefault": false,
+      "type": "INPUT"
+    },
+    {
+      "name": "apRole",
+      "placeholder": "AP Role",
+      "isDefault": false,
+      "type": "SELECT"
+    },
+    {
+      "name": "errorCode",
+      "placeholder": "Error Code",
+      "isDefault": false,
+      "type": "SELECT"
+    },
+    {
+      "name": "notifiedFrom",
+      "placeholder": "Notified From:",
+      "isDefault": false,
+      "type": "DATE"
+    },
+    {
+      "name": "notifiedto",
+      "placeholder": "Notified To:",
+      "isDefault": false,
+      "type": "DATE"
+    }
   ],
   "grid": {
-	"columnsControls": true,
-	"rowsControls": true,
-	"exportCSV": true,
-	"defaultSort": "Timestamp",
-	"columns": [
-	  {
-		"name": "Message Id",
-		"type": "TEXT",
-		"sortable": true,
-		"visibleByDefault": true
-	  },
-	  {
-		"name": "Error Code",
-		"type": "TEXT",
-		"sortable": true,
-		"visibleByDefault": true
-	  },
-	  {
-		"name": "Timestamp",
-		"type": "DATETIME",
-		"sortable": true,
-		"visibleByDefault": true
-	  },
-	  {
-		"name": "Signal Message Id",
-		"type": "TEXT",
-		"sortable": true,
-		"visibleByDefault": false
-	  },
-	  {
-		"name": "AP Role",
-		"type": "TEXT",
-		"sortable": true,
-		"visibleByDefault": false
-	  },
-	  {
-		"name": "Error Detail",
-		"type": "TEXT",
-		"sortable": true,
-		"visibleByDefault": false
-	  },
-	  {
-		"name": "Notified",
-		"type": "TEXT",
-		"sortable": true,
-		"visibleByDefault": false
-	  }
-	],
-	"pagination": {
-	  "showSelectedNo": false,
-	  "showTotalNo": true,
-	  "showPageControls": true
-	}
+    "columnsControls": true,
+    "rowsControls": true,
+    "exportCSV": true,
+    "defaultSort": "Timestamp",
+    "columns": [
+      {
+        "name": "Message Id",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Error Code",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Timestamp",
+        "type": "DATETIME",
+        "sortable": true,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Signal Message Id",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "AP Role",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Error Detail",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": false
+      },
+      {
+        "name": "Notified",
+        "type": "TEXT",
+        "sortable": true,
+        "visibleByDefault": false
+      }
+    ],
+    "pagination": {
+      "showSelectedNo": false,
+      "showTotalNo": true,
+      "showPageControls": true
+    }
   }
 }

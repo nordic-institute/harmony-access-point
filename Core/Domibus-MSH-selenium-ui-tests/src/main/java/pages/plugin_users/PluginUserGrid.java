@@ -7,10 +7,7 @@ import org.openqa.selenium.interactions.Actions;
 
 import java.awt.event.InputEvent;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class PluginUserGrid extends DGrid {
 	WebElement container;
 	private int mask = InputEvent.BUTTON1_DOWN_MASK;

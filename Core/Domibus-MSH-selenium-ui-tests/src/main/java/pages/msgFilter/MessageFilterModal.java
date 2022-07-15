@@ -11,10 +11,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class MessageFilterModal extends EditModal {
@@ -36,6 +32,7 @@ public class MessageFilterModal extends EditModal {
 	public WebElement serviceErrMess;
 	@FindBy(id = "backendfilter_id")
 	WebElement pluginSelectContainer;
+
 	public MessageFilterModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);

@@ -1,9 +1,9 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.truststore.TruststorePage;

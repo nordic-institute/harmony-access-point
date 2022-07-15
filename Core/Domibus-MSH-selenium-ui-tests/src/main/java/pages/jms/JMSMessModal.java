@@ -10,10 +10,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import java.util.HashMap;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class JMSMessModal extends InfoModal {
 	//	HEADER
 	@FindBy(id = "source_id")
@@ -29,7 +26,7 @@ public class JMSMessModal extends InfoModal {
 	@FindBy(id = "propJmsMessageId_id")
 	WebElement jmsMessageIDInput;
 
-//	Properties
+	//	Properties
 	@FindBy(id = "propDestination_id")
 	WebElement destinationQueueInput;
 	@FindBy(id = "propDeliveryMode_id")

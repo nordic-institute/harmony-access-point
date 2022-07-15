@@ -1,15 +1,14 @@
 package domibus.ui.functional;
 
 
-import org.testng.Reporter;
 import com.bluecatcode.junit.shaded.org.apache.commons.lang3.StringUtils;
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.InfoModal;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
-import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.login.LoginPage;

@@ -6,10 +6,6 @@ import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1.2
- */
 public class MultiSelect extends Select {
 
 	public MultiSelect(WebDriver driver, WebElement container) {

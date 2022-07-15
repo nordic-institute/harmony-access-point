@@ -11,10 +11,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class MessageDetailsModal extends InfoModal {
 	@FindBy(css = "app-messagelog-details > mat-dialog-content input")
 	List<WebElement> inputs;

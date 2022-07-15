@@ -1,18 +1,14 @@
 package utils;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class Gen {
-	
+
 	private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	private static final String ALPHA_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXY";
 
-	
+
 	public static String randomAlphaNumeric(int count) {
 		StringBuilder builder = new StringBuilder();
 		while (count-- != 0) {
@@ -58,16 +54,15 @@ public class Gen {
 
 	public static String randomPartyIdValStr() {
 		StringBuilder build = new StringBuilder();
-		build.append( String.format("urn:oasis:names:tc:ebcore:partyid-type:%s", rndStr(5)));
+		build.append(String.format("urn:oasis:names:tc:ebcore:partyid-type:%s", rndStr(5)));
 		return build.toString();
 	}
 
 	public static String randomEndpoint() {
 		StringBuilder build = new StringBuilder();
-		build.append( String.format("http://%s.com", rndStr(15)));
+		build.append(String.format("http://%s.com", rndStr(15)));
 		return build.toString();
 	}
 
 
-	
 }

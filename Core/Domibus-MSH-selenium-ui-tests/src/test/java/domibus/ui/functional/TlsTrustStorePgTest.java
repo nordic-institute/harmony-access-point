@@ -1,9 +1,9 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.tlsTrustStore.TlsTrustStorePage;
@@ -104,7 +104,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
-		if(page.getAlertArea().isShown()){
+		if (page.getAlertArea().isShown()) {
 			page.getAlertArea().closeAlert();
 			page.uploadTruststore(DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks"), "test123");
 		}
@@ -217,7 +217,7 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
-		if(page.getAlertArea().isShown()){
+		if (page.getAlertArea().isShown()) {
 			page.getAlertArea().closeAlert();
 		}
 

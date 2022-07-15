@@ -1,11 +1,11 @@
 package domibus.ui.functional;
 
 
-import org.testng.Reporter;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;

@@ -17,10 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class GridControls extends DComponent {
 	@FindBy(css = "#routerHolder app-column-picker > div > a")
 	WebElement showHideCtrlLnk;
@@ -30,24 +27,24 @@ public class GridControls extends DComponent {
 	WebElement noneLnk;
 	@FindBy(css = "#routerHolder app-column-picker .column-checkbox")
 	List<WebElement> chkContainer;
-	
+
 	public GridControls(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-	
+
 	public DLink getShowHideCtrlLnk() {
 		return new DLink(driver, showHideCtrlLnk);
 	}
-	
+
 	public DLink getAllLnk() {
 		return new DLink(driver, allLnk);
 	}
-	
+
 	public DLink getNoneLnk() {
 		return new DLink(driver, noneLnk);
 	}
-	
+
 	public Boolean getCheckboxStatus(String name) throws Exception {
 		for (WebElement chk : chkContainer) {
 			WebElement labelFor = chk.findElement(By.cssSelector("label"));
@@ -58,7 +55,7 @@ public class GridControls extends DComponent {
 		}
 		return null;
 	}
-	
+
 	public void checkBoxWithLabel(String name) throws Exception {
 		boolean found = false;
 		for (WebElement chk : chkContainer) {
@@ -73,7 +70,7 @@ public class GridControls extends DComponent {
 			throw new Exception("Checkbox not found");
 		}
 	}
-	
+
 	public void uncheckBoxWithLabel(String name) throws Exception {
 		boolean found = false;
 		for (WebElement chk : chkContainer) {
@@ -88,13 +85,13 @@ public class GridControls extends DComponent {
 			throw new Exception("Checkbox not found");
 		}
 	}
-	
+
 	public HashMap<String, Boolean> getAllCheckboxStatuses() throws Exception {
 		log.info("getting all checkboxes and their status");
 		showCtrls();
 		HashMap<String, Boolean> statuses = new HashMap<>();
 		JavascriptExecutor js = (JavascriptExecutor) driver;
-		
+
 		for (WebElement chk : chkContainer) {
 //			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
 			Checkbox checkbox = new Checkbox(driver, chk.findElement(By.cssSelector("input")));
@@ -103,14 +100,14 @@ public class GridControls extends DComponent {
 //			log.debug("got status for " + labelFor.getText());
 
 		}
-		
+
 		return statuses;
 	}
-	
+
 	public List<String> getAllCheckboxLabels() throws Exception {
 		showCtrls();
 		List<String> labels = new ArrayList<>();
-		
+
 		for (WebElement chk : chkContainer) {
 //			DObject labelFor = new DObject(driver, chk.findElement(By.cssSelector("label")));
 //			labels.add(labelFor.getText());
@@ -118,7 +115,7 @@ public class GridControls extends DComponent {
 		}
 		return labels;
 	}
-	
+
 	public void showCtrls() throws Exception {
 		log.info("showing column selection controls");
 		DLink link = getShowHideCtrlLnk();
@@ -126,7 +123,7 @@ public class GridControls extends DComponent {
 			link.click();
 		}
 	}
-	
+
 	public void hideCtrls() throws Exception {
 		DLink link = getShowHideCtrlLnk();
 		if (StringUtils.equalsIgnoreCase(link.getLinkText(), "Hide columns")) {
@@ -134,7 +131,7 @@ public class GridControls extends DComponent {
 			wait.forElementToContainText(showHideCtrlLnk, "Show");
 		}
 	}
-	
+
 	public boolean areCheckboxesVisible() {
 		try {
 			return getAllLnk().isVisible();
@@ -142,7 +139,7 @@ public class GridControls extends DComponent {
 			return false;
 		}
 	}
-	
+
 	public void showAllColumns() throws Exception {
 		showCtrls();
 		weToDLink(allLnk).click();
@@ -162,5 +159,5 @@ public class GridControls extends DComponent {
 		hideCtrls();
 	}
 
-	
+
 }
