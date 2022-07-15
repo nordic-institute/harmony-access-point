@@ -189,10 +189,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public String getFinalRecipient(String messageId, MSHRole mshRole) {
-        // what mshRole? receive it as param or have it in MDC context?
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
-            LOG.debug("Message [{}] does not exist", messageId);
+            LOG.debug("Message [{}]-[{}] does not exist", messageId, mshRole);
             return null;
         }
         return userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -200,10 +199,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public String getOriginalSender(String messageId, MSHRole mshRole) {
-        // what mshRole? receive it as param or have it in MDC context?
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
-            LOG.debug("Message [{}] does not exist", messageId);
+            LOG.debug("Message [{}]-[{}] does not exist", messageId, mshRole);
             return null;
         }
         return userMessageServiceHelper.getOriginalSender(userMessage);
@@ -601,7 +599,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.info("Deleted [{}] attempts.", deleteResult);
 
 
-        deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(userMessageIds);
+        deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(ids);
         LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
         LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
@@ -632,8 +630,8 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public byte[] getMessageAsBytes(String messageId, MSHRole mshRole) throws MessageNotFoundException {
-        UserMessage userMessage = getUserMessageById(messageId);
-        auditService.addMessageDownloadedAudit(messageId);
+        UserMessage userMessage = getUserMessageById(messageId, mshRole);
+        auditService.addMessageDownloadedAudit(messageId, mshRole);
         final List<PartInfo> partInfoList = partInfoService.findPartInfo(userMessage);
         return messageToBytes(userMessage, partInfoList);
     }
@@ -641,7 +639,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public byte[] getMessageWithAttachmentsAsZip(String messageId, MSHRole mshRole) throws MessageNotFoundException, IOException {
         checkCanGetMessageContent(messageId, mshRole);
-        Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
+        Map<String, InputStream> message = getMessageContentWithAttachments(messageId, mshRole);
         return zipFiles(message);
     }
 
@@ -688,9 +686,8 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessage;
     }
 
-    protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
-
-        UserMessage userMessage = getUserMessageById(messageId);
+    protected Map<String, InputStream> getMessageContentWithAttachments(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        UserMessage userMessage = getUserMessageById(messageId, mshRole);
 
         Map<String, InputStream> result = new HashMap<>();
         final List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
@@ -718,14 +715,13 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        auditService.addMessageDownloadedAudit(messageId);
+        auditService.addMessageDownloadedAudit(messageId, mshRole);
 
         return result;
     }
 
-    protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
-        // what mshRole? receive it as param?
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    protected UserMessage getUserMessageById(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

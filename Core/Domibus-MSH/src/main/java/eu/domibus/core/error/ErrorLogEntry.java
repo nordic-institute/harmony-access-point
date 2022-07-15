@@ -28,6 +28,7 @@ import java.util.Date;
 @NamedQuery(name = "ErrorLogEntry.findEntries", query = "select e from ErrorLogEntry e")
 @NamedQuery(name = "ErrorLogEntry.countEntries", query = "select count(e.entityId)  from ErrorLogEntry e")
 @NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError", query = "delete from ErrorLogEntry e where e.messageInErrorId IN :MESSAGEIDS")
+@NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError2", query = "delete from ErrorLogEntry e where e.userMessage.entityId IN :MESSAGEIDS")
 @NamedQuery(name = "ErrorLogEntry.findErrorsWithoutMessageIds", query = "select e.entityId from ErrorLogEntry e where e.messageInErrorId is null and e.timestamp<:DELETION_DATE")
 @NamedQuery(name = "ErrorLogEntry.deleteErrorsWithoutMessageIds", query = "delete from ErrorLogEntry e where e.entityId IN :ENTITY_IDS")
 public class ErrorLogEntry extends AbstractBaseEntity {

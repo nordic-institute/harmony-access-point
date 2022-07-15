@@ -179,7 +179,7 @@ public class AuditServiceImplTest {
     @Test
     public void addMessageDownloadedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addMessageDownloadedAudit("resendMessageId");
+        auditService.addMessageDownloadedAudit("resendMessageId", mshRole);
         ArgumentCaptor<MessageAudit> messageAuditCaptor = ArgumentCaptor.forClass(MessageAudit.class);
         verify(auditDao, times(1)).saveMessageAudit(messageAuditCaptor.capture());
         MessageAudit value = messageAuditCaptor.getValue();

@@ -12,7 +12,6 @@ import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.usermessage.domain.MessageInfo;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.audit.AuditService;
@@ -422,7 +421,7 @@ public class UserMessageDefaultServiceTest {
             messageAttemptDao.deleteAttemptsByMessageIds((List<Long>) any);
             result = 1;
 
-            errorLogService.deleteErrorLogsByMessageIdInError((List<String>) any);
+            errorLogService.deleteErrorLogsByMessageIdInError((List<Long>) any);
             result = 1;
 
             messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds((List<Long>) any);
@@ -822,7 +821,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.getUserMessageById(messageId);
 
         new Verifications() {{
-            auditService.addMessageDownloadedAudit(messageId);
+            auditService.addMessageDownloadedAudit(messageId, mshRole);
             times = 0;
         }};
     }
