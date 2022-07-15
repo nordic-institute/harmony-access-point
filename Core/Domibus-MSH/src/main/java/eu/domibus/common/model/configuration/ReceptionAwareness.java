@@ -2,6 +2,8 @@ package eu.domibus.common.model.configuration;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import eu.domibus.api.model.AbstractBaseEntity;
 
@@ -193,6 +195,11 @@ public class ReceptionAwareness extends AbstractBaseEntity {
                 if (retryValues.length==4 && "PROGRESSIVE".equals(retryValues[3])) {
                     this.initialInterval = Integer.parseInt(retryValues[1]);
                     this.multiplyingFactor = Integer.parseInt(retryValues[2]);
+                    if (this.multiplyingFactor <= 1) {
+                        List<ValidationIssue> issues = new ArrayList<>();
+                        issues.add(new ValidationIssue("multiplyingFactor shoud be greater than 1 for PROGRESSIVE strategy"));
+                        throw new PModeValidationException(issues);
+                    }
                     this.strategy = RetryStrategy.valueOf(retryValues[3]);
                     this.retryIntervals = calculateRetryIntervals(this.initialInterval, this.multiplyingFactor, this.retryTimeout);
                     this.retryCount = this.retryIntervals.size()-1;
@@ -219,17 +226,15 @@ public class ReceptionAwareness extends AbstractBaseEntity {
      * (3,2,100) => [3,6,12,24,48,96]
      * @param initialInterval - the first retry interval
      * @param multiplyingFactor - the next retry interval will be the current multiplied by this factor
-     * @param timeout - the maximum time interval for retrials since the first one
+     * @param timeout - the maximum time interval for retrials since the initial send
      * @return
      */
-    private List calculateRetryIntervals(int initialInterval, int multiplyingFactor, int timeout) {
+     List calculateRetryIntervals(int initialInterval, int multiplyingFactor, int timeout) {
         List result = new ArrayList();
-        int x = 0;
         int crtTriggerTime = initialInterval;
         while (crtTriggerTime <= timeout) {
             result.add(crtTriggerTime);
             crtTriggerTime = crtTriggerTime * multiplyingFactor;
-            x++;
         }
         return result;
     }

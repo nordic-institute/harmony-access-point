@@ -115,6 +115,22 @@ public class LegConfigurationValidator implements PModeValidator {
             String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
             return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted.");
         }
+
+        if (leg.getReceptionAwareness().getStrategy() == RetryStrategy.PROGRESSIVE) {
+            // PROGRESSIVE strategy validations:
+            int retryTimeout = leg.getReceptionAwareness().getRetryTimeout();
+            int initialInterval = leg.getReceptionAwareness().getInitialInterval();
+            int multiplyingFactor = leg.getReceptionAwareness().getMultiplyingFactor();
+            String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
+
+            if (retryTimeout < initialInterval) {
+                return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted (initialInterval should be less than retryTimeout).");
+            }
+            if (multiplyingFactor<1) {
+                return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted (multiplyingFactor should be greater than 1).");
+            }
+        }
+
         return null;
     }
 
