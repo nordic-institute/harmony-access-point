@@ -72,7 +72,7 @@ public class ITTestsService {
         Submission submission = submissionUtil.createSubmission();
         final String messageId = messageSubmitter.submit(submission, "mybackend");
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         userMessageLogDao.setMessageStatus(userMessageLog, endStatus);
 
         return messageId;

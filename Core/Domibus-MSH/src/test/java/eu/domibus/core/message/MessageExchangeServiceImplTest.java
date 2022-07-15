@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
  * @since 3.3
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MessageExchangeEbms3ServiceImplTest {
+public class MessageExchangeServiceImplTest {
 
     @Mock
     private PModeProvider pModeProvider;
@@ -309,7 +309,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         UserMessageLog userMessageLog = new UserMessageLog();
         MessageStatusEntity messageStatus = getPullMessageStatusEntity(MessageStatus.READY_TO_PULL);
         userMessageLog.setMessageStatus(messageStatus);
-        when(userMessageLogDao.findByMessageId(testMessageId)).thenReturn(userMessageLog);
+        when(userMessageLogDao.findByMessageId(testMessageId, MSHRole.RECEIVING)).thenReturn(userMessageLog);
 
         final String messageId = messageExchangeService.retrieveReadyToPullUserMessageId(mpc, party);
         assertEquals(testMessageId, messageId);

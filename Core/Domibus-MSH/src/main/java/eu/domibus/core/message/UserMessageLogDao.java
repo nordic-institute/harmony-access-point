@@ -158,11 +158,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
      * @param messageId The message id
      * @return The UserMessageLog
      */
-    @Transactional
-    public UserMessageLog findByMessageIdSafely(String messageId) {
-        final UserMessageLog userMessageLog = findByMessageId(messageId);
-        return initChildren(messageId, userMessageLog);
-    }
+//    @Transactional
+//    public UserMessageLog findByMessageIdSafely(String messageId) {
+//        final UserMessageLog userMessageLog = findByMessageId(messageId);
+//        return initChildren(messageId, userMessageLog);
+//    }
 
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId, MSHRole mshRole) {

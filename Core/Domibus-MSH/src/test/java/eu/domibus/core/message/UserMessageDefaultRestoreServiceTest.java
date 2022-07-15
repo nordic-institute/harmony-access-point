@@ -2,13 +2,10 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.model.MessageStatusEntity;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -233,7 +230,7 @@ public class UserMessageDefaultRestoreServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = null;
         }};
 
@@ -254,7 +251,7 @@ public class UserMessageDefaultRestoreServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getMessageStatus();

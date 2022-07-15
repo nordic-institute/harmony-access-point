@@ -496,7 +496,7 @@ public class UpdateRetryLoggingServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = null;
         }};
 
@@ -514,14 +514,14 @@ public class UpdateRetryLoggingServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = messageLog;
         }};
 
         updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
 
         new Verifications() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
 
             updateRetryLoggingService.messageFailed(userMessage, messageLog);
             times = 1;

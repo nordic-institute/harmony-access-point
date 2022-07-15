@@ -327,7 +327,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = null;
         }};
 
@@ -343,7 +343,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessageLog;
 
             userMessageLog.getMessageStatus();
@@ -358,7 +358,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getMessageStatus();
@@ -449,15 +449,14 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void marksTheUserMessageAsDeleted(@Injectable UserMessage userMessage,
                                              @Injectable UserMessageLog userMessageLog,
-                                             @Injectable SignalMessage signalMessage,
-                                             @Injectable MessageInfo messageInfo) {
+                                             @Injectable SignalMessage signalMessage) {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
-            signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+            signalMessageDao.findByUserMessageIdWithUserMessage(messageId, MSHRole.SENDING);
             result = signalMessage;
 
             signalMessage.getUserMessage();
@@ -481,12 +480,11 @@ public class UserMessageDefaultServiceTest {
 
     @Test
     public void marksTheUserMessageAsDeleted_emptySignal(@Injectable UserMessage userMessage,
-                                                         @Injectable SignalMessage signalMessage,
                                                          @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
@@ -527,7 +525,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getMessageStatus();
@@ -834,7 +832,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = null;
         }};
         try {
@@ -851,7 +849,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getDeleted();
@@ -870,7 +868,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
         Date deleted = new Date();
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getDeleted();
@@ -893,7 +891,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getDeleted();

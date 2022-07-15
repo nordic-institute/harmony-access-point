@@ -211,7 +211,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
         // then
-        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(uml1.getUserMessage().getMessageId());
+        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(uml1.getUserMessage().getMessageId(),
+                uml1.getUserMessage().getMshRole().getRole());
         Assert.assertNotNull(byMessageId.getDeleted());
     }
 

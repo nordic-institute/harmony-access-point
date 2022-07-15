@@ -203,7 +203,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
         if (list.size() > 0) {
             list.forEach(el -> {
-                UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId());
+                UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId(), el.getMshRole());
                 userMessageLogDao.deleteMessageLogs(Arrays.asList(res.getEntityId()));
             });
         }
@@ -280,7 +280,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         Submission submission = submissionUtil.createSubmission();
         messageId = messageSubmitter.submit(submission, backendConnector.getName());
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         assertNotNull(userMessageLog);
         assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
         assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
@@ -303,7 +303,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().get(0).getMessageId(), messageId);
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        Assert.assertNull(userMessageLogDao.findByMessageId(messageId));
+        Assert.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
     }
 
     @Test
@@ -353,7 +353,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.WAITING_FOR_RETRY);
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         userMessageLog.setScheduled(false);
         userMessageLog.setSendAttempts(5);
         NotificationStatusEntity entity = notificationStatusDao.findOrCreate(NotificationStatus.REQUIRED);

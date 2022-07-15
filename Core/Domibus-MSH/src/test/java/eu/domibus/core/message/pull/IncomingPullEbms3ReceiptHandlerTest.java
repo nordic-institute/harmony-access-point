@@ -153,7 +153,6 @@ public class IncomingPullEbms3ReceiptHandlerTest {
 
     @Test
     public void testHandlePullRequestReceiptHappyFlow(@Mocked final SOAPMessage request,
-                                                      @Mocked final Messaging messaging,
                                                       @Mocked final UserMessage userMessage,
                                                       @Mocked final MessageExchangeConfiguration messageConfiguration,
                                                       @Injectable final PullRequestResult pullRequestResult,
@@ -171,7 +170,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             pullMessageService.getLock(messageId);
@@ -217,7 +216,6 @@ public class IncomingPullEbms3ReceiptHandlerTest {
 
     @Test
     public void testHandlePullRequestReceiptWithEbmsException(@Mocked final SOAPMessage request,
-                                                              @Mocked final Messaging messaging,
                                                               @Mocked final UserMessage userMessage,
                                                               @Injectable final PullRequestResult pullRequestResult,
                                                               @Injectable final MessagingLock messagingLock,
@@ -231,7 +229,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             pullMessageService.getLock(messageId);
@@ -276,7 +274,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             messagingLock.getMessageState();

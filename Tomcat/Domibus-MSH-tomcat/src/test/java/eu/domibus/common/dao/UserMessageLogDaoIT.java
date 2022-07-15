@@ -243,7 +243,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     public void currentAndFutureDateTimesSavedInUtcIrrespectiveOfApplicationTimezone() {
-        UserMessageLog retryMessage = userMessageLogDao.findByMessageId(testDate);
+        UserMessageLog retryMessage = userMessageLogDao.findByMessageId(testDate, MSHRole.SENDING);
         Assert.assertNotNull("Should have found a retry message", retryMessage);
 
         final Date now = dateUtil.getUtcDate();
@@ -388,7 +388,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindMessagesForArchiving_oldest() {
-        UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
+        UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties, MSHRole.SENDING);
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
         assertThat(messagesForArchiving.stream()
@@ -404,7 +404,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindMessagesForArchiving_rest() {
-        UserMessageLog msg1 = userMessageLogDao.findByMessageId(this.msg1.getUserMessage().getMessageId());
+        UserMessageLog msg1 = userMessageLogDao.findByMessageId(this.msg1.getUserMessage().getMessageId(), this.msg1.getUserMessage().getMshRole().getRole());
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
         assertEquals(4, messagesForArchiving.size());
@@ -494,7 +494,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findByMessageIdSafely_notfound() {
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely("notFound");
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely("notFound", MSHRole.SENDING);
 
         assertNull(userMessageLog);
     }
@@ -502,7 +502,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findByMessageIdSafely_ok() {
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId());
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId(), MSHRole.SENDING);
 
         Assert.assertNotNull(userMessageLog);
     }

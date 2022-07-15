@@ -1,9 +1,6 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.MessageStatusEntity;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
@@ -51,7 +48,7 @@ public class PullMessageStateServiceImplTest {
         final String messageId = "messageId";
 
         new Expectations(pullMessageStateService) {{
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessageLog;
             pullMessageStateService.sendFailed(userMessageLog, messageId);
             times = 1;

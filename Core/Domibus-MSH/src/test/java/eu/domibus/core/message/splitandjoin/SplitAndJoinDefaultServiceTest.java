@@ -448,7 +448,7 @@ public class SplitAndJoinDefaultServiceTest {
                                                            @Injectable UserMessageLog messageLog) {
         String messageId = "123";
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = messageLog;
 
             messageLog.getMessageStatus();
@@ -468,7 +468,7 @@ public class SplitAndJoinDefaultServiceTest {
                                                   @Injectable UserMessageLog messageLog, MessageStatus messageStatus) {
         String messageId = "123";
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = messageLog;
 
             messageLog.getMessageStatus();
@@ -489,7 +489,7 @@ public class SplitAndJoinDefaultServiceTest {
                                                               @Injectable UserMessageLog messageLog) {
         String messageId = "123";
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = messageLog;
 
             messageLog.getMessageStatus();
@@ -705,7 +705,7 @@ public class SplitAndJoinDefaultServiceTest {
             legConfiguration.getSplitting().getJoinInterval();
             result = 1;
 
-            userMessageLogDao.findByMessageId(userMessageId);
+            userMessageLogDao.findByMessageId(userMessageId, MSHRole.SENDING);
             result = userMessageLog;
         }};
 
