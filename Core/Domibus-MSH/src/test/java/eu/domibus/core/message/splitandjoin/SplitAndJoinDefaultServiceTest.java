@@ -306,7 +306,7 @@ public class SplitAndJoinDefaultServiceTest {
         String pModeKey = "mykey";
 
         new Expectations(splitAndJoinDefaultService) {{
-            as4ReceiptService.generateReceipt(sourceMessageId, false);
+            as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.SENDING, false);
             result = sourceRequest;
 
             splitAndJoinDefaultService.sendSignalMessage(sourceRequest, pModeKey);

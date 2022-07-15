@@ -270,7 +270,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void sendSourceMessageReceipt(String sourceMessageId, String pModeKey) {
         SOAPMessage receiptMessage;
         try {
-            receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, false);
+            receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.SENDING, false);
         } catch (EbMS3Exception e) {
             throw new SplitAndJoinException("Error generating the source message receipt", e);
         }

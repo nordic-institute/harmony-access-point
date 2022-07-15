@@ -113,9 +113,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     }
 
     @Override
-    public SOAPMessage generateReceipt(String messageId, final Boolean nonRepudiation) throws EbMS3Exception {
-        // here also mshRole needs to be sent
-        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
+    public SOAPMessage generateReceipt(String messageId, MSHRole mshRole, final Boolean nonRepudiation) throws EbMS3Exception {
+        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId, mshRole);
         SOAPMessage request;
         try {
             final String rawXml = rawXmlByMessageId.getRawXmlMessage();
@@ -157,7 +156,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 Source requestMessage;
                 if (duplicate) {
                     LOG.debug("Generating receipt for duplicate message");
-                    final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(userMessage.getMessageId());
+                    final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(userMessage.getMessageId(), userMessage.getMshRole().getRole());
                     SignalMessage existingSignalMessage = signalMessageDao.findByUserMessageEntityId(rawXmlByMessageId.getParentEntityId());
                     messageId = existingSignalMessage.getSignalMessageId();
                     timestamp = timestampDateFormatter.generateTimestamp(existingSignalMessage.getTimestamp());

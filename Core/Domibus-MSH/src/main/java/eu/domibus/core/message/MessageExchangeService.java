@@ -88,9 +88,10 @@ public interface MessageExchangeService {
      * Retrieve the unique raw message of UserMessage. Enforce that it is unique.
      *
      * @param messageId the id of the message.
+     * @param role
      * @return the raw soap envelop.
      */
-    RawEnvelopeDto findPulledMessageRawXmlByMessageId(String messageId);
+    RawEnvelopeDto findPulledMessageRawXmlByMessageId(String messageId, MSHRole role);
 
     void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName);
 
