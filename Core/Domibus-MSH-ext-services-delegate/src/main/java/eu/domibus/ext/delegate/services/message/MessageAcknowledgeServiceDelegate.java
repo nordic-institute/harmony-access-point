@@ -39,7 +39,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
 
     @Override
     public MessageAcknowledgementDTO acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.RECEIVING);
 
         final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
@@ -55,7 +55,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
 
     @Override
     public MessageAcknowledgementDTO acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.RECEIVING);
 
         final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageProcessed(messageId, acknowledgeTimestamp, properties);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
@@ -63,7 +63,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
 
     @Override
     public List<MessageAcknowledgementDTO> getAcknowledgedMessages(String messageId) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.RECEIVING);
 
         final List<MessageAcknowledgement> messageAcknowledgement = messageAcknowledgeCoreService.getAcknowledgedMessages(messageId);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);

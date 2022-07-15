@@ -107,6 +107,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
+        // delete all or any???
         try {
             userMessageService.deleteMessageNotInFinalStatus(messageId, MSHRole.SENDING);
         } catch (MessageNotFoundException ex) {

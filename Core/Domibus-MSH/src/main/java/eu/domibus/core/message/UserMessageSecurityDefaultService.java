@@ -134,6 +134,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
+    // we keep this for now
     public void checkMessageAuthorization(String messageId) {
         UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
