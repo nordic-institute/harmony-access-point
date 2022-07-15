@@ -647,7 +647,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public byte[] getMessageEnvelopesAsZip(String messageId, MSHRole mshRole) {
-        Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId);
+        Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId, mshRole);
         if (envelopes.isEmpty()) {
             LOG.debug("Could not find message envelopes with id [{}].", messageId);
             return new byte[0];
@@ -655,19 +655,19 @@ public class UserMessageDefaultService implements UserMessageService {
         try {
             return zipFiles(envelopes);
         } catch (IOException e) {
-            LOG.warn("Could not zip message envelopes with id [{}].", messageId);
+            LOG.warn("Could not zip message envelopes with id [{}] and role [{}].", messageId, mshRole);
             return new byte[0];
         }
     }
 
     @Override
     public String getUserMessageEnvelope(String userMessageId, MSHRole mshRole) {
-        return nonRepudiationService.getUserMessageEnvelope(userMessageId);
+        return nonRepudiationService.getUserMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override
     public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
-        return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+        return nonRepudiationService.getSignalMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override

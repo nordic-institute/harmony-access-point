@@ -22,6 +22,7 @@ import java.sql.Timestamp;
                 query = "delete from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.entityId IN :IDS")
 
 })
+// do we need msh role here???
 public class MessageAcknowledgementEntity extends AbstractBaseEntity {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)

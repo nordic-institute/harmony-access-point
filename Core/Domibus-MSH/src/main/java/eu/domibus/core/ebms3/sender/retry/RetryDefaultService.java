@@ -137,7 +137,7 @@ public class RetryDefaultService implements RetryService {
     }
 
     /**
-     * Method call by job to reset waiting_for_receipt messages into ready to pull.
+     * Method called by job to reset waiting_for_receipt messages into ready to pull.
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)

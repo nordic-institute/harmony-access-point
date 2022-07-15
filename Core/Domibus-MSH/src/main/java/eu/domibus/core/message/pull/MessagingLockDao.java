@@ -6,6 +6,8 @@ import java.util.List;
  * @author Thomas Dussart
  * @since 3.3.4
  */
+
+// do we need mshRole here??
 public interface MessagingLockDao {
 
     PullMessageId getNextPullMessageToProcess(String initiator, String mpc);
@@ -24,7 +26,7 @@ public interface MessagingLockDao {
 
     List<MessagingLock> findDeletedMessages();
 
-    List<MessagingLock> findReadyToPull(String mpc, String initiator);
+//    List<MessagingLock> findReadyToPull(String mpc, String initiator);
 
     List<MessagingLock> findWaitingForReceipt();
 

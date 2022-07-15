@@ -50,6 +50,6 @@ public class SignalMessageRawServiceIT extends AbstractIT {
 
         signalMessageRawService.saveSignalMessageRawService(RAW_XML, msg1.getEntityId());
 
-        Assert.assertEquals(RAW_XML, signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId("msg1").getRawXmlMessage());
+        Assert.assertEquals(RAW_XML, signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId("msg1", MSHRole.RECEIVING).getRawXmlMessage());
     }
 }

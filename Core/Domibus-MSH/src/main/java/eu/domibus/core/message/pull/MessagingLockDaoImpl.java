@@ -102,8 +102,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     public MessagingLock getLock(final String messageId) {
         try {
             LOG.debug("Message[{}] Getting lock", messageId);
-            Query q = entityManager.createNamedQuery("MessagingLock.lockByMessageId",
-                    MessagingLock.class);
+            Query q = entityManager.createNamedQuery("MessagingLock.lockByMessageId", MessagingLock.class);
             q.setParameter(1, messageId);
             return (MessagingLock) q.getSingleResult();
         } catch (NoResultException nr) {
@@ -156,17 +155,17 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
         return query.getResultList();
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public List<MessagingLock> findReadyToPull(final String mpc, final String initiator) {
-        final TypedQuery<MessagingLock> namedQuery = entityManager.createNamedQuery("MessagingLock.findReadyToPull", MessagingLock.class);
-        namedQuery.setFirstResult(0);
-        namedQuery.setMaxResults(50);
-        namedQuery.setParameter(MPC, mpc);
-        namedQuery.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
-        namedQuery.setParameter(INITIATOR, initiator);
-        return namedQuery.getResultList();
-    }
+//    @Override
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    public List<MessagingLock> findReadyToPull(final String mpc, final String initiator) {
+//        final TypedQuery<MessagingLock> namedQuery = entityManager.createNamedQuery("MessagingLock.findReadyToPull", MessagingLock.class);
+//        namedQuery.setFirstResult(0);
+//        namedQuery.setMaxResults(50);
+//        namedQuery.setParameter(MPC, mpc);
+//        namedQuery.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
+//        namedQuery.setParameter(INITIATOR, initiator);
+//        return namedQuery.getResultList();
+//    }
 
     @Override
     public List<MessagingLock> findWaitingForReceipt() {

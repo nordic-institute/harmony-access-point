@@ -18,6 +18,8 @@ import java.sql.Timestamp;
 @NamedQueries({
         @NamedQuery(name = "MessageAttemptEntity.findAttemptsByMessageId",
                 query = "select attempt from MessageAttemptEntity attempt where attempt.userMessage.messageId = :MESSAGE_ID"),
+        @NamedQuery(name = "MessageAttemptEntity.findAttemptsByMessageId2",
+                query = "select attempt from MessageAttemptEntity attempt where attempt.userMessage.messageId = :MESSAGE_ID and attempt.userMessage.mshRole=:MSH_ROLE"),
         @NamedQuery(name = "MessageAttemptEntity.deleteAttemptsByMessageIds",
                 query = "delete from MessageAttemptEntity attempt where attempt.userMessage.entityId IN :IDS"),
 })

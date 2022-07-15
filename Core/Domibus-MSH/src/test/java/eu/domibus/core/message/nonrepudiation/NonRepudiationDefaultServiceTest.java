@@ -1,6 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -62,7 +63,7 @@ public class NonRepudiationDefaultServiceTest {
             result = new MessageNotFoundException(messageId);
         }};
 
-        nonRepudiationService.getUserMessageEnvelope(messageId);
+        nonRepudiationService.getUserMessageEnvelope(messageId, MSHRole.SENDING);
 
     }
 
@@ -77,7 +78,7 @@ public class NonRepudiationDefaultServiceTest {
             result = null;
         }};
 
-        String result = nonRepudiationService.getUserMessageEnvelope(messageId);
+        String result = nonRepudiationService.getUserMessageEnvelope(messageId, MSHRole.SENDING);
 
         assertNull(result);
 
@@ -102,7 +103,7 @@ public class NonRepudiationDefaultServiceTest {
             result = envelopContent;
         }};
 
-        String result = nonRepudiationService.getUserMessageEnvelope(messageId);
+        String result = nonRepudiationService.getUserMessageEnvelope(messageId, MSHRole.SENDING);
 
         assertEquals(envelopContent, result);
 
@@ -117,10 +118,10 @@ public class NonRepudiationDefaultServiceTest {
         String userMessageId = "msgid";
 
         new Expectations() {{
-            signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId);
+            signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId, MSHRole.RECEIVING);
             result = null;
         }};
-        String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+        String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId, MSHRole.RECEIVING);
 
         assertNull(result);
 
@@ -136,13 +137,13 @@ public class NonRepudiationDefaultServiceTest {
         String rawXml = "rawXml";
 
         new Expectations() {{
-            signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId);
+            signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId, MSHRole.RECEIVING);
             result = rawEnvelopeDto;
 
             rawEnvelopeDto.getRawXmlMessage();
             result = rawXml;
         }};
-        String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+        String result = nonRepudiationService.getSignalMessageEnvelope(userMessageId, MSHRole.RECEIVING);
 
         assertEquals(rawXml, result);
 
@@ -156,14 +157,14 @@ public class NonRepudiationDefaultServiceTest {
     public void getMessageEnvelopes() {
         String userMessageId = "msgid", userMessageEnvelope = "userMessageEnvelope", signalEnvelope = "signalEnvelope";
         new Expectations(nonRepudiationService) {{
-            nonRepudiationService.getUserMessageEnvelope(userMessageId);
+            nonRepudiationService.getUserMessageEnvelope(userMessageId, MSHRole.SENDING);
             result = userMessageEnvelope;
 
-            nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+            nonRepudiationService.getSignalMessageEnvelope(userMessageId, MSHRole.RECEIVING);
             result = signalEnvelope;
         }};
 
-        Map<String, InputStream> result = nonRepudiationService.getMessageEnvelopes(userMessageId);
+        Map<String, InputStream> result = nonRepudiationService.getMessageEnvelopes(userMessageId, MSHRole.RECEIVING);
 
         assertNotNull(result.get("user_message_envelope.xml"));
         assertNotNull(result.get("signal_message_envelope.xml"));
