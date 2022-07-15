@@ -606,7 +606,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findBackendForMessageId() {
-        String backendForMessageId = userMessageLogDao.findBackendForMessageId(msg1.getUserMessage().getMessageId());
+        String backendForMessageId = userMessageLogDao.findBackendForMessageId(msg1.getUserMessage().getMessageId(), msg1.getUserMessage().getMshRole().getRole());
         assertNull(backendForMessageId);
     }
 

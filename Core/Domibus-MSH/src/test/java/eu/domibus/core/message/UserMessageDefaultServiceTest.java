@@ -487,7 +487,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
-            signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+            signalMessageDao.findByUserMessageIdWithUserMessage(messageId, MSHRole.SENDING);
             result = null;
 
             userMessageLog.getUserMessage();

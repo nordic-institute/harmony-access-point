@@ -44,6 +44,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
 
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
+    public static final String MSH_ROLE = "MSH_ROLE";
 
     private final DateUtil dateUtil;
 
@@ -201,7 +202,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         try {
             TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus2", MessageStatusEntity.class);
             query.setParameter(STR_MESSAGE_ID, messageId);
-            query.setParameter("MSH_ROLE", mshRole);
+            query.setParameter(MSH_ROLE, mshRole);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [{}]", messageId);
@@ -400,9 +401,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public String findBackendForMessageId(String messageId) {
-        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
+    public String findBackendForMessageId(String messageId, MSHRole mshRole) {
+        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage2", String.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
+        query.setParameter(MSH_ROLE, mshRole);
         return query.getSingleResult();
     }
 

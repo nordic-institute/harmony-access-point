@@ -1,5 +1,6 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -78,7 +79,7 @@ public class PullEbms3ReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageId("refToMessageId");
+            receiptDao.findBySignalRefToMessageId("refToMessageId", MSHRole.SENDING);
             result = null;
 
             message.propertyExists(MessageConstants.RETRY_COUNT);
@@ -112,7 +113,7 @@ public class PullEbms3ReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageId("refToMessageId");
+            receiptDao.findBySignalRefToMessageId("refToMessageId", MSHRole.SENDING);
             result = receiptEntity;
 
             message.propertyExists(MessageConstants.RETRY_COUNT);
@@ -145,7 +146,7 @@ public class PullEbms3ReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageId("refToMessageId");
+            receiptDao.findBySignalRefToMessageId("refToMessageId", MSHRole.SENDING);
             result = null;
         }};
 

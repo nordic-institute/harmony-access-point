@@ -72,7 +72,7 @@ public class SplitAndJoinHelperTest extends TestCase {
             sourceMessage.getMessageId();
             result = messageId;
 
-            userMessageLogDao.findBackendForMessageId(messageId);
+            userMessageLogDao.findBackendForMessageId(messageId, sourceMessage.getMshRole().getRole());
             result = backendName;
 
             splitAndJoinHelper.createMessagingForFragment(sourceMessage, messageGroupEntity, backendName, fragment1, 1);

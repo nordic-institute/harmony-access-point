@@ -40,7 +40,7 @@ public class SplitAndJoinHelper {
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);
 
-        String backendName = userMessageLogDao.findBackendForMessageId(sourceMessage.getMessageId());
+        String backendName = userMessageLogDao.findBackendForMessageId(sourceMessage.getMessageId(), sourceMessage.getMshRole().getRole());
         for (int index = 0; index < fragmentFiles.size(); index++) {
             try {
                 final String fragmentFile = fragmentFiles.get(index);

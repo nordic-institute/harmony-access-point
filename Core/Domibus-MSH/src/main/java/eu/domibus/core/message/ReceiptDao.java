@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
@@ -27,9 +28,16 @@ public class ReceiptDao extends BasicDao<ReceiptEntity> {
         super(ReceiptEntity.class);
     }
 
-    public ReceiptEntity findBySignalRefToMessageId(String refToMessageId) {
-        final TypedQuery<ReceiptEntity> query = em.createNamedQuery("Receipt.findBySignalRefToMessageId", ReceiptEntity.class);
+//    public ReceiptEntity findBySignalRefToMessageId(String refToMessageId) {
+//        final TypedQuery<ReceiptEntity> query = em.createNamedQuery("Receipt.findBySignalRefToMessageId", ReceiptEntity.class);
+//        query.setParameter("REF_TO_MESSAGE_ID", refToMessageId);
+//        return DataAccessUtils.singleResult(query.getResultList());
+//    }
+
+    public ReceiptEntity findBySignalRefToMessageId(String refToMessageId, MSHRole mshRole) {
+        final TypedQuery<ReceiptEntity> query = em.createNamedQuery("Receipt.findBySignalRefToMessageId2", ReceiptEntity.class);
         query.setParameter("REF_TO_MESSAGE_ID", refToMessageId);
+        query.setParameter("MSH_ROLE", mshRole.name());
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
@@ -43,4 +51,5 @@ public class ReceiptDao extends BasicDao<ReceiptEntity> {
         LOG.debug("deleteMessages result [{}]", result);
         return result;
     }
+
 }

@@ -534,7 +534,7 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, mshRole.name());
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, mshRole);
-        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId, mshRole);
         final UserMessage userMessage;
         if (signalMessage == null) {
             LOG.debug("No signalMessage is present for [{}]", messageId);
