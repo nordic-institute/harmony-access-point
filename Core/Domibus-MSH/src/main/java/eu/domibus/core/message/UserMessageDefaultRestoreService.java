@@ -84,7 +84,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
         UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
 
-        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
+        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
         backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus.getMessageStatus(), new Timestamp(System.currentTimeMillis()));
         userMessageLog.setMessageStatus(newMessageStatus);
         final Date currentDate = new Date();

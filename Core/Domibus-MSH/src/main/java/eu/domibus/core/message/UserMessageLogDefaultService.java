@@ -115,13 +115,13 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         }
 
         String signalMessageId = signalMessage.getSignalMessageId();
-        setSignalMessageAsDeleted(signalMessageId);
+        setSignalMessageAsDeleted(signalMessageId, signalMessage.getMshRole().getRole());
         LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
         return true;
     }
 
-    protected void setSignalMessageAsDeleted(final String signalMessageId) {
-        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
+    protected void setSignalMessageAsDeleted(final String signalMessageId, MSHRole mshRole) {
+        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId, mshRole);
         final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.DELETED);
         signalMessageLog.setDeleted(new Date());
         signalMessageLog.setMessageStatus(messageStatusEntity);

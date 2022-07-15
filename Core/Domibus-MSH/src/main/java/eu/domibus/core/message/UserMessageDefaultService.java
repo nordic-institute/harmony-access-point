@@ -581,7 +581,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting [{}] user messages", ids.size());
         LOG.trace("Deleting user messages [{}]", ids);
 
-        List<String> filenames = partInfoService.findFileSystemPayloadFilenames(userMessageIds);
+        List<String> filenames = partInfoService.findFileSystemPayloadFilenames(ids);
         partInfoService.deletePayloadFiles(filenames);
 
         em.flush();

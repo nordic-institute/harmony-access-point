@@ -152,8 +152,8 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     DateUtil dateUtil;
 
-    @Injectable
-    private MessageInfoDao messageInfoDao;
+//    @Injectable
+//    private MessageInfoDao messageInfoDao;
 
     @Injectable
     private MessageAttemptDao messageAttemptDao;
@@ -404,7 +404,7 @@ public class UserMessageDefaultServiceTest {
             em.unwrap(Session.class);
             result = session;
 
-            partInfoService.findFileSystemPayloadFilenames((List<String>) any);
+            partInfoService.findFileSystemPayloadFilenames((List<Long>) any);
             result = filenames;
 
             userMessageLogDao.deleteMessageLogs((List<Long>) any);

@@ -142,7 +142,7 @@ public class UserMessageDefaultRestoreServiceTest {
             userMessageDefaultService.getFailedMessage(messageId);
             result = userMessageLog;
 
-            messageExchangeService.retrieveMessageRestoreStatus(messageId);
+            messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
             result = messageStatusEntity;
 
             restoreService.computeNewMaxAttempts(userMessageLog);
@@ -186,7 +186,7 @@ public class UserMessageDefaultRestoreServiceTest {
             userMessageDefaultService.getFailedMessage(messageId);
             result = userMessageLog;
 
-            messageExchangeService.retrieveMessageRestoreStatus(messageId);
+            messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
             result = messageStatusEntity;
 
             restoreService.computeNewMaxAttempts(userMessageLog);

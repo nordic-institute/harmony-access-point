@@ -83,7 +83,7 @@ public class PullRequestHandler {
 
     SOAPMessage notifyNoMessage(PullContext pullContext, String refToMessageId) {
         LOG.trace("No message for received pull request with mpc " + pullContext.getMpcQualifiedName());
-        return messageBuilder.getSoapMessage( EbMS3ExceptionBuilder.getInstance()
+        return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0006)
                 .message("There is no message available for\npulling from this MPC at this moment.")
                 .refToMessageId(refToMessageId)
@@ -124,6 +124,8 @@ public class PullRequestHandler {
                 if (pullRequestMatcher.matchReliableCallBack(leg.getReliability()) &&
                         leg.getReliability().isNonRepudiation()) {
                     PhaseInterceptorChain.getCurrentMessage().getExchange().put(DispatchClientDefaultProvider.MESSAGE_ID, messageId);
+                    PhaseInterceptorChain.getCurrentMessage().getExchange()
+                            .put(DispatchClientDefaultProvider.MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
                 }
                 checkResult = WAITING_FOR_CALLBACK;
                 LOG.info("Sending message");

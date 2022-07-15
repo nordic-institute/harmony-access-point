@@ -19,7 +19,7 @@ public interface PartInfoService {
 
     Long findPartInfoTotalLength(long entityId);
 
-    PartInfo findPartInfo(String messageId, String cid);
+//    PartInfo findPartInfo(String messageId, String cid);
 
     PartInfo findPartInfo(Long messageEntityId, String cid);
 
@@ -29,7 +29,7 @@ public interface PartInfoService {
 
     void deletePayloadFiles(List<String> filenames);
 
-    List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds);
+    List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds);
 
     boolean scheduleSourceMessagePayloads(List<PartInfo> partInfos);
 

@@ -75,10 +75,10 @@ public class PartInfoServiceImpl implements PartInfoService {
         return partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
     }
 
-    @Override
-    public PartInfo findPartInfo(String messageId, String cid) {
-        return partInfoDao.findPartInfoByUserMessageIdAndCid(messageId, getCid(cid));
-    }
+//    @Override
+//    public PartInfo findPartInfo(String messageId, String cid) {
+//        return partInfoDao.findPartInfoByUserMessageIdAndCid(messageId, getCid(cid));
+//    }
 
     @Override
     public PartInfo findPartInfo(Long messageEntityId, String cid) {
@@ -194,7 +194,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    public List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds) {
+    public List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds) {
         return partInfoDao.findFileSystemPayloadFilenames(userMessageEntityIds);
     }
 

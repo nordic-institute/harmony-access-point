@@ -91,7 +91,7 @@ public class UserMessageLogDefaultServiceTest {
             signalMessage.getSignalMessageId();
             result = messageId;
 
-            signalMessageLogDao.findByMessageId(messageId);
+            signalMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = signalMessageLog;
 
              messageStatusDao.findOrCreate(MessageStatus.DELETED);

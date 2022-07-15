@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
@@ -38,9 +39,10 @@ public interface MessageExchangeService {
      * originally, in order to restore it properly.
      *
      * @param messageId the message id.
+     * @param role
      * @return the status the message should be put back to.
      */
-    MessageStatusEntity retrieveMessageRestoreStatus(String messageId);
+    MessageStatusEntity retrieveMessageRestoreStatus(String messageId, MSHRole role);
 
     /**
      * Load pmode and find pull process in order to initialize pull request.
@@ -75,12 +77,12 @@ public interface MessageExchangeService {
     /**
      * In case of a pull message, the output soap envelope needs to be saved in order to be saved in order to check the
      * non repudiation.
-     *
-     * @param rawXml    the soap envelope
+     *  @param rawXml    the soap envelope
      * @param messageId the user message
+     * @param mshRole
      */
 
-    void saveRawXml(String rawXml, String messageId);
+    void saveRawXml(String rawXml, String messageId, MSHRole mshRole);
 
     /**
      * Retrieve the unique raw message of UserMessage. Enforce that it is unique.

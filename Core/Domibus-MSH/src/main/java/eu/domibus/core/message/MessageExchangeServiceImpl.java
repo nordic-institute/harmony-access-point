@@ -146,8 +146,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      */
     @Override
     @Transactional(readOnly = true)
-    public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId) {
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+    public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId, MSHRole role) {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, role);
         if (forcePullOnMpc(userMessage)) {
             return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
         }
@@ -337,19 +337,19 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * Saving the raw xml message in the case of the pull is occurring on the last outgoing interceptor in order
      * to have all the cxf message modification saved (reliability check.) Unfortunately this saving is not done in the
      * same transaction.
-     *
-     * @param rawXml    the soap envelope
+     *  @param rawXml    the soap envelope
      * @param messageId the user message
+     * @param mshRole
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void saveRawXml(String rawXml, String messageId) {
+    public void saveRawXml(String rawXml, String messageId, MSHRole mshRole) {
         LOG.debug("Saving rawXML for message [{}]", messageId);
 
         UserMessageRaw newRawEnvelopeLog = new UserMessageRaw();
         newRawEnvelopeLog.setRawXML(rawXml);
-        // what mshRole? probably have it as a param?
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        // what mshRole?
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         newRawEnvelopeLog.setUserMessage(userMessage);
         rawEnvelopeLogDao.create(newRawEnvelopeLog);
     }

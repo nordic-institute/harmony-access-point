@@ -36,16 +36,22 @@ public class PartInfoDao extends BasicDao<PartInfo> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public PartInfo findPartInfoByUserMessageIdAndCid(final String userMessageId, String cid) {
-        final TypedQuery<PartInfo> query = this.em.createNamedQuery("PartInfo.findPartInfoByUserMessageIdAndCid", PartInfo.class);
-        query.setParameter("MESSAGE_ID", userMessageId);
-        query.setParameter("CID", cid);
-        query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
-        return DataAccessUtils.singleResult(query.getResultList());
-    }
+//    public PartInfo findPartInfoByUserMessageIdAndCid(final String userMessageId, String cid) {
+//        final TypedQuery<PartInfo> query = this.em.createNamedQuery("PartInfo.findPartInfoByUserMessageIdAndCid", PartInfo.class);
+//        query.setParameter("MESSAGE_ID", userMessageId);
+//        query.setParameter("CID", cid);
+//        query.setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false);
+//        return DataAccessUtils.singleResult(query.getResultList());
+//    }
 
-    public List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds) {
-        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
+//    public List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds) {
+//        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
+//        query.setParameter("MESSAGEIDS", userMessageEntityIds);
+//        return query.getResultList();
+//    }
+
+    public List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds) {
+        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames2", String.class);
         query.setParameter("MESSAGEIDS", userMessageEntityIds);
         return query.getResultList();
     }
