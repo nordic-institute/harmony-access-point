@@ -79,6 +79,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return userMessage;
     }
 
+    // we keep this for now
     @Transactional
     public UserMessage findByMessageId(String messageId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);

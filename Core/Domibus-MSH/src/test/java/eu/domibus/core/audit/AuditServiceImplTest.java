@@ -2,6 +2,7 @@ package eu.domibus.core.audit;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -179,7 +180,7 @@ public class AuditServiceImplTest {
     @Test
     public void addMessageDownloadedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addMessageDownloadedAudit("resendMessageId", mshRole);
+        auditService.addMessageDownloadedAudit("resendMessageId", MSHRole.RECEIVING);
         ArgumentCaptor<MessageAudit> messageAuditCaptor = ArgumentCaptor.forClass(MessageAudit.class);
         verify(auditDao, times(1)).saveMessageAudit(messageAuditCaptor.capture());
         MessageAudit value = messageAuditCaptor.getValue();

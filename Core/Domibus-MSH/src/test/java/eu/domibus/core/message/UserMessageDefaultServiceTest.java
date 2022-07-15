@@ -804,7 +804,7 @@ public class UserMessageDefaultServiceTest {
         new Expectations() {
         };
 
-        UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
+        UserMessage result = userMessageDefaultService.getUserMessageById(messageId, MSHRole.RECEIVING);
 
         Assert.assertEquals(userMessage, result);
     }
@@ -818,10 +818,10 @@ public class UserMessageDefaultServiceTest {
             result = null;
         }};
 
-        userMessageDefaultService.getUserMessageById(messageId);
+        userMessageDefaultService.getUserMessageById(messageId, MSHRole.RECEIVING);
 
         new Verifications() {{
-            auditService.addMessageDownloadedAudit(messageId, mshRole);
+            auditService.addMessageDownloadedAudit(messageId, MSHRole.RECEIVING);
             times = 0;
         }};
     }

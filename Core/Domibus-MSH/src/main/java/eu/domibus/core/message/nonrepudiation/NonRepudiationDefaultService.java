@@ -120,7 +120,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
     @Override
     public String getUserMessageEnvelope(String messageId, MSHRole mshRole) {
-        UserMessage userMessage = getUserMessageById(messageId);
+        UserMessage userMessage = getUserMessageById(messageId, mshRole);
 
         RawEnvelopeDto rawEnvelopeDto = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
         if (rawEnvelopeDto == null) {
@@ -174,9 +174,8 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         return result;
     }
 
-    protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
-        // what mshRole? receive it as param?
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    protected UserMessage getUserMessageById(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

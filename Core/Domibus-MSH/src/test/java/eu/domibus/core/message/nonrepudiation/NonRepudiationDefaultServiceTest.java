@@ -59,7 +59,7 @@ public class NonRepudiationDefaultServiceTest {
     public void getUserMessageEnvelope_noMessage() {
         String messageId = "msgid";
         new Expectations(nonRepudiationService) {{
-            nonRepudiationService.getUserMessageById(messageId);
+            nonRepudiationService.getUserMessageById(messageId, MSHRole.RECEIVING);
             result = new MessageNotFoundException(messageId);
         }};
 
@@ -71,7 +71,7 @@ public class NonRepudiationDefaultServiceTest {
     public void getUserMessageEnvelope_noMessageEnvelope(@Mocked UserMessage userMessage) {
         String messageId = "msgid";
         new Expectations(nonRepudiationService) {{
-            nonRepudiationService.getUserMessageById(messageId);
+            nonRepudiationService.getUserMessageById(messageId, MSHRole.SENDING);
             result = userMessage;
 
             rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
@@ -93,7 +93,7 @@ public class NonRepudiationDefaultServiceTest {
         String messageId = "msgid", envelopContent = "content";
 
         new Expectations(nonRepudiationService) {{
-            nonRepudiationService.getUserMessageById(messageId);
+            nonRepudiationService.getUserMessageById(messageId, MSHRole.SENDING);
             result = userMessage;
 
             rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
