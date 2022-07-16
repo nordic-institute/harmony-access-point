@@ -34,9 +34,6 @@ public class MessageResource {
     UserMessageService userMessageService;
 
     @Autowired
-    private MessagesLogService messagesLogService;
-
-    @Autowired
     private ErrorHandlerService errorHandlerService;
 
     @Autowired
@@ -60,24 +57,23 @@ public class MessageResource {
         restoreService.resendFailedOrSendEnqueuedMessage(messageId);
     }
 
-    @RequestMapping(path = "/{messageId:.+}/downloadOld", method = RequestMethod.GET)
-    public ResponseEntity<ByteArrayResource> download(@PathVariable(value = "messageId") String messageId,
-                                                      @RequestParam(value = "mshRole") String mshRole) throws MessagingException {
-
-        byte[] content = userMessageService.getMessageAsBytes(messageId, MSHRole.valueOf(mshRole));
-
-        ByteArrayResource resource = new ByteArrayResource(content);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + messageId + ".xml")
-                .body(resource);
-    }
+//    @RequestMapping(path = "/{messageId:.+}/downloadOld", method = RequestMethod.GET)
+//    public ResponseEntity<ByteArrayResource> download(@PathVariable(value = "messageId") String messageId,
+//                                                      @RequestParam(value = "mshRole") String mshRole) throws MessagingException {
+//
+//        byte[] content = userMessageService.getMessageAsBytes(messageId, MSHRole.valueOf(mshRole));
+//
+//        ByteArrayResource resource = new ByteArrayResource(content);
+//        return ResponseEntity.ok()
+//                .contentType(MediaType.parseMediaType("application/octet-stream"))
+//                .header("content-disposition", "attachment; filename=" + messageId + ".xml")
+//                .body(resource);
+//    }
 
     @RequestMapping(value = "/download")
     public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId,
                                                                  @RequestParam(value = "mshRole") String mshRole)
             throws MessageNotFoundException, IOException {
-
         try {
             byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId, MSHRole.valueOf(mshRole));
 
@@ -85,7 +81,6 @@ public class MessageResource {
                     .contentType(MediaType.parseMediaType("application/zip"))
                     .header("content-disposition", "attachment; filename=" + messageId + ".zip")
                     .body(new ByteArrayResource(zip));
-
         } catch (MessagingException ex) {
             LOG.warn("Could not get content for user message [{}]; returning empty.", messageId, ex);
             return ResponseEntity.noContent().build();
@@ -98,11 +93,11 @@ public class MessageResource {
         userMessageService.checkCanGetMessageContent(messageId, MSHRole.valueOf(mshRole));
     }
 
-    @GetMapping(value = "/{messageId:.+}/envelopes")
-    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId,
-                                                                      @RequestParam(value = "mshRole") String mshRole) {
-        return getByteArrayResourceResponseEntity(messageId, MSHRole.valueOf(mshRole));
-    }
+//    @GetMapping(value = "/{messageId:.+}/envelopes")
+//    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId,
+//                                                                      @RequestParam(value = "mshRole") String mshRole) {
+//        return getByteArrayResourceResponseEntity(messageId, MSHRole.valueOf(mshRole));
+//    }
 
     @GetMapping(value = "/envelopes")
     public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId,
