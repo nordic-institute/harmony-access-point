@@ -46,5 +46,5 @@ public final class MessageConstants {
      */
     public static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
 
-    public static final String PAYLOAD_PROPERTY_FILEPATH = "filepath";
+    public static final String PAYLOAD_PROPERTY_FILEPATH = "FilePath";
 }

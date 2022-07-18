@@ -215,10 +215,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
             } catch (MalformedURLException e) {
                 throw new SubmitMessageFault("Invalid filepath property", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, filepath), e);
             }
-
-            if(extendedPartInfo.getPartProperties()==null){
-                extendedPartInfo.setPartProperties(new PartProperties());
-            }
             final PartProperties partProperties = extendedPartInfo.getPartProperties();
 
             Property prop = new Property();
