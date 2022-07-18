@@ -84,6 +84,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
             userMessageRequest = splitAndJoinService.getUserMessage(new File(sourceMessageFileName), contentTypeString);
             Ebms3Messaging ebms3Messaging = messageUtil.getMessaging(userMessageRequest);
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+            // is mshRole already set here???
         } catch (Exception e) {
             LOG.error("Error getting the Messaging object from the SOAPMessage", e);
             throw new WebServiceException(e);

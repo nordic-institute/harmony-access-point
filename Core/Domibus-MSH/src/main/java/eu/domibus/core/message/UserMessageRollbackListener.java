@@ -26,7 +26,7 @@ public class UserMessageRollbackListener {
     /**
      * On transaction rollback, the message status is reverted from DOWNLOADED to RECEIVED, add a business log for it.
      */
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
     public void handleEvent(UserMessageDownloadEvent downloadEvent) {
         final String messageId = downloadEvent.getMessageId();

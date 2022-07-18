@@ -44,7 +44,7 @@ public class MessageSenderErrorHandler implements ErrorHandler {
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void handleError(Throwable t) {
         String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
         String messageEntityId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);

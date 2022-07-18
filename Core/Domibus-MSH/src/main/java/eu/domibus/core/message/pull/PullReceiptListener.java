@@ -73,7 +73,7 @@ public class PullReceiptListener implements MessageListener {
     protected ReceiptDao receiptDao;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     @Counter(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     public void onMessage(final Message message) {

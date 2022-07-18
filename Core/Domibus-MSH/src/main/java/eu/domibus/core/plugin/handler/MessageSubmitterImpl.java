@@ -137,13 +137,14 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         this.messageSubmitterHelper = messageSubmitterHelper;
     }
 
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = MessageSubmitterImpl.class, value = "submit")
     @Counter(clazz = MessageSubmitterImpl.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(submission.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
             LOG.debug("Add message ID to LOG MDC [{}]", submission.getMessageId());
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
@@ -171,6 +172,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             populateMessageIdIfNotPresent(userMessage);
             messageId = userMessage.getMessageId();
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
             userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
@@ -238,7 +240,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
     }
 
     @Transactional
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
         if (userMessage == null) {
             LOG.warn(USER_MESSAGE_IS_NULL);
@@ -252,6 +254,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         LOG.debug("Preparing to submit message fragment");
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
         try {
             // handle if the messageId is unique.

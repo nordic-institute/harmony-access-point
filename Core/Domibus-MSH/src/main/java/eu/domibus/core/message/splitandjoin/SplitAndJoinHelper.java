@@ -1,11 +1,14 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.messaging.MessagingProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,9 @@ public class SplitAndJoinHelper {
     @Autowired
     protected MessageGroupDao messageGroupDao;
 
+    @Autowired
+    protected MshRoleDao mshRoleDao;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);
@@ -54,6 +60,8 @@ public class SplitAndJoinHelper {
     protected void createMessagingForFragment(UserMessage sourceUserMessage, MessageGroupEntity messageGroupEntity, String backendName, String fragmentFile, int index) throws MessagingProcessingException {
         Long fragmentNumber = Long.valueOf(index);
         final UserMessage userMessageFragment = userMessageFactory.createUserMessageFragment(sourceUserMessage, messageGroupEntity, fragmentNumber, fragmentFile);
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.SENDING); // or the role of the source message
+        userMessageFragment.setMshRole(mshRoleEntity);
         MessageFragmentEntity messageFragmentEntity = userMessageFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
         PartInfo messageFragmentPartInfo = userMessageFactory.createMessageFragmentPartInfo(fragmentFile, fragmentNumber);
         messageSubmitter.submitMessageFragment(userMessageFragment, messageFragmentEntity, messageFragmentPartInfo, backendName);

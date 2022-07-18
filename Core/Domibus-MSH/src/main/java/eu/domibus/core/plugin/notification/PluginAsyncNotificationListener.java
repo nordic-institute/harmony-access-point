@@ -48,7 +48,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
         this.authUtils = authUtils;
     }
 
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Transactional
     @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
@@ -61,6 +61,9 @@ public class PluginAsyncNotificationListener implements MessageListener {
         try {
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+
+            final String role = message.getStringProperty(MessageConstants.MSH_ROLE);
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, role);
 
             final long messageEntityId = message.getLongProperty(MessageConstants.MESSAGE_ENTITY_ID);
 
