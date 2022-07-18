@@ -13,6 +13,7 @@ public class UserMessageLogDto {
 
     public static final String ENTITY_ID = "m_entity_id";
     public static final String MESSAGE_ID = "m_id";
+    public static final String MESSAGE_ROLE = "m_role";
     public static final String TEST_MESSAGE = "m_test_message";
     public static final String MESSAGE_BACKEND = "m_backend";
     public static final String PROP_VALUE = "p_value";
@@ -42,6 +43,7 @@ public class UserMessageLogDto {
     public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
         this.entityId = (Long) getObjectNullSafe(tuple, aliasToIndexMap, ENTITY_ID);
         this.messageId = (String) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ID);
+        this.mshRole = (MSHRole) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ROLE);
         Object subtype = getObjectNullSafe(tuple, aliasToIndexMap, TEST_MESSAGE);
         if(subtype != null) {
             this.testMessage = (Boolean) subtype;

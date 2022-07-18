@@ -55,7 +55,7 @@ public class UserMessage extends AbstractBaseEntity {
     @NotNull
     protected String messageId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MSH_ROLE_ID_FK")
     private MSHRoleEntity mshRole;
 

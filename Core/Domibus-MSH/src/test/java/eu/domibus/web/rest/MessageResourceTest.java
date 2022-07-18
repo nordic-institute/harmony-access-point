@@ -59,24 +59,24 @@ public class MessageResourceTest {
     @Injectable
     private UserMessageRestoreService userMessageDefaultRestoreService;
 
-    @Test
-    public void testDownload() {
-        // Given
-        new Expectations() {{
-            userMessageService.getMessageAsBytes(anyString, MSHRole.SENDING);
-            result = new byte[]{0, 1, 2};
-        }};
-
-        // When
-        ResponseEntity<ByteArrayResource> responseEntity = messageResource.download("messageId", MSHRole.SENDING.name());
-
-        // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assert.assertEquals(2, responseEntity.getHeaders().size());
-        Assert.assertEquals("application/octet-stream", responseEntity.getHeaders().get("Content-Type").get(0));
-        Assert.assertEquals("attachment; filename=messageId.xml", responseEntity.getHeaders().get("content-disposition").get(0));
-    }
+//    @Test
+//    public void testDownload() {
+//        // Given
+//        new Expectations() {{
+//            userMessageService.getMessageAsBytes(anyString, MSHRole.SENDING);
+//            result = new byte[]{0, 1, 2};
+//        }};
+//
+//        // When
+//        ResponseEntity<ByteArrayResource> responseEntity = messageResource.download("messageId", MSHRole.SENDING.name());
+//
+//        // Then
+//        Assert.assertNotNull(responseEntity);
+//        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+//        Assert.assertEquals(2, responseEntity.getHeaders().size());
+//        Assert.assertEquals("application/octet-stream", responseEntity.getHeaders().get("Content-Type").get(0));
+//        Assert.assertEquals("attachment; filename=messageId.xml", responseEntity.getHeaders().get("content-disposition").get(0));
+//    }
 
     @Test
     public void testDownloadZipped() throws IOException {

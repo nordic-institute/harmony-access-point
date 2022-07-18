@@ -450,7 +450,7 @@
             <column name="TEST_MESSAGE"/>
             <column name="ID_PK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
+<!--        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>-->
 
         <createTable tableName="TB_MESSAGE_ACKNW">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">

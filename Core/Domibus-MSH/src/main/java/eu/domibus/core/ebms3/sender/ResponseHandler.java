@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
@@ -13,12 +14,14 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,15 +88,20 @@ public class ResponseHandler {
         return result;
     }
 
+    @Autowired
+    protected MshRoleDao mshRoleDao;
+
     @Transactional
     public void saveResponse(final SOAPMessage response, final UserMessage userMessage, final Ebms3Messaging ebms3MessagingResponse) {
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
         final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
-
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
+        signalMessage.setMshRole(mshRoleEntity);
 
         // Stores the signal message
-        signalMessage.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
+        UserMessage message = userMessageDao.findByReference(userMessage.getEntityId());
+        signalMessage.setUserMessage(message);
         signalMessageDao.create(signalMessage);
 
         nonRepudiationService.saveResponse(response, signalMessage.getEntityId());

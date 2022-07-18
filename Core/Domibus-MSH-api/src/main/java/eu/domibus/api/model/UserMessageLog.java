@@ -35,6 +35,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
+                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,      " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,      " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
@@ -48,7 +49,7 @@ import java.util.Date;
                         "AND uml.deleted < :DATE                                                                     " +
                         "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false) "),
         @NamedQuery(name = "UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod",
-                query = "SELECT DISTINCT new UserMessageLogDto(um.entityId, um.messageId, um.mshRole.role)                                                                 " +
+                query = "SELECT DISTINCT new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, um.mshRole.role)                                                                 " +
                         "FROM UserMessageLog uml                                                                      " +
                         "JOIN uml.userMessage um                                                                      " +
                         "left join um.messageProperties p                                                             " +
@@ -61,6 +62,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findFailedMessagesDuringPeriod",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
+                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
                         "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
                         "FROM UserMessageLog uml                                                                      " +
@@ -79,6 +81,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,          " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,          " +
+                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,          " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,          " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,          " +
@@ -95,6 +98,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,         " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,         " +
+                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,         " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,         " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,         " +
@@ -110,6 +114,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
+                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,      " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,      " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
@@ -127,6 +132,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesOlderThan",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "             ,     " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "            ,     " +
+                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "          ,     " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "       ,     " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "            ,     " +
@@ -142,6 +148,7 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findAllMessages",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "             ,     " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "            ,     " +
+                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
                         "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "          ,     " +
                         "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "       ,     " +
                         "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "            ,     " +

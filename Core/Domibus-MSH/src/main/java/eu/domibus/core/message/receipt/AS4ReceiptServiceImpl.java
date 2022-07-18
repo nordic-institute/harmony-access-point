@@ -216,6 +216,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 //            signalMessage.setRefToMessageId(signalMessage.getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
 //            signalMessage.setSignalMessageId(signalMessage.getSignalMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
         }
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        signalMessage.setMshRole(mshRoleEntity);
+
         return signalMessageResult;
     }
 
