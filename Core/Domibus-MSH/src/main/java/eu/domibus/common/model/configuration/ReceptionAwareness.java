@@ -200,6 +200,11 @@ public class ReceptionAwareness extends AbstractBaseEntity {
                         issues.add(new ValidationIssue("multiplyingFactor shoud be greater than 1 for PROGRESSIVE strategy"));
                         throw new PModeValidationException(issues);
                     }
+                    if (this.initialInterval > this.retryTimeout) {
+                        List<ValidationIssue> issues = new ArrayList<>();
+                        issues.add(new ValidationIssue("initialInterval cannot be greater than retryTimeout"));
+                        throw new PModeValidationException(issues);
+                    }
                     this.strategy = RetryStrategy.valueOf(retryValues[3]);
                     this.retryIntervals = calculateRetryIntervals(this.initialInterval, this.multiplyingFactor, this.retryTimeout);
                     this.retryCount = this.retryIntervals.size()-1;
@@ -229,7 +234,7 @@ public class ReceptionAwareness extends AbstractBaseEntity {
      * @param timeout - the maximum time interval for retrials since the initial send
      * @return
      */
-     List calculateRetryIntervals(int initialInterval, int multiplyingFactor, int timeout) {
+     private List calculateRetryIntervals(int initialInterval, int multiplyingFactor, int timeout) {
         List result = new ArrayList();
         int crtTriggerTime = initialInterval;
         while (crtTriggerTime <= timeout) {
