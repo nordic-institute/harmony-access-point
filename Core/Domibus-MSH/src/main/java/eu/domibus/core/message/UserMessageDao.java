@@ -69,7 +69,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     @Transactional
     public UserMessage findByMessageId(String messageId, MSHRole mshRole) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessage.class);
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageIdAndRole", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
         query.setParameter("MSH_ROLE", mshRole);
         final UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());

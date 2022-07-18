@@ -15,6 +15,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = "UserMessage.findByGroupEntityId", query = "select mg.sourceMessage from MessageGroupEntity mg where mg.entityId=:ENTITY_ID"),
         @NamedQuery(name = "UserMessage.findByMessageId", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "UserMessage.findByMessageIdAndRole", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID and um.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "UserMessage.deleteMessages", query = "delete from UserMessage mi where mi.entityId in :IDS"),
         @NamedQuery(name = "UserMessage.findUserMessageByGroupId",
                 query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
