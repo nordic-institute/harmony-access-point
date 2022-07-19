@@ -646,6 +646,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             return result;
         }
         final List<Ebms3PartInfo> ebms3PartInfos = ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
+        populateCornerSpecificProperties(ebms3PartInfos);
+
         if (CollectionUtils.isEmpty(ebms3PartInfos)) {
             return result;
         }
@@ -657,6 +659,20 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         return result;
+    }
+
+    private void populateCornerSpecificProperties(List<Ebms3PartInfo> ebms3PartInfos) {
+        if(storageProvider.getCurrentStorage().getStorageDirectory()!=null) {
+            for (Ebms3PartInfo partInfo : ebms3PartInfos) {
+                Optional<Ebms3Property> filepathProperty = partInfo.getPartProperties().getProperty().stream()
+                        .filter(ebms3Property -> MessageConstants.PAYLOAD_PROPERTY_FILEPATH.equals(ebms3Property.getName()))
+                        .findFirst();
+                if (filepathProperty.isPresent()) {
+                    String storagePath = storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath();
+                    filepathProperty.get().setValue(storagePath);
+                }
+            }
+        }
     }
 
     protected PartInfo convert(Ebms3PartInfo ebms3PartInfo) {

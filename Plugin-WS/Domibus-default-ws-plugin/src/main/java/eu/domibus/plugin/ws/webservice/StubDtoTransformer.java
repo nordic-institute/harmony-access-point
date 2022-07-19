@@ -258,13 +258,12 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                 }
             }
             if (extPartInfo.getPartProperties() != null) {
-                final Set<String> propertiesToExclude = Stream.of(PAYLOAD_PROPERTY_FILEPATH).collect(toSet());
                 for (final Property property : extPartInfo.getPartProperties().getProperty()) {
                     String propertyName = trim(property.getName());
-                    if(propertiesToExclude.contains(propertyName)) {
-                        continue;
-                    }
                     String propertyValue = trim(property.getValue());
+                    if(PAYLOAD_PROPERTY_FILEPATH.equals(propertyName)) {
+                        propertyValue = "-";
+                    }
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
                         LOG.debug("{} property found=[{}]", propertyName, propertyValue);
                         propertyValue = DomibusStringUtil.sanitizeFileName(propertyValue);

@@ -1,6 +1,7 @@
 Domibus 5.1
 - Split DatabaseMessageHandler bean in 3 beans (MessageSubmitter, MessageRetriever, MessagePuller), each implementing just one interface
 - New Keystore page in the Domibus Admin Console
+- Files can be sent to WS Plugin as references to the filesystem
 Domibus 5.0
 - Send alert when partitions are not properly created in advance
 - Fixed issue when MessageProperties is missing in ebMS3 message
