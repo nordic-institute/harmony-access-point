@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.ext.domain.DomainDTO;
@@ -45,13 +46,17 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     private final DomibusConfigurationService domibusConfigurationService;
 
+    private final DbSchemaUtil dbSchemaUtil;
+
     public DynamicDomainManagementServiceImpl(DomainService domainService,
                                               DomibusPropertyProvider domibusPropertyProvider,
                                               DomainDao domainDao,
                                               SignalService signalService,
                                               List<DomainsAware> domainsAwareList,
                                               List<DomainsAwareExt> externalDomainsAwareList,
-                                              DomibusCoreMapper coreMapper, DomibusConfigurationService domibusConfigurationService) {
+                                              DomibusCoreMapper coreMapper,
+                                              DomibusConfigurationService domibusConfigurationService,
+                                              DbSchemaUtil dbSchemaUtil) {
 
         this.domainService = domainService;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -61,6 +66,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         this.externalDomainsAwareList = externalDomainsAwareList;
         this.coreMapper = coreMapper;
         this.domibusConfigurationService = domibusConfigurationService;
+        this.dbSchemaUtil = dbSchemaUtil;
     }
 
     @Override
@@ -186,6 +192,11 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         if (!domainDao.findAll().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
             throw new DomibusDomainException(String.format("Cannot add domain [%s] since there is no corresponding folder or the folder is invalid.", domainCode));
+        }
+
+        Domain domain = new Domain(domainCode, domainCode);
+        if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
+            throw new DomibusDomainException(String.format("Cannot add domain [%s] because it does not have a valid database schema.", domainCode));
         }
     }
 

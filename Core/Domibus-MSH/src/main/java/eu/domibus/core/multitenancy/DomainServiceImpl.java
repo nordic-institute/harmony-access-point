@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
@@ -52,14 +53,20 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
     private final AuthenticationService authenticationService;
 
+    private final DbSchemaUtil dbSchemaUtil;
+
     public DomainServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
-                             DomibusConfigurationService domibusConfigurationService, DomainDao domainDao,
-                             DomibusCacheService domibusCacheService, @Lazy AuthenticationService authenticationService) {
+                             DomibusConfigurationService domibusConfigurationService,
+                             DomainDao domainDao,
+                             DomibusCacheService domibusCacheService,
+                             @Lazy AuthenticationService authenticationService,
+                             @Lazy DbSchemaUtil dbSchemaUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domainDao = domainDao;
         this.domibusCacheService = domibusCacheService;
         this.authenticationService = authenticationService;
+        this.dbSchemaUtil = dbSchemaUtil;
     }
 
     @PostConstruct
@@ -70,6 +77,9 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
     @Override
     public synchronized List<Domain> getDomains() {
         LOG.debug("Getting active domains.");
+
+        domains.removeIf(domain -> !dbSchemaUtil.isDatabaseSchemaForDomainValid(domain));
+
         return domains;
     }
 
@@ -111,7 +121,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
     /**
      * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
      *
-     * @param domain
+     * @param domain the domain for which the db schema is retrieved
      * @return database schema name
      */
     @Override
@@ -171,6 +181,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
         }
         domainDao.refreshDomain(domain);
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override
@@ -184,6 +195,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
         authenticationService.addDomainCode(domain.getCode());
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override
@@ -201,6 +213,7 @@ public class DomainServiceImpl implements DomainService, DomainsAware {
 
         authenticationService.removeDomainCode(domain.getCode());
         domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+        domibusCacheService.clearCache(DomibusCacheService.DOMAIN_VALIDITY_CACHE);
     }
 
     @Override

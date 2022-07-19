@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainsAware;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.ext.domain.DomainDTO;
@@ -57,6 +58,9 @@ public class DynamicDomainManagementServiceImplTest {
 
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    DbSchemaUtil dbSchemaUtil;
 
     List<Domain> domains, allDomains;
     Domain domain1, domain2;
