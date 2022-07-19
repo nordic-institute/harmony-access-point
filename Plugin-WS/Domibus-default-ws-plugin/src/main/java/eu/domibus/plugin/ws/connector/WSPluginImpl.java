@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -151,7 +152,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         return this.defaultTransformer;
     }
 
-    public MessageRetriever getMessageRetriever() {
+    public MessageRetrieverExtService getMessageRetriever() {
         return this.messageRetriever;
     }
 }

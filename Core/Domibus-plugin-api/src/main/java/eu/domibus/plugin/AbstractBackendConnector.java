@@ -2,6 +2,9 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.MessagePullerExtService;
+import eu.domibus.ext.services.MessageRetrieverExtService;
+import eu.domibus.ext.services.MessageSubmitterExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -10,9 +13,6 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
-import eu.domibus.plugin.handler.MessagePuller;
-import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,13 +34,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected List<NotificationType> requiredNotifications;
 
     @Autowired
-    protected MessageRetriever messageRetriever;
+    protected MessageRetrieverExtService messageRetriever;
 
     @Autowired
-    protected MessageSubmitter messageSubmitter;
+    protected MessageSubmitterExtService messageSubmitter;
 
     @Autowired
-    protected MessagePuller messagePuller;
+    protected MessagePullerExtService messagePuller;
 
     @Autowired
     protected MessageExtService messageExtService;
@@ -89,7 +89,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageEntityId));
             }
 
-            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageEntityId), target);
+            Submission submission = messageRetriever.downloadMessage(messageEntityId);
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return t;
@@ -119,7 +120,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
             }
 
-            T t = this.getMessageRetrievalTransformer().transformFromSubmission(messageRetriever.downloadMessage(messageId), target);
+            Submission submission = messageRetriever.downloadMessage(messageId);
+            T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
             return t;

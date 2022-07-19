@@ -20,9 +20,7 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -71,6 +69,12 @@ public class PullMessageSender {
 
     @Autowired
     private UserMessageHandlerService userMessageHandlerService;
+
+    @Autowired
+    protected TestMessageValidator testMessageValidator;
+
+    @Autowired
+    private UserMessageErrorCreator userMessageErrorCreator;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -173,7 +177,7 @@ public class PullMessageSender {
         } catch (final EbMS3Exception e) {
             try {
                 if (notifyBusinessOnError && userMessage != null) {
-                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
@@ -187,7 +191,7 @@ public class PullMessageSender {
 
     protected void handleResponse(final SOAPMessage response, UserMessage userMessage, List<PartInfo> partInfos) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
         LOG.trace("handle message");
-        Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
+        Boolean testMessage = testMessageValidator.checkTestMessage(userMessage);
 
         // Find legConfiguration for the received UserMessage
         MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);

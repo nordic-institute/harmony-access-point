@@ -10,4 +10,6 @@ public interface UserSessionsService {
     void invalidateSessions(UserBase user);
 
     void invalidateSessions(String userName);
+
+    void invalidateSessions(Domain domain);
 }

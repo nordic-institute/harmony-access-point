@@ -2,10 +2,7 @@ package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.MessageAcknowledgeExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
@@ -167,7 +164,7 @@ public class WebServicePluginImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheStatusOfAMessageByItsIdentifier(
             @Injectable StatusRequest statusRequest,
-            @Injectable MessageRetriever messageRetriever) throws StatusFault {
+            @Injectable MessageRetrieverExtService messageRetriever) throws StatusFault {
         new Expectations() {{
             statusRequest.getMessageID();
             result = MESSAGE_ID;
