@@ -220,10 +220,10 @@ public class EventServiceImplTest {
         final String toParty = "red_gw";
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = userMessageExchangeContext;
 
             userMessageExchangeContext.getPmodeKey();
@@ -237,7 +237,7 @@ public class EventServiceImplTest {
 
             result = toParty;
 
-            errorLogService.getErrorsForMessage(messageId, MSHRole.RECEIVING);
+            errorLogService.getErrorsForMessage(messageId, MSHRole.SENDING);
             result = Lists.newArrayList(errorLogEntry);
         }};
         eventService.enrichMessageEvent(event);

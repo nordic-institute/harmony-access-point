@@ -4,6 +4,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.messaging.MessagingProcessingException;
 import junit.framework.TestCase;
@@ -32,6 +33,9 @@ public class SplitAndJoinHelperTest extends TestCase {
 
     @Injectable
     protected MessageGroupDao messageGroupDao;
+
+    @Injectable
+    MshRoleDao mshRoleDao;
 
     @Tested
     SplitAndJoinHelper splitAndJoinHelper;

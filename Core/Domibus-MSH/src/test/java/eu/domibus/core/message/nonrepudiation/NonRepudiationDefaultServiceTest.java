@@ -59,7 +59,7 @@ public class NonRepudiationDefaultServiceTest {
     public void getUserMessageEnvelope_noMessage() {
         String messageId = "msgid";
         new Expectations(nonRepudiationService) {{
-            nonRepudiationService.getUserMessageById(messageId, MSHRole.RECEIVING);
+            nonRepudiationService.getUserMessageById(messageId, MSHRole.SENDING);
             result = new MessageNotFoundException(messageId);
         }};
 
@@ -160,11 +160,11 @@ public class NonRepudiationDefaultServiceTest {
             nonRepudiationService.getUserMessageEnvelope(userMessageId, MSHRole.SENDING);
             result = userMessageEnvelope;
 
-            nonRepudiationService.getSignalMessageEnvelope(userMessageId, MSHRole.RECEIVING);
+            nonRepudiationService.getSignalMessageEnvelope(userMessageId, MSHRole.SENDING);
             result = signalEnvelope;
         }};
 
-        Map<String, InputStream> result = nonRepudiationService.getMessageEnvelopes(userMessageId, MSHRole.RECEIVING);
+        Map<String, InputStream> result = nonRepudiationService.getMessageEnvelopes(userMessageId, MSHRole.SENDING);
 
         assertNotNull(result.get("user_message_envelope.xml"));
         assertNotNull(result.get("signal_message_envelope.xml"));

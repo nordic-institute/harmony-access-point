@@ -90,7 +90,7 @@ public class Ebms3PullRequestHandlerImplTest {
                 .build();
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
 
             pullContext.filterLegOnMpc();
@@ -106,7 +106,6 @@ public class Ebms3PullRequestHandlerImplTest {
         SOAPMessage soapMessage = pullRequestHandler.handleRequest(messageId, pullContext);
         assertNull(soapMessage);
         new Verifications() {{
-
             pullMessageService.updatePullMessageAfterRequest(userMessage, messageId, legConfiguration, ReliabilityChecker.CheckResult.PULL_FAILED);
             times = 1;
         }};
@@ -121,7 +120,7 @@ public class Ebms3PullRequestHandlerImplTest {
         final String messageId = "messageId";
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
 
             legConfiguration.getReliability().isNonRepudiation();

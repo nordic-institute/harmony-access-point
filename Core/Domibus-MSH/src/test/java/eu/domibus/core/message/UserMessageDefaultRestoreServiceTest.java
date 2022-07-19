@@ -102,7 +102,7 @@ public class UserMessageDefaultRestoreServiceTest {
         final Integer pModeMaxAttempts = 5;
 
         new Expectations(restoreService) {{
-            restoreService.getMaxAttemptsConfiguration(messageEntityId);
+            restoreService.getMaxAttemptsConfiguration(userMessageLog.getEntityId());
             result = pModeMaxAttempts;
 
             userMessageLog.getSendAttemptsMax();
@@ -151,7 +151,7 @@ public class UserMessageDefaultRestoreServiceTest {
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
 
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
         }};
 
@@ -192,7 +192,7 @@ public class UserMessageDefaultRestoreServiceTest {
             restoreService.computeNewMaxAttempts(userMessageLog);
             result = newMaxAttempts;
 
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
 
         }};
@@ -217,7 +217,7 @@ public class UserMessageDefaultRestoreServiceTest {
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
             times = 0;
 
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             times = 1;
 
             pullMessageService.addPullMessageLock(userMessage, userMessageLog);

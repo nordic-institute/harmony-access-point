@@ -379,7 +379,7 @@ public class MessageExchangeServiceImplTest {
         when(pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING)).thenReturn(messageExchangeConfiguration);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.newArrayList(process));
         when(messageStatusDao.findOrCreate(MessageStatus.SEND_ENQUEUED)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
-        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123", userMessage.getMshRole().getRole()).getMessageStatus();
+        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123", MSHRole.SENDING).getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
 
     }
@@ -396,10 +396,10 @@ public class MessageExchangeServiceImplTest {
         MpcEntity mpc = new MpcEntity();
         mpc.setValue("mpc123");
         userMessage.setMpc(mpc);
-        when(userMessageDao.findByMessageId("123")).thenReturn(userMessage);
+        when(userMessageDao.findByMessageId("123", MSHRole.RECEIVING)).thenReturn(userMessage);
         when(mpcService.forcePullOnMpc(userMessage)).thenReturn(true);
         when(messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
-        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123", userMessage.getMshRole().getRole()).getMessageStatus();
+        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123", MSHRole.RECEIVING).getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }
 

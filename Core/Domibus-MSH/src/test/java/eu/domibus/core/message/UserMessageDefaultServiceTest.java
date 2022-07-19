@@ -225,7 +225,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = null;
         }};
 
@@ -342,7 +342,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             userMessageLog.getMessageStatus();
@@ -539,7 +539,7 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getNextAttempt();
             result = null;
 
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
             result = userMessage;
 
             userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
@@ -814,7 +814,7 @@ public class UserMessageDefaultServiceTest {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = null;
         }};
 
@@ -909,13 +909,15 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void deleteMessageNotInFinalStatus() {
+    public void deleteMessageNotInFinalStatus(@Injectable UserMessageLog mes) {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
+            mes.getMshRole().getRole();
+            result = MSHRole.SENDING;
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
-            times = 1;
-            userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
+            result = mes;
+            userMessageDefaultService.deleteMessage(messageId, mes.getMshRole().getRole());
             times = 1;
         }};
 
@@ -923,19 +925,23 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerificationsInOrder(userMessageDefaultService) {{
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
-            userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
+            userMessageDefaultService.deleteMessage(messageId, mes.getMshRole().getRole());
         }};
     }
 
     @Test
-    public void deleteMessagesDuringPeriod() {
+    public void deleteMessagesDuringPeriod(@Injectable UserMessageLogDto userMessageLogDto) {
         final String messageId = "1";
-        final List<String> messagesToDelete = new ArrayList<>();
-        messagesToDelete.add(messageId);
+        final List<UserMessageLogDto> messagesToDelete = new ArrayList<>();
+        messagesToDelete.add(userMessageLogDto);
 
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(userMessageDefaultService) {{
+            userMessageLogDto.getMessageId();
+            result = messageId;
+            userMessageLogDto.getMshRole();
+            result = MSHRole.SENDING;
             userMessageLogDao.findMessagesToDelete(originalUserFromSecurityContext, 1L, 2L);
             result = messagesToDelete;
             userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
@@ -949,7 +955,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_checkCanDownloadWithMaxDownLoadSize(@Injectable MessageLogRO existingMessage, @Injectable UserMessage userMessage) {
+    public void test_checkCanDownloadWithMaxDownLoadSize(@Injectable UserMessageLog existingMessage, @Injectable UserMessage userMessage) {
         String messageId = "messageId";
 
         new Expectations(userMessageDefaultService) {{
@@ -959,8 +965,6 @@ public class UserMessageDefaultServiceTest {
             result = null;
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
             result = 1;
-            userMessageDao.findByMessageId(messageId);
-            result = userMessage;
             partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
             result = 1000;
         }};
@@ -974,7 +978,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
+    public void test_checkCanDownloadWithDeletedMessage(@Injectable UserMessageLog deletedMessage) {
         new Expectations(userMessageDefaultService) {{
             userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
             result = deletedMessage;
@@ -991,7 +995,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_checkCanDownloadWithExistingMessage(@Injectable MessageLogRO existingMessage) {
+    public void test_checkCanDownloadWithExistingMessage(@Injectable UserMessageLog existingMessage) {
         new Expectations(userMessageDefaultService) {{
             userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
             result = existingMessage;
