@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-logging</artifactId>
+            <artifactId>domibus-logging</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
