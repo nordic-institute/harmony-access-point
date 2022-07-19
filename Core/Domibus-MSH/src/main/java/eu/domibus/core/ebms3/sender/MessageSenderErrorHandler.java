@@ -47,12 +47,9 @@ public class MessageSenderErrorHandler implements ErrorHandler {
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void handleError(Throwable t) {
         String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
-        String messageEntityId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID);
         LOG.warn("Handling dispatch error for message [{}]", messageId, t);
 
-        // what mshRole? sending probably/ Or use entityId?
-//        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
-        final UserMessage userMessage = userMessageDao.findByEntityId(NumberUtils.createLong(messageEntityId));
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
 
         MessageAttempt attempt = new MessageAttempt();
         attempt.setMessageId(messageId);

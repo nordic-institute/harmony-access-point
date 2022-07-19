@@ -107,7 +107,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
         jmsManagerTriggered = false;
 
-        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId1, MSHRole.SENDING);
+        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId1, MSHRole.RECEIVING);
         byMessageId.setExported(null);
         //All UserMessageLog are now available for archiving again
         eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.SANITIZER);

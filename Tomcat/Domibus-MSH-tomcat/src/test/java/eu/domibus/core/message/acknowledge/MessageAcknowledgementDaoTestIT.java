@@ -3,10 +3,7 @@ package eu.domibus.core.message.acknowledge;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.SignalMessageResult;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.MessageLogInfo;
@@ -121,15 +118,17 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         UserMessageLog msg1 = messageDaoTestUtil.createUserMessageLog("messageId", new Date(), MSHRole.RECEIVING, MessageStatus.RECEIVED);
 
         SignalMessageResult messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        messaging.getSignalMessage().setUserMessage(msg1.getUserMessage());
-
+        SignalMessage signalMessage1 = messaging.getSignalMessage();
+        signalMessage1.setUserMessage(msg1.getUserMessage());
+        signalMessage1.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         // Builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                .setSignalMessage(messaging.getSignalMessage())
+                .setSignalMessage(signalMessage1)
                 .setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.SEND_IN_PROGRESS))
                 .setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         // Saves an entry of the signal message log
-        signalMessageLogDao.create(smlBuilder.build());
+        SignalMessageLog signalMessageLog = smlBuilder.build();
+        signalMessageLogDao.create(signalMessageLog);
 
         List<MessageLogInfo> allInfoPaged = signalMessageLogDao.findAllInfoPaged(1, 100, null, false, new HashMap<>());
         System.out.println("results:" + allInfoPaged);
@@ -139,7 +138,8 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         String resource = "dataset/as4/validAS4Response.xml";
         InputStream is = getClass().getClassLoader().getResourceAsStream(resource);
         Ebms3Messaging ebms3Messaging = ebms3MessagingDocumentParser.parseMessaging(is, "eb3");
-        return ebms3Messaging.getSignalMessage();
+        Ebms3SignalMessage signalMessage = ebms3Messaging.getSignalMessage();
+        return signalMessage;
     }
 
     protected Ebms3Messaging getMessaging() throws Exception {
