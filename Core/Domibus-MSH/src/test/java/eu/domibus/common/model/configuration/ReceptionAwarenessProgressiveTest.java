@@ -43,7 +43,7 @@ public class ReceptionAwarenessProgressiveTest {
         receptionAwareness = new ReceptionAwareness();
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "case {index}: ({0})")
     public static Collection input() {
         List data = new ArrayList();
         data.add(new Object[]{"9;1;2;", Arrays.asList(1,2,4,8), NO_VALIDATION_EXCEPTION});
