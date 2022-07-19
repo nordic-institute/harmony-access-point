@@ -182,7 +182,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
             initPartInfoPayLoad(submitRequest, extendedPartInfo);
         }
-        partInfoList.addAll(partInfosToAdd);        //TODO: refactor method to make it clear this line changes ebMSHeaderInfo
+        partInfoList.addAll(partInfosToAdd);
     }
 
     private void initPartInfoPayLoad(SubmitRequest submitRequest, ExtendedPartInfo extendedPartInfo) throws SubmitMessageFault {
