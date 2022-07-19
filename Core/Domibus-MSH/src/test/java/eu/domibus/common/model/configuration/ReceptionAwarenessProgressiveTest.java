@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author Razvan Cretu
- * @since 5.1.0
+ * @since 5.1
  */
 @RunWith(Parameterized.class)
 public class ReceptionAwarenessProgressiveTest {

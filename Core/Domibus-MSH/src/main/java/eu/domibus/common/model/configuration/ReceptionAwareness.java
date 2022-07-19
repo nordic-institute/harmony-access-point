@@ -156,10 +156,14 @@ public class ReceptionAwareness extends AbstractBaseEntity {
     }
 
     public List<Integer> getRetryIntervals() {
-        if (retryIntervals==null) {
+        return retryIntervals;
+    }
+
+    @PostLoad
+    public void initRetryIntervalsForProgressive() {
+        if (strategy==RetryStrategy.PROGRESSIVE && retryIntervals==null) {
             retryIntervals = calculateRetryIntervals(this.initialInterval, this.multiplyingFactor, this.retryTimeout);
         }
-        return retryIntervals;
     }
 
     public void setRetryIntervals(List<Integer> retryIntervals) {
@@ -217,7 +221,9 @@ public class ReceptionAwareness extends AbstractBaseEntity {
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_003,
                     "The format of the receptionAwareness.retry is incorrect :[" + retryXml + "]. " +
-                            "Format: \"retryTimeout;retryCount;(CONSTANT - SEND_ONCE)\" (ex: 4;12;CONSTANT)", e);
+                            "Formats: " +
+                            "\n\"retryTimeout;retryCount;(CONSTANT - SEND_ONCE)\" (ex: 4;12;CONSTANT)" +
+                            "\n\"retryTimeout;initialInterval;multiplyingFactor;PROGRESSIVE)\" (ex: 12;1;2;PROGRESSIVE)", e);
         }
 
     }

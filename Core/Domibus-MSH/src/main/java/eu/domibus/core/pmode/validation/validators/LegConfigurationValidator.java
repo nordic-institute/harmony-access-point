@@ -126,7 +126,7 @@ public class LegConfigurationValidator implements PModeValidator {
             if (retryTimeout < initialInterval) {
                 return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted (initialInterval should be less than retryTimeout).");
             }
-            if (multiplyingFactor<1) {
+            if (multiplyingFactor < 1) {
                 return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted (multiplyingFactor should be greater than 1).");
             }
         }
