@@ -86,10 +86,9 @@ public class UserMessagePayloadExtResource {
     public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid,
                                            @RequestParam(value = "mshRole", required = false) String mshRole, HttpServletResponse response) {
 
-        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : MSHRole.RECEIVING;
+        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : null;
         LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, role);
 
-        // what role: how to get the msh role here????
         final PartInfoDTO payload = payloadExtService.getPayload(messageId, role, cid);
         writePayloadToResponse(cid, response, payload);
     }

@@ -68,7 +68,7 @@ public class PayloadExtDelegate implements PayloadExtService {
 
     @Override
     public PartInfoDTO getPayload(String messageId, MSHRole role, String cid) throws PayloadExtException {
-        eu.domibus.api.model.MSHRole mshRole = eu.domibus.api.model.MSHRole.valueOf(role.name());
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
         final UserMessage userMessage = userMessageService.getMessageEntity(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
