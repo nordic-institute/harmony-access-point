@@ -31,6 +31,7 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
 
     @Autowired
     MessageAttemptDao messageAttemptDao;
+
     @Autowired
     ITTestsService itTestsService;
 

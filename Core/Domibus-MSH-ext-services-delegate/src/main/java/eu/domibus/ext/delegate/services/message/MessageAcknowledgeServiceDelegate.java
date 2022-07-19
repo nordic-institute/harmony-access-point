@@ -63,7 +63,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
 
     @Override
     public List<MessageAcknowledgementDTO> getAcknowledgedMessages(String messageId) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.RECEIVING);
+        userMessageSecurityService.checkMessageAuthorization(messageId);
 
         final List<MessageAcknowledgement> messageAcknowledgement = messageAcknowledgeCoreService.getAcknowledgedMessages(messageId);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);

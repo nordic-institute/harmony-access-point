@@ -86,7 +86,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getFailedMessageInterval(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             userMessageService.getFailedMessageElapsedTime(messageId);
         }};
     }
@@ -115,7 +115,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.restoreFailedMessage(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             restoreService.restoreFailedMessage(messageId);
         }};
     }
@@ -127,7 +127,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.deleteFailedMessage(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             userMessageService.deleteFailedMessage(messageId);
         }};
     }
@@ -144,7 +144,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getAttemptsHistory(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
         }};
     }

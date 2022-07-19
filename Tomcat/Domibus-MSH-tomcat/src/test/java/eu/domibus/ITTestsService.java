@@ -82,6 +82,7 @@ public class ITTestsService {
     public UserMessage getUserMessage() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();
+        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         final List<PartInfo> partInfoList = messageTestUtility.createPartInfoList(userMessage);
 
         PartyId senderPartyId = messageTestUtility.createSenderPartyId();

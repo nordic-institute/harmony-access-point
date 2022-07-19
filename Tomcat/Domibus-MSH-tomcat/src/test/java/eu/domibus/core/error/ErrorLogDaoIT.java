@@ -69,7 +69,6 @@ public class ErrorLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void test_deleteErrorLogsWithoutMessageIdOlderThan() {
-
         int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
         Assert.assertEquals(2, result);
     }

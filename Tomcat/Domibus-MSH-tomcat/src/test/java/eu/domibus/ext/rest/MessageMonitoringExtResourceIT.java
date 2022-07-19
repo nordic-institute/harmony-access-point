@@ -2,11 +2,13 @@ package eu.domibus.ext.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -68,6 +70,9 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    MshRoleDao mshRoleDao;
+
     UserMessageLog uml1;
 
     @Before
@@ -87,6 +92,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     @Test
     public void getAttempt_notFound() throws Exception {
         // when
+        uml1.getUserMessage().setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
+        userMessageLogDao.update(uml1);
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ATTEMPTS, uml1.getUserMessage().getMessageId())
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
@@ -153,6 +160,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     @Test
     public void restoreFailedMessages_ok() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
+        uml1.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
+        userMessageLogDao.update(uml1);
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId())));
         failedMessagesCriteriaRO.setToDate(getDateFrom(uml1.getEntityId(), getHour(uml1.getEntityId()) + 1));
         // when

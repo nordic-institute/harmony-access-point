@@ -91,6 +91,7 @@ public class MessageDaoTestUtil {
     public void createSignalMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
+        userMessage.setMshRole(mshRoleDao.findOrCreate(mshRole == MSHRole.RECEIVING ? MSHRole.SENDING : MSHRole.RECEIVING));
         userMessage.setConversationId("conversation-" + msgId);
 
         MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", "originalSender1", "");
@@ -100,6 +101,7 @@ public class MessageDaoTestUtil {
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessage);
         signal.setSignalMessageId("signal-" + msgId);
+        signal.setMshRole(mshRoleDao.findOrCreate(mshRole));
         signalMessageDao.create(signal);
 
         SignalMessageLog signalMessageLog = new SignalMessageLog();
@@ -115,6 +117,7 @@ public class MessageDaoTestUtil {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
         userMessage.setConversationId("conversation-" + msgId);
+        userMessage.setMshRole(mshRoleDao.findOrCreate(mshRole));
 
         if (properties) {
             MessageProperty messageProperty1 = propertyDao.findOrCreateProperty("originalSender", "originalSender1", "");
@@ -196,6 +199,7 @@ public class MessageDaoTestUtil {
         signal.setUserMessage(userMessageLog.getUserMessage());
         signal.setSignalMessageId("signal-" + msgId);
         signal.setRefToMessageId(msgId);
+        signal.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         signalMessageDao.create(signal);
 
         SignalMessageLog signalMessageLog = new SignalMessageLog();
@@ -215,6 +219,7 @@ public class MessageDaoTestUtil {
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessageLog.getUserMessage());
         signal.setSignalMessageId("signal-" + msgId);
+        signal.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         signalMessageDao.create(signal);
 
         SignalMessageLog signalMessageLog = new SignalMessageLog();

@@ -243,7 +243,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     public void currentAndFutureDateTimesSavedInUtcIrrespectiveOfApplicationTimezone() {
-        UserMessageLog retryMessage = userMessageLogDao.findByMessageId(testDate, MSHRole.SENDING);
+        UserMessageLog retryMessage = userMessageLogDao.findByMessageId(testDate, MSHRole.RECEIVING);
         Assert.assertNotNull("Should have found a retry message", retryMessage);
 
         final Date now = dateUtil.getUtcDate();
@@ -502,7 +502,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findByMessageIdSafely_ok() {
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId(), MSHRole.SENDING);
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId(),
+                msg1.getUserMessage().getMshRole().getRole());
 
         Assert.assertNotNull(userMessageLog);
     }
