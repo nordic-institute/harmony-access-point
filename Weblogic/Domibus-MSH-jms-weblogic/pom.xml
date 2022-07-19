@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-logging</artifactId>
+            <artifactId>domibus-logging</artifactId>
         </dependency>
         <!-- End Domibus -->
         <!-- Spring -->
