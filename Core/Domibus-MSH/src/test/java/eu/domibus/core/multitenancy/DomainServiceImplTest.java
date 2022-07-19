@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.util.DbSchemaUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.web.security.AuthenticationService;
@@ -49,6 +50,9 @@ public class DomainServiceImplTest {
 
     @Injectable
     AuthenticationService authenticationService;
+
+    @Injectable
+    private DbSchemaUtil dbSchemaUtil;
 
     @Test
     public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
