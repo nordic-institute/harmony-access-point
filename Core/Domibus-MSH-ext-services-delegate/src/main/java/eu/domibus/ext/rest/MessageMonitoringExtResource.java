@@ -121,8 +121,10 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
-    public void deleteMessage(@PathVariable(value = "messageId") String messageId) {
-        messageMonitorExtService.deleteMessageNotInFinalStatus(messageId);
+    public void deleteMessage(@PathVariable(value = "messageId") String messageId,
+                              @RequestParam(value = "mshRole", required = false) String mshRole) {
+        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : null;
+        messageMonitorExtService.deleteMessageNotInFinalStatus(messageId, role);
     }
 
     @Operation(summary = "Delete messages payload",

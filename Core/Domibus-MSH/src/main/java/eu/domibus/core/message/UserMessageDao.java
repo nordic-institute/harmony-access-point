@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,11 +89,27 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public UserMessage findByMessageId(String messageId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        final UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());
-        if (userMessage != null) {
-            initializeChildren(userMessage);
+        UserMessage result;
+        try {
+            result = DataAccessUtils.singleResult(query.getResultList());
+            if (result == null) {
+                LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
+            }
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Trying with RECEIVING role", messageId);
+            result = findByMessageId(messageId, MSHRole.RECEIVING);
+            if (result == null) {
+                LOG.debug("Query UserMessage.findByMessageId did not find any result for message with id [{}] and RECEIVING role. Trying with SENDING role.", messageId);
+                result = findByMessageId(messageId, MSHRole.SENDING);
+                if (result == null) {
+                    LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}] and SENDING role", messageId);
+                }
+            }
         }
-        return userMessage;
+        if (result != null) {
+            initializeChildren(result);
+        }
+        return result;
     }
 
     public UserMessage findByGroupEntityId(Long groupEntityId) {

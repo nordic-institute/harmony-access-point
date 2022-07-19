@@ -99,7 +99,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<MessageAttemptDTO> getAttemptsHistory(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING); // is it correct??
         final List<MessageAttempt> attemptsHistory = messageAttemptService.getAttemptsHistory(messageId);
         return messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
     }
@@ -107,13 +107,22 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
-        // delete all or any???
         try {
             userMessageService.deleteMessageNotInFinalStatus(messageId, MSHRole.SENDING);
         } catch (MessageNotFoundException ex) {
-            LOG.info("Could not find a message with id [{}] and role [{}]. Trying RECEIVING role.", messageId, MSHRole.SENDING);
+            LOG.info("Could not find a message with id [{}] and SENDING role. Trying RECEIVING role.", messageId);
             userMessageService.deleteMessageNotInFinalStatus(messageId, MSHRole.RECEIVING);
         }
+    }
+
+    @Override
+    public void deleteMessageNotInFinalStatus(String messageId, eu.domibus.common.MSHRole role) {
+        if (role == null) {
+            deleteMessageNotInFinalStatus(messageId);
+        }
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
+        userMessageSecurityService.checkMessageAuthorization(messageId, mshRole);
+        userMessageService.deleteMessageNotInFinalStatus(messageId, mshRole);
     }
 
     @Override

@@ -14,6 +14,7 @@ import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -164,7 +165,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 //        final UserMessageLog userMessageLog = findByMessageId(messageId);
 //        return initChildren(messageId, userMessageLog);
 //    }
-
     @Transactional
     public UserMessageLog findByMessageIdSafely(String messageId, MSHRole mshRole) {
         final UserMessageLog userMessageLog = findByMessageId(messageId, mshRole);
@@ -179,6 +179,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         initializeChildren(userMessageLog);
         return userMessageLog;
     }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initializeChildren(UserMessageLog userMessageLog) {
         //initialize values from the second level cache
@@ -250,17 +251,37 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-//    public UserMessageLog findByMessageId(String messageId) {
-//        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
-//        query.setParameter(STR_MESSAGE_ID, messageId);
-//        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
-//        if (userMessageLog == null) {
-//            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
-//        }
-//        return userMessageLog;
-//    }
+    // keep this until we remove the deprecated ext methods
+    public UserMessageLog findByMessageId(String messageId) {
+        TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
+        query.setParameter(STR_MESSAGE_ID, messageId);
+        UserMessageLog result;
+        try {
+            result = DataAccessUtils.singleResult(query.getResultList());
+            if (result == null) {
+                LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+            }
+            return result;
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying with RECEIVING role", messageId);
+            result = findByMessageId(messageId, MSHRole.RECEIVING);
+            if (result != null) {
+                return result;
+            }
+            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and RECEIVING role. Trying with SENDING role.", messageId);
+            result = findByMessageId(messageId, MSHRole.SENDING);
+            if (result == null) {
+                LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and SENDING role", messageId);
+            }
+            return result;
+        }
+    }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
+        if (mshRole == null) {
+            return findByMessageId(messageId);
+        }
+
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter("MSH_ROLE", mshRole);
