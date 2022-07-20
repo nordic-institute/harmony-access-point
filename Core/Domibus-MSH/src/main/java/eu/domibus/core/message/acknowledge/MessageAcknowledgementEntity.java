@@ -17,12 +17,11 @@ import java.sql.Timestamp;
 @Table(name = "TB_MESSAGE_ACKNW")
 @NamedQueries({
         @NamedQuery(name = "MessageAcknowledgement.findMessageAcknowledgementByMessageId",
-                query = "select messageAcknowledge from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.messageId = :MESSAGE_ID"),
+                query = "select messageAcknowledge from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.messageId = :MESSAGE_ID and messageAcknowledge.userMessage.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "MessageAcknowledgement.deleteMessageAcknowledgementsByMessageIds",
                 query = "delete from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.userMessage.entityId IN :IDS")
 
 })
-// do we need msh role here???
 public class MessageAcknowledgementEntity extends AbstractBaseEntity {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)

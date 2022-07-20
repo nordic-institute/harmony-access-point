@@ -130,7 +130,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgementDao.findByMessageId(messageId);
+            messageAcknowledgementDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = messageAcknowledgements;
 
         }};

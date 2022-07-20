@@ -106,7 +106,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
 
     @Override
     public List<MessageAcknowledgement> getAcknowledgedMessages(String messageId) throws MessageAcknowledgeException {
-        final List<MessageAcknowledgementEntity> entities = messageAcknowledgementDao.findByMessageId(messageId);
+        final List<MessageAcknowledgementEntity> entities = messageAcknowledgementDao.findByMessageId(messageId, MSHRole.RECEIVING);
         if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING) == null) {
             throw new MessageNotFoundException(messageId);
         }

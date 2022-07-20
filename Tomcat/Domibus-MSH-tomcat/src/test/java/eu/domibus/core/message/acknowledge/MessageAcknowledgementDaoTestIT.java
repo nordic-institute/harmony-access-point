@@ -76,7 +76,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, msg1.getUserMessage(), acknowledgetTimestamp, from, to);
         messageAcknowledgementDao.create(entity);
 
-        final List<MessageAcknowledgementEntity> retrievedEntityList = this.messageAcknowledgementDao.findByMessageId(messageId);
+        final List<MessageAcknowledgementEntity> retrievedEntityList = this.messageAcknowledgementDao.findByMessageId(messageId, MSHRole.RECEIVING);
 
         assertNotNull(retrievedEntityList);
         assertEquals(1, retrievedEntityList.size());
@@ -99,7 +99,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     public void testSaveMessageAcknowledge_notFound() {
-        final List<MessageAcknowledgementEntity> retrievedEntityList = this.messageAcknowledgementDao.findByMessageId("notFound");
+        final List<MessageAcknowledgementEntity> retrievedEntityList = this.messageAcknowledgementDao.findByMessageId("notFound", MSHRole.RECEIVING);
 
         assertNotNull(retrievedEntityList);
         assertEquals(0, retrievedEntityList.size());
