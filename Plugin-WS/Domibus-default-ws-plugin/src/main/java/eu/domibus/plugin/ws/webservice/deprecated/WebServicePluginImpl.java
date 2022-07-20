@@ -373,7 +373,7 @@ public class WebServicePluginImpl implements BackendInterface {
         for (final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo partInfo : getPartInfo(messaging)) {
             eu.domibus.plugin.ws.webservice.ExtendedPartInfo extPartInfo = (eu.domibus.plugin.ws.webservice.ExtendedPartInfo) partInfo;
             boolean isPayloadSentAsReference = extPartInfo.getPartProperties().getProperty().stream()
-                    .anyMatch(property -> MessageConstants.PAYLOAD_PROPERTY_FILEPATH.equals(property.getName()));
+                    .anyMatch(property -> MessageConstants.PAYLOAD_PROPERTY_FILE_PATH.equals(property.getName()));
             if(isPayloadSentAsReference){
                 continue;   //don't include the file contents
             }

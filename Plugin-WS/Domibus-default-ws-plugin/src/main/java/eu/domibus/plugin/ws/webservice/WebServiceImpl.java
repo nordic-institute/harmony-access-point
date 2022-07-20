@@ -43,7 +43,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILEPATH;
+import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
 
 @SuppressWarnings("ValidExternallyBoundObject")
@@ -201,7 +201,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             }
         }
         Optional<Property> filepathProperty = extendedPartInfo.getPartProperties().getProperty().stream()
-                .filter(property -> PAYLOAD_PROPERTY_FILEPATH.equalsIgnoreCase(property.getName()))
+                .filter(property -> PAYLOAD_PROPERTY_FILE_PATH.equalsIgnoreCase(property.getName()))
                 .findFirst();
         if(filepathProperty.isPresent()){
             if(foundPayload) {
@@ -218,7 +218,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             final PartProperties partProperties = extendedPartInfo.getPartProperties();
 
             Property prop = new Property();
-            prop.setName(PAYLOAD_PROPERTY_FILEPATH);
+            prop.setName(PAYLOAD_PROPERTY_FILE_PATH);
             prop.setValue(filepath);
             partProperties.getProperty().add(prop);
             extendedPartInfo.setPartProperties(partProperties);

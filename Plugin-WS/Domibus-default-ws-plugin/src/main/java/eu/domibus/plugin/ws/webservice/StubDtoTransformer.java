@@ -17,11 +17,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Stream;
 
-import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILEPATH;
-import static java.util.stream.Collectors.toSet;
+import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
@@ -261,7 +258,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                 for (final Property property : extPartInfo.getPartProperties().getProperty()) {
                     String propertyName = trim(property.getName());
                     String propertyValue = trim(property.getValue());
-                    if(PAYLOAD_PROPERTY_FILEPATH.equals(propertyName)) {
+                    if(PAYLOAD_PROPERTY_FILE_PATH.equals(propertyName)) {
                         propertyValue = "-";
                     }
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
