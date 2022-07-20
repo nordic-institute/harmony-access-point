@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -82,7 +83,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         // Note here you can not use @Transactional annotation with the following code force commit on data preparation level!!
         Date currentDate = Calendar.getInstance().getTime();
 
-        uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate, MessageStatus.SEND_FAILURE, MessageDaoTestUtil.DEFAULT_MPC);
+        uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), MSHRole.SENDING, currentDate, MessageStatus.SEND_FAILURE, MessageDaoTestUtil.DEFAULT_MPC);
 
         uploadPmode(SERVICE_PORT);
     }

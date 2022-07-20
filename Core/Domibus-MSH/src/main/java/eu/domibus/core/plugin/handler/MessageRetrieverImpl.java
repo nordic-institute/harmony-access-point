@@ -15,6 +15,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -72,11 +73,15 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public Submission browseMessage(String messageId) {
-        return browseMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
+        try {
+            return browseMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException ex) {
+            return browseMessage(messageId, eu.domibus.common.MSHRole.SENDING);
+        }
     }
 
     @Override
-    public Submission browseMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
+    public Submission browseMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws eu.domibus.api.messaging.MessageNotFoundException {
         LOG.info("Browsing message with id [{}] and role [{}]", messageId, mshRole);
 
         MSHRole role = MSHRole.valueOf(mshRole.name());
@@ -96,7 +101,12 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        return getStatus(messageId, eu.domibus.common.MSHRole.RECEIVING);
+        //try both
+        eu.domibus.common.MessageStatus status = getStatus(messageId, eu.domibus.common.MSHRole.RECEIVING);
+        if (status != eu.domibus.common.MessageStatus.NOT_FOUND) {
+            return status;
+        }
+        return getStatus(messageId, eu.domibus.common.MSHRole.SENDING);
     }
 
     @Override
@@ -114,7 +124,11 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        return getErrorsForMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
+        List<? extends ErrorResult> errors = getErrorsForMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
+        if (CollectionUtils.isNotEmpty(errors)) {
+            return errors;
+        }
+        return getErrorsForMessage(messageId, eu.domibus.common.MSHRole.SENDING);
     }
 
     @Override

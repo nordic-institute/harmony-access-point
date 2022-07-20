@@ -78,7 +78,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     @Override
     public MessageStatus getStatus(String messageId) {
         try {
-            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
         } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
             LOG.debug(e.getMessage());
             return eu.domibus.common.MessageStatus.NOT_FOUND;

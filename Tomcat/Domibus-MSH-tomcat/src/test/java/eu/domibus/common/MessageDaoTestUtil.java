@@ -192,6 +192,11 @@ public class MessageDaoTestUtil {
     }
 
     @Transactional
+    public UserMessageLog createUserMessageLog(String msgId, MSHRole mshRole, Date received, MessageStatus messageStatus, String mpc) {
+        return createUserMessageLog(msgId, received, mshRole, messageStatus, false, true, mpc, null);
+    }
+
+    @Transactional
     public UserMessageLog createTestMessage(String msgId) {
         UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true, true, MPC, new Date());
 
@@ -266,4 +271,6 @@ public class MessageDaoTestUtil {
     public List<UserMessageLog> getAllUserMessageLogs() {
         return em.createQuery("select uml from UserMessageLog uml", UserMessageLog.class).getResultList();
     }
+
+
 }
