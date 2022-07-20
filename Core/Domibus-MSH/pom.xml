@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-api</artifactId>
+            <artifactId>domibus-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-logging</artifactId>
+            <artifactId>domibus-logging</artifactId>
             <scope>compile</scope>
         </dependency>
 

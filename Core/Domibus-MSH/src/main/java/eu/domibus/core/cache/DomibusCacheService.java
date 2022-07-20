@@ -13,6 +13,7 @@ public interface DomibusCacheService {
     String PREFERRED_USER_DOMAIN_CACHE = "preferredUserDomain";
     String DOMAIN_BY_CODE_CACHE = "domainByCode";
     String DOMAIN_BY_SCHEDULER_CACHE = "domainByScheduler";
+    String DOMAIN_VALIDITY_CACHE = "domainValidity";
     String DYNAMIC_DISCOVERY_ENDPOINT = "lookupInfo";
     String DISPATCH_CLIENT = "dispatchClient";
     String CRL_BY_CERT = "crlByCert";

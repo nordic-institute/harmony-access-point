@@ -54,12 +54,12 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-api</artifactId>
+            <artifactId>domibus-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-logging</artifactId>
+            <artifactId>domibus-logging</artifactId>
             <version>${project.version}</version>
             <!-- keep the scope compile to override parent pom behavior -->
             <scope>compile</scope>
