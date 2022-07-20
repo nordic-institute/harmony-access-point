@@ -133,7 +133,7 @@ public class PartyIdentifierValidator implements PModeValidator {
     protected List<ValidationIssue> validateDuplicatePartyNameInAllParties(Party party, List<Party> allParties) {
         List<ValidationIssue> issues = new ArrayList<>();
         if (allParties.stream().anyMatch(party1 -> party1 != party && StringUtils.equalsIgnoreCase(party.getName(), party1.getName()))) {
-            issues.add(createIssue(party.getName(), "", "Duplicate party name [%s] found in parties"));
+            issues.add(pModeValidationHelper.createValidationIssue("Duplicate party name [%s] found in parties", party.getName()));
         }
         return issues;
     }

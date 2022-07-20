@@ -54,6 +54,12 @@ public class PModeValidationHelperImpl implements PModeValidationHelper {
     }
 
     @Override
+    public ValidationIssue createValidationIssue(String message, String name) {
+        String result = String.format(message, name);
+        return new ValidationIssue(result, ValidationIssue.Level.ERROR);
+    }
+
+    @Override
     public PModeValidationException getPModeValidationException(XmlProcessingException e, String message) {
         if (CollectionUtils.isEmpty(e.getErrors())) {
             message += ExceptionUtils.getRootCauseMessage(e);

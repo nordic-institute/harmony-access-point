@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.validation;
 
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,8 @@ import java.util.List;
 public interface PModeValidationHelper {
 
     <T> T getAttributeValue(Object object, String attribute, Class<T> type);
+
+    ValidationIssue createValidationIssue(String message, String name);
 
     ValidationIssue createValidationIssue(String message, String name, String name2);
 
