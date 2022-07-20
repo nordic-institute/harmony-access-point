@@ -1,6 +1,7 @@
 package eu.domibus.ext.services;
 
 import eu.domibus.common.ErrorResult;
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -36,6 +37,8 @@ public interface MessageRetrieverExtService {
      */
     Submission browseMessage(String messageId) throws MessageNotFoundException;
 
+    Submission browseMessage(String messageId, MSHRole mshRole) throws MessageNotFoundException;
+
     /**
      * Browse the message with the corresponding messageId
      *
@@ -51,7 +54,11 @@ public interface MessageRetrieverExtService {
      * @param messageId id of the message the status is requested for
      * @return the message status {@link eu.domibus.common.MessageStatus}
      */
+    @Deprecated
     MessageStatus getStatus(String messageId);
+
+    MessageStatus getStatus(String messageId, MSHRole mshRole);
+
     /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
      *
@@ -66,5 +73,8 @@ public interface MessageRetrieverExtService {
      * @param messageId id of the message the errors are requested for
      * @return the list of error log entries {@link java.util.List} of {@link ErrorResult}
      */
+    @Deprecated
     List<? extends ErrorResult> getErrorsForMessage(String messageId);
+
+    List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole);
 }

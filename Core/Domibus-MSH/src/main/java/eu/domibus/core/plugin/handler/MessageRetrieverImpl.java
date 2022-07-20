@@ -72,9 +72,15 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public Submission browseMessage(String messageId) {
-        LOG.info("Browsing message with id [{}]", messageId);
+        return browseMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
+    }
 
-        UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
+    @Override
+    public Submission browseMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
+        LOG.info("Browsing message with id [{}] and role [{}]", messageId, mshRole);
+
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+        UserMessage userMessage = userMessageService.getByMessageId(messageId, role);
 
         return messagingService.getSubmission(userMessage);
     }
@@ -90,7 +96,13 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public eu.domibus.common.MessageStatus getStatus(final String messageId) {
-        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId, MSHRole.RECEIVING);
+        return getStatus(messageId, eu.domibus.common.MSHRole.RECEIVING);
+    }
+
+    @Override
+    public eu.domibus.common.MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) {
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+        final MessageStatus messageStatus = userMessageLogService.getMessageStatus(messageId, role);
         return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
@@ -102,7 +114,13 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
-        return errorLogService.getErrors(messageId, MSHRole.RECEIVING);
+        return getErrorsForMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
+    }
+
+    @Override
+    public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+        return errorLogService.getErrors(messageId, role);
     }
 
     protected Submission getSubmission(final UserMessage userMessage) {

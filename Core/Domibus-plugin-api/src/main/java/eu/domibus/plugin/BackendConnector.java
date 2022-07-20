@@ -75,6 +75,8 @@ public interface BackendConnector<U, T> {
      */
     T browseMessage(final String messageId, final T target) throws MessageNotFoundException;
 
+    T browseMessage(final String messageId, final MSHRole mshRole, final T target) throws MessageNotFoundException;
+
     /**
      * Browses the message with the corresponding messageId. A target object (i.e. an instance of javax.jms.Message)
      * can be provided. This is necessary in case the DTO for transfer to the backend is constructed by a
@@ -93,7 +95,10 @@ public interface BackendConnector<U, T> {
      * @param messageId id of the message the status is requested for
      * @return the message status {@link eu.domibus.common.MessageStatus}
      */
+    @Deprecated
     MessageStatus getStatus(final String messageId);
+
+    MessageStatus getStatus(final String messageId, final MSHRole mshRole);
 
     /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
@@ -109,7 +114,10 @@ public interface BackendConnector<U, T> {
      * @param messageId id of the message the errors are requested for
      * @return the list of error log entries {@link java.util.List} of {@link ErrorResult}
      */
+    @Deprecated
     List<ErrorResult> getErrorsForMessage(final String messageId);
+
+    List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole);
 
     /**
      * Delivers the message with the associated messageId to the backend application. Plugins MUST OVERRIDE this method.

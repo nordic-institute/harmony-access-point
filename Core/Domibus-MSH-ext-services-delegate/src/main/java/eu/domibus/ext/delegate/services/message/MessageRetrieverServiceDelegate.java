@@ -62,6 +62,13 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     @Override
+    public Submission browseMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
+        checkMessageAuthorization(messageId, mshRole);
+
+        return messageRetriever.browseMessage(messageId, mshRole);
+    }
+
+    @Override
     public Submission browseMessage(Long messageEntityId) throws MessageNotFoundException {
         checkMessageAuthorization(messageEntityId);
 
@@ -77,6 +84,18 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
             return eu.domibus.common.MessageStatus.NOT_FOUND;
         }
         return messageRetriever.getStatus(messageId);
+    }
+
+    @Override
+    public MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) {
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return eu.domibus.common.MessageStatus.NOT_FOUND;
+        }
+        return messageRetriever.getStatus(messageId, mshRole);
     }
 
     @Override
@@ -97,6 +116,15 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         return messageRetriever.getErrorsForMessage(messageId);
     }
 
+    @Override
+    public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
+
+        return messageRetriever.getErrorsForMessage(messageId, mshRole);
+    }
+
     protected void checkMessageAuthorization(Long messageEntityId) {
         checkUnsecure();
 
@@ -104,11 +132,16 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         checkMessageAuthorization(userMessage);
     }
 
-    protected void checkMessageAuthorization(String messageId) {
+    private void checkMessageAuthorization(String messageId, eu.domibus.common.MSHRole mshRole) {
         checkUnsecure();
 
-        final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId, role);
         checkMessageAuthorization(userMessage);
+    }
+
+    protected void checkMessageAuthorization(String messageId) {
+        checkMessageAuthorization(messageId, eu.domibus.common.MSHRole.RECEIVING);
     }
 
     private void checkUnsecure() {

@@ -146,7 +146,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
         // Browse message
         try {
-            fsMessage = browseMessage(messageId, null);
+            fsMessage = browseMessage(messageId, MSHRole.RECEIVING, null);
         } catch (MessageNotFoundException e) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, e);
             throw new FSPluginException("Unable to browse message " + messageId, e);
@@ -357,16 +357,15 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
              FileObject targetFileMessage = findMessageFile(outgoingFolder, messageId)) {
 
-            fsSendMessagesService.handleSendFailedMessage(targetFileMessage, domain, getErrorMessage(messageId));
+            fsSendMessagesService.handleSendFailedMessage(targetFileMessage, domain, getErrorMessage(messageId, MSHRole.SENDING));
 
         } catch (IOException e) {
             throw new FSPluginException("Error handling the send failed message file " + messageId, e);
         }
     }
 
-
-    protected String getErrorMessage(String messageId) {
-        List<ErrorResult> errors = super.getErrorsForMessage(messageId);
+    protected String getErrorMessage(String messageId, MSHRole mshRole) {
+        List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
         String content;
         if (!errors.isEmpty()) {
             ErrorResult lastError = errors.get(errors.size() - 1);
