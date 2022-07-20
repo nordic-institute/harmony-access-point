@@ -86,7 +86,7 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-msh-api</artifactId>
+            <artifactId>domibus-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
