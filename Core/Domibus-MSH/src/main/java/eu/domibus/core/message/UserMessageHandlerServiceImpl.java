@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
@@ -14,8 +13,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -646,6 +643,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             return result;
         }
         final List<Ebms3PartInfo> ebms3PartInfos = ebms3Messaging.getUserMessage().getPayloadInfo().getPartInfo();
+        populateCornerSpecificProperties(ebms3PartInfos);
+
         if (CollectionUtils.isEmpty(ebms3PartInfos)) {
             return result;
         }
@@ -657,6 +656,23 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
 
         return result;
+    }
+
+    private void populateCornerSpecificProperties(List<Ebms3PartInfo> ebms3PartInfos) {
+        if(storageProvider.getCurrentStorage().getStorageDirectory()!=null) {
+            for (Ebms3PartInfo partInfo : ebms3PartInfos) {
+                if(partInfo.getPartProperties()==null){
+                    continue;
+                }
+                partInfo.getPartProperties().getProperty().stream()
+                        .filter(ebms3Property -> MessageConstants.PAYLOAD_PROPERTY_FILE_PATH.equals(ebms3Property.getName()))
+                        .findFirst()
+                        .ifPresent(filepathProperty -> {
+                            String storagePath = storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath();
+                            filepathProperty.setValue(storagePath);
+                        });
+            }
+        }
     }
 
     protected PartInfo convert(Ebms3PartInfo ebms3PartInfo) {

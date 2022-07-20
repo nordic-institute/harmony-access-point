@@ -524,6 +524,9 @@ public class UserMessageHandlerServiceImplTest {
             partPropertyDictionaryService.findOrCreatePartProperty(anyString, anyString, anyString);
             result = new PartProperty();
             times = 2;
+
+            storageProvider.getCurrentStorage().getStorageDirectory();
+            result = "/some/filepath";
         }};
 
         try {

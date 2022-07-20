@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
@@ -257,6 +258,9 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
                 for (final Property property : extPartInfo.getPartProperties().getProperty()) {
                     String propertyName = trim(property.getName());
                     String propertyValue = trim(property.getValue());
+                    if(PAYLOAD_PROPERTY_FILE_PATH.equals(propertyName)) {
+                        propertyValue = "-";
+                    }
                     if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
                         LOG.debug("{} property found=[{}]", propertyName, propertyValue);
                         propertyValue = DomibusStringUtil.sanitizeFileName(propertyValue);
