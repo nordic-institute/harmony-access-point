@@ -8,6 +8,7 @@ import groovy.io.FileType
 import groovy.sql.Sql
 
 import javax.swing.JOptionPane
+import java.nio.file.*
 import java.sql.SQLException
 
 import static javax.swing.JOptionPane.showConfirmDialog
@@ -3705,7 +3706,6 @@ class Domibus{
         def source
         def dest
         def metadataFile
-        def messageLocationPropertyName = "fsplugin.messages.location"
 
         /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
@@ -3738,32 +3738,56 @@ class Domibus{
         }
 
         // Get the path to the fsplugin sending location
-        fspluginPath = getPropertyAtRuntime(side, messageLocationPropertyName, context, log, domain) + "/OUT/"
-        if(subFolder != ""){
-            fspluginPath = fspluginPath + subFolder + "/"
+        switch (side.toLowerCase()) {
+            case  "c2":
+                fspluginPath = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                break
+            case "c3":
+                fspluginPath = getProjectCustProp("fsFilesPathRed",context,log,testRunner)
+                break
+            case "c3green":
+                fspluginPath = getProjectCustProp("fsFilesPathGreen",context,log,testRunner)
+                break
+            default:
+                log.warn "Unknown side: assume it is C2 ..."
+                fspluginPath = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                break
         }
-        fspluginPath = formatPathSlashes(fspluginPath)
+        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        if (!multitenancyOn) {
+            fspluginPath = fspluginPath + "/OUT/"
+        } else {
+            fspluginPath = fspluginPath + "/$domain" + "/OUT/"
+        }
+        if (Files.exists(Paths.get(fspluginPath))) {
+            debugLog("  submitFSmessage  [][]  fspluginPath = \"$fspluginPath\" is a valid path", log)
+            if(subFolder != ""){
+                fspluginPath = fspluginPath + subFolder + "/"
+            }
+            fspluginPath = formatPathSlashes(fspluginPath)
 
-        debugLog("  submitFSmessage  [][]  fspluginPath = \"$fspluginPath\"", log)
+            debugLog("  submitFSmessage  [][]  fspluginPath = \"$fspluginPath\"", log)
 
-        // Copy the file
-        source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml")
-        dest = fspluginPath + "Test_file"+destSuffix+".xml"
-        copyFile(source,dest,log)
-
-        // Copy a second file in case needed
-        if(twoFiles){
-            source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf")
-            dest = fspluginPath + "fileSmall"+destSuffix+".pdf"
+            // Copy the file
+            source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml")
+            dest = fspluginPath + "Test_file" + destSuffix + ".xml"
             copyFile(source,dest,log)
+
+            // Copy a second file in case needed
+            if(twoFiles){
+                source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf")
+                dest = fspluginPath + "fileSmall" + destSuffix + ".pdf"
+                copyFile(source,dest,log)
+            }
+
+
+            metadataFile = new File(fspluginPath + "metadata.xml")
+            metadataFile.newWriter().withWriter { w ->
+                w << messageMetadata
+            }
+        } else {
+            debugLog("  submitFSmessage  [][]  fspluginPath = \"$fspluginPath\" is not a valid path", log)
         }
-
-
-        metadataFile = new File(fspluginPath + "metadata.xml")
-        metadataFile.newWriter().withWriter { w ->
-            w << messageMetadata
-        }
-
 
         debugLog("  ====  \"submitFSmessage\" DONE.", log)
 
@@ -3861,16 +3885,31 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
     def static cleanFSPluginFolders(String side,context,log,testRunner,String domain = "default"){
         debugLog("  ====  Calling \"cleanFSPluginFolders\".", log)
-
-        def messageLocationPrpertyName = "fsplugin.messages.location"
+        def fsPayloadPathBase = ""
         /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if(multitenancyOn){
             messageLocationPropertyName = domain + ".fsplugin.messages.location"
         }*/
 
-
-        def fsPayloadPathBase = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain)
-
+        switch (side.toLowerCase()) {
+            case  "c2":
+                fsPayloadPathBase = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                break
+            case "c3":
+                fsPayloadPathBase = getProjectCustProp("fsFilesPathRed",context,log,testRunner)
+                break
+            case "c3green":
+                fsPayloadPathBase = getProjectCustProp("fsFilesPathGreen",context,log,testRunner)
+                break
+            default:
+                log.warn "Unknown side: assume it is C2 ..."
+                fsPayloadPathBase = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
+                break
+        }
+        def multitenancyOn = getMultitenancyFromSide(side, context, log)
+        if (multitenancyOn) {
+            fsPayloadPathBase = fsPayloadPathBase + "/$domain/"
+        }
         def fsPayloadPath = fsPayloadPathBase + "/IN"
         fsPayloadPath = formatPathSlashes(fsPayloadPath)
         debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
@@ -4237,4 +4276,3 @@ class Domibus{
     }
 
 } // Domibus class end
-
