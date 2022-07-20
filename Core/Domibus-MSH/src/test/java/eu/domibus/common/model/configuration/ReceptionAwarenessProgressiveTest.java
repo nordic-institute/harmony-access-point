@@ -60,6 +60,8 @@ public class ReceptionAwarenessProgressiveTest {
         data.add(new Object[]{"2;1;2;", Arrays.asList(1, 2), NO_VALIDATION_EXCEPTION});
         data.add(new Object[]{"1;1;2;", Arrays.asList(1), NO_VALIDATION_EXCEPTION});
         data.add(new Object[]{"1;2;2;", NO_RETRY, PModeValidationException.class});
+        data.add(new Object[]{"10;0;2;", NO_RETRY, PModeValidationException.class});
+        data.add(new Object[]{"10;1;0;", NO_RETRY, PModeValidationException.class});
 
         //validation errors
         data.add(new Object[]{"100;400;3;", NO_RETRY, PModeValidationException.class});
@@ -68,6 +70,7 @@ public class ReceptionAwarenessProgressiveTest {
         data.add(new Object[]{"1;1;1;", NO_RETRY, PModeValidationException.class});
         data.add(new Object[]{"1.5;1;1;", NO_RETRY, DomibusCoreException.class});
         data.add(new Object[]{"-2;-3;1;", NO_RETRY, DomibusCoreException.class});
+
         return data;
         }
 

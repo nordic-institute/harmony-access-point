@@ -81,9 +81,6 @@ public enum RetryStrategy {
                 if(maxAttempts <= 0 || timeoutInMinutes <= 0 || received == null) {
                     return null;
                 }
-                if(maxAttempts > MILLIS_PER_MINUTE) {
-                    maxAttempts = (int)MILLIS_PER_MINUTE;
-                }
                 final long now = System.currentTimeMillis();
                 long retry = received.getTime();
                 final long stopTime = received.getTime() + ( (long)timeoutInMinutes * MILLIS_PER_MINUTE ) + delayInMillis; // We grant some extra time (configured in properties as milliseconds) to avoid not sending the last attempt

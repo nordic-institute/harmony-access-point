@@ -201,12 +201,17 @@ public class ReceptionAwareness extends AbstractBaseEntity {
                     this.multiplyingFactor = Integer.parseInt(retryValues[2]);
                     if (this.multiplyingFactor <= 1) {
                         List<ValidationIssue> issues = new ArrayList<>();
-                        issues.add(new ValidationIssue("multiplyingFactor shoud be greater than 1 for PROGRESSIVE strategy"));
+                        issues.add(new ValidationIssue("multiplyingFactor should be greater than 1 for PROGRESSIVE strategy"));
                         throw new PModeValidationException(issues);
                     }
                     if (this.initialInterval > this.retryTimeout) {
                         List<ValidationIssue> issues = new ArrayList<>();
                         issues.add(new ValidationIssue("initialInterval cannot be greater than retryTimeout"));
+                        throw new PModeValidationException(issues);
+                    }
+                    if (this.initialInterval <= 0) {
+                        List<ValidationIssue> issues = new ArrayList<>();
+                        issues.add(new ValidationIssue("initialInterval must be greater than zero"));
                         throw new PModeValidationException(issues);
                     }
                     this.strategy = RetryStrategy.valueOf(retryValues[3]);
@@ -223,7 +228,7 @@ public class ReceptionAwareness extends AbstractBaseEntity {
                     "The format of the receptionAwareness.retry is incorrect :[" + retryXml + "]. " +
                             "Formats: " +
                             "\n\"retryTimeout;retryCount;(CONSTANT - SEND_ONCE)\" (ex: 4;12;CONSTANT)" +
-                            "\n\"retryTimeout;initialInterval;multiplyingFactor;PROGRESSIVE)\" (ex: 12;1;2;PROGRESSIVE)", e);
+                            "\n\"retryTimeout;initialInterval;multiplyingFactor;PROGRESSIVE\" (ex: 12;1;2;PROGRESSIVE)", e);
         }
 
     }
