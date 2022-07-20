@@ -1,11 +1,14 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.user.UserManagementException;
+import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +51,7 @@ public class PartyIdentifierValidator implements PModeValidator {
         });
 
         allParties.forEach(party -> {
+            issues.addAll(validateDuplicatePartyNameInAllParties(party, allParties));
             issues.addAll(validateDuplicateIdentifiersInAllParties(party, allParties));
         });
         return issues;
@@ -116,7 +120,7 @@ public class PartyIdentifierValidator implements PModeValidator {
     protected List<Identifier> getDuplicateIdentifiers(Set<Identifier> identifierSet, Party party1) {
         List<Identifier> duplicateIdentifiers = new ArrayList<>();
         identifierSet.forEach(identifier -> party1.getIdentifiers().stream()
-                .filter(party -> identifier.getPartyId().equals(party.getPartyId()))
+                .filter(party -> identifier.getPartyId().equalsIgnoreCase(party.getPartyId()))
                 .forEach(duplicateIdentifiers::add));
         return duplicateIdentifiers;
     }
@@ -128,4 +132,11 @@ public class PartyIdentifierValidator implements PModeValidator {
         return pModeValidationHelper.createValidationIssue(message, partyId, name);
     }
 
+    protected List<ValidationIssue> validateDuplicatePartyNameInAllParties(Party party, List<Party> allParties) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        if (allParties.stream().anyMatch(party1 -> party1 != party && party.getName().equalsIgnoreCase(party1.getName()))) {
+            issues.add(createIssue(party.getName(), "", "Duplicate party name [%s] found in parties"));
+        }
+        return issues;
+    }
 }
