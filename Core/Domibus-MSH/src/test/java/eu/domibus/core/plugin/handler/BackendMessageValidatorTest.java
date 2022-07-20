@@ -750,7 +750,7 @@ public class BackendMessageValidatorTest {
             result = MessageStatus.READY_TO_PULL;
         }};
         thrown.expect(DuplicateMessageException.class);
-        thrown.expectMessage(MESSAGE_WITH_ID_STR + "messageId" + BackendMessageValidator.ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
+        thrown.expectMessage(MESSAGE_WITH_ID_STR + "messageId" + " and role " + MSHRole.RECEIVING + BackendMessageValidator.ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
         backendMessageValidatorObj.validateMessageIsUnique("messageId", MSHRole.RECEIVING);
     }
 

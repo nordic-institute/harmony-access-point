@@ -31,7 +31,6 @@ import eu.domibus.core.util.TimestampDateFormatter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -167,10 +166,10 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
 
-            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
+            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
             result = userMessageLog;
 
             pullMessageService.getLock(messageId);
@@ -226,10 +225,10 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
 
-            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
+            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
             result = userMessageLog;
 
             pullMessageService.getLock(messageId);
@@ -239,11 +238,12 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             result = MessageState.WAITING;
 
             incomingPullReceiptHandler.getSoapMessage(messageId, withAny(legConfiguration), withAny(userMessage));
-            result =  EbMS3ExceptionBuilder.getInstance()
+            result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
                     .message("Payload in body must be valid XML")
                     .refToMessageId(messageId)
-                    .build();;
+                    .build();
+            ;
         }};
 
         incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
@@ -271,10 +271,10 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
 
-            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
+            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
             result = userMessageLog;
 
             messagingLock.getMessageState();
@@ -283,7 +283,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             incomingPullReceiptHandler.getSoapMessage(messageId, withAny(legConfiguration), withAny(userMessage));
             result = new ReliabilityException(DomibusCoreErrorCode.DOM_004, "test");
 
-            messageBuilder.getSoapMessage((EbMS3Exception)any);
+            messageBuilder.getSoapMessage((EbMS3Exception) any);
             result = soapMessage;
         }};
 

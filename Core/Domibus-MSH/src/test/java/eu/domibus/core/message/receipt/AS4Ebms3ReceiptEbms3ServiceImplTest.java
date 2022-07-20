@@ -1,10 +1,8 @@
 package eu.domibus.core.message.receipt;
 
-import eu.domibus.api.ebms3.model.*;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.SignalMessageLog;
-import eu.domibus.api.model.SignalMessageResult;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.MessageInfo;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -58,25 +56,25 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
     AS4ReceiptServiceImpl as4ReceiptService;
 
     @Injectable
-    protected  UserMessageHandlerService userMessageHandlerService;
+    protected UserMessageHandlerService userMessageHandlerService;
     @Injectable
-    private  TimestampDateFormatter timestampDateFormatter;
+    private TimestampDateFormatter timestampDateFormatter;
     @Injectable
-    protected  UserMessageService userMessageService;
+    protected UserMessageService userMessageService;
     @Injectable
-    private  MessageIdGenerator messageIdGenerator;
+    private MessageIdGenerator messageIdGenerator;
     @Injectable
-    protected  UserMessageRawEnvelopeDao rawEnvelopeLogDao;
+    protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
     @Injectable
-    private  SignalMessageDao signalMessageDao;
+    private SignalMessageDao signalMessageDao;
     @Injectable
-    protected  MessageGroupDao messageGroupDao;
+    protected MessageGroupDao messageGroupDao;
     @Injectable
-    private  UserMessageDao userMessageDao;
+    private UserMessageDao userMessageDao;
     @Injectable
-    protected  MessageUtil messageUtil;
+    protected MessageUtil messageUtil;
     @Injectable
-    protected  SoapUtil soapUtil;
+    protected SoapUtil soapUtil;
     @Injectable
     protected XMLUtil xmlUtil;
     @Injectable
@@ -223,7 +221,9 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
 
 
     @Test
-    public void testSaveResponse(@Injectable Ebms3Messaging ebms3Messaging, @Injectable SignalMessage signalMessage) throws SOAPException, EbMS3Exception {
+    public void testSaveResponse(@Injectable Ebms3Messaging ebms3Messaging,
+                                 @Injectable SignalMessage signalMessage,
+                                 @Injectable MSHRoleEntity mshRoleEntity) throws SOAPException, EbMS3Exception {
         new Expectations() {{
 
             messageUtil.getMessagingWithDom(soapResponseMessage);
@@ -234,6 +234,11 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
 
             signalMessageResult.getSignalMessage();
             result = signalMessage;
+
+            mshRoleDao.findOrCreate(MSHRole.SENDING);
+            result = mshRoleEntity;
+
+            signalMessage.setMshRole(mshRoleEntity);
         }};
 
         as4ReceiptService.generateResponse(soapResponseMessage, false);
@@ -241,39 +246,6 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
         new FullVerifications() {
         };
     }
-
-//    @Test
-//    public void testSaveResponse_selfSending(@Injectable Ebms3Messaging ebms3Messaging,
-//                                             @Injectable Ebms3SignalMessage ebms3SignalMessage,
-//                                             @Injectable Ebms3MessageInfo ebms3MessageInfo,
-//                                             @Injectable Ebms3UserMessage ebms3UserMessage,
-//                                             @Injectable SignalMessage signalMessage
-//    ) throws SOAPException, EbMS3Exception {
-//        new Expectations() {{
-//            messageUtil.getMessagingWithDom(soapResponseMessage);
-//            result = ebms3Messaging;
-//
-//            ebms3Converter.convertFromEbms3(ebms3Messaging);
-//            result = signalMessageResult;
-//
-//            signalMessageResult.getSignalMessage();
-//            result = signalMessage;
-//
-//            signalMessage.getRefToMessageId() ;
-//            result = "refTomessageId";
-//
-//            signalMessage.getSignalMessageId() ;
-//            result = "signalMessageId";
-//        }};
-//
-//        as4ReceiptService.generateResponse(soapResponseMessage, true);
-//
-//        new FullVerifications() {{
-//            signalMessage.setRefToMessageId("refTomessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-//            signalMessage.setSignalMessageId("signalMessageId" + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-//
-//        }};
-//    }
 
     @Test
     public void testGenerateReceipt_NoReliability() throws EbMS3Exception {

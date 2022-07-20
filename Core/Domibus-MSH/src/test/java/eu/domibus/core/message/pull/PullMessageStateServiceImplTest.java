@@ -69,7 +69,7 @@ public class PullMessageStateServiceImplTest {
         final String messageId = "messageId";
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
         }};
         pullMessageStateService.sendFailed(userMessageLog, messageId);
@@ -88,7 +88,7 @@ public class PullMessageStateServiceImplTest {
         final String messageId = "messageId";
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = null;
         }};
 

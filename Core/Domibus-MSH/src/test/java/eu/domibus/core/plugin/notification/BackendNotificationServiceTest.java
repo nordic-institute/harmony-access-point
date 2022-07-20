@@ -209,6 +209,9 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
+            userMessage.getMshRole().getRole();
+            result = MSHRole.RECEIVING;
+
             backendNotificationService.notifyAsync(notificationListener, entityId, MESSAGE_ID, MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
@@ -329,7 +332,7 @@ public class BackendNotificationServiceTest {
         MessageStatus status = MessageStatus.ACKNOWLEDGED;
 
         new Expectations(backendNotificationService) {{
-            userMessageDao.findByMessageId(anyString);
+            userMessageDao.findByEntityId(messageLog.getEntityId());
             result = userMessage;
 
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
@@ -422,6 +425,9 @@ public class BackendNotificationServiceTest {
             backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
             result = new HashMap<String, Object>();
 
+            userMessage.getMshRole().getRole();
+            result = MSHRole.SENDING;
+
             backendNotificationService.notify(userMessage, anyString, NotificationType.MESSAGE_STATUS_CHANGE, withAny(new HashMap<>()));
             times = 1;
         }};
@@ -474,6 +480,9 @@ public class BackendNotificationServiceTest {
             backendNotificationService.getMessageProperties(messageLog, userMessage, status, TIMESTAMP);
             result = new HashMap<String, Object>();
 
+            userMessage.getMshRole().getRole();
+            result = MSHRole.SENDING;
+
             backendNotificationService.notify(userMessage, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE, withAny(new HashMap<>()));
             times = 1;
         }};
@@ -513,6 +522,9 @@ public class BackendNotificationServiceTest {
             result = messageId;
 
             messageLog.getMshRole().getRole();
+            result = role;
+
+            userMessage.getMshRole().getRole();
             result = role;
         }};
 
