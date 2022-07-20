@@ -30,18 +30,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.activation.DataHandler;
+import javax.activation.URLDataSource;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
 
 @SuppressWarnings("ValidExternallyBoundObject")
@@ -198,8 +200,32 @@ public class WebServiceImpl implements WebServicePluginInterface {
                 break;
             }
         }
+        Optional<Property> filepathProperty = extendedPartInfo.getPartProperties().getProperty().stream()
+                .filter(property -> PAYLOAD_PROPERTY_FILE_PATH.equalsIgnoreCase(property.getName()))
+                .findFirst();
+        if(filepathProperty.isPresent()){
+            if(foundPayload) {
+                LOG.warn("An unexpected payload found in the body (payloadId='{}') will be ignored because in the header a filepath is provided", extendedPartInfo.getHref());
+            }
 
-        if (!foundPayload) {
+            String filepath = filepathProperty.get().getValue();
+            DataHandler dataHandler;
+            try {
+                dataHandler = new DataHandler(new URLDataSource(new URL(filepath)));
+            } catch (MalformedURLException e) {
+                throw new SubmitMessageFault("Invalid filepath property", generateDefaultFaultDetail(ErrorCode.WS_PLUGIN_0005, filepath), e);
+            }
+            final PartProperties partProperties = extendedPartInfo.getPartProperties();
+
+            Property prop = new Property();
+            prop.setName(PAYLOAD_PROPERTY_FILE_PATH);
+            prop.setValue(filepath);
+            partProperties.getProperty().add(prop);
+            extendedPartInfo.setPartProperties(partProperties);
+            extendedPartInfo.setPayloadDatahandler(dataHandler);
+        }
+
+        if (!foundPayload && !filepathProperty.isPresent()) {
             initPayloadInBody(submitRequest, extendedPartInfo, href);
         }
     }

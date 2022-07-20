@@ -14,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.webService.generated.*;
@@ -371,6 +372,12 @@ public class WebServicePluginImpl implements BackendInterface {
 
         for (final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo partInfo : getPartInfo(messaging)) {
             eu.domibus.plugin.ws.webservice.ExtendedPartInfo extPartInfo = (eu.domibus.plugin.ws.webservice.ExtendedPartInfo) partInfo;
+            boolean isPayloadSentAsReference = extPartInfo.getPartProperties().getProperty().stream()
+                    .anyMatch(property -> MessageConstants.PAYLOAD_PROPERTY_FILE_PATH.equals(property.getName()));
+            if(isPayloadSentAsReference){
+                LOG.debug("Payload won't include the file contents because the file was sent as reference");
+                continue;
+            }
             LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
             if (extPartInfo.getPayloadDatahandler() != null) {
                 LOG.debug("payloadDatahandler Content Type: [{}]", extPartInfo.getPayloadDatahandler().getContentType());
