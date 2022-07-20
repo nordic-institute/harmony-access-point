@@ -661,6 +661,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     private void populateCornerSpecificProperties(List<Ebms3PartInfo> ebms3PartInfos) {
         if(storageProvider.getCurrentStorage().getStorageDirectory()!=null) {
             for (Ebms3PartInfo partInfo : ebms3PartInfos) {
+                if(partInfo.getPartProperties()==null){
+                    continue;
+                }
                 partInfo.getPartProperties().getProperty().stream()
                         .filter(ebms3Property -> MessageConstants.PAYLOAD_PROPERTY_FILE_PATH.equals(ebms3Property.getName()))
                         .findFirst()
