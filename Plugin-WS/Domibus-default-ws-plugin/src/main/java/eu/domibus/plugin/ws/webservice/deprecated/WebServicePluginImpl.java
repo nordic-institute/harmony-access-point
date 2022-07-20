@@ -375,7 +375,8 @@ public class WebServicePluginImpl implements BackendInterface {
             boolean isPayloadSentAsReference = extPartInfo.getPartProperties().getProperty().stream()
                     .anyMatch(property -> MessageConstants.PAYLOAD_PROPERTY_FILE_PATH.equals(property.getName()));
             if(isPayloadSentAsReference){
-                continue;   //don't include the file contents
+                LOG.debug("Payload won't include the file contents because the file was sent as reference");
+                continue;
             }
             LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
             if (extPartInfo.getPayloadDatahandler() != null) {
