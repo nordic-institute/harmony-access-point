@@ -325,7 +325,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Override
     public RawEnvelopeDto findPulledMessageRawXmlByMessageId(final String messageId, MSHRole role) {
-        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId, role);
+        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageIdAndRole(messageId, role);
         if (rawXmlByMessageId == null) {
             throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always have a raw message for message " + messageId);
         }

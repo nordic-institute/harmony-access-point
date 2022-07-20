@@ -27,7 +27,7 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
     }
 
     public List<MessageAttemptEntity> findByMessageId(String messageId, MSHRole mshRole) {
-        final TypedQuery<MessageAttemptEntity> query = em.createNamedQuery("MessageAttemptEntity.findAttemptsByMessageId2", MessageAttemptEntity.class);
+        final TypedQuery<MessageAttemptEntity> query = em.createNamedQuery("MessageAttemptEntity.findAttemptsByMessageIdAndRole", MessageAttemptEntity.class);
         query.setParameter("MESSAGE_ID", messageId);
         query.setParameter("MSH_ROLE", mshRole);
         return query.getResultList();

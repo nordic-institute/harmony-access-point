@@ -84,7 +84,7 @@ public class MessageRetrieverServiceDelegateTest  {
         Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID, MSHRole.RECEIVING);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
             times = 1;
         }};
 
@@ -94,7 +94,7 @@ public class MessageRetrieverServiceDelegateTest  {
     public void testGetStatusAccessDenied() {
         // Given
         new Expectations() {{
-            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID, MSHRole.RECEIVING);
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
             result = new AccessDeniedException("");
         }};
 
