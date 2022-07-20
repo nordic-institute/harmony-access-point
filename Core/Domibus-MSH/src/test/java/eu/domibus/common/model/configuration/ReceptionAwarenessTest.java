@@ -127,7 +127,7 @@ public class ReceptionAwarenessTest {
         );
 
         assertEquals("[DOM_003]:PMode validation failed", exception.getMessage());
-        assertEquals("multiplyingFactor shoud be greater than 1 for PROGRESSIVE strategy", exception.getIssues().stream().findFirst().get().getMessage());
+        assertEquals("multiplyingFactor should be greater than 1 for PROGRESSIVE strategy", exception.getIssues().stream().findFirst().get().getMessage());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class ReceptionAwarenessTest {
         );
 
         assertEquals("[DOM_003]:PMode validation failed", exception.getMessage());
-        assertEquals("multiplyingFactor shoud be greater than 1 for PROGRESSIVE strategy", exception.getIssues().stream().findFirst().get().getMessage());
+        assertEquals("multiplyingFactor should be greater than 1 for PROGRESSIVE strategy", exception.getIssues().stream().findFirst().get().getMessage());
     }
 
 }
