@@ -59,7 +59,7 @@ public class MessageAcknowledgeDefaultServiceTest {
         final String localAccessPointId = "C3";
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.RECEIVING);
+            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.SENDING);
             result = userMessage;
 
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
@@ -105,7 +105,7 @@ public class MessageAcknowledgeDefaultServiceTest {
         properties.put("prop1", "value1");
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.RECEIVING);
+            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.SENDING);
             result = userMessage;
 
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
@@ -130,7 +130,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgementDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            messageAcknowledgementDao.findByMessageId(messageId, MSHRole.SENDING);
             result = messageAcknowledgements;
 
         }};
