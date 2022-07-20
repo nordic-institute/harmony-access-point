@@ -1,8 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
-import eu.domibus.api.user.UserManagementException;
-import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
@@ -134,7 +132,7 @@ public class PartyIdentifierValidator implements PModeValidator {
 
     protected List<ValidationIssue> validateDuplicatePartyNameInAllParties(Party party, List<Party> allParties) {
         List<ValidationIssue> issues = new ArrayList<>();
-        if (allParties.stream().anyMatch(party1 -> party1 != party && party.getName().equalsIgnoreCase(party1.getName()))) {
+        if (allParties.stream().anyMatch(party1 -> party1 != party && StringUtils.equalsIgnoreCase(party.getName(), party1.getName()))) {
             issues.add(createIssue(party.getName(), "", "Duplicate party name [%s] found in parties"));
         }
         return issues;
