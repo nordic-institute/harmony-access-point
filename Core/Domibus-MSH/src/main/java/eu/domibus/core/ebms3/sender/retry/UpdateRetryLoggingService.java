@@ -327,7 +327,13 @@ public class UpdateRetryLoggingService {
         int retryCount = legConfiguration.getReceptionAwareness().getRetryCount();
         int retryTimeout = legConfiguration.getReceptionAwareness().getRetryTimeout();
         long delayInMillis = domibusPropertyProvider.getLongProperty(MESSAGE_EXPIRATION_DELAY);
-        Date newNextAttempt = algorithm.compute(nextAttempt, retryCount, retryTimeout, delayInMillis);
+        int crtInterval = 0;
+        if (legConfiguration.getReceptionAwareness().getStrategy() == RetryStrategy.PROGRESSIVE) {
+            crtInterval = legConfiguration.getReceptionAwareness().getRetryIntervals().get(userMessageLog.getSendAttempts()-1);
+        }
+
+        Date newNextAttempt = algorithm.compute(nextAttempt, retryCount, retryTimeout, crtInterval, delayInMillis);
+
         LOG.debug("Updating next attempt from [{}] to [{}]", nextAttempt, newNextAttempt);
         reprogrammableService.setRescheduleInfo(userMessageLog, newNextAttempt);
     }

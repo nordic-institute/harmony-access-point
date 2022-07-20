@@ -31,4 +31,5 @@
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
     </changeSet>
 
+
 </databaseChangeLog>

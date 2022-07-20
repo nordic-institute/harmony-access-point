@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.validation.validators;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
@@ -110,10 +111,26 @@ public class LegConfigurationValidator implements PModeValidator {
             String name = pModeValidationHelper.getAttributeValue(leg, "receptionAwarenessXml", String.class);
             return createIssue(leg, name, "ReceptionAwareness [%s] of leg configuration [%s] not found in business process as4 awarness.");
         }
-        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <=0) {
+        if (leg.getReceptionAwareness().getRetryTimeout() > 0 && leg.getReceptionAwareness().getRetryCount() <=0 && leg.getReceptionAwareness().getStrategy()!= RetryStrategy.PROGRESSIVE) {
             String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
             return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted.");
         }
+
+        if (leg.getReceptionAwareness().getStrategy() == RetryStrategy.PROGRESSIVE) {
+            // PROGRESSIVE strategy validations:
+            int retryTimeout = leg.getReceptionAwareness().getRetryTimeout();
+            int initialInterval = leg.getReceptionAwareness().getInitialInterval();
+            int multiplyingFactor = leg.getReceptionAwareness().getMultiplyingFactor();
+            String name = pModeValidationHelper.getAttributeValue(leg.getReceptionAwareness(), "retryXml", String.class);
+
+            if (retryTimeout < initialInterval) {
+                return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted (initialInterval should be less than retryTimeout).");
+            }
+            if (multiplyingFactor < 1) {
+                return createIssue(leg, name, "Retry strategy [%s] of leg configuration [%s] not accepted (multiplyingFactor should be greater than 1).");
+            }
+        }
+
         return null;
     }
 
