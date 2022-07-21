@@ -207,4 +207,6 @@ public interface UserMessageService {
      * @return a string representing the envelope in xml format
      */
     String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole);
+
+    eu.domibus.api.model.UserMessage getByMessageId(String messageId);
 }

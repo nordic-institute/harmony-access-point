@@ -20,7 +20,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 
-public class MessageRetrieverServiceDelegateTest  {
+public class MessageRetrieverServiceDelegateTest {
     private static final String MESS_ID = UUID.randomUUID().toString();
 
     @Tested
@@ -39,14 +39,14 @@ public class MessageRetrieverServiceDelegateTest  {
     private UserMessageService userMessageService;
 
     @Test
-    public void testDownloadMessageAuthUserNok(@Injectable UserMessage userMessage,@Injectable String messageId) {
+    public void testDownloadMessageAuthUserNok(@Injectable UserMessage userMessage, @Injectable String messageId) {
 
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
         new Expectations(messageRetrieverServiceDelegate) {{
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
-            userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
+            userMessageService.getByMessageId(messageId);
             result = userMessage;
 
             authUtils.getOriginalUserWithUnsecureLoginAllowed();

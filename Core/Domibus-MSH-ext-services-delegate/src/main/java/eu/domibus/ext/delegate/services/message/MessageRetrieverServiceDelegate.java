@@ -111,7 +111,7 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(String messageId) {
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 
         return messageRetriever.getErrorsForMessage(messageId);
     }
@@ -141,7 +141,10 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     protected void checkMessageAuthorization(String messageId) {
-        checkMessageAuthorization(messageId, eu.domibus.common.MSHRole.RECEIVING);
+        checkUnsecure();
+
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId);
+        checkMessageAuthorization(userMessage);
     }
 
     private void checkUnsecure() {

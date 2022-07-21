@@ -671,6 +671,15 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    public UserMessage getByMessageId(String messageId) {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        return userMessage;
+    }
+
+    @Override
     public UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
