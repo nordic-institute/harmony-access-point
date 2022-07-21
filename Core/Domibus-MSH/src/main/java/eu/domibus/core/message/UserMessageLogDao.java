@@ -263,15 +263,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             }
             return result;
         } catch (IncorrectResultSizeDataAccessException ex) {
-            LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying with RECEIVING role", messageId);
-            result = findByMessageId(messageId, MSHRole.RECEIVING);
+            LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying with SENDING role", messageId);
+            result = findByMessageId(messageId, MSHRole.SENDING);
             if (result != null) {
                 return result;
             }
-            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and RECEIVING role. Trying with SENDING role.", messageId);
-            result = findByMessageId(messageId, MSHRole.SENDING);
+            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and SENDING role. Trying with RECEIVING role.", messageId);
+            result = findByMessageId(messageId, MSHRole.RECEIVING);
             if (result == null) {
-                LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and SENDING role", messageId);
+                LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and RECEIVING role", messageId);
             }
             return result;
         }
