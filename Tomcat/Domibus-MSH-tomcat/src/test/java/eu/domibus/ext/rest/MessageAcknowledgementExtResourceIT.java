@@ -83,7 +83,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         // Note here you can not use @Transactional annotation with the following code force commit on data preparation level!!
         Date currentDate = Calendar.getInstance().getTime();
 
-        uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), MSHRole.SENDING, currentDate, MessageStatus.SEND_FAILURE, MessageDaoTestUtil.DEFAULT_MPC);
+        uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), MSHRole.RECEIVING, currentDate, MessageStatus.SEND_FAILURE, MessageDaoTestUtil.DEFAULT_MPC);
 
         uploadPmode(SERVICE_PORT);
     }

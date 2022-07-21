@@ -48,7 +48,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException {
-        final UserMessage userMessage = getUserMessage(messageId, MSHRole.SENDING); //is it correct?
+        final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING); //is it correct?
         final String localAccessPointId = getLocalAccessPointId(userMessage);
         final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
         return acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties);
@@ -71,7 +71,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException {
-        final UserMessage userMessage = getUserMessage(messageId, MSHRole.SENDING);
+        final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING);
         final String localAccessPointId = getLocalAccessPointId(userMessage);
         final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
         return acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties);
@@ -106,8 +106,8 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
 
     @Override
     public List<MessageAcknowledgement> getAcknowledgedMessages(String messageId) throws MessageAcknowledgeException {
-        final List<MessageAcknowledgementEntity> entities = messageAcknowledgementDao.findByMessageId(messageId, MSHRole.SENDING);
-        if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId, MSHRole.SENDING) == null) {
+        final List<MessageAcknowledgementEntity> entities = messageAcknowledgementDao.findByMessageId(messageId, MSHRole.RECEIVING);
+        if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING) == null) {
             throw new MessageNotFoundException(messageId);
         }
         return messageAcknowledgeConverter.convert(entities);
