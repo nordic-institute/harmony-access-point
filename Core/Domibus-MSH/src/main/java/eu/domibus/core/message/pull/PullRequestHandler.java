@@ -100,7 +100,7 @@ public class PullRequestHandler {
         UserMessage userMessage = null;
         try {
             // what mshRole?
-            userMessage = userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             leg = pullContext.filterLegOnMpc();
             try {
                 String initiatorPartyName = null;
