@@ -49,9 +49,6 @@ import javax.xml.transform.TransformerFactory;
 @RunWith(JMockit.class)
 public class IncomingEbms3PullRequestHandlerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingEbms3PullRequestHandlerTest.class);
-    private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
-
     @Injectable
     BackendNotificationService backendNotificationService;
 

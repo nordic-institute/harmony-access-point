@@ -90,7 +90,7 @@ public class Ebms3PullRequestHandlerImplTest {
                 .build();
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             pullContext.filterLegOnMpc();
@@ -120,7 +120,7 @@ public class Ebms3PullRequestHandlerImplTest {
         final String messageId = "messageId";
 
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             legConfiguration.getReliability().isNonRepudiation();
