@@ -75,11 +75,6 @@ public class PartInfoServiceImpl implements PartInfoService {
         return partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
     }
 
-//    @Override
-//    public PartInfo findPartInfo(String messageId, String cid) {
-//        return partInfoDao.findPartInfoByUserMessageIdAndCid(messageId, getCid(cid));
-//    }
-
     @Override
     public PartInfo findPartInfo(Long messageEntityId, String cid) {
         return partInfoDao.findPartInfoByUserMessageEntityIdAndCid(messageEntityId, getCid(cid));

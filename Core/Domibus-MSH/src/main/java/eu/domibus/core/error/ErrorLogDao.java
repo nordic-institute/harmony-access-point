@@ -37,13 +37,6 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         super(ErrorLogEntry.class);
     }
 
-//    public List<ErrorLogEntry> getErrorsForMessage(final String messageId) {
-//        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId", ErrorLogEntry.class);
-//        query.setParameter(STR_MESSAGE_ID, messageId);
-//
-//        return initializeChildren(query.getResultList());
-//    }
-
     public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole mshRole) {
         final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId2", ErrorLogEntry.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
@@ -101,7 +94,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     }
 
     public int deleteErrorLogsByMessageIdInError(List<Long> messageIds) {
-        final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageIdsInError2");
+        final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageEntityIdsInError");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result = deleteQuery.executeUpdate();
         LOG.trace("deleteErrorLogsByMessageIdInError result [{}]", result);

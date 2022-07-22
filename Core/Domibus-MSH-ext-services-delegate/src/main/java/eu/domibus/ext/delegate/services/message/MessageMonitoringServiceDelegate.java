@@ -99,7 +99,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     @Override
     public List<MessageAttemptDTO> getAttemptsHistory(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING); // is it correct??
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
         final List<MessageAttempt> attemptsHistory = messageAttemptService.getAttemptsHistory(messageId);
         return messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
     }

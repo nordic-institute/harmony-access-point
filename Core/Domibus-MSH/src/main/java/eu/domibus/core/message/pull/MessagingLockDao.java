@@ -26,8 +26,6 @@ public interface MessagingLockDao {
 
     List<MessagingLock> findDeletedMessages();
 
-//    List<MessagingLock> findReadyToPull(String mpc, String initiator);
-
     List<MessagingLock> findWaitingForReceipt();
 
 }

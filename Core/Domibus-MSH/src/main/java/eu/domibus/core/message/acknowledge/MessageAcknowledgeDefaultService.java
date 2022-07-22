@@ -48,7 +48,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException {
-        final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING); //is it correct?
+        final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING);
         final String localAccessPointId = getLocalAccessPointId(userMessage);
         final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
         return acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties);

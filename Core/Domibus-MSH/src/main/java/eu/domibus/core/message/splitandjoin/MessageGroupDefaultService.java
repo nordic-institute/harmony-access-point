@@ -31,7 +31,6 @@ public class MessageGroupDefaultService implements MessageGroupService {
     public void setSourceMessageId(String sourceMessageId, String groupId) {
         LOG.debug("Updating the SourceMessage id [{}] for group [{}]", sourceMessageId, groupId);
         final MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(groupId);
-        // what role?
         final UserMessage sourceMessage = userMessageDao.findByMessageId(sourceMessageId, MSHRole.RECEIVING);
         messageGroupEntity.setSourceMessage(sourceMessage);
         messageGroupDao.update(messageGroupEntity);

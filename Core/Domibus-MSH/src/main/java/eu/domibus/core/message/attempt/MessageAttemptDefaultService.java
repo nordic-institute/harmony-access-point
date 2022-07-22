@@ -44,7 +44,7 @@ public class MessageAttemptDefaultService implements MessageAttemptService {
 
     @Override
     public List<MessageAttempt> getAttemptsHistory(String messageId) {
-        MSHRole mshRole = MSHRole.SENDING; ///always correct???
+        MSHRole mshRole = MSHRole.SENDING;
         final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId(messageId, mshRole);
         if (CollectionUtils.isEmpty(entities) && userMessageDao.findByMessageId(messageId, mshRole) == null) {
             throw new MessageNotFoundException(messageId, mshRole);

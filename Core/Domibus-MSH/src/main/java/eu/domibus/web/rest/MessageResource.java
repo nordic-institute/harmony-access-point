@@ -57,19 +57,6 @@ public class MessageResource {
         restoreService.resendFailedOrSendEnqueuedMessage(messageId);
     }
 
-//    @RequestMapping(path = "/{messageId:.+}/downloadOld", method = RequestMethod.GET)
-//    public ResponseEntity<ByteArrayResource> download(@PathVariable(value = "messageId") String messageId,
-//                                                      @RequestParam(value = "mshRole") String mshRole) throws MessagingException {
-//
-//        byte[] content = userMessageService.getMessageAsBytes(messageId, MSHRole.valueOf(mshRole));
-//
-//        ByteArrayResource resource = new ByteArrayResource(content);
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.parseMediaType("application/octet-stream"))
-//                .header("content-disposition", "attachment; filename=" + messageId + ".xml")
-//                .body(resource);
-//    }
-
     @RequestMapping(value = "/download")
     public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId,
                                                                  @RequestParam(value = "mshRole") String mshRole)
@@ -92,12 +79,6 @@ public class MessageResource {
                                  @RequestParam(value = "mshRole") String mshRole) {
         userMessageService.checkCanGetMessageContent(messageId, MSHRole.valueOf(mshRole));
     }
-
-//    @GetMapping(value = "/{messageId:.+}/envelopes")
-//    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId,
-//                                                                      @RequestParam(value = "mshRole") String mshRole) {
-//        return getByteArrayResourceResponseEntity(messageId, MSHRole.valueOf(mshRole));
-//    }
 
     @GetMapping(value = "/envelopes")
     public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId,

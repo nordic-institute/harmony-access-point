@@ -28,7 +28,6 @@ public interface ErrorLogService {
      */
     void deleteErrorLogWithoutMessageIds();
 
-    // big change to send and use also the MSH role
     int deleteErrorLogsByMessageIdInError(List<Long> messageIds);
 
     List<ErrorLogEntry> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters);

@@ -143,14 +143,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
-//    public UserMessageLog findByMessageId(String messageId) {
-//        return userMessageLogDao.findByMessageId(messageId);
-//    }
-
-//    public MessageStatus getMessageStatus(String messageId) {
-//        return userMessageLogDao.getMessageStatus(messageId);
-//    }
-
     @Override
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
         return userMessageLogDao.getMessageStatus(messageId, mshRole);

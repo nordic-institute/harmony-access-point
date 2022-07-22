@@ -403,7 +403,7 @@ public class PullMessageServiceImpl implements PullMessageService {
             return;
         }
         LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] checking if can be retry, attempts[{}], max attempts[{}], expiration date[{}]", lock.getMessageId(), lock.getSendAttempts(), lock.getSendAttemptsMax(), lock.getStaled());
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId(), MSHRole.RECEIVING); // ?? receiving role??
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId(), MSHRole.SENDING);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
