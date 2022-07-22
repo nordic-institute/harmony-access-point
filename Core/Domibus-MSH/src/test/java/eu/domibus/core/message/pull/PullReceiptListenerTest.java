@@ -32,7 +32,7 @@ import javax.xml.soap.SOAPMessage;
  */
 @SuppressWarnings("ConstantConditions")
 @RunWith(JMockit.class)
-public class PullEbms3ReceiptListenerTest {
+public class PullReceiptListenerTest {
 
     @Tested
     private PullReceiptListener pullReceiptListener;
@@ -79,7 +79,7 @@ public class PullEbms3ReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageId("refToMessageId", MSHRole.SENDING);
+            receiptDao.findBySignalRefToMessageId("refToMessageId");
             result = null;
 
             message.propertyExists(MessageConstants.RETRY_COUNT);
@@ -113,7 +113,7 @@ public class PullEbms3ReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageId("refToMessageId", MSHRole.SENDING);
+            receiptDao.findBySignalRefToMessageId("refToMessageId");
             result = receiptEntity;
 
             message.propertyExists(MessageConstants.RETRY_COUNT);
@@ -146,7 +146,7 @@ public class PullEbms3ReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageId("refToMessageId", MSHRole.SENDING);
+            receiptDao.findBySignalRefToMessageId("refToMessageId");
             result = null;
         }};
 
