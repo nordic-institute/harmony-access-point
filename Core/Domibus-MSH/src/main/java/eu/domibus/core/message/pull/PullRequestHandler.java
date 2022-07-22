@@ -100,7 +100,7 @@ public class PullRequestHandler {
         UserMessage userMessage = null;
         try {
             userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
-            LOG.info("FOUND MESSAGE [{}]", userMessage);
+            LOG.debug("Found mesage [{}] with SNEDING role", userMessage);
             leg = pullContext.filterLegOnMpc();
             try {
                 String initiatorPartyName = null;

@@ -28,12 +28,6 @@ public class ReceiptDao extends BasicDao<ReceiptEntity> {
         super(ReceiptEntity.class);
     }
 
-    public ReceiptEntity findBySignalRefToMessageId(String refToMessageId) {
-        final TypedQuery<ReceiptEntity> query = em.createNamedQuery("Receipt.findBySignalRefToMessageId", ReceiptEntity.class);
-        query.setParameter("REF_TO_MESSAGE_ID", refToMessageId);
-        return DataAccessUtils.singleResult(query.getResultList());
-    }
-
     public ReceiptEntity findBySignalRefToMessageIdAndRole(String refToMessageId, MSHRole mshRole) {
         final TypedQuery<ReceiptEntity> query = em.createNamedQuery("Receipt.findBySignalRefToMessageIdAndRole", ReceiptEntity.class);
         query.setParameter("REF_TO_MESSAGE_ID", refToMessageId);

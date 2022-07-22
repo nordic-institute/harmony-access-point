@@ -404,6 +404,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         }
         LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] checking if can be retry, attempts[{}], max attempts[{}], expiration date[{}]", lock.getMessageId(), lock.getSendAttempts(), lock.getSendAttemptsMax(), lock.getStaled());
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId(), MSHRole.SENDING);
+        LOG.info("resetMessageInWaitingForReceiptState Found message [{}]", userMessageLog);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }

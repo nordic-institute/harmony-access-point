@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3Receipt;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -98,9 +99,8 @@ public class PullReceiptListener implements MessageListener {
             final Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             final Policy policy = policyService.getPolicy(legConfiguration);
 
-//            final ReceiptEntity receipt = receiptDao.findBySignalRefToMessageId(refToMessageId, MSHRole.SENDING);
-            final ReceiptEntity receipt = receiptDao.findBySignalRefToMessageId(refToMessageId);
-            LOG.info("FOUND RECEIPT [{}]", receipt != null ? receipt.getSignalMessage() : null);
+            final ReceiptEntity receipt = receiptDao.findBySignalRefToMessageIdAndRole(refToMessageId, MSHRole.RECEIVING);
+            LOG.debug("Found receipt [{}]", receipt != null ? receipt.getSignalMessage() : null);
             int retryCount = 0;
             try {
                 if (message.propertyExists(MessageConstants.RETRY_COUNT)) {

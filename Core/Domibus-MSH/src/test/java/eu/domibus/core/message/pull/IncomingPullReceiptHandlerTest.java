@@ -166,7 +166,7 @@ public class IncomingPullReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
@@ -225,7 +225,7 @@ public class IncomingPullReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
@@ -271,7 +271,7 @@ public class IncomingPullReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
