@@ -166,7 +166,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
@@ -178,7 +178,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             messagingLock.getMessageState();
             result = MessageState.WAITING;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true);
             result = messageConfiguration;
 
             messageConfiguration.getPmodeKey();
@@ -200,7 +200,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
 
         new Verifications() {{
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true);
             times = 1;
             pModeProvider.getLegConfiguration(pModeKey);
             times = 1;
@@ -225,7 +225,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
@@ -271,7 +271,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());

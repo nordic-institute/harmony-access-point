@@ -41,7 +41,7 @@ import static org.junit.Assert.assertNull;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions", "unused"})
 @RunWith(JMockit.class)
-public class Ebms3PullRequestHandlerImplTest {
+public class PullRequestHandlerImplTest {
 
     @Injectable
     MessageExchangeService messageExchangeService;

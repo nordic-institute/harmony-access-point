@@ -128,7 +128,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         }
 
         try {
-            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
+            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true).getPmodeKey();
             LOG.debug("PMode key found : [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
