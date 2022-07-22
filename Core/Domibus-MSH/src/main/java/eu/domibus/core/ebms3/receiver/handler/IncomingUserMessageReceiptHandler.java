@@ -95,7 +95,6 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     protected SOAPMessage handleUserMessageReceipt(SOAPMessage request, SignalMessage signalMessage) {
         String messageId = signalMessage.getRefToMessageId();
 
-        // what mshRole? sending probably
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
@@ -114,7 +113,6 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         LegConfiguration legConfiguration = null;
         UserMessage sentUserMessage = null;
         try {
-            // what mshRole? sending probably
             sentUserMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);

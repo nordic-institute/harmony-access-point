@@ -103,8 +103,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.PULL_FAILED;
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
-        // what mshRole?
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING); //is it correct???
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
+        LOG.info("HANDLE PULL REQUEST RECEIPT OF MSG [{}]", userMessage);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
             LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());

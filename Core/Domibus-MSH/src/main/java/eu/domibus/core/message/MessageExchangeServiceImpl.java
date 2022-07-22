@@ -348,7 +348,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
         UserMessageRaw newRawEnvelopeLog = new UserMessageRaw();
         newRawEnvelopeLog.setRawXML(rawXml);
-        // what mshRole?
         UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         newRawEnvelopeLog.setUserMessage(userMessage);
         rawEnvelopeLogDao.create(newRawEnvelopeLog);

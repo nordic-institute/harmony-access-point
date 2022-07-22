@@ -73,7 +73,6 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         }
 
         LOG.debug("Setting [{}] message as failed", messageId);
-        // what mshRole?
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessage == null) {
             LOG.debug("Could not set [{}] message as failed: could not find userMessage", messageId);

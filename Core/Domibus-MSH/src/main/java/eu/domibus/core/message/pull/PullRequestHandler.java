@@ -99,9 +99,7 @@ public class PullRequestHandler {
         SOAPMessage soapMessage = null;
         UserMessage userMessage = null;
         try {
-            // what mshRole?
-//            userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
-            userMessage = userMessageDao.findByMessageId(messageId);
+            userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             LOG.info("FOUND MESSAGE [{}] with msh role [{}]", userMessage, userMessage.getMshRole().getRole());
             leg = pullContext.filterLegOnMpc();
             try {
