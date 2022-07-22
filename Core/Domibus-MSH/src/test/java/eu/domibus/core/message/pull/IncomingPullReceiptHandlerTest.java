@@ -46,7 +46,7 @@ import javax.xml.transform.TransformerFactory;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class IncomingPullEbms3ReceiptHandlerTest {
+public class IncomingPullReceiptHandlerTest {
 
     @Injectable
     BackendNotificationService backendNotificationService;
@@ -166,7 +166,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
@@ -225,7 +225,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
@@ -271,7 +271,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
         messageStatus.setMessageStatus(MessageStatus.WAITING_FOR_RECEIPT);
         userMessageLog.setMessageStatus(messageStatus);
         new Expectations(incomingPullReceiptHandler) {{
-            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
