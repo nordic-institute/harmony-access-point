@@ -173,4 +173,25 @@ public class PartyIdentifierValidatorTest {
             times = 4;
         }};
     }
+
+    @Test
+    public void validateDuplicatePartyNameInAllParties(@Injectable Party party1,
+                                                       @Injectable Party party2) {
+        List<Party> allParties = new ArrayList<>();
+        allParties.add(party1);
+        allParties.add(party2);
+
+        new Expectations() {{
+            party1.getName();
+            result = "blue_gw";
+            party2.getName();
+            result = "BLUE_gw";
+        }};
+
+        partyIdentifierValidator.validateDuplicatePartyNameInAllParties(party1, allParties);
+
+        new FullVerifications() {{
+            pModeValidationHelper.createValidationIssue("Duplicate party name [%s] found in parties", "blue_gw");
+        }};
+    }
 }
