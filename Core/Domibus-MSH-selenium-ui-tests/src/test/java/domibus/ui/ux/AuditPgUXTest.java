@@ -140,29 +140,29 @@ public class AuditPgUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.AUDIT);
 		page.grid().waitForRowsToLoad();
 
-		Reporter.log("checking available filters in expanded state");
+		DGrid grid = page.grid();
 		log.info("checking available filters in expanded state");
 		page.filters().expandArea();
 
-		JSONObject event = rest.audit().filterAuditLog(null, null, null, null).getJSONObject(0);
+		HashMap<String, String> rowInfo = grid.getRowInfo(0);
+		Date date = DateUtils.parseDate(rowInfo.get("Changed").replaceAll("UTC\\+\\d", ""), "dd-MM-yyyy hh:mm:ss");
 
 		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(event.getLong("changed"));
-		Date eventDate = cal.getTime();
+		cal.setTime(date);
+		cal.add(Calendar.HOUR, -1);
+		Date fromDate = cal.getTime();
+		cal.add(Calendar.HOUR, 2);
+		Date toDate = cal.getTime();
 
-		Date fromDate = DateUtils.addHours(eventDate, -1);
-		Date toDate = DateUtils.addHours(eventDate, 1);
 
-		Reporter.log("Filtering ...");
 		log.info("Filtering ...");
 		page.filters().advancedFilter(
-				event.getString("auditTargetName")
+				rowInfo.get("Table")
 				, null
-				, event.getString("action")
+				, rowInfo.get("Action")
 				, fromDate
 				, toDate);
 
-		Reporter.log("waiting for rows to load");
 		log.info("waiting for rows to load");
 		page.grid().waitForRowsToLoad();
 
@@ -171,11 +171,10 @@ public class AuditPgUXTest extends SeleniumTest {
 		ArrayList<HashMap<String, String>> info = page.grid().getListedRowInfo();
 
 		for (HashMap<String, String> map : info) {
-			soft.assertEquals(map.get("Table"), event.getString("auditTargetName"), "Table - value corresponds to filter value");
-//			soft.assertEquals(map.get("User"), event.getString("user"), "User - value corresponds to filter value");
-			soft.assertEquals(map.get("Action"), event.getString("action"), "Action - value corresponds to filter value");
+			soft.assertEquals(map.get("Table"), rowInfo.get("Table"), "Table - value corresponds to filter value");
+			soft.assertEquals(map.get("Action"), rowInfo.get("Action") , "Action - value corresponds to filter value");
 
-			Date gridRowDate = TestRunData.UI_DATE_FORMAT2.parse(map.get("Changed") + ":00");
+			Date gridRowDate = DateUtils.parseDate(map.get("Changed").replaceAll("UTC\\+\\d", ""), "dd-MM-yyyy hh:mm:ss");
 			soft.assertTrue(gridRowDate.after(fromDate), "Row date is after event date");
 			soft.assertTrue(gridRowDate.before(toDate), "Row date is before event date");
 		}

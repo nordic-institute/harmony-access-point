@@ -30,7 +30,6 @@
         <jackson_version>2.13.3</jackson_version>
         <javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -75,7 +74,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
+                                <propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
                             </systemPropertyVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng.xml</suiteXmlFile>

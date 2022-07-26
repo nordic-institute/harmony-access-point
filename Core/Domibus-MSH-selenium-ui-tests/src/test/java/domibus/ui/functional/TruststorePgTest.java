@@ -9,6 +9,8 @@ import org.testng.asserts.SoftAssert;
 import pages.truststore.TruststorePage;
 import utils.DFileUtils;
 
+import static org.testng.Assert.*;
+
 
 public class TruststorePgTest extends SeleniumTest {
 
@@ -31,7 +33,7 @@ public class TruststorePgTest extends SeleniumTest {
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/rnd.xlsx");
 
 
-		page.uploadFile(path, "test123", soft);
+		page.uploadFile(path, "test123");
 		Reporter.log(page.getAlertArea().getAlertMessage());
 		log.info(page.getAlertArea().getAlertMessage());
 		Reporter.log("Validate presence of Error in alert message");
@@ -55,7 +57,7 @@ public class TruststorePgTest extends SeleniumTest {
 		log.info("Try uploading correct truststore file");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
 
-		page.uploadFile(path, "test123", soft);
+		page.uploadFile(path, "test123");
 		Reporter.log(page.getAlertArea().getAlertMessage() + " Message after upload event");
 		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
 
@@ -82,7 +84,7 @@ public class TruststorePgTest extends SeleniumTest {
 		log.info("Try uploading truststore with no password for alias");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/noAliasPass.jks");
 
-		page.uploadFile(path, "test123", soft);
+		page.uploadFile(path, "test123");
 
 		Reporter.log(page.getAlertArea().getAlertMessage() + " Message after upload event");
 		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
@@ -109,7 +111,7 @@ public class TruststorePgTest extends SeleniumTest {
 		log.info("Try uploading truststore with password protected alias");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/PassProAlias.jks");
 
-		page.uploadFile(path, "test123", soft);
+		page.uploadFile(path, "test123");
 
 		Reporter.log(page.getAlertArea().getAlertMessage() + " Message after upload event");
 		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
@@ -135,7 +137,7 @@ public class TruststorePgTest extends SeleniumTest {
 		log.info("try uploading valid file without any password");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
 
-		page.uploadFile(path, "", soft);
+		page.uploadFile(path, "");
 		page.refreshPage();
 		page.waitForPageTitle();
 
@@ -159,7 +161,7 @@ public class TruststorePgTest extends SeleniumTest {
 		log.info("Try uploading expired certificate");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/expired.jks");
 
-		page.uploadFile(path, "test123", soft);
+		page.uploadFile(path, "test123");
 		Reporter.log(page.getAlertArea().getAlertMessage());
 		log.info(page.getAlertArea().getAlertMessage());
 
@@ -183,11 +185,36 @@ public class TruststorePgTest extends SeleniumTest {
 
 		Reporter.log("Try to upload jks file for single tenancy");
 		log.info("Try to upload jks file for single tenancy");
-		page.uploadFile(filePath, "test123", soft);
+		page.uploadFile(filePath, "test123");
 		Reporter.log("Validate success message");
 		log.info("Validate success message");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.TRUSTSTORE_REPLACE_SUCCESS);
 		page.getAlertArea().closeButton.click();
+
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-9665 - TRST-23 - Reload trustore shows success message  */
+	@Test(description = "TRST-18", groups = {"multiTenancy", "singleTenancy"})
+	public void reloadTruststore() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("Login into application and navigate to Truststore page");
+		TruststorePage page = new TruststorePage(driver);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
+
+		log.info("upload new truststore");
+		page.uploadFile(DFileUtils.getAbsolutePath("./src/main/resources/truststore/àøýßĉæãäħ.jks"), "test123");
+
+		log.info("reload default truststore");
+		page.getReloadButton().click();
+		page.grid().waitForRowsToLoad();
+
+		assertTrue(page.getAlertArea().isShown(), "Alert is shown");
+		assertFalse(page.getAlertArea().isError(), "Message is success");
+		assertEquals(page.getAlertArea().getAlertMessage(), DMessages.TRUSTSTORE_RELOAD_SUCCESS);
+
+		assertTrue(page.grid().getRowsNo() == 2, "2 Rows shown in grid");
 
 		soft.assertAll();
 	}

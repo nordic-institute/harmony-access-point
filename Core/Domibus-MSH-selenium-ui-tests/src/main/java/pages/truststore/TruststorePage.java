@@ -9,9 +9,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import org.testng.asserts.SoftAssert;
-
-
 
 
 public class TruststorePage extends DomibusPage {
@@ -26,6 +23,10 @@ public class TruststorePage extends DomibusPage {
 	WebElement passwordInputField;
 	@FindBy(id = "okbuttonupload_id")
 	WebElement okButton;
+
+	@FindBy(id = "reloadStorebutton_id")
+	WebElement reloadButton;
+
 	@FindBy(css = ".error")
 	WebElement passValidationMsg;
 
@@ -53,7 +54,7 @@ public class TruststorePage extends DomibusPage {
 	}
 
 
-	public void uploadFile(String filePath, String password, SoftAssert soft) throws Exception {
+	public void uploadFile(String filePath, String password) throws Exception {
 		getUploadButton().click();
 
 		chooseFileButton.sendKeys(filePath);
@@ -70,5 +71,9 @@ public class TruststorePage extends DomibusPage {
 			log.info("File can't be uploaded without password");
 		}
 
+	}
+
+	public DButton getReloadButton() {
+		return new DButton(driver, reloadButton);
 	}
 }
