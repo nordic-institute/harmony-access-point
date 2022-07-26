@@ -35,18 +35,12 @@
         <addColumn tableName="TB_PM_RECEPTION_AWARENESS">
             <column name="INITIAL_INTERVAL" type="INT" defaultValueNumeric="0"/>
         </addColumn>
-        <modifySql>
-            <append value=" AFTER RETRY_TIMEOUT"/>
-        </modifySql>
     </changeSet>
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-9594_awareness_mult_factor">
         <addColumn tableName="TB_PM_RECEPTION_AWARENESS">
             <column name="MULTIPLYING_FACTOR" type="INT" defaultValueNumeric="0"/>
         </addColumn>
-        <modifySql>
-            <append value=" AFTER INITIAL_INTERVAL"/>
-        </modifySql>
     </changeSet>
 
 </databaseChangeLog>
