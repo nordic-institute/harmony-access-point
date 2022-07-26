@@ -50,14 +50,18 @@ public class MessageRetrieverImpl implements MessageRetriever {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
+    @Override
+    public Submission downloadMessage(String messageId) throws MessageNotFoundException {
+        return downloadMessage(messageId, true);
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
+    public Submission downloadMessage(final String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId);
 
-        return getSubmission(userMessage);
+        return getSubmission(userMessage, markAsDownloaded);
     }
 
     @Override
@@ -66,7 +70,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
-        return getSubmission(userMessage);
+        return getSubmission(userMessage, true);
     }
 
     @Override
@@ -104,18 +108,20 @@ public class MessageRetrieverImpl implements MessageRetriever {
         return errorLogService.getErrors(messageId);
     }
 
-    protected Submission getSubmission(final UserMessage userMessage) {
+    protected Submission getSubmission(final UserMessage userMessage, boolean markAsDownloaded) {
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
 
-        publishDownloadEvent(userMessage.getMessageId());
-
+        if(markAsDownloaded) {
+            publishDownloadEvent(userMessage.getMessageId());
+        }
+        
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
             return messagingService.getSubmission(userMessage);
         }
-
-        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
-
+        if(markAsDownloaded) {
+            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
+        }
         return messagingService.getSubmission(userMessage);
     }
 

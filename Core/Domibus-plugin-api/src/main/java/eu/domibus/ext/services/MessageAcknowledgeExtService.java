@@ -64,11 +64,12 @@ public interface MessageAcknowledgeExtService {
      *
      * @param messageId            The message id for which the acknowledgement is registered
      * @param acknowledgeTimestamp Timestamp of the acknowledged time
+     * @param markAsAcknowledged   if true it persists the message as acknowledged
      * @return The newly created message acknowledgement
      * @throws MessageAcknowledgeExtException Raised in case an exception occurs while trying to register an acknowledgment
-     * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated or the user does not have the permission to access the message
+     * @throws AuthenticationExtException     Raised in case the security is enabled and the user is not authenticated or the user does not have the permission to access the message
      */
-    MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException;
+    MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp, boolean markAsAcknowledged) throws AuthenticationExtException, MessageAcknowledgeExtException;
 
 
     /**

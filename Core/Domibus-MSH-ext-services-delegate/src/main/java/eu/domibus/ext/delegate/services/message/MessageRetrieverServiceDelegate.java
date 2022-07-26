@@ -38,12 +38,16 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         this.userMessageService = userMessageService;
     }
 
-
     @Override
     public Submission downloadMessage(String messageId) throws MessageNotFoundException {
+        return downloadMessage(messageId, true);
+    }
+
+    @Override
+    public Submission downloadMessage(String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         checkMessageAuthorization(messageId);
 
-        return messageRetriever.downloadMessage(messageId);
+        return messageRetriever.downloadMessage(messageId, markAsDownloaded);
     }
 
     @Override

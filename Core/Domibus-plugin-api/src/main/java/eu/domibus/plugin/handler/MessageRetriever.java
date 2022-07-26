@@ -17,13 +17,23 @@ import java.util.List;
 public interface MessageRetriever {
 
     /**
-     * provides the message with the corresponding messageId
+     * provides the message with the corresponding messageId; only download submissions that were not downloaded previously, publish a download event and change the submission status
      *
      * @param messageId the messageId of the message to retrieve
      * @return the message object with the given messageId
      * @throws MessageNotFoundException if the message could not be found
      */
     Submission downloadMessage(String messageId) throws MessageNotFoundException;
+
+    /**
+     * provides the message with the corresponding messageId
+     *
+     * @param messageId        the messageId of the message to retrieve
+     * @param markAsDownloaded if true we only download submissions that were not downloaded previously, publish a download event and change the submission status
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message could not be found
+     */
+    Submission downloadMessage(String messageId, boolean markAsDownloaded) throws MessageNotFoundException;
 
     /**
      * provides the message with the corresponding messageId

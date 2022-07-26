@@ -101,9 +101,14 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
+    public T downloadMessage(String messageId, T target) throws MessageNotFoundException {
+        return downloadMessage(messageId, target, true);
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
-    public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
+    public T downloadMessage(final String messageId, final T target, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
@@ -115,12 +120,12 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
                 LOG.debug("Message with id [{}] was not found", messageId);
                 throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
             }
-            if (MessageStatus.DOWNLOADED == status) {
+            if (markAsDownloaded && MessageStatus.DOWNLOADED == status) {
                 LOG.debug("Message with id [{}] was already downloaded", messageId);
                 throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
             }
 
-            Submission submission = messageRetriever.downloadMessage(messageId);
+            Submission submission = messageRetriever.downloadMessage(messageId, markAsDownloaded);
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);

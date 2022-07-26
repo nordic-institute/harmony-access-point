@@ -450,7 +450,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         fillInfoPartsForLargeFiles(retrieveMessageResponse, messaging);
 
         try {
-            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
+            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()), isMessageIdNotEmpty);
         } catch (AuthenticationExtException | MessageAcknowledgeExtException e) {
             //if an error occurs related to the message acknowledgement do not block the download message operation
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
