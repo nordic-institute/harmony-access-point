@@ -6,79 +6,79 @@ import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.openqa.selenium.WebDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rest.DomibusRestClient;
 import utils.Gen;
+import utils.MyLogger;
 import utils.TestRunData;
 import utils.soap_client.DomibusC1;
 
 import java.util.List;
 
 public class BaseTest {
-	
-//	public static WebDriver driver;
+
+	//	public static WebDriver driver;
 	public WebDriver driver;
 	public static TestRunData data = new TestRunData();
 	public static DomibusRestClient rest = new DomibusRestClient();
 	public static DomibusC1 messageSender = new DomibusC1();
-	
+
 	public ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 
-	protected final Logger log = LoggerFactory.getLogger(this.getClass());
-	
+	//	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+	protected final MyLogger log = new MyLogger();
+
 	public void generateTestData() throws Exception {
-		
+
 		log.info("GENERATING TEST DATA");
-		
+
 		String pass = data.defaultPass();
-		
+
 		List<String> domains = rest.getDomainCodes();
 
-		if(!data.isMultiDomain()){
+		if (!data.isMultiDomain()) {
 			domains.add("default");
 		}
 
 		for (int i = 0; i < domains.size(); i++) {
 			String domain = domains.get(i);
-			
+
 			rearrangeMessageFilters(domain);
-			
+
 			rest.users().createUser(Gen.randomAlphaNumeric(10), DRoles.ADMIN, pass, domain);
 			rest.users().createUser(Gen.randomAlphaNumeric(10), DRoles.USER, pass, domain);
-			
+
 			rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", domain);
-			
+
 			String pluser = Gen.randomAlphaNumeric(10);
 			rest.pluginUsers().createPluginUser(pluser, DRoles.ADMIN, pass, domain);
-			
+
 			int noOfMess = rest.messages().getListOfMessages(domain).length();
 			if (noOfMess < 15) {
 				for (int j = noOfMess; j < 15; j++) {
 					messageSender.sendMessage(pluser, pass, Gen.randomAlphaNumeric(20), Gen.randomAlphaNumeric(20));
 				}
 			}
-			
+
 			rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", domain);
 			for (int j = noOfMess; j < 5; j++) {
 				messageSender.sendMessage(pluser, pass, Gen.randomAlphaNumeric(20), Gen.randomAlphaNumeric(20));
 			}
-			
+
 		}
-		
+
 		waitForErrors();
 		generateAlerts();
 
 		log.info("DONE GENERATING TEST DATA");
 	}
-	
+
 	private void rearrangeMessageFilters(String domain) throws Exception {
 		JSONArray msf = rest.messFilters().getMessageFilters(domain);
 		JSONArray msfTS = new JSONArray();
-		
+
 		for (int i = 0; i < msf.length(); i++) {
-			if(StringUtils.equalsIgnoreCase(msf.getJSONObject(i).getString("backendName"), "Jms")){
+			if (StringUtils.equalsIgnoreCase(msf.getJSONObject(i).getString("backendName"), "Jms")) {
 				msfTS.put(msf.get(i));
 				msf.remove(i);
 				break;
@@ -90,7 +90,7 @@ public class BaseTest {
 
 		rest.messFilters().updateFilterList(msfTS, domain);
 	}
-	
+
 	private void waitForErrors() {
 		int noOfErrors = 0;
 		int retries = 0;
@@ -101,7 +101,7 @@ public class BaseTest {
 				retries++;
 				Thread.sleep(1000);
 			} catch (Exception e) {
-				log.error("EXCEPTION: ", e);
+				log.error("EXCEPTION: ", e.getMessage());
 			}
 		}
 	}
@@ -109,7 +109,7 @@ public class BaseTest {
 	private void generateAlerts() {
 		try {
 
-			for (String domain: rest.getDomainCodes()) {
+			for (String domain : rest.getDomainCodes()) {
 				for (String userRoleValue : DRoles.userRoleValues()) {
 					for (int i = 0; i < 5; i++) {
 						String name = rest.getUsername(domain, userRoleValue, true, false, true);

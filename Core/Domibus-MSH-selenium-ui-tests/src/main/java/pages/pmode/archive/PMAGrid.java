@@ -10,10 +10,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import java.util.HashMap;
 
-/**
- * @author Catalin Comanici
- * @since 4.1.2
- */
 public class PMAGrid extends DGrid {
 	public PMAGrid(WebDriver driver, WebElement container) {
 		super(driver, container);

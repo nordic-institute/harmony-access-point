@@ -1,133 +1,57 @@
 package utils.soap_client;
 
 
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import eu.domibus.plugin.webService.generated.BackendInterface;
-import eu.domibus.plugin.webService.generated.BackendService11;
-import eu.domibus.plugin.webService.generated.SubmitRequest;
-import eu.domibus.plugin.webService.generated.SubmitResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import utils.Gen;
 import utils.TestRunData;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.Handler;
-import javax.xml.ws.soap.SOAPBinding;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.logging.Logger;
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.substringBetween;
 
 
 public class DomibusC1 {
-	private static final Log LOG = LogFactory.getLog(DomibusC1.class);
-	
-	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/main/resources/eu/domibus/example/ws/submitMessage_submitRequest.xml";
-	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/main/resources/eu/domibus/example/ws/submitMessage_messaging.xml";
-	
-	private static final String DEFAULT_WEBSERVICE_LOCATION = new TestRunData().getUiBaseUrl() + "services/backend?wsdl";
-	
-	private static JAXBContext jaxbMessagingContext;
-	private static JAXBContext jaxbWebserviceContext;
-	
-	
-	private String wsdl;
-	
-	
-	public DomibusC1() {
-		this(DEFAULT_WEBSERVICE_LOCATION);
-		
-		try {
-			jaxbMessagingContext = JAXBContext.newInstance("eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704");
-			jaxbWebserviceContext = JAXBContext.newInstance("eu.domibus.plugin.webService.generated");
-		} catch (JAXBException e) {
-			throw new RuntimeException("Initialization of Helper class failed.");
-		}
-		
-		
-	}
-	
-	public DomibusC1(String webserviceLocation) {
-		this.wsdl = webserviceLocation;
-	}
-	
-	private static <E> E parseSendRequestXML(final String uriSendRequestXML, Class<E> requestType) throws Exception {
-		return (E) jaxbWebserviceContext.createUnmarshaller().unmarshal(new File(uriSendRequestXML));
-	}
-	
-	private static Messaging parseMessagingXML(String uriMessagingXML) throws Exception {
-		return ((JAXBElement<Messaging>) jaxbMessagingContext.createUnmarshaller().unmarshal(new File(uriMessagingXML))).getValue();
-	}
-	
-	public BackendInterface getPort(String username, String password) throws MalformedURLException {
-		if (wsdl == null || wsdl.isEmpty()) {
-			throw new IllegalArgumentException("No webservice location specified");
-		}
-		
-		BackendService11 backendService = new BackendService11(new URL(wsdl), new QName("http://org.ecodex.backend/1_1/", "BackendService_1_1"));
-		BackendInterface backendPort = backendService.getBACKENDPORT();
-		
-		//enable chunking
-		BindingProvider bindingProvider = (BindingProvider) backendPort;
-		if (username != null && !username.isEmpty()) {
-			
-			bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, username);
-		}
-		if (password != null && !password.isEmpty()) {
-			bindingProvider.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, password);
-		}
-		
-		Map<String, Object> ctxt = bindingProvider.getRequestContext();
-		ctxt.put("com.sun.xml.internal.ws.transport.http.client.streaming.chunk.size", 8192);
-		
-		SOAPBinding binding = (SOAPBinding) bindingProvider.getBinding();
-		binding.setMTOMEnabled(true);
-		
-		
-		//comment the following lines if sending large files
-		List<Handler> handlers = bindingProvider.getBinding().getHandlerChain();
-		
-		bindingProvider.getBinding().setHandlerChain(handlers);
-		
-		return backendPort;
-	}
-	
+
+	Logger log = Logger.getAnonymousLogger();
+	private final String DEFAULT_WEBSERVICE_LOCATION = new TestRunData().getUiBaseUrl() + "services/backend";
+
 	public String sendMessage(String pluginU, String password, String messageRefID, String conversationID) throws Exception {
-		BackendInterface backendInterface = getPort(pluginU, password);
-		
-		
-		SubmitRequest submitRequest = parseSendRequestXML(TEST_SUBMIT_MESSAGE_SUBMITREQUEST, SubmitRequest.class);
-		Messaging messaging = parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
-		
-		if (null != messageRefID) {
-			MessageInfo info = new MessageInfo();
-			info.setRefToMessageId(messageRefID);
-			messaging.getUserMessage().setMessageInfo(info);
+
+		log.info(String.format("Sending message using plugin user %s and pass %s", pluginU, password));
+		String messTemplate = new String(Files.readAllBytes(Paths.get("src/main/resources/messages/messageTemplate.xml")));
+		if (isEmpty(messageRefID)) {
+			messageRefID = "";
 		}
-		
-		if (null != conversationID) {
-			messaging.getUserMessage().getCollaborationInfo().setConversationId(conversationID);
+		if (isEmpty(conversationID)) {
+			conversationID = "";
 		}
-		
-		SubmitResponse result = backendInterface.submitMessage(submitRequest, messaging);
-		
-		if (null != result.getMessageID()) {
-			return result.getMessageID().get(0);
+
+		String messBody = messTemplate.replace("${mess_id}", Gen.randomAlphaNumeric(10) + "@selenium")
+				.replace("${ref_id}", messageRefID)
+				.replace("${convo_id}", conversationID);
+
+		HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(pluginU, password);
+
+		Client client = Client.create();
+		client.addFilter(authFilter);
+
+		ClientResponse response = client.resource(DEFAULT_WEBSERVICE_LOCATION)
+				.header("Content-Type", "text/xml; charset=utf-8")
+				.post(ClientResponse.class, messBody);
+
+		if (response.getStatus() == 200) {
+			return substringBetween(response.getEntity(String.class), "<messageID>", "</messageID>").trim();
+		} else {
+			log.severe("Sending message to WS plugin resulted in error code " + response.getStatus());
+			log.severe("Sending message to WS plugin resulted in error " + response.getEntity(String.class));
 		}
-		LOG.debug(result);
-		throw new Exception("Could not send message");
+		throw new Exception("Could not send message to WS plugin");
 	}
-	
-	
+
+
 }

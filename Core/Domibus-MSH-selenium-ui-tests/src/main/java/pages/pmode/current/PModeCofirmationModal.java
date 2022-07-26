@@ -8,23 +8,19 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class PModeCofirmationModal extends EditModal {
-	
+
 	@FindBy(id = "description_id")
 	WebElement descriptionTextArea;
-	
-	@FindBy(id="pmode")
+
+	@FindBy(id = "pmode")
 	WebElement chooseFilePmode;
-	
-	@FindBy(id="editbuttonok_id")
+
+	@FindBy(id = "editbuttonok_id")
 	WebElement okButton;
-	
-	
-	
+
+
 	public PModeCofirmationModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -33,13 +29,13 @@ public class PModeCofirmationModal extends EditModal {
 	public DInput getDescriptionTextArea() {
 		return new DInput(driver, descriptionTextArea);
 	}
-	
-	
-	public void uploadPmodeFile(String path, String descriptionTxt) throws Exception{
-		
+
+
+	public void uploadPmodeFile(String path, String descriptionTxt) throws Exception {
+
 		chooseFilePmode.sendKeys(path);
 		getDescriptionTextArea().fill(descriptionTxt);
 		weToDButton(okButton).click();
-		
+
 	}
 }

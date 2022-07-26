@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
@@ -11,6 +10,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -540,61 +540,6 @@ public class AlertPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	//This method will verfiy data after clicking show domain alerts checkbox for default domain
-	/* EDELIVERY-5302 - ALRT-20 - Verify headers in downloaded CSV file */
-	@Test(description = "ALRT-2", groups = {"multiTenancy"})
-	public void showDomainAlertChecked() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		AlertPage page = new AlertPage(driver);
-		AlertFilters aFilter = new AlertFilters(driver);
-
-		Reporter.log("Login into application and navigate to Alerts page");
-		log.info("Login into application and navigate to Alerts page");
-		page.getSidebar().goToPage(PAGES.ALERTS);
-
-		Reporter.log("wait for grid row to load");
-		log.info("wait for grid row to load");
-		page.grid().waitForRowsToLoad();
-
-		ArrayList<HashMap<String, String>> superAlerts = page.grid().getListedRowInfo();
-
-		Reporter.log("Click on show domain alert checkbox");
-		log.info("Click on show domain alert checkbox");
-		aFilter.getShowDomainCheckbox().click();
-
-		Reporter.log("Click on search button");
-		log.info("Click on search button");
-		aFilter.getSearchButton().click();
-		page.grid().waitForRowsToLoad();
-
-		ArrayList<HashMap<String, String>> domainAlerts = page.grid().getListedRowInfo();
-
-		String domain = page.getDomainFromTitle();
-
-		Reporter.log("checking alerts");
-		log.info("checking alerts");
-		for (HashMap<String, String> superrow : superAlerts) {
-			soft.assertTrue(isSuperAlert(superrow, domain), superrow + "is about a super user");
-		}
-		for (HashMap<String, String> domainrow : domainAlerts) {
-			soft.assertFalse(isSuperAlert(domainrow, domain), domainrow + "should NOT be about a super user");
-		}
-
-		soft.assertAll();
-	}
-
-	private boolean isSuperAlert(HashMap<String, String> superrow, String domain) throws Exception {
-		JSONArray userList = rest.users().getUsers(domain);
-		String listedUser = superrow.get("Parameters").split(",")[0].trim();
-
-		for (int i = 0; i < userList.length(); i++) {
-			JSONObject user = userList.getJSONObject(i);
-			if (StringUtils.equalsIgnoreCase(listedUser, user.getString("userName"))) {
-				return StringUtils.equalsIgnoreCase(user.getString("roles"), "ROLE_AP_ADMIN");
-			}
-		}
-		return false;
-	}
 
 	/* EDELIVERY-5285 - ALRT-3 - Super admin changes domain and ticks Show Domain alerts */
 	@Test(description = "ALRT-3", groups = {"multiTenancy"})
@@ -1108,5 +1053,30 @@ public class AlertPgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
+
+
+	/*     EDELIVERY-8215 - ALRT-53 - Search Alert for "Plugin" category */
+	@Test(description = "ALRT-53", groups = {"multiTenancy", "singleTenancy"})
+	public void filterForPluginAlertType() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+
+		log.info("Navigating to Alerts page");
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+
+		log.info("waiting for grid to load");
+		page.grid().waitForRowsToLoad();
+
+		log.info("Select alert type PLUGIN");
+		page.filters().getAlertTypeSelect().selectOptionByText("PLUGIN");
+		page.filters().getSearchButton().click();
+
+		soft.assertFalse(page.getAlertArea().isShown(), "No alert message is shown");
+		soft.assertTrue(page.grid().isPresent(), "No alert message is shown");
+
+		soft.assertAll();
+	}
+
 
 }

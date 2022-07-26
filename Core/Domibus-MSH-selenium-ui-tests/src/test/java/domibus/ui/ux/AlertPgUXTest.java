@@ -1,18 +1,14 @@
 package domibus.ui.ux;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
 import utils.Gen;
 import utils.TestUtils;
@@ -154,9 +150,8 @@ public class AlertPgUXTest extends SeleniumTest {
 		}
 	}
 
-	// EDELIVERY-7148 - ALRT-33 - Super admin marks domain alert as processed
-	/*  ALRT-33 - Super admin marks domain alert as processed  */
-	@Test(description = "ALRT-33", groups = {"multiTenancy", "singleTenancy"})
+	// EDELIVERY-7148 - ALRT-43 - Super admin marks domain alert as processed
+	@Test(description = "ALRT-43", groups = {"multiTenancy", "singleTenancy"})
 	public void markDomainAlrtProcessed() throws Exception {
 
 		SoftAssert soft = new SoftAssert();

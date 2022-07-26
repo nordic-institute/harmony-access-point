@@ -12,10 +12,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1.1
- */
 public class ErrorModal extends InfoModal {
 	@FindBy(css = "mat-dialog-container [placeholder=\"Signal Message Id\"]")
 	WebElement signalMessIdInput;

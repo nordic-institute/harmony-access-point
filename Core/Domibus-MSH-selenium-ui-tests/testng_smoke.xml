@@ -217,15 +217,15 @@
                     <include name="updateAndRevert"/>
                 </methods>
             </class>
-<!--            <class name="domibus.ui.functional.TlsTrustStorePgTest">-->
-<!--                <methods>-->
-<!--                    <include name="uploadCertificate"/>-->
-<!--                    <include name="uploadCert"/>-->
-<!--                    <include name="removeCert"/>-->
-<!--                    <include name="removeAllCert"/>-->
-<!--                    <include name="uploadCertfterRemove"/>-->
-<!--                </methods>-->
-<!--            </class>-->
+            <!--            <class name="domibus.ui.functional.TlsTrustStorePgTest">-->
+            <!--                <methods>-->
+            <!--                    <include name="uploadCertificate"/>-->
+            <!--                    <include name="uploadCert"/>-->
+            <!--                    <include name="removeCert"/>-->
+            <!--                    <include name="removeAllCert"/>-->
+            <!--                    <include name="uploadCertfterRemove"/>-->
+            <!--                </methods>-->
+            <!--            </class>-->
             <class name="domibus.ui.functional.TruststorePgTest">
                 <methods>
                     <include name="uploadValidFile"/>

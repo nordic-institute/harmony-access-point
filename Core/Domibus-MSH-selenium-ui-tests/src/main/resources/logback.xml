@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
-    <property name="USER_HOME" value="target/logs" />
+    <property name="USER_HOME" value="target/logs"/>
     <!-- pattern definition -->
     <property name="encoderPattern" value="%d{ISO8601} [%thread] %5p %ex{full} %M %c{1}:%L - %m%n" scope="global"/>
 
@@ -74,5 +74,5 @@
         <appender-ref ref="FILE-THREAD"/>
         <appender-ref ref="stdout"/>
     </root>
-	
+
 </configuration>

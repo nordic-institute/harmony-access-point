@@ -9,10 +9,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class PluginUsersPage extends DomibusPage {
@@ -71,7 +67,7 @@ public class PluginUsersPage extends DomibusPage {
 		popup.fillData(user, role, password, confirmation);
 		popup.clickOK();
 	}
-	
+
 	/**
 	 * This method will create new plugin user with Authentication type as Certificate
 	 *

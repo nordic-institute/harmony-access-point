@@ -8,7 +8,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class PropGrid extends DGrid {
 
@@ -32,7 +31,7 @@ public class PropGrid extends DGrid {
 
 		HashMap<String, String> info = super.getRowInfo(rowNumber);
 
-		if(info.containsKey(valKey)){
+		if (info.containsKey(valKey)) {
 			WebElement valueElement = getRowElement(rowNumber).findElement(rowInput);
 			String value = weToDInput(valueElement).getText();
 			info.put("Property Value", value);
@@ -45,12 +44,12 @@ public class PropGrid extends DGrid {
 	public void setPropertyValue(String propName, String propValue) throws Exception {
 		log.info("setting property " + propName + " to value " + propValue);
 		int index = scrollTo("Property Name", propName);
-		if (index<0){
+		if (index < 0) {
 			throw new Exception("Could not find property");
 		}
 
 		String currentValue = getPropRowValue(index);
-		if(StringUtils.equalsIgnoreCase(currentValue, propValue)){
+		if (StringUtils.equalsIgnoreCase(currentValue, propValue)) {
 			return;
 		}
 
@@ -75,7 +74,7 @@ public class PropGrid extends DGrid {
 	}
 
 	public String getPropRowValue(int rowNumber) throws Exception {
-		if (!getColumnNames().contains(valKey)){
+		if (!getColumnNames().contains(valKey)) {
 			throw new Exception(valKey + " column is not visible");
 		}
 
@@ -89,6 +88,7 @@ public class PropGrid extends DGrid {
 		WebElement inputElement = getRowElement(rowNumber).findElement(rowInput);
 		weToDInput(inputElement).fill(value);
 	}
+
 	public void setPropRowValueAndSave(int rowNumber, String value) throws Exception {
 		if (!getColumnNames().contains(valKey)) return;
 
@@ -118,7 +118,7 @@ public class PropGrid extends DGrid {
 	public String getPropertyValue(String propName) throws Exception {
 		log.info("getting value for property " + propName);
 		int index = scrollTo("Property Name", propName);
-		if (index<0){
+		if (index < 0) {
 			throw new Exception("Could not find property");
 		}
 		return getPropRowValue(index);

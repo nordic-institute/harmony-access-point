@@ -14,25 +14,23 @@ import org.testng.asserts.SoftAssert;
 public class AlertPage extends DomibusPage {
 	@FindBy(id = "pageGridId")
 	public WebElement gridContainer;
-	
+
 	@FindBy(id = "alertsHeader_id")
 	public WebElement alertsPageHeader;
-	
+
 	@FindBy(id = "cancelButtonId")
 	public WebElement cancelButton;
-	
+
 	@FindBy(id = "saveButtonId")
 	public WebElement saveButton;
-	
+
 	@FindBy(id = "deleteButtonId")
 	public WebElement deleteButton;
 
 	@FindBy(id = "showDomainAlerts_id")
 	public WebElement showDomainChkLct;
 
-	
-	
-	
+
 	public AlertPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -49,15 +47,15 @@ public class AlertPage extends DomibusPage {
 	public AlertFilters filters() {
 		return new AlertFilters(driver);
 	}
-	
+
 	public DButton getCancelButton() {
 		return weToDButton(cancelButton);
 	}
-	
+
 	public DButton getSaveButton() {
 		return weToDButton(saveButton);
 	}
-	
+
 	public DButton getDeleteButton() {
 		return weToDButton(deleteButton);
 	}
@@ -65,7 +63,7 @@ public class AlertPage extends DomibusPage {
 	public void deleteAlertAndVerify(int rowNumber, Boolean isProcessed, SoftAssert soft) throws Exception {
 		String alertId = grid().getRowSpecificColumnVal(rowNumber, "Alert Id");
 
-		if(isProcessed){
+		if (isProcessed) {
 			filters().getProcessedSelect().selectOptionByText("PROCESSED");
 			log.info("Click on search button");
 			filters().getSearchButton().click();
@@ -82,15 +80,15 @@ public class AlertPage extends DomibusPage {
 
 
 	}
+
 	public void processAlertAndVerify(SoftAssert soft, Boolean isProcessed) throws Exception {
 		alertsGrid().markAsProcessed(1);
-		soft.assertTrue(getSaveButton().isEnabled(),"Save button is enabled");
-		soft.assertTrue(getCancelButton().isEnabled(),"Cancel button is enabled");
+		soft.assertTrue(getSaveButton().isEnabled(), "Save button is enabled");
+		soft.assertTrue(getCancelButton().isEnabled(), "Cancel button is enabled");
 		getSaveButton().click();
-		if(isProcessed) {
+		if (isProcessed) {
 			new Dialog(driver).confirm();
-		}
-		else{
+		} else {
 			new Dialog(driver).cancel();
 		}
 	}

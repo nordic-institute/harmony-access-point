@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.Pagination;
 import ddsl.enums.DMessages;
@@ -10,6 +9,7 @@ import domibus.ui.SeleniumTest;
 import domibus.ui.pojos.UIMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -252,7 +252,7 @@ public class MessagesPgTest extends SeleniumTest {
 			String status = info.get(i).get("Message Status");
 			List<String> actions = grid.getAvailableActionsForRow(i);
 
-			if (role.equalsIgnoreCase("SENDING") && status.equalsIgnoreCase("SEND_FAILURE") ) {
+			if (role.equalsIgnoreCase("SENDING") && status.equalsIgnoreCase("SEND_FAILURE")) {
 				soft.assertTrue(actions.contains("Resend"), "Message can be resent");
 				soft.assertTrue(actions.contains("Download"), "Message can be Downloaded");
 				toCheckIndex = i;

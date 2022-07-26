@@ -10,8 +10,8 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 public class LoginTests extends RestTest {
-	
-	
+
+
 	@Test(description = "LGN-z", dataProvider = "readInvalidStrings")
 	public void loginNegativeTest(String evilStr) {
 		log.debug("param=" + evilStr);
@@ -20,11 +20,11 @@ public class LoginTests extends RestTest {
 		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
-	
+
 	@DataProvider
 	public Object[][] userProvider() {
 		Object[][] toret = null;
-		
+
 		if (data.isMultiDomain()) {
 			toret = new Object[][]{{DRoles.USER}, {DRoles.ADMIN}, {DRoles.SUPER}};
 		} else {
@@ -32,31 +32,31 @@ public class LoginTests extends RestTest {
 		}
 		return toret;
 	}
-	
+
 	@Test(description = "LGN-1", dataProvider = "userProvider")
 	public void loginValidUser(String role) throws Exception {
-		
+
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, role, true, false, true).getString("userName");
-		
+
 		ClientResponse response = rest.callLogin(username, data.defaultPass());
-		
+
 		soft.assertEquals(response.getStatus(), 200, "Success status returned");
-		
+
 		String entityStr = getSanitizedStringResponse(response);
 		log.debug(entityStr);
 		AuthResp entityObj = mapper.readValue(entityStr, AuthResp.class);
-		
+
 		soft.assertEquals(entityObj.getUsername(), username, "Returned username is correct");
 		soft.assertEquals(entityObj.getAuthorities().size(), 1, "Only one role listed");
 		soft.assertEquals(entityObj.getAuthorities().get(0), role, "User role listed");
-		
+
 		soft.assertEquals(entityObj.getDefaultPasswordUsed(), Boolean.FALSE, "Not using default pass");
 		soft.assertEquals(entityObj.getExternalAuthProvider(), Boolean.FALSE, "Using normal auth");
-		
+
 		soft.assertAll();
 	}
-	
+
 	@Test(description = "LGN-x", dataProvider = "userProvider")
 	public void loginDeletedUser(String role) throws Exception {
 
@@ -163,5 +163,5 @@ public class LoginTests extends RestTest {
 		soft.assertAll();
 	}
 
-	
+
 }

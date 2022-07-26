@@ -12,10 +12,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class TruststoreModal extends InfoModal {
 	@FindBy(css = "input[placeholder=Name]")
 	WebElement nameInput;
@@ -27,6 +24,7 @@ public class TruststoreModal extends InfoModal {
 	WebElement validFromInput;
 	@FindBy(css = "input[placeholder=\"Valid until\"]")
 	WebElement validToInput;
+
 	public TruststoreModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);

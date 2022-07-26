@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
@@ -8,6 +7,7 @@ import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
