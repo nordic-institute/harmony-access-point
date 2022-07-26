@@ -414,5 +414,19 @@ public class UserManagementServiceImplTest {
 
         Assert.assertEquals(3, filters.size());
     }
-}
 
+    @Test
+    public void createDefaultUserIfApplicable_EuLogin() {
+        // WHEN
+        new Expectations() {{
+            domibusConfigurationService.isExtAuthProviderEnabled();
+            result = true;
+        }};
+
+        //GIVEN
+        userManagementService.createDefaultUserIfApplicable();
+
+        // THEN
+        new FullVerifications() {};
+    }
+}
