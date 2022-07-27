@@ -44,28 +44,35 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
     @Cacheable(value = DomibusCacheService.DOMAIN_VALIDITY_CACHE, sync = true)
     public synchronized boolean isDatabaseSchemaForDomainValid(Domain domain) {
+
+        //in single tenancy the schema validity check is not needed
+        if(domibusConfigurationService.isSingleTenantAware()) {
+            LOG.warn("Domain's database schema validity check is not needed in single tenancy");
+            return true;
+        }
+
         if (domain == null) {
             LOG.warn("Domain to be checked is null");
             return false;
         }
 
+        String databaseSchema = "";
         try {
             //set corresponding db schema
             entityManager.getTransaction().begin();
-            String databaseSchema = domainService.getDatabaseSchema(domain);
+            databaseSchema = domainService.getDatabaseSchema(domain);
             String schemaChangeSQL = getSchemaChangeSQL(databaseSchema);
             Query q = entityManager.createNativeQuery(schemaChangeSQL);
             //check if the domain's database schema can be accessed
             q.executeUpdate();
 
-            //revert changing of the current schema
-            entityManager.getTransaction().rollback();
-
             return true;
         } catch (PersistenceException e) {
-            LOG.warn("Could not set database schema for domain [{}]", domain.getCode());
-            entityManager.getTransaction().rollback();
+            LOG.warn("Could not set database schema [{}] for domain [{}]", databaseSchema, domain.getCode());
             return false;
+        } finally {
+            //revert changing of the current schema
+            entityManager.getTransaction().rollback();
         }
     }
 
