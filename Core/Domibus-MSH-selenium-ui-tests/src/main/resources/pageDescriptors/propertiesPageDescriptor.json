@@ -5,37 +5,37 @@
       "name": "nameInputLct",
       "placeholder": "Property Name...",
       "isDefault": true,
-	  "type": "INPUT"
+      "type": "INPUT"
     },
     {
       "name": "writableChkLct",
       "placeholder": "",
       "isDefault": true,
-	  "type": "CHECKBOX"
+      "type": "CHECKBOX"
     },
     {
       "name": "domainChkLct",
       "placeholder": "",
       "isDefault": true,
-	  "type": "CHECKBOX"
+      "type": "CHECKBOX"
     },
     {
       "name": "typeInputLct",
       "placeholder": "Property Type...",
       "isDefault": false,
-	  "type": "INPUT"
+      "type": "INPUT"
     },
     {
       "name": "moduleInputLct",
       "placeholder": "Property Module...",
       "isDefault": false,
-	  "type": "INPUT"
+      "type": "INPUT"
     },
     {
       "name": "valueInputLct",
       "placeholder": "Property Value...",
       "isDefault": false,
-	  "type": "INPUT"
+      "type": "INPUT"
     }
   ],
   "grid": {

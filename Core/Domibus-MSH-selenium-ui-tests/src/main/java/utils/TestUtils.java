@@ -25,16 +25,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class TestUtils {
 
 	protected static final Logger log = LoggerFactory.getLogger(TestUtils.class);
-	
+
 	/* Checks if List provided is sorted*/
 	public static boolean isStringListSorted(List<String> strings, Order order) {
 		Comparator c = (a, b) -> StringUtils.compareIgnoreCase((String) a, (String) b);
@@ -44,7 +40,7 @@ public class TestUtils {
 		List<String> sorted = (List<String>) strings.stream().sorted(c).collect(Collectors.toList());
 		return ListUtils.isEqualList(strings, sorted);
 	}
-	
+
 	/* Checks if List provided is sorted asc*/
 	public static boolean isIntegerListSorted(List<Integer> integers, Order order) {
 		List<Integer> sorted = new ArrayList<>();
@@ -56,7 +52,7 @@ public class TestUtils {
 		}
 		return ListUtils.isEqualList(integers, sorted);
 	}
-	
+
 	/* Checks if List provided is sorted desc*/
 	public static boolean isDateListSorted(List<Date> dates, Order order) {
 		List<Date> sortedDates = new ArrayList<>();
@@ -68,10 +64,9 @@ public class TestUtils {
 		}
 		return ListUtils.isEqualList(dates, sortedDates);
 	}
-	
+
 	public static <T extends DGrid> void testSortingForColumn(SoftAssert soft, T grid, JSONObject colDesc) throws Exception {
 		log.info("test sorting for " + colDesc.getString("name"));
-
 
 
 		String columnName = colDesc.getString("name");
@@ -93,7 +88,7 @@ public class TestUtils {
 			checkSortOrder(soft, columnName, colDesc.getString("type"), order, grid.getListedValuesOnColumn(columnName));
 		}
 	}
-	
+
 	public static void checkSortOrder(SoftAssert soft, String columnName, String type, Order order, List<String> values) throws Exception {
 		log.debug("Checking sort for " + columnName);
 		if (StringUtils.equalsIgnoreCase(type, "text")) {
@@ -106,10 +101,10 @@ public class TestUtils {
 			throw new Exception("Unknown data type, cannot check sort for " + columnName);
 		}
 	}
-	
+
 	private static List<Integer> listStringToInt(List<String> list) {
 		List<Integer> toReturn = new ArrayList<>();
-		
+
 		for (int i = 0; i < list.size(); i++) {
 			if (StringUtils.isNotEmpty(list.get(i).trim())) {
 				toReturn.add(Integer.valueOf(list.get(i).trim()));
@@ -117,10 +112,10 @@ public class TestUtils {
 		}
 		return toReturn;
 	}
-	
+
 	private static List<Date> listStringToDate(List<String> list) throws ParseException {
 		List<Date> toReturn = new ArrayList<>();
-		
+
 		for (int i = 0; i < list.size(); i++) {
 			if (StringUtils.isNotEmpty(list.get(i))) {
 				toReturn.add(TestRunData.UI_DATE_FORMAT.parse(list.get(i)));
@@ -128,7 +123,7 @@ public class TestUtils {
 		}
 		return toReturn;
 	}
-	
+
 	public static boolean areMapsEqual(HashMap<String, String> map1, HashMap<String, String> map2) {
 		if (!ListUtils.isEqualList(map1.keySet(), map2.keySet())) {
 			return false;
@@ -136,22 +131,22 @@ public class TestUtils {
 		if (!ListUtils.isEqualList(map1.values(), map2.values())) {
 			return false;
 		}
-		
+
 		for (String key : map1.keySet()) {
 			if (!StringUtils.equalsIgnoreCase(map1.get(key), map2.get(key))) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	public static JSONObject getPageDescriptorObject(PAGES page) {
 		String suffix = "PageDescriptor.json";
 		String prefix = "pageDescriptors/";
 		String pageName = page.toString().replaceAll("_", "").toLowerCase();
 		String fileName = prefix + pageName + suffix;
-		
+
 		JSONObject jsonObject;
 		try {
 			InputStream fin = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
@@ -162,7 +157,7 @@ public class TestUtils {
 		}
 		return jsonObject;
 	}
-	
+
 	public static String getNonDefaultColumn(JSONArray columns) throws JSONException {
 		for (int i = 0; i < columns.length(); i++) {
 			JSONObject col = columns.getJSONObject(i);
@@ -172,7 +167,7 @@ public class TestUtils {
 		}
 		return StringUtils.EMPTY;
 	}
-	
+
 	public static boolean isEqualListContent(List<String> l1, List<String> l2) {
 		Collections.sort(l1);
 		Collections.sort(l2);
@@ -183,73 +178,77 @@ public class TestUtils {
 		l1 = ListUtils.emptyIfNull(l1);
 		l2 = ListUtils.emptyIfNull(l2);
 
-		if(l1.size() != l2.size()){return false;}
+		if (l1.size() != l2.size()) {
+			return false;
+		}
 
 		for (HashMap<String, String> l1map : l1) {
 			boolean found = false;
 
 			for (HashMap<String, String> l2map : l2) {
-				if(areHashMapsEqual(l1map, l2map)){
+				if (areHashMapsEqual(l1map, l2map)) {
 					found = true;
 					break;
 				}
 			}
-			if(!found){return false;}
+			if (!found) {
+				return false;
+			}
 		}
 
 		return true;
 	}
 
-	public static boolean areHashMapsEqual(HashMap<String, String> map1, HashMap<String, String>  map2){
+	public static boolean areHashMapsEqual(HashMap<String, String> map1, HashMap<String, String> map2) {
 
-		if ((null == map1 && null != map2) || (null == map2 && null != map1)){
+		if ((null == map1 && null != map2) || (null == map2 && null != map1)) {
 			return false;
 		}
 
-		if (null == map1 && null == map2){
+		if (null == map1 && null == map2) {
 			return true;
 		}
 
-		if (map1.keySet().size() != map2.keySet().size()){
+		if (map1.keySet().size() != map2.keySet().size()) {
 			return false;
 		}
 
 		for (String k : map1.keySet()) {
-			if (!map2.containsKey(k)){
+			if (!map2.containsKey(k)) {
 				return false;
 			}
 
-			if(!StringUtils.equalsIgnoreCase(map1.get(k), map2.get(k))){
+			if (!StringUtils.equalsIgnoreCase(map1.get(k), map2.get(k))) {
 				return false;
 			}
 		}
 
 		return true;
 	}
-	
+
 	public static HashMap<String, String> unzip(String zipFilePath) throws Exception {
-		
+
 		String destDir = zipFilePath.replaceAll(".zip", "");
-		
+
 		HashMap<String, String> zipContent = new HashMap<>();
-		
+
 		File dir = new File(destDir);
 		// create output directory if it doesn't exist
 		if (!dir.exists()) dir.mkdirs();
-		
-		
+
+
 		FileInputStream fis;
 		//buffer for read and write data to file
 		byte[] buffer = new byte[1024];
-		
+
 		fis = new FileInputStream(zipFilePath);
 		ZipInputStream zis = new ZipInputStream(fis);
 		ZipEntry ze = zis.getNextEntry();
 		while (ze != null) {
-			
+
 			String fileName = ze.getName();
 			File newFile = new File(destDir + File.separator + fileName);
-			
+
 			log.info("Unzipping to " + newFile.getAbsolutePath());
 			//create directories for sub directories in zip
 			new File(newFile.getParent()).mkdirs();
@@ -261,21 +260,21 @@ public class TestUtils {
 			fos.close();
 			//close this ZipEntry
 			zis.closeEntry();
-			
+
 			String fileContent = new String(Files.readAllBytes(Paths.get(newFile.getAbsolutePath())));
 			zipContent.put(fileName, fileContent);
-			
+
 			ze = zis.getNextEntry();
 		}
-		
+
 		//close last ZipEntry
 		zis.closeEntry();
 		zis.close();
 		fis.close();
-		
+
 		return zipContent;
 	}
-	
+
 //	public static String getValueFromXMLString(String xmlString, String key) {
 //		String start = key + ">";
 //		String end = "<\\/eb:" + key;
@@ -285,28 +284,29 @@ public class TestUtils {
 //		m.find();
 //		return m.group(1);
 //	}
-	
+
 	public static String getValueFromXMLString(String xmlString, String key) throws Exception {
 		log.debug("Extracting " + key + " from " + xmlString);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		Document doc = dBuilder.parse(new InputSource(new StringReader(xmlString)));
-		
+
 		String value = StringUtils.EMPTY;
 		try {
 			value = doc.getElementsByTagName("eb:" + key).item(0).getTextContent();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 		log.info("Extracted value " + value);
 		return value;
 	}
-	
+
 	public static String jmsDateStrFromTimestamp(Long timestamp) {
 		Date date = new Date();
 		date.setTime(timestamp);
-		
+
 		TestRunData.REST_JMS_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
 		String dateStr = TestRunData.REST_JMS_DATE_FORMAT.format(date);
 		return dateStr;
 	}
-	
+
 }

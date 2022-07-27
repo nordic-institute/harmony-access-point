@@ -1,10 +1,10 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.current.PModeCofirmationModal;
@@ -12,7 +12,6 @@ import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyIdentifierModal;
 import pages.pmode.parties.PartyModal;
-import pages.pmode.parties.modal.PPartyModal;
 import utils.Gen;
 import utils.PModeXMLUtils;
 

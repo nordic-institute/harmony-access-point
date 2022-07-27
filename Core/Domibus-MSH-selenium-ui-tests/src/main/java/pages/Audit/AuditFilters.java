@@ -12,10 +12,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import java.util.Date;
 
-/**
- * @author Catalin Comanici
- * @since 4.1.2
- */
 public class AuditFilters extends FilterArea {
 	@FindBy(css = "#table_id")
 	public WebElement tableFilterContainer;

@@ -28,10 +28,6 @@ import java.text.ParseException;
 import java.util.*;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 public class DGrid extends DComponent {
 
 	@FindBy(tagName = "datatable-header-cell")
@@ -53,11 +49,11 @@ public class DGrid extends DComponent {
 	public DGrid(WebDriver driver, WebElement container) {
 
 		super(driver);
-		
+
 
 		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
-		
+
 		this.container = container;
 	}
 
@@ -83,7 +79,7 @@ public class DGrid extends DComponent {
 
 
 	public ArrayList<String> getColumnNames() throws Exception {
-		
+
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		ArrayList<String> result = (ArrayList<String>) js.executeScript("var grid=arguments[0]\n" +
@@ -93,7 +89,7 @@ public class DGrid extends DComponent {
 
 		result.removeIf(str -> (StringUtils.isEmpty(str)));
 
-		
+
 		return result;
 	}
 
@@ -105,14 +101,14 @@ public class DGrid extends DComponent {
 	}
 
 	public void selectRow(int rowNumber) throws Exception {
-		
+
 
 		log.debug("selecting row with number ... " + rowNumber);
 		if (rowNumber < gridRows.size()) {
 			new DObject(driver, gridRows.get(rowNumber)).click();
 			wait.forAttributeToContain(gridRows.get(rowNumber), "class", "active");
 		}
-		
+
 	}
 
 	public void doubleClickRow(int rowNumber) throws Exception {
@@ -128,7 +124,7 @@ public class DGrid extends DComponent {
 		WebElement element = gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"));
 		weToDobject(element).scrollIntoView();
 		action.doubleClick(element).perform();
-		
+
 	}
 
 	public int getRowsNo() {
@@ -152,11 +148,11 @@ public class DGrid extends DComponent {
 			wait.forXMillis(200);
 		} catch (Exception e) {
 		}
-		
+
 	}
 
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
-		
+
 
 		ArrayList<HashMap<String, String>> info = getListedRowInfo();
 
@@ -167,33 +163,33 @@ public class DGrid extends DComponent {
 				return i;
 			}
 		}
-		
+
 		return -1;
 
 	}
 
 	public int getIndexOf(String columnName, String value) throws Exception {
-		
 
-		if(!getColumnNames().contains(columnName)){
+
+		if (!getColumnNames().contains(columnName)) {
 			return -1;
 		}
 
 		ArrayList<HashMap<String, String>> info = getListedRowInfo();
-		for (int i = 0; i <info.size() ; i++) {
-			if(StringUtils.equalsIgnoreCase(info.get(i).get(columnName), value)){
+		for (int i = 0; i < info.size(); i++) {
+			if (StringUtils.equalsIgnoreCase(info.get(i).get(columnName), value)) {
 				return i;
 			}
 		}
 
-		
+
 		return -1;
 
 	}
 
 	public int scrollTo(String columnName, String value) throws Exception {
 
-		log.debug("scrolling to % = %", columnName, value );
+		log.debug("scrolling to % = %", columnName, value);
 
 		ArrayList<String> columnNames = getColumnNames();
 		if (!columnNames.contains(columnName)) {
@@ -214,25 +210,25 @@ public class DGrid extends DComponent {
 			index = getIndexOf(columnName, value);
 		}
 
-		
+
 		return index;
 	}
 
 	public int scrollToAndSelect(String columnName, String value) throws Exception {
 
-		log.debug("scrolling and selecting to % = %", columnName, value );
+		log.debug("scrolling and selecting to % = %", columnName, value);
 
 		int index = scrollTo(columnName, value);
 		if (index < 0) {
 			throw new Exception("Cannot select row because it doesn't seem to be in grid");
 		}
 		selectRow(index);
-		
+
 		return index;
 	}
 
 	public HashMap<String, String> getRowInfo(int rowNumber) throws Exception {
-		
+
 
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
@@ -248,7 +244,7 @@ public class DGrid extends DComponent {
 		for (int i = 0; i < columns.size(); i++) {
 			info.put(columns.get(i), new DObject(driver, cells.get(i)).getText());
 		}
-		
+
 		return info;
 	}
 
@@ -258,7 +254,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void sortBy(String columnName) throws Exception {
-		
+
 
 		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
@@ -275,7 +271,7 @@ public class DGrid extends DComponent {
 				return;
 			}
 		}
-		
+
 		throw new Exception("Column name not present in the grid " + columnName);
 	}
 
@@ -290,7 +286,7 @@ public class DGrid extends DComponent {
 	}
 
 	public List<HashMap<String, String>> getAllRowInfo() throws Exception {
-		
+
 
 		List<HashMap<String, String>> allRowInfo = new ArrayList<>();
 
@@ -308,13 +304,13 @@ public class DGrid extends DComponent {
 			}
 		} while (true);
 
-		
+
 		return allRowInfo;
 	}
 
 
 	public ArrayList<HashMap<String, String>> getListedRowInfo() throws Exception {
-		
+
 
 		ArrayList<HashMap<String, String>> listedRowInfo = new ArrayList<>();
 
@@ -345,7 +341,7 @@ public class DGrid extends DComponent {
 			listedRowInfo.add(rowInfo);
 		}
 
-		
+
 		return listedRowInfo;
 	}
 
@@ -363,7 +359,7 @@ public class DGrid extends DComponent {
 	}
 
 	public boolean columnsVsCheckboxes() throws Exception {
-		
+
 
 		HashMap<String, Boolean> columnStatus = getGridCtrl().getAllCheckboxStatuses();
 		ArrayList<String> visibleColumns = getColumnNames();
@@ -387,7 +383,7 @@ public class DGrid extends DComponent {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -424,7 +420,7 @@ public class DGrid extends DComponent {
 		}
 
 		String script = String.format("var arr=[];arguments[0].querySelectorAll(\".datatable-row-wrapper:nth-of-type(%s) datatable-body-cell:nth-of-type(%s) button:not([disabled])\").forEach(function(item){arr.push(item.getAttribute(\"tooltip\"))});return arr;"
-				, rowNo+1, actionsColIndex + 1);
+				, rowNo + 1, actionsColIndex + 1);
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		ArrayList<String> result = (ArrayList<String>) js.executeScript(script, container);
@@ -435,7 +431,7 @@ public class DGrid extends DComponent {
 
 
 	public void resetGridScroll() {
-		
+
 
 		log.info("reseting grid scroll");
 
@@ -472,7 +468,7 @@ public class DGrid extends DComponent {
 			((JavascriptExecutor) driver).executeScript("document.querySelector('#routerHolder > div div > div.panel > div:nth-child(2)').scrollTop=0");
 		} catch (Exception e) {
 		}
-		
+
 	}
 
 //-------------------------------------------------------------------------------------------------

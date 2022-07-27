@@ -1,19 +1,14 @@
 package domibus.ui.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
-import ddsl.dcomponents.grid.DGrid;
-import ddsl.enums.PAGES;
 import domibus.ui.RestTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.testng.SkipException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import org.testng.collections.Lists;
-import pages.messages.MessagesPage;
-import utils.DFileUtils;
 import utils.TestUtils;
 
 import java.io.IOException;

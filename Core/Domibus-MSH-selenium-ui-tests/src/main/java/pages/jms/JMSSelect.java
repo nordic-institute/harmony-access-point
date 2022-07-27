@@ -8,15 +8,12 @@ import org.openqa.selenium.WebElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class JMSSelect extends Select {
 	public JMSSelect(WebDriver driver, WebElement container) {
 		super(driver, container);
 	}
-	
+
 	@Override
 	public String getSelectedValue() throws Exception {
 		int waited = 0;
@@ -24,10 +21,10 @@ public class JMSSelect extends Select {
 			wait.forXMillis(500);
 			waited++;
 		}
-		
+
 		return super.getSelectedValue();
 	}
-	
+
 	public int selectQueueWithMessages() throws Exception {
 		String qName = getQueueNameWithMessages("");
 		if (StringUtils.isEmpty(qName)) {
@@ -37,25 +34,25 @@ public class JMSSelect extends Select {
 		selectOptionByText(qName);
 		return getListedNoOfMessInQName(qName);
 	}
-	
+
 	public int getListedNoOfMessInQName(String qName) {
 		int startIndex = qName.lastIndexOf("(");
 		int endIndex = qName.lastIndexOf(")");
-		
+
 		return Integer.valueOf(qName.substring(startIndex + 1, endIndex));
 	}
-	
+
 	public int selectQueueWithMessagesNotDLQ() throws Exception {
 		String qName = getQueueNameWithMessages("DLQ");
 		log.debug("queue with messages found: " + qName);
 		selectOptionByText(qName);
 		return Integer.valueOf(qName.replaceAll("\\D", ""));
 	}
-	
+
 	public void selectDLQQueue() throws Exception {
-		
+
 		List<String> queues = getOptionsTexts();
-		
+
 		for (String queue : queues) {
 			if (queue.contains("DLQ")) {
 				selectOptionByText(queue);
@@ -64,12 +61,12 @@ public class JMSSelect extends Select {
 		}
 		throw new Exception(new Exception("DLQ queue not found"));
 	}
-	
-	
+
+
 	public void selectQueueByName(String name) throws Exception {
-		
+
 		List<String> queues = getOptionsTexts();
-		
+
 		for (String queue : queues) {
 			String tmp = queue.replaceAll("\\[.+\\]", "").replaceAll("\\(.+\\)", "").trim();
 			if (tmp.equalsIgnoreCase(name)) {
@@ -79,7 +76,7 @@ public class JMSSelect extends Select {
 		}
 		throw new Exception(new Exception("DLQ queue not found"));
 	}
-	
+
 	private String getQueueNameWithMessages(String excludePattern) throws Exception {
 		List<String> queues = getOptionsTexts();
 		List<String> filtered;
@@ -88,7 +85,7 @@ public class JMSSelect extends Select {
 		} else {
 			filtered = queues;
 		}
-		
+
 		for (String queue : filtered) {
 			int noOfmess = getListedNoOfMessInQName(queue);
 			if (noOfmess > 0) {
@@ -97,6 +94,6 @@ public class JMSSelect extends Select {
 		}
 		return null;
 	}
-	
-	
+
+
 }

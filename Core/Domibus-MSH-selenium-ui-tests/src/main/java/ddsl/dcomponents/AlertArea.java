@@ -8,10 +8,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class AlertArea extends DComponent {
@@ -28,10 +24,11 @@ public class AlertArea extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	public void waitForAlert(){
+	public void waitForAlert() {
 		try {
 			wait.forElementToBeVisible(alertContainer);
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 	}
 
 	public void waitForAlertSucces() throws Exception {
@@ -45,7 +42,7 @@ public class AlertArea extends DComponent {
 
 	}
 
-	public void closeAlert() throws Exception{
+	public void closeAlert() throws Exception {
 		weToDobject(closeButton).click();
 	}
 
@@ -72,7 +69,8 @@ public class AlertArea extends DComponent {
 	public boolean isError() throws Exception {
 		try {
 			wait.forElementToBeVisible(alertContainer, true);
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 
 		DObject alertObject = new DObject(driver, alertContainer);
 
@@ -91,6 +89,5 @@ public class AlertArea extends DComponent {
 		return true;
 	}
 
-	
-	
+
 }

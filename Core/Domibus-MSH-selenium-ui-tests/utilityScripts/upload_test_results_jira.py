@@ -1,13 +1,14 @@
 import json
 import logging as log
-import time
-from datetime import datetime
 import requests
-from requests.auth import HTTPBasicAuth
 import sys
+import time
 import xml.etree.ElementTree as ET
+from datetime import datetime
+from requests.auth import HTTPBasicAuth
 
-log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)-10s  %(funcName)s %(lineno)d --- %(message)s', datefmt="%Y-%m-%d-%H-%M-%S")
+log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)-10s  %(funcName)s %(lineno)d --- %(message)s',
+                datefmt="%Y-%m-%d-%H-%M-%S")
 
 STATUSES = {'PASS': 1, 'FAIL': 2, 'WIP': 3, 'BLOCKED': 4, 'UNEXECUTED': -1}
 headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
@@ -110,7 +111,8 @@ def get_version_id():
         log.info("Searching verisons...")
 
         params['startAt'] = start
-        resp = requests.get(baseUrl + versionPath.format(projectKey), params=params, auth=HTTPBasicAuth(username, password)).json()
+        resp = requests.get(baseUrl + versionPath.format(projectKey), params=params,
+                            auth=HTTPBasicAuth(username, password)).json()
         last = resp['isLast']
         start += maxResults
         for value in resp['values']:
@@ -231,10 +233,13 @@ def create_test_cycle():
     global parentCycleId
     global cycleNameStub
     cycleName = cycleNameStub + datetime.now().strftime("%d_%m_%Y-%H_%M")
-    params = {'name': cycleName, 'clonedCycleId': str(parentCycleId), 'build': buildNo, 'environment': environment_config, 'description': cycle_description, 'projectId': str(projID), 'versionId': str(versionID), 'sprintId': sprintID, "startDate": "", "endDate": ""}
+    params = {'name': cycleName, 'clonedCycleId': str(parentCycleId), 'build': buildNo,
+              'environment': environment_config, 'description': cycle_description, 'projectId': str(projID),
+              'versionId': str(versionID), 'sprintId': sprintID, "startDate": "", "endDate": ""}
     log.info("Creating cycle with data - " + str(params))
 
-    resp = requests.post(baseUrl + cyclePath, headers=headers, auth=HTTPBasicAuth(username, password), data=json.dumps(params))
+    resp = requests.post(baseUrl + cyclePath, headers=headers, auth=HTTPBasicAuth(username, password),
+                         data=json.dumps(params))
 
     if resp.status_code != 200:
         log.info('creating cycle failed with status ' + str(resp.status_code));
@@ -292,7 +297,8 @@ def parse_rest_testng_results():
 
 def parse_selenium_testng_results():
     global results
-    toIgnore = ["logSeparator", "logout", "afterClass", "beforeClass", "beforeMethod", "afterMethod", "beforeTest", "afterTest", "beforeSuite", "afterSuite"]
+    toIgnore = ["logSeparator", "logout", "afterClass", "beforeClass", "beforeMethod", "afterMethod", "beforeTest",
+                "afterTest", "beforeSuite", "afterSuite"]
 
     for tc in root.iter('test-method'):
 

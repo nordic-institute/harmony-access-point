@@ -9,10 +9,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class JMSMonitoringPage extends DomibusPage {
 	@FindBy(css = "#pageGridId")
 	public WebElement messagesTableGrid;

@@ -15,11 +15,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
-/**
- * @author Catalin Comanici
- * @since 4.1.2
- */
 public class FailListener implements ITestListener {
 
 	static int test_count = 0;
@@ -32,6 +27,18 @@ public class FailListener implements ITestListener {
 
 	@Override
 	public void onStart(ITestContext context) {
+		total_test_count = context.getSuite().getAllMethods().size();
+		log.info("Tests methods to run - " + total_test_count);
+	}
+
+	@Override
+	public void onFinish(ITestContext iTestContext) {
+
+	}
+
+	@Override
+	public void onTestStart(ITestResult iTestResult) {
+		ITestContext context = iTestResult.getTestContext();
 		total_test_count = context.getSuite().getAllMethods().size();
 		log.info("Tests methods to run - " + total_test_count);
 	}
@@ -66,6 +73,11 @@ public class FailListener implements ITestListener {
 		test_count++;
 		skipped_count++;
 		logTestCounts();
+	}
+
+	@Override
+	public void onTestFailedButWithinSuccessPercentage(ITestResult iTestResult) {
+
 	}
 
 	private void takeScreenshot(ITestResult result) {

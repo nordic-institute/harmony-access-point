@@ -4,7 +4,6 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -13,10 +12,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import utils.Gen;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class PModeCurrentPage extends DomibusPage {

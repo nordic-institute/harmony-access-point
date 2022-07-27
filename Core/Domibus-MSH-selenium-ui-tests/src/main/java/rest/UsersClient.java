@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Map;
 
 public class UsersClient extends BaseRestClient {
-	
+
 	public UsersClient(String username, String password) {
 		super(username, password);
 	}
-	
+
 	// -------------------------------------------- Users --------------------------------------------------------------
 	public JSONArray getUsers(String domain) throws Exception {
-		
+
 		switchDomain(domain);
 
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
@@ -46,7 +46,7 @@ public class UsersClient extends BaseRestClient {
 			JSONObject user = users.getJSONObject(i);
 			String curUsername = user.getString("userName");
 
-			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+			if (StringUtils.equalsIgnoreCase(username, curUsername)) {
 				log.info("found and returned: " + user.toString());
 				return user;
 			}
@@ -65,14 +65,14 @@ public class UsersClient extends BaseRestClient {
 			JSONObject u = users.getJSONObject(i);
 			String curUsername = u.getString("userName");
 
-			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+			if (StringUtils.equalsIgnoreCase(username, curUsername)) {
 				log.info("found and returned: " + u.toString());
 				user = u;
 				break;
 			}
 		}
 
-		if(null == user) {
+		if (null == user) {
 			log.info("could not find user " + username);
 			return;
 		}
@@ -86,28 +86,27 @@ public class UsersClient extends BaseRestClient {
 
 		switchDomain(domain);
 		ClientResponse response = putUser(toUpdate, domain);
-		if(response.getStatus() < 300){
+		if (response.getStatus() < 300) {
 			log.info("password change saved");
 			log.info(response.getEntity(String.class));
-		}else {
+		} else {
 			throw new DomibusRestException("Updating user password failed!!!", response);
 		}
 
 	}
 
 
-	
 	public List<String> getUsernameList(String domain) throws Exception {
 		List<String> usernameList = new ArrayList<>();
-		
+
 		JSONArray users = getUsers(domain);
 		for (int i = 0; i < users.length(); i++) {
-			JSONObject  user= users.getJSONObject(i);
+			JSONObject user = users.getJSONObject(i);
 			usernameList.add(user.getString("userName"));
 		}
 		return usernameList;
 	}
-	
+
 	public int getNoOfAdmins(String domain) throws Exception {
 		JSONArray users = getUsers(domain);
 		int adminNo = 0;
@@ -118,11 +117,11 @@ public class UsersClient extends BaseRestClient {
 		}
 		return adminNo;
 	}
-	
+
 	public ArrayList<String> getSuperUsernames() throws Exception {
 		JSONArray users = getUsers("default");
 		ArrayList<String> supers = new ArrayList<>();
-		
+
 		for (int i = 0; i < users.length(); i++) {
 			JSONObject user = users.getJSONObject(i);
 			if (DRoles.SUPER.equalsIgnoreCase(user.getJSONArray("authorities").getString(0))) {
@@ -131,13 +130,13 @@ public class UsersClient extends BaseRestClient {
 		}
 		return supers;
 	}
-	
+
 	public void createUser(String username, String role, String pass, String domain) throws Exception {
 		switchDomain(domain);
 		if (null == domain || domain.isEmpty()) {
 			domain = "default";
 		}
-		
+
 //		String payload = provider.createUserObj(username, role, pass, domain);
 		JSONObject usrObj = new JSONObject();
 		usrObj.put("roles", role);
@@ -156,7 +155,7 @@ public class UsersClient extends BaseRestClient {
 		JSONArray payload = new JSONArray();
 		payload.put(usrObj);
 
-		if(!StringUtils.equalsIgnoreCase(role, DRoles.ADMIN) && getActiveUsersWithRole(domain, DRoles.ADMIN).length() == 0){
+		if (!StringUtils.equalsIgnoreCase(role, DRoles.ADMIN) && getActiveUsersWithRole(domain, DRoles.ADMIN).length() == 0) {
 			createUser(Gen.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), domain);
 		}
 
@@ -166,12 +165,12 @@ public class UsersClient extends BaseRestClient {
 			throw new DomibusRestException("Could not create user", response);
 		}
 	}
-	
+
 	public void deleteUser(String username, String domain) throws Exception {
 		switchDomain(domain);
-		
+
 		String getResponse = requestGET(resource.path(RestServicePaths.USERS), null).getEntity(String.class);
-		
+
 		JSONArray pusers = new JSONArray(sanitizeResponse(getResponse));
 		JSONArray toDelete = new JSONArray();
 		for (int i = 0; i < pusers.length(); i++) {
@@ -183,16 +182,16 @@ public class UsersClient extends BaseRestClient {
 				toDelete.put(tmpUser);
 			}
 		}
-		
+
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), toDelete.toString());
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not delete user", response);
 		}
 	}
-	
+
 	public void updateUser(String username, HashMap<String, String> toUpdate, String domain) {
 		JSONObject user = null;
-		
+
 		try {
 			JSONArray array = getUsers(domain);
 			for (int i = 0; i < array.length(); i++) {
@@ -201,17 +200,17 @@ public class UsersClient extends BaseRestClient {
 					user = tmpUser;
 				}
 			}
-			
+
 			if (null == user) {
 				return;
 			}
-			
+
 			for (Map.Entry<String, String> entry : toUpdate.entrySet()) {
 				user.put(entry.getKey(), entry.getValue());
 			}
-			
+
 			user.put("status", "UPDATED");
-			
+
 			ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), "[" + user.toString() + "]");
 			if (response.getStatus() != 200) {
 				throw new DomibusRestException("Could not UPDATE user", response);
@@ -220,19 +219,19 @@ public class UsersClient extends BaseRestClient {
 			log.error("EXCEPTION: ", e);
 		}
 	}
-	
+
 	public void activate(String username, String domain) {
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "true");
 		updateUser(username, toUpdate, domain);
 	}
-	
+
 	public void deactivate(String username, String domain) {
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "false");
 		updateUser(username, toUpdate, domain);
 	}
-	
+
 	public ClientResponse putUser(JSONArray toUpdate, String domain) throws Exception {
 		switchDomain(domain);
 		return jsonPUT(resource.path(RestServicePaths.USERS), toUpdate.toString());

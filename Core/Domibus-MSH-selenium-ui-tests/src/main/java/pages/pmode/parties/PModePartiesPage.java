@@ -9,10 +9,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class PModePartiesPage extends DomibusPage {
 	@FindBy(css = "#pageGridId")
 	WebElement gridContainer;
@@ -63,14 +60,13 @@ public class PModePartiesPage extends DomibusPage {
 
 	/**
 	 * This method will return Party Id which is neither Responder nor initiator
-	 * @param noOfParty  Total number of Party available on Pmode parties page
-	 * @return  the Party Id
-
+	 *
+	 * @param noOfParty Total number of Party available on Pmode parties page
+	 * @return the Party Id
 	 */
 	public String getNoResIniPartyId(int noOfParty) throws Exception {
 		for (int i = 0; i < noOfParty; i++) {
-			if (grid().getRowSpecificColumnVal(i, "Process (I=Initiator, R=Responder, IR=Both)").isEmpty())
-			{
+			if (grid().getRowSpecificColumnVal(i, "Process (I=Initiator, R=Responder, IR=Both)").isEmpty()) {
 				return grid().getRowSpecificColumnVal(i, "Party Id");
 			}
 		}

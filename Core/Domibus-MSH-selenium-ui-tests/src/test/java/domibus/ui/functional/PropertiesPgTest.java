@@ -1,35 +1,24 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
-import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import jdk.nashorn.internal.objects.Global;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.ChangePassword.ChangePasswordPage;
 import pages.properties.PropGrid;
 import pages.properties.PropertiesPage;
-import pages.users.UserModal;
-import pages.users.UsersGrid;
-import pages.users.UsersPage;
 import utils.Gen;
 import utils.TestUtils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.LineNumberReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 
 public class PropertiesPgTest extends SeleniumTest {
 

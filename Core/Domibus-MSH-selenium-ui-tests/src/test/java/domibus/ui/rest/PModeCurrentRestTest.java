@@ -10,30 +10,30 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class PModeCurrentRestTest extends RestTest {
-	
+
 	@Test(description = "PMC-2")
 	public void uploadValidFileAndComment() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
-		
-		
+
+
 		for (String domain : domains) {
 			rest.pmode().uploadPMode(uploadPath, domain);
 			String pmodeId = rest.pmode().getLatestPModeID(domain);
 			String dPmodePath = rest.pmode().downloadPmodeFile(domain, pmodeId);
-			
+
 			String downloadedContent = new String(Files.readAllBytes(Paths.get(dPmodePath)));
-			
+
 			File file = new File(this.getClass().getClassLoader().getResource(uploadPath).getFile());
 			String uploadedContent = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-			
+
 			soft.assertEquals(downloadedContent.toLowerCase(), uploadedContent.toLowerCase(),
 					"Pmode was updated properly");
 		}
-		
+
 		soft.assertAll();
 	}
-	
+
 	@Test(description = "PMC-2", dataProvider = "readInvalidStrings")
 	public void uploadFileInvalidComments(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -41,7 +41,7 @@ public class PModeCurrentRestTest extends RestTest {
 		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
-	
+
 	@Test(description = "PMC-3", dataProvider = "readInvalidStrings")
 	public void downloadInvalidStrings(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -49,5 +49,5 @@ public class PModeCurrentRestTest extends RestTest {
 		validateInvalidResponse(response, soft);
 		soft.assertAll();
 	}
-	
+
 }

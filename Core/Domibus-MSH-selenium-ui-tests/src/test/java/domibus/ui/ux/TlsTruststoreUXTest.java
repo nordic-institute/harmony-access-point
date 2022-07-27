@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -8,6 +7,7 @@ import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.tlsTrustStore.TlsTrustStorePage;
@@ -18,7 +18,8 @@ import utils.TestUtils;
 import java.util.HashMap;
 import java.util.List;
 
-import static java.lang.Boolean.*;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 
 public class TlsTruststoreUXTest extends SeleniumTest {

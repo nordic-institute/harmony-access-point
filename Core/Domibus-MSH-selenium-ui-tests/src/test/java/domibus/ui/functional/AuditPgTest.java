@@ -1,11 +1,9 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
-import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -13,13 +11,13 @@ import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
-import pages.msgFilter.MessageFilterPage;
 import pages.pmode.current.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;

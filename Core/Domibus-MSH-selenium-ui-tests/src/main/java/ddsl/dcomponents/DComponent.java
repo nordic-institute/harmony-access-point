@@ -11,10 +11,6 @@ import org.slf4j.LoggerFactory;
 import utils.TestRunData;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class DComponent {
@@ -31,12 +27,13 @@ public class DComponent {
 	}
 
 	public void clickVoidSpace() {
-		
+
 		try {
 			((JavascriptExecutor) driver).executeScript("document.querySelector('[class*=\"overlay-backdrop\"]').click()");
 			wait.forElementToBeGone(By.cssSelector("[class*=\"overlay-backdrop\"]"));
-		} catch (Exception e) {}
-		
+		} catch (Exception e) {
+		}
+
 	}
 
 	protected DButton weToDButton(WebElement element) {

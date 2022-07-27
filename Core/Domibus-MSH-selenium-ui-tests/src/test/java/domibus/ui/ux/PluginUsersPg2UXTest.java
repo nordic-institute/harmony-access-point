@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
@@ -8,10 +7,10 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.plugin_users.PluginUserModal;
@@ -19,9 +18,7 @@ import pages.plugin_users.PluginUsersPage;
 import utils.Gen;
 import utils.TestUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 

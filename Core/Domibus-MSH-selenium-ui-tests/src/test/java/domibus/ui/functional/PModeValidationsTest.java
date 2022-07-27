@@ -1,10 +1,8 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
-import com.bluecatcode.junit.shaded.org.apache.commons.lang3.StringUtils;
-import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.current.PModeCurrentPage;

@@ -10,10 +10,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class PartiesFilters extends DomibusPage {
 	@FindBy(id = "name_id")
 	WebElement nameInput;
@@ -27,6 +24,7 @@ public class PartiesFilters extends DomibusPage {
 	WebElement processRoleSelect;
 	@FindBy(id = "searchbutton_id")
 	WebElement searchButton;
+
 	public PartiesFilters(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
