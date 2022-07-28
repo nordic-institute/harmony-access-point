@@ -82,8 +82,10 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
         switch (databaseEngine) {
             case MYSQL:
-            case H2:
                 result = "USE " + databaseSchema;
+                break;
+            case H2:
+                result = "SET SCHEMA " + databaseSchema;
                 break;
             case ORACLE:
                 result = "ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema;
