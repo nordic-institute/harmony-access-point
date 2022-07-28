@@ -49,6 +49,7 @@ public class DMessages {
 	public static final String PMODE_ARCHIVE_DELETE_SUCCESS = "PModes were deleted";
 
 	public static final String TRUSTSTORE_REPLACE_SUCCESS = "Truststore file has been successfully replaced.";
+	public static final String TRUSTSTORE_RELOAD_SUCCESS = "The TrustStore was successfully reset.";
 	public static final String TRUSTSTORE_REPLACE_ERROR = "There is an error while uploading truststore.";
 
 	public static final String JMS_MOVE_MESSAGE_SUCCESS = "The operation 'move messages' completed successfully.";
@@ -69,7 +70,7 @@ public class DMessages {
 
 
 	public static final String PROPERTIES_UPDATE_ERROR_TYPE = "Could not update property: Value '%s' for property '%s' is not of type '%s'";
-	public static final String CONNECTION_MONITORING_ERROR_RESPONDER_NOTUP = "Error retrieving Last Received Test Message for %s . No Signal Message found.Error details are: EBMS:0005-Error dispatching message to %s";
+	public static final String CONNECTION_MONITORING_ERROR_RESPONDER_NOTUP = "Error retrieving Last Received Test Message for %s . No Signal Message found. Error details: EBMS:0005-Error dispatching message to %s";
 	public static final String CONNECTION_MONITORING_ERROR = "Error retrieving Last Received Test Message for %s . No Signal Message found.Please call the method again to see the details.";
 	public static final String CONNECTION_MONITORING_CERT_ERROR = "Error retrieving Last Received Test Message for %s . No Signal Message found. Error details: EBMS:0004-[DOM_001]:Cannot send message: receiver certificate is not valid or it has been revoked [%s]";
 

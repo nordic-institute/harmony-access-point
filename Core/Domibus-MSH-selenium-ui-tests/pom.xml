@@ -5,11 +5,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-<!--        <parent>-->
-<!--            <groupId>eu.domibus</groupId>-->
-<!--            <artifactId>core</artifactId>-->
-<!--            <version>5.1-SNAPSHOT</version>-->
-<!--        </parent>-->
+    <parent>
+        <groupId>eu.domibus</groupId>
+        <artifactId>core</artifactId>
+        <version>5.1-SNAPSHOT</version>
+    </parent>
 
     <groupId>eu.domibus</groupId>
     <artifactId>domibus-msh-selenium-ui-tests</artifactId>
@@ -31,7 +31,6 @@
         <jackson_version>2.13.3</jackson_version>
         <javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -76,7 +75,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
+                                <propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
                             </systemPropertyVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng.xml</suiteXmlFile>

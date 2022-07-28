@@ -8,6 +8,8 @@ import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import domibus.ui.pojos.UIMessage;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONArray;
 import org.testng.Reporter;
 import org.testng.SkipException;
@@ -24,12 +26,12 @@ import utils.soap_client.MessageConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
+
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
+import static org.testng.Assert.assertTrue;
 
 public class MessagesPgTest extends SeleniumTest {
 
@@ -275,7 +277,7 @@ public class MessagesPgTest extends SeleniumTest {
 		boolean foundXMLfile = false;
 		boolean foundMessfile = false;
 		for (String fileName : zipContent.keySet()) {
-			if (StringUtils.equalsIgnoreCase(fileName, "messagePayload.xml")) {
+			if (StringUtils.equalsIgnoreCase(fileName, "payloadName.extension")) {
 				foundMessfile = true;
 			}
 			if (StringUtils.equalsIgnoreCase(fileName, "message.xml")) {
@@ -559,38 +561,125 @@ public class MessagesPgTest extends SeleniumTest {
 	/* EDELIVERY-8179 - MSG-29- Download message envelop */
 	@Test(description = "MSG-29", groups = {"multiTenancy", "singleTenancy"})
 	public void checkMsgEnvXML() throws Exception {
+
+		String xmlFileNameUser = "user_message_envelope.xml";
+		String xmlFileNameSignal = "signal_message_envelope.xml";
+
+		MessagesPage page = navigate();
+
+		log.info("locate message envelope to download");
+		int index = -1;
+		String[] statuses = {"ACKNOWLEDGED", "RECEIVED"};
+
+		for (int i = 0; i < statuses.length; i++) {
+			index = page.grid().scrollTo("Message Status", statuses[i]);
+			if (index >= 0) {
+				break;
+			}
+		}
+
+		if (index < 0) {
+			throw new SkipException("Could not find message with proper status");
+		}
+
+		String zipPath = page.downloadMessageEnvelop(index);
+		HashMap<String, String> content = TestUtils.unzip(zipPath);
+
+		assertTrue(content.containsKey(xmlFileNameSignal), xmlFileNameSignal+ " file found");
+		assertTrue(content.containsKey(xmlFileNameUser), xmlFileNameUser+ " file found");
+
+		assertTrue(containsIgnoreCase(content.get(xmlFileNameUser), MessageConstants.Final_Recipient));
+		assertTrue(containsIgnoreCase(content.get(xmlFileNameUser), MessageConstants.Original_Sender));
+		assertTrue(containsIgnoreCase(content.get(xmlFileNameUser), MessageConstants.From_Party_Id));
+		assertTrue(containsIgnoreCase(content.get(xmlFileNameUser), MessageConstants.To_Party_Id));
+
+	}
+
+
+	/* EDELIVERY-9636 - MSG-36 - Filter by message type SIGNAL_MESSAGE */
+	@Test(description = "MSG-36", groups = {"multiTenancy", "singleTenancy"})
+	public void filterForSignalMessage() throws Exception {/**/
 		SoftAssert soft = new SoftAssert();
 		MessagesPage page = navigate();
 
-		String zipPath = page.downloadMessageEnvelop(0);
-		Reporter.log("downloaded message to zip with path " + zipPath);
-		log.info("downloaded message to zip with path " + zipPath);
-		File zipFile = new File(zipPath);
-		ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+		log.info("filter for SIGNAL_MESSAGES");
+		MessageFilterArea filters = page.getFilters();
+		filters.expandArea();
+		filters.getMessageTypeSelect().selectOptionByText("SIGNAL_MESSAGE");
+		filters.clickSearch();
 
-		String msgStatus = page.grid().getRowInfo(0).get("Message Status");
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 
+		soft.assertFalse(page.getAlertArea().isShown(), "No alert message is opened");
 
-		if (msgStatus.equals("ACKNOWLEDGED") && msgStatus.equals("RECEIVED")) {
+		List<HashMap<String, String>> listedResults = page.grid().getListedRowInfo();
 
-			String firstXMLFileName = zis.getNextEntry().getName().toString();
-			String secondXMLFileName = zis.getNextEntry().getName().toString();
-
-			String xmlFileNameUser = "user_message_envelope";
-			String xmlFileNameuSignal = "signal_message_envelope";
-
-			if (firstXMLFileName.equals(xmlFileNameUser)) {
-				Reporter.log("first xml file is user message envelop");
-				log.info("first xml file is user message envelop");
-				soft.assertTrue(secondXMLFileName.equals(xmlFileNameuSignal), "Second xml file is signal message envelop");
-			} else {
-				Reporter.log("first xml file is signal message envelop");
-				log.info("first xml file is signal message envelop");
-				soft.assertTrue(secondXMLFileName.equals(xmlFileNameUser), "Second xml file is user signal message envelop");
-			}
+		for (int i = 0; i < listedResults.size(); i++) {
+			log.info("checking result with number " + i);
+			soft.assertEquals(listedResults.get(i).get("Message Type"), "SIGNAL_MESSAGE");
 		}
+
 		soft.assertAll();
 	}
 
+
+	/* EDELIVERY-9637 - MSG-37 - Filter for test messages*/
+	@Test(description = "MSG-37", groups = {"multiTenancy", "singleTenancy"})
+	public void filterForTestMessage() throws Exception {/**/
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = navigate();
+
+		log.info("filter for test messages");
+		MessageFilterArea filters = page.getFilters();
+		filters.expandArea();
+		filters.getShowTestMessagesChk().check();
+		filters.clickSearch();
+
+		DGrid grid = page.grid();
+		grid.getGridCtrl().showOnlyColumn("Action");
+		grid.waitForRowsToLoad();
+
+		soft.assertFalse(page.getAlertArea().isShown(), "No alert message is opened");
+
+		List<HashMap<String, String>> listedResults = page.grid().getListedRowInfo();
+
+		for (int i = 0; i < listedResults.size(); i++) {
+			log.info("checking result with number " + i);
+
+			soft.assertEquals(listedResults.get(i).get("Action"), "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test");
+		}
+
+		soft.assertAll();
+	}
+	/* EDELIVERY-9638 - MSG-38 - Filter using search interval*/
+	@Test(description = "MSG-38", groups = {"multiTenancy", "singleTenancy"})
+	public void filterUsingReceivedInterval() throws Exception {/**/
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = navigate();
+
+		log.info("filter for test messages");
+		MessageFilterArea filters = page.getFilters();
+		filters.expandArea();
+
+		long timestamp = Calendar.getInstance().getTimeInMillis();
+		filters.getMessageIntervalSelect().selectOptionByText("Last 4 hours");
+		filters.clickSearch();
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		soft.assertFalse(page.getAlertArea().isShown(), "No alert message is opened");
+
+		List<HashMap<String, String>> listedResults = page.grid().getListedRowInfo();
+
+		for (int i = 0; i < listedResults.size(); i++) {
+			log.info("checking result with number " + i);
+			long messReceived = DateUtils.parseDate(listedResults.get(i).get("Received").replaceFirst("UTC\\+\\d+", ""), "dd-MM-yyy HH:mm:ss").getTime();
+			soft.assertTrue(timestamp - messReceived <= 14400000, "Time difference is less than 30 minutes for mess: " + listedResults.get(i).get("Message Id"));
+		}
+
+		soft.assertAll();
+	}
 }
 

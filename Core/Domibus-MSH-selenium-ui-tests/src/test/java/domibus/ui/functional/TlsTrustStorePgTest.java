@@ -36,8 +36,8 @@ public class TlsTrustStorePgTest extends SeleniumTest {
 
 		page.uploadTruststore(path, "test123");
 
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(String.format(DMessages.TlsTruststore.TLS_TRUSTSTORE_UPLOAD, certFileName, currentDomain)
-		), "Both error messages are same");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.TRUSTSTORE_REPLACE_SUCCESS,
+				"Both error messages are same");
 		soft.assertAll();
 
 	}

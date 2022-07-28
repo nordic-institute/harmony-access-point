@@ -290,7 +290,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		TruststorePage tPage = new TruststorePage(driver);
 		String pathToInvalidCert = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
 
-		tPage.uploadFile(pathToInvalidCert, "test123", soft);
+		tPage.uploadFile(pathToInvalidCert, "test123");
 		Reporter.log(page.getAlertArea().getAlertMessage() + " Message after upload event");
 		log.info(page.getAlertArea().getAlertMessage() + " Message after upload event");
 
@@ -308,7 +308,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 
 		String pathToCorrectCert = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
-		tPage.uploadFile(pathToCorrectCert, "test123", soft);
+		tPage.uploadFile(pathToCorrectCert, "test123");
 		soft.assertAll();
 
 	}
