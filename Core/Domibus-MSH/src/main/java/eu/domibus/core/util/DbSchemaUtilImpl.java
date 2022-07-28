@@ -56,7 +56,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
             return false;
         }
 
-        String databaseSchema = "";
+        String databaseSchema = null;
         try {
             //set corresponding db schema
             entityManager.getTransaction().begin();
