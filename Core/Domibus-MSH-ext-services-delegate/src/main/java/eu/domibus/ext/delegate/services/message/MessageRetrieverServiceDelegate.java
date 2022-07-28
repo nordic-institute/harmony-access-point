@@ -52,9 +52,14 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
 
     @Override
     public Submission downloadMessage(Long messageEntityId) throws MessageNotFoundException {
+        return downloadMessage(messageEntityId, true);
+    }
+
+    @Override
+    public Submission downloadMessage(Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException {
         checkMessageAuthorization(messageEntityId);
 
-        return messageRetriever.downloadMessage(messageEntityId);
+        return messageRetriever.downloadMessage(messageEntityId, markAsDownloaded);
     }
 
     @Override

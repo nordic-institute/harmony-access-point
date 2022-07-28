@@ -45,6 +45,11 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
     }
 
     @Override
+    public MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException {
+        return acknowledgeMessageDeliveredWithUnsecureLoginAllowed(messageId, acknowledgeTimestamp, true);
+    }
+
+    @Override
     public MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp, boolean markAsAcknowledged) throws AuthenticationExtException, MessageAcknowledgeExtException {
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
 

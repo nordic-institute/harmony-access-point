@@ -30,13 +30,27 @@ public interface MessageRetrieverExtService {
     Submission downloadMessage(String messageId, boolean markAsDownloaded) throws MessageNotFoundException;
 
     /**
-     * provides the message with the corresponding messageId
+     * Provides the message with the corresponding messageId.
+     * It only downloads submissions not previously submitted,
+     * publishes a download event and changes the submission status.
+     * Method needed for backward compatibility
      *
      * @param messageEntityId the entity id of the message to retrieve
      * @return the message object with the given messageId
      * @throws MessageNotFoundException if the message could not be found
      */
     Submission downloadMessage(Long messageEntityId) throws MessageNotFoundException;
+
+    /**
+     * provides the message with the corresponding messageId
+     *
+     * @param messageEntityId the entity id of the message to retrieve
+     * @param markAsDownloaded if true it only downloads submissions not previously submitted,
+     *                         publishes a download event and changes the submission status
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message could not be found
+     */
+    Submission downloadMessage(Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException;
 
     /**
      * Browse the message with the corresponding messageId
