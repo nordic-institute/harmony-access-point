@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.5.3</cxf.version>
-        <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
+        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version><!-- latest versions 2.4.1 and 2.3.0 crash SubmitMessageIT with NoSuchMethodError org.apache.xml.security.encryption.XMLCipher.getInstance(...) -->
         <spring.version>5.3.22</spring.version>
         <spring.security.version>5.7.2</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
