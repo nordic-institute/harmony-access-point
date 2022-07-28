@@ -47,7 +47,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
 
         //in single tenancy the schema validity check is not needed
         if(domibusConfigurationService.isSingleTenantAware()) {
-            LOG.warn("Domain's database schema validity check is not needed in single tenancy");
+            LOG.info("Domain's database schema validity check is not needed in single tenancy");
             return true;
         }
 
