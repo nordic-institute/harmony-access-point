@@ -61,8 +61,9 @@
         <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version> <!-- ok latest -->
         <javax.validation.version>2.0.1.Final</javax.validation.version> <!-- ok latest -->
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version> <!-- ok latest -->
-        <hibernate.validator.version>7.0.4.Final</hibernate.validator.version>
+        <hibernate.validator.version>6.2.3.Final</hibernate.validator.version><!-- latest  -->
         <!-- latest ver 8.0.0.CR1 results in compilation failure: class org.hibernate.validator.constraints.Email compiled with java11 but should be with java8-->
+        <!-- next version 7.0.4.Final crashes IT tests with Unable to create a Configuration (Add a provider like Hibernate Validator (RI) to your classpath.) -->
 
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
