@@ -5,16 +5,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!--    <parent>-->
-    <!--        <groupId>eu.domibus</groupId>-->
-    <!--        <artifactId>core</artifactId>-->
-    <!--        <version>5.1-SNAPSHOT</version>-->
-    <!--    </parent>-->
+<!--        <parent>-->
+<!--            <groupId>eu.domibus</groupId>-->
+<!--            <artifactId>core</artifactId>-->
+<!--            <version>5.1-SNAPSHOT</version>-->
+<!--        </parent>-->
 
+    <groupId>eu.domibus</groupId>
     <artifactId>domibus-msh-selenium-ui-tests</artifactId>
     <name>Domibus MSH Selenium UI Tests</name>
-    <groupId>eu.domibus</groupId>
-    <version>5.1-VERSION</version>
+    <version>5.1-SNAPSHOT</version>
+
 
     <properties>
         <junit_version>1.1.0</junit_version>
@@ -219,7 +220,6 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <!--			<version>${reflections_version}</version>-->
             <version>0.9.12</version>
         </dependency>
 
@@ -233,7 +233,6 @@
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-multipart</artifactId>
             <version>${jersey-multipart_version}</version>
-            <!--			<version>1.19.4</version>-->
         </dependency>
 
         <dependency>
