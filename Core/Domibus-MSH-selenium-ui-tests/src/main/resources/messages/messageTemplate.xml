@@ -32,7 +32,7 @@
                 <ns:PayloadInfo>
                     <ns:PartInfo href="cid:message">
                         <ns:PartProperties>
-                            <ns:Property name="PayloadName">dfgdfgdfg</ns:Property>
+                            <ns:Property name="PayloadName">payloadName.extension</ns:Property>
                             <ns:Property name="MimeType">text/xml</ns:Property>
                         </ns:PartProperties>
                     </ns:PartInfo>

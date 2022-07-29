@@ -20,6 +20,7 @@ import java.util.List;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.testng.Assert.assertTrue;
 
 
 public class TlsTruststoreUXTest extends SeleniumTest {
@@ -311,34 +312,26 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 
 	}
 
-	/* EDELIVERY-8309 - TLS-28-Check reflection on other domain data after removal of all certificate from tls truststore page */
-	@Test(description = "TLS-28", groups = {"multiTenancy", "TlsConfig"})
-	public void compareDomainDataAfterRemoveAll() throws Exception {
-		SoftAssert soft = new SoftAssert();
+	/* EDELIVERY-9639 - TLS-29 - Add certificate button is enabled even if no certificate is present as long as the TLS Truststore has been uploaded at least once */
+	@Test(description = "TLS-29", groups = {"multiTenancy"})
+	public void removeAllAndCheckAddCertButton() throws Exception {
 		TlsTrustStorePage page = new TlsTrustStorePage(driver);
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
-		int domainCount = rest.getDomainNames().size();
-		for (int i = 0; i < domainCount; i++) {
-			int beforeCount = page.grid().getPagination().getTotalItems();
-			if (beforeCount == 0) {
-				String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
-				page.uploadTruststore(path, "test123");
-				page.grid().waitForRowsToLoad();
+		try {
+			if(page.getAlertArea().isError()){
+				log.info("uploading truststore...");
+				page.uploadTruststore(DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks"), "test123");
 			}
-			int afterCount = page.grid().getPagination().getTotalItems();
-			for (int j = afterCount - 1; j >= 0; j--) {
-				page.grid().selectRow(j);
-				page.getRemoveCertButton().click();
-			}
-			page.grid().waitForRowsToLoad();
-			List<HashMap<String, String>> firstDomainData = page.grid().getAllRowInfo();
-			page.getDomainSelector().selectAnotherDomain();
-			page.grid().waitForRowsToLoad();
-			List<HashMap<String, String>> secondDomainData = page.grid().getAllRowInfo();
-			soft.assertTrue(firstDomainData.equals(secondDomainData), "Same domain has same data after one cert removal");
+		} catch (Exception e) {}
+
+		log.info("remove all certificates");
+		while (page.getRemoveCertButton().isEnabled()){
+			page.grid().selectRow(0);
+			page.getRemoveCertButton().click();
 		}
-		soft.assertAll();
+
+		assertTrue(page.getAddCertButton().isEnabled(), "after all certificates are removed add cert button is still enabled");
 
 	}
 }

@@ -285,7 +285,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.getDomainSelector().selectAnotherDomain();
 		page.propGrid().waitForRowsToLoad();
 
-
+		page.filters().filterBy("domain.title", null, null, null, true);
 		String newDomainValue = page.propGrid().getPropertyValue("domain.title");
 		Reporter.log("got value for new domain: " + newDomainValue);
 		log.info("got value for new domain: " + newDomainValue);

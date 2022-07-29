@@ -1702,7 +1702,7 @@
                             javax.xml.soap:saaj-api:1.3.1 - CDDL
                             org.roda-project:commons-ip2:2.0.0-alpha1 - LGPL (https://github.com/keeps/commons-ip)
                             -->
-                            <excludedArtifacts>servlet-api|dom4j|saaj-api|commons-ip2</excludedArtifacts>
+                            <excludedArtifacts>servlet-api|dom4j|saaj-api|commons-ip2|jsr311-api|aopalliance|json|reactive-streams</excludedArtifacts>
                             <excludedScopes>system,test,provided,runtime</excludedScopes>
                         </configuration>
                     </plugin>

@@ -14,6 +14,7 @@ import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.messages.MessageDetailsModal;
 import pages.messages.MessagesPage;
 import utils.Gen;
 import utils.TestUtils;
@@ -447,6 +448,91 @@ public class MessagesPgUXTest extends SeleniumTest {
 
 			rowindex = page.grid().scrollTo("Message Id", messIds.get(0));
 			soft.assertTrue(page.isActionIconPresent(rowindex, "downloadEnvelopes") && page.getActionIconStatus(rowindex, "downloadEnvelopes"), "downloadEnvelopes icon is shown and enabled");
+		}
+
+		soft.assertAll();
+	}
+
+	/*EDELIVERY-8642 - MSG-32 - Verify presence of Archived column in Message Log grid*/
+	@Test(description = "MSG-32", groups = {"multiTenancy", "singleTenancy"})
+	public void checkArchivedColumnPresence() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = new MessagesPage(driver);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
+
+		DGrid grid = page.grid();
+
+		grid.getGridCtrl().showCtrls();
+		grid.getGridCtrl().showAllColumns();
+
+		soft.assertTrue(grid.getGridCtrl().getAllCheckboxLabels().contains("Archived"));
+		soft.assertTrue(grid.getColumnNames().contains("Archived"));
+
+		soft.assertAll();
+	}
+
+	/*EDELIVERY-9634 - MSG-34 - Verify presence of Action, Service Type, Service Value columns in Message Log grid and message details popup*/
+	@Test(description = "MSG-34", groups = {"multiTenancy", "singleTenancy"})
+	public void checkServiceAndActionColumnPresence() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = new MessagesPage(driver);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
+
+		DGrid grid = page.grid();
+
+		grid.getGridCtrl().showCtrls();
+		grid.getGridCtrl().showAllColumns();
+
+		log.info("checking column presence: Action, Service Type, Service Value");
+		soft.assertTrue(grid.getGridCtrl().getAllCheckboxLabels().contains("Action"), "Check checkboxes for Action");
+		soft.assertTrue(grid.getColumnNames().contains("Action"), "Check columns for Action");
+
+		soft.assertTrue(grid.getGridCtrl().getAllCheckboxLabels().contains("Service Type"),  "Check checkboxes for Service type");
+		soft.assertTrue(grid.getColumnNames().contains("Service Type"), "Check columns for Service Type");
+
+		soft.assertTrue(grid.getGridCtrl().getAllCheckboxLabels().contains("Service Value"),  "Check checkboxes for Service value");
+		soft.assertTrue(grid.getColumnNames().contains("Service Value"), "Check columns for Service Value");
+
+		log.info("opening details popup");
+		grid.doubleClickRow(0);
+
+		MessageDetailsModal modal = new MessageDetailsModal(driver);
+
+		try {
+			modal.getTitle();
+
+			log.info("checking modal for fields Action, Service Type, Service Value");
+			soft.assertNotNull(modal.getValue("Service Value"));
+			soft.assertNotNull(modal.getValue("Service Type"));
+			soft.assertNotNull(modal.getValue("Action"));
+
+		}catch (Exception e){
+			log.info("Modal is not opened so checking fields in modal is skipped");
+		}
+
+		soft.assertAll();
+	}
+
+	/*EDELIVERY-9635 - MSG-35 - Verify presence of PluginType information in message details popup*/
+	@Test(description = "MSG-35", groups = {"multiTenancy", "singleTenancy"})
+	public void checkPluginTypeInPopup() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessagesPage page = new MessagesPage(driver);
+		page.getSidebar().goToPage(PAGES.MESSAGES);
+
+		log.info("opening details popup");
+		page.grid().doubleClickRow(0);
+
+		MessageDetailsModal modal = new MessageDetailsModal(driver);
+
+		try {
+			modal.getTitle();
+
+			log.info("checking modal for field PluginType");
+			soft.assertNotNull(modal.getValue("Plugin Type"));
+
+		}catch (Exception e){
+			log.info("Modal is not opened so checking fields in modal is skipped");
 		}
 
 		soft.assertAll();
