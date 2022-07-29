@@ -278,7 +278,11 @@ public class UserManagementServiceImpl implements UserService {
 
     @Override
     public void createDefaultUserIfApplicable() {
-        // check property
+        if (domibusConfigurationService.isExtAuthProviderEnabled()) {
+            LOG.info("Default user creation is disabled when using EU Login; exiting.");
+            return;
+        }
+
         boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE);
         if (!enabled) {
             LOG.info("Default user creation [{}] is disabled; exiting.", DOMIBUS_PASSWORD_POLICY_DEFAULT_USER_CREATE);
