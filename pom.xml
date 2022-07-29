@@ -126,7 +126,7 @@
         <javaee-api.version>8.0.1</javaee-api.version> <!-- ok latest -->
         <junit.version>4.13.2</junit.version> <!-- ok latest -->
         <awaitility.version>4.2.0</awaitility.version>
-        <jmockit.version>1.49</jmockit.version>
+        <jmockit.version>1.22</jmockit.version><!-- latest versions don't have the class mockit.integration.junit4.JMockit => compilation error -->
         <org.reflections.version>0.10.2</org.reflections.version> <!-- ok latest -->
         <messaging.saaj.version>1.5.3</messaging.saaj.version> <!-- ok latest -->
         <jaxws-api.version>2.3.1</jaxws-api.version> <!-- ok latest -->
@@ -137,7 +137,7 @@
         <jsr181-api.version>1.0-MR1</jsr181-api.version> <!-- ok latest -->
         <xmlsec.version>2.2.4</xmlsec.version>
         <httpcore.version>4.4.15</httpcore.version> <!-- ok latest -->
-        <ehcache.version>3.10.0</ehcache.version>
+        <ehcache.version>3.9.9</ehcache.version><!-- latest 3.10.0 causes all kinds of problems because it brings different versions of libraries (not direct cildren but brought transitively by children of children) not found on nexus -->
         <cache-api.version>1.1.1</cache-api.version> <!-- ok latest -->
         <commons-collections.version>3.2.2</commons-collections.version> <!-- ok latest -->
         <commons-net.version>3.8.0</commons-net.version> <!-- ok latest -->
@@ -146,24 +146,24 @@
         <commons-lang.version>2.6</commons-lang.version> <!-- ok latest -->
         <jakarta.activation.version>2.1.0</jakarta.activation.version> <!-- ok latest -->
         <jakarta.xml.bind-api.version>3.0.1</jakarta.xml.bind-api.version>
-        <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
-        <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
-        <neethi.version>3.2.0</neethi.version>
-        <geronimo-javamail_1.4_mail.version>1.8.4</geronimo-javamail_1.4_mail.version>
-        <javax.activation-api.version>1.2.0</javax.activation-api.version>
-        <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <javax.persistence-api.version>2.2</javax.persistence-api.version>
-        <commons-text.version>1.9</commons-text.version>
-        <swagger-maven-plugin.version>2.1.12</swagger-maven-plugin.version>
-        <swagger-codegen-maven-plugin.version>3.0.31</swagger-codegen-maven-plugin.version>
-        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
+        <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version> <!-- ok latest -->
+        <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version> <!-- ok latest -->
+        <neethi.version>3.2.0</neethi.version> <!-- ok latest -->
+        <geronimo-javamail_1.4_mail.version>1.8.4</geronimo-javamail_1.4_mail.version><!-- latest vers are alpha. Leave this as the latest stable ver -->
+        <javax.activation-api.version>1.2.0</javax.activation-api.version> <!-- ok latest -->
+        <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version> <!-- ok latest -->
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version> <!-- ok latest -->
+        <javax.persistence-api.version>2.2</javax.persistence-api.version> <!-- ok latest -->
+        <commons-text.version>1.9</commons-text.version> <!-- ok latest -->
+        <swagger-maven-plugin.version>2.2.2</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.34</swagger-codegen-maven-plugin.version>
+        <license-maven-plugin.version>2.0.0</license-maven-plugin.version> <!-- ok latest -->
         
-        <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
-        <commons-compress.version>1.21</commons-compress.version>
-        <commons-configuration2.version>2.7</commons-configuration2.version>
-        <httpmime.version>4.5.13</httpmime.version>
-        <jdom2.version>2.0.6.1</jdom2.version> 
+        <commons-ip2.version>2.0.0-alpha2</commons-ip2.version> <!-- ok latest -->
+        <commons-compress.version>1.21</commons-compress.version> <!-- ok latest -->
+        <commons-configuration2.version>2.8.0</commons-configuration2.version>
+        <httpmime.version>4.5.13</httpmime.version> <!-- ok latest -->
+        <jdom2.version>2.0.6.1</jdom2.version> <!-- ok latest -->
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
