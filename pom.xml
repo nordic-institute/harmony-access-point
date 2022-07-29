@@ -1312,7 +1312,6 @@
                                 </argLine>
                                 <excludes>
                                     <exclude>**/IT*.java</exclude>
-                                    <exclude>**/Domibus-MSH-selenium-ui-tests/**</exclude>
                                 </excludes>
                             </configuration>
                         </execution>
@@ -1565,31 +1564,6 @@
             <modules>
                 <module>Core/Domibus-MSH-selenium-ui-tests</module>
             </modules>
-        </profile>
-        <profile>
-            <id>no-selenium-tests</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.18.1</version>
-                        <executions>
-                            <execution>
-                                <id>no-selenium-tests</id>
-                                <configuration>
-                                    <excludes>
-                                        <exclude>**/Domibus-MSH-selenium-ui-tests/**</exclude>
-                                    </excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>dependency-check</id>

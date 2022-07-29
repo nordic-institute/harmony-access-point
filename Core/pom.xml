@@ -16,7 +16,6 @@
     <name>Core modules</name>
 
     <modules>
-        <module>Domibus-MSH-selenium-ui-tests</module>
         <module>Domibus-archive-webhook-swagger</module>
         <module>Domibus-MSH</module>
         <module>Domibus-MSH-spi</module>
