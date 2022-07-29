@@ -74,7 +74,7 @@
         <handlebars.version>4.3.0</handlebars.version> <!-- ok latest -->
         <dropwizard.metrics.version>4.2.10</dropwizard.metrics.version>
         <owasp.dependency.check.version>7.1.1</owasp.dependency.check.version>
-        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version><!-- TODO latest versions 3.3.0 and 3.2.0 causing issues: the build blocks indefinitely with this: [TestNG] INVOKING CONFIGURATION: "UNKNOWN" - @BeforeSuite domibus.ui.SeleniumTest.beforeSuite() -->
         <hikaricp.version>5.0.1</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version> <!-- ok latest -->
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version> <!-- ok latest -->
@@ -118,34 +118,34 @@
         <!--<sonar.web.javaAdditionalOpts>-Dhttp.proxyHost=158.169.9.13 -Dhttp.proxyPort=8012 -Dhttp.proxyUser=theuser -Dhttp.proxyPassword=thepassword -Dhttps.proxyHost=158.169.9.13 -Dhttps.proxyPort=8012 -Dhttps.proxyUser=theuser -Dhttps.proxyPassword=thepassword -Dhttps.nonProxyHosts=localhost -Dhttp.nonProxyHosts=localhost</sonar.web.javaAdditionalOpts>-->
         <!--IAM extension properties -->
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>9.19</nimbus-jose-jwt.version>
-        <maven-compiler-plugin.version>3.10.0</maven-compiler-plugin.version>
-        <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
+        <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <java-uuid-generator.version>4.0.1</java-uuid-generator.version> <!-- ok latest -->
         <guava.version>29.0-jre</guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
-        <opencsv.version>5.5.2</opencsv.version>
-        <javaee-api.version>8.0.1</javaee-api.version>
-        <junit.version>4.13.2</junit.version>
-        <awaitility.version>3.1.0</awaitility.version>
-        <jmockit.version>1.22</jmockit.version>
-        <org.reflections.version>0.10.2</org.reflections.version>
-        <messaging.saaj.version>1.5.3</messaging.saaj.version>
-        <jaxws-api.version>2.3.1</jaxws-api.version>
-        <javax.annotation.version>1.3.2</javax.annotation.version>
+        <opencsv.version>5.6</opencsv.version>
+        <javaee-api.version>8.0.1</javaee-api.version> <!-- ok latest -->
+        <junit.version>4.13.2</junit.version> <!-- ok latest -->
+        <awaitility.version>4.2.0</awaitility.version>
+        <jmockit.version>1.49</jmockit.version>
+        <org.reflections.version>0.10.2</org.reflections.version> <!-- ok latest -->
+        <messaging.saaj.version>1.5.3</messaging.saaj.version> <!-- ok latest -->
+        <jaxws-api.version>2.3.1</jaxws-api.version> <!-- ok latest -->
+        <javax.annotation.version>1.3.2</javax.annotation.version> <!-- ok latest -->
 
-        <javax.jms-api.version>2.0.1</javax.jms-api.version>
-        <activation.version>1.1.1</activation.version>
-        <jsr181-api.version>1.0-MR1</jsr181-api.version>
-        <xmlsec.version>2.2.3</xmlsec.version>
-        <httpcore.version>4.4.15</httpcore.version>
-        <ehcache.version>3.9.9</ehcache.version>
-        <cache-api.version>1.1.1</cache-api.version>
-        <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-net.version>3.8.0</commons-net.version>
-        <jcifs.version>1.3.17</jcifs.version>
-        <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <commons-lang.version>2.6</commons-lang.version>
-        <jakarta.activation.version>2.1.0</jakarta.activation.version>
-        <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
+        <javax.jms-api.version>2.0.1</javax.jms-api.version> <!-- ok latest -->
+        <activation.version>1.1.1</activation.version> <!-- ok latest -->
+        <jsr181-api.version>1.0-MR1</jsr181-api.version> <!-- ok latest -->
+        <xmlsec.version>2.2.4</xmlsec.version>
+        <httpcore.version>4.4.15</httpcore.version> <!-- ok latest -->
+        <ehcache.version>3.10.0</ehcache.version>
+        <cache-api.version>1.1.1</cache-api.version> <!-- ok latest -->
+        <commons-collections.version>3.2.2</commons-collections.version> <!-- ok latest -->
+        <commons-net.version>3.8.0</commons-net.version> <!-- ok latest -->
+        <jcifs.version>1.3.17</jcifs.version> <!-- ok latest -->
+        <commons-vfs2.version>2.9.0</commons-vfs2.version> <!-- ok latest -->
+        <commons-lang.version>2.6</commons-lang.version> <!-- ok latest -->
+        <jakarta.activation.version>2.1.0</jakarta.activation.version> <!-- ok latest -->
+        <jakarta.xml.bind-api.version>3.0.1</jakarta.xml.bind-api.version>
         <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
         <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
         <neethi.version>3.2.0</neethi.version>
