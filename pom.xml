@@ -65,22 +65,22 @@
         <!-- latest ver 8.0.0.CR1 results in compilation failure: class org.hibernate.validator.constraints.Email compiled with java11 but should be with java8-->
         <!-- next version 7.0.4.Final crashes IT tests with Unable to create a Configuration (Add a provider like Hibernate Validator (RI) to your classpath.) -->
 
-        <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
-        <mockito.version>1.10.19</mockito.version>
-        <h2.version>2.1.212</h2.version>
-        <liquibase.version>4.7.1</liquibase.version>
-        <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
-        <wiremock.version>2.27.2</wiremock.version>
-        <handlebars.version>4.3.0</handlebars.version>
-        <dropwizard.metrics.version>4.2.8</dropwizard.metrics.version>
-        <owasp.dependency.check.version>7.1.0</owasp.dependency.check.version>
-        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
-        <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
-        <wlthint3client.version>12.1.1</wlthint3client.version>
-        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
-        <dss.version>5.8</dss.version>
-        <tomcat-embed.version>9.0.63</tomcat-embed.version>
-        <json-smart.version>2.4.6</json-smart.version>
+        <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
+        <mockito.version>1.10.19</mockito.version><!-- 1.10.19 (31-Dec-2014), latest version is 2.0.2-beta (02-Jan-2015). Keeping stable version 1.10.19 -->
+        <h2.version>2.1.214</h2.version>
+        <liquibase.version>4.7.1</liquibase.version><!-- latest 4.14.0 problems with addAfterColumn is not allowed on oracle -->
+        <mysql.connector.java.version>8.0.30</mysql.connector.java.version>
+        <wiremock.version>2.27.2</wiremock.version> <!-- ok latest -->
+        <handlebars.version>4.3.0</handlebars.version> <!-- ok latest -->
+        <dropwizard.metrics.version>4.2.10</dropwizard.metrics.version>
+        <owasp.dependency.check.version>7.1.1</owasp.dependency.check.version>
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <hikaricp.version>5.0.1</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
+        <wlthint3client.version>12.1.1</wlthint3client.version> <!-- ok latest -->
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version> <!-- ok latest -->
+        <dss.version>5.8</dss.version> <!-- unused TODO to remove -->
+        <tomcat-embed.version>9.0.65</tomcat-embed.version>
+        <json-smart.version>2.4.8</json-smart.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
