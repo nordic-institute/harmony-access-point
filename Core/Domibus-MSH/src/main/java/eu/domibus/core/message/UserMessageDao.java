@@ -89,23 +89,19 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public UserMessage findByMessageId(String messageId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
-        UserMessage result;
-        try {
-            result = DataAccessUtils.singleResult(query.getResultList());
-            if (result == null) {
-                LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
-            }
-        } catch (IncorrectResultSizeDataAccessException ex) {
-            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Trying with SENDING role", messageId);
-            result = findByMessageId(messageId, MSHRole.SENDING);
-            if (result == null) {
-                LOG.debug("Query UserMessage.findByMessageId did not find any result for message with id [{}] and SENDING role. Trying with RECEIVING role.", messageId);
-                result = findByMessageId(messageId, MSHRole.RECEIVING);
-                if (result == null) {
-                    LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}] and RECEIVING role", messageId);
-                }
-            }
+        List<UserMessage> results = query.getResultList();
+        if (CollectionUtils.isEmpty(results)) {
+            LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
+            return null;
         }
+        UserMessage result;
+        if (results.size() == 1) {
+            result = results.get(0);
+        } else {
+            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Returning the one with SENDING role", messageId);
+            result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny().orElse(null);
+        }
+
         if (result != null) {
             initializeChildren(result);
         }

@@ -21,7 +21,6 @@ import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,8 +41,9 @@ public class ResponseHandler {
     private final SignalMessageDao signalMessageDao;
     protected final MessageUtil messageUtil;
     private final ErrorLogService errorLogService;
-    protected Ebms3Converter ebms3Converter;
-    protected UserMessageDao userMessageDao;
+    protected final Ebms3Converter ebms3Converter;
+    protected final UserMessageDao userMessageDao;
+    protected final MshRoleDao mshRoleDao;
 
     public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
                            NonRepudiationService nonRepudiationService,
@@ -51,7 +51,7 @@ public class ResponseHandler {
                            MessageUtil messageUtil,
                            ErrorLogService errorLogService,
                            Ebms3Converter ebms3Converter,
-                           UserMessageDao userMessageDao) {
+                           UserMessageDao userMessageDao, MshRoleDao mshRoleDao) {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
         this.nonRepudiationService = nonRepudiationService;
         this.signalMessageDao = signalMessageDao;
@@ -59,6 +59,7 @@ public class ResponseHandler {
         this.errorLogService = errorLogService;
         this.ebms3Converter = ebms3Converter;
         this.userMessageDao = userMessageDao;
+        this.mshRoleDao = mshRoleDao;
     }
 
     public ResponseResult verifyResponse(final SOAPMessage response, String messageId) throws EbMS3Exception {
@@ -87,9 +88,6 @@ public class ResponseHandler {
 
         return result;
     }
-
-    @Autowired
-    protected MshRoleDao mshRoleDao;
 
     @Transactional
     public void saveResponse(final SOAPMessage response, final UserMessage userMessage, final Ebms3Messaging ebms3MessagingResponse) {

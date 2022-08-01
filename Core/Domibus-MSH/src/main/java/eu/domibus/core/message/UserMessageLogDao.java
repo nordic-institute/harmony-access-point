@@ -407,7 +407,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public String findBackendForMessageId(String messageId, MSHRole mshRole) {
-        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage2", String.class);
+        TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter(MSH_ROLE, mshRole);
         return query.getSingleResult();

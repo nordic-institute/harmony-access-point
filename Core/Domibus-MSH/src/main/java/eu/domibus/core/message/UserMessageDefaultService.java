@@ -533,8 +533,6 @@ public class UserMessageDefaultService implements UserMessageService {
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, mshRole);
         final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId, mshRole);
-        //or like this?
-//        final SignalMessage signalMessage = signalMessageDao.findByUserMessageEntityId(userMessageLog.getEntityId());
         final UserMessage userMessage;
         if (signalMessage == null) {
             LOG.debug("No signalMessage is present for [{}]", messageId);
