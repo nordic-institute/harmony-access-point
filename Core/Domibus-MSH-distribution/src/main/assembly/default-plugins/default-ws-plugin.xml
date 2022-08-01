@@ -22,7 +22,7 @@
         </file>
         <file>
             <source>
-                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/resources/config/tomcat/domains/domain_name/domain_name-ws-plugin.properties
+                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/java/eu/domibus/plugin/ws/config/tomcat/domains/domain_name/domain_name-ws-plugin.properties
             </source>
             <outputDirectory>conf/domibus/plugins/config/tomcat/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
@@ -37,7 +37,7 @@
         </file>
         <file>
             <source>
-                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/resources/config/weblogic/domains/domain_name/domain_name-ws-plugin.properties
+                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/java/eu/domibus/plugin/ws/config/weblogic/domains/domain_name/domain_name-ws-plugin.properties
             </source>
             <outputDirectory>conf/domibus/plugins/config/weblogic/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
@@ -52,7 +52,7 @@
         </file>
         <file>
             <source>
-                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/resources/config/wildfly/domains/domain_name/domain_name-ws-plugin.properties
+                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/java/eu/domibus/plugin/ws/config/wildfly/domains/domain_name/domain_name-ws-plugin.properties
             </source>
             <outputDirectory>conf/domibus/plugins/config/wildfly/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
