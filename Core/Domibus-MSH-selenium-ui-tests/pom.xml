@@ -31,6 +31,7 @@
         <jackson_version>2.13.3</jackson_version>
         <javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
     </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -54,7 +55,7 @@
                     <properties>
                         <property>
                             <name>surefire.testng.verbose</name>
-                            <value>10</value>
+                            <value>0</value>
                         </property>
                     </properties>
                 </configuration>
@@ -67,7 +68,7 @@
         <profile>
             <id>selenium_local</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -95,69 +96,19 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.0.0-M4</version>
                         <configuration>
-                            <enableProcessChecker>all</enableProcessChecker>
-                            <shutdown>kill</shutdown>
-                            <failIfNoTests>true</failIfNoTests>
+                            <systemPropertyVariables>
+                                <propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
+                            </systemPropertyVariables>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
-                            <systemPropertyVariables>
-                                <propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
-                                <runBrowser>firefox</runBrowser>
-                            </systemPropertyVariables>
-                            <properties>
-                                <property>
-                                    <name>usedefaultlisteners</name>
-                                    <value>true</value>
-                                </property>
-                            </properties>
-
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
 
-        <profile>
-            <id>bamboo-rest</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.0.0-M4</version>
-                        <configuration>
-                            <enableProcessChecker>all</enableProcessChecker>
-                            <shutdown>kill</shutdown>
-                            <failIfNoTests>true</failIfNoTests>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>testng_rest.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                            <systemPropertyVariables>
-                                <propertiesFile>./src/main/resources/bambooE2.properties</propertiesFile>
-                                <runBrowser>firefox</runBrowser>
-                            </systemPropertyVariables>
-                            <properties>
-                                <property>
-                                    <name>usedefaultlisteners</name>
-                                    <value>true</value>
-                                </property>
-                            </properties>
-
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <compilerVersion>1.8</compilerVersion>
-                        </configuration>
-
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 
     <dependencies>
@@ -304,3 +255,5 @@
     </dependencies>
 
 </project>
+
+
