@@ -185,7 +185,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
         try {
-            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus2", MessageStatusEntity.class);
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByIdAndRole", MessageStatusEntity.class);
             query.setParameter(STR_MESSAGE_ID, messageId);
             query.setParameter(MSH_ROLE, mshRole);
             return query.getSingleResult().getMessageStatus();

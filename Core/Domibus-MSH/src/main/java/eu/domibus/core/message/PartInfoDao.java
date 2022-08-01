@@ -37,7 +37,7 @@ public class PartInfoDao extends BasicDao<PartInfo> {
     }
 
     public List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds) {
-        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames2", String.class);
+        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
         query.setParameter("MESSAGEIDS", userMessageEntityIds);
         return query.getResultList();
     }

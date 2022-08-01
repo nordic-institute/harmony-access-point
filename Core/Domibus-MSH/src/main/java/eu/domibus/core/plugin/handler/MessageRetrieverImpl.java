@@ -76,6 +76,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
         try {
             return browseMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
         } catch (eu.domibus.api.messaging.MessageNotFoundException ex) {
+            LOG.info("Could not find message with id [{}] and RECEIVING role; trying the SENDING role.", messageId);
             return browseMessage(messageId, eu.domibus.common.MSHRole.SENDING);
         }
     }

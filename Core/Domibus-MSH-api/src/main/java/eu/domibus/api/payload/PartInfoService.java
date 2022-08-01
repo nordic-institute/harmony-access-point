@@ -19,8 +19,6 @@ public interface PartInfoService {
 
     Long findPartInfoTotalLength(long entityId);
 
-//    PartInfo findPartInfo(String messageId, String cid);
-
     PartInfo findPartInfo(Long messageEntityId, String cid);
 
     void clearPayloadData(long entityId);
