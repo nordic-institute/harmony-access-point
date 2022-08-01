@@ -1,11 +1,11 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageType;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -46,9 +46,9 @@ public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
-        Object messageType = message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
-        Object messageId = message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
-        Object messageRole = message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ROLE);
+        String messageType = (String) message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
+        String messageId = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
+        String messageRole = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ROLE);
         if (!MessageType.USER_MESSAGE.equals(messageType) || messageId == null) {
             LOG.trace("No handling is performed: message type is [{}]", messageType);
             return;

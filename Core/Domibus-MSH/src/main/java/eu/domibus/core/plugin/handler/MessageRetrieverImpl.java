@@ -105,8 +105,10 @@ public class MessageRetrieverImpl implements MessageRetriever {
         //try both
         eu.domibus.common.MessageStatus status = getStatus(messageId, eu.domibus.common.MSHRole.RECEIVING);
         if (status != eu.domibus.common.MessageStatus.NOT_FOUND) {
+            LOG.debug("Found status for message id [{}] and RECEIVING role", messageId);
             return status;
         }
+        LOG.debug("Returning status for message id [{}] and SENDING role since there is no one with RECEIVING role.", messageId);
         return getStatus(messageId, eu.domibus.common.MSHRole.SENDING);
     }
 

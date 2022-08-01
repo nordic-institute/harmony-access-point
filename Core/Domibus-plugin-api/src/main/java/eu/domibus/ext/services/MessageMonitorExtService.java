@@ -139,6 +139,7 @@ public interface MessageMonitorExtService {
      * @param messageId Unique id of the message
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
      * @throws MessageMonitorExtException Raised in case an exception occurs while trying to delete the message
+     * @deprecated since 5.1 Use instead {@link #deleteMessageNotInFinalStatus(String messageId, MSHRole role)}
      */
     @Deprecated
     void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException;

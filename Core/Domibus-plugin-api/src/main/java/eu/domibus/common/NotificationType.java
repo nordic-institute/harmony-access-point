@@ -30,5 +30,4 @@ public enum NotificationType {
             MESSAGE_RECEIVED_FAILURE,
             MESSAGE_SEND_SUCCESS,
             MESSAGE_STATUS_CHANGE));
-
 }

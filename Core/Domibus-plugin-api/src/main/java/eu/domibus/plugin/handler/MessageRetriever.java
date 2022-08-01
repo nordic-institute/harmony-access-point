@@ -41,6 +41,7 @@ public interface MessageRetriever {
      * @param messageId the messageId of the message to browse
      * @return the message object with the given messageId
      * @throws MessageNotFoundException if the message could not be found
+     * @deprecated since 5.1 Use instead {@link #browseMessage(String messageId, MSHRole role)}
      */
     @Deprecated
     Submission browseMessage(String messageId) throws MessageNotFoundException;
@@ -61,6 +62,7 @@ public interface MessageRetriever {
      *
      * @param messageId id of the message the status is requested for
      * @return the message status {@link eu.domibus.common.MessageStatus}
+     * @deprecated since 5.1 Use instead {@link #getStatus(String messageId, MSHRole role)}
      */
     @Deprecated
     MessageStatus getStatus(String messageId);
@@ -80,6 +82,7 @@ public interface MessageRetriever {
      *
      * @param messageId id of the message the errors are requested for
      * @return the list of error log entries {@link java.util.List} of {@link ErrorResult}
+     * @deprecated since 5.1 Use instead {@link #getErrorsForMessage(String messageId, MSHRole role)}
      */
     @Deprecated
     List<? extends ErrorResult> getErrorsForMessage(String messageId);
