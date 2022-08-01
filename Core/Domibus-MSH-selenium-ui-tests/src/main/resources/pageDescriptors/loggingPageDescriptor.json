@@ -1,40 +1,43 @@
 {
-    "title": "Logging",
-    "filters": [
-	{
-	  "name": "searchInputField",
-	  "placeholder": "Package or class name",
-	  "isDefault": true,
-	  "type": "INPUT"
-	},{
-	  "name": "showClassCheckbox",
-	  "placeholder": "",
-	  "isDefault": true,
-	  "type": "CHECKBOX"
-	}	
-	],
-    "grid": {
-        "columnsControls": false,
-        "rowsControls": false,
-        "exportCSV": false,
-        "defaultSort": "",
-        "columns": [{
-                "name": "Logger Name",
-                "type": "TEXT",
-                "sortable": false,
-                "visibleByDefault": true
-            }, {
-                "name": "Logger Level",
-                "type": "TEXT",
-                "sortable": false,
-                "visibleByDefault": true
-            }
-        ],
-        "pagination": {
-            "showSelectedNo": true,
-            "showTotalNo": true,
-            "showPageControls": true
-        }
+  "title": "Logging",
+  "filters": [
+    {
+      "name": "searchInputField",
+      "placeholder": "Package or class name",
+      "isDefault": true,
+      "type": "INPUT"
     },
-    "buttons": []
+    {
+      "name": "showClassCheckbox",
+      "placeholder": "",
+      "isDefault": true,
+      "type": "CHECKBOX"
+    }
+  ],
+  "grid": {
+    "columnsControls": false,
+    "rowsControls": false,
+    "exportCSV": false,
+    "defaultSort": "",
+    "columns": [
+      {
+        "name": "Logger Name",
+        "type": "TEXT",
+        "sortable": false,
+        "visibleByDefault": true
+      },
+      {
+        "name": "Logger Level",
+        "type": "TEXT",
+        "sortable": false,
+        "visibleByDefault": true
+      }
+    ],
+    "pagination": {
+      "showSelectedNo": true,
+      "showTotalNo": true,
+      "showPageControls": true
+    }
+  },
+  "buttons": []
 }

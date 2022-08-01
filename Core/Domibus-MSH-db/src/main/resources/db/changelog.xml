@@ -1779,8 +1779,8 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="RETRY_COUNT" type="INT"/>
             <column name="RETRY_TIMEOUT" type="INT"/>
-            <column name="INITIAL_INTERVAL" type="INT"/>
-            <column name="MULTIPLYING_FACTOR" type="INT"/>
+            <column name="INITIAL_INTERVAL" type="INT" defaultValueNumeric="0"/>
+            <column name="MULTIPLYING_FACTOR" type="INT" defaultValueNumeric="0"/>
             <column name="STRATEGY" type="VARCHAR(255)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
@@ -2965,6 +2965,7 @@
         </createTable>
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
     </changeSet>
+
     <!-- End User Tables -->
 
 </databaseChangeLog>

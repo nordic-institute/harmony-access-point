@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--suppress MavenModelInspection -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -12,8 +11,10 @@
         <version>5.1-SNAPSHOT</version>
     </parent>
 
+    <groupId>eu.domibus</groupId>
     <artifactId>domibus-msh-selenium-ui-tests</artifactId>
     <name>Domibus MSH Selenium UI Tests</name>
+    <version>5.1-SNAPSHOT</version>
 
 
     <properties>
@@ -27,62 +28,59 @@
         <jersey-client_version>1.19.4</jersey-client_version>
         <jersey-multipart_version>1.19.4</jersey-multipart_version>
         <json_version>20190722</json_version>
-        <jackson_version>2.13.2</jackson_version>
+        <jackson_version>2.13.3</jackson_version>
         <javax.ws.rs-api_version>2.0-m02</javax.ws.rs-api_version>
-        <domibus-ws-stubs_version>4.1-RC1</domibus-ws-stubs_version>
     </properties>
-
-
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+                <configuration>
+                    <failIfNoTests>true</failIfNoTests>
+                    <systemPropertyVariables>
+                        <runBrowser>firefox</runBrowser>
+                    </systemPropertyVariables>
+                    <groups>multiTenancy</groups>
+                    <properties>
+                        <property>
+                            <name>surefire.testng.verbose</name>
+                            <value>10</value>
+                        </property>
+                    </properties>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 
     <profiles>
 
-
         <profile>
             <id>selenium_local</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.0.0-M4</version>
                         <configuration>
-                            <enableProcessChecker>all</enableProcessChecker>
-                            <shutdown>kill</shutdown>
                             <systemPropertyVariables>
-                                <propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
-                                <runBrowser>firefox</runBrowser>
+                                <propertiesFile>./src/main/resources/myLocal.properties</propertiesFile>
                             </systemPropertyVariables>
-                            <failIfNoTests>true</failIfNoTests>
                             <suiteXmlFiles>
                                 <suiteXmlFile>testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
-                            <properties>
-                                <property>
-                                    <name>usedefaultlisteners</name>
-                                    <value>true</value>
-                                </property>
-                            </properties>
                         </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <compilerVersion>1.8</compilerVersion>
-                            <target>1.8</target>
-                        </configuration>
-
                     </plugin>
                 </plugins>
             </build>
@@ -116,13 +114,6 @@
                                 </property>
                             </properties>
 
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <compilerVersion>1.8</compilerVersion>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -229,7 +220,6 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <!--			<version>${reflections_version}</version>-->
             <version>0.9.12</version>
         </dependency>
 
@@ -243,7 +233,6 @@
             <groupId>com.sun.jersey.contribs</groupId>
             <artifactId>jersey-multipart</artifactId>
             <version>${jersey-multipart_version}</version>
-            <!--			<version>1.19.4</version>-->
         </dependency>
 
         <dependency>
@@ -274,31 +263,30 @@
         </dependency>
 
         <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ws-stubs</artifactId>
-            <version>${domibus-ws-stubs_version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
+            <version>1.10</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.28</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/xmlunit/xmlunit -->
         <dependency>
@@ -308,9 +296,9 @@
         </dependency>
 
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>4.2.0</version>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M7</version>
         </dependency>
 
     </dependencies>

@@ -1,11 +1,11 @@
 package pages.connectionMon;
 
 
-public enum STATUS{
+public enum STATUS {
 	SUCCESS, ERROR, UNKNOWN;
 
-	public String getColor(){
-		switch (this){
+	public String getColor() {
+		switch (this) {
 			case UNKNOWN:
 				return "orange";
 			case SUCCESS:

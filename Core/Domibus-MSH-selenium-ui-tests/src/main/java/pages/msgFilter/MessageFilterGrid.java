@@ -2,7 +2,6 @@ package pages.msgFilter;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.Checkbox;
-import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -11,10 +10,7 @@ import org.openqa.selenium.WebElement;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class MessageFilterGrid extends DGrid {
 
 	By persistedChkSelector = By.cssSelector("input[type=checkbox]");

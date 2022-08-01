@@ -9,10 +9,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class PropertiesPage extends DomibusPage {
@@ -37,7 +33,6 @@ public class PropertiesPage extends DomibusPage {
 	public PropFilters filters() {
 		return new PropFilters(driver);
 	}
-
 
 
 }

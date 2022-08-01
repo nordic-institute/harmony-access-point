@@ -8,26 +8,22 @@ import org.openqa.selenium.WebElement;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class Checkbox extends DObject {
-	
+
 	WebElement labelElement;
-	
+
 	public Checkbox(WebDriver driver, WebElement element) {
 		this(driver, element, null);
 	}
-	
+
 	public Checkbox(WebDriver driver, WebElement element, WebElement labelElement) {
 		super(driver, element);
-		
+
 		this.labelElement = labelElement;
 	}
-	
+
 	public boolean isChecked() throws Exception {
 		if (isPresent()) {
 			if (null != element.getAttribute("checked")) {
@@ -38,7 +34,7 @@ public class Checkbox extends DObject {
 		}
 		throw new DObjectNotPresentException();
 	}
-	
+
 	public void check() throws Exception {
 		if (isChecked()) return;
 		if (isEnabled()) {
@@ -48,7 +44,7 @@ public class Checkbox extends DObject {
 		}
 		throw new Exception("Checkbox is not enabled");
 	}
-	
+
 	public void uncheck() throws Exception {
 		if (!isChecked()) return;
 		if (isEnabled()) {
@@ -58,7 +54,7 @@ public class Checkbox extends DObject {
 		}
 		throw new Exception("Checkbox is not enabled");
 	}
-	
+
 	private void clickCheckbox() {
 		try {
 			element.click();
@@ -68,7 +64,7 @@ public class Checkbox extends DObject {
 				this.labelElement.click();
 		}
 	}
-	
+
 	public void set(boolean checked) throws Exception {
 		if (checked) {
 			check();
@@ -76,6 +72,6 @@ public class Checkbox extends DObject {
 			uncheck();
 		}
 	}
-	
-	
+
+
 }

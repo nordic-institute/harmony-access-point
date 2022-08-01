@@ -10,10 +10,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-/**
- * @author Catalin Comanici
- * @since 4.1.2
- */
 public class PMAModal extends DComponent {
 	@FindBy(css = "mat-dialog-container h1#pmodeheader_id")
 	public WebElement title;

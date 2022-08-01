@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -9,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -122,9 +122,9 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			log.info("setting \"From\" filter to: " + rowInfo.get("Time"));
 			page.filters().getJmsFromDatePicker().selectDate(data.fromUIToWidgetFormat(rowInfo.get("Time")));
 
-			Reporter.log("setting \"Selector\" filter to: " + getSelector(rowInfo));
-			log.info("setting \"Selector\" filter to: " + getSelector(rowInfo));
-			page.filters().getJmsSelectorInput().fill(getSelector(rowInfo));
+			Reporter.log("setting \"Selector\" filter to: " + getSelector(rowInfo, "AND"));
+			log.info("setting \"Selector\" filter to: " + getSelector(rowInfo, "AND"));
+			page.filters().getJmsSelectorInput().fill(getSelector(rowInfo, "AND"));
 			page.filters().getJmsSearchButton().click();
 
 			page.grid().waitForRowsToLoad();
@@ -276,9 +276,9 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			log.info("getting info from row 0");
 			HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
 
-			Reporter.log("setting \"Selector\" filter to: " + getSelector(rowInfo));
-			log.info("setting \"Selector\" filter to: " + getSelector(rowInfo));
-			page.filters().getJmsSelectorInput().fill(getSelector(rowInfo));
+			Reporter.log("setting \"Selector\" filter to: " + getSelector(rowInfo, "AND"));
+			log.info("setting \"Selector\" filter to: " + getSelector(rowInfo, "AND"));
+			page.filters().getJmsSelectorInput().fill(getSelector(rowInfo, "AND"));
 			page.filters().getJmsSearchButton().click();
 
 			page.grid().waitForRowsToLoad();
@@ -571,7 +571,7 @@ public class JMSMessPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	private String getSelector(HashMap<String, String> messInfo) throws JSONException {
+	private String getSelector(HashMap<String, String> messInfo, String verb) throws JSONException {
 
 		JSONObject customProp = new JSONObject(messInfo.get("Custom prop"));
 
@@ -581,8 +581,45 @@ public class JMSMessPgUXTest extends SeleniumTest {
 		String val1 = customProp.getString(key1);
 		String val2 = customProp.getString(key2);
 
-		String selector = String.format("%s='%s' AND %s='%s'", key1, val1, key2, val2);
+		String selector = String.format("%s='%s' %s %s='%s'", key1, val1, verb, key2, val2);
 		return selector;
+	}
+
+	/* EDELIVERY-6349 - JMS-30 - Search data using valid selector filtering by multiple fields using OR operator */
+	@Test(description = "JMS-30", groups = {"multiTenancy", "singleTenancy"})
+	public void filterMessagesByComplexSelector() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String qWMess = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(qWMess)) {
+			throw new SkipException("No queue has messages");
+		}
+		log.info("Navigate to JMS Messages page");
+
+		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
+
+		int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
+		page.grid().waitForRowsToLoad();
+
+		log.info("getting info from row 0");
+		HashMap<String, String> rowInfo = page.grid().getRowInfo(0);
+
+		log.info("setting \"Selector\" filter to: " + getSelector(rowInfo, "OR"));
+		page.filters().getJmsSelectorInput().fill(getSelector(rowInfo, "OR"));
+		page.filters().getJmsSearchButton().click();
+
+		page.grid().waitForRowsToLoad();
+
+		log.info("checking number of messages");
+		soft.assertTrue(page.grid().getRowsNo() >= 1, "At least one message is listed");
+
+		log.info("checking message id");
+		HashMap<String, String> newRowInfo = page.grid().getRowInfo(0);
+		soft.assertEquals(rowInfo.get("ID"), newRowInfo.get("ID"), "Result has expoected ID");
+
+		soft.assertAll();
 	}
 
 

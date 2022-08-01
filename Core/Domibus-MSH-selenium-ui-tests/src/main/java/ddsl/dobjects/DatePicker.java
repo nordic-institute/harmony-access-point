@@ -1,7 +1,6 @@
 package ddsl.dobjects;
 
 import ddsl.dcomponents.DComponent;
-import org.apache.commons.lang3.time.DateUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,7 +10,6 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.testng.asserts.SoftAssert;
 import utils.TestRunData;
-import utils.TestUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -19,10 +17,6 @@ import java.util.Date;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class DatePicker extends DComponent {
@@ -44,10 +38,10 @@ public class DatePicker extends DComponent {
 
 //------------------------------------------------------------------------
 
-//	@FindBy(css = "span.md2-datepicker-arrow")
+	//	@FindBy(css = "span.md2-datepicker-arrow")
 	private WebElement expandBtn;
 
-//	@FindBy(className = "md2-datepicker-value")
+	//	@FindBy(className = "md2-datepicker-value")
 	private WebElement input;
 
 	//-------------Prev/Next controls ----------------------------------------
@@ -59,7 +53,7 @@ public class DatePicker extends DComponent {
 	private WebElement nextBtn;
 	private By pickerBtnLct = By.cssSelector("div.md2-calendar-body-cell-content");
 //------------------------------------------------------------------------
-	
+
 	//-------------Calendar items selectors-----------------------------------
 //	@FindBy(css = "div.md2-calendar-body-cell-content")
 //	private List<WebElement> pickerBtns;
@@ -74,11 +68,11 @@ public class DatePicker extends DComponent {
 	@FindBy(css = "div.md2-clock-minutes div.md2-clock-cell")
 	private List<WebElement> clockMinuteItems;
 
-	@FindBy (css = ".md2-calendar-body-cell-content.md2-calendar-body-today")
+	@FindBy(css = ".md2-calendar-body-cell-content.md2-calendar-body-today")
 	private WebElement todayDate;
 	@FindBy(css = "div.md2-clock-hours.active div.md2-clock-cell-selected")
 	private WebElement currentClockHour;
-	
+
 	public DatePicker(WebDriver driver, WebElement container) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -88,15 +82,16 @@ public class DatePicker extends DComponent {
 
 
 	public void selectDate(Date date) throws Exception {
-		String dateStr  = new SimpleDateFormat(dateFormat).format(date);
+		String dateStr = new SimpleDateFormat(dateFormat).format(date);
 		selectDate(dateStr);
 	}
 
-	private WebElement getInput(){
+	private WebElement getInput() {
 		input = container.findElement(By.cssSelector(".md2-datepicker-value"));
 		return input;
 	}
-	private WebElement getExpandBtn(){
+
+	private WebElement getExpandBtn() {
 		expandBtn = container.findElement(By.cssSelector("span.md2-datepicker-arrow"));
 		return expandBtn;
 	}
@@ -109,7 +104,7 @@ public class DatePicker extends DComponent {
 		}
 		return false;
 	}
-	
+
 	public void expandWidget() throws Exception {
 		if (!isExpanded()) {
 			weToDButton(getExpandBtn()).click();
@@ -124,16 +119,18 @@ public class DatePicker extends DComponent {
 		DInput pickerInput = new DInput(driver, getInput());
 		pickerInput.fill(date);
 	}
-//	used don't change
+
+	//	used don't change
 	public String getSelectedDate() {
 		return new DInput(driver, getInput()).getText().trim();
 	}
-//	used don't change
+
+	//	used don't change
 	public void clearSelectedDate() throws Exception {
 		new DInput(driver, getInput()).clear();
 	}
 
-	public int verifyMaxClockValue(SoftAssert soft, Calendar cal){
+	public int verifyMaxClockValue(SoftAssert soft, Calendar cal) {
 		log.debug("Getting Current date & time");
 		Date date = cal.getTime();
 		soft.assertTrue(Integer.parseInt(todayDate.getText()) == cal.get(Calendar.DAY_OF_MONTH), "Current date & Max enable Clock date are same");
@@ -157,15 +154,14 @@ public class DatePicker extends DComponent {
 		act.moveToElement(clockMinuteItems.get(size - 1)).click().perform();
 		log.debug("Current System date & time : " + getSelectedDate());
 		log.debug("Selected Date & time in Field : " + TestRunData.DATEWIDGET_DATE_FORMAT.format(date));
-		if(getSelectedDate().compareTo(TestRunData.DATEWIDGET_DATE_FORMAT.format(date)) >= 0){
-			return 1 ;
-		}
-		else{
+		if (getSelectedDate().compareTo(TestRunData.DATEWIDGET_DATE_FORMAT.format(date)) >= 0) {
+			return 1;
+		} else {
 			return -1;
 		}
 
 
 	}
 
-	
+
 }

@@ -1,7 +1,7 @@
 package pages.messages;
 
 import ddsl.dcomponents.FilterArea;
-import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DatePicker;
 import ddsl.dobjects.Select;
@@ -11,10 +11,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class MessageFilterArea extends FilterArea {
 	//	-------------------- Basic filters ---------------------------
 	@FindBy(id = "messageid_id")
@@ -63,6 +60,10 @@ public class MessageFilterArea extends FilterArea {
 	public MessageFilterArea(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
+
+	public Checkbox getShowTestMessagesChk() {
+		return weToCheckbox(showTestMessagesChk);
 	}
 
 	public DInput getMessageIDInput() {
@@ -177,5 +178,9 @@ public class MessageFilterArea extends FilterArea {
 	public void showAllMessages() throws Exception {
 		weToSelect(messagesIntevalContainer).selectOptionByText("Last 30 days");
 		clickSearch();
+	}
+
+	public Select getMessageIntervalSelect() throws Exception {
+		return weToSelect(messagesIntevalContainer);
 	}
 }

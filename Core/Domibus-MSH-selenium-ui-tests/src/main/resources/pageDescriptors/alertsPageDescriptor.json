@@ -5,61 +5,61 @@
       "name": "processedContainer",
       "placeholder": "Processed",
       "isDefault": true,
-	  "type": "SELECT"
+      "type": "SELECT"
     },
     {
       "name": "alertTypeContainer",
       "placeholder": "Alert Type",
       "isDefault": true,
-	  "type": "SELECT"
+      "type": "SELECT"
     },
     {
       "name": "alertStatusContainer",
       "placeholder": "Alert Status",
       "isDefault": true,
-	  "type": "SELECT"
+      "type": "SELECT"
     },
     {
       "name": "alertLevelContainer",
       "placeholder": "Alert Level",
       "isDefault": true,
-	  "type": "SELECT"
+      "type": "SELECT"
     },
     {
       "name": "creationFromContainer",
       "placeholder": "Creation From:",
       "isDefault": true,
-	  "type": "DATE"
+      "type": "DATE"
     },
     {
       "name": "creationToContainer",
       "placeholder": "Creation To:",
       "isDefault": true,
-	  "type": "DATE"
+      "type": "DATE"
     },
     {
       "name": "alertIdInput",
       "placeholder": "Alert Id",
       "isDefault": false,
-	  "type": "INPUT"
+      "type": "INPUT"
     },
     {
       "name": "reportingFromContainer",
       "placeholder": "Reporting From:",
       "isDefault": false,
-	  "type": "DATE"
+      "type": "DATE"
     },
     {
       "name": "reportingToContainer",
       "placeholder": "Reporting To:",
       "isDefault": false,
-	  "type": "DATE"
+      "type": "DATE"
     },
     {
       "name": "showDomainAlertsChk",
       "placeholder": "",
       "isDefault": true,
-	  "type": "CHECKBOX"
+      "type": "CHECKBOX"
     }
   ],
   "extraFilters": {
@@ -170,7 +170,8 @@
         "type": "BOOLEAN",
         "sortable": false,
         "visibleByDefault": true
-      }, {
+      },
+      {
         "name": "Alert Id",
         "type": "TEXT",
         "sortable": true,

@@ -10,10 +10,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import utils.Gen;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class PartyIdentifierModal extends DomibusPage {
 	@FindBy(css = "app-party-identifier-details form button:nth-child(1)")
 	WebElement okBtn;

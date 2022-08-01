@@ -14,15 +14,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1.2
- */
 public class DFileUtils {
 
 	protected static final Logger log = LoggerFactory.getLogger(DFileUtils.class);
-	
-	
+
+
 	/*  This method will return total row count having data present in it*/
 	public static int getRowCount(String fileName) throws IOException {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
@@ -31,11 +27,11 @@ public class DFileUtils {
 		while ((input = bufferedReader.readLine()) != null) {
 			count++;
 		}
-		
+
 		log.info("Downloaded file row count including headers row : " + count);
 		return count;
 	}
-	
+
 	/*  This method will verify whether file is downloaded or not   */
 	public static Boolean isFileDownloaded(String path) throws Exception {
 		int size = new File(path).listFiles().length;
@@ -47,15 +43,15 @@ public class DFileUtils {
 			return false;
 		}
 	}
-	
+
 	/*This method will return document from xml */
 	public static Document getDocFromXML(String path) throws Exception {
 		List<String> results = new ArrayList<String>();
 		File[] listOfFiles = new File(path).listFiles();
-		
+
 		for (File file : listOfFiles) {
 			if (file.isFile()) {
-			
+
 			}
 			results.add(file.getName());
 		}
@@ -65,12 +61,12 @@ public class DFileUtils {
 		Document doc = docBuilder.parse(new File(completeFilePath));
 		return doc;
 	}
-	
+
 	/* This method will return extension of downloaded file*/
 	public static String getFileExtension(String path) {
 		List<String> results = new ArrayList<String>();
 		File[] listOfFiles = new File(path).listFiles();
-		
+
 		for (File file : listOfFiles) {
 			if (file.isFile()) {
 				results.add(file.getName());
@@ -79,21 +75,21 @@ public class DFileUtils {
 		String completePath = path + "\\" + results.get(0);
 		return FilenameUtils.getExtension(completePath);
 	}
-	
+
 	/* This method will return folder location for downloaded file*/
 	public static String getCompleteFileName(String path) throws Exception {
 		List<String> results = new ArrayList<String>();
 		File[] listOfFiles = new File(path).listFiles();
-		if(listOfFiles.length >1){
+		if (listOfFiles.length > 1) {
 			throw new Exception("More than one file in download folder");
 		}
 		return listOfFiles[0].getAbsolutePath();
 	}
-	
-	
+
+
 	public static String getAbsolutePath(String relativePath) {
 //		String fileStr = Thread.currentThread().getContextClassLoader().getResource(relativePath).getFile();
 		return new File(relativePath).getAbsolutePath();
 	}
-	
+
 }

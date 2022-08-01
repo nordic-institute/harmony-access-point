@@ -1,14 +1,13 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.AlertArea;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DObject;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Alert.AlertPage;
@@ -20,7 +19,6 @@ import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartiesFilters;
 import pages.properties.PropertiesPage;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
