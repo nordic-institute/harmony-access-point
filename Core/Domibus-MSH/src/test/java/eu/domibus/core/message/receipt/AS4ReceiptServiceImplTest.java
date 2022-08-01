@@ -49,7 +49,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "rawtypes"})
 @RunWith(JMockit.class)
-public class AS4Ebms3ReceiptEbms3ServiceImplTest {
+public class AS4ReceiptServiceImplTest {
 
     public static final String MESSAGE_ID = "messageId";
     @Tested

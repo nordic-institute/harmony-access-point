@@ -102,9 +102,9 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     public MessagingLock getLock(final String messageId) {
         try {
             LOG.debug("Message[{}] Getting lock", messageId);
-            Query q = entityManager.createNamedQuery("MessagingLock.lockByMessageId", MessagingLock.class);
+            TypedQuery<MessagingLock> q = entityManager.createNamedQuery("MessagingLock.lockByMessageId", MessagingLock.class);
             q.setParameter(1, messageId);
-            return (MessagingLock) q.getSingleResult();
+            return q.getSingleResult();
         } catch (NoResultException nr) {
             LOG.trace("Message:[{}] lock not found. It is has been removed by another process.", messageId, nr);
             return null;

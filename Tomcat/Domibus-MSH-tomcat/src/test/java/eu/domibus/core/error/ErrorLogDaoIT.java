@@ -67,17 +67,12 @@ public class ErrorLogDaoIT extends AbstractIT {
         errorLogDao.create(errorLogEntry);
     }
 
-    @After
-    public void clean() {
-
+    @Test
+    @Transactional
+    public void test_deleteErrorLogsWithoutMessageIdOlderThan() {
+        int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
+        Assert.assertEquals(2, result);
     }
-
-//    @Test
-//    @Transactional
-//    public void test_deleteErrorLogsWithoutMessageIdOlderThan() {
-//        int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
-//        Assert.assertEquals(2, result);
-//    }
 
     @Test
     @Transactional

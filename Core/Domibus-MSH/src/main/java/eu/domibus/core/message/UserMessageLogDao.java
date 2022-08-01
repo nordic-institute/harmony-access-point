@@ -263,6 +263,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         if (mshRole == null) {
+            LOG.debug("Provided MSHRole is null; calling findByMessageId(messageId) for id [{}]", messageId);
             return findByMessageId(messageId);
         }
 

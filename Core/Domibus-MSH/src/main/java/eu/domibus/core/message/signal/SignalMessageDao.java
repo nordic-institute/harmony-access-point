@@ -36,7 +36,7 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
     }
 
     public SignalMessage findByUserMessageIdWithUserMessage(String messageId, MSHRole mshRole) {
-        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageId2", SignalMessage.class);
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageIdAndRole", SignalMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
         query.setParameter("MSH_ROLE", mshRole);
         return DataAccessUtils.singleResult(query.getResultList());

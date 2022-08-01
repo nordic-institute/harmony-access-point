@@ -127,8 +127,10 @@ public class MessageRetrieverImpl implements MessageRetriever {
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         List<? extends ErrorResult> errors = getErrorsForMessage(messageId, eu.domibus.common.MSHRole.RECEIVING);
         if (CollectionUtils.isNotEmpty(errors)) {
+            LOG.debug("Returning Errors for message id [{}] and RECEIVING role", messageId);
             return errors;
         }
+        LOG.debug("Returning Errors for message id [{}] and SENDING role", messageId);
         return getErrorsForMessage(messageId, eu.domibus.common.MSHRole.SENDING);
     }
 

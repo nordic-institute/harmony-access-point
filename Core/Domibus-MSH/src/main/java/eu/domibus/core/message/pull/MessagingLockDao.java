@@ -7,7 +7,6 @@ import java.util.List;
  * @since 3.3.4
  */
 
-// do we need mshRole here??
 public interface MessagingLockDao {
 
     PullMessageId getNextPullMessageToProcess(String initiator, String mpc);

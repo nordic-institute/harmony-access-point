@@ -209,13 +209,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
         final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
 
-        if (selfSendingFlag) {
-                /*we add a defined suffix in order to assure DB integrity - messageId unicity
-                basically we are generating another messageId for Signal Message on receiver side
-                */
-//            signalMessage.setRefToMessageId(signalMessage.getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-//            signalMessage.setSignalMessageId(signalMessage.getSignalMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-        }
         final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.SENDING);
         signalMessage.setMshRole(mshRoleEntity);
 
