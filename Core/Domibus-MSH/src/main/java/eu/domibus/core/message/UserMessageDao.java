@@ -11,7 +11,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,13 +97,15 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         if (results.size() == 1) {
             result = results.get(0);
         } else {
-            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Returning the one with SENDING role", messageId);
-            result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny().orElse(null);
+            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
+            result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
+                    .orElse(results.get(0));
         }
 
         if (result != null) {
             initializeChildren(result);
         }
+        LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
         return result;
     }
 

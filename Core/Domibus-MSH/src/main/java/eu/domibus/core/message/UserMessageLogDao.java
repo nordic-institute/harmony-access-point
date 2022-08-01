@@ -14,7 +14,6 @@ import eu.domibus.logging.MDCKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.procedure.ProcedureOutputs;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -239,26 +238,22 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public UserMessageLog findByMessageId(String messageId) {
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        UserMessageLog result;
-        try {
-            result = DataAccessUtils.singleResult(query.getResultList());
-            if (result == null) {
-                LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
-            }
-            return result;
-        } catch (IncorrectResultSizeDataAccessException ex) {
-            LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying with SENDING role", messageId);
-            result = findByMessageId(messageId, MSHRole.SENDING);
-            if (result != null) {
-                return result;
-            }
-            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and SENDING role. Trying with RECEIVING role.", messageId);
-            result = findByMessageId(messageId, MSHRole.RECEIVING);
-            if (result == null) {
-                LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}] and RECEIVING role", messageId);
-            }
-            return result;
+        List<UserMessageLog> results = query.getResultList();
+        if (CollectionUtils.isEmpty(results)) {
+            LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+            return null;
         }
+
+        if (results.size() == 1) {
+            LOG.debug("Returning the message with role [{}]", results.get(0).getMshRole().getRole());
+            return results.get(0);
+        }
+
+        LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
+        UserMessageLog result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
+                .orElse(results.get(0));
+        LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
+        return result;
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
