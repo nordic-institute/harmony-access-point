@@ -30,9 +30,16 @@
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
         <springdoc.version>1.6.9</springdoc.version>
         <io.swagger.core.v3.version>2.2.2</io.swagger.core.v3.version>
-        <swagger-ui.version>3.52.3</swagger-ui.version><!--TODO analyze-->
-        <hibernate.version>5.5.9.Final</hibernate.version><!-- cannot update TODO explanation -->
-        <activemq.version>5.16.4</activemq.version><!-- dependency org.apache.activemq:activemq-kahadb-store:jar:5.17.1 doesn't bring commons-net:commons-net:jar which results in compilation error in eu.domibus.test.common.SoapSampleUtil; solution: add commons-net:commons-net explicitly in domibus-msh-test-common-->
+        <swagger-ui.version>4.13.0</swagger-ui.version>
+        <hibernate.version>5.5.9.Final</hibernate.version>
+        <!-- cannot update to 6.0.1.Final because different transitive dependencies not found on nexus -->
+        <!-- 5.6.6.Final, 5.6.8.Final, 5.6.9.Final compilation failure DatePrefixedGenericSequenceIdGenerator.java:[83,5] method does not override or implement a method from a supertype and others -->
+
+
+        <activemq.version>5.16.4</activemq.version>
+        <!-- version 5.17.1: dependency org.apache.activemq:activemq-kahadb-store:jar:5.17.1 doesn't bring commons-net:commons-net:jar which results in compilation error in eu.domibus.test.common.SoapSampleUtil; solution: add commons-net:commons-net explicitly in domibus-msh-test-common-->
+        <!-- version 5.16.5: Tests crashing with: Caused by: java.lang.IllegalArgumentException: ${activeMQ.persistent} -->
+
         <aspectj.version>1.9.9.1</aspectj.version>
         <slf4j.version>2.0.0-alpha7</slf4j.version>
         <logback.version>1.3.0-alpha16</logback.version>
@@ -74,11 +81,11 @@
         <handlebars.version>4.3.0</handlebars.version> <!-- ok latest -->
         <dropwizard.metrics.version>4.2.10</dropwizard.metrics.version>
         <owasp.dependency.check.version>7.1.1</owasp.dependency.check.version>
-        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version><!-- TODO latest versions 3.3.0 and 3.2.0 causing issues: the build blocks indefinitely with this: [TestNG] INVOKING CONFIGURATION: "UNKNOWN" - @BeforeSuite domibus.ui.SeleniumTest.beforeSuite() -->
-        <hikaricp.version>5.0.1</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <hikaricp.version>5.0.1</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version> <!-- ok latest -->
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version> <!-- ok latest -->
-        <dss.version>5.8</dss.version> <!-- unused TODO to remove -->
+        <dss.version>5.10.1</dss.version>
         <tomcat-embed.version>9.0.65</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
 
