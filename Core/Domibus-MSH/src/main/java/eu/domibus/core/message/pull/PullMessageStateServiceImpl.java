@@ -53,7 +53,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void expirePullMessage(final String messageId) {
         LOG.debug("Message:[{}] expired.", messageId);
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING); // correct role??
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }

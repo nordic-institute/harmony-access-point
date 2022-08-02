@@ -83,12 +83,10 @@ public class UserMessagePayloadExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "{messageId}/payloads/{cid}", produces = MediaType.APPLICATION_XML_VALUE)
     public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid,
-                                           @RequestParam(value = "mshRole", required = false) String mshRole, HttpServletResponse response) {
+                                           @RequestParam(value = "mshRole", required = false) MSHRole mshRole, HttpServletResponse response) {
+        LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, mshRole);
 
-        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : null;
-        LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, role);
-
-        final PartInfoDTO payload = payloadExtService.getPayload(messageId, role, cid);
+        final PartInfoDTO payload = payloadExtService.getPayload(messageId, mshRole, cid);
         writePayloadToResponse(cid, response, payload);
     }
 

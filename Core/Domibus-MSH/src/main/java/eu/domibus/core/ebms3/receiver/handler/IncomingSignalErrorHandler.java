@@ -56,7 +56,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
         LOG.debug("Processing Signal with error [{}]", error);
 
         final String refToMessageId = signalMessage.getMessageInfo().getRefToMessageId();
-        final UserMessage userMessage = userMessageDao.findByMessageId(refToMessageId, MSHRole.RECEIVING);
+        final UserMessage userMessage = userMessageDao.findByMessageId(refToMessageId, MSHRole.SENDING);
         if (userMessage == null) {
             LOG.warn("Could not process the Signal: no message [{}] found", refToMessageId);
             return null;

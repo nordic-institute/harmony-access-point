@@ -122,9 +122,8 @@ public class MessageMonitoringExtResource {
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
     public void deleteMessage(@PathVariable(value = "messageId") String messageId,
-                              @RequestParam(value = "mshRole", required = false) String mshRole) {
-        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : null;
-        messageMonitorExtService.deleteMessageNotInFinalStatus(messageId, role);
+                              @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
+        messageMonitorExtService.deleteMessageNotInFinalStatus(messageId, mshRole);
     }
 
     @Operation(summary = "Delete messages payload",

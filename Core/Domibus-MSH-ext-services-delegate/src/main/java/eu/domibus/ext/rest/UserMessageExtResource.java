@@ -57,21 +57,19 @@ public class UserMessageExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"usermessage"})
     @GetMapping(path = "/{messageId:.+}")
     public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId,
-                                         @RequestParam(value = "mshRole", required = false) String mshRole) throws MessageNotFoundException {
-        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : null;
-        LOG.debug("Getting User Message with id = [{}] and mshRole = [{}]", messageId, role);
-        return userMessageExtService.getMessage(messageId, role);
+                                         @RequestParam(value = "mshRole", required = false) MSHRole mshRole) throws MessageNotFoundException {
+        LOG.debug("Getting User Message with id = [{}] and mshRole = [{}]", messageId, mshRole);
+        return userMessageExtService.getMessage(messageId, mshRole);
     }
 
     @Operation(summary = "Get user message envelope", description = "Retrieve the user message envelope with the specified message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"envelope"})
     @GetMapping(path = "/{messageId:.+}/envelope")
     public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId,
-                                                              @RequestParam(value = "mshRole", required = false) String mshRole) {
-        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : null;
-        LOG.debug("Getting User Message Envelope with id = [{}] and mshRole = [{}]", messageId, role);
+                                                              @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
+        LOG.debug("Getting User Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
 
-        String result = userMessageExtService.getUserMessageEnvelope(messageId, role);
+        String result = userMessageExtService.getUserMessageEnvelope(messageId, mshRole);
 
         return buildResponse(result, "user_message_envelope_" + messageId + ".xml");
     }
@@ -80,11 +78,10 @@ public class UserMessageExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"signalEnvelope"})
     @GetMapping(path = "/{messageId:.+}/signalEnvelope")
     public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId,
-                                                                @RequestParam(value = "mshRole", required = false) String mshRole) {
-        MSHRole role = mshRole != null ? MSHRole.valueOf(mshRole) : null;
-        LOG.debug("Getting Signal Message Envelope with id = [{}] and mshRole = [{}]", messageId, role);
+                                                                @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
+        LOG.debug("Getting Signal Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
 
-        String result = userMessageExtService.getSignalMessageEnvelope(messageId, role);
+        String result = userMessageExtService.getSignalMessageEnvelope(messageId, mshRole);
 
         return buildResponse(result, "signal_message_envelope_" + messageId + ".xml");
     }
