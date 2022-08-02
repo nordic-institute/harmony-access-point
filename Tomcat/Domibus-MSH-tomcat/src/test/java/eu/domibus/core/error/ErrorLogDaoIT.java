@@ -43,6 +43,8 @@ public class ErrorLogDaoIT extends AbstractIT {
 
     @Before
     public void setUp() {
+        errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
+
         createErrorLog(MSHRole.SENDING, "messageId_123", ErrorCode.EBMS_0003, "error test 4", new Date());
         createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0001, "error test 1", DateUtils.addDays(new Date(), -1));
         createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 2", DateUtils.addDays(new Date(), -2));
