@@ -46,7 +46,7 @@ public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
-        String messageType = (String) message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
+        MessageType messageType = (MessageType) message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
         String messageId = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
         String messageRole = (String) message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ROLE);
         if (!MessageType.USER_MESSAGE.equals(messageType) || messageId == null) {

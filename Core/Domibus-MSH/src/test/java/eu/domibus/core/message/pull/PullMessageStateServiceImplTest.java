@@ -48,7 +48,7 @@ public class PullMessageStateServiceImplTest {
         final String messageId = "messageId";
 
         new Expectations(pullMessageStateService) {{
-            userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
             pullMessageStateService.sendFailed(userMessageLog, messageId);
             times = 1;
