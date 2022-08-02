@@ -96,8 +96,8 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     @Timer(clazz = ErrorLogServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     @Counter(clazz = ErrorLogServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     @Override
-    public int deleteErrorLogsByMessageIdInError(List<Long> messageIds) {
-        return errorLogDao.deleteErrorLogsByMessageIdInError(messageIds);
+    public int deleteErrorLogsByMessageIdInError(List<Long> messageEntityIds) {
+        return errorLogDao.deleteErrorLogsByMessageIdInError(messageEntityIds);
     }
 
     @Override

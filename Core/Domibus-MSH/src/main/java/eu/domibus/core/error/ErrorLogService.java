@@ -28,7 +28,7 @@ public interface ErrorLogService {
      */
     void deleteErrorLogWithoutMessageIds();
 
-    int deleteErrorLogsByMessageIdInError(List<Long> messageIds);
+    int deleteErrorLogsByMessageIdInError(List<Long> messageEntityIds);
 
     List<ErrorLogEntry> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters);
 

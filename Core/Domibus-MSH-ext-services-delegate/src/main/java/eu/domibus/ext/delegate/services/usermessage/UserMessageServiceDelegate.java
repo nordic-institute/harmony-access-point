@@ -47,7 +47,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     @Override
     public UserMessageDTO getMessage(String messageId, MSHRole role) throws MessageNotFoundException {
-        LOG.debug("Getting message with messageId[{}] and role[{}].", messageId, role);
+        LOG.debug("Getting message with messageId [{}] and role [{}].", messageId, role);
         
         eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
 

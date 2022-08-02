@@ -28,7 +28,7 @@ public class MessageAcknowledgementDao extends BasicDao<MessageAcknowledgementEn
 
     public List<MessageAcknowledgementEntity> findByMessageId(String messageId, MSHRole mshRole) {
         try {
-            final TypedQuery<MessageAcknowledgementEntity> query = em.createNamedQuery("MessageAcknowledgement.findMessageAcknowledgementByMessageId",
+            final TypedQuery<MessageAcknowledgementEntity> query = em.createNamedQuery("MessageAcknowledgement.findMessageAcknowledgementByMessageIdAndRole",
                     MessageAcknowledgementEntity.class);
             query.setParameter("MESSAGE_ID", messageId);
             query.setParameter("MSH_ROLE", mshRole);

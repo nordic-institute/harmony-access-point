@@ -32,15 +32,16 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     private static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
+    public static final String MSH_ROLE = "MSH_ROLE";
 
     public ErrorLogDao() {
         super(ErrorLogEntry.class);
     }
 
     public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole mshRole) {
-        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId2", ErrorLogEntry.class);
+        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageIdAndRole", ErrorLogEntry.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        query.setParameter("MSH_ROLE", mshRole);
+        query.setParameter(MSH_ROLE, mshRole);
 
         return initializeChildren(query.getResultList());
     }
@@ -93,9 +94,9 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         return predicates;
     }
 
-    public int deleteErrorLogsByMessageIdInError(List<Long> messageIds) {
+    public int deleteErrorLogsByMessageIdInError(List<Long> messageEntityIds) {
         final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageEntityIdsInError");
-        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        deleteQuery.setParameter("MESSAGE_ENTITY_IDS", messageEntityIds);
         int result = deleteQuery.executeUpdate();
         LOG.trace("deleteErrorLogsByMessageIdInError result [{}]", result);
         return result;
