@@ -3,7 +3,6 @@ package eu.domibus.core.property;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -89,18 +88,24 @@ public class DomibusPropertyConfiguration {
         properties.load(inputStream);
         final String currentServer = properties.getProperty(DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_NAME);
 
-        if (StringUtils.equals(currentServer, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_TOMCAT)) {
-            Resource[] pluginDefaultTomcatResourceList = resolver.getResources("classpath*:config/tomcat/*-plugin.properties");
-            LOG.debug("Adding the following  plugin properties files for tomcat {}", Arrays.toString(pluginDefaultTomcatResourceList));
-            resources.addAll(Arrays.asList(pluginDefaultTomcatResourceList));
-        } else if (StringUtils.equals(currentServer, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WILDFLY)) {
-            Resource[] pluginDefaultWildflyResourceList = resolver.getResources("classpath*:config/wildfly/*-plugin.properties");
-            LOG.debug("Adding the following plugin default properties files for wildfly {}", Arrays.toString(pluginDefaultWildflyResourceList));
-            resources.addAll(Arrays.asList(pluginDefaultWildflyResourceList));
-        } else if (StringUtils.equals(currentServer, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WEBLOGIC)) {
-            Resource[] pluginDefaultWeblogicResourceList = resolver.getResources("classpath*:config/weblogic/*-plugin.properties");
-            LOG.debug("Adding the following plugin default properties files for weblogic {}", Arrays.toString(pluginDefaultWeblogicResourceList));
-            resources.addAll(Arrays.asList(pluginDefaultWeblogicResourceList));
+        switch (currentServer) {
+            case DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_TOMCAT:
+                Resource[] pluginDefaultTomcatResourceList = resolver.getResources("classpath*:config/tomcat/*-plugin.properties");
+                LOG.debug("Adding the following  plugin properties files for tomcat {}", Arrays.toString(pluginDefaultTomcatResourceList));
+                resources.addAll(Arrays.asList(pluginDefaultTomcatResourceList));
+                break;
+            case DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WILDFLY:
+                Resource[] pluginDefaultWildflyResourceList = resolver.getResources("classpath*:config/wildfly/*-plugin.properties");
+                LOG.debug("Adding the following plugin default properties files for wildfly {}", Arrays.toString(pluginDefaultWildflyResourceList));
+                resources.addAll(Arrays.asList(pluginDefaultWildflyResourceList));
+                break;
+            case DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WEBLOGIC:
+                Resource[] pluginDefaultWeblogicResourceList = resolver.getResources("classpath*:config/weblogic/*-plugin.properties");
+                LOG.debug("Adding the following plugin default properties files for weblogic {}", Arrays.toString(pluginDefaultWeblogicResourceList));
+                resources.addAll(Arrays.asList(pluginDefaultWeblogicResourceList));
+                break;
+            default:
+                LOG.warn("couldn't find valid server name for the plugin properties.");
         }
 
         Resource[] pluginResourceList = resolver.getResources("file:///" + domibusConfigLocation + File.separator + PLUGINS_CONFIG_HOME + "/*-plugin.properties");
