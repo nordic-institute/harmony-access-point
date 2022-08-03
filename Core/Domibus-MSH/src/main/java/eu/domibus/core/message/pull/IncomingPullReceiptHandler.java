@@ -103,7 +103,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.PULL_FAILED;
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
         LOG.debug("Handle PULL request receipt [{}]", userMessage);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {

@@ -158,7 +158,7 @@ public class RetryDefaultService implements RetryService {
         final List<MessagingLock> expiredMessages = messagingLockDao.findStaledMessages();
         LOG.trace("Delete expired pull message");
         for (MessagingLock staledMessage : expiredMessages) {
-            pullMessageService.expireMessage(staledMessage.getMessageId(), MSHRole.RECEIVING);
+            pullMessageService.expireMessage(staledMessage.getMessageId(), MSHRole.SENDING);
         }
     }
 

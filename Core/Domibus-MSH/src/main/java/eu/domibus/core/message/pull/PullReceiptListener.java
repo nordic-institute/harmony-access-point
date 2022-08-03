@@ -99,7 +99,7 @@ public class PullReceiptListener implements MessageListener {
             final Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             final Policy policy = policyService.getPolicy(legConfiguration);
 
-            final ReceiptEntity receipt = receiptDao.findBySignalRefToMessageIdAndRole(refToMessageId, MSHRole.RECEIVING);
+            final ReceiptEntity receipt = receiptDao.findBySignalRefToMessageIdAndRole(refToMessageId, MSHRole.SENDING);
             LOG.debug("Found receipt [{}]", receipt != null ? receipt.getSignalMessage() : null);
             int retryCount = 0;
             try {

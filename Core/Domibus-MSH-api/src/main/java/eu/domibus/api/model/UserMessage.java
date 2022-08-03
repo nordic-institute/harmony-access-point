@@ -254,6 +254,7 @@ public class UserMessage extends AbstractBaseEntity {
     public String toString() {
         return "UserMessage{" +
                 "messageId='" + messageId + '\'' +
+                ", mshRole='" + (mshRole == null ? null : mshRole.getRole()) + '\'' +
                 ", refToMessageId='" + refToMessageId + '\'' +
                 ", conversationId='" + conversationId + '\'' +
                 ", timestamp=" + timestamp +

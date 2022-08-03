@@ -451,7 +451,7 @@ public class BackendNotificationService {
             if (userMessage.getMshRole() != null && userMessage.getMshRole().getRole() != null) {
                 LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
             } else {
-                LOG.info("MshRole for message [{}] is null.", userMessage);
+                LOG.warn("No MshRole for message [{}]", userMessage);
             }
         }
         if (messageLog.getMessageStatus() == newStatus) {
