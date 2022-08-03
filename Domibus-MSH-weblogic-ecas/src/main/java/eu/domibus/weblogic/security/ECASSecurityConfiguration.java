@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 
 /**
  * Spring security configuration file for ECAS
@@ -23,7 +22,6 @@ import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHtt
 @Conditional(SecurityExternalAuthProviderCondition.class)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@EnableJdbcHttpSession
 @Configuration
 public class ECASSecurityConfiguration extends AbstractWebSecurityConfigurerAdapter {
 
