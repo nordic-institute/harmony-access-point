@@ -79,7 +79,7 @@ public class PullReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageIdAndRole("refToMessageId", MSHRole.RECEIVING);
+            receiptDao.findBySignalRefToMessageIdAndRole("refToMessageId", MSHRole.SENDING);
             result = null;
 
             message.propertyExists(MessageConstants.RETRY_COUNT);
@@ -113,7 +113,7 @@ public class PullReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageIdAndRole("refToMessageId", MSHRole.RECEIVING);
+            receiptDao.findBySignalRefToMessageIdAndRole("refToMessageId", MSHRole.SENDING);
             result = receiptEntity;
 
             message.propertyExists(MessageConstants.RETRY_COUNT);
@@ -146,7 +146,7 @@ public class PullReceiptListenerTest {
             message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             result = "pModeKey";
 
-            receiptDao.findBySignalRefToMessageIdAndRole("refToMessageId", MSHRole.RECEIVING);
+            receiptDao.findBySignalRefToMessageIdAndRole("refToMessageId", MSHRole.SENDING);
             result = null;
         }};
 
