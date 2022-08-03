@@ -276,7 +276,8 @@ public class BackendNotificationService {
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageId(), unknownReceiverQueue);
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), userMessage.getMshRole().getRole(),
+            MSHRole role = userMessage.getMshRole() != null ? userMessage.getMshRole().getRole() : null;
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), role,
                     notificationType, properties).createMessage(), unknownReceiverQueue);
             return;
         }
@@ -350,7 +351,11 @@ public class BackendNotificationService {
 
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
         if (shouldNotifyAsync(asyncNotificationConfiguration)) {
-            notifyAsync(asyncNotificationConfiguration, messageEntityId, messageId, userMessage.getMshRole().getRole(), notificationType, properties);
+            MSHRole role = userMessage.getMshRole() != null ? userMessage.getMshRole().getRole() : null;
+            if(role == null){
+                LOG.info("MSH role for message [{}] is null.", userMessage);
+            }
+            notifyAsync(asyncNotificationConfiguration, messageEntityId, messageId, role, notificationType, properties);
             return;
         }
 
