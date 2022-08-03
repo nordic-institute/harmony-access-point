@@ -11,7 +11,10 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.TestMessageValidator;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorHelper;
@@ -282,7 +285,7 @@ public class BackendNotificationService {
     }
 
     protected void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
-        if(userMessage == null) {
+        if (userMessage == null) {
             return;
         }
 
@@ -293,14 +296,14 @@ public class BackendNotificationService {
         target.put(CONVERSATION_ID, userMessage.getConversationId());
 
         final PartyId partyFrom = userMessageServiceHelper.getPartyFrom(userMessage);
-        if(partyFrom != null) {
+        if (partyFrom != null) {
             target.put(FROM_PARTY_ID, partyFrom.getValue());
             target.put(FROM_PARTY_TYPE, partyFrom.getType());
         }
         target.put(FROM_PARTY_ROLE, userMessageServiceHelper.getPartyFromRole(userMessage));
 
         final PartyId partyTo = userMessageServiceHelper.getPartyTo(userMessage);
-        if(partyTo != null) {
+        if (partyTo != null) {
             target.put(TO_PARTY_ID, partyTo.getValue());
             target.put(TO_PARTY_TYPE, partyTo.getType());
         }
@@ -440,7 +443,11 @@ public class BackendNotificationService {
         final String messageId = userMessage.getMessageId();
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
+            if (userMessage.getMshRole() != null && userMessage.getMshRole().getRole() != null) {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
+            } else {
+                LOG.info("MshRole for message [{}] is null.", userMessage);
+            }
         }
         if (messageLog.getMessageStatus() == newStatus) {
             LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);
