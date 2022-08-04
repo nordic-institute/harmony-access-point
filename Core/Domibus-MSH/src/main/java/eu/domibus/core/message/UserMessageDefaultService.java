@@ -619,8 +619,8 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.info("Could not find message content for message: [{}]", messageId);
             throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
         }
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId, message.getMshRole().getRole());
-        Long contentLength = partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
+
+        Long contentLength = partInfoService.findPartInfoTotalLength(message.getEntityId());
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         if (contentLength > maxDownLoadSize) {
             LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);

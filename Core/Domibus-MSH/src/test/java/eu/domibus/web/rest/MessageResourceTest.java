@@ -70,7 +70,7 @@ public class MessageResourceTest {
         ResponseEntity<ByteArrayResource> responseEntity = null;
         try {
             // When
-            responseEntity = messageResource.downloadUserMessage("messageId", MSHRole.SENDING.name());
+            responseEntity = messageResource.downloadUserMessage("messageId", MSHRole.SENDING);
         } catch (IOException | MessageNotFoundException e) {
             // NOT Then :)
             Assert.fail("Exception in zipFiles method");

@@ -59,10 +59,10 @@ public class MessageResource {
 
     @RequestMapping(value = "/download")
     public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId,
-                                                                 @RequestParam(value = "mshRole") String mshRole)
+                                                                 @RequestParam(value = "mshRole") MSHRole mshRole)
             throws MessageNotFoundException, IOException {
         try {
-            byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId, MSHRole.valueOf(mshRole));
+            byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId, mshRole);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType("application/zip"))
@@ -76,14 +76,14 @@ public class MessageResource {
 
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     public void checkCanDownload(@RequestParam(value = "messageId") String messageId,
-                                 @RequestParam(value = "mshRole") String mshRole) {
-        userMessageService.checkCanGetMessageContent(messageId, MSHRole.valueOf(mshRole));
+                                 @RequestParam(value = "mshRole") MSHRole mshRole) {
+        userMessageService.checkCanGetMessageContent(messageId, mshRole);
     }
 
     @GetMapping(value = "/envelopes")
     public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId,
-                                                               @RequestParam(value = "mshRole") String mshRole) {
-        return getByteArrayResourceResponseEntity(messageId, MSHRole.valueOf(mshRole));
+                                                               @RequestParam(value = "mshRole") MSHRole mshRole) {
+        return getByteArrayResourceResponseEntity(messageId, mshRole);
     }
 
     protected ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(String messageId, MSHRole mshRole) {
