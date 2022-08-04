@@ -965,7 +965,7 @@ public class UserMessageDefaultServiceTest {
             result = null;
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
             result = 1;
-            partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
+            partInfoService.findPartInfoTotalLength(existingMessage.getEntityId());
             result = 1000;
         }};
 

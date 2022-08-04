@@ -91,9 +91,6 @@ public class UserMessageLogDefaultServiceTest {
             signalMessage.getSignalMessageId();
             result = messageId;
 
-            signalMessageLogDao.findByMessageId(messageId, signalMessage.getMshRole().getRole());
-            result = signalMessageLog;
-
              messageStatusDao.findOrCreate(MessageStatus.DELETED);
              result = messageStatusEntity;
         }};
