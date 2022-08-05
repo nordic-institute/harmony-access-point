@@ -112,12 +112,16 @@
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../../Wildfly/Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/ws-plugin.properties</source>
+            <source>
+                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/resources/config/wildfly/ws-plugin.properties
+            </source>
             <outputDirectory>domibus/conf/domibus/plugins/config</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
-            <source>${project.basedir}/../../Wildfly/Domibus-MSH-wildfly/src/main/conf/domibus/plugins/config/domains/domain_name/domain_name-ws-plugin.properties</source>
+            <source>
+                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/java/eu/domibus/plugin/ws/config/wildfly/domains/domain_name/domain_name-ws-plugin.properties
+            </source>
             <outputDirectory>domibus/conf/domibus/plugins/config/domains/domain_name</outputDirectory>
             <filtered>false</filtered>
         </file>
