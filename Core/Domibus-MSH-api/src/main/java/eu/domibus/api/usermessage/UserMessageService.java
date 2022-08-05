@@ -1,6 +1,8 @@
 package eu.domibus.api.usermessage;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
@@ -28,47 +30,32 @@ public interface UserMessageService {
     String MSG_BACKEND_NAME = "backendName";
     String MSG_SOURCE_MESSAGE_ID = "sourceMessageId";
     String MSG_USER_MESSAGE_ID = "userMessageId";
+    String MSG_MSH_ROLE = "userMessageRole";
     String MSG_EBMS3_ERROR_CODE = "ebms3ErrorCode";
     String MSG_EBMS3_ERROR_DETAIL = "ebms3ErrorDetail";
 
     String PULL_RECEIPT_REF_TO_MESSAGE_ID = "pullReceiptRefToMessageId";
 
-    String getFinalRecipient(final String messageId);
+    String getFinalRecipient(final String messageId, MSHRole mshRole);
 
     /**
-     *
      * @param messageId of the {@link eu.domibus.api.model.UserMessage}
+     * @param mshRole
      * @return database object
      * @throws MessageNotFoundException if not found
      */
-    eu.domibus.api.model.UserMessage getByMessageId(String messageId) throws MessageNotFoundException;
+    eu.domibus.api.model.UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException;
 
     /**
-     *
      * @param messageEntityId entity id of the {@link eu.domibus.api.model.UserMessage}
      * @return database object
      * @throws MessageNotFoundException if not found
      */
     eu.domibus.api.model.UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException;
 
+    Map<String, String> getProperties(Long messageEntityId);
 
-    /**
-     *
-     * @param messageId of the {@link eu.domibus.api.model.UserMessage}
-     * @return database object or null
-     */
-    eu.domibus.api.model.UserMessage findByMessageId(String messageId);
-
-    /**
-     *
-     * @param messageEntityId entity id of the {@link eu.domibus.api.model.UserMessage}
-     * @return database object or null
-     */
-    eu.domibus.api.model.UserMessage findByEntityId(final Long messageEntityId);
-
-    Map<String,String> getProperties(Long messageEntityId);
-
-    String getOriginalSender(String messageId);
+    String getOriginalSender(String messageId, MSHRole mshRole);
 
     List<String> getFailedMessages(String finalRecipient, String originalUser);
 
@@ -78,12 +65,11 @@ public interface UserMessageService {
 
     void deleteFailedMessage(String messageId);
 
-    void deleteMessage(String messageId);
+    void deleteMessage(String messageId, MSHRole mshRole);
 
-    void deleteMessageNotInFinalStatus(String messageId);
+    void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException, MessagingException;
 
     List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
-
 
     /**
      * Schedules the handling of the SplitAndJoin send failed event
@@ -97,8 +83,9 @@ public interface UserMessageService {
      * Schedules the marking of the UserMessageFragment as failed
      *
      * @param messageId
+     * @param role
      */
-    void scheduleSetUserMessageFragmentAsFailed(String messageId);
+    void scheduleSetUserMessageFragmentAsFailed(String messageId, MSHRole role);
 
     /**
      * Schedules the sending of the SourceMessage
@@ -167,13 +154,13 @@ public interface UserMessageService {
      * @param messageId User Message Identifier
      * @return User Message {@link UserMessage}
      */
-    UserMessage getMessage(String messageId);
+    UserMessage getMessage(String messageId, MSHRole mshRole);
 
-    eu.domibus.api.model.UserMessage getMessageEntity(String messageId);
+    eu.domibus.api.model.UserMessage getMessageEntity(String messageId, MSHRole mshRole);
 
     eu.domibus.api.model.UserMessage getMessageEntity(Long messageEntityId);
 
-    void checkCanGetMessageContent(String messageId);
+    void checkCanGetMessageContent(String messageId, MSHRole mshRole);
 
     /**
      * Retrieves a message by id as a byte array
@@ -182,7 +169,7 @@ public interface UserMessageService {
      * @return the message serialized as byte array
      * @throws MessageNotFoundException in case there is no message with this id
      */
-    byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException;
+    byte[] getMessageAsBytes(String messageId, MSHRole mshRole) throws MessageNotFoundException;
 
     /**
      * Retrieves the message content as a zip file(used for downloading a message)
@@ -192,29 +179,34 @@ public interface UserMessageService {
      * @throws MessageNotFoundException in case the message does nor exists or the content could not be retrieved( already sent and deleted)
      * @throws IOException              in case a read error
      */
-    byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
+    byte[] getMessageWithAttachmentsAsZip(String messageId, MSHRole mshRole) throws MessageNotFoundException, IOException;
 
     /**
      * Retrieves the user and signal message envelopes xmls as a zip file(used for downloading a message)
      *
      * @param messageId user message id
+     * @param mshRole
      * @return a zip file with the envelopes
      */
-    byte[] getMessageEnvelopesAsZip(String messageId);
+    byte[] getMessageEnvelopesAsZip(String messageId, MSHRole mshRole);
 
     /**
      * Retrieves the user message envelope xml
      *
      * @param userMessageId user message id
+     * @param mshRole
      * @return a string representing the envelope in xml format
      */
-    String getUserMessageEnvelope(String userMessageId);
+    String getUserMessageEnvelope(String userMessageId, MSHRole mshRole);
 
     /**
      * Retrieves the signal message envelope xml corresponding to the user message with the specified id
      *
      * @param userMessageId user message id
+     * @param mshRole
      * @return a string representing the envelope in xml format
      */
-    String getSignalMessageEnvelope(String userMessageId);
+    String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole);
+
+    eu.domibus.api.model.UserMessage getByMessageId(String messageId);
 }

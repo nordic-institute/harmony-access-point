@@ -356,6 +356,9 @@
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
             <column name="SOURCE_MESSAGE" type="BOOLEAN" remarks="true if the message is a SourceMessage"/>
@@ -412,6 +415,10 @@
                                  constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
         <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
             <column name="MESSAGE_ID"/>
         </createIndex>
@@ -443,7 +450,7 @@
             <column name="TEST_MESSAGE"/>
             <column name="ID_PK"/>
         </createIndex>
-        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
+        <addUniqueConstraint columnNames="MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
 
         <createTable tableName="TB_MESSAGE_ACKNW">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -847,6 +854,9 @@
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE"/>
             </column>
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
@@ -862,7 +872,10 @@
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
-
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_SIGNAL_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
         <createIndex indexName="IDX_SIG_MESS_REF_TO_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="REF_TO_MESSAGE_ID"/>
         </createIndex>
@@ -882,7 +895,6 @@
             <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>

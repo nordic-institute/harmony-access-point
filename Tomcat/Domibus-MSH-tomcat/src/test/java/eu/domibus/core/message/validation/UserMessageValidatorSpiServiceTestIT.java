@@ -2,8 +2,10 @@ package eu.domibus.core.message.validation;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.MessageTestUtility;
@@ -23,9 +25,11 @@ public class UserMessageValidatorSpiServiceTestIT extends AbstractIT {
     @Autowired
     UserMessageValidatorSpiService userMessageValidatorSpiService;
 
+    @Autowired
+    MshRoleDao mshRoleDao;
+
     @Configuration
     static class ContextConfiguration {
-
         @Bean
         public UserMessageValidatorSpiMock userMessageValidatorSpiMock() {
             return new UserMessageValidatorSpiMock();
@@ -36,6 +40,7 @@ public class UserMessageValidatorSpiServiceTestIT extends AbstractIT {
     public void testUserMessageValidation() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();
+        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         final List<PartInfo> partInfoList = messageTestUtility.createPartInfoList(userMessage);
 
         userMessageValidatorSpiService.validate(userMessage, partInfoList);

@@ -34,7 +34,6 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
@@ -42,7 +41,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.web.rest.ro.MessageLogRO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -190,20 +188,20 @@ public class UserMessageDefaultService implements UserMessageService {
     protected EntityManager em;
 
     @Override
-    public String getFinalRecipient(String messageId) {
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    public String getFinalRecipient(String messageId, MSHRole mshRole) {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
-            LOG.debug("Message [{}] does not exist", messageId);
+            LOG.debug("Message [{}]-[{}] does not exist", messageId, mshRole);
             return null;
         }
         return userMessageServiceHelper.getFinalRecipient(userMessage);
     }
 
     @Override
-    public String getOriginalSender(String messageId) {
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    public String getOriginalSender(String messageId, MSHRole mshRole) {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
-            LOG.debug("Message [{}] does not exist", messageId);
+            LOG.debug("Message [{}]-[{}] does not exist", messageId, mshRole);
             return null;
         }
         return userMessageServiceHelper.getOriginalSender(userMessage);
@@ -231,9 +229,9 @@ public class UserMessageDefaultService implements UserMessageService {
     public void sendEnqueuedMessage(String messageId) {
         LOG.info("Sending enqueued message [{}]", messageId);
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
         if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
@@ -249,7 +247,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
         }
 
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
 
         reprogrammableService.setRescheduleInfo(userMessageLog, new Date());
         userMessageLogDao.update(userMessageLog);
@@ -326,13 +324,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public void scheduleSetUserMessageFragmentAsFailed(String messageId) {
+    public void scheduleSetUserMessageFragmentAsFailed(String messageId, MSHRole role) {
         LOG.debug("Scheduling marking the UserMessage fragment [{}] as failed", messageId);
 
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED)
                 .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, role.name())
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
     }
@@ -372,6 +371,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SOURCE_MESSAGE_RECEIPT)
                 .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         jmsManager.sendMessageToQueue(jmsMessage, splitAndJoinQueue);
@@ -385,6 +385,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .create()
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SEND_SIGNAL_ERROR)
                 .property(UserMessageService.MSG_USER_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .property(UserMessageService.MSG_EBMS3_ERROR_CODE, ebMS3ErrorCode)
                 .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
@@ -401,6 +402,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 .property(UserMessageService.MSG_TYPE, UserMessageService.COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED)
                 .property(UserMessageService.MSG_GROUP_ID, groupId)
                 .property(UserMessageService.MSG_SOURCE_MESSAGE_ID, sourceMessageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.RECEIVING.name())
                 .property(UserMessageService.MSG_EBMS3_ERROR_CODE, errorCode)
                 .property(UserMessageService.MSG_EBMS3_ERROR_DETAIL, errorDetail)
                 .build();
@@ -412,6 +414,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");
@@ -423,6 +426,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
+                .property(UserMessageService.MSG_MSH_ROLE, MSHRole.SENDING.name())
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .property(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
@@ -431,14 +435,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
-        final UserMessage userMessageByMessageId = getMessageEntity(messageId);
+    public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId, MSHRole mshRole) {
+        final UserMessage userMessageByMessageId = getMessageEntity(messageId, mshRole);
         return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Override
-    public UserMessage getMessageEntity(String messageId) {
-        return userMessageDao.findByMessageId(messageId);
+    public UserMessage getMessageEntity(String messageId, MSHRole role) {
+        return userMessageDao.findByMessageId(messageId, role);
     }
 
     @Override
@@ -450,20 +454,20 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public void deleteFailedMessage(String messageId) {
         getFailedMessage(messageId);
-        deleteMessage(messageId);
+        deleteMessage(messageId, MSHRole.SENDING);
     }
 
     @Transactional
     @Override
-    public void deleteMessageNotInFinalStatus(String messageId) {
-        getMessageNotInFinalStatus(messageId);
-        deleteMessage(messageId);
+    public void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
+        UserMessageLog mes = getMessageNotInFinalStatus(messageId, mshRole);
+        deleteMessage(messageId, mes.getMshRole().getRole());
     }
 
     protected UserMessageLog getFailedMessage(String messageId) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING); // is it always???
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
         if (MessageStatus.SEND_FAILURE != userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_FAILURE + "]");
@@ -471,8 +475,8 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog;
     }
 
-    protected UserMessageLog getMessageNotInFinalStatus(String messageId) {
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+    protected UserMessageLog getMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
@@ -492,7 +496,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional
     @Override
     public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
-        final List<String> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
+        final List<UserMessageLogDto> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
             LOG.debug("Cannot find messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
             return Collections.emptyList();
@@ -500,12 +504,12 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Found messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
 
         final List<String> deletedMessages = new ArrayList<>();
-        for (String messageId : messagesToDelete) {
+        for (UserMessageLogDto message : messagesToDelete) {
             try {
-                deleteMessage(messageId);
-                deletedMessages.add(messageId);
+                deleteMessage(message.getMessageId(), message.getMshRole());
+                deletedMessages.add(message.getMessageId());
             } catch (Exception e) {
-                LOG.error("Failed to delete message [" + messageId + "]", e);
+                LOG.error("Failed to delete message [{}] [{}]", e, message.getMessageId(), message.getMshRole());
             }
         }
 
@@ -515,17 +519,20 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_MESSAGE_ROLE})
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMessage(String messageId) {
+    public void deleteMessage(String messageId, MSHRole mshRole) {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map
         if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
+        if (mshRole != null) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, mshRole.name());
+        }
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, mshRole);
+        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId, mshRole);
         final UserMessage userMessage;
         if (signalMessage == null) {
             LOG.debug("No signalMessage is present for [{}]", messageId);
@@ -572,7 +579,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting [{}] user messages", ids.size());
         LOG.trace("Deleting user messages [{}]", ids);
 
-        List<String> filenames = partInfoService.findFileSystemPayloadFilenames(userMessageIds);
+        List<String> filenames = partInfoService.findFileSystemPayloadFilenames(ids);
         partInfoService.deletePayloadFiles(filenames);
 
         em.flush();
@@ -592,7 +599,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.info("Deleted [{}] attempts.", deleteResult);
 
 
-        deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(userMessageIds);
+        deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(ids);
         LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
         LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
@@ -603,8 +610,8 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
-    public void checkCanGetMessageContent(String messageId) {
-        MessageLogRO message = messagesLogService.findUserMessageById(messageId);
+    public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {
+        UserMessageLog message = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (message == null) {
             throw new MessagingException("No message found for message id: " + messageId, null);
         }
@@ -612,8 +619,8 @@ public class UserMessageDefaultService implements UserMessageService {
             LOG.info("Could not find message content for message: [{}]", messageId);
             throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
         }
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        Long contentLength = partInfoService.findPartInfoTotalLength(userMessage.getEntityId());
+
+        Long contentLength = partInfoService.findPartInfoTotalLength(message.getEntityId());
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         if (contentLength > maxDownLoadSize) {
             LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
@@ -622,23 +629,23 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
-        UserMessage userMessage = getUserMessageById(messageId);
-        auditService.addMessageDownloadedAudit(messageId);
+    public byte[] getMessageAsBytes(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        UserMessage userMessage = getUserMessageById(messageId, mshRole);
+        auditService.addMessageDownloadedAudit(messageId, mshRole);
         final List<PartInfo> partInfoList = partInfoService.findPartInfo(userMessage);
         return messageToBytes(userMessage, partInfoList);
     }
 
     @Override
-    public byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException {
-        checkCanGetMessageContent(messageId);
-        Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
+    public byte[] getMessageWithAttachmentsAsZip(String messageId, MSHRole mshRole) throws MessageNotFoundException, IOException {
+        checkCanGetMessageContent(messageId, mshRole);
+        Map<String, InputStream> message = getMessageContentWithAttachments(messageId, mshRole);
         return zipFiles(message);
     }
 
     @Override
-    public byte[] getMessageEnvelopesAsZip(String messageId) {
-        Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId);
+    public byte[] getMessageEnvelopesAsZip(String messageId, MSHRole mshRole) {
+        Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId, mshRole);
         if (envelopes.isEmpty()) {
             LOG.debug("Could not find message envelopes with id [{}].", messageId);
             return new byte[0];
@@ -646,26 +653,35 @@ public class UserMessageDefaultService implements UserMessageService {
         try {
             return zipFiles(envelopes);
         } catch (IOException e) {
-            LOG.warn("Could not zip message envelopes with id [{}].", messageId);
+            LOG.warn("Could not zip message envelopes with id [{}] and role [{}].", messageId, mshRole);
             return new byte[0];
         }
     }
 
     @Override
-    public String getUserMessageEnvelope(String userMessageId) {
-        return nonRepudiationService.getUserMessageEnvelope(userMessageId);
+    public String getUserMessageEnvelope(String userMessageId, MSHRole mshRole) {
+        return nonRepudiationService.getUserMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override
-    public String getSignalMessageEnvelope(String userMessageId) {
-        return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+    public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
+        return nonRepudiationService.getSignalMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override
-    public UserMessage getByMessageId(String messageId) throws MessageNotFoundException {
+    public UserMessage getByMessageId(String messageId) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
+        }
+        return userMessage;
+    }
+
+    @Override
+    public UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId, mshRole);
         }
         return userMessage;
     }
@@ -679,19 +695,8 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessage;
     }
 
-    @Override
-    public UserMessage findByMessageId(String messageId) {
-        return userMessageDao.findByMessageId(messageId);
-    }
-
-    @Override
-    public UserMessage findByEntityId(final Long messageEntityId) {
-        return userMessageDao.findByEntityId(messageEntityId);
-    }
-
-    protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
-
-        UserMessage userMessage = getUserMessageById(messageId);
+    protected Map<String, InputStream> getMessageContentWithAttachments(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        UserMessage userMessage = getUserMessageById(messageId, mshRole);
 
         Map<String, InputStream> result = new HashMap<>();
         final List<PartInfo> partInfos = partInfoService.findPartInfo(userMessage);
@@ -719,13 +724,13 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        auditService.addMessageDownloadedAudit(messageId);
+        auditService.addMessageDownloadedAudit(messageId, mshRole);
 
         return result;
     }
 
-    protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    protected UserMessage getUserMessageById(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

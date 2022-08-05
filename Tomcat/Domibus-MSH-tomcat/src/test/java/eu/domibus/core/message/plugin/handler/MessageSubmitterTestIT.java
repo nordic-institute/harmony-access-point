@@ -1,6 +1,7 @@
 package eu.domibus.core.message.plugin.handler;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.plugin.BackendConnectorService;
@@ -67,7 +68,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
         uploadPmode();
         final String messageId = messageSubmitter.submit(submission, "mybackend");
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         assertNotNull(userMessageLog);
 
         final HashMap<String, Object> filters = new HashMap<>();

@@ -1,5 +1,6 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -103,8 +104,9 @@ public interface PullMessageService {
     /**
      * Handle message expiration when expiration date is reached.
      * @param messageId the message id.
+     * @param receiving
      */
-    void expireMessage(String messageId);
+    void expireMessage(String messageId, MSHRole receiving);
 
     /**
      * Handles the lock in regards of message receipt status.

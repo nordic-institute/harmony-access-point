@@ -24,8 +24,9 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
     protected MessagePropertyDictionaryService messagePropertyDictionaryService;
     protected PartPropertyDictionaryService partPropertyDictionaryService;
     protected PartyRoleDictionaryService partyRoleDictionaryService;
+    protected MshRoleDao mshRoleDao;
 
-    public Ebms3UserMessageMapperImpl(MpcDictionaryService mpcDictionaryService, ActionDictionaryService actionService, ServiceDictionaryService serviceDictionaryService, PartyIdDictionaryService partyIdDictionaryService, AgreementDictionaryService agreementDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartPropertyDictionaryService partPropertyDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService) {
+    public Ebms3UserMessageMapperImpl(MpcDictionaryService mpcDictionaryService, ActionDictionaryService actionService, ServiceDictionaryService serviceDictionaryService, PartyIdDictionaryService partyIdDictionaryService, AgreementDictionaryService agreementDictionaryService, MessagePropertyDictionaryService messagePropertyDictionaryService, PartPropertyDictionaryService partPropertyDictionaryService, PartyRoleDictionaryService partyRoleDictionaryService, MshRoleDao mshRoleDao) {
         this.mpcDictionaryService = mpcDictionaryService;
         this.actionService = actionService;
         this.serviceDictionaryService = serviceDictionaryService;
@@ -34,6 +35,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         this.messagePropertyDictionaryService = messagePropertyDictionaryService;
         this.partPropertyDictionaryService = partPropertyDictionaryService;
         this.partyRoleDictionaryService = partyRoleDictionaryService;
+        this.mshRoleDao = mshRoleDao;
     }
 
     @Override
@@ -71,6 +73,7 @@ public class Ebms3UserMessageMapperImpl implements Ebms3UserMessageMapper {
         userMessage.setMessageId(messageInfo.getMessageId());
         userMessage.setRefToMessageId(messageInfo.getRefToMessageId());
         userMessage.setTimestamp(messageInfo.getTimestamp());
+        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
 
         final Ebms3CollaborationInfo collaborationInfo = ebms3UserMessage.getCollaborationInfo();
 

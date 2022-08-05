@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
@@ -38,7 +39,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
 
     @Override
     public MessageAcknowledgementDTO acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.RECEIVING);
 
         final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
@@ -46,7 +47,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
 
     @Override
     public MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
 
         final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
@@ -54,7 +55,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
 
     @Override
     public MessageAcknowledgementDTO acknowledgeMessageProcessed(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws AuthenticationExtException, MessageAcknowledgeExtException {
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.RECEIVING);
 
         final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageProcessed(messageId, acknowledgeTimestamp, properties);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);

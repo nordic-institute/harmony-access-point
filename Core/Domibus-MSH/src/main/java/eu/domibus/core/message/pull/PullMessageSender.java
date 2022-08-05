@@ -162,9 +162,6 @@ public class PullMessageSender {
             handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;
-            if (pModeProvider.checkSelfSending(pModeKey)) {
-                sendMessageId += UserMessageHandlerService.SELF_SENDING_SUFFIX;
-            }
             try {
                 LOG.debug("Schedule sending pull receipt for message [{}]", sendMessageId);
                 userMessageDefaultService.scheduleSendingPullReceipt(sendMessageId, pModeKey);

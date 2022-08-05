@@ -2,6 +2,7 @@ package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.audit.envers.RevisionLogicalName;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -172,7 +173,7 @@ public class AuditServiceImpl implements AuditService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void addMessageDownloadedAudit(final String messageId) {
+    public void addMessageDownloadedAudit(final String messageId, MSHRole mshRole) {
         auditDao.saveMessageAudit(
                 new MessageAudit(messageId,
                         authUtils.getAuthenticatedUser(),

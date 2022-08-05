@@ -1,5 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.SignalMessageRaw;
 import eu.domibus.core.dao.BasicDao;
@@ -27,9 +28,10 @@ public class SignalMessageRawEnvelopeDao extends BasicDao<SignalMessageRaw> {
         super(SignalMessageRaw.class);
     }
 
-    public RawEnvelopeDto findSignalMessageByUserMessageId(final String userMessageId) {
+    public RawEnvelopeDto findSignalMessageByUserMessageId(final String userMessageId, MSHRole mshRole) {
         TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("SignalMessageRaw.findByUserMessageId", RawEnvelopeDto.class);
         namedQuery.setParameter("MESSAGE_ID", userMessageId);
+        namedQuery.setParameter("MSH_ROLE", mshRole);
         return DataAccessUtils.singleResult(namedQuery.getResultList());
     }
 

@@ -78,26 +78,26 @@ public class BackendMessageValidatorTest {
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
 
-            userMessageLogDao.getMessageStatus(anyString);
+            userMessageLogDao.getMessageStatus(anyString, (MSHRole)any);
             result = MessageStatus.NOT_FOUND;
         }};
 
         /*Happy Flow No error should occur*/
         try {
             String messageId1 = "1234567890-123456789-01234567890/1234567890/`~!@#$%^&*()-_=+\\|,<.>/?;:'\"|\\[{]}.567890.1234567890-1234567890?1234567890#1234567890!1234567890$1234567890%1234567890|12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012";
-            backendMessageValidatorObj.validateMessageId(messageId1);
+            backendMessageValidatorObj.validateMessageId(messageId1, MSHRole.SENDING);
 
             String messageId1_1 = "40b0-9ffc-3f4cfa88bf8b@domibus.eu";
-            backendMessageValidatorObj.validateMessageId(messageId1_1);
+            backendMessageValidatorObj.validateMessageId(messageId1_1, MSHRole.SENDING);
 
             String messageId1_2 = "APP-RESPONSE-d8d85972-64fb-4161-a1fb-996aa7a9c39c-DOCUMENT-BUNDLE";
-            backendMessageValidatorObj.validateMessageId(messageId1_2);
+            backendMessageValidatorObj.validateMessageId(messageId1_2, MSHRole.SENDING);
 
             String messageId1_3 = "<1234>";
-            backendMessageValidatorObj.validateMessageId(messageId1_3);
+            backendMessageValidatorObj.validateMessageId(messageId1_3, MSHRole.SENDING);
 
             String messageId1_4 = "^12^3$4";
-            backendMessageValidatorObj.validateMessageId(messageId1_4);
+            backendMessageValidatorObj.validateMessageId(messageId1_4, MSHRole.SENDING);
 
         } catch (EbMS3Exception e1) {
             Assert.fail("Exception was not expected in happy scenarios");
@@ -107,7 +107,7 @@ public class BackendMessageValidatorTest {
         /*Message Id with leading and/or trailing whitespaces should throw error*/
         try {
             String messageId2 = "\t\t346ea37f-7583-40b0-9ffc-3f4cfa88bf8b@domibus.eu\t\t";
-            backendMessageValidatorObj.validateMessageId(messageId2);
+            backendMessageValidatorObj.validateMessageId(messageId2, MSHRole.SENDING);
             Assert.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
@@ -118,7 +118,7 @@ public class BackendMessageValidatorTest {
         /*Message Id containing non printable control characters should result in error*/
         try {
             String messageId4 = "346ea\b37f-7583-40\u0010b0-9ffc-3f4\u007Fcfa88bf8b@d\u0001omibus.eu";
-            backendMessageValidatorObj.validateMessageId(messageId4);
+            backendMessageValidatorObj.validateMessageId(messageId4, MSHRole.SENDING);
             Assert.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
@@ -128,7 +128,7 @@ public class BackendMessageValidatorTest {
         /*Message Id containing only non printable control characters should result in error*/
         try {
             String messageId5 = "\b\u0010\u0030\u007F\u0001";
-            backendMessageValidatorObj.validateMessageId(messageId5);
+            backendMessageValidatorObj.validateMessageId(messageId5, MSHRole.SENDING);
             Assert.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
@@ -138,7 +138,7 @@ public class BackendMessageValidatorTest {
         /*Message id more than 255 characters long should result in error*/
         try {
             String messageId6 = "1234567890-123456789-01234567890/1234567890/1234567890.1234567890.123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@domibus.eu";
-            backendMessageValidatorObj.validateMessageId(messageId6);
+            backendMessageValidatorObj.validateMessageId(messageId6, MSHRole.SENDING);
             Assert.fail("Expected exception EBMS_0003 was not raised!");
         } catch (EbMS3Exception e2) {
             Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
@@ -237,14 +237,14 @@ public class BackendMessageValidatorTest {
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = null;
 
-            userMessageLogDao.getMessageStatus(anyString);
+            userMessageLogDao.getMessageStatus(anyString, (MSHRole)any);
             result = MessageStatus.NOT_FOUND;
         }};
 
         /*If the domibus-configuration file does not have the message id format, then message id pattern validation must be skipped. No exception expected*/
         try {
             String refTomessageId1 = "1234567890-123456789-01234567890/1234567890/`~!@#$%^&*()-_=+\\|,<.>/?;:'\"|\\[{]}.567890.1234567890-1234567890?1234567890#1234567890!1234567890$1234567890%1234567890|12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012";
-            backendMessageValidatorObj.validateMessageId(refTomessageId1);
+            backendMessageValidatorObj.validateMessageId(refTomessageId1, MSHRole.SENDING);
 
             String refTomessageId1_1 = "40b0-9ffc-3f4cfa88bf8b@domibus.eu";
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId1_1);
@@ -746,21 +746,21 @@ public class BackendMessageValidatorTest {
     @Test
     public void validateMessageIsUnique_notFound() throws DuplicateMessageException {
         new Expectations() {{
-            userMessageLogDao.getMessageStatus("messageId");
+            userMessageLogDao.getMessageStatus("messageId", MSHRole.RECEIVING);
             result = MessageStatus.READY_TO_PULL;
         }};
         thrown.expect(DuplicateMessageException.class);
-        thrown.expectMessage(MESSAGE_WITH_ID_STR + "messageId" + BackendMessageValidator.ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
-        backendMessageValidatorObj.validateMessageIsUnique("messageId");
+        thrown.expectMessage(MESSAGE_WITH_ID_STR + "messageId" + " and role " + MSHRole.RECEIVING + BackendMessageValidator.ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
+        backendMessageValidatorObj.validateMessageIsUnique("messageId", MSHRole.RECEIVING);
     }
 
     @Test
     public void validateMessageIsUnique_ok() throws DuplicateMessageException {
         new Expectations() {{
-            userMessageLogDao.getMessageStatus("messageId");
+            userMessageLogDao.getMessageStatus("messageId", MSHRole.RECEIVING);
             result = MessageStatus.NOT_FOUND;
         }};
-        backendMessageValidatorObj.validateMessageIsUnique("messageId");
+        backendMessageValidatorObj.validateMessageIsUnique("messageId", MSHRole.RECEIVING);
     }
 
     @Test

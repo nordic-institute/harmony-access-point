@@ -41,7 +41,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
     @Test
     public void testGetMessageErrorsOk() throws GetMessageErrorsFault {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
-        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId);
+        UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId, MSHRole.RECEIVING);
 
         ErrorLogEntry logEntry = new ErrorLogEntry();
         logEntry.setMessageInErrorId(messageId);

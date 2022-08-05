@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
@@ -55,7 +56,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
         LOG.debug("Processing Signal with error [{}]", error);
 
         final String refToMessageId = signalMessage.getMessageInfo().getRefToMessageId();
-        final UserMessage userMessage = userMessageDao.findByMessageId(refToMessageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(refToMessageId, MSHRole.SENDING);
         if (userMessage == null) {
             LOG.warn("Could not process the Signal: no message [{}] found", refToMessageId);
             return null;

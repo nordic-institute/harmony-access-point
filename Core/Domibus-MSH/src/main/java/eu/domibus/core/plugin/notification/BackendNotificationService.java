@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -10,7 +11,10 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.TestMessageValidator;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorHelper;
@@ -272,7 +276,9 @@ public class BackendNotificationService {
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageId(), unknownReceiverQueue);
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), notificationType, properties).createMessage(), unknownReceiverQueue);
+            MSHRole role = userMessage.getMshRole() != null ? userMessage.getMshRole().getRole() : null;
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), role,
+                    notificationType, properties).createMessage(), unknownReceiverQueue);
             return;
         }
 
@@ -280,7 +286,7 @@ public class BackendNotificationService {
     }
 
     protected void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
-        if(userMessage == null) {
+        if (userMessage == null) {
             return;
         }
 
@@ -291,14 +297,14 @@ public class BackendNotificationService {
         target.put(CONVERSATION_ID, userMessage.getConversationId());
 
         final PartyId partyFrom = userMessageServiceHelper.getPartyFrom(userMessage);
-        if(partyFrom != null) {
+        if (partyFrom != null) {
             target.put(FROM_PARTY_ID, partyFrom.getValue());
             target.put(FROM_PARTY_TYPE, partyFrom.getType());
         }
         target.put(FROM_PARTY_ROLE, userMessageServiceHelper.getPartyFromRole(userMessage));
 
         final PartyId partyTo = userMessageServiceHelper.getPartyTo(userMessage);
-        if(partyTo != null) {
+        if (partyTo != null) {
             target.put(TO_PARTY_ID, partyTo.getValue());
             target.put(TO_PARTY_TYPE, partyTo.getType());
         }
@@ -345,7 +351,11 @@ public class BackendNotificationService {
 
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
         if (shouldNotifyAsync(asyncNotificationConfiguration)) {
-            notifyAsync(asyncNotificationConfiguration, messageEntityId, messageId, notificationType, properties);
+            MSHRole role = userMessage.getMshRole() != null ? userMessage.getMshRole().getRole() : null;
+            if(role == null){
+                LOG.info("MSH role for message [{}] is null.", userMessage);
+            }
+            notifyAsync(asyncNotificationConfiguration, messageEntityId, messageId, role, notificationType, properties);
             return;
         }
 
@@ -356,10 +366,12 @@ public class BackendNotificationService {
         return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
     }
 
-    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Long messageEntityId, String messageId, NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration, Long messageEntityId,
+                               String messageId, MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
-        jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageEntityId, messageId, notificationType, properties).createMessage(), backendNotificationQueue);
+        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(messageEntityId, messageId, mshRole, notificationType, properties);
+        jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(), backendNotificationQueue);
     }
 
     protected void notifySync(BackendConnector<?, ?> backendConnector,
@@ -413,17 +425,17 @@ public class BackendNotificationService {
     }
 
 
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional
     public void notifyOfMessageStatusChange(String messageId, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByEntityId(messageLog.getEntityId());
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
 
     @Timer(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
     @Counter(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
     @Transactional
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
@@ -436,6 +448,11 @@ public class BackendNotificationService {
         final String messageId = userMessage.getMessageId();
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            if (userMessage.getMshRole() != null && userMessage.getMshRole().getRole() != null) {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
+            } else {
+                LOG.warn("No MshRole for message [{}]", userMessage);
+            }
         }
         if (messageLog.getMessageStatus() == newStatus) {
             LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);

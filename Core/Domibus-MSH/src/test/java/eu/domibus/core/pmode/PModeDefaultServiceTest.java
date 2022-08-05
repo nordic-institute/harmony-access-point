@@ -43,10 +43,10 @@ public class PModeDefaultServiceTest {
     @Test
     public void testGetLegConfiguration(@Injectable final UserMessage userMessage,
                                         @Injectable final eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) throws Exception {
-        final String messageId = "1";
+        final Long messageEntityId = 1L;
         final MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("1", ",", "", "", "", "");
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(messageEntityId);
             result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean);
@@ -57,7 +57,7 @@ public class PModeDefaultServiceTest {
 
         }};
 
-        pModeDefaultService.getLegConfiguration(messageId);
+        pModeDefaultService.getLegConfiguration(messageEntityId);
 
         new Verifications() {{
             pModeDefaultService.convert(legConfigurationEntity);

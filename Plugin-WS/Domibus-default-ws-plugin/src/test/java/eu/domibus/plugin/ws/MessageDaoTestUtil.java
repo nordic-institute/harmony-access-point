@@ -70,6 +70,7 @@ public class MessageDaoTestUtil {
     public UserMessageLog createUserMessageLog(String msgId, Date received, MSHRole mshRole, MessageStatus messageStatus, boolean isTestMessage, boolean properties, String mpc, Date archivedAndExported) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageId(msgId);
+        userMessage.setMshRole(mshRoleDao.findOrCreate(mshRole));
         userMessage.setConversationId("conversation-" + msgId);
 
         if (properties) {
@@ -125,13 +126,14 @@ public class MessageDaoTestUtil {
     }
 
     @Transactional
-    public UserMessageLog createTestMessage(String msgId) {
-        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), MSHRole.SENDING, MessageStatus.ACKNOWLEDGED, true, true, MPC, new Date());
+    public UserMessageLog createTestMessage(String msgId, MSHRole mshRole) {
+        UserMessageLog userMessageLog = createUserMessageLog(msgId, new Date(), mshRole, MessageStatus.ACKNOWLEDGED, true, true, MPC, new Date());
 
         SignalMessage signal = new SignalMessage();
         signal.setUserMessage(userMessageLog.getUserMessage());
         signal.setSignalMessageId("signal-" + msgId);
         signal.setRefToMessageId(msgId);
+        signal.setMshRole(mshRoleDao.findOrCreate(mshRole == MSHRole.SENDING ? MSHRole.RECEIVING : MSHRole.SENDING));
         signalMessageDao.create(signal);
 
         SignalMessageLog signalMessageLog = new SignalMessageLog();

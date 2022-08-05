@@ -5,6 +5,7 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
@@ -106,7 +107,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
 
         jmsManagerTriggered = false;
 
-        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId1);
+        UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId1, MSHRole.RECEIVING);
         byMessageId.setExported(null);
         //All UserMessageLog are now available for archiving again
         eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.SANITIZER);

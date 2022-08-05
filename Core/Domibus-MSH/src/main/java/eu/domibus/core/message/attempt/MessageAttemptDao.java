@@ -1,5 +1,6 @@
 package eu.domibus.core.message.attempt;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -25,9 +26,10 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
         super(MessageAttemptEntity.class);
     }
 
-    public List<MessageAttemptEntity> findByMessageId(String messageId) {
-        final TypedQuery<MessageAttemptEntity> query = em.createNamedQuery("MessageAttemptEntity.findAttemptsByMessageId", MessageAttemptEntity.class);
+    public List<MessageAttemptEntity> findByMessageId(String messageId, MSHRole mshRole) {
+        final TypedQuery<MessageAttemptEntity> query = em.createNamedQuery("MessageAttemptEntity.findAttemptsByMessageIdAndRole", MessageAttemptEntity.class);
         query.setParameter("MESSAGE_ID", messageId);
+        query.setParameter("MSH_ROLE", mshRole);
         return query.getResultList();
     }
 

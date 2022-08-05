@@ -1,6 +1,7 @@
 package eu.domibus.core.message.attempt;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.MessageCoreMapper;
 import eu.domibus.core.message.UserMessageDao;
@@ -41,7 +42,7 @@ public class MessageAttemptDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations() {{
-            messageAttemptDao.findByMessageId(messageId);
+            messageAttemptDao.findByMessageId(messageId, MSHRole.SENDING);
             result = entities;
         }};
 

@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
  * @since 3.3
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MessageExchangeEbms3ServiceImplTest {
+public class MessageExchangeServiceImplTest {
 
     @Mock
     private PModeProvider pModeProvider;
@@ -309,7 +309,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         UserMessageLog userMessageLog = new UserMessageLog();
         MessageStatusEntity messageStatus = getPullMessageStatusEntity(MessageStatus.READY_TO_PULL);
         userMessageLog.setMessageStatus(messageStatus);
-        when(userMessageLogDao.findByMessageId(testMessageId)).thenReturn(userMessageLog);
+        when(userMessageLogDao.findByMessageId(testMessageId, MSHRole.RECEIVING)).thenReturn(userMessageLog);
 
         final String messageId = messageExchangeService.retrieveReadyToPullUserMessageId(mpc, party);
         assertEquals(testMessageId, messageId);
@@ -379,7 +379,7 @@ public class MessageExchangeEbms3ServiceImplTest {
         when(pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING)).thenReturn(messageExchangeConfiguration);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(Lists.newArrayList(process));
         when(messageStatusDao.findOrCreate(MessageStatus.SEND_ENQUEUED)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
-        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123").getMessageStatus();
+        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123", MSHRole.SENDING).getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
 
     }
@@ -396,10 +396,10 @@ public class MessageExchangeEbms3ServiceImplTest {
         MpcEntity mpc = new MpcEntity();
         mpc.setValue("mpc123");
         userMessage.setMpc(mpc);
-        when(userMessageDao.findByMessageId("123")).thenReturn(userMessage);
+        when(userMessageDao.findByMessageId("123", MSHRole.RECEIVING)).thenReturn(userMessage);
         when(mpcService.forcePullOnMpc(userMessage)).thenReturn(true);
         when(messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL)).thenReturn(getPullMessageStatusEntity(MessageStatus.READY_TO_PULL));
-        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123").getMessageStatus();
+        final MessageStatus messageStatus = messageExchangeService.retrieveMessageRestoreStatus("123", MSHRole.RECEIVING).getMessageStatus();
         assertEquals(MessageStatus.READY_TO_PULL, messageStatus);
     }
 

@@ -54,7 +54,7 @@ public class MessageSenderErrorHandlerTest {
     public void verifyHandler() throws EbMS3Exception {
 
         new Expectations(messageSenderErrorHandler) {{
-            userMessageDao.findByMessageId(anyString);
+            userMessageDao.findByMessageId(anyString, MSHRole.SENDING);
             result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext((UserMessage)any, MSHRole.SENDING).getPmodeKey();
