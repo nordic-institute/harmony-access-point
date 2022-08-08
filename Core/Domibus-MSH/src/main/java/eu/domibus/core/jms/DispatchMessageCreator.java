@@ -3,6 +3,7 @@ package eu.domibus.core.jms;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.common.MSHRole;
 import eu.domibus.messaging.MessageConstants;
 
 
@@ -24,6 +25,7 @@ public class DispatchMessageCreator {
         return JMSMessageBuilder
                 .create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
+                .property(MessageConstants.MSH_ROLE, MSHRole.SENDING.name())
                 .property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(entityId))
                 .build();
     }
@@ -33,6 +35,7 @@ public class DispatchMessageCreator {
         return JMSMessageBuilder
                 .create()
                 .property(MessageConstants.MESSAGE_ID, messageId)
+                .property(MessageConstants.MSH_ROLE, MSHRole.SENDING.name())
                 .property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(entityId))
                 .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .build();

@@ -28,13 +28,13 @@ public interface ErrorLogService {
      */
     void deleteErrorLogWithoutMessageIds();
 
-    int deleteErrorLogsByMessageIdInError(List<String> messageIds);
-
-    List<ErrorLogEntry> getErrorsForMessage(String messageId);
-
-    List<ErrorResult> getErrors(String messageId);
+    int deleteErrorLogsByMessageIdInError(List<Long> messageEntityIds);
 
     List<ErrorLogEntry> findPaged(int from, int max, String sortColumn, boolean asc, Map<String, Object> filters);
 
     long countEntries(Map<String, Object> filters);
+
+    List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole);
+
+    List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole role);
 }

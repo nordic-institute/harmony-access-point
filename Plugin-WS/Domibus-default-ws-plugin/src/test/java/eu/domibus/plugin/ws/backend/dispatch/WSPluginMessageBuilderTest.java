@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
@@ -250,7 +251,7 @@ public class WSPluginMessageBuilderTest {
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
 
-            wsPlugin.browseMessage(MESSAGE_ID, (UserMessage) any);
+            wsPlugin.browseMessage(MESSAGE_ID, MSHRole.SENDING, (UserMessage) any);
             result = new MessageNotFoundException();
         }};
 

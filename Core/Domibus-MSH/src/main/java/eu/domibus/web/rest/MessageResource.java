@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -33,9 +34,6 @@ public class MessageResource {
     UserMessageService userMessageService;
 
     @Autowired
-    private MessagesLogService messagesLogService;
-
-    @Autowired
     private ErrorHandlerService errorHandlerService;
 
     @Autowired
@@ -59,30 +57,17 @@ public class MessageResource {
         restoreService.resendFailedOrSendEnqueuedMessage(messageId);
     }
 
-    @RequestMapping(path = "/{messageId:.+}/downloadOld", method = RequestMethod.GET)
-    public ResponseEntity<ByteArrayResource> download(@PathVariable(value = "messageId") String messageId) throws MessagingException {
-
-        byte[] content = userMessageService.getMessageAsBytes(messageId);
-
-        ByteArrayResource resource = new ByteArrayResource(content);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=" + messageId + ".xml")
-                .body(resource);
-    }
-
     @RequestMapping(value = "/download")
-    public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId)
+    public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId,
+                                                                 @RequestParam(value = "mshRole") MSHRole mshRole)
             throws MessageNotFoundException, IOException {
-
         try {
-            byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId);
+            byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId, mshRole);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType("application/zip"))
                     .header("content-disposition", "attachment; filename=" + messageId + ".zip")
                     .body(new ByteArrayResource(zip));
-
         } catch (MessagingException ex) {
             LOG.warn("Could not get content for user message [{}]; returning empty.", messageId, ex);
             return ResponseEntity.noContent().build();
@@ -90,22 +75,19 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public void checkCanDownload(@RequestParam(value = "messageId", required = true) String messageId) {
-        userMessageService.checkCanGetMessageContent(messageId);
-    }
-
-    @GetMapping(value = "/{messageId:.+}/envelopes")
-    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId) {
-        return getByteArrayResourceResponseEntity(messageId);
+    public void checkCanDownload(@RequestParam(value = "messageId") String messageId,
+                                 @RequestParam(value = "mshRole") MSHRole mshRole) {
+        userMessageService.checkCanGetMessageContent(messageId, mshRole);
     }
 
     @GetMapping(value = "/envelopes")
-    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId) {
-        return getByteArrayResourceResponseEntity(messageId);
+    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId,
+                                                               @RequestParam(value = "mshRole") MSHRole mshRole) {
+        return getByteArrayResourceResponseEntity(messageId, mshRole);
     }
 
-    protected ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(String messageId) {
-        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
+    protected ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(String messageId, MSHRole mshRole) {
+        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId, mshRole);
 
         if (ArrayUtils.isEmpty(zip)) {
             return ResponseEntity.noContent().build();

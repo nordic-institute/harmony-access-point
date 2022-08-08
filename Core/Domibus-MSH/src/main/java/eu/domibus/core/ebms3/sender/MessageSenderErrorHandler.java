@@ -3,8 +3,8 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -13,6 +13,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ErrorHandler;
 
@@ -43,12 +44,12 @@ public class MessageSenderErrorHandler implements ErrorHandler {
     }
 
     @Override
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void handleError(Throwable t) {
         String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
         LOG.warn("Handling dispatch error for message [{}]", messageId, t);
 
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
 
         MessageAttempt attempt = new MessageAttempt();
         attempt.setMessageId(messageId);
@@ -61,7 +62,7 @@ public class MessageSenderErrorHandler implements ErrorHandler {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
         } catch (final EbMS3Exception e) {
             LOG.error("Could not get the pMode key for message " + messageId, e);
-            return ;
+            return;
         }
 
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);

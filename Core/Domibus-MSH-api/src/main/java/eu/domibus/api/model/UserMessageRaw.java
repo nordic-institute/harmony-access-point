@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_USER_MESSAGE_RAW")
 @NamedQueries({
-        @NamedQuery(name = "RawDto.findByMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed, l.userMessage.entityId) FROM UserMessageRaw l where l.userMessage.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "RawDto.findByMessageIdAndRole", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed, l.userMessage.entityId) FROM UserMessageRaw l where l.userMessage.messageId=:MESSAGE_ID and l.userMessage.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "RawDto.findByEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) FROM UserMessageRaw l where l.entityId=:ENTITY_ID"),
         @NamedQuery(name = "Raw.deleteByMessageID", query = "DELETE FROM UserMessageRaw r where r.entityId=:MESSAGE_ENTITY_ID"),
         @NamedQuery(name = "RawDto.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) " +

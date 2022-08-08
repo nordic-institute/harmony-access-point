@@ -19,15 +19,12 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractLegConfigurationExtractor.class);
 
-
     public AbstractLegConfigurationExtractor(final SoapMessage message, final Ebms3Messaging ebms3Messaging) {
         this.message = message;
         this.ebms3Messaging = ebms3Messaging;
     }
 
-
     protected abstract String getMessageId();
-
 
     public void setUpMessage(final String pmodeKey) {
         //set the messageId in the MDC context

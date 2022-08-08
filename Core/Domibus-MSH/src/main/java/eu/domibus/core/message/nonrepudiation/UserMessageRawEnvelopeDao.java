@@ -1,5 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.core.dao.BasicDao;
@@ -33,9 +34,10 @@ public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
         super(UserMessageRaw.class);
     }
 
-    public RawEnvelopeDto findRawXmlByMessageId(final String messageId) {
-        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByMessageId", RawEnvelopeDto.class);
+    public RawEnvelopeDto findRawXmlByMessageIdAndRole(final String messageId, MSHRole mshRole) {
+        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByMessageIdAndRole", RawEnvelopeDto.class);
         namedQuery.setParameter("MESSAGE_ID", messageId);
+        namedQuery.setParameter("MSH_ROLE", mshRole);
         try {
             LOG.debug("[findRawXmlByMessageIdMessage][Message]:[{}]", messageId);
             return namedQuery.getSingleResult();

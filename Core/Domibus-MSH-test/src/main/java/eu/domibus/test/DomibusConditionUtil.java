@@ -1,5 +1,6 @@
 package eu.domibus.test;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.user.ui.UserRoleDao;
@@ -35,23 +36,24 @@ public class DomibusConditionUtil {
         };
     }
 
-    public void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(20, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+    public void waitUntilMessageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
+        Awaitility.with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(20, TimeUnit.SECONDS)
+                .until(messageHasStatus(messageId, mshRole, messageStatus));
     }
 
     public void waitUntilMessageIsAcknowledged(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.ACKNOWLEDGED);
+        waitUntilMessageHasStatus(messageId, MSHRole.SENDING, MessageStatus.ACKNOWLEDGED);
     }
 
     public void waitUntilMessageIsReceived(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.RECEIVED);
+        waitUntilMessageHasStatus(messageId, MSHRole.RECEIVING, MessageStatus.RECEIVED);
     }
 
     public void waitUntilMessageIsInWaitingForRetry(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
+        waitUntilMessageHasStatus(messageId, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY);
     }
 
-    public Callable<Boolean> messageHasStatus(String messageId, MessageStatus messageStatus) {
-        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId);
+    public Callable<Boolean> messageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
+        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId, mshRole);
     }
 }

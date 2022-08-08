@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
@@ -138,9 +139,12 @@ public interface MessageMonitorExtService {
      * @param messageId Unique id of the message
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
      * @throws MessageMonitorExtException Raised in case an exception occurs while trying to delete the message
+     * @deprecated since 5.1 Use instead {@link #deleteMessageNotInFinalStatus(String messageId, MSHRole role)}
      */
+    @Deprecated
     void deleteMessageNotInFinalStatus(String messageId) throws AuthenticationExtException, MessageMonitorExtException;
 
+    void deleteMessageNotInFinalStatus(String messageId, MSHRole role) throws AuthenticationExtException, MessageMonitorExtException;
 
     /**
      * Operation to delete all messages which are not in the final status
@@ -160,6 +164,5 @@ public interface MessageMonitorExtService {
      * @throws AuthenticationExtException Raised in case the security is enabled and the user is not authenticated
      */
     List<String> deleteMessagesDuringPeriod(Long begin, Long end) throws AuthenticationExtException, MessageMonitorExtException;
-
 
 }

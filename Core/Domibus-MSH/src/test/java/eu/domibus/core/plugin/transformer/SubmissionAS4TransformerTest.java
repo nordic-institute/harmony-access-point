@@ -52,6 +52,9 @@ public class SubmissionAS4TransformerTest {
     @Injectable
     private PartPropertyDictionaryService partPropertyDictionaryService;
 
+    @Injectable
+    MshRoleDao mshRoleDao;
+
     @Tested
     private SubmissionAS4Transformer submissionAS4Transformer;
 
