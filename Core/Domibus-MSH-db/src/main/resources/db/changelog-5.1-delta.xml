@@ -63,6 +63,11 @@
 
         <!-- Recreate the existing unique constraint (actual data migration part of EDELIVERY-9735) -->
         <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
+        <dropIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
+        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID" />
+            <column name="MSH_ROLE_ID_FK" />
+        </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
 
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
