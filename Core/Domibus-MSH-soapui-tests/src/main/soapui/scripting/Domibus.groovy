@@ -681,7 +681,7 @@ class Domibus{
 
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null){
+    def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null, String role = null){
         debugLog("  ====  Calling \"checkStatus\".", log)
         debugLog("  checkStatus  [][]  params: sideName: " + sideName + " targetStatus: " + targetStatus + " messageID: " + messageID + " bonusTime: " + bonusTime,log)
         def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
@@ -691,6 +691,7 @@ class Domibus{
         def msgPK=null
         def numberAttempts = 0
         def maxNumberAttempts = 5
+        def roleID = null
 
         if (bonusTime) {
             if (bonusTime.isInteger()) MAX_WAIT_TIME = (bonusTime as Integer) * 1000
@@ -710,9 +711,19 @@ class Domibus{
             log.info "  checkStatus  [][]  WAIT: " + MAX_WAIT_TIME
             // Extract message ID PK
             if(msgPK==null){
-                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-                    msgPK = it.ID_PK
+                if (role != null) {
+                    sqlConn.eachRow("Select * from TB_D_MSH_ROLE where REPLACE(LOWER(ROLE),' ','') = REPLACE(LOWER(${role}),' ','')") {
+                        roleID = it.ID_PK
+                    }
+                    sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','') AND MSH_ROLE_ID_FK = ${roleID}") {
+                        msgPK = it.ID_PK
+                    }
+                } else {
+                    sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+                        msgPK = it.ID_PK
+                    }
                 }
+
             }
 
             sqlConn.eachRow("select d.STATUS, m.SEND_ATTEMPTS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
@@ -743,7 +754,7 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
 
     // Wait until status or timer expire
-    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID) {
+    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID, String role = null) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
         def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
@@ -756,7 +767,7 @@ class Domibus{
             messageID = findReturnedMessageID()
         }
 
-        debugLog("  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForC2: " + bonusTimeC2 + " bonusTimeC3: " + bonusTimeC3,log)
+        debugLog("  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForC2: " + bonusTimeC2 + " bonusTimeC3: " + bonusTimeC3 + " role: " + role,log)
 
         debugLog("  waitForStatus  [][]  C2DomainId = " + C2DomainId + " C3DomainId = " + C3DomainId, log)
         def sqlC2 = retrieveSqlConnectionRefFromDomainId(C2DomainId)
@@ -767,7 +778,7 @@ class Domibus{
 
         if (SMSH) {
             try {
-                checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2)
+                checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2, role)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
@@ -776,7 +787,7 @@ class Domibus{
 
         if (RMSH) {
             try {
-                checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3)
+                checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3, role)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
