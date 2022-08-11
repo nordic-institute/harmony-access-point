@@ -12,10 +12,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 
 /**
- * Spring security configuration file for ECAS
+ * Spring security configuration file for EU Login.
  *
  * @author Catalin Enache
  * @since 4.1
@@ -23,8 +22,13 @@ import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHtt
 @Conditional(SecurityExternalAuthProviderCondition.class)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@EnableJdbcHttpSession
 @Configuration
+/*
+ * Please ensure updating eu.domibus.core.spring.DomibusSessionInitializer whenever renaming or moving this class to a
+ * different package. The Spring session should not bootstrap in EU Login because of the issues it causes with the
+ * existing infrastructure (i.e. SNET's reverse proxy mappings/load balancer don't work with the cookie serializer
+ * writing the JSESSIONID cookie to the client).
+ */
 public class ECASSecurityConfiguration extends AbstractWebSecurityConfigurerAdapter {
 
     @Autowired
