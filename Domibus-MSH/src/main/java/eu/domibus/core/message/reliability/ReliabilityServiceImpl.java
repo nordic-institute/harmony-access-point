@@ -111,10 +111,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
                 messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
+                userMessageLogDao.update(userMessageLog);
+
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
-
-                userMessageLogDao.update(userMessageLog);
                 break;
             case WAITING_FOR_CALLBACK:
                 updateRetryLoggingService.updateWaitingReceiptMessageRetryLogging(userMessage, legConfiguration);

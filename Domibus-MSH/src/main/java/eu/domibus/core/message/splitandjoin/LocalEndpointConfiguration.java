@@ -12,10 +12,14 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.xml.ws.Endpoint;
+import java.util.concurrent.Executor;
+
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_LONG_RUNNING_TASK_EXECUTOR_BEAN_NAME;
 
 /**
  * @author Cosmin Baciu
@@ -40,7 +44,9 @@ public class LocalEndpointConfiguration {
     protected DomainService domainService;
 
     @Bean(name = "localMSH")
-    public Endpoint createMSHEndpoint(DomibusBus bus, MSHSourceMessageWebservice mshWebserviceSerializer) {
+    public Endpoint createMSHEndpoint(DomibusBus bus,
+                                      MSHSourceMessageWebservice mshWebserviceSerializer,
+                                      @Qualifier(DOMIBUS_LONG_RUNNING_TASK_EXECUTOR_BEAN_NAME) Executor executor) {
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 
         LocalTransportFactory localTransport = new LocalTransportFactory();
@@ -54,6 +60,10 @@ public class LocalEndpointConfiguration {
         endpoint.getInInterceptors().add(createSaveRequestToFileInInterceptor());
         endpoint.getInInterceptors().add(new CheckEBMSHeaderInterceptor());
         endpoint.setAddress(MSHDispatcher.LOCAL_MSH_ENDPOINT);
+
+        //setting the long running task executor
+        endpoint.setExecutor(executor);
+
         endpoint.publish();
 
         return endpoint;

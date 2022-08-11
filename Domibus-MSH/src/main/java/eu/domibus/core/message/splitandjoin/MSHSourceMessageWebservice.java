@@ -14,6 +14,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,13 +69,15 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.debug("Processing SourceMessage request");
 
-        final String domain = LOG.getMDC(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
+
+        final String domain = getPropertyValueFromRequest(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
         domainContextProvider.setCurrentDomain(domain);
+
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
-        final String contentTypeString = LOG.getMDC(Message.CONTENT_TYPE);
-        final boolean compression = Boolean.valueOf(LOG.getMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION));
-        final String sourceMessageFileName = LOG.getMDC(MSHSourceMessageWebservice.SOURCE_MESSAGE_FILE);
+        final String contentTypeString = getPropertyValueFromRequest(Message.CONTENT_TYPE);
+        final boolean compression = Boolean.valueOf(getPropertyValueFromRequest(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION));
+        final String sourceMessageFileName = getPropertyValueFromRequest(MSHSourceMessageWebservice.SOURCE_MESSAGE_FILE);
 
         LOG.debug("Parsing the SourceMessage from file [{}]", sourceMessageFileName);
 
@@ -108,5 +111,10 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
         } catch (Exception e) {
             throw new WebServiceException(e);
         }
+    }
+
+    protected String getPropertyValueFromRequest(String propertyName) {
+        LOG.trace("Getting property [{}] from the message exchange", propertyName);
+        return (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get(propertyName);
     }
 }

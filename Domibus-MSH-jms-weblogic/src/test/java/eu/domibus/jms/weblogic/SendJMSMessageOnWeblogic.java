@@ -74,7 +74,7 @@ public class SendJMSMessageOnWeblogic {
         messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
         messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
         messageMap.setStringProperty("protocol", "AS4");
-        messageMap.setStringProperty("processingType","PULL");
+        messageMap.setStringProperty("processingType", "PULL");
 
         // Optional
         // messageMap.setStringProperty("conversationId", "123");

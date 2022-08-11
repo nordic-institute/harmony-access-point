@@ -4,6 +4,7 @@ import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -56,6 +57,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
 
 /**
  * @author Cosmin Baciu, Tiago Miguel
@@ -87,7 +89,7 @@ public class DomainSchedulerFactoryConfiguration {
     Environment environment;
 
     @Autowired
-    @Qualifier("taskExecutor")
+    @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME)
     protected Executor executor;
 
     @Autowired
@@ -656,7 +658,7 @@ public class DomainSchedulerFactoryConfiguration {
 
     protected String getQuartzDriverDelegateClass() {
         String result = QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE;
-        if(DomibusEnvironmentUtil.INSTANCE.isWebLogic(environment)) {
+        if(DomibusEnvironmentUtil.INSTANCE.isWebLogic(environment) && domibusConfigurationService.getDataBaseEngine() == DataBaseEngine.ORACLE) {
             result = QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE;
         }
         LOG.info("Using class [{}] for Quartz jdbcjobstore", result);

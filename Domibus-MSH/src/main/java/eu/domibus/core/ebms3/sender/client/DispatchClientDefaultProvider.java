@@ -34,6 +34,7 @@ import javax.xml.ws.soap.SOAPBinding;
 import java.util.concurrent.Executor;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
 
 /**
  * @author Cosmin Baciu
@@ -72,7 +73,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     protected final DomibusHTTPConduitFactory domibusHTTPConduitFactory;
 
     public DispatchClientDefaultProvider(TLSReaderServiceImpl tlsReader,
-                                         @Qualifier("taskExecutor") Executor executor,
+                                         @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) Executor executor,
                                          DomibusPropertyProvider domibusPropertyProvider,
                                          @Qualifier("domibusProxyService") DomibusProxyService domibusProxyService,
                                          ProxyCxfUtil proxyUtil, DomibusHTTPConduitFactory domibusHTTPConduitFactory) {
