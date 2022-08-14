@@ -634,9 +634,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_message BULK COLLECT INTO user_message LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_message.COUNT = 0;
 
-            migr_user_message := T_MIGR_USER_MESSAGE();
-            migr_pks_user_message := T_MIGR_PKS_USER_MESSAGE();
-            migr_pks_message_info := T_MIGR_PKS_MESSAGE_INFO();
+            migr_user_message.DELETE();
+            migr_pks_user_message.DELETE();
+            migr_pks_message_info.DELETE();
 
             FOR i IN user_message.FIRST .. user_message.LAST
                 LOOP
@@ -811,8 +811,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_message_group BULK COLLECT INTO message_group LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_group.COUNT = 0;
 
-            migr_message_group := T_MIGR_MESSAGE_GROUP();
-            migr_pks_message_group := T_MIGR_PKS_MESSAGE_GROUP();
+            migr_message_group.DELETE();
+            migr_pks_message_group.DELETE();
 
             FOR i IN message_group.FIRST .. message_group.LAST
                 LOOP
@@ -967,7 +967,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_message_fragment BULK COLLECT INTO message_fragment LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_fragment.COUNT = 0;
 
-            migr_message_fragment := T_MIGR_MESSAGE_FRAGMENT();
+            migr_message_fragment.DELETE();
 
             FOR i IN message_fragment.FIRST .. message_fragment.LAST
                 LOOP
@@ -1076,7 +1076,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_message_header BULK COLLECT INTO message_header LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_header.COUNT = 0;
 
-            migr_message_header := T_MIGR_MESSAGE_HEADER();
+            migr_message_header.DELETE();
 
             FOR i IN message_header.FIRST .. message_header.LAST
                 LOOP
@@ -1212,8 +1212,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_signal_message_receipt BULK COLLECT INTO signal_message_receipt LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN signal_message_receipt.COUNT = 0;
 
-            migr_signal_message := T_MIGR_SIGNAL_MESSAGE();
-            migr_receipt := T_MIGR_RECEIPT();
+            migr_signal_message.DELETE();
+            migr_receipt.DELETE();
 
             FOR i IN signal_message_receipt.FIRST .. signal_message_receipt.LAST
                 LOOP
@@ -1401,8 +1401,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_raw_envelope BULK COLLECT INTO raw_envelope LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN raw_envelope.COUNT = 0;
 
-            migr_user_message_raw := T_MIGR_USER_MESSAGE_RAW();
-            migr_signal_message_raw := T_MIGR_SIGNAL_MESSAGE_RAW();
+            migr_user_message_raw.DELETE();
+            migr_signal_message_raw.DELETE();
 
             FOR i IN raw_envelope.FIRST .. raw_envelope.LAST
                 LOOP
@@ -1583,8 +1583,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_message_log BULK COLLECT INTO message_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_log.COUNT = 0;
 
-            migr_user_message_log := T_MIGR_USER_MESSAGE_LOG();
-            migr_signal_message_log := T_MIGR_SIGNAL_MESSAGE_LOG();
+            migr_user_message_log.DELETE();
+            migr_signal_message_log.DELETE();
 
             FOR i IN message_log.FIRST .. message_log.LAST
                 LOOP
@@ -1792,7 +1792,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_property BULK COLLECT INTO property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN property.COUNT = 0;
 
-            migr_message_properties := T_MESSAGE_PROPERTIES();
+            migr_message_properties.DELETE();
 
             FOR i IN property.FIRST .. property.LAST
                 LOOP
@@ -1903,8 +1903,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_part_info BULK COLLECT INTO part_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN part_info.COUNT = 0;
 
-            migr_part_info := T_MIGR_PART_INFO();
-            migr_pks_part_info := T_MIGR_PKS_PART_INFO();
+            migr_part_info.DELETE();
+            migr_pks_part_info.DELETE();
 
             FOR i IN part_info.FIRST .. part_info.LAST
                 LOOP
@@ -2050,7 +2050,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_part_prop BULK COLLECT INTO part_prop LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN part_prop.COUNT = 0;
 
-            migr_part_properties := T_MIGR_PART_PROPERTIES();
+            migr_part_properties.DELETE();
 
             FOR i IN part_prop.FIRST .. part_prop.LAST
                 LOOP
@@ -2171,7 +2171,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_error_log BULK COLLECT INTO error_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN error_log.COUNT = 0;
 
-            migr_error_log := T_MIGR_ERROR_LOG();
+            migr_error_log.DELETE();
 
             FOR i IN error_log.FIRST .. error_log.LAST
                 LOOP
@@ -2303,8 +2303,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_message_acknw BULK COLLECT INTO message_acknw LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_acknw.COUNT = 0;
 
-            migr_message_acknw := T_MIGR_MESSAGE_ACKNW();
-            migr_pks_message_acknw := T_MIGR_PKS_MESSAGE_ACKNW();
+            migr_message_acknw.DELETE();
+            migr_pks_message_acknw.DELETE();
 
             FOR i IN message_acknw.FIRST .. message_acknw.LAST
                 LOOP
@@ -2440,8 +2440,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_send_attempt BULK COLLECT INTO send_attempt LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN send_attempt.COUNT = 0;
 
-            migr_send_attempt := T_MIGR_SEND_ATTEMPT();
-            migr_pks_send_attempt := T_MIGR_PKS_SEND_ATTEMPT();
+            migr_send_attempt.DELETE();
+            migr_pks_send_attempt.DELETE();
 
             FOR i IN send_attempt.FIRST .. send_attempt.LAST
                 LOOP
@@ -2566,8 +2566,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_action_audit BULK COLLECT INTO action_audit LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN action_audit.COUNT = 0;
 
-            migr_action_audit := T_MIGR_ACTION_AUDIT();
-            migr_pks_action_audit := T_MIGR_PKS_ACTION_AUDIT();
+            migr_action_audit.DELETE();
+            migr_pks_action_audit.DELETE();
 
             FOR i IN action_audit.FIRST .. action_audit.LAST
                 LOOP
@@ -2705,8 +2705,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_alert BULK COLLECT INTO alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN alert.COUNT = 0;
 
-            migr_alert := T_MIGR_ALERT();
-            migr_pks_alert := T_MIGR_PKS_ALERT();
+            migr_alert.DELETE();
+            migr_pks_alert.DELETE();
 
             FOR i IN alert.FIRST .. alert.LAST
                 LOOP
@@ -2842,8 +2842,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_event BULK COLLECT INTO event LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event.COUNT = 0;
 
-            migr_event := T_MIGR_EVENT();
-            migr_pks_event := T_MIGR_PKS_EVENT();
+            migr_event.DELETE();
+            migr_pks_event.DELETE();
 
             FOR i IN event.FIRST .. event.LAST
                 LOOP
@@ -2958,7 +2958,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_event_alert BULK COLLECT INTO event_alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_alert.COUNT = 0;
 
-            migr_event_alert := T_MIGR_EVENT_ALERT();
+            migr_event_alert.DELETE();
 
             FOR i IN event_alert.FIRST .. event_alert.LAST
                 LOOP
@@ -3060,7 +3060,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_event_property BULK COLLECT INTO event_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_property.COUNT = 0;
 
-            migr_event_property := T_MIGR_EVENT_PROPERTY();
+            migr_event_property.DELETE();
 
             FOR i IN event_property.FIRST .. event_property.LAST
                 LOOP
@@ -3178,8 +3178,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_authentication_entry BULK COLLECT INTO authentication_entry LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN authentication_entry.COUNT = 0;
 
-            migr_authentication_entry := T_MIGR_AUTHENTICATION_ENTRY();
-            migr_pks_auth_entry := T_MIGR_PKS_AUTH_ENTRY();
+            migr_authentication_entry.DELETE();
+            migr_pks_auth_entry.DELETE();
 
             FOR i IN authentication_entry.FIRST .. authentication_entry.LAST
                 LOOP
@@ -3314,7 +3314,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_plugin_user_passwd_history BULK COLLECT INTO plugin_user_passwd_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN plugin_user_passwd_history.COUNT = 0;
 
-            migr_plugin_usr_passwd_hist := T_MIGR_PLUGIN_USR_PASSWD_HIST();
+            migr_plugin_usr_passwd_hist.DELETE();
 
             FOR i IN plugin_user_passwd_history.FIRST .. plugin_user_passwd_history.LAST
                 LOOP
@@ -3419,8 +3419,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_backend_filter BULK COLLECT INTO backend_filter LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN backend_filter.COUNT = 0;
 
-            migr_backend_filter := T_MIGR_BACKEND_FILTER();
-            migr_pks_backend_filter := T_MIGR_PKS_BACKEND_FILTER();
+            migr_backend_filter.DELETE();
+            migr_pks_backend_filter.DELETE();
 
             FOR i IN backend_filter.FIRST .. backend_filter.LAST
                 LOOP
@@ -3539,8 +3539,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_routing_criteria BULK COLLECT INTO routing_criteria LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN routing_criteria.COUNT = 0;
 
-            migr_routing_criteria := T_MIGR_ROUTING_CRITERIA();
-            migr_pks_routing_criteria := T_MIGR_PKS_ROUTING_CRITERIA();
+            migr_routing_criteria.DELETE();
+            migr_pks_routing_criteria.DELETE();
 
             FOR i IN routing_criteria.FIRST .. routing_criteria.LAST
                 LOOP
@@ -3666,8 +3666,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_certificate BULK COLLECT INTO certificate LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN certificate.COUNT = 0;
 
-            migr_certificate := T_MIGR_CERTIFICATE();
-            migr_pks_certificate := T_MIGR_PKS_CERTIFICATE();
+            migr_certificate.DELETE();
+            migr_pks_certificate.DELETE();
 
             FOR i IN certificate.FIRST .. certificate.LAST
                 LOOP
@@ -3797,8 +3797,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_command BULK COLLECT INTO command LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command.COUNT = 0;
 
-            migr_command := T_MIGR_COMMAND();
-            migr_pks_command := T_MIGR_PKS_COMMAND();
+            migr_command.DELETE();
+            migr_pks_command.DELETE();
 
             FOR i IN command.FIRST .. command.LAST
                 LOOP
@@ -3910,7 +3910,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_command_property BULK COLLECT INTO command_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command_property.COUNT = 0;
 
-            migr_command_property := T_MIGR_COMMAND_PROPERTY();
+            migr_command_property.DELETE();
 
             FOR i IN command_property.FIRST .. command_property.LAST
                 LOOP
@@ -4012,7 +4012,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_encryption_key BULK COLLECT INTO encryption_key LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN encryption_key.COUNT = 0;
 
-            migr_encryption_key := T_MIGR_ENCRYPTION_KEY();
+            migr_encryption_key.DELETE();
 
             FOR i IN encryption_key.FIRST .. encryption_key.LAST
                 LOOP
@@ -4114,7 +4114,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_message_acknw_prop BULK COLLECT INTO message_acknw_prop LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN message_acknw_prop.COUNT = 0;
 
-            migr_message_acknw_prop := T_MIGR_MESSAGE_ACKNW_PROP();
+            migr_message_acknw_prop.DELETE();
 
             FOR i IN message_acknw_prop.FIRST .. message_acknw_prop.LAST
                 LOOP
@@ -4227,7 +4227,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_messaging_lock BULK COLLECT INTO messaging_lock LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN messaging_lock.COUNT = 0;
 
-            migr_messaging_lock := T_MIGR_MESSAGING_LOCK();
+            migr_messaging_lock.DELETE();
 
             FOR i IN messaging_lock.FIRST .. messaging_lock.LAST
                 LOOP
@@ -4348,8 +4348,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_business_process BULK COLLECT INTO pm_business_process LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_business_process.COUNT = 0;
 
-            migr_pm_business_process := T_MIGR_PM_BUSINESS_PROCESS();
-            migr_pks_pm_business_proc := T_MIGR_PKS_PM_BUSINESS_PROC();
+            migr_pm_business_process.DELETE();
+            migr_pks_pm_business_proc.DELETE();
 
             FOR i IN pm_business_process.FIRST .. pm_business_process.LAST
                 LOOP
@@ -4463,8 +4463,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_action BULK COLLECT INTO pm_action LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_action.COUNT = 0;
 
-            migr_pm_action := T_MIGR_PM_ACTION();
-            migr_pks_pm_action := T_MIGR_PKS_PM_ACTION();
+            migr_pm_action.DELETE();
+            migr_pks_pm_action.DELETE();
 
             FOR i IN pm_action.FIRST .. pm_action.LAST
                 LOOP
@@ -4585,8 +4585,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_agreement BULK COLLECT INTO pm_agreement LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_agreement.COUNT = 0;
 
-            migr_pm_agreement := T_MIGR_PM_AGREEMENT();
-            migr_pks_pm_agreement := T_MIGR_PKS_PM_AGREEMENT();
+            migr_pm_agreement.DELETE();
+            migr_pks_pm_agreement.DELETE();
 
             FOR i IN pm_agreement.FIRST .. pm_agreement.LAST
                 LOOP
@@ -4711,8 +4711,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_error_handling BULK COLLECT INTO pm_error_handling LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_error_handling.COUNT = 0;
 
-            migr_pm_error_handling := T_MIGR_PM_ERROR_HANDLING();
-            migr_pks_pm_error_handling := T_MIGR_PKS_PM_ERROR_HANDLING();
+            migr_pm_error_handling.DELETE();
+            migr_pks_pm_error_handling.DELETE();
 
             FOR i IN pm_error_handling.FIRST .. pm_error_handling.LAST
                 LOOP
@@ -4842,8 +4842,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_mep BULK COLLECT INTO pm_mep LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mep.COUNT = 0;
 
-            migr_pm_mep := T_MIGR_PM_MEP();
-            migr_pks_pm_mep := T_MIGR_PKS_PM_MEP();
+            migr_pm_mep.DELETE();
+            migr_pks_pm_mep.DELETE();
 
             FOR i IN pm_mep.FIRST .. pm_mep.LAST
                 LOOP
@@ -4965,8 +4965,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_mep_binding BULK COLLECT INTO pm_mep_binding LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mep_binding.COUNT = 0;
 
-            migr_pm_mep_binding := T_MIGR_PM_MEP_BINDING();
-            migr_pks_pm_mep_binding := T_MIGR_PKS_PM_MEP_BINDING();
+            migr_pm_mep_binding.DELETE();
+            migr_pks_pm_mep_binding.DELETE();
 
             FOR i IN pm_mep_binding.FIRST .. pm_mep_binding.LAST
                 LOOP
@@ -5088,8 +5088,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_message_property BULK COLLECT INTO pm_message_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_message_property.COUNT = 0;
 
-            migr_pm_message_property := T_MIGR_PM_MESSAGE_PROPERTY();
-            migr_pks_pm_message_prop := T_MIGR_PKS_PM_MESSAGE_PROP();
+            migr_pm_message_property.DELETE();
+            migr_pks_pm_message_prop.DELETE();
 
             FOR i IN pm_message_property.FIRST .. pm_message_property.LAST
                 LOOP
@@ -5213,8 +5213,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_message_property_set BULK COLLECT INTO pm_message_property_set LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_message_property_set.COUNT = 0;
 
-            migr_pm_msg_property_set := T_MIGR_PM_MSG_PROPERTY_SET();
-            migr_pks_pm_msg_prop_set := T_MIGR_PKS_PM_MSG_PROP_SET();
+            migr_pm_msg_property_set.DELETE();
+            migr_pks_pm_msg_prop_set.DELETE();
 
             FOR i IN pm_message_property_set.FIRST .. pm_message_property_set.LAST
                 LOOP
@@ -5329,7 +5329,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_join_property_set BULK COLLECT INTO pm_join_property_set LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_property_set.COUNT = 0;
 
-            migr_pm_join_property_set := T_MIGR_PM_JOIN_PROPERTY_SET();
+            migr_pm_join_property_set.DELETE();
 
             FOR i IN pm_join_property_set.FIRST .. pm_join_property_set.LAST
                 LOOP
@@ -5436,8 +5436,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_party BULK COLLECT INTO pm_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party.COUNT = 0;
 
-            migr_pm_party := T_MIGR_PM_PARTY();
-            migr_pks_pm_party := T_MIGR_PKS_PM_PARTY();
+            migr_pm_party.DELETE();
+            migr_pks_pm_party.DELETE();
 
             FOR i IN pm_party.FIRST .. pm_party.LAST
                 LOOP
@@ -5562,8 +5562,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_configuration BULK COLLECT INTO pm_configuration LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration.COUNT = 0;
 
-            migr_pm_configuration := T_MIGR_PM_CONFIGURATION();
-            migr_pks_pm_configuration := T_MIGR_PKS_PM_CONFIGURATION();
+            migr_pm_configuration.DELETE();
+            migr_pks_pm_configuration.DELETE();
 
             FOR i IN pm_configuration.FIRST .. pm_configuration.LAST
                 LOOP
@@ -5688,8 +5688,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_mpc BULK COLLECT INTO pm_mpc LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_mpc.COUNT = 0;
 
-            migr_pm_mpc := T_MIGR_PM_MPC();
-            migr_pks_pm_mpc := T_MIGR_PKS_PM_MPC();
+            migr_pm_mpc.DELETE();
+            migr_pks_pm_mpc.DELETE();
 
             FOR i IN pm_mpc.FIRST .. pm_mpc.LAST
                 LOOP
@@ -5825,8 +5825,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_party_id_type BULK COLLECT INTO pm_party_id_type LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_id_type.COUNT = 0;
 
-            migr_pm_party_id_type := T_MIGR_PM_PARTY_ID_TYPE();
-            migr_pks_pm_party_id_type := T_MIGR_PKS_PM_PARTY_ID_TYPE();
+            migr_pm_party_id_type.DELETE();
+            migr_pks_pm_party_id_type.DELETE();
 
             FOR i IN pm_party_id_type.FIRST .. pm_party_id_type.LAST
                 LOOP
@@ -5948,8 +5948,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_party_identifier BULK COLLECT INTO pm_party_identifier LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_identifier.COUNT = 0;
 
-            migr_pm_party_identifier := T_MIGR_PM_PARTY_IDENTIFIER();
-            migr_pks_pm_party_id := T_MIGR_PKS_PM_PARTY_ID();
+            migr_pm_party_identifier.DELETE();
+            migr_pks_pm_party_id.DELETE();
 
             FOR i IN pm_party_identifier.FIRST .. pm_party_identifier.LAST
                 LOOP
@@ -6075,8 +6075,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_payload BULK COLLECT INTO pm_payload LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_payload.COUNT = 0;
 
-            migr_pm_payload := T_MIGR_PM_PAYLOAD();
-            migr_pks_pm_payload := T_MIGR_PKS_PM_PAYLOAD();
+            migr_pm_payload.DELETE();
+            migr_pks_pm_payload.DELETE();
 
             FOR i IN pm_payload.FIRST .. pm_payload.LAST
                 LOOP
@@ -6207,8 +6207,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_payload_profile BULK COLLECT INTO pm_payload_profile LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_payload_profile.COUNT = 0;
 
-            migr_pm_payload_profile := T_MIGR_PM_PAYLOAD_PROFILE();
-            migr_pks_pm_payload_prof := T_MIGR_PKS_PM_PAYLOAD_PROF();
+            migr_pm_payload_profile.DELETE();
+            migr_pks_pm_payload_prof.DELETE();
 
             FOR i IN pm_payload_profile.FIRST .. pm_payload_profile.LAST
                 LOOP
@@ -6326,7 +6326,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_join_payload_profile BULK COLLECT INTO pm_join_payload_profile LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_payload_profile.COUNT = 0;
 
-            migr_pm_join_payld_profile := T_MIGR_PM_JOIN_PAYLD_PROFILE();
+            migr_pm_join_payld_profile.DELETE();
 
             FOR i IN pm_join_payload_profile.FIRST .. pm_join_payload_profile.LAST
                 LOOP
@@ -6434,8 +6434,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_reception_awareness BULK COLLECT INTO pm_reception_awareness LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_reception_awareness.COUNT = 0;
 
-            migr_pm_reception_awareness := T_MIGR_PM_RECEPTION_AWARENESS();
-            migr_pks_pm_receptn_awarns := T_MIGR_PKS_PM_RECEPTN_AWARNS();
+            migr_pm_reception_awareness.DELETE();
+            migr_pks_pm_receptn_awarns.DELETE();
 
             FOR i IN pm_reception_awareness.FIRST .. pm_reception_awareness.LAST
                 LOOP
@@ -6564,8 +6564,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_reliability BULK COLLECT INTO pm_reliability LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_reliability.COUNT = 0;
 
-            migr_pm_reliability := T_MIGR_PM_RELIABILITY();
-            migr_pks_pm_reliability := T_MIGR_PKS_PM_RELIABILITY();
+            migr_pm_reliability.DELETE();
+            migr_pks_pm_reliability.DELETE();
 
             FOR i IN pm_reliability.FIRST .. pm_reliability.LAST
                 LOOP
@@ -6688,8 +6688,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_role BULK COLLECT INTO pm_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_role.COUNT = 0;
 
-            migr_pm_role := T_MIGR_PM_ROLE();
-            migr_pks_pm_role := T_MIGR_PKS_PM_ROLE();
+            migr_pm_role.DELETE();
+            migr_pks_pm_role.DELETE();
 
             FOR i IN pm_role.FIRST .. pm_role.LAST
                 LOOP
@@ -6810,8 +6810,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_security BULK COLLECT INTO pm_security LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_security.COUNT = 0;
 
-            migr_pm_security := T_MIGR_PM_SECURITY();
-            migr_pks_pm_security := T_MIGR_PKS_PM_SECURITY();
+            migr_pm_security.DELETE();
+            migr_pks_pm_security.DELETE();
 
             FOR i IN pm_security.FIRST .. pm_security.LAST
                 LOOP
@@ -6934,8 +6934,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_service BULK COLLECT INTO pm_service LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_service.COUNT = 0;
 
-            migr_pm_service := T_MIGR_PM_SERVICE();
-            migr_pks_pm_service := T_MIGR_PKS_PM_SERVICE();
+            migr_pm_service.DELETE();
+            migr_pks_pm_service.DELETE();
 
             FOR i IN pm_service.FIRST .. pm_service.LAST
                 LOOP
@@ -7060,8 +7060,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_splitting BULK COLLECT INTO pm_splitting LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_splitting.COUNT = 0;
 
-            migr_pm_splitting := T_MIGR_PM_SPLITTING();
-            migr_pks_pm_splitting := T_MIGR_PKS_PM_SPLITTING();
+            migr_pm_splitting.DELETE();
+            migr_pks_pm_splitting.DELETE();
 
             FOR i IN pm_splitting.FIRST .. pm_splitting.LAST
                 LOOP
@@ -7218,8 +7218,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_leg BULK COLLECT INTO pm_leg LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_leg.COUNT = 0;
 
-            migr_pm_leg := T_MIGR_PM_LEG();
-            migr_pks_pm_leg := T_MIGR_PKS_PM_LEG();
+            migr_pm_leg.DELETE();
+            migr_pks_pm_leg.DELETE();
 
             FOR i IN pm_leg.FIRST .. pm_leg.LAST
                 LOOP
@@ -7360,7 +7360,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_leg_mpc BULK COLLECT INTO pm_leg_mpc LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_leg_mpc.COUNT = 0;
 
-            migr_pm_leg_mpc := T_MIGR_PM_LEG_MPC();
+            migr_pm_leg_mpc.DELETE();
 
             FOR i IN pm_leg_mpc.FIRST .. pm_leg_mpc.LAST
                 LOOP
@@ -7485,8 +7485,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_process BULK COLLECT INTO pm_process LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_process.COUNT = 0;
 
-            migr_pm_process := T_MIGR_PM_PROCESS();
-            migr_pks_pm_process := T_MIGR_PKS_PM_PROCESS();
+            migr_pm_process.DELETE();
+            migr_pks_pm_process.DELETE();
 
             FOR i IN pm_process.FIRST .. pm_process.LAST
                 LOOP
@@ -7615,7 +7615,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_join_process_init_party BULK COLLECT INTO pm_join_process_init_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_init_party.COUNT = 0;
 
-            migr_pm_join_proc_ini_party := T_MIGR_PM_JOIN_PROC_INI_PARTY();
+            migr_pm_join_proc_ini_party.DELETE();
 
             FOR i IN pm_join_process_init_party.FIRST .. pm_join_process_init_party.LAST
                 LOOP
@@ -7715,7 +7715,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_join_process_leg BULK COLLECT INTO pm_join_process_leg LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_leg.COUNT = 0;
 
-            migr_pm_join_process_leg := T_MIGR_PM_JOIN_PROCESS_LEG();
+            migr_pm_join_process_leg.DELETE();
 
             FOR i IN pm_join_process_leg.FIRST .. pm_join_process_leg.LAST
                 LOOP
@@ -7815,7 +7815,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_join_process_resp_party BULK COLLECT INTO pm_join_process_resp_party LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_join_process_resp_party.COUNT = 0;
 
-            migr_pm_join_proc_rsp_party := T_MIGR_PM_JOIN_PROC_RSP_PARTY();
+            migr_pm_join_proc_rsp_party.DELETE();
 
             FOR i IN pm_join_process_resp_party.FIRST .. pm_join_process_resp_party.LAST
                 LOOP
@@ -7921,8 +7921,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_configuration_raw BULK COLLECT INTO pm_configuration_raw LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_raw.COUNT = 0;
 
-            migr_pm_configuration_raw := T_MIGR_PM_CONFIGURATION_RAW();
-            migr_pks_pm_conf_raw := T_MIGR_PKS_PM_CONF_RAW();
+            migr_pm_configuration_raw.DELETE();
+            migr_pks_pm_conf_raw.DELETE();
 
             FOR i IN pm_configuration_raw.FIRST .. pm_configuration_raw.LAST
                 LOOP
@@ -8048,8 +8048,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user BULK COLLECT INTO v_user LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN v_user.COUNT = 0;
 
-            migr_user := T_MIGR_USER();
-            migr_pks_user := T_MIGR_PKS_USER();
+            migr_user.DELETE();
+            migr_pks_user.DELETE();
 
             FOR i IN v_user.FIRST .. v_user.LAST
                 LOOP
@@ -8180,7 +8180,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_password_history BULK COLLECT INTO user_password_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_password_history.COUNT = 0;
 
-            migr_user_password_history := T_MIGR_USER_PASSWORD_HISTORY();
+            migr_user_password_history.DELETE();
 
             FOR i IN user_password_history.FIRST .. user_password_history.LAST
                 LOOP
@@ -8284,8 +8284,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_role BULK COLLECT INTO user_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role.COUNT = 0;
 
-            migr_user_role := T_MIGR_USER_ROLE();
-            migr_pks_user_role := T_MIGR_PKS_USER_ROLE();
+            migr_user_role.DELETE();
+            migr_pks_user_role.DELETE();
 
             FOR i IN user_role.FIRST .. user_role.LAST
                 LOOP
@@ -8396,7 +8396,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_roles BULK COLLECT INTO user_roles LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles.COUNT = 0;
 
-            migr_user_roles := T_MIGR_USER_ROLES();
+            migr_user_roles.DELETE();
 
             FOR i IN user_roles.FIRST .. user_roles.LAST
                 LOOP
@@ -8494,7 +8494,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_ws_plugin_message_log BULK COLLECT INTO ws_plugin_message_log LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN ws_plugin_message_log.COUNT = 0;
 
-            migr_ws_plugin_message_log := T_MIGR_WS_PLUGIN_MESSAGE_LOG();
+            migr_ws_plugin_message_log.DELETE();
 
             FOR i IN ws_plugin_message_log.FIRST .. ws_plugin_message_log.LAST
                 LOOP
@@ -8596,8 +8596,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_rev_info BULK COLLECT INTO rev_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_info.COUNT = 0;
 
-            migr_rev_info := T_MIGR_REV_INFO();
-            migr_pks_rev_info := T_MIGR_PKS_REV_INFO();
+            migr_rev_info.DELETE();
+            migr_pks_rev_info.DELETE();
 
             FOR i IN rev_info.FIRST .. rev_info.LAST
                 LOOP
@@ -8803,7 +8803,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_rev_changes BULK COLLECT INTO rev_changes LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_changes.COUNT = 0;
 
-            migr_rev_changes := T_MIGR_REV_CHANGES();
+            migr_rev_changes.DELETE();
 
             FOR i IN rev_changes.FIRST .. rev_changes.LAST
                 LOOP
@@ -8948,7 +8948,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_authentication_entry_aud BULK COLLECT INTO authentication_entry_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN authentication_entry_aud.COUNT = 0;
 
-            migr_auth_entry_aud := T_MIGR_AUTH_ENTRY_AUD();
+            migr_auth_entry_aud.DELETE();
 
             FOR i IN authentication_entry_aud.FIRST .. authentication_entry_aud.LAST
                 LOOP
@@ -9085,7 +9085,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_back_rcriteria_aud BULK COLLECT INTO back_rcriteria_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN back_rcriteria_aud.COUNT = 0;
 
-            migr_back_rcriteria_aud := T_MIGR_BACK_RCRITERIA_AUD();
+            migr_back_rcriteria_aud.DELETE();
 
             FOR i IN back_rcriteria_aud.FIRST .. back_rcriteria_aud.LAST
                 LOOP
@@ -9185,7 +9185,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_backend_filter_aud BULK COLLECT INTO backend_filter_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN backend_filter_aud.COUNT = 0;
 
-            migr_backend_filter_aud := T_MIGR_BACKEND_FILTER_AUD();
+            migr_backend_filter_aud.DELETE();
 
             FOR i IN backend_filter_aud.FIRST .. backend_filter_aud.LAST
                 LOOP
@@ -9296,7 +9296,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_certificate_aud BULK COLLECT INTO certificate_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN certificate_aud.COUNT = 0;
 
-            migr_certificate_aud := T_MIGR_CERTIFICATE_AUD();
+            migr_certificate_aud.DELETE();
 
             FOR i IN certificate_aud.FIRST .. certificate_aud.LAST
                 LOOP
@@ -9411,7 +9411,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_configuration_aud BULK COLLECT INTO pm_configuration_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_aud.COUNT = 0;
 
-            migr_pm_configuration_aud := T_MIGR_PM_CONFIGURATION_AUD();
+            migr_pm_configuration_aud.DELETE();
 
             FOR i IN pm_configuration_aud.FIRST .. pm_configuration_aud.LAST
                 LOOP
@@ -9517,7 +9517,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_configuration_raw_aud BULK COLLECT INTO pm_configuration_raw_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_configuration_raw_aud.COUNT = 0;
 
-            migr_pm_conf_raw_aud := T_MIGR_PM_CONF_RAW_AUD();
+            migr_pm_conf_raw_aud.DELETE();
 
             FOR i IN pm_configuration_raw_aud.FIRST .. pm_configuration_raw_aud.LAST
                 LOOP
@@ -9630,7 +9630,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_party_aud BULK COLLECT INTO pm_party_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_aud.COUNT = 0;
 
-            migr_pm_party_aud := T_MIGR_PM_PARTY_AUD();
+            migr_pm_party_aud.DELETE();
 
             FOR i IN pm_party_aud.FIRST .. pm_party_aud.LAST
                 LOOP
@@ -9742,7 +9742,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_party_id_type_aud BULK COLLECT INTO pm_party_id_type_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_id_type_aud.COUNT = 0;
 
-            migr_pm_party_id_type_aud := T_MIGR_PM_PARTY_ID_TYPE_AUD();
+            migr_pm_party_id_type_aud.DELETE();
 
             FOR i IN pm_party_id_type_aud.FIRST .. pm_party_id_type_aud.LAST
                 LOOP
@@ -9846,7 +9846,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_pm_party_identifier_aud BULK COLLECT INTO pm_party_identifier_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN pm_party_identifier_aud.COUNT = 0;
 
-            migr_pm_party_identif_aud := T_MIGR_PM_PARTY_IDENTIF_AUD();
+            migr_pm_party_identif_aud.DELETE();
 
             FOR i IN pm_party_identifier_aud.FIRST .. pm_party_identifier_aud.LAST
                 LOOP
@@ -9943,7 +9943,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_routing_criteria_aud BULK COLLECT INTO routing_criteria_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN routing_criteria_aud.COUNT = 0;
 
-            migr_routing_criteria_aud := T_MIGR_ROUTING_CRITERIA_AUD();
+            migr_routing_criteria_aud.DELETE();
 
             FOR i IN routing_criteria_aud.FIRST .. routing_criteria_aud.LAST
                 LOOP
@@ -10060,7 +10060,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_aud BULK COLLECT INTO user_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_aud.COUNT = 0;
 
-            migr_user_aud := T_MIGR_USER_AUD();
+            migr_user_aud.DELETE();
 
             FOR i IN user_aud.FIRST .. user_aud.LAST
                 LOOP
@@ -10192,7 +10192,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_role_aud BULK COLLECT INTO user_role_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role_aud.COUNT = 0;
 
-            migr_user_role_aud := T_MIGR_USER_ROLE_AUD();
+            migr_user_role_aud.DELETE();
 
             FOR i IN user_role_aud.FIRST .. user_role_aud.LAST
                 LOOP
@@ -10293,7 +10293,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles_aud.COUNT = 0;
 
-            migr_user_roles_aud := T_MIGR_USER_ROLES_AUD();
+            migr_user_roles_aud.DELETE();
 
             FOR i IN user_roles_aud.FIRST .. user_roles_aud.LAST
                 LOOP
