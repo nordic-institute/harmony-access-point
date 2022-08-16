@@ -421,6 +421,7 @@
                                  referencedTableName="TB_D_MSH_ROLE"/>
         <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
             <column name="MESSAGE_ID"/>
+            <column name="MSH_ROLE_ID_FK"/>
         </createIndex>
         <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
             <column name="ACTION_ID_FK"/>
