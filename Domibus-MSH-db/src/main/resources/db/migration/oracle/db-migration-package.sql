@@ -558,6 +558,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     /**-- TB_USER_MESSAGE migration --*/
     PROCEDURE prepare_user_message IS
         v_user_message_exists INT;
+        v_id_pk NUMBER;
     BEGIN
         BEGIN
             SELECT COUNT(*) INTO v_user_message_exists FROM TB_USER_MESSAGE WHERE ID_PK = DUMMY_USER_MESSAGE_ID_PK;
@@ -566,10 +567,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 RAISE_APPLICATION_ERROR(-20001, 'TB_USER_MESSAGE entry having ID_PK = ' || DUMMY_USER_MESSAGE_ID_PK
                     || ' already exists in your old user schema. This has a special meaning in the new user schema: please either remove it or update its value.');
             ELSE
-                INSERT INTO MIGR_TB_USER_MESSAGE (ID_PK)
-                VALUES (DUMMY_USER_MESSAGE_ID_PK);
+                BEGIN
+                    SELECT ID_PK INTO v_id_pk FROM MIGR_TB_USER_MESSAGE WHERE ID_PK = DUMMY_USER_MESSAGE_ID_PK;
+                EXCEPTION
+                    WHEN NO_DATA_FOUND THEN
+                        -- create new record
+                        INSERT INTO MIGR_TB_USER_MESSAGE (ID_PK)
+                        VALUES (DUMMY_USER_MESSAGE_ID_PK);
 
-                COMMIT;
+                        COMMIT;
+                END;
             END IF;
         END;
     END;
