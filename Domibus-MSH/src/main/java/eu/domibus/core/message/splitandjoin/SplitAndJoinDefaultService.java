@@ -558,6 +558,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         return isGroupExpired(firstFragment, groupId);
     }
 
+    @Transactional
     @Override
     public void splitAndJoinSendFailed(final String groupId, final String errorDetail) {
         LOG.debug("SplitAndJoin send failed for group [{}]", groupId);

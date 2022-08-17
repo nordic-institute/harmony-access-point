@@ -45,8 +45,6 @@ public class SplitAndJoinListener implements MessageListener {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(final Message message) {
         try {

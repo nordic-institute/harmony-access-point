@@ -20,6 +20,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.soap.SOAPBinding;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.*;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
@@ -42,7 +43,7 @@ public class WSPluginDispatchClientProvider {
     private final ProxyCxfUtilExtService proxyUtilExtService;
     private final WSPluginPropertyManager wsPluginPropertyManager;
 
-    public WSPluginDispatchClientProvider(@Qualifier("taskExecutor") Executor executor,
+    public WSPluginDispatchClientProvider(@Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) Executor executor,
                                           TLSReaderExtService tlsReaderDelegate,
                                           ProxyCxfUtilExtService proxyUtilExtService,
                                           WSPluginPropertyManager wsPluginPropertyManager) {

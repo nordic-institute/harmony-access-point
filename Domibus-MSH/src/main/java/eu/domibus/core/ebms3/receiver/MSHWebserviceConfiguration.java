@@ -27,6 +27,8 @@ import javax.xml.ws.Endpoint;
 import java.util.*;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -41,7 +43,7 @@ public class MSHWebserviceConfiguration {
                         MSHWebservice mshWebservice,
                         @Qualifier("loggingFeature") LoggingFeature loggingFeature,
                         @Qualifier("ehCacheTokenStore") EHCacheTokenStore ehCacheTokenStore,
-                        @Qualifier("taskExecutor") Executor executor,
+                        @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) Executor executor,
                         SimpleKeystorePasswordCallback simpleKeystorePasswordCallback,
                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider,
                         DomibusReadyInterceptor domibusReadyInterceptor,

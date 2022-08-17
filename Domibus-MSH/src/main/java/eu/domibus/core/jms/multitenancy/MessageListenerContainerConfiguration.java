@@ -37,6 +37,7 @@ import javax.jms.Session;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
 import static eu.domibus.jms.spi.InternalJMSConstants.*;
 
 /**
@@ -140,7 +141,7 @@ public class MessageListenerContainerConfiguration {
     @Qualifier("internalDestinationResolver")
     Optional<JndiDestinationResolver> internalDestinationResolver;
 
-    @Qualifier("taskExecutor")
+    @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME)
     @Autowired
     protected SchedulingTaskExecutor schedulingTaskExecutor;
 
