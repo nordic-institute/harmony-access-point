@@ -15,6 +15,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.OperationInfo;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.transaction.UnexpectedRollbackException;
@@ -178,6 +179,7 @@ public class WSPluginFaultOutInterceptorTest {
     }
 
     @Test
+    @Ignore
     public void handleRetrieveMessageUnexpectedRollbackException(@Injectable SoapMessage message,
                                                                  @Injectable Exception exception,
                                                                  @Injectable UnexpectedRollbackException cause) {
