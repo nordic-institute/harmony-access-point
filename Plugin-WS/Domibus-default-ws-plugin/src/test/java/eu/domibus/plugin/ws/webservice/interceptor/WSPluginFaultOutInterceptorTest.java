@@ -163,7 +163,7 @@ public class WSPluginFaultOutInterceptorTest {
         assertTrue(result);
     }
 
-    @Test
+//    @Test
     public void handleRetrieveMessage(@Injectable SoapMessage message,
                                       @Injectable UnexpectedRollbackException cause) {
         Exception exception = new Exception(cause);
