@@ -89,7 +89,7 @@
         <hikaricp.version>4.0.3</hikaricp.version><!-- next version 5.0.0 and more recent are compatible with jdk11 only -->
         <wlthint3client.version>12.1.1</wlthint3client.version> <!-- ok latest -->
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version> <!-- ok latest -->
-        <dss.version>5.10.1</dss.version>
+        <dss.version>5.8</dss.version><!-- latest version 5.10.1 causes compilation errors in eu.domibus.core.crypto.spi.dss.ValidationReport, etc -->
         <tomcat-embed.version>9.0.65</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
 
