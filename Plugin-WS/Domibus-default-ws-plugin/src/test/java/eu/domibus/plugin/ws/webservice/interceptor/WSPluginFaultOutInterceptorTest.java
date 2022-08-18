@@ -163,7 +163,7 @@ public class WSPluginFaultOutInterceptorTest {
         assertTrue(result);
     }
 
-//    @Test
+//    @Test (temporarily commented out to pass bamboo, but treat it with EDELIVERY-9783)
     public void handleRetrieveMessage(@Injectable SoapMessage message,
                                       @Injectable UnexpectedRollbackException cause) {
         Exception exception = new Exception(cause);
