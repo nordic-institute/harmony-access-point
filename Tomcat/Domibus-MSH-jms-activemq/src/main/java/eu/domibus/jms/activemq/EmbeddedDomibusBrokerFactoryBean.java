@@ -20,14 +20,14 @@ import static eu.domibus.jms.spi.InternalJMSConstants.PROP_MAX_BROWSE_SIZE;
  * @author Sebastian-Ion TINCU
  * @since 3.3.2
  */
-public class DomibusBrokerFactoryBean extends BrokerFactoryBean {
+public class EmbeddedDomibusBrokerFactoryBean extends BrokerFactoryBean {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusBrokerFactoryBean.class);
+    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(EmbeddedDomibusBrokerFactoryBean.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    public DomibusBrokerFactoryBean(Resource config) {
+    public EmbeddedDomibusBrokerFactoryBean(Resource config) {
         super(config);
     }
 

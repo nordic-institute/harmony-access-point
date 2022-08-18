@@ -17,7 +17,7 @@ public class PrefixedProperties extends Properties {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrefixedProperties.class);
 
     public PrefixedProperties(DomibusPropertyProvider domibusPropertyProvider, String prefix) {
-        Set<String> propertyNames = domibusPropertyProvider.filterPropertiesName(propName -> propName.startsWith(prefix));
+        Set<String> propertyNames = domibusPropertyProvider.filterPropertyNames(propName -> propName.startsWith(prefix));
         LOG.debug("The following property names found with prefix [{}]: [{}]", prefix, propertyNames);
 
         for (String propertyName : propertyNames) {

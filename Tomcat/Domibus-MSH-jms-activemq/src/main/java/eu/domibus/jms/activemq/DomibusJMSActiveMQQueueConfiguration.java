@@ -15,8 +15,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DomibusJMSActiveMQQueueConfiguration {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQQueueConfiguration.class);
-
     @Bean(InternalJMSConstants.SEND_MESSAGE_QUEUE)
     public ActiveMQQueue sendMessageQueue() {
         return new ActiveMQQueue("domibus.internal.dispatch.queue");

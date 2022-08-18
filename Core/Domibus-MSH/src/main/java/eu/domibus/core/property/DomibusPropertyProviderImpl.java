@@ -19,10 +19,12 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 import static eu.domibus.api.property.DomibusPropertyProvider.SPRING_BEAN_NAME;
@@ -116,7 +118,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
+    @Deprecated
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
+        return filterPropertyNames(predicate);
+    }
+
+    @Override
+    public Set<String> filterPropertyNames(Predicate<String> predicate) {
         return propertyProviderHelper.filterPropertyNames(predicate);
     }
 
@@ -218,6 +226,22 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         domibusCacheService.clearCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE);
     }
 
+    @Override
+    public List<String> getCommaSeparatedPropertyValues(String propertyName) {
+        DomibusPropertyMetadata.Type propertyType = getPropertyType(propertyName);
+        if (propertyType != DomibusPropertyMetadata.Type.COMMA_SEPARATED_LIST) {
+            LOG.debug("Cannot get the individual parts for property [{}] because its type [{}] is not a comma separated list one", propertyName, propertyType);
+            throw new DomibusPropertyException("Cannot get the individual parts for property " + propertyName
+                    + " because its type " + propertyType + " is not a comma separated list one");
+        }
+
+        String propertyValue = getProperty(propertyName);
+        return Arrays.stream(StringUtils.split(StringUtils.trimToEmpty(propertyValue), ','))
+                .map(StringUtils::trimToEmpty)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+    }
+
     private String getSourceName(String configFile) {
         return new File(configFile).getName();
     }
@@ -225,14 +249,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected String getPropertyValue(String propertyName, Domain domain) {
         String value = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
 
-        String decryptedValue = decryptIfApplicable(propertyName, domain, value);
-
-        return decryptedValue;
+        return decryptIfApplicable(propertyName, domain, value);
     }
 
     protected String getRawPropertyValue(String propertyName, Domain domain) {
-        String result = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
-        return result;
+        return propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
     }
 
     private String decryptIfApplicable(String propertyName, Domain domain, String result) {
