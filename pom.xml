@@ -53,7 +53,11 @@
         <commons-codec.version>1.15</commons-codec.version> <!-- ok latest -->
         <bouncycastle.version>1.71</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version> <!-- ok latest -->
-        <org.mapstruct.version>1.5.2.Final</org.mapstruct.version> <!-- @BeanMapping(ignoreUnmappedSourceProperties = {"partInfoList"}) crashes at compilation time with 1.5.2.Final. Fixed by commenting out the line in class MessageCoreMapper -->
+        <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
+        <!-- @BeanMapping(ignoreUnmappedSourceProperties = {"partInfoList"}) crashes at compilation time with 1.5.2.Final. Fixed by commenting out the line in class MessageCoreMapper -->
+        <!--[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:compile (default-compile) on project domibus-MSH: Compilation failure: Compilation failure:
+        [ERROR] /Users/razvan/dev/code/domibus/Core/Domibus-MSH/src/main/java/eu/domibus/core/converter/MessageCoreMapper.java:[46,51] Ignored unknown source property: "partInfoList".
+        [ERROR] /Users/razvan/dev/code/domibus/Core/Domibus-MSH/src/main/java/eu/domibus/core/converter/MessageCoreMapper.java:[65,17] Ignored unknown source property: "partInfoList".-->
         <jackson.version>2.13.3</jackson.version> <!-- ok latest -->
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.13.3</jackson-databind.version> <!-- ok latest -->
