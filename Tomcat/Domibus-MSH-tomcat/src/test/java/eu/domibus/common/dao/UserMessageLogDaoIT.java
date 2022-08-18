@@ -243,7 +243,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     public void currentAndFutureDateTimesSavedInUtcIrrespectiveOfApplicationTimezone() {
-        UserMessageLog retryMessage = userMessageLogDao.findByMessageId(testDate);
+        UserMessageLog retryMessage = userMessageLogDao.findByMessageId(testDate, MSHRole.RECEIVING);
         Assert.assertNotNull("Should have found a retry message", retryMessage);
 
         final Date now = dateUtil.getUtcDate();
@@ -316,7 +316,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = "finalRecipient2";
 
-        List<String> message = userMessageLogDao.findMessagesToDelete(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
+        List<UserMessageLogDto> message = userMessageLogDao.findMessagesToDelete(finalRecipient, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
         assertEquals(3, message.size());
     }
 
@@ -388,7 +388,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindMessagesForArchiving_oldest() {
-        UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties);
+        UserMessageLog msg = userMessageLogDao.findByMessageId(downloadedWithProperties, MSHRole.SENDING);
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(0L, maxEntityId, 100);
         assertThat(messagesForArchiving.stream()
@@ -404,7 +404,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void testFindMessagesForArchiving_rest() {
-        UserMessageLog msg1 = userMessageLogDao.findByMessageId(this.msg1.getUserMessage().getMessageId());
+        UserMessageLog msg1 = userMessageLogDao.findByMessageId(this.msg1.getUserMessage().getMessageId(), this.msg1.getUserMessage().getMshRole().getRole());
 
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(msg1.getEntityId(), maxEntityId, 20);
         assertEquals(4, messagesForArchiving.size());
@@ -462,7 +462,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void getMessageStatus_messageId() {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(msg1.getUserMessage().getMessageId());
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(msg1.getUserMessage().getEntityId());
 
         assertEquals(RECEIVED, messageStatus);
     }
@@ -478,7 +478,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void getMessageStatus_messageIdNotFound() {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus("notfound");
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus("notfound", MSHRole.RECEIVING);
 
         assertEquals(NOT_FOUND, messageStatus);
     }
@@ -494,7 +494,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findByMessageIdSafely_notfound() {
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely("notFound");
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely("notFound", MSHRole.SENDING);
 
         assertNull(userMessageLog);
     }
@@ -502,7 +502,8 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findByMessageIdSafely_ok() {
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId());
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId(),
+                msg1.getUserMessage().getMshRole().getRole());
 
         Assert.assertNotNull(userMessageLog);
     }
@@ -606,7 +607,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findBackendForMessageId() {
-        String backendForMessageId = userMessageLogDao.findBackendForMessageId(msg1.getUserMessage().getMessageId());
+        String backendForMessageId = userMessageLogDao.findBackendForMessageId(msg1.getUserMessage().getMessageId(), msg1.getUserMessage().getMshRole().getRole());
         assertNull(backendForMessageId);
     }
 

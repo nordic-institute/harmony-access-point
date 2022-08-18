@@ -9,6 +9,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
@@ -62,6 +63,9 @@ public class ResponseHandlerTest {
 
     @Injectable
     Ebms3Converter ebms3Converter;
+
+    @Injectable
+    MshRoleDao mshRoleDao;
 
     @Test
     public void verifyResponse_ok() throws EbMS3Exception, SOAPException {

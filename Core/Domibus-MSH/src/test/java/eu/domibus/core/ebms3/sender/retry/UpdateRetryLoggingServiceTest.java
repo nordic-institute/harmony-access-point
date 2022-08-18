@@ -196,7 +196,6 @@ public class UpdateRetryLoggingServiceTest {
      * Expected result: MessagingDao#clearPayloadData is not called
      * MessageLogDao#setMessageAsSendFailure is called
      * MessageLogDao#setAsNotified() is not called
-     *
      */
     @Test
     public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled(@Injectable UserMessage userMessage,
@@ -370,7 +369,7 @@ public class UpdateRetryLoggingServiceTest {
 
     @Test
     public void testMessageExpirationDateInTheFarFuture(@Injectable final UserMessageLog userMessageLog,
-                              @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+                                                        @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
         final int timeOutInMin = 90 * 24 * 60; // 90 days in minutes
         final long timeOutInMillis = 60000L * timeOutInMin;
         final long restoredTime = System.currentTimeMillis();
@@ -496,13 +495,17 @@ public class UpdateRetryLoggingServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.SENDING);
             result = null;
+
+            userMessage.getMshRole().getRole();
+            result = MSHRole.SENDING;
         }};
 
         updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -514,15 +517,13 @@ public class UpdateRetryLoggingServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
             result = messageLog;
         }};
 
         updateRetryLoggingService.setSourceMessageAsFailed(userMessage);
 
         new Verifications() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
-
             updateRetryLoggingService.messageFailed(userMessage, messageLog);
             times = 1;
         }};

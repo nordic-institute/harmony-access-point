@@ -113,8 +113,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     }
 
     @Override
-    public SOAPMessage generateReceipt(String messageId, final Boolean nonRepudiation) throws EbMS3Exception {
-        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
+    public SOAPMessage generateReceipt(String messageId, MSHRole mshRole, final Boolean nonRepudiation) throws EbMS3Exception {
+        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageIdAndRole(messageId, mshRole);
         SOAPMessage request;
         try {
             final String rawXml = rawXmlByMessageId.getRawXmlMessage();
@@ -130,7 +130,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                     .build();
         }
 
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
         return generateReceipt(request, userMessage, ReplyPattern.RESPONSE, nonRepudiation, false, false);
     }
 
@@ -156,7 +156,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 Source requestMessage;
                 if (duplicate) {
                     LOG.debug("Generating receipt for duplicate message");
-                    final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(userMessage.getMessageId());
+                    final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageIdAndRole(userMessage.getMessageId(), userMessage.getMshRole().getRole());
                     SignalMessage existingSignalMessage = signalMessageDao.findByUserMessageEntityId(rawXmlByMessageId.getParentEntityId());
                     messageId = existingSignalMessage.getSignalMessageId();
                     timestamp = timestampDateFormatter.generateTimestamp(existingSignalMessage.getTimestamp());
@@ -209,13 +209,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
         final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
 
-        if (selfSendingFlag) {
-                /*we add a defined suffix in order to assure DB integrity - messageId unicity
-                basically we are generating another messageId for Signal Message on receiver side
-                */
-            signalMessage.setRefToMessageId(signalMessage.getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-            signalMessage.setSignalMessageId(signalMessage.getSignalMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
-        }
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        signalMessage.setMshRole(mshRoleEntity);
+
         return signalMessageResult;
     }
 

@@ -43,14 +43,14 @@ public class PModeDefaultService implements PModeService {
     PModeValidationHelper pModeValidationHelper;
 
     @Override
-    public LegConfiguration getLegConfiguration(String messageId) {
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    public LegConfiguration getLegConfiguration(Long messageEntityId) {
+        final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         boolean isPull = messageExchangeService.forcePullOnMpc(userMessage);
         String pModeKey;
         try {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, isPull).getPmodeKey();
         } catch (EbMS3Exception e) {
-            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]. Pull [" + isPull + "]", e);
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + userMessage.getMessageId() + "]. Pull [" + isPull + "]", e);
         }
         eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity = pModeProvider.getLegConfiguration(pModeKey);
         return convert(legConfigurationEntity);

@@ -43,8 +43,8 @@ public class MessageExchangeServiceIT extends AbstractIT {
         String testXMLEnvelope = "testXMLEnvelope";
 
         messageDaoTestUtil.createUserMessageLog(messageId, new Date(), MSHRole.RECEIVING, MessageStatus.RECEIVED);
-        messageExchangeService.saveRawXml(testXMLEnvelope, messageId);
-        RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByMessageId(messageId);
+        messageExchangeService.saveRawXml(testXMLEnvelope, messageId, MSHRole.RECEIVING);
+        RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByMessageIdAndRole(messageId, MSHRole.RECEIVING);
         String rawXmlMessage = rawXmlByMessageId.getRawXmlMessage();
         Assert.assertEquals(testXMLEnvelope, rawXmlMessage);
 

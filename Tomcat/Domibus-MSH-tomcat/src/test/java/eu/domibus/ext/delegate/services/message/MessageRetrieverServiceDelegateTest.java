@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 
-public class MessageRetrieverServiceDelegateTest  {
+public class MessageRetrieverServiceDelegateTest {
     private static final String MESS_ID = UUID.randomUUID().toString();
 
     @Tested
@@ -38,7 +39,7 @@ public class MessageRetrieverServiceDelegateTest  {
     private UserMessageService userMessageService;
 
     @Test
-    public void testDownloadMessageAuthUserNok(@Injectable UserMessage userMessage,@Injectable String messageId) {
+    public void testDownloadMessageAuthUserNok(@Injectable UserMessage userMessage, @Injectable String messageId) {
 
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
         new Expectations(messageRetrieverServiceDelegate) {{

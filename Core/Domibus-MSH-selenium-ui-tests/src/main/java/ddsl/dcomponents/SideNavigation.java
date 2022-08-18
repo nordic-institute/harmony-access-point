@@ -3,7 +3,6 @@ package ddsl.dcomponents;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
 import ddsl.enums.PAGES;
-import metricss.MyMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -12,14 +11,9 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class SideNavigation extends DComponent {
@@ -161,7 +155,7 @@ public class SideNavigation extends DComponent {
 
 
 	public void goToPage(PAGES page) throws Exception {
-		
+
 		DomibusPage pg = new DomibusPage(driver);
 
 		log.info("Navigating to " + page.name());
@@ -184,7 +178,7 @@ public class SideNavigation extends DComponent {
 		}
 		wait.forElementToContainText(pg.pageTitle, text);
 		log.debug("Navigated to " + page.name());
-		
+
 	}
 
 	public boolean isUserState() throws Exception {
@@ -201,7 +195,7 @@ public class SideNavigation extends DComponent {
 		boolean loggingVisibility = (!data.isMultiDomain() == getPageLnk(PAGES.LOGGING).isPresent());
 
 		return loggingVisibility
-				&&(getPageLnk(PAGES.MESSAGES).isPresent()
+				&& (getPageLnk(PAGES.MESSAGES).isPresent()
 				&& getPageLnk(PAGES.ERROR_LOG).isPresent()
 				&& getPageLnk(PAGES.MESSAGE_FILTER).isPresent()
 				&& getPageLnk(PAGES.PMODE_CURRENT).isPresent()

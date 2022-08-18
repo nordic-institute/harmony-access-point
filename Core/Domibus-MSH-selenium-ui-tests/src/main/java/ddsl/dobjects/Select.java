@@ -15,10 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class Select extends DComponent {
@@ -41,12 +37,13 @@ public class Select extends DComponent {
 
 		this.selectContainer = container;
 		try {
-			if(isDisplayed() && isEnabled()){
+			if (isDisplayed() && isEnabled()) {
 				expand();
 				extractOptionIDs();
 				contract();
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 	}
 
 	public boolean isDisplayed() throws Exception {
@@ -85,7 +82,9 @@ public class Select extends DComponent {
 		try {
 			weToDButton(expandBtn).click();
 			wait.forAttributeNotEmpty(selectContainer, "aria-owns");
-		} catch (Exception e) {e.printStackTrace();}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void contract() throws Exception {
@@ -94,7 +93,8 @@ public class Select extends DComponent {
 			selectContainer.sendKeys(Keys.ESCAPE);
 			wait.forXMillis(200);
 
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 	}
 
 //	-----------------------------------------------------------------

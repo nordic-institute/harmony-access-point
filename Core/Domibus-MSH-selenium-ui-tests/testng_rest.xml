@@ -1,11 +1,14 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="RestTests" parallel="methods" thread-count="5">
-
-	<test name="REST">
-		<packages>
-			<package name="domibus.ui.rest.*"></package>
-		</packages>
-	</test>
-
+<suite name="REst" verbose="10">
+    <test name="BestTest">
+        <classes>
+            <class name="domibus.ui.functional.AlertPgTest"/>
+        </classes>
+    </test>
+    <listeners>
+        <listener class-name="domibus.AdvancedExtentReportListener"/>
+        <listener class-name="domibus.ExtentReportListener"/>
+        <listener class-name="domibus.FailListener"/>
+    </listeners>
 </suite>

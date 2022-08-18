@@ -1,5 +1,6 @@
 package eu.domibus.core.message.acknowledge;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDao;
@@ -58,7 +59,7 @@ public class MessageAcknowledgeDefaultServiceTest {
         final String localAccessPointId = "C3";
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.getUserMessage(messageId);
+            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
@@ -104,7 +105,7 @@ public class MessageAcknowledgeDefaultServiceTest {
         properties.put("prop1", "value1");
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.getUserMessage(messageId);
+            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
@@ -129,7 +130,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgementDao.findByMessageId(messageId);
+            messageAcknowledgementDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = messageAcknowledgements;
 
         }};

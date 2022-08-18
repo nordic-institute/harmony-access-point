@@ -1,24 +1,16 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.apache.commons.io.FileUtils;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.pmode.archive.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import utils.DFileUtils;
 import utils.Gen;
-import utils.PModeXMLUtils;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
 
 public class PModeCurrentPgTests extends SeleniumTest {
 

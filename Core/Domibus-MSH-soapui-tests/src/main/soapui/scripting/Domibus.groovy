@@ -38,8 +38,6 @@ class Domibus{
 
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
-    static def FS_DEF_MAP = [FS_DEF_SENDER:"domibus-blue",FS_DEF_P_TYPE:"urn:oasis:names:tc:ebcore:partyid-type:unregistered",FS_DEF_S_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator",FS_DEF_RECEIVER:"domibus-red",FS_DEF_R_ROLE:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder",FS_DEF_AGR_TYPE:"DUM",FS_DEF_AGR:"DummyAgr",FS_DEF_SRV_TYPE:"tc20",FS_DEF_SRV:"bdx:noprocess",FS_DEF_ACTION:"TC20Leg1",FS_DEF_CID:"cid:message",FS_DEF_PAY_NAME:"PayloadName.xml",FS_DEF_MIME:"text/xml",FS_DEF_OR_SENDER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",FS_DEF_FIN_RECEIVER:"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4",FS_DEF_PROC_TYPE:"PUSH",FS_DEF_MPC:"http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCSeven"]
-
 
 
     static def backup_file_suffix = "_backup_for_soapui_tests"
@@ -683,7 +681,7 @@ class Domibus{
 
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null){
+    def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null, String role = null){
         debugLog("  ====  Calling \"checkStatus\".", log)
         debugLog("  checkStatus  [][]  params: sideName: " + sideName + " targetStatus: " + targetStatus + " messageID: " + messageID + " bonusTime: " + bonusTime,log)
         def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
@@ -693,6 +691,7 @@ class Domibus{
         def msgPK=null
         def numberAttempts = 0
         def maxNumberAttempts = 5
+        def roleID = null
 
         if (bonusTime) {
             if (bonusTime.isInteger()) MAX_WAIT_TIME = (bonusTime as Integer) * 1000
@@ -712,9 +711,19 @@ class Domibus{
             log.info "  checkStatus  [][]  WAIT: " + MAX_WAIT_TIME
             // Extract message ID PK
             if(msgPK==null){
-                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-                    msgPK = it.ID_PK
+                if (role != null) {
+                    sqlConn.eachRow("Select * from TB_D_MSH_ROLE where REPLACE(LOWER(ROLE),' ','') = REPLACE(LOWER(${role}),' ','')") {
+                        roleID = it.ID_PK
+                    }
+                    sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','') AND MSH_ROLE_ID_FK = ${roleID}") {
+                        msgPK = it.ID_PK
+                    }
+                } else {
+                    sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+                        msgPK = it.ID_PK
+                    }
                 }
+
             }
 
             sqlConn.eachRow("select d.STATUS, m.SEND_ATTEMPTS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
@@ -745,7 +754,7 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
 
     // Wait until status or timer expire
-    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID) {
+    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID, String role = null) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
         def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
@@ -758,7 +767,7 @@ class Domibus{
             messageID = findReturnedMessageID()
         }
 
-        debugLog("  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForC2: " + bonusTimeC2 + " bonusTimeC3: " + bonusTimeC3,log)
+        debugLog("  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForC2: " + bonusTimeC2 + " bonusTimeC3: " + bonusTimeC3 + " role: " + role,log)
 
         debugLog("  waitForStatus  [][]  C2DomainId = " + C2DomainId + " C3DomainId = " + C3DomainId, log)
         def sqlC2 = retrieveSqlConnectionRefFromDomainId(C2DomainId)
@@ -769,7 +778,7 @@ class Domibus{
 
         if (SMSH) {
             try {
-                checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2)
+                checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2, role)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
@@ -778,7 +787,7 @@ class Domibus{
 
         if (RMSH) {
             try {
-                checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3)
+                checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3, role)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
@@ -1169,7 +1178,7 @@ class Domibus{
         if (backupFile.exists()) {
             log.info "  changeDomibusProperties  [][]  File [${backupFileName}] already exists and would not be overwrite - old backup file would be preserved."
         } else  {
-            copyFile(pathToPropertyFile, backupFileName, log)
+            FSPluginUtils.copyFile(pathToPropertyFile, backupFileName, log)
             log.info "  changeDomibusProperties  [][]  Backup copy of config file created: [${backupFile}]"
         }
 
@@ -1230,7 +1239,7 @@ class Domibus{
             testRunner.fail("CRITICAL ERROR: File [${backupFile}] does not exist.")
         } else {
             log.info "  restoreDomibusPropertiesFromBackup  [][]  Restore properties file from existing backup"
-            copyFile(backupFile, pathToPropertyFile, log)
+            FSPluginUtils.copyFile(backupFile, pathToPropertyFile, log)
             if (backupFileHandler.delete()) {
                 log.info "  restoreDomibusPropertiesFromBackup  [][]  Successfully restore configuration from backup file and backup file was removed"
             } else {
@@ -1523,7 +1532,7 @@ class Domibus{
         try {
             debugLog("  disableDomain  [][]  Fetch domains list and verify that domain \"$domainName\" exists and is enabled.",log)
             if (checkDomainExistsAndIsEnabledDisabled(side, context, log, domainName, true)) {
-                def commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/domains/$domainName", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authUser, authPwd) + "\"", "-v","-X", "DELETE"]
+                def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/domains/$domainName","--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "Content-Type: application/json", "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authUser, authPwd), "-X", "DELETE", "-v"]
                 def commandResult = runCommandInShell(commandString, log)
                 assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:disableDomain: Error while trying to disable domain $domainName."
                 log.info "  disableDomain  [][]  Domain \"$domainName\" was disabled."
@@ -1569,29 +1578,26 @@ class Domibus{
         def jsonSlurper = new JsonSlurper()
         def domainsMap = jsonSlurper.parseText(getDomains(side, context, log))
         def activeDomainsMap = jsonSlurper.parseText(getDomains(side, context, log, true))
-        if (isEnabled) {
-            if (!domainExists(domainsMap, domainName, log)) {
-                log.info "  disableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
-                return false
-            } else {
-                if (!domainExists(activeDomainsMap, domainName, log)) {
-                    log.info "  disableDomain  [][]  Domain \"$domainName\" is already disabled. No action needed."
-                    return false
-                }
+
+        if (!domainExists(domainsMap, domainName, log)) {
+            log.info "  disableDomain/enableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
+            return false
+        }
+
+        if (domainExists(activeDomainsMap, domainName, log)) {
+            if(isEnabled) {
+                return true
             }
-            return true
+            log.info "  enableDomain  [][]  Domain \"$domainName\" is already active. No action needed."
+            return false
         } else {
-            if (!domainExists(domainsMap, domainName, log)) {
-                log.info "  enableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
+            if(isEnabled) {
+                log.info "  disableDomain  [][]  Domain \"$domainName\" is already disabled. No action needed."
                 return false
-            } else {
-                if (domainExists(activeDomainsMap, domainName, log)) {
-                    log.info "  enableDomain  [][]  Domain \"$domainName\" is already active. No action needed."
-                    return false
-                }
             }
             return true
         }
+
     }
 
     /**
@@ -2439,10 +2445,16 @@ class Domibus{
     static String locateTest(context) {
         return ("--" + context.testCase.name + "--" + context.testCase.getTestStepAt(context.getCurrentStepIndex()).getLabel() + "--  ")
     }
-//---------------------------------------------------------------------------------------------------------------------------------
-// Copy file from source to destination
-    static void  copyFile(String source, String destination, log, overwriteOpt = true){
-        debugLog("  ====  Calling \"copyFile\".",log)
+
+    /**
+     * Copy file from source to destination
+     * @param source
+     * @param destination
+     * @param log
+     * @param overwriteOpt
+     */
+    static void copyFile(String source, String destination, log, overwriteOpt = true){
+        LogUtils.debugLog("  ====  Calling \"copyFile\".",log)
 
         def sourceFile=new File(source)
         def destFile=new File(destination)
@@ -2453,11 +2465,14 @@ class Domibus{
             assert 0
         }
 
-        debugLog("  ====  \"copyFile\" DONE.",log)
+        LogUtils.debugLog("  ====  \"copyFile\" DONE.",log)
     }
 
-    //---------------------------------------------------------------------------------------------------------------------------------
-    // replace slashes in project custom properties values
+    /**
+     * Replaces slashes in project custom properties values
+     * @param source
+     * @return
+     */
     static String formatPathSlashes(String source) {
         if ( (source != null) && (source != "") ) {
             if (System.properties['os.name'].toLowerCase().contains('windows')){
@@ -2467,10 +2482,9 @@ class Domibus{
         return source
     }
 
-    //---------------------------------------------------------------------------------------------------------------------------------
     // Return path to domibus folder
     static String pathToDomibus(color, log, context) {
-        debugLog("  ====  Calling \"pathToDomibus\".", log)
+        LogUtils.debugLog("  ====  Calling \"pathToDomibus\".", log)
         // Return path to domibus folder base on the "color"
         def propName = ""
         switch (color.toLowerCase()) {
@@ -2490,7 +2504,6 @@ class Domibus{
         return context.expand("\${#Project#${propName}}")
     }
 
-    //---------------------------------------------------------------------------------------------------------------------------------
     // Retrieve sql reference from domain ID if connection is not present try to open it
     def retrieveSqlConnectionRefFromDomainId(String domainName) {
         debugLog("  ====  Calling \"retrieveSqlConnectionRefFromDomainId\".", log)
@@ -3696,255 +3709,7 @@ class Domibus{
         def mapValue = jsonSlurper.parseText(stringValue)
         return mapValue[side + number]
     }
-//---------------------------------------------------------------------------------------------------------------------------------
-    // Copy metadata + payload files to submit fs plugin messages
-    // parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
-    def static submitFSmessage(String side, context, log, testRunner, String configuration = "standard", String domain = "default",parametersMap = [], boolean twoFiles = true, String destSuffix="", String subFolder = ""){
-        debugLog("  ====  Calling \"submitFSmessage\".", log)
-        def messageMetadata = null
-        def fspluginPath
-        def source
-        def dest
-        def metadataFile
 
-        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
-        if(multitenancyOn){
-            messageLocationPropertyName = domain + ".fsplugin.messages.location"
-        }*/
-
-        // Extract the suitable template for metadata.xml file
-        switch (configuration.toLowerCase()) {
-            case  "standard":
-                messageMetadata = getProjectCustProp("fsMetadataStandard",context,log,testRunner)
-                break
-            case "withmime":
-                messageMetadata = getProjectCustProp("fsMetadataWithMimeType",context,log,testRunner)
-                break
-            case "withpname":
-                messageMetadata = getProjectCustProp("fsMetadataWithPayloadName",context,log,testRunner)
-                break
-            case "withptype":
-                messageMetadata = getProjectCustProp("fsMetadataWithProcessingType",context,log,testRunner)
-                break
-            default:
-                log.warn "Unknown type of configuration: assume standard ..."
-                messageMetadata = getProjectCustProp("fsPluginPrototype",context,log,testRunner)
-                break
-        }
-
-        // Update the targeted values in the template
-        parametersMap.each { entry ->
-            messageMetadata = messageMetadata.replace(FS_DEF_MAP["FS_DEF_" + entry.key],entry.value)
-        }
-
-        // Get the path to the fsplugin sending location
-        switch (side.toLowerCase()) {
-            case  "c2":
-                fspluginPath = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
-                break
-            case "c3":
-                fspluginPath = getProjectCustProp("fsFilesPathRed",context,log,testRunner)
-                break
-            case "c3green":
-                fspluginPath = getProjectCustProp("fsFilesPathGreen",context,log,testRunner)
-                break
-            default:
-                log.warn "Unknown side: assume it is C2 ..."
-                fspluginPath = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
-                break
-        }
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
-        if (!multitenancyOn) {
-            fspluginPath = fspluginPath + "/OUT/"
-        } else {
-            fspluginPath = fspluginPath + "/$domain" + "/OUT/"
-        }
-        if (Files.exists(Paths.get(fspluginPath))) {
-            debugLog("  submitFSmessage  [][]  fspluginPath = \"$fspluginPath\" is a valid path", log)
-            if(subFolder != ""){
-                fspluginPath = fspluginPath + subFolder + "/"
-            }
-            fspluginPath = formatPathSlashes(fspluginPath)
-
-            debugLog("  submitFSmessage  [][]  fspluginPath = \"$fspluginPath\"", log)
-
-            // Copy the file
-            source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml")
-            dest = fspluginPath + "Test_file" + destSuffix + ".xml"
-            copyFile(source,dest,log)
-
-            // Copy a second file in case needed
-            if(twoFiles){
-                source = formatPathSlashes(context.expand('${projectDir}') + "/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/fileSmall.pdf")
-                dest = fspluginPath + "fileSmall" + destSuffix + ".pdf"
-                copyFile(source,dest,log)
-            }
-
-
-            metadataFile = new File(fspluginPath + "metadata.xml")
-            metadataFile.newWriter().withWriter { w ->
-                w << messageMetadata
-            }
-        } else {
-            debugLog("  submitFSmessage  [][]  fspluginPath = \"$fspluginPath\" is not a valid path", log)
-        }
-
-        debugLog("  ====  \"submitFSmessage\" DONE.", log)
-
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static checkFSpayloadPresentIN(String side,String finalRecipient,String messageID,payloadName,String domain = "default",context,log,testRunner,checkTrue = true,String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"checkFSpayloadPresentIN\".", log)
-        def fsPayloadPath
-        def testFile
-        def messageLocationPrpertyName = "fsplugin.messages.location"
-
-        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
-        if(multitenancyOn){
-            messageLocationPropertyName = domain + ".fsplugin.messages.location"
-        }*/
-
-
-        fsPayloadPath = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain) + "/IN/" + finalRecipient + "/" + messageID + "/"
-        fsPayloadPath = formatPathSlashes(fsPayloadPath)
-        debugLog("  checkFSpayloadPresentIN  [][]  fsPayloadPath = \"$fsPayloadPath\"", log)
-        for(int i = 0;i<payloadName.size;i++){
-            testFile = new File(fsPayloadPath + payloadName[i])
-            if(checkTrue){
-                assert(testFile.exists()),"Error: checkFSpayloadPresentIN: file \"" + payloadName[i] + "\" was not found in path \"$fsPayloadPath\" ..."
-                log.info "File \"" + payloadName[i] + "\" was found in path \"$fsPayloadPath\"."
-            }else{
-                assert(!testFile.exists()),"Error: checkFSpayloadPresentIN: file \"" + payloadName[i] + "\" was found in path \"$fsPayloadPath\" ..."
-                log.info "File \"" + payloadName[i] + "\" was not found in path \"$fsPayloadPath\"."
-            }
-        }
-
-        debugLog("  ====  \"checkFSpayloadPresentIN\" DONE.", log)
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static checkFSpayloadPresentOUT(String side,context,log,testRunner,payloadNumber = 2,String domain = "default",String authUser = null, authPwd = null){
-        debugLog("  ====  Calling \"checkFSpayloadPresentOUT\".", log)
-        def counter = 0
-        def FS_WAIT_TIME = 60_000 // Maximum time to wait to check.
-        def STEP_TIME = 1_000 // Time to wait before re-checking.
-        def messageLocationPrpertyName = "fsplugin.messages.location"
-
-        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
-        if(multitenancyOn){
-            messageLocationPropertyName = domain + ".fsplugin.messages.location"
-        }*/
-
-
-        def fsPayloadPath = getPropertyAtRuntime(side, messageLocationPrpertyName, context, log, domain) + "/OUT"
-        fsPayloadPath = formatPathSlashes(fsPayloadPath)
-        debugLog("  checkFSpayloadPresentOUT  [][]  fsPayloadPath = \"$fsPayloadPath\"", log)
-
-        while ( (counter != payloadNumber) && (FS_WAIT_TIME > 0) ) {
-            counter = new File(fsPayloadPath).listFiles().count { it.name ==~ /.*WAITING_FOR_RETRY/ }
-            FS_WAIT_TIME = FS_WAIT_TIME-STEP_TIME
-            log.info "  checkFSpayloadPresentOUT  [][]  Waiting $side :" + FS_WAIT_TIME + " -- Current:" + counter + " -- Target:" + payloadNumber
-            sleep(STEP_TIME)
-        }
-
-        assert(counter == payloadNumber),"Error: checkFSpayloadPresentOUT: \"$counter\" messages found in \"WAITING_FOR_RETRY\" status instead of \"$payloadNumber\" ..."
-
-        debugLog("  ====  \"checkFSpayloadPresentOUT\" DONE.", log)
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static checkFSpayloadPresentFAILED(String side,context,log,testRunner,payloadNumber = 2,String domain = "default",providedDuration = null){
-        debugLog("  ====  Calling \"checkFSpayloadPresentFAILED\".", log)
-        def counter = 0
-        def FS_WAIT_TIME = 60_000 // Maximum time to wait to check.
-        def STEP_TIME = 1_000 // Time to wait before re-checking.
-        def messageLocationPropertyName = "fsplugin.messages.location"
-
-        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
-        if(multitenancyOn){
-            messageLocationPropertyName = domain + ".fsplugin.messages.location"
-        }*/
-
-
-        def fsPayloadPath = getPropertyAtRuntime(side, messageLocationPropertyName, context, log, domain) + "/FAILED"
-        fsPayloadPath = formatPathSlashes(fsPayloadPath)
-        debugLog("  checkFSpayloadPresentFAILED  [][]  fsPayloadPath = \"$fsPayloadPath\"", log)
-
-        if(providedDuration!= null){
-            FS_WAIT_TIME = providedDuration
-        }
-        while ( (counter != payloadNumber) && (FS_WAIT_TIME > 0) ) {
-            counter = new File(fsPayloadPath).listFiles().count { it.name ==~ /.*error/ }
-            FS_WAIT_TIME = FS_WAIT_TIME-STEP_TIME
-            log.info "  checkFSpayloadPresentFAILED  [][]  Waiting $side :" + FS_WAIT_TIME + " -- Current:" + counter + " -- Target:" + payloadNumber
-            sleep(STEP_TIME)
-        }
-
-        assert(counter == payloadNumber),"Error: checkFSpayloadPresentFAILED: \"$counter\" messages found in \"WAITING_FOR_RETRY\" status instead of \"$payloadNumber\" ..."
-
-        debugLog("  ====  \"checkFSpayloadPresentFAILED\" DONE.", log)
-    }
-//---------------------------------------------------------------------------------------------------------------------------------
-    def static cleanFSPluginFolders(String side,context,log,testRunner,String domain = "default"){
-        debugLog("  ====  Calling \"cleanFSPluginFolders\".", log)
-        def fsPayloadPathBase = ""
-        /*def multitenancyOn = getMultitenancyFromSide(side, context, log)
-        if(multitenancyOn){
-            messageLocationPropertyName = domain + ".fsplugin.messages.location"
-        }*/
-
-        switch (side.toLowerCase()) {
-            case  "c2":
-                fsPayloadPathBase = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
-                break
-            case "c3":
-                fsPayloadPathBase = getProjectCustProp("fsFilesPathRed",context,log,testRunner)
-                break
-            case "c3green":
-                fsPayloadPathBase = getProjectCustProp("fsFilesPathGreen",context,log,testRunner)
-                break
-            default:
-                log.warn "Unknown side: assume it is C2 ..."
-                fsPayloadPathBase = getProjectCustProp("fsFilesPathBlue",context,log,testRunner)
-                break
-        }
-        def multitenancyOn = getMultitenancyFromSide(side, context, log)
-        if (multitenancyOn) {
-            fsPayloadPathBase = fsPayloadPathBase + "/$domain/"
-        }
-        def fsPayloadPath = fsPayloadPathBase + "/IN"
-        fsPayloadPath = formatPathSlashes(fsPayloadPath)
-        debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
-        def folder = new File(fsPayloadPath)
-        try{
-            FileUtils.cleanDirectory(folder)
-        }catch(Exception ex){
-            log.error "Not possible to clean directory: "+fsPayloadPath
-            log.error "encountered exception: "+ex
-        }
-
-        fsPayloadPath = fsPayloadPathBase + "/OUT"
-        fsPayloadPath = formatPathSlashes(fsPayloadPath)
-        debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
-        folder = new File(fsPayloadPath)
-        try{
-            FileUtils.cleanDirectory(folder)
-        }catch(Exception ex){
-            log.error "Not possible to clean directory: "+fsPayloadPath
-            log.error "encountered exception: "+ex
-        }
-
-        fsPayloadPath = fsPayloadPathBase + "/FAILED"
-        fsPayloadPath = formatPathSlashes(fsPayloadPath)
-        debugLog("  cleanFSPluginFolders  [][]  Cleaning folder \"$fsPayloadPath\"", log)
-        folder = new File(fsPayloadPath)
-        try{
-            FileUtils.cleanDirectory(folder)
-        }catch(Exception ex){
-            log.error "Not possible to clean directory: "+fsPayloadPath
-            log.error "encountered exception: "+ex
-        }
-
-        debugLog("  ====  \"cleanFSPluginFolders\" DONE.", log)
-    }
 //---------------------------------------------------------------------------------------------------------------------------------
     def static isClustered(String side,context,log,String domainValue = "default",String authUser = null, authPwd = null){
         def authenticationUser = authUser

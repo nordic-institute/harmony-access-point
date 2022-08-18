@@ -1,10 +1,6 @@
 package ddsl.enums;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class DMessages {
@@ -39,7 +35,7 @@ public class DMessages {
 	public static final String PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN = "The operation 'update plugin users' did not complete successfully. [DOM_001]:Cannot add user %s because this name already exists.";
 	public static final String DUPLICATE_CERT_PLUGINUSER_ = "The operation update plugin users completed with errors.  [DOM_001]:Cannot add user with certificate %s because this certificate already exists.";
 	public static final String USER_DUPLICATE_USERNAME = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
-	public static final String DUAL_PLUGINUSER_DUPLICATE ="The operation 'update plugin users' did not complete successfully. Duplicate user name for plugin users: %s,%s";
+	public static final String DUAL_PLUGINUSER_DUPLICATE = "The operation 'update plugin users' did not complete successfully. Duplicate user name for plugin users: %s,%s";
 
 	public static final String CONN_MON_PMODE_CONFIG_ERR = "The Pmode is not properly configured.";
 
@@ -51,8 +47,9 @@ public class DMessages {
 	public static final String PMODE_PARTIES_DELETE_OWN_PARTY_ERROR = "The operation 'update parties' did not complete successfully. [DOM_003]:Cannot delete the party describing the current system.";
 	public static final String PMODE_ARCHIVE_UPDATE_SUCCESS = "The operation 'update pmodes' completed successfully.";
 	public static final String PMODE_ARCHIVE_DELETE_SUCCESS = "PModes were deleted";
-	
+
 	public static final String TRUSTSTORE_REPLACE_SUCCESS = "Truststore file has been successfully replaced.";
+	public static final String TRUSTSTORE_RELOAD_SUCCESS = "The TrustStore was successfully reset.";
 	public static final String TRUSTSTORE_REPLACE_ERROR = "There is an error while uploading truststore.";
 
 	public static final String JMS_MOVE_MESSAGE_SUCCESS = "The operation 'move messages' completed successfully.";
@@ -61,13 +58,11 @@ public class DMessages {
 
 	public static final String MESSAGE_FILTER_DUPLICATE_FILTER = "Impossible to insert a duplicate entry";
 	public static final String MESSAGE_FILTER_SUCCESS = "The operation 'update message filters' completed successfully.";
-	
+
 	public static final String CHANGEPASSWORD_WRONG_CURRENT_PASSWORD = "Password could not be changed. [DOM_001]:The current password does not match the provided one.";
 	public static final String CHANGEPASSWORD_LAST_FIVE = "Password could not be changed. [DOM_001]:The password of %s user cannot be the same as the last 5";
-	
-	
 
-	
+
 	public static final String ALERT_ID_INPUT_VALIDATION_MESSAGE = "Alert Id must be 19 digits long and must not start with a 0";
 	public static final String ALERT_UPDATE_SUCCESS_MESSAGE = "The operation 'update alerts' completed successfully.";
 
@@ -75,24 +70,24 @@ public class DMessages {
 
 
 	public static final String PROPERTIES_UPDATE_ERROR_TYPE = "Could not update property: Value '%s' for property '%s' is not of type '%s'";
-    public static final String CONNECTION_MONITORING_ERROR_RESPONDER_NOTUP ="Error retrieving Last Received Test Message for %s . No Signal Message found.Error details are: EBMS:0005-Error dispatching message to %s";
+	public static final String CONNECTION_MONITORING_ERROR_RESPONDER_NOTUP = "Error retrieving Last Received Test Message for %s . No Signal Message found. Error details: EBMS:0005-Error dispatching message to %s";
 	public static final String CONNECTION_MONITORING_ERROR = "Error retrieving Last Received Test Message for %s . No Signal Message found.Please call the method again to see the details.";
-	public static final String CONNECTION_MONITORING_CERT_ERROR="Error retrieving Last Received Test Message for %s . No Signal Message found. Error details: EBMS:0004-[DOM_001]:Cannot send message: receiver certificate is not valid or it has been revoked [%s]";
+	public static final String CONNECTION_MONITORING_CERT_ERROR = "Error retrieving Last Received Test Message for %s . No Signal Message found. Error details: EBMS:0004-[DOM_001]:Cannot send message: receiver certificate is not valid or it has been revoked [%s]";
 
 	public class Users {
 		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 		public static final String DUPLICATE_USERNAME_SAMEDOMAIN_ERROR = "The operation 'update users' did not complete successfully. Duplicate user name for users: %s";
-		public static final String ONLY_ADMINUSER_DEACTIVATE_ERROR="The operation 'update users' did not complete successfully. [DOM_001]:There must always be at least one active Domain Admin for each Domain.";
-		public static final String LOGGEDINUSER_DELETE_ERROR="You cannot delete the logged in user";
+		public static final String ONLY_ADMINUSER_DEACTIVATE_ERROR = "The operation 'update users' did not complete successfully. [DOM_001]:There must always be at least one active Domain Admin for each Domain.";
+		public static final String LOGGEDINUSER_DELETE_ERROR = "You cannot delete the logged in user";
 	}
 
 	public class TlsTruststore {
-		public static final String TLS_TRUSTSTORE_NOCONFIG="Error loading data for 'TLS TrustStore' component: Could not find client authentication file for domain [%s]";
-		public static final String TLS_TRUSTSTORE_UPLOAD="Error updating truststore file (%s) Could not find client authentication file for domain [%s]";
-		public static final String TLS_TRUSTSTORE_SUCCESS_UPLOAD="TLS truststore file has been successfully replaced.";
-		public static final String TLS_TRUSTSTORE_REMOVE_CERT="Certificate [%s] has been successfully removed from the TLS truststore.";
-		public static final String TLS_TRUSTSTORE_WRONGFILE_UPLOAD= "Error updating truststore file (%s) Could not load store: Invalid keystore format";
-		public static final String TLS_TRUSTSTOE_WRONGFILE_ADD="Error updating truststore file (%s) Could not generate certificate";
+		public static final String TLS_TRUSTSTORE_NOCONFIG = "Error loading data for 'TLS TrustStore' component: Could not find client authentication file for domain [%s]";
+		public static final String TLS_TRUSTSTORE_UPLOAD = "Error updating truststore file (%s) Could not find client authentication file for domain [%s]";
+		public static final String TLS_TRUSTSTORE_SUCCESS_UPLOAD = "TLS truststore file has been successfully replaced.";
+		public static final String TLS_TRUSTSTORE_REMOVE_CERT = "Certificate [%s] has been successfully removed from the TLS truststore.";
+		public static final String TLS_TRUSTSTORE_WRONGFILE_UPLOAD = "Error updating truststore file (%s) Could not load store: Invalid keystore format";
+		public static final String TLS_TRUSTSTOE_WRONGFILE_ADD = "Error updating truststore file (%s) Could not generate certificate";
 	}
 
 }

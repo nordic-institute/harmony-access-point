@@ -35,18 +35,50 @@
         <addColumn tableName="TB_PM_RECEPTION_AWARENESS">
             <column name="INITIAL_INTERVAL" type="INT" defaultValueNumeric="0"/>
         </addColumn>
-        <modifySql>
-            <append value=" AFTER RETRY_TIMEOUT"/>
-        </modifySql>
     </changeSet>
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-9594_awareness_mult_factor">
         <addColumn tableName="TB_PM_RECEPTION_AWARENESS">
             <column name="MULTIPLYING_FACTOR" type="INT" defaultValueNumeric="0"/>
         </addColumn>
-        <modifySql>
-            <append value=" AFTER INITIAL_INTERVAL"/>
-        </modifySql>
+    </changeSet>
+
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-7368-self-sending">
+        <!-- Temporary fix... TODO: to remove as part of EDELIVERY-9735 -->
+        <insert tableName="TB_D_MSH_ROLE">
+            <column name="ID_PK" value="${default_id_pk}0000000003" type="BIGINT"/>
+            <column name="ROLE" value="TEMPORARY_FIX_ROLE"/>
+        </insert>
+
+        <addColumn tableName="TB_USER_MESSAGE">
+            <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
+        </addColumn>
+        <!-- TODO: to remove default NULL value as part of EDELIVERY-9735 -->
+        <addNotNullConstraint columnDataType="BIGINT" columnName="MSH_ROLE_ID_FK" defaultNullValue="${default_id_pk}0000000003" tableName="TB_USER_MESSAGE" />
+
+        <addColumn tableName="TB_SIGNAL_MESSAGE">
+            <column name="MSH_ROLE_ID_FK" type="BIGINT" />
+        </addColumn>
+        <addNotNullConstraint columnDataType="BIGINT" columnName="MSH_ROLE_ID_FK" tableName="TB_SIGNAL_MESSAGE" />
+
+        <!-- Recreate the existing unique constraint (actual data migration part of EDELIVERY-9735) -->
+        <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
+        <dropIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
+        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID" />
+            <column name="MSH_ROLE_ID_FK" />
+        </createIndex>
+        <addUniqueConstraint columnNames="MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
+
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE" />
+
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_SIGNAL_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE" />
     </changeSet>
 
 </databaseChangeLog>

@@ -1,17 +1,14 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import com.sun.jersey.api.client.ClientResponse;
-import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.time.DateUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
@@ -24,7 +21,10 @@ import utils.Gen;
 import utils.TestUtils;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
 
 public class Properties2PgTest extends SeleniumTest {
 

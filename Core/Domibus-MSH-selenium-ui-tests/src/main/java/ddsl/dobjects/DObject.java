@@ -1,6 +1,5 @@
 package ddsl.dobjects;
 
-import com.codahale.metrics.MetricRegistry;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,15 +10,9 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class DObject {
-
-	public static final MetricRegistry metrics = new MetricRegistry();
 
 
 	public WebElement element;
@@ -27,13 +20,13 @@ public class DObject {
 
 	protected WebDriver driver;
 	protected DWait wait;
-	
+
 	public DObject(WebDriver driver, WebElement element) {
 		wait = new DWait(driver);
 		this.driver = driver;
 		this.element = element;
 	}
-	
+
 	public boolean isPresent() {
 		try {
 			wait.forElementToBe(element);
@@ -43,7 +36,7 @@ public class DObject {
 		}
 		return true;
 	}
-	
+
 	public boolean isEnabled() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);
@@ -51,7 +44,7 @@ public class DObject {
 		}
 		throw new DObjectNotPresentException();
 	}
-	
+
 	public boolean isDisabled() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeDisabled(element);
@@ -59,7 +52,7 @@ public class DObject {
 		}
 		throw new DObjectNotPresentException();
 	}
-	
+
 	public boolean isVisible() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);
@@ -67,7 +60,7 @@ public class DObject {
 		}
 		throw new DObjectNotPresentException();
 	}
-	
+
 	public String getText() throws Exception {
 		if (!isPresent()) {
 			throw new DObjectNotPresentException();
@@ -76,11 +69,11 @@ public class DObject {
 		String text = ((JavascriptExecutor) driver).executeScript("return arguments[0].innerText;", element).toString();
 		return text.trim();
 	}
-	
+
 	public void scrollIntoView() {
 		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
 	}
-	
+
 	public void click() throws Exception {
 		if (isEnabled()) {
 			wait.forElementToBeClickable(element).click();
@@ -88,7 +81,7 @@ public class DObject {
 			throw new Exception("Not enabled");
 		}
 	}
-	
+
 	public String getAttribute(String attributeName) throws Exception {
 		if (isPresent()) {
 			String attr = element.getAttribute(attributeName);
@@ -100,7 +93,7 @@ public class DObject {
 		}
 		throw new DObjectNotPresentException();
 	}
-	
+
 	/*
 	 * This Method is used to press Tab key
 	 */
@@ -116,7 +109,7 @@ public class DObject {
 		} catch (AWTException e) {
 			log.error("EXCEPTION: ", e);
 		}
-		
-		
+
+
 	}
 }

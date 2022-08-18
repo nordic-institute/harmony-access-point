@@ -12,9 +12,12 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class GenericFilterArea extends FilterArea{
+public class GenericFilterArea extends FilterArea {
 
 	@FindBy(css = "input:not(input.md2-datepicker-value, input.mat-checkbox-input")
 	List<WebElement> inputs;
@@ -37,10 +40,11 @@ public class GenericFilterArea extends FilterArea{
 		try {
 			this.container = driver.findElement(By.name("filterForm"));
 			PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 	}
 
-	public boolean isPresent(){
+	public boolean isPresent() {
 		return null != container;
 	}
 
@@ -90,7 +94,7 @@ public class GenericFilterArea extends FilterArea{
 			List<String> values = dselect.getOptionsTexts();
 
 			for (String value : values) {
-				if(!StringUtils.equalsIgnoreCase(value, selectedVal) && StringUtils.isNotEmpty(value)){
+				if (!StringUtils.equalsIgnoreCase(value, selectedVal) && StringUtils.isNotEmpty(value)) {
 					dselect.selectOptionByText(value);
 					break;
 				}
@@ -146,7 +150,6 @@ public class GenericFilterArea extends FilterArea{
 		}
 		return vals;
 	}
-
 
 
 }

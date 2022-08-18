@@ -15,10 +15,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 
-/**
- * @author Catalin Comanici
- * @since 4.1
- */
+
 public class PartyModal extends EditModal {
 	@FindBy(css = "#name_id_detail")
 	protected WebElement nameInput;
@@ -127,7 +124,7 @@ public class PartyModal extends EditModal {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		log.info("Scroll horizontally");
 		js.executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
-		
+
 		List<WebElement> checkboxes = wait.defaultWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("mat-checkbox")));
 		for (WebElement checkbox : checkboxes) {
 			weToCheckbox(checkbox).check();
@@ -136,27 +133,26 @@ public class PartyModal extends EditModal {
 		log.info("Click on Ok button");
 		getOkBtn().click();
 	}
-	
+
 	public void participationInProcess(String processName, boolean initiator, boolean responder) throws Exception {
 		wait.forElementToBeVisible(partyHeader);
-		
+
 		log.info("Scroll to the bottom");
 		((JavascriptExecutor) driver).executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
 
 		DGrid processTable = getProcessTable();
 		int index = processTable.scrollTo("Process", processName);
-		if(index>=0){
+		if (index >= 0) {
 			WebElement row = processTable.getRowElement(index);
 			WebElement initChk = row.findElement(By.cssSelector("datatable-body-cell:nth-of-type(2) mat-checkbox"));
 			WebElement respChk = row.findElement(By.cssSelector("datatable-body-cell:nth-of-type(3) mat-checkbox"));
-			
+
 			weToCheckbox(initChk).set(initiator);
 			weToCheckbox(respChk).set(responder);
-			
+
 		}
 	}
-	
-	
+
 
 	public Boolean getCheckboxStatus(String fieldName) {
 		wait.forElementToBeVisible(partyHeader);

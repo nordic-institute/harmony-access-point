@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
@@ -9,6 +8,7 @@ import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.archive.PMAModal;
@@ -21,8 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PModeArchiveUXTest extends SeleniumTest {
 

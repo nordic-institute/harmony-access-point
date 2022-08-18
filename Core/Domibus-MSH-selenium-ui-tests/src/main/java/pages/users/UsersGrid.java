@@ -11,10 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class UsersGrid extends DGrid {

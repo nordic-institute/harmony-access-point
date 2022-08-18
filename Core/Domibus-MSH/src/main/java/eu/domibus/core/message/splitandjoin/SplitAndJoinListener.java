@@ -1,5 +1,6 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -47,7 +48,7 @@ public class SplitAndJoinListener implements MessageListener {
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(final Message message) {
         try {
             LOG.clearCustomKeys();
@@ -68,6 +69,7 @@ public class SplitAndJoinListener implements MessageListener {
             String messageType = message.getStringProperty(UserMessageService.MSG_TYPE);
             LOG.debug("Processing splitAndJoin message [{}]", messageType);
 
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.RECEIVING.name());
             if (StringUtils.equals(messageType, UserMessageService.COMMAND_SOURCE_MESSAGE_REJOIN_FILE)) {
                 final String groupId = message.getStringProperty(UserMessageService.MSG_GROUP_ID);
                 //for SplitAndJoin the groupId is identical with the SourceMessage id

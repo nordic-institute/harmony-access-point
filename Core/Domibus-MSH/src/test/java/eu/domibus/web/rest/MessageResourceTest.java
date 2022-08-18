@@ -1,17 +1,15 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.MessagesLogService;
-import eu.domibus.core.message.UserMessageDefaultRestoreService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.ro.MessageLogRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -25,10 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.UUID;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * @author Tiago Miguel
@@ -65,36 +60,17 @@ public class MessageResourceTest {
     private UserMessageRestoreService userMessageDefaultRestoreService;
 
     @Test
-    public void testDownload() {
-        // Given
-        new Expectations() {{
-            userMessageService.getMessageAsBytes(anyString);
-            result = new byte[]{0, 1, 2};
-        }};
-
-        // When
-        ResponseEntity<ByteArrayResource> responseEntity = messageResource.download("messageId");
-
-        // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assert.assertEquals(2, responseEntity.getHeaders().size());
-        Assert.assertEquals("application/octet-stream", responseEntity.getHeaders().get("Content-Type").get(0));
-        Assert.assertEquals("attachment; filename=messageId.xml", responseEntity.getHeaders().get("content-disposition").get(0));
-    }
-
-    @Test
     public void testDownloadZipped() throws IOException {
         // Given
         new Expectations() {{
-            userMessageService.getMessageWithAttachmentsAsZip(anyString);
+            userMessageService.getMessageWithAttachmentsAsZip(anyString, MSHRole.SENDING);
             result = new byte[]{0, 1, 2};
         }};
 
         ResponseEntity<ByteArrayResource> responseEntity = null;
         try {
             // When
-            responseEntity = messageResource.downloadUserMessage("messageId");
+            responseEntity = messageResource.downloadUserMessage("messageId", MSHRole.SENDING);
         } catch (IOException | MessageNotFoundException e) {
             // NOT Then :)
             Assert.fail("Exception in zipFiles method");
@@ -124,11 +100,11 @@ public class MessageResourceTest {
     public void getByteArrayResourceResponseEntity_empty() {
         String messageId = "messageId";
         new Expectations() {{
-            userMessageService.getMessageEnvelopesAsZip(messageId);
+            userMessageService.getMessageEnvelopesAsZip(messageId, MSHRole.SENDING);
             result = new byte[]{};
         }};
 
-        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId);
+        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId, MSHRole.SENDING);
         Assert.assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
     }
 
@@ -137,11 +113,11 @@ public class MessageResourceTest {
         String messageId = "messageId";
         byte[] content = {1, 2, 3, 4};
         new Expectations() {{
-            userMessageService.getMessageEnvelopesAsZip(messageId);
+            userMessageService.getMessageEnvelopesAsZip(messageId, MSHRole.SENDING);
             this.result = content;
         }};
 
-        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId);
+        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId, MSHRole.SENDING);
         Assert.assertEquals(HttpStatus.OK, result.getStatusCode());
         Assert.assertEquals(content, result.getBody().getByteArray());
         Assert.assertEquals("application/zip", result.getHeaders().get("Content-Type").get(0));

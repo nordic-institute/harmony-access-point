@@ -88,8 +88,8 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     @Override
-    @Timer(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
-    @Counter(clazz = IncomingPullReceiptHandler.class,value = "incoming_pull_request_receipt")
+    @Timer(clazz = IncomingPullReceiptHandler.class, value = "incoming_pull_request_receipt")
+    @Counter(clazz = IncomingPullReceiptHandler.class, value = "incoming_pull_request_receipt")
     public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         LOG.trace("before pull receipt.");
 
@@ -100,12 +100,12 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     }
 
     protected SOAPMessage handlePullRequestReceipt(SOAPMessage request, String messageId) {
-
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.PULL_FAILED;
         ResponseHandler.ResponseStatus isOk = null;
         LegConfiguration legConfiguration = null;
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+        LOG.debug("Handle PULL request receipt [{}]", userMessage);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, userMessage.getMshRole().getRole());
         if (MessageStatus.WAITING_FOR_RECEIPT != userMessageLog.getMessageStatus()) {
             LOG.error("[PULL_RECEIPT]:Message:[{}] receipt a pull acknowledgement but its status is [{}]", messageId, userMessageLog.getMessageStatus());
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
@@ -128,7 +128,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
         }
 
         try {
-            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true).getPmodeKey();
+            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING, true).getPmodeKey();
             LOG.debug("PMode key found : [{}]", pModeKey);
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
@@ -151,7 +151,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
             final PullRequestResult pullRequestResult = pullMessageService.updatePullMessageAfterReceipt(reliabilityCheckSuccessful, isOk, userMessageLog, legConfiguration, userMessage);
             pullMessageService.releaseLockAfterReceipt(pullRequestResult);
         }
-        if((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
+        if ((isOk != ResponseHandler.ResponseStatus.OK && isOk != ResponseHandler.ResponseStatus.WARNING) ||
                 (reliabilityCheckSuccessful != ReliabilityChecker.CheckResult.OK)) {
             return messageBuilder.getSoapMessage(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0302)
@@ -167,7 +167,7 @@ public class IncomingPullReceiptHandler implements IncomingMessageHandler {
     protected SOAPMessage getSoapMessage(String messageId, LegConfiguration legConfiguration, UserMessage userMessage) throws EbMS3Exception {
         SOAPMessage soapMessage;
         if (pullReceiptMatcher.matchReliableReceipt(legConfiguration.getReliability()) && legConfiguration.getReliability().isNonRepudiation()) {
-            RawEnvelopeDto rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageId(messageId);
+            RawEnvelopeDto rawEnvelopeDto = messageExchangeService.findPulledMessageRawXmlByMessageId(messageId, userMessage.getMshRole().getRole());
             try {
                 final String rawXml = rawEnvelopeDto.getRawXmlMessage();
                 soapMessage = soapUtil.createSOAPMessage(rawXml);

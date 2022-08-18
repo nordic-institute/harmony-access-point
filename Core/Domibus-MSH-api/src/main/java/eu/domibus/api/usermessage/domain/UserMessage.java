@@ -1,5 +1,6 @@
 package eu.domibus.api.usermessage.domain;
 
+import eu.domibus.api.model.MSHRole;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -8,6 +9,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @since 3.3.1
  */
 public class UserMessage {
+
+    protected MSHRole mshRole;
 
     /**
      * User Message Info details {@link MessageInfo}
@@ -41,6 +44,7 @@ public class UserMessage {
 
     /**
      * Gets Message Info details
+     *
      * @return Message Info details {@link MessageInfo}
      */
     public MessageInfo getMessageInfo() {
@@ -49,6 +53,7 @@ public class UserMessage {
 
     /**
      * Sets Message Info details
+     *
      * @param messageInfo Message Info details {@link MessageInfo}
      */
     public void setMessageInfo(MessageInfo messageInfo) {
@@ -57,6 +62,7 @@ public class UserMessage {
 
     /**
      * Gets Party Info details
+     *
      * @return Party Info details {@link PartyInfo}
      */
     public PartyInfo getPartyInfo() {
@@ -65,6 +71,7 @@ public class UserMessage {
 
     /**
      * Sets Party Info details
+     *
      * @param partyInfo Party Info details {@link PartyInfo}
      */
     public void setPartyInfo(PartyInfo partyInfo) {
@@ -73,6 +80,7 @@ public class UserMessage {
 
     /**
      * Gets Collaboration Info details
+     *
      * @return Collaboration Info details {@link CollaborationInfo}
      */
     public CollaborationInfo getCollaborationInfo() {
@@ -81,6 +89,7 @@ public class UserMessage {
 
     /**
      * Sets Collaboration Info details
+     *
      * @param collaborationInfo Collaboration Info details {@link CollaborationInfo}
      */
     public void setCollaborationInfo(CollaborationInfo collaborationInfo) {
@@ -89,6 +98,7 @@ public class UserMessage {
 
     /**
      * Gets Message Properties details
+     *
      * @return Message Properties details {@link MessageProperties}
      */
     public MessageProperties getMessageProperties() {
@@ -97,6 +107,7 @@ public class UserMessage {
 
     /**
      * Sets Message Properties details
+     *
      * @param messageProperties Message Properties details {@link MessageProperties}
      */
     public void setMessageProperties(MessageProperties messageProperties) {
@@ -105,6 +116,7 @@ public class UserMessage {
 
     /**
      * Gets Payload Info details
+     *
      * @return Payload Info details {@link PayloadInfo}
      */
     public PayloadInfo getPayloadInfo() {
@@ -113,6 +125,7 @@ public class UserMessage {
 
     /**
      * Sets Payload Info details
+     *
      * @param payloadInfo Paylo Info details {@link PayloadInfo}
      */
     public void setPayloadInfo(PayloadInfo payloadInfo) {
@@ -121,6 +134,7 @@ public class UserMessage {
 
     /**
      * Gets Message Partition Channel
+     *
      * @return Message Partition Channel {@link String}
      */
     public String getMpc() {
@@ -129,10 +143,19 @@ public class UserMessage {
 
     /**
      * Sets Message Partition Channel
+     *
      * @param mpc Message Partition Channel {@link String}
      */
     public void setMpc(String mpc) {
         this.mpc = mpc;
+    }
+
+    public MSHRole getMshRole() {
+        return mshRole;
+    }
+
+    public void setMshRole(MSHRole mshRole) {
+        this.mshRole = mshRole;
     }
 
     @Override
@@ -150,6 +173,7 @@ public class UserMessage {
                 .append(messageProperties, that.messageProperties)
                 .append(payloadInfo, that.payloadInfo)
                 .append(mpc, that.mpc)
+                .append(mshRole, that.mshRole)
                 .isEquals();
     }
 
@@ -162,6 +186,7 @@ public class UserMessage {
                 .append(messageProperties)
                 .append(payloadInfo)
                 .append(mpc)
+                .append(mshRole)
                 .toHashCode();
     }
 }

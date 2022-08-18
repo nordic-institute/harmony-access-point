@@ -15,6 +15,7 @@ public class PPartyModal extends EditModal {
 	protected WebElement nameInput;
 	@FindBy(css = "#endPoint_id_detail")
 	protected WebElement endpointInput;
+
 	public PPartyModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);

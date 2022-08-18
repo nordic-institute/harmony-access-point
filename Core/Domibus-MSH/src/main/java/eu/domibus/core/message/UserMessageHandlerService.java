@@ -21,11 +21,6 @@ import java.util.List;
  */
 public interface UserMessageHandlerService {
     /**
-     * to be appended to messageId when saving to DB on receiver side
-     */
-    String SELF_SENDING_SUFFIX = "_1";
-
-    /**
      * Handles incoming UserMessages
      *
      * @param legConfiguration

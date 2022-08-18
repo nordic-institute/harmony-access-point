@@ -1,11 +1,11 @@
 package domibus.ui.ux;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;

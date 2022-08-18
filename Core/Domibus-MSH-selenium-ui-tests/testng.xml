@@ -5,52 +5,28 @@
     <groups>
         <run>
             <include name="multiTenancy"/>
-<!--            <exclude name="singleTenancy"/>-->
+            <!--            <exclude name="singleTenancy"/>-->
         </run>
     </groups>
 
     <test name="NoData">
         <classes>
             <class name="domibus.ui.ux.AuditPgUXTest">
-                <methods>
-                    <exclude name="filterWAdvancedFilters"></exclude>
-                </methods>
             </class>
             <class name="domibus.ui.ux.PModeArchiveUXTest">
-                <methods>
-                    <!--                    time format issue - need to add fields to page descriptor-->
-                    <exclude name="downloadGrid"></exclude>
-                </methods>
             </class>
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
             <class name="domibus.ui.ux.LoggingPgUXTest">
-                <methods>
-                    <!--                 EDELIVERY-8463   -->
-                    <exclude name="gridNotSortable"/>
-                </methods>
             </class>
             <class name="domibus.ui.ux.MessagesPgUXTest">
-                <methods>
-                    <exclude name="csvFileDownloadHeaders"/>
-                </methods>
             </class>
             <class name="domibus.ui.ux.PluginUsersPgUXTest">
-                <methods>
-                    <!--                    excluded due to CSV header issues-->
-                    <exclude name="downloadAsCSV"></exclude>
-                    <exclude name="verifyCSVHeaders"></exclude>
-
-                    <exclude name="createPluginUserFieldValidations"/>
-                </methods>
             </class>
             <class name="domibus.ui.ux.PluginUsersPg2UXTest">
                 <methods>
                     <!--                    excluded due to CSV header issues-->
-                    <exclude name="downloadAsCSV"></exclude>
                     <exclude name="verifyCSVHeaders"></exclude>
-
-                    <exclude name="createPluginUserFieldValidations"/>
                 </methods>
             </class>
             <class name="domibus.ui.ux.PmodePartiesPgUXTest">
@@ -62,11 +38,7 @@
                 </methods>
             </class>
             <class name="domibus.ui.ux.UsersPgUXTest">
-                <methods>
-                    <!--            disabled due to bug EDELIVERY-8340        -->
-                    <exclude name="csvFileDownload"/>
-                </methods>
-            </class>
+              </class>
 
             <class name="domibus.ui.ux.AlertPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
@@ -92,20 +64,13 @@
             <class name="domibus.ui.functional.AlertPgTest">
                 <methods>
                     <!--                    CSV header inconsistency -->
-                    <exclude name="downloadCsv"></exclude>
                     <exclude name="verifyHeaders"></exclude>
-                    <!--                    bug EDELIVERY-8466    -->
-                    <exclude name="checkProcessed"></exclude>
-<!--                    inconsistent behaviour-->
-                    <exclude name="userLoginFailureAlert"/>
-                    <exclude name="pluginUserLoginFailure"/>
-                    <exclude name="pluginUserDisabled"/>
+                    <!--                    inconsistent behaviour-->
                 </methods>
             </class>
             <class name="domibus.ui.functional.ChangePasswordPgTest"/>
             <class name="domibus.ui.functional.ConnectionMonitorTest">
                 <methods>
-                    <exclude name="recPartyInactive"/>
                     <exclude name="checkSendFeature"/>
                 </methods>
             </class>
@@ -127,27 +92,16 @@
     <test name="Test">
         <classes>
             <class name="domibus.ui.functional.MessagesPgTest">
-                <methods>
-                    <exclude name="downloadCSV"/>
-                    <!-- disabled due to issues EDELIVERY-8311 and EDELIVERY-8312-->
-                    <exclude name="checkMsgEnvXML"></exclude>
-                </methods>
             </class>
             <class name="domibus.ui.functional.PModeCurrentPgTests"/>
             <class name="domibus.ui.functional.PModeValidationsTest">
             </class>
             <class name="domibus.ui.functional.PmodePartiesPgTest"/>
             <class name="domibus.ui.functional.PmodeParties2PgTest">
-                <methods>
-                </methods>
             </class>
             <class name="domibus.ui.functional.MessageFilterPgTest">
-                <methods>
-                </methods>
             </class>
             <class name="domibus.ui.functional.MessageFilter2PgTest">
-                <methods>
-                </methods>
             </class>
         </classes>
     </test>
@@ -160,29 +114,18 @@
             </class>
             <class name="domibus.ui.functional.TruststorePgTest"></class>
             <class name="domibus.ui.functional.TlsTrustStorePgTest">
-                <methods>
-                    <exclude name="uploadCertificate"/>
-                </methods>
             </class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
-                    <!--                    need fixes -->
-                    <exclude name="updateAndSave"/>
-                    <exclude name="changeDomain"/>
-
                     <!--depends on a cron running and it is unreliable -->
                     <exclude name="updateSuspensionTime"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.Properties2PgTest">
                 <methods>
-                    <exclude name="domainTitle"/>
                     <!--                    need fixes -->
                     <exclude name="checkDefaultPassword"/>
                     <exclude name="dontReuseLastPass"/>
-                    <exclude name="monitoringParty"/>
-                    <!--                    EDELIVERY-7956-->
-                    <exclude name="checkPropertyLengthMax"/>
                 </methods>
             </class>
         </classes>

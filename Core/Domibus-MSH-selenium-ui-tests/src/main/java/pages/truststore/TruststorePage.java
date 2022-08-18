@@ -4,19 +4,11 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
-import ddsl.dobjects.DWait;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import org.testng.asserts.SoftAssert;
-
-
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class TruststorePage extends DomibusPage {
@@ -31,10 +23,14 @@ public class TruststorePage extends DomibusPage {
 	WebElement passwordInputField;
 	@FindBy(id = "okbuttonupload_id")
 	WebElement okButton;
+
+	@FindBy(id = "reloadStorebutton_id")
+	WebElement reloadButton;
+
 	@FindBy(css = ".error")
 	WebElement passValidationMsg;
-	
-	
+
+
 	public TruststorePage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -43,22 +39,22 @@ public class TruststorePage extends DomibusPage {
 	public DGrid grid() {
 		return new DGrid(driver, truststoreTable);
 	}
-	
+
 	public DButton getUploadButton() {
 		return new DButton(driver, uploadButton);
 	}
-	
-	
+
+
 	public DButton getOkButton() {
 		return new DButton(driver, okButton);
 	}
-	
+
 	public DInput getPassInputField() {
 		return new DInput(driver, passwordInputField);
 	}
-	
-	
-	public void uploadFile(String filePath, String password, SoftAssert soft) throws Exception {
+
+
+	public void uploadFile(String filePath, String password) throws Exception {
 		getUploadButton().click();
 
 		chooseFileButton.sendKeys(filePath);
@@ -74,6 +70,10 @@ public class TruststorePage extends DomibusPage {
 		} else {
 			log.info("File can't be uploaded without password");
 		}
-		
+
+	}
+
+	public DButton getReloadButton() {
+		return new DButton(driver, reloadButton);
 	}
 }

@@ -1,10 +1,10 @@
 package domibus.ui.functional;
 
-import org.testng.Reporter;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import domibus.ui.SeleniumTest;
+import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;

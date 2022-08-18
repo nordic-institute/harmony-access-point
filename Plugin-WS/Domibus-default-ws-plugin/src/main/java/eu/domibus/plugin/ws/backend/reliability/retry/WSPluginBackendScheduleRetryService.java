@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.reliability.retry;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
@@ -82,6 +83,7 @@ public class WSPluginBackendScheduleRetryService {
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
                 create()
                 .property(MessageConstants.MESSAGE_ID, backendMessage.getMessageId())
+                .property(MessageConstants.MSH_ROLE, MSHRole.SENDING.name())
                 .property(WSSendMessageListener.ID, backendMessage.getEntityId())
                 .property(WSSendMessageListener.TYPE, backendMessage.getType().name())
                 .build();

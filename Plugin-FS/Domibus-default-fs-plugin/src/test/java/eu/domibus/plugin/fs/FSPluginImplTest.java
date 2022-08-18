@@ -11,9 +11,6 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import eu.domibus.plugin.handler.MessagePuller;
-import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import mockit.*;
@@ -213,7 +210,7 @@ public class FSPluginImplTest {
 
     private void expectationsDeliverMessage(String domain, UserMessage userMessage, Map<String, FSPayload> fsPayloads) throws MessageNotFoundException, FileSystemException {
         new Expectations(1, backendFS) {{
-            backendFS.browseMessage(messageId, null);
+            backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new FSMessage(fsPayloads, userMessage);
 
             backendFS.downloadMessage(messageId, null);
@@ -354,7 +351,7 @@ public class FSPluginImplTest {
     public void testDeliverMessage_MessageNotFound(@Injectable final FSMessage fsMessage) throws MessageNotFoundException {
 
         new Expectations(1, backendFS) {{
-            backendFS.browseMessage(messageId, null);
+            backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new MessageNotFoundException("message not found");
 
             fsPluginProperties.getDomainEnabled(anyString);
@@ -375,7 +372,7 @@ public class FSPluginImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.browseMessage(messageId, null);
+            backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new FSMessage(fsPayloads, userMessage);
 
             fsDomainService.getFSPluginDomain();
@@ -402,7 +399,7 @@ public class FSPluginImplTest {
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
         new Expectations(1, backendFS) {{
-            backendFS.browseMessage(messageId, null);
+            backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new FSMessage(fsPayloads, userMessage);
 
             fsDomainService.getFSPluginDomain();
@@ -689,7 +686,7 @@ public class FSPluginImplTest {
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
 
-            backendFS.getErrorsForMessage(messageId);
+            backendFS.getErrorsForMessage(messageId, MSHRole.SENDING);
             result = errorList;
 
             fsPluginProperties.getDomainEnabled(anyString);

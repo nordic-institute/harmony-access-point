@@ -10,13 +10,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import utils.Gen;
 
-import java.util.List;
 
-
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 
 public class PluginUserModal extends EditModal {
@@ -34,11 +28,11 @@ public class PluginUserModal extends EditModal {
 	private WebElement okBtn;
 	@FindBy(css = "#editbuttoncancel_id")
 	private WebElement cancelBtn;
-	
+
 	@FindBy(css = "editbasicpluginuser-form popup-edit-footer > div.required-fields")
 	private WebElement requiredFieldsText;
-	
-	
+
+
 	@FindBy(css = "editbasicpluginuser-form form #username_id + span.help-block>div")
 	private WebElement usernameErrMess;
 	@FindBy(css = "#originalUser_id ~ .help-block div")
@@ -63,22 +57,22 @@ public class PluginUserModal extends EditModal {
 		getPasswordInput().fill(password);
 		getConfirmationInput().fill(confirmation);
 
-		if(role.equalsIgnoreCase(DRoles.USER)){
+		if (role.equalsIgnoreCase(DRoles.USER)) {
 			String corner = Gen.randomAlphaNumeric(5);
 			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
 		}
-		
+
 		getRolesSelect().selectOptionByText(role);
 	}
-	
+
 	public void fillCertUserData(String user, String role) throws Exception {
 		getUserNameInput().fill(user);
 
-		if(role.equalsIgnoreCase(DRoles.USER)){
+		if (role.equalsIgnoreCase(DRoles.USER)) {
 			String corner = Gen.randomAlphaNumeric(5);
 			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
 		}
-		
+
 		getRolesSelect().selectOptionByText(role);
 	}
 
@@ -135,6 +129,7 @@ public class PluginUserModal extends EditModal {
 	public void changeFocus() throws Exception {
 		weToDobject(requiredFieldsText).click();
 	}
+
 	public Checkbox getActiveChk() {
 		return new Checkbox(driver, activeChk);
 	}

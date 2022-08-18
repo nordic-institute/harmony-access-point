@@ -1,7 +1,5 @@
 package domibus.ui.ux;
 
-import org.slf4j.MDC;
-import org.testng.Reporter;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.Pagination;
 import ddsl.dobjects.DatePicker;
@@ -11,6 +9,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.testng.Reporter;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -20,13 +19,15 @@ import rest.RestServicePaths;
 import utils.TestUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class ErrorLogPgUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ERROR_LOG);
-
 
 
 	/* EDELIVERY-5105 - ERR-1 - Login as super admin and open Error log page */

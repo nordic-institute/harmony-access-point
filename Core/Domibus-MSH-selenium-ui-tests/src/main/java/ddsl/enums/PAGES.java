@@ -1,12 +1,8 @@
 package ddsl.enums;
 
-/**
- * @author Catalin Comanici
- * @version 4.1
- */
 
 public enum PAGES {
-	
+
 	MESSAGES,
 	MESSAGE_FILTER,
 	ERROR_LOG,

@@ -194,7 +194,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                         return messageId;
                     case RETRY:
                         LOG.debug("[PULL_REQUEST]:message:[{}] retry pull attempt.", pullMessageId.getMessageId());
-                        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+                        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
                         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(userMessage.getEntityId());
                         return messageId;
                 }
@@ -403,7 +403,8 @@ public class PullMessageServiceImpl implements PullMessageService {
             return;
         }
         LOG.debug("[resetWaitingForReceiptPullMessages]:Message:[{}] checking if can be retry, attempts[{}], max attempts[{}], expiration date[{}]", lock.getMessageId(), lock.getSendAttempts(), lock.getSendAttemptsMax(), lock.getStaled());
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId());
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId(), MSHRole.SENDING);
+        LOG.debug("resetMessageInWaitingForReceiptState Found message [{}]", userMessageLog);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
@@ -428,11 +429,11 @@ public class PullMessageServiceImpl implements PullMessageService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void expireMessage(String messageId) {
+    public void expireMessage(String messageId, MSHRole mshRole) {
         MessagingLock lock = messagingLockDao.getLock(messageId);
         if (lock != null && MessageState.ACK != lock.getMessageState()) {
             LOG.debug("[bulkExpirePullMessages]:Message:[{}] expired.", lock.getMessageId());
-            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId());
+            UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(lock.getMessageId(), mshRole);
             if (userMessageLog == null) {
                 throw new MessageNotFoundException(messageId);
             }

@@ -2,6 +2,7 @@ package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.audit.envers.RevisionLogicalName;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.audit.envers.ModificationType;
 
 import java.util.Date;
@@ -65,8 +66,9 @@ public interface AuditService {
      * Add message download audit for a message.
      *
      * @param messageId the id of the message.
+     * @param mshRole
      */
-    void addMessageDownloadedAudit(String messageId);
+    void addMessageDownloadedAudit(String messageId, MSHRole mshRole);
 
     /**
      * Add download audit for a pmode.

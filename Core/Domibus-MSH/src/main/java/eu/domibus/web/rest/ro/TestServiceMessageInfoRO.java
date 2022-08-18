@@ -1,5 +1,6 @@
 package eu.domibus.web.rest.ro;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import java.util.Date;
 
@@ -17,6 +18,8 @@ public class TestServiceMessageInfoRO {
     Date timeReceived;
 
     String messageId;
+
+    MSHRole mshRole;
 
     MessageStatus messageStatus;
 
@@ -58,5 +61,13 @@ public class TestServiceMessageInfoRO {
 
     public void setMessageStatus(MessageStatus messageStatus) {
         this.messageStatus = messageStatus;
+    }
+
+    public MSHRole getMshRole() {
+        return mshRole;
+    }
+
+    public void setMshRole(MSHRole mshRole) {
+        this.mshRole = mshRole;
     }
 }

@@ -4,9 +4,11 @@ import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
 import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.ebms3.model.Ebms3Receipt;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.PullRequest;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.SignalMessage;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -15,6 +17,12 @@ import java.util.List;
 
 @Service
 public class Ebms3SignalMapperImpl implements Ebms3SignalMapper {
+
+    protected MshRoleDao mshRoleDao;
+
+    public Ebms3SignalMapperImpl(MshRoleDao mshRoleDao) {
+        this.mshRoleDao = mshRoleDao;
+    }
 
     @Override
     public Ebms3SignalMessage signalMessageEntityToEbms3(SignalMessage signalMessage) {
@@ -33,13 +41,14 @@ public class Ebms3SignalMapperImpl implements Ebms3SignalMapper {
         signalMessage.setSignalMessageId(messageInfo.getMessageId());
         signalMessage.setRefToMessageId(messageInfo.getRefToMessageId());
         signalMessage.setTimestamp(messageInfo.getTimestamp());
+        signalMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         return signalMessage;
     }
 
     @Override
     public PullRequest ebms3PullRequestToEntity(Ebms3SignalMessage ebms3SignalMessage) {
         final Ebms3PullRequest ebms3PullRequest = ebms3SignalMessage.getPullRequest();
-        if(ebms3PullRequest == null) {
+        if (ebms3PullRequest == null) {
             return null;
         }
 
@@ -51,7 +60,7 @@ public class Ebms3SignalMapperImpl implements Ebms3SignalMapper {
     @Override
     public ReceiptEntity ebms3ReceiptToEntity(Ebms3SignalMessage ebms3SignalMessage) {
         final Ebms3Receipt ebms3Receipt = ebms3SignalMessage.getReceipt();
-        if(ebms3Receipt == null) {
+        if (ebms3Receipt == null) {
             return null;
         }
 
@@ -70,7 +79,7 @@ public class Ebms3SignalMapperImpl implements Ebms3SignalMapper {
 
     @Override
     public Ebms3PullRequest pullRequestToEbms3PullRequest(PullRequest pullRequest) {
-        if(pullRequest == null) {
+        if (pullRequest == null) {
             return null;
         }
 
