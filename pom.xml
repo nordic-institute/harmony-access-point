@@ -22,20 +22,20 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
-        <cxf.version>3.4.6</cxf.version>
+        <cxf.version>3.5.3</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
-        <spring.version>5.3.20</spring.version>
-        <spring.security.version>5.6.5</spring.security.version>
-        <spring.session.core.version>2.6.3</spring.session.core.version>
-        <spring.session.jdbc.version>2.6.3</spring.session.jdbc.version>
-        <springdoc.version>1.6.6</springdoc.version>
-        <io.swagger.core.v3.version>2.1.12</io.swagger.core.v3.version>
-        <swagger-ui.version>3.52.3</swagger-ui.version>
+        <spring.version>5.3.22</spring.version>
+        <spring.security.version>5.7.2</spring.security.version>
+        <spring.session.core.version>2.7.0</spring.session.core.version>
+        <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
+        <springdoc.version>1.6.9</springdoc.version>
+        <io.swagger.core.v3.version>2.2.2</io.swagger.core.v3.version>
+        <swagger-ui.version>4.13.0</swagger-ui.version>
         <hibernate.version>5.5.9.Final</hibernate.version>
         <activemq.version>5.16.4</activemq.version>
-        <aspectj.version>1.9.8</aspectj.version>
+        <aspectj.version>1.9.9.1</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <logback.version>1.2.10</logback.version>
+        <logback.version>1.2.11</logback.version>
         <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
@@ -44,40 +44,40 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.69</bouncycastle.version>
+        <bouncycastle.version>1.71</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
-        <jackson.version>2.13.2</jackson.version>
+        <jackson.version>2.13.3</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.13.2.2</jackson-databind.version>
+        <jackson-databind.version>2.13.3</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
         <freemarker.version>2.3.31</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
-        <jaxb-impl.version>2.3.3</jaxb-impl.version>
+        <jaxb-impl.version>2.3.6</jaxb-impl.version>
         <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>2.4.0</tika.version>
-        <peppol.version>2.0.2</peppol.version>
+        <tika.version>2.4.1</tika.version>
+        <peppol.version>2.2.0</peppol.version>
         <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
-        <hibernate.validator.version>6.2.2.Final</hibernate.validator.version>
-        <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
+        <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
+        <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
-        <h2.version>2.1.212</h2.version>
+        <h2.version>2.1.214</h2.version>
         <liquibase.version>4.7.1</liquibase.version>
-        <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
+        <mysql.connector.java.version>8.0.30</mysql.connector.java.version>
         <wiremock.version>2.27.2</wiremock.version>
         <handlebars.version>4.3.0</handlebars.version>
-        <dropwizard.metrics.version>4.2.8</dropwizard.metrics.version>
-        <owasp.dependency.check.version>7.1.0</owasp.dependency.check.version>
-        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
-        <hikaricp.version>4.0.3</hikaricp.version><!-- 5.0.0 is compatible with jdk11 only -->
+        <dropwizard.metrics.version>4.2.10</dropwizard.metrics.version>
+        <owasp.dependency.check.version>7.1.1</owasp.dependency.check.version>
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
-        <tomcat-embed.version>9.0.63</tomcat-embed.version>
-        <json-smart.version>2.4.6</json-smart.version>
+        <tomcat-embed.version>9.0.65</tomcat-embed.version>
+        <json-smart.version>2.4.8</json-smart.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -115,14 +115,14 @@
         <!--<sonar.web.javaAdditionalOpts>-Dhttp.proxyHost=158.169.9.13 -Dhttp.proxyPort=8012 -Dhttp.proxyUser=theuser -Dhttp.proxyPassword=thepassword -Dhttps.proxyHost=158.169.9.13 -Dhttps.proxyPort=8012 -Dhttps.proxyUser=theuser -Dhttps.proxyPassword=thepassword -Dhttps.nonProxyHosts=localhost -Dhttp.nonProxyHosts=localhost</sonar.web.javaAdditionalOpts>-->
         <!--IAM extension properties -->
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>9.19</nimbus-jose-jwt.version>
-        <maven-compiler-plugin.version>3.10.0</maven-compiler-plugin.version>
+        <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
         <guava.version>29.0-jre</guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
-        <opencsv.version>5.5.2</opencsv.version>
+        <opencsv.version>5.6</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.13.2</junit.version>
-        <awaitility.version>3.1.0</awaitility.version>
+        <awaitility.version>4.2.0</awaitility.version>
         <jmockit.version>1.22</jmockit.version>
         <org.reflections.version>0.10.2</org.reflections.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
@@ -132,7 +132,7 @@
         <javax.jms-api.version>2.0.1</javax.jms-api.version>
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
-        <xmlsec.version>2.2.3</xmlsec.version>
+        <xmlsec.version>2.2.4</xmlsec.version>
         <httpcore.version>4.4.15</httpcore.version>
         <ehcache.version>3.9.9</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
@@ -142,7 +142,7 @@
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
         <commons-lang.version>2.6</commons-lang.version>
         <jakarta.activation.version>2.1.0</jakarta.activation.version>
-        <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
+        <jakarta.xml.bind-api.version>3.0.1</jakarta.xml.bind-api.version>
         <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
         <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
         <neethi.version>3.2.0</neethi.version>
@@ -152,15 +152,15 @@
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <commons-text.version>1.9</commons-text.version>
-        <swagger-maven-plugin.version>2.1.12</swagger-maven-plugin.version>
-        <swagger-codegen-maven-plugin.version>3.0.31</swagger-codegen-maven-plugin.version>
+        <swagger-maven-plugin.version>2.2.2</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.34</swagger-codegen-maven-plugin.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         
         <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <commons-configuration2.version>2.7</commons-configuration2.version>
+        <commons-configuration2.version>2.8.0</commons-configuration2.version>
         <httpmime.version>4.5.13</httpmime.version>
-        <jdom2.version>2.0.6.1</jdom2.version> 
+        <jdom2.version>2.0.6.1</jdom2.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
