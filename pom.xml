@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.5.3</cxf.version>
-        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version><!-- latest versions 2.4.1 and 2.3.0 crash SubmitMessageIT with NoSuchMethodError org.apache.xml.security.encryption.XMLCipher.getInstance(...) -->
+        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
         <spring.version>5.3.22</spring.version>
         <spring.security.version>5.7.2</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
@@ -32,64 +32,50 @@
         <io.swagger.core.v3.version>2.2.2</io.swagger.core.v3.version>
         <swagger-ui.version>4.13.0</swagger-ui.version>
         <hibernate.version>5.5.9.Final</hibernate.version>
-        <!-- cannot update to 6.0.1.Final because different transitive dependencies not found on nexus -->
-        <!-- 5.6.6.Final, 5.6.8.Final, 5.6.9.Final compilation failure DatePrefixedGenericSequenceIdGenerator.java:[83,5] method does not override or implement a method from a supertype and others -->
-
-
         <activemq.version>5.16.4</activemq.version>
-        <!-- version 5.17.1: dependency org.apache.activemq:activemq-kahadb-store:jar:5.17.1 doesn't bring commons-net:commons-net:jar which results in compilation error in eu.domibus.test.common.SoapSampleUtil; solution: add commons-net:commons-net explicitly in domibus-msh-test-common-->
-        <!-- version 5.16.5: Tests crashing with: Caused by: java.lang.IllegalArgumentException: ${activeMQ.persistent} -->
-
         <aspectj.version>1.9.9.1</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.11</logback.version>
-        <httpclient.version>4.5.13</httpclient.version> <!-- ok latest -->
-        <commons-configuration.version>1.10</commons-configuration.version> <!-- ok latest -->
-        <commons-lang3.version>3.12.0</commons-lang3.version> <!-- ok latest -->
-        <commons-io.version>2.11.0</commons-io.version> <!-- ok latest -->
-        <commons-fileupload.version>1.4</commons-fileupload.version> <!-- ok latest -->
-        <commons-collections4.version>4.4</commons-collections4.version> <!-- ok latest -->
-        <commons-beanutils.version>1.9.4</commons-beanutils.version> <!-- ok latest -->
-        <commons-codec.version>1.15</commons-codec.version> <!-- ok latest -->
+        <httpclient.version>4.5.13</httpclient.version>
+        <commons-configuration.version>1.10</commons-configuration.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-codec.version>1.15</commons-codec.version>
         <bouncycastle.version>1.71</bouncycastle.version>
-        <quartz.version>2.3.2</quartz.version> <!-- ok latest -->
+        <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
-        <!-- @BeanMapping(ignoreUnmappedSourceProperties = {"partInfoList"}) crashes at compilation time with 1.5.2.Final. Fixed by commenting out the line in class MessageCoreMapper -->
-        <!--[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:compile (default-compile) on project domibus-MSH: Compilation failure: Compilation failure:
-        [ERROR] /Users/razvan/dev/code/domibus/Core/Domibus-MSH/src/main/java/eu/domibus/core/converter/MessageCoreMapper.java:[46,51] Ignored unknown source property: "partInfoList".
-        [ERROR] /Users/razvan/dev/code/domibus/Core/Domibus-MSH/src/main/java/eu/domibus/core/converter/MessageCoreMapper.java:[65,17] Ignored unknown source property: "partInfoList".-->
-        <jackson.version>2.13.3</jackson.version> <!-- ok latest -->
+        <jackson.version>2.13.3</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.13.3</jackson-databind.version> <!-- ok latest -->
-        <commons-test.version>4.3</commons-test.version> <!-- ok latest -->
-        <freemarker.version>2.3.31</freemarker.version> <!-- ok latest -->
-        <mail.version>1.6.2</mail.version> <!-- ok latest -->
-        <jaxb-api.version>2.3.1</jaxb-api.version> <!-- ok latest -->
-        <jaxb-impl.version>2.3.6</jaxb-impl.version> <!-- latest 4.0.0 class com.sun.istack.Pool compiled with java11 => crashing tests-->
-        <dom4j.version>2.1.3</dom4j.version> <!-- ok latest -->
+        <jackson-databind.version>2.13.3</jackson-databind.version>
+        <commons-test.version>4.3</commons-test.version>
+        <freemarker.version>2.3.31</freemarker.version>
+        <mail.version>1.6.2</mail.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <jaxb-impl.version>2.3.6</jaxb-impl.version>
+        <dom4j.version>2.1.3</dom4j.version>
         <tika.version>2.4.1</tika.version>
-        <peppol.version>2.2.0</peppol.version> <!-- latest version 2.3.0 compilation failures in DomibusApacheFetcher.java -->
-        <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version> <!-- ok latest -->
-        <javax.validation.version>2.0.1.Final</javax.validation.version> <!-- ok latest -->
-        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version> <!-- ok latest -->
-        <hibernate.validator.version>6.2.3.Final</hibernate.validator.version><!-- latest  -->
-        <!-- latest ver 8.0.0.CR1 results in compilation failure: class org.hibernate.validator.constraints.Email compiled with java11 but should be with java8-->
-        <!-- next version 7.0.4.Final crashes IT tests with Unable to create a Configuration (Add a provider like Hibernate Validator (RI) to your classpath.) -->
-
+        <peppol.version>2.2.0</peppol.version>
+        <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
+        <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
+        <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
-        <mockito.version>1.10.19</mockito.version><!-- 1.10.19 (31-Dec-2014), latest version is 2.0.2-beta (02-Jan-2015). Keeping stable version 1.10.19 -->
+        <mockito.version>1.10.19</mockito.version>
         <h2.version>2.1.214</h2.version>
-        <liquibase.version>4.7.1</liquibase.version><!-- latest 4.14.0 problems with addAfterColumn is not allowed on oracle -->
+        <liquibase.version>4.7.1</liquibase.version>
         <mysql.connector.java.version>8.0.30</mysql.connector.java.version>
-        <wiremock.version>2.27.2</wiremock.version> <!-- ok latest -->
-        <handlebars.version>4.3.0</handlebars.version> <!-- ok latest -->
+        <wiremock.version>2.27.2</wiremock.version>
+        <handlebars.version>4.3.0</handlebars.version>
         <dropwizard.metrics.version>4.2.10</dropwizard.metrics.version>
         <owasp.dependency.check.version>7.1.1</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
-        <hikaricp.version>4.0.3</hikaricp.version><!-- next version 5.0.0 and more recent are compatible with jdk11 only -->
-        <wlthint3client.version>12.1.1</wlthint3client.version> <!-- ok latest -->
-        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version> <!-- ok latest -->
-        <dss.version>5.8</dss.version><!-- latest version 5.10.1 causes compilation errors in eu.domibus.core.crypto.spi.dss.ValidationReport, etc -->
+        <hikaricp.version>4.0.3</hikaricp.version>
+        <wlthint3client.version>12.1.1</wlthint3client.version>
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
+        <dss.version>5.8</dss.version>
         <tomcat-embed.version>9.0.65</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
 
@@ -131,50 +117,50 @@
         <!--Uumds properties-->
         <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-        <java-uuid-generator.version>4.0.1</java-uuid-generator.version> <!-- ok latest -->
+        <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
         <guava.version>29.0-jre</guava.version><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
         <opencsv.version>5.6</opencsv.version>
-        <javaee-api.version>8.0.1</javaee-api.version> <!-- ok latest -->
-        <junit.version>4.13.2</junit.version> <!-- ok latest -->
+        <javaee-api.version>8.0.1</javaee-api.version>
+        <junit.version>4.13.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <jmockit.version>1.22</jmockit.version><!-- latest versions don't have the class mockit.integration.junit4.JMockit => compilation error -->
-        <org.reflections.version>0.10.2</org.reflections.version> <!-- ok latest -->
-        <messaging.saaj.version>1.5.3</messaging.saaj.version> <!-- ok latest -->
-        <jaxws-api.version>2.3.1</jaxws-api.version> <!-- ok latest -->
-        <javax.annotation.version>1.3.2</javax.annotation.version> <!-- ok latest -->
+        <jmockit.version>1.22</jmockit.version>
+        <org.reflections.version>0.10.2</org.reflections.version>
+        <messaging.saaj.version>1.5.3</messaging.saaj.version>
+        <jaxws-api.version>2.3.1</jaxws-api.version>
+        <javax.annotation.version>1.3.2</javax.annotation.version>
 
-        <javax.jms-api.version>2.0.1</javax.jms-api.version> <!-- ok latest -->
-        <activation.version>1.1.1</activation.version> <!-- ok latest -->
-        <jsr181-api.version>1.0-MR1</jsr181-api.version> <!-- ok latest -->
+        <javax.jms-api.version>2.0.1</javax.jms-api.version>
+        <activation.version>1.1.1</activation.version>
+        <jsr181-api.version>1.0-MR1</jsr181-api.version>
         <xmlsec.version>2.2.4</xmlsec.version>
-        <httpcore.version>4.4.15</httpcore.version> <!-- ok latest -->
-        <ehcache.version>3.9.9</ehcache.version><!-- latest 3.10.0 causes all kinds of problems because it brings different versions of libraries (not direct cildren but brought transitively by children of children) not found on nexus -->
-        <cache-api.version>1.1.1</cache-api.version> <!-- ok latest -->
-        <commons-collections.version>3.2.2</commons-collections.version> <!-- ok latest -->
-        <commons-net.version>3.8.0</commons-net.version> <!-- ok latest -->
-        <jcifs.version>1.3.17</jcifs.version> <!-- ok latest -->
-        <commons-vfs2.version>2.9.0</commons-vfs2.version> <!-- ok latest -->
-        <commons-lang.version>2.6</commons-lang.version> <!-- ok latest -->
-        <jakarta.activation.version>2.1.0</jakarta.activation.version> <!-- ok latest -->
+        <httpcore.version>4.4.15</httpcore.version>
+        <ehcache.version>3.9.9</ehcache.version>
+        <cache-api.version>1.1.1</cache-api.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <commons-net.version>3.8.0</commons-net.version>
+        <jcifs.version>1.3.17</jcifs.version>
+        <commons-vfs2.version>2.9.0</commons-vfs2.version>
+        <commons-lang.version>2.6</commons-lang.version>
+        <jakarta.activation.version>2.1.0</jakarta.activation.version>
         <jakarta.xml.bind-api.version>3.0.1</jakarta.xml.bind-api.version>
-        <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version> <!-- ok latest -->
-        <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version> <!-- ok latest -->
-        <neethi.version>3.2.0</neethi.version> <!-- ok latest -->
-        <geronimo-javamail_1.4_mail.version>1.8.4</geronimo-javamail_1.4_mail.version><!-- latest vers are alpha. Leave this as the latest stable ver -->
-        <javax.activation-api.version>1.2.0</javax.activation-api.version> <!-- ok latest -->
-        <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version> <!-- ok latest -->
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version> <!-- ok latest -->
-        <javax.persistence-api.version>2.2</javax.persistence-api.version> <!-- ok latest -->
-        <commons-text.version>1.9</commons-text.version> <!-- ok latest -->
+        <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
+        <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
+        <neethi.version>3.2.0</neethi.version>
+        <geronimo-javamail_1.4_mail.version>1.8.4</geronimo-javamail_1.4_mail.version><
+        <javax.activation-api.version>1.2.0</javax.activation-api.version>
+        <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <javax.persistence-api.version>2.2</javax.persistence-api.version>
+        <commons-text.version>1.9</commons-text.version>
         <swagger-maven-plugin.version>2.2.2</swagger-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.34</swagger-codegen-maven-plugin.version>
-        <license-maven-plugin.version>2.0.0</license-maven-plugin.version> <!-- ok latest -->
+        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         
-        <commons-ip2.version>2.0.0-alpha2</commons-ip2.version> <!-- ok latest -->
-        <commons-compress.version>1.21</commons-compress.version> <!-- ok latest -->
+        <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
+        <commons-compress.version>1.21</commons-compress.version>
         <commons-configuration2.version>2.8.0</commons-configuration2.version>
-        <httpmime.version>4.5.13</httpmime.version> <!-- ok latest -->
-        <jdom2.version>2.0.6.1</jdom2.version> <!-- ok latest -->
+        <httpmime.version>4.5.13</httpmime.version>
+        <jdom2.version>2.0.6.1</jdom2.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
