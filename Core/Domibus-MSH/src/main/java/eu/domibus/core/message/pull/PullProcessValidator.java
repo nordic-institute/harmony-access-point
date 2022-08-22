@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mep;
 import eu.domibus.common.model.configuration.Process;
@@ -18,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_DYNAMIC_INITIATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MULTIPLE_LEGS;
 import static eu.domibus.core.message.pull.PullProcessStatus.*;
 
 /**
@@ -25,12 +28,15 @@ import static eu.domibus.core.message.pull.PullProcessStatus.*;
  * @since 3.3
  */
 @Component
-public class ProcessValidator {
+public class PullProcessValidator {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ProcessValidator.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullProcessValidator.class);
 
     @Autowired
-    PullMessageService pullMessageService;
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+//    @Autowired
+//    PullMessageService pullMessageService;
 
     /**
      * In the case of pull process some restrictions are applied to the configuration.
@@ -50,6 +56,14 @@ public class ProcessValidator {
             }
             throw new PModeException(DomibusCoreErrorCode.DOM_003, createWarningMessage(pullProcessStatuses));
         }
+    }
+
+    public boolean allowMultipleLegsInPullProcess() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_MULTIPLE_LEGS);
+    }
+
+    public boolean allowDynamicInitiatorInPullProcess() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_DYNAMIC_INITIATOR);
     }
 
     Set<PullProcessStatus> verifyPullProcessStatus(Set<Process> pullProcesses) {
@@ -98,7 +112,7 @@ public class ProcessValidator {
     }
 
     protected PullProcessStatus checkMpcConfiguration(final Process process) {
-        if (pullMessageService.allowMultipleLegsInPullProcess()) {
+        if (allowMultipleLegsInPullProcess()) {
             return checkMpcConfigurationSameSecurityPolicy(process);
         } else {
             return checkMpcConfigurationOneLegPerMpc(process);
@@ -173,7 +187,7 @@ public class ProcessValidator {
     private PullProcessStatus checkResponderConfiguration(final Process process) {
         PullProcessStatus status = ONE_MATCHING_PROCESS;
 
-        if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
+        if (allowDynamicInitiatorInPullProcess()) {
             LOG.debug("There is no need for a verification of the number of " +
                     "initiators because the property that allows dynamic initiator in pull process is enabled");
             return status;

@@ -16,6 +16,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
 import eu.domibus.logging.DomibusLogger;
@@ -52,7 +53,10 @@ public class CachingPModeProvider extends PModeProvider {
     protected Domain domain;
 
     @Autowired
-    PullMessageService pullMessageService;
+    private PullProcessValidator pullProcessValidator;
+
+//    @Autowired
+//    PullMessageService pullMessageService;
 
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
@@ -194,7 +198,7 @@ public class CachingPModeProvider extends PModeProvider {
      */
     protected boolean matchInitiator(final Process process, final String senderParty) {
         if (CollectionUtils.isEmpty(process.getInitiatorParties())) {
-            if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
+            if (pullProcessValidator.allowDynamicInitiatorInPullProcess()) {
                 return true;
             }
             return false;

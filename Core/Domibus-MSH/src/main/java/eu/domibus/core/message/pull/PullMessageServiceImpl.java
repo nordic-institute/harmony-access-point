@@ -473,13 +473,13 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     }
 
-    @Override
-    public boolean allowMultipleLegsInPullProcess() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_MULTIPLE_LEGS);
-    }
-
-    @Override
-    public boolean allowDynamicInitiatorInPullProcess() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_DYNAMIC_INITIATOR);
-    }
+//    @Override
+//    public boolean allowMultipleLegsInPullProcess() {
+//        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_MULTIPLE_LEGS);
+//    }
+//
+//    @Override
+//    public boolean allowDynamicInitiatorInPullProcess() {
+//        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_PULL_DYNAMIC_INITIATOR);
+//    }
 }

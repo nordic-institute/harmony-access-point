@@ -79,7 +79,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     private UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Autowired
-    private ProcessValidator processValidator;
+    private PullProcessValidator pullProcessValidator;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -125,7 +125,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
         if (ProcessingType.PULL.equals(processingType)) {
             List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
-            processValidator.validatePullProcess(Lists.newArrayList(processes));
+            pullProcessValidator.validatePullProcess(Lists.newArrayList(processes));
             messageStatus = MessageStatus.READY_TO_PULL;
         }
         return messageStatusDao.findOrCreate(messageStatus);
@@ -200,7 +200,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         final List<Process> validPullProcesses = new ArrayList<>();
         for (Process pullProcess : pullProcesses) {
             try {
-                processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
+                pullProcessValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 validPullProcesses.add(pullProcess);
             } catch (PModeException e) {
                 LOG.warn("Invalid pull process configuration found during pull try", e);
@@ -286,7 +286,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.trace("Retrieving party id(s), initiator list with size:[{}] found", collect.size());
             return collect;
         }
-        if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
+        if (pullProcessValidator.allowDynamicInitiatorInPullProcess()) {
             LOG.debug("Pmode initiator list is empty, extracting partyId from mpc [{}]", mpc);
             return Sets.newHashSet(mpcService.extractInitiator(mpc));
         }
@@ -313,7 +313,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     LOG.debug("Process:[{}] correspond to mpc:[{}]", process.getName(), mpc);
                 }
             }
-            processValidator.validatePullProcess(processes);
+            pullProcessValidator.validatePullProcess(processes);
             return new PullContext(processes.get(0), gatewayParty, mpc);
         } catch (IllegalArgumentException e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_003, "No pmode configuration found");

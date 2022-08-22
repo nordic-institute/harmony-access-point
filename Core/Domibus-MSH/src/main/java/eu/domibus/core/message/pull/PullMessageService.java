@@ -114,8 +114,8 @@ public interface PullMessageService {
      */
     void releaseLockAfterReceipt(PullRequestResult requestResult);
 
-    boolean allowMultipleLegsInPullProcess();
-
-    boolean allowDynamicInitiatorInPullProcess();
+//    boolean allowMultipleLegsInPullProcess();
+//
+//    boolean allowDynamicInitiatorInPullProcess();
 
 }
