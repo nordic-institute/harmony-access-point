@@ -109,4 +109,6 @@ public interface MessageRetriever {
     List<? extends ErrorResult> getErrorsForMessage(String messageId);
 
     List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole);
+
+    void markMessageAsDownloaded(String messageId);
 }

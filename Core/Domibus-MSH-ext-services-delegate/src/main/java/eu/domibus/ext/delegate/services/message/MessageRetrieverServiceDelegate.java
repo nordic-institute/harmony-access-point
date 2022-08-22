@@ -64,6 +64,12 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     @Override
+    public void markMessageAsDownloaded(String messageId) {
+        checkMessageAuthorization(messageId);
+        messageRetriever.markMessageAsDownloaded(messageId);
+    }
+
+    @Override
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
         checkMessageAuthorization(messageId);
 

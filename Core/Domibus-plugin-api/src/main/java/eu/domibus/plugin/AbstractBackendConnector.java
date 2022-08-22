@@ -110,6 +110,25 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    public void markMessageAsDownloaded(final String messageId) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}]", messageId);
+        if (StringUtils.isNotBlank(messageId)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        }
+
+        try {
+            validateMessageStatus(messageId, true);
+            messageRetriever.markMessageAsDownloaded(messageId);
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED);
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public T downloadMessage(final String messageId, final T target, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {
@@ -117,15 +136,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         try {
-            MessageStatus status = messageRetriever.getStatus(messageId, MSHRole.RECEIVING);
-            if (MessageStatus.NOT_FOUND == status) {
-                LOG.debug("Message with id [{}] was not found", messageId);
-                throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
-            }
-            if (markAsDownloaded && MessageStatus.DOWNLOADED == status) {
-                LOG.debug("Message with id [{}] was already downloaded", messageId);
-                throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
-            }
+            validateMessageStatus(messageId, markAsDownloaded);
 
             Submission submission = messageRetriever.downloadMessage(messageId, markAsDownloaded);
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
@@ -135,6 +146,18 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw ex;
+        }
+    }
+
+    private void validateMessageStatus(String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
+        MessageStatus status = messageRetriever.getStatus(messageId, MSHRole.RECEIVING);
+        if (MessageStatus.NOT_FOUND == status) {
+            LOG.debug("Message with id [{}] was not found", messageId);
+            throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
+        }
+        if (markAsDownloaded && MessageStatus.DOWNLOADED == status) {
+            LOG.debug("Message with id [{}] was already downloaded", messageId);
+            throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
         }
     }
 

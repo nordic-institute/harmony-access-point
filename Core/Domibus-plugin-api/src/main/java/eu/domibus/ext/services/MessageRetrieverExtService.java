@@ -104,4 +104,10 @@ public interface MessageRetrieverExtService {
     List<? extends ErrorResult> getErrorsForMessage(String messageId);
 
     List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole);
+
+    /**
+     * Marks the message as downloaded, if the operation is authorised
+     * @param messageId
+     */
+    void markMessageAsDownloaded(String messageId);
 }

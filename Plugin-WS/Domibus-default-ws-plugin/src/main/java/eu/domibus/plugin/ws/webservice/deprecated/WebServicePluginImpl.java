@@ -294,7 +294,44 @@ public class WebServicePluginImpl implements BackendInterface {
     }
 
     /**
-     * Add support for large files using DataHandler instead of byte[]
+     * The message status is updated to downloaded (the message is not removed from the plugin table containing the pending messages so it can be downloaded using retrieveMessage
+     * @param markMessageAsDownloadedRequest
+     * @param markMessageAsDownloadedResponse
+     * @param ebMSHeaderInfo
+     * @throws MarkMessageAsDownloadedFault
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    public void markMessageAsDownloaded(MarkMessageAsDownloadedRequest markMessageAsDownloadedRequest,
+                                        Holder<MarkMessageAsDownloadedResponse> markMessageAsDownloadedResponse,
+                                        Holder<Messaging> ebMSHeaderInfo) throws MarkMessageAsDownloadedFault {
+        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(markMessageAsDownloadedRequest.getMessageID());
+
+        if (!isMessageIdNotEmpty) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new MarkMessageAsDownloadedFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
+        }
+
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(markMessageAsDownloadedRequest.getMessageID());
+        WSMessageLogEntity wsMessageLogEntity = wsMessageLogDao.findByMessageId(trimmedMessageId);
+        if(wsMessageLogEntity == null) {
+            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+            throw new MarkMessageAsDownloadedFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
+        }
+        markMessageAsDownloaded(trimmedMessageId);
+
+        markMessageAsDownloadedResponse.value =  WEBSERVICE_OF.createMarkMessageAsDownloadedResponse();
+        markMessageAsDownloadedResponse.value.setMessageID(trimmedMessageId);
+    }
+
+    /**
+     * Add support for large files using DataHandler instead of byte[].
+     * If the flag markAsAcknowledged is set to true then
+     * <ul>
+     *     <li>the message status is updated</li>
+     *     <li>after, successfully downloading, the message is removed from the plugin table containing the pending messages</li>
+     * </ul>
      *
      * @param retrieveMessageRequest
      * @param retrieveMessageResponse
@@ -363,6 +400,18 @@ public class WebServicePluginImpl implements BackendInterface {
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
         }
         return userMessage;
+    }
+
+    private void markMessageAsDownloaded(String trimmedMessageId) throws MarkMessageAsDownloadedFault {
+        try {
+            wsPlugin.markMessageAsDownloaded(trimmedMessageId);
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
+            }
+            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
+            throw new MarkMessageAsDownloadedFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
+        }
     }
 
     private void fillInfoPartsForLargeFilesWs(Holder<RetrieveMessageResponse> retrieveMessageResponse, eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messaging) {

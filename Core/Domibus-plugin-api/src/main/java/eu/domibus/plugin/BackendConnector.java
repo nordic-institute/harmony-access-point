@@ -76,6 +76,12 @@ public interface BackendConnector<U, T> {
     T downloadMessage(final Long messageEntityId, final T target) throws MessageNotFoundException;
 
     /**
+     * Validates the message status and marks it as downloaded
+     * @param messageId the messageId of the message to browse
+     * @throws MessageNotFoundException if the message was not found
+     */
+    void markMessageAsDownloaded(final String messageId) throws MessageNotFoundException;
+    /**
      * Browses the message with the corresponding messageId. A target object (i.e. an instance of javax.jms.Message)
      * can be provided. This is necessary in case the DTO for transfer to the backend is constructed by a
      * factory (i.e. a JMS session).

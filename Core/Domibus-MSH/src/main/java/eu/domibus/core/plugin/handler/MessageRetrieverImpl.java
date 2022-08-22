@@ -63,7 +63,10 @@ public class MessageRetrieverImpl implements MessageRetriever {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
 
-        return getSubmission(userMessage, markAsDownloaded);
+        if(markAsDownloaded) {
+            markMessageAsDownloaded(userMessage.getMessageId());
+        }
+        return messagingService.getSubmission(userMessage);
     }
 
     @Override
@@ -77,7 +80,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
-        return getSubmission(userMessage, true);
+        markMessageAsDownloaded(userMessage.getMessageId());
+        return messagingService.getSubmission(userMessage);
     }
 
     @Override
@@ -151,18 +155,18 @@ public class MessageRetrieverImpl implements MessageRetriever {
         return errorLogService.getErrors(messageId, role);
     }
 
-    protected Submission getSubmission(final UserMessage userMessage, boolean markAsDownloaded) {
+    @Override
+    public void markMessageAsDownloaded(String messageId) {
+        LOG.info("Downloading message with id [{}]", messageId);
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
-
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
-            return messagingService.getSubmission(userMessage);
-        }
-        if(markAsDownloaded) {
-            publishDownloadEvent(userMessage.getMessageId(), userMessage.getMshRole().getRole());
+        } else {
+            MSHRole mshRole = userMessage.getMshRole().getRole();
+            publishDownloadEvent(userMessage.getMessageId(), mshRole);
             userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         }
-        return messagingService.getSubmission(userMessage);
     }
 
     /**
@@ -177,5 +181,4 @@ public class MessageRetrieverImpl implements MessageRetriever {
         downloadEvent.setMshRole(role.name());
         applicationEventPublisher.publishEvent(downloadEvent);
     }
-
 }
