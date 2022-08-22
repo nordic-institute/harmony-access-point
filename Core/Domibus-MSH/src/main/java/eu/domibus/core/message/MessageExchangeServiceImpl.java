@@ -64,8 +64,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageExchangeServiceImpl.class);
 
-    private static final String PULL = "pull";
-
     @Autowired
     UserMessageDao userMessageDao;
 

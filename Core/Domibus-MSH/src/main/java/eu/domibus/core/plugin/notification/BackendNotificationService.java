@@ -92,8 +92,8 @@ public class BackendNotificationService {
     @Autowired
     protected TestMessageValidator testMessageValidator;
 
-    @Autowired
-    protected UserMessageService userMessageService;
+//    @Autowired
+//    protected UserMessageService userMessageService;
 
     @Autowired
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
@@ -230,7 +230,7 @@ public class BackendNotificationService {
             return;
         }
 
-        Map<String, String> properties = userMessageService.getProperties(userMessageLog.getEntityId());
+        Map<String, String> properties = userMessageServiceHelper.getProperties(userMessageLog.getEntityId());
         MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
                 userMessage.getMessageId(),
                 properties);

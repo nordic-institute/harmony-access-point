@@ -799,13 +799,13 @@ public class UserMessageDefaultService implements UserMessageService {
         }
     }
 
-    @Override
-    public Map<String, String> getProperties(Long messageEntityId) {
-        HashMap<String, String> properties = new HashMap<>();
-        final UserMessage userMessage = userMessageDao.read(messageEntityId);
-        final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();
-        propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
-        return properties;
-    }
+//    @Override
+//    public Map<String, String> getProperties(Long messageEntityId) {
+//        HashMap<String, String> properties = new HashMap<>();
+//        final UserMessage userMessage = userMessageDao.read(messageEntityId);
+//        final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();
+//        propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
+//        return properties;
+//    }
 
 }
