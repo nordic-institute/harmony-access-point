@@ -37,9 +37,6 @@ public class PModeDefaultService implements PModeService {
     @Autowired
     private PModeProvider pModeProvider;
 
-//    @Autowired
-//    private MessageExchangeService messageExchangeService;
-
     @Autowired
     private MpcService mpcService;
 

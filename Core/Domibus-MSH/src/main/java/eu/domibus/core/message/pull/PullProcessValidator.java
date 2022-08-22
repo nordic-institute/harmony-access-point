@@ -11,7 +11,6 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -32,11 +31,11 @@ public class PullProcessValidator {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullProcessValidator.class);
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-//    @Autowired
-//    PullMessageService pullMessageService;
+    public PullProcessValidator(DomibusPropertyProvider domibusPropertyProvider){
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     /**
      * In the case of pull process some restrictions are applied to the configuration.

@@ -53,8 +53,6 @@ public interface UserMessageService {
      */
     eu.domibus.api.model.UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException;
 
-//    Map<String, String> getProperties(Long messageEntityId);
-
     String getOriginalSender(String messageId, MSHRole mshRole);
 
     List<String> getFailedMessages(String finalRecipient, String originalUser);

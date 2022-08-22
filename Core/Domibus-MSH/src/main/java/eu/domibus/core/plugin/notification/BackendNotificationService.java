@@ -92,9 +92,6 @@ public class BackendNotificationService {
     @Autowired
     protected TestMessageValidator testMessageValidator;
 
-//    @Autowired
-//    protected UserMessageService userMessageService;
-
     @Autowired
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
 
