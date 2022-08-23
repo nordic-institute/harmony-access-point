@@ -49,6 +49,20 @@
         <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo">
         </wsdl:part>
     </wsdl:message>
+    <wsdl:message name="markMessageAsDownloaded">
+        <wsdl:part element="tns:markMessageAsDownloadedRequest" name="markMessageAsDownloadedRequest">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="MarkMessageAsDownloadedFault">
+        <wsdl:part element="tns:FaultDetail" name="MarkMessageAsDownloadedFault">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="markMessageAsDownloadedResponse">
+        <wsdl:part element="tns:markMessageAsDownloadedResponse" name="markMessageAsDownloadedResponse">
+        </wsdl:part>
+        <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo">
+        </wsdl:part>
+    </wsdl:message>
     <wsdl:message name="listPendingMessagesResponse">
         <wsdl:part element="tns:listPendingMessagesResponse" name="listPendingMessagesResponse">
         </wsdl:part>
@@ -124,6 +138,14 @@
             <wsdl:fault message="tns:RetrieveMessageFault" name="RetrieveMessageFault">
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="markMessageAsDownloaded">
+            <wsdl:input message="tns:markMessageAsDownloaded" name="markMessageAsDownloaded">
+            </wsdl:input>
+            <wsdl:output message="tns:markMessageAsDownloadedResponse" name="markMessageAsDownloadedResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:MarkMessageAsDownloadedFault" name="MarkMessageAsDownloadedFault">
+            </wsdl:fault>
+        </wsdl:operation>
     </wsdl:portType>
 
     <wsdl:binding name="BackendService_1_1SoapBinding" type="tns:BackendInterface">
@@ -182,6 +204,19 @@
             </wsdl:output>
             <wsdl:fault name="RetrieveMessageFault">
                 <soap12:fault name="RetrieveMessageFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="markMessageAsDownloaded">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="markMessageAsDownloaded">
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="markMessageAsDownloadedResponse">
+                <soap12:header message="tns:markMessageAsDownloadedResponse" part="ebMSHeaderInfo" use="literal"/>
+                <soap12:body parts="markMessageAsDownloadedResponse" use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="MarkMessageAsDownloadedFault">
+                <soap12:fault name="MarkMessageAsDownloadedFault" use="literal"/>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
