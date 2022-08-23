@@ -18,7 +18,7 @@ import java.util.List;
 public interface MessageRetriever {
 
     /**
-     * provides the message with the corresponding messageId
+     * provides the message with the corresponding messageId; only download submissions that were not downloaded previously, publish a download event and change the submission status
      *
      * @param messageId the messageId of the message to retrieve
      * @return the message object with the given messageId
@@ -29,11 +29,32 @@ public interface MessageRetriever {
     /**
      * provides the message with the corresponding messageId
      *
+     * @param messageId        the messageId of the message to retrieve
+     * @param markAsDownloaded if true we only download submissions that were not downloaded previously, publish a download event and change the submission status
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message could not be found
+     */
+    Submission downloadMessage(String messageId, boolean markAsDownloaded) throws MessageNotFoundException;
+
+    /**
+     * Provides the message with the corresponding messageId;
+     * Only download submissions that were not downloaded previously, publish a download event and change the submission status
+     * This method is needed for backward compatibility
      * @param messageEntityId the entity id of the message to retrieve
      * @return the message object with the given messageId
      * @throws MessageNotFoundException if the message could not be found
      */
     Submission downloadMessage(Long messageEntityId) throws MessageNotFoundException;
+
+    /**
+     * provides the message with the corresponding messageId
+     *
+     * @param messageEntityId the entity id of the message to retrieve
+     *                        @param markAsDownloaded if true we only download submissions that were not downloaded previously, publish a download event and change the submission status
+     * @return the message object with the given messageId
+     * @throws MessageNotFoundException if the message could not be found
+     */
+    Submission downloadMessage(Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException;
 
     /**
      * Browse the message with the corresponding messageId
@@ -88,4 +109,6 @@ public interface MessageRetriever {
     List<? extends ErrorResult> getErrorsForMessage(String messageId);
 
     List<? extends ErrorResult> getErrorsForMessage(String messageId, MSHRole mshRole);
+
+    void markMessageAsDownloaded(String messageId);
 }

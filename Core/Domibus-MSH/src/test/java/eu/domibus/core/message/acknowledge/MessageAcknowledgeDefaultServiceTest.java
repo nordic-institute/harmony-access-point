@@ -68,11 +68,11 @@ public class MessageAcknowledgeDefaultServiceTest {
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
-            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties);
+            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties, true);
 
         }};
 
-        messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
+        messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties, true);
     }
 
 
@@ -82,14 +82,14 @@ public class MessageAcknowledgeDefaultServiceTest {
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
+            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null, true);
 
         }};
 
         messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp);
 
         new Verifications() {{
-            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
+            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null, true);
         }};
     }
 
@@ -114,7 +114,7 @@ public class MessageAcknowledgeDefaultServiceTest {
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
-            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties);
+            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties, true);
 
         }};
 
@@ -163,7 +163,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
         }};
 
-        messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, from, to, properties);
+        messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, from, to, properties, true);
 
         new Verifications() {{
             messageAcknowledgementDao.create(entity);

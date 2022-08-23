@@ -41,15 +41,20 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
     public MessageAcknowledgementDTO acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws AuthenticationExtException, MessageAcknowledgeExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.RECEIVING);
 
-        final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
+        final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties, true);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
     }
 
     @Override
     public MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp) throws AuthenticationExtException, MessageAcknowledgeExtException {
+        return acknowledgeMessageDeliveredWithUnsecureLoginAllowed(messageId, acknowledgeTimestamp, true);
+    }
+
+    @Override
+    public MessageAcknowledgementDTO acknowledgeMessageDeliveredWithUnsecureLoginAllowed(String messageId, Timestamp acknowledgeTimestamp, boolean markAsAcknowledged) throws AuthenticationExtException, MessageAcknowledgeExtException {
         userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
 
-        final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
+        final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null, markAsAcknowledged);
         return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
     }
 

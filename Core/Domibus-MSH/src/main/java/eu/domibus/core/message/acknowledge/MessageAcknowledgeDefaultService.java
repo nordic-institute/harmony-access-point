@@ -47,11 +47,11 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
 
     @Transactional
     @Override
-    public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException {
+    public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties, boolean markAsAcknowledged) throws MessageAcknowledgeException {
         final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING);
         final String localAccessPointId = getLocalAccessPointId(userMessage);
         final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
-        return acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties);
+        return acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties, markAsAcknowledged);
     }
 
     protected UserMessage getUserMessage(String messageId, MSHRole mshRole) {
@@ -65,7 +65,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     @Transactional
     @Override
     public MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp) throws MessageAcknowledgeException {
-        return acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
+        return acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null, true);
     }
 
     @Transactional
@@ -74,7 +74,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
         final UserMessage userMessage = getUserMessage(messageId, MSHRole.RECEIVING);
         final String localAccessPointId = getLocalAccessPointId(userMessage);
         final String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
-        return acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties);
+        return acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties, true);
     }
 
     @Transactional
@@ -84,15 +84,15 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     }
 
 
-    protected MessageAcknowledgement acknowledgeMessage(final UserMessage userMessage, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties) throws MessageAcknowledgeException {
+    protected MessageAcknowledgement acknowledgeMessage(final UserMessage userMessage, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties, boolean markAsAcknowledged) throws MessageAcknowledgeException {
         final String user = authUtils.getAuthenticatedUser();
         MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage, acknowledgeTimestamp, from, to);
-        messageAcknowledgementDao.create(entity);
+        if(markAsAcknowledged) {
+            messageAcknowledgementDao.create(entity);
+        }
 
-        if (properties != null) {
-            properties.entrySet().forEach(entry -> {
-                String name = entry.getKey();
-                String value = entry.getValue();
+        if (properties != null && markAsAcknowledged) {
+            properties.forEach((name, value) -> {
                 MessageAcknowledgementProperty property = new MessageAcknowledgementProperty();
                 property.setName(name);
                 property.setValue(value);
