@@ -51,7 +51,7 @@ public class MessageAcknowledgeServiceDelegateTest {
         final MessageAcknowledgement messageAcknowledgement = new MessageAcknowledgement();
 
         new Expectations(messageAcknowledgeServiceDelegate) {{
-            messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
+            messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties, true);
             result = messageAcknowledgement;
 
         }};
@@ -59,7 +59,7 @@ public class MessageAcknowledgeServiceDelegateTest {
         messageAcknowledgeServiceDelegate.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
 
         new Verifications() {{
-            messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
+            messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties, true);
             messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
         }};
     }
@@ -70,10 +70,10 @@ public class MessageAcknowledgeServiceDelegateTest {
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
 
         new Expectations(messageAcknowledgeServiceDelegate) {{
-            messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
+            messageAcknowledgeService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null, true);
         }};
 
-        messageAcknowledgeServiceDelegate.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(messageId, acknowledgeTimestamp);
+        messageAcknowledgeServiceDelegate.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(messageId, acknowledgeTimestamp, true);
     }
 
     @Test

@@ -52,14 +52,26 @@ public class MessageRetrieverImpl implements MessageRetriever {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
+    @Override
+    public Submission downloadMessage(String messageId) throws MessageNotFoundException {
+        return downloadMessage(messageId, true);
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
+    public Submission downloadMessage(final String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
 
-        return getSubmission(userMessage);
+        if(markAsDownloaded) {
+            markMessageAsDownloaded(userMessage.getMessageId());
+        }
+        return messagingService.getSubmission(userMessage);
+    }
+
+    @Override
+    public Submission downloadMessage(final Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException {
+        return downloadMessage(messageEntityId);
     }
 
     @Override
@@ -68,7 +80,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
         LOG.info("Downloading message with entity id [{}]", messageEntityId);
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
 
-        return getSubmission(userMessage);
+        markMessageAsDownloaded(userMessage.getMessageId());
+        return messagingService.getSubmission(userMessage);
     }
 
     @Override
@@ -142,19 +155,18 @@ public class MessageRetrieverImpl implements MessageRetriever {
         return errorLogService.getErrors(messageId, role);
     }
 
-    protected Submission getSubmission(final UserMessage userMessage) {
+    @Override
+    public void markMessageAsDownloaded(String messageId) {
+        LOG.info("Setting the status of the message with id [{}] to downloaded", messageId);
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
-
-        publishDownloadEvent(userMessage.getMessageId(), userMessage.getMshRole().getRole());
-
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", userMessage.getMessageId());
-            return messagingService.getSubmission(userMessage);
+        } else {
+            MSHRole mshRole = userMessage.getMshRole().getRole();
+            publishDownloadEvent(userMessage.getMessageId(), mshRole);
+            userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         }
-
-        userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
-
-        return messagingService.getSubmission(userMessage);
     }
 
     /**
@@ -166,8 +178,9 @@ public class MessageRetrieverImpl implements MessageRetriever {
     protected void publishDownloadEvent(String messageId, MSHRole role) {
         UserMessageDownloadEvent downloadEvent = new UserMessageDownloadEvent();
         downloadEvent.setMessageId(messageId);
-        downloadEvent.setMshRole(role.name());
+        String roleName = role.name();
+        downloadEvent.setMshRole(roleName);
+        LOG.debug("Publishing [{}] for message [{}] and role [{}]", downloadEvent.getClass().getName(), messageId, roleName);
         applicationEventPublisher.publishEvent(downloadEvent);
     }
-
 }

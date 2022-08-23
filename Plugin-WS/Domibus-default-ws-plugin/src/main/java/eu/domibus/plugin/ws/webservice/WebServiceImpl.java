@@ -422,9 +422,9 @@ public class WebServiceImpl implements WebServicePluginInterface {
                                 Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
         UserMessage userMessage;
-        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
+        boolean messageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
 
-        if (!isMessageIdNotEmpty) {
+        if (!messageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
@@ -450,7 +450,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         fillInfoPartsForLargeFiles(retrieveMessageResponse, messaging);
 
         try {
-            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
+            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()), true);
         } catch (AuthenticationExtException | MessageAcknowledgeExtException e) {
             //if an error occurs related to the message acknowledgement do not block the download message operation
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
