@@ -76,6 +76,7 @@
         <cve>CVE-2021-41079</cve>
         <cve>CVE-2021-42340</cve>
         <cve>CVE-2022-23181</cve>
+        <cve>CVE-2022-34305</cve>
     </suppress>
 
     <suppress>
@@ -149,7 +150,15 @@
         <cve>CVE-2020-11022</cve>
         <cve>CVE-2020-11023</cve>
     </suppress>
-    <!-- test modules exclusions start here -->
+    <suppress>
+        <notes><![CDATA[
+   file name: wiremock-2.27.2.jar: swagger-ui-bundle.js
+   ]]></notes>
+        <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
+<!--        <vulnerabilityName>Fix a possible XSS in Chrome that is hidden behind #enable-experimental-web-platform-features</vulnerabilityName>-->
+<!--        <vulnerabilityName>Fixed a new MathML-based bypass submitted by PewGrand. Fixed a new SVG-related bypass submitted by SecurityMB</vulnerabilityName>-->
+    </suppress>
+    <!-- test modules exclusions end here -->
 
 
     <suppress>
@@ -308,6 +317,7 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-server@.*$</packageUrl>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
+        <cve>CVE-2022-2048</cve>
     </suppress>
 
     <suppress>
@@ -324,6 +334,14 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlet@.*$</packageUrl>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-proxy-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-proxy@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-2047</vulnerabilityName>
     </suppress>
 
 </suppressions>
