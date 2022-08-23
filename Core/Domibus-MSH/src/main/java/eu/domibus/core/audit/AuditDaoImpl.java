@@ -44,17 +44,7 @@ public class AuditDaoImpl implements AuditDao {
 
         logCriteria(auditTargets, actions, users, from, to, start, max);
         TypedQuery<Audit> query = entityManager.createQuery(
-                buildAuditListCriteria(auditTargets, actions, users, from, to, null));
-        query.setFirstResult(start);
-        query.setMaxResults(max);
-        return customSortAudit(query.getResultList());
-    }
-
-    @Override
-    public List<Audit> listAuditExceptSuperUsers(Set<String> auditTargets, Set<String> actions, Set<String> users, Date from, Date to, int start, int max, List<String> superUserIds) {
-        logCriteria(auditTargets, actions, users, from, to, start, max);
-        TypedQuery<Audit> query = entityManager.createQuery(
-                buildAuditListCriteria(auditTargets, actions, users, from, to, superUserIds));
+                buildAuditListCriteria(auditTargets, actions, users, from, to));
         query.setFirstResult(start);
         query.setMaxResults(max);
         return customSortAudit(query.getResultList());
@@ -64,13 +54,12 @@ public class AuditDaoImpl implements AuditDao {
                                                           final Set<String> actions,
                                                           final Set<String> users,
                                                           final Date from,
-                                                          final Date to,
-                                                          final List<String> superUserIds) {
+                                                          final Date to) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Audit> criteriaQuery = criteriaBuilder.createQuery(Audit.class);
         Root<Audit> root = criteriaQuery.from(Audit.class);
         criteriaQuery.select(root);
-        where(auditTargets, actions, users, from, to, superUserIds, criteriaBuilder, criteriaQuery, root);
+        where(auditTargets, actions, users, from, to, criteriaBuilder, criteriaQuery, root);
         criteriaQuery.orderBy(
                 criteriaBuilder.desc(root.get(ID).get(CHANGED)),
                 criteriaBuilder.desc(root.get(ID).get(ID)));
@@ -106,22 +95,6 @@ public class AuditDaoImpl implements AuditDao {
     }
 
     @Override
-    public Long countAuditExceptSuperUsers(final Set<String> auditTargets,
-                                           final Set<String> actions, final Set<String> users,
-                                           final Date from,
-                                           final Date to, final List<String> superUserIds) {
-        TypedQuery<Long> query = entityManager.createQuery(
-                buildAuditCountCriteria(
-                        auditTargets,
-                        actions,
-                        users,
-                        from,
-                        to,
-                        superUserIds));
-        return query.getSingleResult();
-    }
-
-    @Override
     public Long countAudit(final Set<String> auditTargets,
                            final Set<String> actions, final Set<String> users,
                            final Date from,
@@ -132,8 +105,8 @@ public class AuditDaoImpl implements AuditDao {
                         actions,
                         users,
                         from,
-                        to,
-                        null));
+                        to
+                ));
         return query.getSingleResult();
     }
 
@@ -141,13 +114,12 @@ public class AuditDaoImpl implements AuditDao {
                                                           final Set<String> actions,
                                                           final Set<String> users,
                                                           final Date from,
-                                                          final Date to,
-                                                          final List<String> superUserIds) {
+                                                          final Date to) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
         Root<Audit> root = criteriaQuery.from(Audit.class);
         criteriaQuery.select(criteriaBuilder.count(root));
-        where(auditTargets, actions, users, from, to, superUserIds, criteriaBuilder, criteriaQuery, root);
+        where(auditTargets, actions, users, from, to, criteriaBuilder, criteriaQuery, root);
         return criteriaQuery;
     }
 
@@ -156,7 +128,6 @@ public class AuditDaoImpl implements AuditDao {
                          final Set<String> users,
                          final Date from,
                          final Date to,
-                         final List<String> superUserIds,
                          final CriteriaBuilder criteriaBuilder,
                          final CriteriaQuery<?> criteriaQuery,
                          final Root<Audit> root) {
@@ -181,10 +152,6 @@ public class AuditDaoImpl implements AuditDao {
         if (to != null) {
             Path<Date> changedDate = root.get(ID).get(CHANGED);
             predicates.add(criteriaBuilder.lessThanOrEqualTo(changedDate, to));
-        }
-        if (superUserIds != null) {
-            Path<Long> userId = root.get(ID).get(ID); //the id of the audited user from AuditId class
-            predicates.add(userId.in(superUserIds).not());
         }
         if (!predicates.isEmpty()) {
             criteriaQuery.where(predicates.toArray(new Predicate[]{}));
