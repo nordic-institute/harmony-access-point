@@ -155,8 +155,13 @@
    file name: wiremock-2.27.2.jar: swagger-ui-bundle.js
    ]]></notes>
         <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
-<!--        <vulnerabilityName>Fix a possible XSS in Chrome that is hidden behind #enable-experimental-web-platform-features</vulnerabilityName>-->
-<!--        <vulnerabilityName>Fixed a new MathML-based bypass submitted by PewGrand. Fixed a new SVG-related bypass submitted by SecurityMB</vulnerabilityName>-->
+        <vulnerabilityName>Fix a possible XSS in Chrome that is hidden behind #enable-experimental-web-platform-features</vulnerabilityName>
+        <vulnerabilityName>Fixed a new MathML-based bypass submitted by PewGrand. Fixed a new SVG-related bypass submitted by SecurityMB</vulnerabilityName>
+        <vulnerabilityName>Fixed an mXSS bypass dropped on us publicly via</vulnerabilityName>
+        <vulnerabilityName>Fixed an mXSS issue reported</vulnerabilityName>
+        <vulnerabilityName>Fixed an mXSS-based bypass caused by nested forms inside MathML</vulnerabilityName>
+        <vulnerabilityName>Fixed another bypass causing mXSS by using MathML</vulnerabilityName>
+        <vulnerabilityName>Fixed several possible mXSS patterns, thanks @hackvertor</vulnerabilityName>
     </suppress>
     <!-- test modules exclusions end here -->
 
