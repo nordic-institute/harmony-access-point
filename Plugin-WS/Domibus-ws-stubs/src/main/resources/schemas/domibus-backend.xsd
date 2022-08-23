@@ -29,7 +29,6 @@
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string" nillable="true"/>
             </xsd:sequence>
-            <xsd:attribute name="markAsAcknowledged" type="xsd:boolean" default="true"/>
         </xsd:complexType>
     </xsd:element>
     <xsd:element name="markMessageAsDownloadedResponse">
@@ -45,7 +44,7 @@
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string" nillable="true"/>
             </xsd:sequence>
-            <xsd:attribute name="markAsAcknowledged" type="xsd:boolean" default="true"/>
+            <xsd:attribute name="markAsDownloaded" type="xsd:boolean" default="true"/>
         </xsd:complexType>
     </xsd:element>
     <xsd:element name="retrieveMessageResponse">

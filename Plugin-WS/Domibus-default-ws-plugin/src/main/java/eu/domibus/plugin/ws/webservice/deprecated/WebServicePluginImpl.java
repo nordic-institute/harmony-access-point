@@ -352,14 +352,14 @@ public class WebServicePluginImpl implements BackendInterface {
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-        boolean markAsAcknowledged = retrieveMessageRequest.isMarkAsAcknowledged();
+        boolean markAsDownloaded = retrieveMessageRequest.isMarkAsDownloaded();
         WSMessageLogEntity wsMessageLogEntity = wsMessageLogDao.findByMessageId(trimmedMessageId);
-        if(markAsAcknowledged && wsMessageLogEntity == null) {
+        if(markAsDownloaded && wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage userMessage =
-                downloadUserMessage(retrieveMessageRequest, trimmedMessageId, markAsAcknowledged);
+                downloadUserMessage(trimmedMessageId, markAsDownloaded);
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messagingWs =
                 WebServiceImpl.EBMS_OBJECT_FACTORY.createMessaging();
         messagingWs.setUserMessage(userMessage);
@@ -372,31 +372,31 @@ public class WebServicePluginImpl implements BackendInterface {
         ebMSHeaderInfo.value = messagingMapper.messagingFromEntity(messagingWs);
 
         try {
-            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()), markAsAcknowledged);
+            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()), markAsDownloaded);
         } catch (AuthenticationExtException | MessageAcknowledgeExtException e) {
             //if an error occurs related to the message acknowledgement do not block the download message operation
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
         }
-        if(markAsAcknowledged) {
+        if(markAsDownloaded) {
             // remove downloaded message from the plugin table containing the pending messages
             wsMessageLogDao.delete(wsMessageLogEntity);
         }
     }
 
-    private eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage downloadUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId, boolean markAsDownloaded) throws RetrieveMessageFault {
+    private eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage downloadUserMessage(String trimmedMessageId, boolean markAsDownloaded) throws RetrieveMessageFault {
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage userMessage;
         try {
             userMessage = wsPlugin.downloadMessage(trimmedMessageId, null, markAsDownloaded);
         } catch (final MessageNotFoundException mnfEx) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
+                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
             }
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
         }
 
         if (userMessage == null) {
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
         }
         return userMessage;
