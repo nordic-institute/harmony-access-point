@@ -157,7 +157,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public void markMessageAsDownloaded(String messageId) {
-        LOG.info("Downloading message with id [{}]", messageId);
+        LOG.info("Setting the status of the message with id [{}] to downloaded", messageId);
         final UserMessage userMessage = userMessageService.getByMessageId(messageId, MSHRole.RECEIVING);
         final UserMessageLog messageLog = userMessageLogService.findById(userMessage.getEntityId());
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
@@ -178,7 +178,9 @@ public class MessageRetrieverImpl implements MessageRetriever {
     protected void publishDownloadEvent(String messageId, MSHRole role) {
         UserMessageDownloadEvent downloadEvent = new UserMessageDownloadEvent();
         downloadEvent.setMessageId(messageId);
-        downloadEvent.setMshRole(role.name());
+        String roleName = role.name();
+        downloadEvent.setMshRole(roleName);
+        LOG.debug("Publishing [{}] for message [{}] and role [{}]", downloadEvent.getClass().getName(), messageId, roleName);
         applicationEventPublisher.publishEvent(downloadEvent);
     }
 }
