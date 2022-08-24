@@ -236,7 +236,18 @@
             <version>5.8</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <!-- needed for jdk11 -->
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb-api.version}</version>
+        </dependency>
+        <dependency>
+            <!-- needed for jdk11 -->
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml-apis.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -161,6 +161,7 @@
         <commons-configuration2.version>2.8.0</commons-configuration2.version>
         <httpmime.version>4.5.13</httpmime.version>
         <jdom2.version>2.0.6.1</jdom2.version>
+        <xml-apis.version>1.3.04</xml-apis.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
