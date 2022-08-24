@@ -128,9 +128,6 @@ public class UserMessageDefaultService implements UserMessageService {
     private JMSManager jmsManager;
 
     @Autowired
-    PModeService pModeService;
-
-    @Autowired
     PModeServiceHelper pModeServiceHelper;
 
     @Autowired
@@ -797,15 +794,6 @@ public class UserMessageDefaultService implements UserMessageService {
             zipOutputStream.flush();
             return byteArrayOutputStream.toByteArray();
         }
-    }
-
-    @Override
-    public Map<String, String> getProperties(Long messageEntityId) {
-        HashMap<String, String> properties = new HashMap<>();
-        final UserMessage userMessage = userMessageDao.read(messageEntityId);
-        final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();
-        propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
-        return properties;
     }
 
 }
