@@ -55,9 +55,6 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     private PullProcessValidator pullProcessValidator;
 
-//    @Autowired
-//    PullMessageService pullMessageService;
-
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
 
