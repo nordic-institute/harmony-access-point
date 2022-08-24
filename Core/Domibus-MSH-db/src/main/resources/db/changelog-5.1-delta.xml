@@ -44,19 +44,21 @@
     </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-7368-self-sending">
+        <!--For User Messages-->
+        <!--drop existing-->
         <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
         <dropIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
-
+        <!--add column-->
         <addColumn tableName="TB_USER_MESSAGE">
             <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
         </addColumn>
-
+        <!--fill in with data-->
         <sql dbms="mysql">
             SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
             SET SQL_SAFE_UPDATES = 0;
-            UPDATE TB_USER_MESSAGE
-                INNER JOIN TB_USER_MESSAGE_LOG ON TB_USER_MESSAGE.ID_PK = TB_USER_MESSAGE_LOG.ID_PK
-                    SET TB_USER_MESSAGE.MSH_ROLE_ID_FK = TB_USER_MESSAGE_LOG.MSH_ROLE_ID_FK;
+            UPDATE TB_USER_MESSAGE t1
+                INNER JOIN TB_USER_MESSAGE_LOG t2 ON t1.ID_PK = t2.ID_PK
+                    SET t1.MSH_ROLE_ID_FK = t2.MSH_ROLE_ID_FK;
             SET SQL_SAFE_UPDATES = @OLD_SQL_SAFE_UPDATES;
         </sql>
         <sql dbms="oracle">
@@ -68,35 +70,48 @@
                           FROM TB_USER_MESSAGE_LOG t2
                           WHERE t1.ID_PK = t2.ID_PK )
         </sql>
-
+        <!--add back updated constraints-->
         <addNotNullConstraint columnDataType="BIGINT" columnName="MSH_ROLE_ID_FK"  tableName="TB_USER_MESSAGE" />
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
                                  constraintName="FK_USER_MSG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MSH_ROLE" />
-
-
         <addUniqueConstraint columnNames="MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
-
         <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
             <column name="MESSAGE_ID" />
             <column name="MSH_ROLE_ID_FK" />
         </createIndex>
 
-
+        <!--For Signal Messages-->
+        <!--drop existing-->
         <dropIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE" />
-
+        <!--add column-->
         <addColumn tableName="TB_SIGNAL_MESSAGE">
             <column name="MSH_ROLE_ID_FK" type="BIGINT" />
         </addColumn>
-
-
-        
+        <!--fill in with data-->
+        <sql dbms="mysql">
+            SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
+            SET SQL_SAFE_UPDATES = 0;
+            UPDATE TB_SIGNAL_MESSAGE t1
+                INNER JOIN TB_SIGNAL_MESSAGE_LOG t2 ON t1.ID_PK = t2.ID_PK
+                SET t1.MSH_ROLE_ID_FK = t2.MSH_ROLE_ID_FK;
+            SET SQL_SAFE_UPDATES = @OLD_SQL_SAFE_UPDATES;
+        </sql>
+        <sql dbms="oracle">
+            UPDATE TB_SIGNAL_MESSAGE t1
+            SET (MSH_ROLE_ID_FK) = (SELECT t2.MSH_ROLE_ID_FK
+                                    FROM TB_SIGNAL_MESSAGE_LOG t2
+                                    WHERE t1.ID_PK = t2.ID_PK)
+            WHERE EXISTS ( SELECT 1
+                           FROM TB_SIGNAL_MESSAGE_LOG t2
+                           WHERE t1.ID_PK = t2.ID_PK )
+        </sql>
+        <!--add back updated constraints-->
         <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="SIGNAL_MESSAGE_ID"/>
             <column name="MSH_ROLE_ID_FK" />
         </createIndex>
-
         <addNotNullConstraint columnDataType="BIGINT" columnName="MSH_ROLE_ID_FK" tableName="TB_SIGNAL_MESSAGE" />
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_SIGNAL_MSH_ROLE" deferrable="false" initiallyDeferred="false"
