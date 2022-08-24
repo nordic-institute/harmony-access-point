@@ -61,7 +61,6 @@ public interface MessageCoreMapper {
     @Mapping(target = "agreementRef", source = "collaborationInfo.agreementRef")
     @Mapping(target = "sourceMessage", ignore = true)
     @Mapping(target = "messageFragment", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"partInfoList"})
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
 
     @WithoutAuditAndEntityId
