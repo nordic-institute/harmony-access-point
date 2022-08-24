@@ -1,10 +1,9 @@
 package eu.domibus.jms.activemq;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsTemplate;
@@ -14,8 +13,6 @@ import org.springframework.jmx.support.MBeanServerConnectionFactoryBean;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import java.net.MalformedURLException;
 
 import static eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration.MQ_BROKER_NAME;
 
@@ -27,44 +24,53 @@ import static eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration.MQ_BROKER_
 public class DomibusJMSActiveMQConfigurationTest {
 
     @Tested
-    DomibusJMSActiveMQConfiguration domibusJMSActiveMQConfiguration;
+    private DomibusJMSActiveMQConfiguration domibusJMSActiveMQConfiguration;
 
     @Test
-    public void mBeanServerConnectionFactoryBean(@Injectable DomibusPropertyProvider domibusPropertyProvider,
-                                                 @Mocked MBeanServerConnectionFactoryBean mBeanServerConnectionFactoryBean) throws MalformedURLException {
-        String activeMQURL = "service:jmx:rmi:///jndi/rmi://localhost:123/jmxrmi";
-
+    public void mBeanServerConnections(@Injectable MBeanServerConnection mBeanServerConnection,
+                                       @Mocked MBeanServerConnectionFactoryBean mBeanServerConnectionFactoryBean) throws Exception {
+        // GIVEN
+        final String serviceUrl = "service:jmx:rmi:///jndi/rmi://localhost:123/jmxrmi";
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_JMXURL);
-            this.result = activeMQURL;
+            mBeanServerConnectionFactoryBean.getObject();
+            result = mBeanServerConnection;
         }};
 
-        domibusJMSActiveMQConfiguration.mBeanServerConnectionFactoryBean(domibusPropertyProvider);
+        // WHEN
+        MBeanServerConnection result = domibusJMSActiveMQConfiguration.mBeanServerConnections(serviceUrl);
 
+        // THEN
         new Verifications() {{
-            mBeanServerConnectionFactoryBean.setServiceUrl(activeMQURL);
+            mBeanServerConnectionFactoryBean.setServiceUrl(serviceUrl);
             mBeanServerConnectionFactoryBean.setConnectOnStartup(false);
+            mBeanServerConnectionFactoryBean.afterPropertiesSet();
+            Assert.assertEquals(mBeanServerConnection, result);
         }};
     }
 
     @Test
-    public void mBeanProxyFactoryBean(@Injectable MBeanServerConnection mBeanServerConnection,
-                                      @Injectable DomibusPropertyProvider domibusPropertyProvider,
-                                      @Mocked MBeanProxyFactoryBean mBeanProxyFactoryBean) throws MalformedObjectNameException {
-        String activeMQBrokerName = "localhost";
-        String objectName = MQ_BROKER_NAME + activeMQBrokerName;
+    public void mBeanProxyFactoryBean(@Injectable MBeanServerConnection server,
+                                      @Injectable BrokerViewMBean brokerViewMBean,
+                                      @Mocked MBeanProxyFactoryBean mBeanProxyFactoryBean) throws Exception {
+        // GIVEN
+        final String brokerName = "localhost";
+        final String serviceUrl = "service:jmx:rmi:///jndi/rmi://localhost:123/jmxrmi";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_BROKER_NAME);
-            this.result = activeMQBrokerName;
+            mBeanProxyFactoryBean.getObject();
+            result = brokerViewMBean;
         }};
 
-        domibusJMSActiveMQConfiguration.mBeanProxyFactoryBean(mBeanServerConnection, domibusPropertyProvider);
+        // WHEN
+        BrokerViewMBean result = domibusJMSActiveMQConfiguration.mBeanProxyFactoryBeans(server, brokerName);
 
+        // THEN
         new Verifications() {{
-            mBeanProxyFactoryBean.setObjectName(objectName);
+            mBeanProxyFactoryBean.setObjectName(MQ_BROKER_NAME + brokerName);
             mBeanProxyFactoryBean.setProxyInterface(BrokerViewMBean.class);
-            mBeanProxyFactoryBean.setServer(mBeanServerConnection);
+            mBeanProxyFactoryBean.setServer(server);
+            mBeanProxyFactoryBean.afterPropertiesSet();
+            Assert.assertEquals(brokerViewMBean, result);
         }};
     }
 
