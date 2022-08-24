@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.backend.dispatch;
 
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
@@ -13,6 +14,8 @@ import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRulesService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import org.springframework.stereotype.Service;
+
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.MARK_AS_DOWNLOADED;
 
 /**
  * Common logic for sending messages to C1/C4 from WS Plugin
@@ -35,16 +38,19 @@ public class WSPluginMessageSender {
 
     protected final WSPluginImpl wsPlugin;
 
+    private final DomibusPropertyExtService domibusPropertyExtService;
+
     public WSPluginMessageSender(WSPluginBackendReliabilityService reliabilityService,
                                  WSPluginDispatchRulesService rulesService,
                                  WSPluginMessageBuilder messageBuilder,
                                  WSPluginDispatcher dispatcher,
-                                 WSPluginImpl wsPlugin) {
+                                 WSPluginImpl wsPlugin, DomibusPropertyExtService domibusPropertyExtService) {
         this.reliabilityService = reliabilityService;
         this.rulesService = rulesService;
         this.messageBuilder = messageBuilder;
         this.dispatcher = dispatcher;
         this.wsPlugin = wsPlugin;
+        this.domibusPropertyExtService = domibusPropertyExtService;
     }
 
     /**
@@ -70,7 +76,15 @@ public class WSPluginMessageSender {
                     backendMessage.getType(),
                     backendMessage.getMessageId(),
                     endpoint);
-            if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
+
+            String strMarkAsDownloaded = domibusPropertyExtService.getCurrentDomainProperty(MARK_AS_DOWNLOADED);
+            boolean markAsDownloaded = true;
+            if(strMarkAsDownloaded!=null){
+                markAsDownloaded = Boolean.parseBoolean(strMarkAsDownloaded);
+                LOG.debug("Found the property {} set to {}", MARK_AS_DOWNLOADED, markAsDownloaded);
+            }
+
+            if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE && markAsDownloaded) {
                 wsPlugin.downloadMessage(backendMessage.getMessageId(), null);
             }
         } catch (Throwable t) {//NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions.
