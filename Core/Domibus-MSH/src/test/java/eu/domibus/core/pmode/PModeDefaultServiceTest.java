@@ -4,6 +4,7 @@ import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -39,6 +40,9 @@ public class PModeDefaultServiceTest {
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Injectable
+    MpcService mpcService;
 
     @Test
     public void testGetLegConfiguration(@Injectable final UserMessage userMessage,

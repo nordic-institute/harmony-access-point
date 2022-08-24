@@ -3,6 +3,7 @@ package eu.domibus.core.message.pull;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Security;
@@ -31,21 +32,24 @@ import static org.junit.Assert.assertTrue;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class ProcessValidatorTest {
+public class PullProcessValidatorTest {
 
     @Tested
-    ProcessValidator processValidator;
+    PullProcessValidator pullProcessValidator;
 
     @Injectable
-    PullMessageService pullMessageService;
+    PullProcessValidator getPullProcessValidator;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Before
     public void init() {
         new NonStrictExpectations() {{
-            pullMessageService.allowDynamicInitiatorInPullProcess();
+            getPullProcessValidator.allowDynamicInitiatorInPullProcess();
             result = false;
 
-            pullMessageService.allowMultipleLegsInPullProcess();
+            getPullProcessValidator.allowMultipleLegsInPullProcess();
             result = false;
         }};
     }
@@ -90,7 +94,7 @@ public class ProcessValidatorTest {
         Process p2 = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "legs{[name:leg2]}", "responderParties{[name:resp2]}");
         p2.setName("p2");
         List<Process> processes = Lists.newArrayList(p1, p2);
-        Set<PullProcessStatus> pullProcessStatuses = processValidator.verifyPullProcessStatus(new HashSet<>(processes));
+        Set<PullProcessStatus> pullProcessStatuses = pullProcessValidator.verifyPullProcessStatus(new HashSet<>(processes));
         assertEquals(1, pullProcessStatuses.size());
         assertTrue(pullProcessStatuses.contains(TOO_MANY_PROCESSES));
     }
@@ -104,7 +108,7 @@ public class ProcessValidatorTest {
 
     @Test
     public void checkNoProcess() throws Exception {
-        Set<PullProcessStatus> pullProcessStatuses = processValidator.verifyPullProcessStatus(Sets.<Process>newHashSet());
+        Set<PullProcessStatus> pullProcessStatuses = pullProcessValidator.verifyPullProcessStatus(Sets.<Process>newHashSet());
         assertEquals(1, pullProcessStatuses.size());
         assertTrue(pullProcessStatuses.contains(NO_PROCESSES));
     }
@@ -113,7 +117,7 @@ public class ProcessValidatorTest {
     public void createProcessWarningMessage() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class);
         try {
-            processValidator.validatePullProcess(Lists.newArrayList(process));
+            pullProcessValidator.validatePullProcess(Lists.newArrayList(process));
             assertTrue(false);
         } catch (PModeException e) {
             assertTrue(e.getMessage().contains("No leg configuration found"));
@@ -126,7 +130,7 @@ public class ProcessValidatorTest {
     public void testOneWayPullOnlySupported() throws EbMS3Exception {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qn1]];[name:leg2,defaultMpc[name:test2,qualifiedName:qn2]]}", "responderParties{[name:resp1]}");
         try {
-            processValidator.validatePullProcess(Lists.newArrayList(process));
+            pullProcessValidator.validatePullProcess(Lists.newArrayList(process));
             assertTrue(false);
         } catch (PModeException e) {
             assertTrue(e.getMessage().contains("Invalid mep. Only one way supported"));
@@ -136,7 +140,7 @@ public class ProcessValidatorTest {
     @Test
     public void testcheckMpcConfigurationSameSecurityPolicy() throws EbMS3Exception {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qntest]];[name:leg2,defaultMpc[name:test2,qualifiedName:qntest]]}", "responderParties{[name:resp1]}");
-        Assert.assertEquals(PullProcessStatus.ONE_MATCHING_PROCESS, processValidator.checkMpcConfigurationSameSecurityPolicy(process));
+        Assert.assertEquals(PullProcessStatus.ONE_MATCHING_PROCESS, pullProcessValidator.checkMpcConfigurationSameSecurityPolicy(process));
     }
 
     @Test
@@ -149,11 +153,11 @@ public class ProcessValidatorTest {
         Security security2 = new Security();
         security2.setName("eDeliveryAS4_BST");
         iterator.next().setSecurity(security2);
-        Assert.assertEquals(PullProcessStatus.MULTIPLE_LEGS_DIFFERENT_SECURITY, processValidator.checkMpcConfigurationSameSecurityPolicy(process));
+        Assert.assertEquals(PullProcessStatus.MULTIPLE_LEGS_DIFFERENT_SECURITY, pullProcessValidator.checkMpcConfigurationSameSecurityPolicy(process));
     }
 
     private Set<PullProcessStatus> getProcessStatuses(Process process) {
-        return processValidator.verifyPullProcessStatus(Sets.newHashSet(process));
+        return pullProcessValidator.verifyPullProcessStatus(Sets.newHashSet(process));
     }
 
 }

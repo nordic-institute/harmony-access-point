@@ -28,6 +28,9 @@ public class UserMessageDefaultServiceHelperTest {
     @Tested
     private UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
 
+    @Injectable
+    UserMessageDao userMessageDao;
+
     private String originalSender;
 
     private String finalRecipient;
