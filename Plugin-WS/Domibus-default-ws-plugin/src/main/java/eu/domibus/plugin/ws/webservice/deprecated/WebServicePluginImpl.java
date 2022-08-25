@@ -41,6 +41,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
+import static org.apache.commons.lang3.BooleanUtils.toBooleanObject;
+
 /**
  * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.WebServiceImpl}
  */
@@ -352,7 +355,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-        boolean markAsDownloaded = retrieveMessageRequest.isMarkAsDownloaded();
+        boolean markAsDownloaded = toBooleanDefaultIfNull(toBooleanObject(retrieveMessageRequest.getMarkAsDownloaded()), true);          //workaround jaxws bug
         WSMessageLogEntity wsMessageLogEntity = wsMessageLogDao.findByMessageId(trimmedMessageId);
         if(markAsDownloaded && wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
