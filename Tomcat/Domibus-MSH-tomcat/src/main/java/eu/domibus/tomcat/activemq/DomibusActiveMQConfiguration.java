@@ -1,7 +1,7 @@
 package eu.domibus.tomcat.activemq;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.jms.activemq.DomibusBrokerFactoryBean;
+import eu.domibus.jms.activemq.EmbeddedDomibusBrokerFactoryBean;
 import eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -45,7 +45,7 @@ public class DomibusActiveMQConfiguration {
     @Conditional(EmbeddedActiveMQCondition.class)
     public BrokerFactoryBean activeMQBroker() {
         LOGGER.debug("Creating the embedded Active MQ broker from [{}]", activeMQConfiguration);
-        return new DomibusBrokerFactoryBean(activeMQConfiguration);
+        return new EmbeddedDomibusBrokerFactoryBean(activeMQConfiguration);
     }
 
     @Bean(name = DomibusJMSActiveMQConfiguration.MQ_CONNECTION_FACTORY)

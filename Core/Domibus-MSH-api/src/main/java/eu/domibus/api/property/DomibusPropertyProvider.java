@@ -32,13 +32,23 @@ public interface DomibusPropertyProvider {
      */
     String getProperty(Domain domain, String propertyName) throws DomibusPropertyException;
 
+
+    /**
+     * Returns all property names for which the given predicate is true
+     *
+     * @param predicate the predicate to filter with
+     * @return A set of property names
+     * @deprecated use {@link #filterPropertyNames(Predicate)} instead
+     */
+    Set<String> filterPropertiesName(Predicate<String> predicate);
+
     /**
      * Returns all property names for which the given predicate is true
      *
      * @param predicate the predicate to filter with
      * @return A set of property names
      */
-    Set<String> filterPropertiesName(Predicate<String> predicate);
+    Set<String> filterPropertyNames(Predicate<String> predicate);
 
     /**
      * Returns the list of nested properties names starting with the specified prefix
@@ -164,4 +174,14 @@ public interface DomibusPropertyProvider {
     void removeProperties(Domain domibusDomain);
 
     void removeProperties(Domain domibusDomain, String propertiesFilePath);
+
+    /**
+     * Looks up a comma-separated property value and returns a list of its individual values by splitting it using the
+     * comma (i.e. {@code ,}) delimiter.
+     *
+     * @param propertyName - the name of the CSV property
+     * @return a list of the individual values being part of the comma-separated value
+     */
+    List<String> getCommaSeparatedPropertyValues(String propertyName);
+
 }
