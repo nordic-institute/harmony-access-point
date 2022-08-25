@@ -50,6 +50,11 @@ public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExt
     }
 
     @Override
+    public String getCurrentDomainProperty(String propertyName) {
+        return null;
+    }
+
+    @Override
     public void setProperty(String propertyName, String propertyValue) {
 
     }
