@@ -49,6 +49,7 @@ public class DMessages {
 	public static final String PMODE_ARCHIVE_DELETE_SUCCESS = "PModes were deleted";
 
 	public static final String TRUSTSTORE_REPLACE_SUCCESS = "Truststore file has been successfully replaced.";
+	public static final String TLS_TRUSTSTORE_REPLACE_SUCCESS = "TLS truststore file has been successfully replaced.";
 	public static final String TRUSTSTORE_RELOAD_SUCCESS = "The TrustStore was successfully reset.";
 	public static final String TRUSTSTORE_REPLACE_ERROR = "There is an error while uploading truststore.";
 

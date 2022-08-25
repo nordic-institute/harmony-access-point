@@ -162,6 +162,8 @@ public class LoggingPgTest extends SeleniumTest {
 
 		page.getResetButton().click();
 
+		String level = page.loggingGrid().getRowInfo(0).get("Logger Level");
+
 		page.setLoggingLevel("ALL", packageNameToModify);
 
 		Reporter.log(" performing search");
@@ -175,7 +177,7 @@ public class LoggingPgTest extends SeleniumTest {
 		Reporter.log("checking level is properly reset");
 		log.info("checking level is properly reset");
 		page.search(packageNameToModify);
-		soft.assertEquals(page.loggingGrid().getRowInfo(0).get("Logger Level"), "DEBUG", "Level is reset to DEBUG");
+		soft.assertEquals(page.loggingGrid().getRowInfo(0).get("Logger Level"), level, "Level is reset to " + level);
 
 		soft.assertAll();
 	}
