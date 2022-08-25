@@ -77,16 +77,21 @@ public class AuditFilters extends FilterArea {
 		log.debug("table = " + table);
 		log.debug("user = " + user);
 		log.debug("action = " + action);
-		log.debug("changeFrom = " + changeFrom.toString());
-		log.debug("changeTo = " + changeTo.toString());
+		log.debug("changeFrom = " + changeFrom);
+			log.debug("changeTo = " + changeTo);
 
 		getTableFilter().selectOptionByText(table);
 		getUserFilter().selectOptionByText(user);
 		getActionFilter().selectOptionByText(action);
 
 		expandArea();
-		getChangedFrom().selectDate(changeFrom);
-		getChangedTo().selectDate(changeTo);
+
+		if (changeFrom != null) {
+			getChangedFrom().selectDate(changeFrom);
+		}
+		if (changeTo != null) {
+			getChangedTo().selectDate(changeTo);
+		}
 
 		clickSearch();
 	}

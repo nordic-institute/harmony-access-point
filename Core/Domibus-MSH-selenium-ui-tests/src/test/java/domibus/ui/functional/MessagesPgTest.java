@@ -109,8 +109,7 @@ public class MessagesPgTest extends SeleniumTest {
 		log.info("Getting all listed message info after filtering");
 		List<HashMap<String, String>> filteredRowInfo = grid.getAllRowInfo();
 
-		List<HashMap<String, String>> expectedResult = allRowInfo.stream().filter(rowInfo -> rowInfo.get("Message Id").equals(messageIDs.get(0))).collect(Collectors.toList());
-		soft.assertEquals(filteredRowInfo.size(), expectedResult.size(), "No of listed items in page matches expected");
+		soft.assertEquals(filteredRowInfo.size(), 1, "No of listed items in page matches expected");
 
 		soft.assertAll();
 	}
@@ -675,7 +674,7 @@ public class MessagesPgTest extends SeleniumTest {
 
 		for (int i = 0; i < listedResults.size(); i++) {
 			log.info("checking result with number " + i);
-			long messReceived = DateUtils.parseDate(listedResults.get(i).get("Received").replaceFirst("UTC\\+\\d+", ""), "dd-MM-yyy HH:mm:ss").getTime();
+			long messReceived = DateUtils.parseDate(listedResults.get(i).get("Received").replaceFirst("UTC.+", ""), "dd-MM-yyy HH:mm:ss").getTime();
 			soft.assertTrue(timestamp - messReceived <= 14400000, "Time difference is less than 30 minutes for mess: " + listedResults.get(i).get("Message Id"));
 		}
 

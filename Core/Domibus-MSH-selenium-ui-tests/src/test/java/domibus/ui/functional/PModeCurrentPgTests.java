@@ -69,6 +69,8 @@ public class PModeCurrentPgTests extends SeleniumTest {
 
 		String newPmode = pmcPage.getTextArea().getText();
 
+		pmcPage.wait.forXMillis(1000);
+
 		Reporter.log("checking number of pomodes in archive");
 		log.info("checking number of pomodes in archive");
 		int archivePgNewCount = rest.pmode().getPmodesList(null).length();

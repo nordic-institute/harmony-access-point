@@ -18,11 +18,13 @@ import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
+import pages.messages.MessagesPage;
 import pages.pmode.current.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyModal;
+import utils.DFileUtils;
 import utils.Gen;
 import utils.TestUtils;
 
@@ -138,17 +140,20 @@ public class AuditPgTest extends SeleniumTest {
 	public void messageDownloadedLog() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
-		List<String> ids = rest.getMessageIDsWithStatus(null, "SEND_FAILURE");
+		DFileUtils.cleanDownloadFolder(data.downloadFolderPath());
 
-		if (ids.size() == 0) {
-			throw new SkipException("No messages found");
+		MessagesPage pg = new MessagesPage(driver);
+		int index = pg.grid().scrollToAndSelect("Message Status", "SEND_FAILURE");
+		if(index<0) {
+			throw new SkipException("No message with SEND_FAILURE status found");
 		}
 
-		String messID = ids.get(0);
+		HashMap<String, String> messageData = pg.grid().getRowInfo(index);
 
-		Reporter.log("Download message " + messID);
-		log.info("Download message " + messID);
-		rest.messages().downloadMessage(messID, null);
+		pg.getDownloadButton().click();
+
+		//wait for download to complete
+		pg.wait.forFileToBeDownloaded(data.downloadFolderPath());
 
 
 		AuditPage page = navigateToAudit();
@@ -169,7 +174,7 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("Validate top record Action as Deleted");
 		boolean result = page.grid().getRowInfo(0).containsValue("Message")
 				&& page.grid().getRowInfo(0).containsValue("Downloaded")
-				&& page.grid().getRowInfo(0).containsValue(messID);
+				&& page.grid().getRowInfo(0).containsValue(messageData.get("Message Id"));
 		soft.assertTrue(result, "Top row has Table value as Message, User value as Admin & Action as Downloaded ");
 		soft.assertAll();
 	}
