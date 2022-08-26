@@ -58,23 +58,23 @@
         <addColumn tableName="TB_USER_MESSAGE">
             <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
         </addColumn>
-        <!--fill in with data-->
+        <!--fill in with data the special message-->
         <sql dbms="mysql">
             INSERT IGNORE INTO TB_D_MSH_ROLE
                 (ID_PK, ROLE)
             VALUES
-                (197001010000000001,'SENDING');
+                (${default_id_pk}0000000001,'SENDING');
 
             UPDATE TB_USER_MESSAGE t1
                 SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
-                WHERE t1.ID_PK = 19700101
+                WHERE t1.ID_PK = ${default_id_pk}
         </sql>
 
         <sql dbms="oracle">
             INSERT INTO TB_D_MSH_ROLE
                 (ID_PK, ROLE)
             SELECT
-                (197001010000000001,'SENDING')
+                (${default_id_pk}0000000001,'SENDING')
             FROM DUAL
             WHERE NOT EXISTS (SELECT *
                              FROM TB_D_MSH_ROLE t
@@ -82,9 +82,10 @@
 
             UPDATE TB_USER_MESSAGE t1
             SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
-            WHERE t1.ID_PK = 19700101
+            WHERE t1.ID_PK = ${default_id_pk}
         </sql>
 
+        <!--fill in with data for all the others-->
         <sql dbms="mysql">
             SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
             SET SQL_SAFE_UPDATES = 0;
