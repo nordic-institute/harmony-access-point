@@ -37,7 +37,7 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) statusTemplate: TemplateRef<any>;
 
-  constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef, 
+  constructor(private alertService: AlertService, private domainService: DomainService, private changeDetector: ChangeDetectorRef,
       private userService: UserService, private securityService: SecurityService) {
     super();
   }
@@ -114,15 +114,15 @@ export class DomainsComponent extends mix(BaseListComponent).with(ClientPageable
       }
 
       await this.domainService.setActiveState(domain, active);
-      this.alertService.success(`Successfully ${active ? 'added' : 'removed'} domain ${domain.name}`);
+      this.alertService.success(`Successfully ${active ? 'added' : 'removed'} domain ${domain.name}.`);
       super.isLoading = false;
     } catch (err) {
-      this.alertService.exception(`Error while ${active ? 'adding' : 'removing'} domain ${domain.name}`, err);
-      setTimeout(() => { 
-        domain.active = !active; 
+      this.alertService.exception(`Error while ${active ? 'adding' : 'removing'} domain ${domain.name}.`, err);
+      setTimeout(() => {
+        domain.active = !active;
         super.isLoading = false;
       }, 200);
-    } 
+    }
   }
 
   refresh() {
