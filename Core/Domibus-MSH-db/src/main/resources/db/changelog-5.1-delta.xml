@@ -64,10 +64,6 @@
                 (ID_PK, ROLE)
             VALUES
                 (${default_id_pk}0000000001,'SENDING');
-
-            UPDATE TB_USER_MESSAGE t1
-                SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
-                WHERE t1.ID_PK = ${default_id_pk}
         </sql>
 
         <sql dbms="oracle">
@@ -79,12 +75,14 @@
             WHERE NOT EXISTS (SELECT *
                              FROM TB_D_MSH_ROLE t
                              where (t.ROLE = 'SENDING'));
+        </sql>
 
+        <sql>
             UPDATE TB_USER_MESSAGE t1
             SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
             WHERE t1.ID_PK = ${default_id_pk}
         </sql>
-
+        
         <!--fill in with data for all the others-->
         <sql dbms="mysql">
             SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
