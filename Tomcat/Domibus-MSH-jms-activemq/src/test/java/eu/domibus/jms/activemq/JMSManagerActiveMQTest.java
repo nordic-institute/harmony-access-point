@@ -34,28 +34,28 @@ import static org.junit.Assert.*;
 public class JMSManagerActiveMQTest {
 
     @Tested
-    InternalJMSManagerActiveMQ jmsManagerActiveMQ;
+    private InternalJMSManagerActiveMQ jmsManagerActiveMQ;
 
     @Injectable
-    MBeanServerConnection mBeanServerConnection;
+    private MBeanServerConnection mBeanServerConnection;
 
     @Injectable
-    BrokerViewMBean brokerViewMBean;
+    private BrokerViewMBean brokerViewMBean;
 
     @Injectable
-    JMSDestinationHelper jmsDestinationHelper;
+    private JMSDestinationHelper jmsDestinationHelper;
 
     @Injectable
     private JmsOperations jmsOperations;
 
     @Injectable
-    JmsOperations jmsSender;
+    private JmsOperations jmsSender;
 
     @Injectable
-    JMSSelectorUtil jmsSelectorUtil;
+    private JMSSelectorUtil jmsSelectorUtil;
 
     @Injectable
-    BrokerService brokerService;
+    private BrokerService brokerService;
 
     @Injectable
     private AuthUtils authUtils;
@@ -65,6 +65,9 @@ public class JMSManagerActiveMQTest {
 
     @Injectable
     private ServerInfoService serverInfoService;
+
+    @Injectable
+    private DomibusJMSActiveMQConnectionManager domibusJMSActiveMQConnectionManager;
 
     @Test
     public void testGetDestinations(final @Mocked ObjectName objectName1,
@@ -80,16 +83,16 @@ public class JMSManagerActiveMQTest {
             jmsManagerActiveMQ.getQueueMap();
             result = objectNameMap;
 
-            jmsManagerActiveMQ.getQueueViewMBean(objectName1);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(objectName1);
             result = queueMbean1;
 
-            jmsManagerActiveMQ.getQueueViewMBean(objectName2);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(objectName2);
             result = queueMbean2;
 
-            jmsManagerActiveMQ.createInternalJmsDestination(objectName1, queueMbean1);
+            jmsManagerActiveMQ.createInternalJmsDestination(queueMbean1);
             result = internalJmsDestination1;
 
-            jmsManagerActiveMQ.createInternalJmsDestination(objectName2, queueMbean2);
+            jmsManagerActiveMQ.createInternalJmsDestination(queueMbean2);
             result = internalJmsDestination2;
 
             queueMbean1.getName();
@@ -121,68 +124,11 @@ public class JMSManagerActiveMQTest {
             result = true;
         }};
 
-        InternalJMSDestination internalJmsDestination = jmsManagerActiveMQ.createInternalJmsDestination(objectName, queueMbean);
+        InternalJMSDestination internalJmsDestination = jmsManagerActiveMQ.createInternalJmsDestination(queueMbean);
         assertEquals(internalJmsDestination.getName(), queueMbean.getName());
         assertEquals(internalJmsDestination.isInternal(), jmsDestinationHelper.isInternal(queueMbean.getName()));
         assertEquals(internalJmsDestination.getType(), InternalJMSDestination.QUEUE_TYPE);
         assertEquals(internalJmsDestination.getNumberOfMessages(), queueMbean.getQueueSize());
-        assertEquals(internalJmsDestination.getProperty("ObjectName"), objectName);
-    }
-
-    @Test
-    public void testGetQueue(final @Mocked ObjectName objectName,
-                             final @Injectable QueueViewMBean queueMbean) throws Exception {
-        new Expectations(MBeanServerInvocationHandler.class) {{
-            MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectName, QueueViewMBean.class, true);
-            result = queueMbean;
-        }};
-
-        QueueViewMBean queue = jmsManagerActiveMQ.getQueueViewMBean(objectName);
-        assertEquals(queue, queueMbean);
-    }
-
-    @Test
-    public void testGetQueueMapWhenAlreadyInstantiated(final @Mocked ObjectName objectName,
-                                                       final @Injectable QueueViewMBean queueMbean,
-                                                       final @Injectable Map<String, ObjectName> queueMap) throws Exception {
-        new Expectations() {{
-            queueMap.size();
-            result= 2;
-        }};
-
-
-        Map<String, ObjectName> returnedQueueMap = jmsManagerActiveMQ.getQueueMap();
-        assertEquals(returnedQueueMap, queueMap);
-
-        new Verifications() {{
-            brokerViewMBean.getQueues();
-            times = 0;
-        }};
-    }
-
-    @Test
-    public void testGetQueueMapWhenNotInstantiated(final @Mocked ObjectName objectName,
-                                                   final @Injectable QueueViewMBean queueMbean) throws Exception {
-        new Expectations(jmsManagerActiveMQ) {{
-            brokerViewMBean.getQueues();
-            result = objectName;
-
-            jmsManagerActiveMQ.getQueueViewMBean(objectName);
-            result = queueMbean;
-
-            queueMbean.getName();
-            result = "queueMbean1";
-        }};
-
-        Map<String, ObjectName> queueMap = jmsManagerActiveMQ.getQueueMap();
-
-        new Verifications() {{
-            brokerViewMBean.getQueues();
-        }};
-
-        assertNotNull(queueMap);
-        assertEquals(queueMap.size(), 1);
-        assertEquals(queueMap.get("queueMbean1"), objectName);
     }
 
     @Test
@@ -210,7 +156,7 @@ public class JMSManagerActiveMQTest {
             jmsSelectorUtil.getSelector(withAny(new HashMap<String, Object>()));
             result = null;
 
-            jmsManagerActiveMQ.getQueueViewMBean(source);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             result = queueMbean;
             queueMbean.browse(anyString);
             result = compositeDatas;
@@ -231,7 +177,7 @@ public class JMSManagerActiveMQTest {
             assertEquals(criteria.get("JMSTimestamp_to"), toDate.getTime());
             assertEquals(criteria.get("selectorClause"), selectorClause);
 
-            jmsManagerActiveMQ.getQueueViewMBean(source);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             queueMbean.browse(anyString);
             jmsManagerActiveMQ.convertCompositeData(compositeDatas);
         }};
@@ -358,7 +304,7 @@ public class JMSManagerActiveMQTest {
         final String[] messageIds = new String[]{"id1", "id2"};
 
         new Expectations(jmsManagerActiveMQ) {{
-            jmsManagerActiveMQ.getQueueViewMBean(myqueue);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(myqueue);
             result = queueMbean;
         }};
 
@@ -381,7 +327,7 @@ public class JMSManagerActiveMQTest {
         final String[] messageIds = new String[]{"id1", "id2"};
 
         new Expectations(jmsManagerActiveMQ) {{
-            jmsManagerActiveMQ.getQueueViewMBean(source);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             result = queueMbean;
         }};
 
@@ -406,7 +352,7 @@ public class JMSManagerActiveMQTest {
         final String messageId = "id1";
 
         new Expectations(jmsManagerActiveMQ) {{
-            jmsManagerActiveMQ.getQueueViewMBean(myqueue);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(myqueue);
             result = queueMbean;
 
             jmsManagerActiveMQ.convertCompositeData(withAny(compositeData));
@@ -435,7 +381,7 @@ public class JMSManagerActiveMQTest {
         messageList.add(internalJmsMessage);
 
         new Expectations(jmsManagerActiveMQ) {{
-            jmsManagerActiveMQ.getQueueViewMBean(source);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             result = queueViewMBean;
 
             jmsManagerActiveMQ.getMessagesFromDestination(source, anyString);
@@ -458,7 +404,7 @@ public class JMSManagerActiveMQTest {
         final String messageId = "id1";
 
         new Expectations(jmsManagerActiveMQ) {{
-            jmsManagerActiveMQ.getQueueViewMBean(source);
+            domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             result = new InternalJMSException();
         }};
 

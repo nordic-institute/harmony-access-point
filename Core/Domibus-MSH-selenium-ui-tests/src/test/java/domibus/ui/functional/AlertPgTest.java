@@ -701,7 +701,6 @@ public class AlertPgTest extends SeleniumTest {
 
 	}
 
-	//	disabled due to bug EDELIVERY-4186
 //This method will download csv with/without show domain checkbox checked for all domains
 	/* EDELIVERY-5292 - ALRT-10 - Admin downloads list of alerts */
 	@Test(description = "ALRT-10", groups = {"multiTenancy", "singleTenancy"})
@@ -716,13 +715,8 @@ public class AlertPgTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.ALERTS);
 		page.grid().waitForRowsToLoad();
 
-		HashMap<String, String> params = new HashMap<>();
-		params.put("processed", "false");
-		params.put("domainAlerts", "false");
-		params.put("orderBy", "creationTime");
-		params.put("asc", "false");
+		String fileName = page.pressSaveCsvAndSaveFile();
 
-		String fileName = rest.csv().downloadGrid(RestServicePaths.ALERTS_CSV, params, null);
 		Reporter.log("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
