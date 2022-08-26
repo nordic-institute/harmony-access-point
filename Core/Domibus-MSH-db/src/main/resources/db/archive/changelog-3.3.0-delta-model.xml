@@ -6,7 +6,7 @@
 
     <changeSet author="ArunRaj" id="Add_Downloaded_1542">
         <addColumn tableName="TB_MESSAGE_LOG">
-            <column name="DOWNLOADED" type="datetime" afterColumn="RECEIVED"/>
+            <column name="DOWNLOADED" type="datetime"/>
         </addColumn>
     </changeSet>
 
@@ -38,8 +38,8 @@
 
     <changeSet author="CosminBaciu" id="EDELIVERY_1941">
         <addColumn tableName="TB_MESSAGE_LOG">
-            <column name="FAILED" type="datetime" afterColumn="DOWNLOADED"/>
-            <column name="RESTORED" type="datetime" afterColumn="RECEIVED"/>
+            <column name="FAILED" type="datetime"/>
+            <column name="RESTORED" type="datetime"/>
         </addColumn>
         <createTable tableName="TB_SEND_ATTEMPT">
             <column autoIncrement="true" name="ID_PK" type="INT">
