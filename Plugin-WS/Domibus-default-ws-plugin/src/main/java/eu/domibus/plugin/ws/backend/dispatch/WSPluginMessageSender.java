@@ -15,7 +15,7 @@ import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.MARK_AS_DOWNLOADED;
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PUSH_MARK_AS_DOWNLOADED;
 
 /**
  * Common logic for sending messages to C1/C4 from WS Plugin
@@ -77,15 +77,10 @@ public class WSPluginMessageSender {
                     backendMessage.getMessageId(),
                     endpoint);
 
-            String strMarkAsDownloaded = domibusPropertyExtService.getCurrentDomainProperty(MARK_AS_DOWNLOADED);
-            boolean markAsDownloaded = true;
-            if(strMarkAsDownloaded!=null){
-                markAsDownloaded = Boolean.parseBoolean(strMarkAsDownloaded);
-                LOG.debug("Found the property {} set to {}", MARK_AS_DOWNLOADED, markAsDownloaded);
-            }
-
-            if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE && markAsDownloaded) {
-                wsPlugin.downloadMessage(backendMessage.getMessageId(), null);
+            if (backendMessage.getType() == WSBackendMessageType.SUBMIT_MESSAGE) {
+                boolean markAsDownloaded = domibusPropertyExtService.getBooleanProperty(PUSH_MARK_AS_DOWNLOADED);
+                LOG.debug("Found the property [{}] set to [{}]", PUSH_MARK_AS_DOWNLOADED, markAsDownloaded);
+                wsPlugin.downloadMessage(backendMessage.getMessageId(), null, markAsDownloaded);
             }
         } catch (Throwable t) {//NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions.
             if (dispatchRule == null) {

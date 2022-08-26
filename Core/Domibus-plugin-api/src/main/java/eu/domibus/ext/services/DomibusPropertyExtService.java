@@ -87,8 +87,6 @@ public interface DomibusPropertyExtService {
         return null;
     }
 
-    String getCurrentDomainProperty(String propertyName);
-
     /**
      * Sets the property value with the provided name for the current domain
      *
