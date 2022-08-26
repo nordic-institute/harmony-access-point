@@ -43,6 +43,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
 import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
 import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
@@ -427,17 +428,17 @@ public class WebServiceImpl implements WebServicePluginInterface {
     public void markMessageAsDownloaded(MarkMessageAsDownloadedRequest markMessageAsDownloadedRequest,
                                         Holder<MarkMessageAsDownloadedResponse> markMessageAsDownloadedResponse,
                                         Holder<Messaging> ebMSHeaderInfo) throws MarkMessageAsDownloadedFault {
-        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(markMessageAsDownloadedRequest.getMessageID());
 
-        if (!isMessageIdNotEmpty) {
+        String messageID = markMessageAsDownloadedRequest.getMessageID();
+        if (StringUtils.isEmpty(messageID)) {
             LOG.error(MESSAGE_ID_EMPTY);
-            throw new MarkMessageAsDownloadedFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
+            throw new MarkMessageAsDownloadedFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
         }
 
-        String trimmedMessageId = messageExtService.cleanMessageIdentifier(markMessageAsDownloadedRequest.getMessageID());
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(messageID);
         WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
-        if(wsMessageLogEntity == null) {
-            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+        if (wsMessageLogEntity == null) {
+            LOG.businessError(BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new MarkMessageAsDownloadedFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
         markMessageAsDownloaded(trimmedMessageId);
@@ -467,7 +468,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         boolean markAsDownloaded = toBooleanDefaultIfNull(toBooleanObject(retrieveMessageRequest.getMarkAsDownloaded()), true);  //workaround jaxws bug
         WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
         if (markAsDownloaded && wsMessageLogEntity == null) {
-            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+            LOG.businessError(BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
 
@@ -490,7 +491,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             //if an error occurs related to the message acknowledgement do not block the download message operation
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
         }
-        if(markAsDownloaded) {
+        if (markAsDownloaded) {
             // remove downloaded message from the plugin table containing the pending messages
             wsMessageLogService.delete(wsMessageLogEntity);
         }
@@ -523,7 +524,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
             }
-            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
+            LOG.businessError(BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new MarkMessageAsDownloadedFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
         }
     }
@@ -587,7 +588,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
         } catch (Exception e) {
-            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
+            LOG.businessError(BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));
         }
         return transformFromErrorResults(errorsForMessage);
