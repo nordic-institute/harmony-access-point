@@ -43,22 +43,56 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-7368-self-sending">
-        <!--For User Messages-->
+    <changeSet dbms="mysql,h2" author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
         <!--drop existing-->
         <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
         <dropIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
+    </changeSet>
+    <changeSet dbms="oracle" author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
+        <!--drop existing-->
+        <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
+    </changeSet>
+    <changeSet author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
+        <!--For User Messages-->
         <!--add column-->
         <addColumn tableName="TB_USER_MESSAGE">
             <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
         </addColumn>
         <!--fill in with data-->
         <sql dbms="mysql">
+            INSERT IGNORE INTO TB_D_MSH_ROLE
+                (ID_PK, ROLE)
+            VALUES
+                (197001010000000001,'SENDING');
+
+            UPDATE TB_USER_MESSAGE t1
+                SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
+                WHERE t1.ID_PK = 19700101
+        </sql>
+
+        <sql dbms="oracle">
+            INSERT INTO TB_D_MSH_ROLE
+                (ID_PK, ROLE)
+            SELECT
+                (197001010000000001,'SENDING')
+            FROM DUAL
+            WHERE NOT EXISTS (SELECT *
+                             FROM TB_D_MSH_ROLE t
+                             where (t.ROLE = 'SENDING'));
+
+            UPDATE TB_USER_MESSAGE t1
+            SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
+            WHERE t1.ID_PK = 19700101
+        </sql>
+
+        <sql dbms="mysql">
             SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
             SET SQL_SAFE_UPDATES = 0;
+
             UPDATE TB_USER_MESSAGE t1
                 INNER JOIN TB_USER_MESSAGE_LOG t2 ON t1.ID_PK = t2.ID_PK
                     SET t1.MSH_ROLE_ID_FK = t2.MSH_ROLE_ID_FK;
+
             SET SQL_SAFE_UPDATES = @OLD_SQL_SAFE_UPDATES;
         </sql>
         <sql dbms="oracle">
