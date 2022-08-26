@@ -65,7 +65,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
-        return domibusPropertyProvider.filterPropertiesName(predicate);
+        return domibusPropertyProvider.filterPropertyNames(predicate);
     }
 
     @Override

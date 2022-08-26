@@ -35,4 +35,5 @@ public interface UserMessageServiceHelper {
 
     Map<String, String> getProperties(UserMessage userMessage);
 
+    Map<String, String> getProperties(Long messageEntityId);
 }

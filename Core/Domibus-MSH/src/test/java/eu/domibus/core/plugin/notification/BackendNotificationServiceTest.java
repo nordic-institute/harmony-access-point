@@ -1350,7 +1350,7 @@ public class BackendNotificationServiceTest {
             userMessageLog.getEntityId();
             result = messageEntityId;
 
-            userMessageService.getProperties(messageEntityId);
+            userMessageServiceHelper.getProperties(messageEntityId);
             result = props;
 
             backendConnectorDelegate.messageDeletedEvent(

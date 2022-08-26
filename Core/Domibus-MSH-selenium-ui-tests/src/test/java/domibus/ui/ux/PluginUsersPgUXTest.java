@@ -49,7 +49,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 
 	/* EDELIVERY-5212 - PU-2 - Doubleclick on one user */
-	@Test(description = "PU-2", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-2", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void doubleclickRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);

@@ -76,8 +76,8 @@ public class MessageExchangeServiceImplTest {
     @Mock
     MpcService mpcService;
 
-    @Spy
-    private ProcessValidator processValidator;
+    @Mock
+    private PullProcessValidator pullProcessValidator;
 
     @Mock
     private PullFrequencyHelper pullFrequencyHelper;
@@ -113,7 +113,7 @@ public class MessageExchangeServiceImplTest {
         when(configurationDao.configurationExists()).thenReturn(true);
         List<Process> processes = Lists.newArrayList(process);
         when(pModeProvider.findPullProcessesByInitiator(correctParty)).thenReturn(processes);
-        Mockito.doNothing().when(processValidator).validatePullProcess(Matchers.any(List.class));
+        Mockito.doNothing().when(pullProcessValidator).validatePullProcess(Matchers.any(List.class));
     }
 
     private LegConfiguration findLegByName(final String name) {
@@ -128,12 +128,12 @@ public class MessageExchangeServiceImplTest {
     }
 
     @Test
-    public void testGetPartyId() throws Exception {
+    public void testGetPartyId() {
         String mpc = "mpcValue";
         String expectedPartyId = "BE1234567890";
         String party1 = "party1";
 
-        when(pullMessageService.allowDynamicInitiatorInPullProcess()).thenReturn(true);
+        when(pullProcessValidator.allowDynamicInitiatorInPullProcess()).thenReturn(true);
         when(mpcService.extractInitiator(mpc)).thenReturn(expectedPartyId);
 
         Set<String> partyIds = messageExchangeService.getPartyIds(mpc, new Party());
@@ -188,7 +188,7 @@ public class MessageExchangeServiceImplTest {
         process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:push]");
         processes.add(process);
         when(pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration)).thenReturn(processes);
-        doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
+        doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(pullProcessValidator).validatePullProcess(Matchers.any(List.class));
         messageExchangeService.getMessageStatus(messageExchangeConfiguration, ProcessingType.PULL);
     }
 
@@ -262,14 +262,14 @@ public class MessageExchangeServiceImplTest {
     @Test(expected = PModeException.class)
     public void extractProcessMpcWithNoProcess() throws Exception {
         when(pModeProvider.findPullProcessByMpc("qn1")).thenReturn(new ArrayList<Process>());
-        doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
+        doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(pullProcessValidator).validatePullProcess(Matchers.any(List.class));
         messageExchangeService.extractProcessOnMpc("qn1");
     }
 
     @Test(expected = PModeException.class)
     public void extractProcessMpcWithNoToManyProcess() throws Exception {
         when(pModeProvider.findPullProcessByMpc("qn1")).thenReturn(Lists.newArrayList(new Process(), new Process()));
-        doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(processValidator).validatePullProcess(Matchers.any(List.class));
+        doThrow(new PModeException(DomibusCoreErrorCode.DOM_003, "pMode exception")).when(pullProcessValidator).validatePullProcess(Matchers.any(List.class));
         messageExchangeService.extractProcessOnMpc("qn1");
     }
 

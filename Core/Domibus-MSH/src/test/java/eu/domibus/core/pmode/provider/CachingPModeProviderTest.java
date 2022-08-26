@@ -22,6 +22,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.*;
 import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.logging.DomibusLogger;
@@ -118,7 +119,7 @@ public class CachingPModeProviderTest {
     SignalService signalService;
 
     @Injectable
-    PullMessageService pullMessageService;
+    PullProcessValidator pullProcessValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
@@ -728,7 +729,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testMatchInitiatorAllowEmpty() {
         new Expectations() {{
-            pullMessageService.allowDynamicInitiatorInPullProcess();
+            pullProcessValidator.allowDynamicInitiatorInPullProcess();
             result = true;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
@@ -739,7 +740,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testMatchInitiatorNotAllowEmpty() {
         new Expectations() {{
-            pullMessageService.allowDynamicInitiatorInPullProcess();
+            pullProcessValidator.allowDynamicInitiatorInPullProcess();
             result = false;
         }};
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:twoway]");
