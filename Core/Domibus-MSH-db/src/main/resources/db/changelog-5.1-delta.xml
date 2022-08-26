@@ -43,7 +43,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet dbms="mysql,h2" author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
+    <changeSet dbms="mysql" author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
         <!--drop existing-->
         <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
         <dropIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
@@ -82,7 +82,7 @@
             SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
             WHERE t1.ID_PK = ${default_id_pk}
         </sql>
-        
+
         <!--fill in with data for all the others-->
         <sql dbms="mysql">
             SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
