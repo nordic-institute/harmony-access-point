@@ -70,7 +70,7 @@
             INSERT INTO TB_D_MSH_ROLE
                 (ID_PK, ROLE)
             SELECT
-                (${default_id_pk}0000000001,'SENDING')
+                ${default_id_pk}0000000001,'SENDING'
             FROM DUAL
             WHERE NOT EXISTS (SELECT *
                              FROM TB_D_MSH_ROLE t
