@@ -104,7 +104,7 @@ class LogUtils {
 // Return path to domibus folder
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII 
     static String pathToLogFiles(side, log, context) {
-        debugLog("  ====  Calling \"pathToDomibus\".", log)
+        debugLog("  ====  Calling \"pathToLogFiles\".", log)
         // Return path to domibus folder base on the "color"
         def propName = ""
         switch (side.toLowerCase()) {
@@ -129,6 +129,7 @@ class LogUtils {
                 assert(false), "Unknown side color. Supported values: BLUE, RED, GREEN"
         }
         def path = context.expand("\${#Project#${propName}}")
+		debugLog("  pathToLogFiles  [][]  returned path="+path, log)
         return (path[-1]=='/' || path[-1]=='\\') ? path : (path + '/')
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
@@ -219,7 +220,7 @@ class LogUtils {
 		
 		// Get the line number from which the search must start
         if (skipNumberOfLines == "") {
-            log.info "  checkSingleLogFile  [][]  skipNumberOfLines property not defined on the test case level would start to search on first line"
+            log.info "  checkSingleLogFile  [][]  skipNumberOfLines property not defined on the test case level would start to search from first line"
             skipNumberOfLines = 0
         } else{
             skipNumberOfLines = skipNumberOfLines.toInteger()
@@ -279,37 +280,25 @@ class LogUtils {
 		def logDirMap=[:]
 		def resultMap=[:]
 		def searchResultMap=[:]
-		def clustered=false
 		def skipNumberOfLines = context.expand('${#TestCase#skipNumberOfLines}')
 		
-		// Check if the domibus deployment is clustered or not
-		clustered=Domibus.isClustered(side,context,log, domainValue, authUser, authPwd)
-
 		// Get the path to the logs main directory
 		pathToDir=pathToLogFiles(side, log, context)
-
 		// Initialize all the strings to search for in the logs as not found (using hash value to avoid very long indexes ...)
 		logValueList.each{
 			val ->
 			searchResultMap[hashValue(val)]=0
 		}
-		
-		// In case clustered, search for logs in all the managed servers folders 
-		if(clustered){
+
+		try{
 			logDirMap=new JsonSlurper().parseText(skipNumberOfLines)
-			logDirMap.each{
-				k,v ->
-				pathToLogFile = pathToDir+ k + "/logs/" + logFileToCheck
-				resultMap=checkSingleLogFile(side, pathToLogFile, logValueList, v, log, context, testRunner)
-				resultMap.each{
-					index,value ->
-					if(value==1){
-							searchResultMap[index]=1
-					}					
-				}
-			}			
-		}else{
-			// Non clustered deployment: look in 1 log file in the main directory
+		}catch(Exception ex){
+			assert 0,"  checkLogFile  [][]  Exception occurred while trying to parse the number of lines to skip: " + ex
+		}
+		
+		if(logDirMap.getClass().toString().toLowerCase().contains("integer")){
+			// Look in 1 log file in the main directory
+			debugLog("  checkLogFile  [][]  Single log file to check",log)
 			pathToLogFile=pathToDir + logFileToCheck
 			resultMap=checkSingleLogFile(side, pathToLogFile, logValueList, skipNumberOfLines, log, context, testRunner)
 			resultMap.each{
@@ -317,9 +306,22 @@ class LogUtils {
 				if(value==1){
 					searchResultMap[index]=1
 				}					
-			}
+			}		
+		}else{
+			debugLog("  checkLogFile  [][]  Several log files to check: probably a cluster deployment",log)
+			logDirMap.each{
+				k,v ->
+				pathToLogFile = pathToDir+ k + "/logs/" + logFileToCheck
+				resultMap=checkSingleLogFile(side, pathToLogFile, logValueList, v, log, context, testRunner)
+				resultMap.each{
+					index,value ->
+					if(value==1){
+						searchResultMap[index]=1
+					}					
+				}	
+			}				
 		}
-		
+			
 		debugLog("  checkLogFile  [][]  After searching: searchResultMap="+searchResultMap.inspect(),log)
 		
 		// Display the search results and fail the test if needed
