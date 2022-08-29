@@ -43,16 +43,16 @@
         </addColumn>
     </changeSet>
 
-    <changeSet dbms="mysql" author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
+    <changeSet dbms="mysql" author="Ion Perpegel" id="EDELIVERY-7368-1-self-sending">
         <!--drop existing-->
         <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
         <dropIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
     </changeSet>
-    <changeSet dbms="oracle" author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
+    <changeSet dbms="oracle" author="Ion Perpegel" id="EDELIVERY-7368-2-self-sending">
         <!--drop existing-->
         <dropUniqueConstraint constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
     </changeSet>
-    <changeSet author="Ion Perpegel" id="EDELIVERY-7368-self-sending">
+    <changeSet author="Ion Perpegel" id="EDELIVERY-7368-3-self-sending">
         <!--For User Messages-->
         <!--add column-->
         <addColumn tableName="TB_USER_MESSAGE">
