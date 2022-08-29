@@ -59,11 +59,6 @@
 
     </changeSet>
 
-    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-multitenancy" author="Soumya">
-        <sqlFile path="src/main/resources/db/migration/oracle/db-multitenancy-migration-utc-conversion.sql" endDelimiter="\n/"
-                 dbms="oracle"/>
-    </changeSet>
-
     <changeSet author="Ion Perpegel" id="EDELIVERY-9028-Audit Table for TB_USER_DOMAIN">
 
         <createIndex indexName="IDX_FK_USR_DOM_AUD_REV_INFO" tableName="TB_USER_DOMAIN_AUD">
