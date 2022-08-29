@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
@@ -51,6 +52,9 @@ public class WSPluginMessageSenderTest {
 
     @Injectable
     protected WSPluginImpl wsPlugin;
+
+    @Injectable
+    protected DomibusPropertyExtService domibusPropertyExtService;
 
     @Injectable
     protected WSBackendMessageLogDao wsBackendMessageLogDao;
@@ -109,15 +113,23 @@ public class WSPluginMessageSenderTest {
             wsPluginDispatcher.dispatch(soapMessage, END_POINT);
             result = soapMessage;
             times = 1;
+
+            domibusPropertyExtService.getBooleanProperty("wsplugin.push.markAsDownloaded");
         }};
 
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
+        wsPlugin.markMessageAsDownloaded(MESSAGE_ID);
+        domibusPropertyExtService.getBooleanProperty("wsplugin.push.markAsDownloaded");
+
 
         new FullVerifications() {{
             wsBackendMessageLogEntity.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
-            wsPlugin.downloadMessage(MESSAGE_ID, null);
+            wsPlugin.markMessageAsDownloaded(MESSAGE_ID);
             times = 1;
+            wsPlugin.downloadMessage(MESSAGE_ID, null);
+            times = 0;
+            wsPlugin.downloadMessage(MESSAGE_ID, null, false);
         }};
     }
 
