@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
@@ -21,6 +22,8 @@ import org.junit.runner.RunWith;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PUSH_MARK_AS_DOWNLOADED;
 
 /**
  * @author François Gautier
@@ -55,6 +58,9 @@ public class WSPluginMessageSenderTest {
     @Injectable
     protected WSBackendMessageLogDao wsBackendMessageLogDao;
 
+    @Injectable
+    private DomibusPropertyExtService domibusPropertyExtService;
+
     @Test(expected = WSPluginException.class)
     public void sendSubmitMessage_noRule(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity) {
         new Expectations() {{
@@ -79,11 +85,13 @@ public class WSPluginMessageSenderTest {
     }
 
     @Test
-    public void sendSubmitMessage(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
+    public void sendSubmitMessageWhenMarkAsDownloadedTrue(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
                                    @Injectable SOAPMessage soapMessage,
                                    @Injectable WSPluginDispatchRule wsPluginDispatchRule,
                                   @Injectable TransformerFactory transformerFactory) throws MessageNotFoundException, TransformerException {
         new Expectations() {{
+            domibusPropertyExtService.getBooleanProperty(PUSH_MARK_AS_DOWNLOADED);
+            result = true;
 
             wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
             result = soapMessage;
@@ -116,7 +124,7 @@ public class WSPluginMessageSenderTest {
         new FullVerifications() {{
             wsBackendMessageLogEntity.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
-            wsPlugin.downloadMessage(MESSAGE_ID, null);
+            wsPlugin.downloadMessage(MESSAGE_ID, null, true);
             times = 1;
         }};
     }
