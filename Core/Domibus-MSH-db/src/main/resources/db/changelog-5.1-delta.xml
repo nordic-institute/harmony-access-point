@@ -65,7 +65,6 @@
             VALUES
                 (${default_id_pk}0000000001,'SENDING');
         </sql>
-
         <sql dbms="oracle">
             INSERT INTO TB_D_MSH_ROLE
                 (ID_PK, ROLE)
@@ -76,13 +75,11 @@
                              FROM TB_D_MSH_ROLE t
                              where (t.ROLE = 'SENDING'));
         </sql>
-
         <sql>
             UPDATE TB_USER_MESSAGE t1
             SET t1.MSH_ROLE_ID_FK = (SELECT t2.ID_PK FROM TB_D_MSH_ROLE t2 WHERE t2.ROLE='SENDING')
             WHERE t1.ID_PK = ${default_id_pk}
         </sql>
-
         <!--fill in with data for all the others-->
         <sql dbms="mysql">
             SET @OLD_SQL_SAFE_UPDATES = @@SQL_SAFE_UPDATES;
@@ -109,6 +106,10 @@
                                  constraintName="FK_USER_MSG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MSH_ROLE" />
+        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID" />
+            <column name="MSH_ROLE_ID_FK" />
+        </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE" />
 
         <!--For Signal Messages-->
@@ -146,14 +147,6 @@
                                  constraintName="FK_SIGNAL_MSH_ROLE" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MSH_ROLE" />
-    </changeSet>
-
-    <changeSet dbms="mysql" author="Ion Perpegel" id="EDELIVERY-7368-4-self-sending">
-        <!--add back updated constraints-->
-        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
-            <column name="MESSAGE_ID" />
-            <column name="MSH_ROLE_ID_FK" />
-        </createIndex>
     </changeSet>
 
 </databaseChangeLog>
