@@ -23,6 +23,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PUSH_MARK_AS_DOWNLOADED;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -54,10 +56,10 @@ public class WSPluginMessageSenderTest {
     protected WSPluginImpl wsPlugin;
 
     @Injectable
-    protected DomibusPropertyExtService domibusPropertyExtService;
+    protected WSBackendMessageLogDao wsBackendMessageLogDao;
 
     @Injectable
-    protected WSBackendMessageLogDao wsBackendMessageLogDao;
+    private DomibusPropertyExtService domibusPropertyExtService;
 
     @Test(expected = WSPluginException.class)
     public void sendSubmitMessage_noRule(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity) {
@@ -83,11 +85,13 @@ public class WSPluginMessageSenderTest {
     }
 
     @Test
-    public void sendSubmitMessage(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
+    public void sendSubmitMessageWhenMarkAsDownloadedTrue(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity,
                                    @Injectable SOAPMessage soapMessage,
                                    @Injectable WSPluginDispatchRule wsPluginDispatchRule,
                                   @Injectable TransformerFactory transformerFactory) throws MessageNotFoundException, TransformerException {
         new Expectations() {{
+            domibusPropertyExtService.getBooleanProperty(PUSH_MARK_AS_DOWNLOADED);
+            result = true;
 
             wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
             result = soapMessage;
@@ -113,23 +117,15 @@ public class WSPluginMessageSenderTest {
             wsPluginDispatcher.dispatch(soapMessage, END_POINT);
             result = soapMessage;
             times = 1;
-
-            domibusPropertyExtService.getBooleanProperty("wsplugin.push.markAsDownloaded");
         }};
 
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
-        wsPlugin.markMessageAsDownloaded(MESSAGE_ID);
-        domibusPropertyExtService.getBooleanProperty("wsplugin.push.markAsDownloaded");
-
 
         new FullVerifications() {{
             wsBackendMessageLogEntity.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
-            wsPlugin.markMessageAsDownloaded(MESSAGE_ID);
+            wsPlugin.downloadMessage(MESSAGE_ID, null, true);
             times = 1;
-            wsPlugin.downloadMessage(MESSAGE_ID, null);
-            times = 0;
-            wsPlugin.downloadMessage(MESSAGE_ID, null, false);
         }};
     }
 
