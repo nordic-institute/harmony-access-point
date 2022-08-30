@@ -32,7 +32,7 @@
         <io.swagger.core.v3.version>2.2.2</io.swagger.core.v3.version>
         <swagger-ui.version>4.13.0</swagger-ui.version>
         <hibernate.version>5.5.9.Final</hibernate.version>
-        <activemq.version>5.16.4</activemq.version>
+        <activemq.version>5.16.5</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.11</logback.version>
@@ -78,6 +78,7 @@
         <dss.version>5.8</dss.version>
         <tomcat-embed.version>9.0.65</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
+        <xbean-spring.version>4.20</xbean-spring.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
