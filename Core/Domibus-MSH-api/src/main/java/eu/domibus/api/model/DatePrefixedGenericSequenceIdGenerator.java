@@ -77,23 +77,23 @@ public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefix
         return getGenerator().generateDomibus(session, object);
     }
 
-    /**
-     * @deprecated not used
-     */
-    @Override
-    @Deprecated
-    public String[] sqlCreateStrings(Dialect dialect) throws HibernateException {
-        return getGenerator().sqlCreateStrings(dialect);
-    }
+//    /**
+//     * @deprecated not used
+//     */
+//    @Override
+//    @Deprecated
+//    public String[] sqlCreateStrings(Dialect dialect) throws HibernateException {
+//        return getGenerator().sqlCreateStrings(dialect);
+//    }
 
-    /**
-     * @deprecated not used
-     */
-    @Override
-    @Deprecated
-    public String[] sqlDropStrings(Dialect dialect) throws HibernateException {
-        return getGenerator().sqlDropStrings(dialect);
-    }
+//    /**
+//     * @deprecated not used
+//     */
+//    @Override
+//    @Deprecated
+//    public String[] sqlDropStrings(Dialect dialect) throws HibernateException {
+//        return getGenerator().sqlDropStrings(dialect);
+//    }
 
     @Override
     public Object generatorKey() {

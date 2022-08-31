@@ -31,7 +31,7 @@
         <springdoc.version>1.6.9</springdoc.version>
         <io.swagger.core.v3.version>2.2.2</io.swagger.core.v3.version>
         <swagger-ui.version>4.13.0</swagger-ui.version>
-        <hibernate.version>5.5.9.Final</hibernate.version>
+        <hibernate.version>5.6.10.Final</hibernate.version>
         <activemq.version>5.16.5</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version>
