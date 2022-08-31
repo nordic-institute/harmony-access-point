@@ -261,7 +261,22 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDownloadedUserMessagesOlderThan");
+        return getMessagesIdsOlderThan(date, mpc, expiredDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDownloadedUserMessagesOlderThan");
+    }
+
+    private List<UserMessageLogDto> getMessagesIdsOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, boolean eArchiveIsActive, String queryName) {
+        Query query = em.createNamedQuery(queryName);
+        query.setParameter("DATE", startDate);
+        query.setParameter("MPC", mpc);
+        query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
+        query.setMaxResults(expiredMessagesLimit);
+
+        try {
+            return query.getResultList();
+        } catch (NoResultException nrEx) {
+            LOG.debug("Query [{}] did not find any result for startDate [{}] and MPC [{}]", queryName, startDate, mpc);
+            return Collections.emptyList();
+        }
     }
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
