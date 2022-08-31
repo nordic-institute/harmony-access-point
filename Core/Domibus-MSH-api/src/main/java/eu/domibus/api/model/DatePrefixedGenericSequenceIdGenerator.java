@@ -6,6 +6,7 @@ import eu.domibus.api.spring.SpringContextProvider;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.boot.model.relational.Database;
+import org.hibernate.boot.model.relational.SqlStringGenerationContext;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.enhanced.TableGenerator;
@@ -105,4 +106,12 @@ public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefix
         datePrefixedOracleSequenceIdGenerator.registerExportables(database);
         datePrefixedMysqlSequenceIdGenerator.registerExportables(database);
     }
+
+    @Override
+    public void initialize(SqlStringGenerationContext context) {
+        datePrefixedOracleSequenceIdGenerator.initialize(context);
+        datePrefixedMysqlSequenceIdGenerator.initialize(context);
+    }
+
+
 }
