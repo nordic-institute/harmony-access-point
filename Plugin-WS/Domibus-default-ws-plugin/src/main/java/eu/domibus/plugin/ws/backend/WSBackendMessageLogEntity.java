@@ -69,7 +69,7 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
     @Column(name = "RULE_NAME")
     private String ruleName;
 
-    @Column(name = "SENT")
+    @Column(name = "SENT", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date sent;
 
