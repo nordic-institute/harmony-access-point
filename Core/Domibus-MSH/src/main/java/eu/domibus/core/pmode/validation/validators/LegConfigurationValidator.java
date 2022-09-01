@@ -52,6 +52,7 @@ public class LegConfigurationValidator implements PModeValidator {
         issues.add(validateLegErrorHandling(leg));
         issues.add(validateLegSplitting(leg));
         issues.add(validateLegPayloadProfile(leg));
+        issues.add(validateLegSecurityProfile(leg));
         issues.add(validateLegPropertySet(leg));
 
         return issues.stream().filter(Objects::nonNull).collect(Collectors.toList());
@@ -146,6 +147,17 @@ public class LegConfigurationValidator implements PModeValidator {
         if (leg.getSecurity() == null) {
             String name = pModeValidationHelper.getAttributeValue(leg, "securityXml", String.class);
             return createIssue(leg, name, "Security [%s] of leg configuration [%s] not found in business process securities.");
+        }
+        return null;
+    }
+
+    protected ValidationIssue validateLegSecurityProfile(LegConfiguration leg) {
+        if (leg.getSecurity() == null) {
+            String name = pModeValidationHelper.getAttributeValue(leg, "securityProfileXml", String.class);
+            //security profile can be null
+            if (StringUtils.isNotEmpty(name)) {
+                return createIssue(leg, name, "SecurityProfile [%s] of leg configuration [%s] not found among security profiles.");
+            }
         }
         return null;
     }

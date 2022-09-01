@@ -51,6 +51,10 @@ public class LegConfiguration extends AbstractBaseEntity {
     @Transient
     protected String securityXml;
 
+    @XmlAttribute(name = "securityProfile", required = true)
+    @Transient
+    protected String securityProfileXml;
+
     @XmlAttribute(name = "receptionAwareness", required = true)
     @Transient
     protected String receptionAwarenessXml;

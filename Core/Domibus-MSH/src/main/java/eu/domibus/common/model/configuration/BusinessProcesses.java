@@ -18,6 +18,7 @@ import java.util.*;
         "propertiesXml",
         "payloadProfilesXml",
         "securitiesXml",
+        "securityProfilesXml",
         "errorHandlingsXml",
         "agreementsXml",
         "servicesXml",
@@ -64,6 +65,10 @@ public class BusinessProcesses extends AbstractBaseEntity {
     @XmlElement(required = true, name = "securities")
     @Transient
     protected Securities securitiesXml; //NOSONAR
+
+    @XmlElement(required = true, name = "securityProfiles")
+    @Transient
+    protected SecurityProfiles securityProfilesXml; //NOSONAR
 
     @XmlElement(name = "splittingConfigurations")
     @Transient
@@ -154,6 +159,11 @@ public class BusinessProcesses extends AbstractBaseEntity {
     @JoinColumn(name = "FK_BUSINESSPROCESS")
     private Set<Security> securities;
 
+    @XmlTransient
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "FK_BUSINESSPROCESS")
+    private Set<SecurityProfile> securityProfiles;
+
     public Set<PartyIdType> getPartyIdTypes() {
         return this.partyIdTypes;
     }
@@ -216,6 +226,14 @@ public class BusinessProcesses extends AbstractBaseEntity {
 
     public void setSecurities(final Set<Security> securities) {
         this.securities = securities;
+    }
+
+    public Set<SecurityProfile> getSecurityProfiles() {
+        return this.securityProfiles;
+    }
+
+    public void setSecurityProfiles(Set<SecurityProfile> securityProfiles) {
+        this.securityProfiles = securityProfiles;
     }
 
     void init(final Configuration configuration) {
@@ -303,6 +321,12 @@ public class BusinessProcesses extends AbstractBaseEntity {
         }
         this.securities = new HashSet<>();
         this.securities.addAll(this.securitiesXml.getSecurity());
+
+        for (final SecurityProfile securityProfile : this.securityProfilesXml.getSecurityProfile()) {
+            securityProfile.init(configuration);
+        }
+        this.securityProfiles = new HashSet<>();
+        this.securityProfiles.addAll(this.securityProfilesXml.getSecurityProfile());
 
         if (splittingConfigurationsXml != null) {
             this.splittings = new HashSet<>();
@@ -412,6 +436,7 @@ public class BusinessProcesses extends AbstractBaseEntity {
         if (propertySets != null ? !propertySets.equals(that.propertySets) : that.propertySets != null) return false;
         if (roles != null ? !roles.equals(that.roles) : that.roles != null) return false;
         if (securities != null ? !securities.equals(that.securities) : that.securities != null) return false;
+        if (securityProfiles != null ? !securityProfiles.equals(that.securityProfiles) : that.securityProfiles != null) return false;
         if (services != null ? !services.equals(that.services) : that.services != null) return false;
 
         return true;
@@ -439,6 +464,7 @@ public class BusinessProcesses extends AbstractBaseEntity {
         result = 31 * result + (splittings != null ? splittings.hashCode() : 0);
         result = 31 * result + (legConfigurations != null ? legConfigurations.hashCode() : 0);
         result = 31 * result + (securities != null ? securities.hashCode() : 0);
+        result = 31 * result + (securityProfiles != null ? securityProfiles.hashCode() : 0);
         return result;
     }
 
