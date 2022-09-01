@@ -81,4 +81,44 @@
                                  referencedTableName="TB_D_MSH_ROLE" />
     </changeSet>
 
+    <changeSet author="Francois Gautier" id="EDELIVERY-2427">
+        <comment>WS Plugin specific tables for backend dispatch</comment>
+        <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true" remarks="Primary key identifying the record of the table">
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_BACKEND_MSG_LOG"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
+
+            <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)"/>
+
+            <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>
+            <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FAILED" type="DATETIME" remarks="DateTime when the message had failed"/>
+
+            <column name="SEND_ATTEMPTS" type="INT" remarks="Number of attempts sent"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT" remarks="Number of attempts maximal"/>
+            <column name="NEXT_ATTEMPT" type="DATETIME" remarks="DateTime for the next attempt"/>
+
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the backend message is already scheduled to be sent"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
