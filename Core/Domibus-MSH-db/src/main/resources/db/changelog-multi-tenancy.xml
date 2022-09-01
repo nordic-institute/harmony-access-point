@@ -106,9 +106,7 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_COMMAND"/>
             </column>
-            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
-                <constraints nullable="false"/>
-            </column>
+            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name"/>
             <column name="COMMAND_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -127,9 +125,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
-            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
-                <constraints nullable="false"/>
-            </column>
+            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
