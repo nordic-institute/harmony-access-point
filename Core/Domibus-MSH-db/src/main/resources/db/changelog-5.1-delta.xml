@@ -81,10 +81,13 @@
                                  referencedTableName="TB_D_MSH_ROLE" />
     </changeSet>
 
-  <!--  example of correct column modification:
-   <changeSet author="Razvan Cretu" id="trick-test-liquibase">
-        <setColumnRemarks tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" columnName="SENT" columnDataType="DATETIME"
-                          remarks="DateTime when the message had been dispatched"/>
-    </changeSet>-->
-
+    <changeSet author="Razvan Cretu"  id="EDELIVERY-10064-mysql-migration-plans-are-failing">
+        <addNotNullConstraint tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" columnName="SENT" columnDataType="DATETIME"/>
+        <addNotNullConstraint tableName="TB_USER_MESSAGE_LOG" columnName="VERSION" columnDataType="INT"/>
+        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" columnDataType="LONGBLOB"/>
+        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="INIT_VECTOR" columnDataType="LONGBLOB"/>
+        <addNotNullConstraint tableName="TB_EARCHIVE_BATCH" columnName="REEXPORTED" columnDataType="BOOLEAN"/>
+        <addNotNullConstraint tableName="TB_COMMAND_PROPERTY" columnName="FK_COMMAND" columnDataType="BIGINT"/>
+        <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
+    </changeSet>
 </databaseChangeLog>
