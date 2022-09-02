@@ -83,8 +83,9 @@
             <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)"/>
 
             <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>
-            <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched"/>
-
+            <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched">
+                <constraints nullable="false"/>
+            </column>
             <column name="FAILED" type="DATETIME" remarks="DateTime when the message had failed"/>
 
             <column name="SEND_ATTEMPTS" type="INT" remarks="Number of attempts sent"/>
@@ -623,7 +624,9 @@
             <column name="SEND_ATTEMPTS" type="INT"/>
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
             <column name="SCHEDULED" type="BOOLEAN" remarks="true if the message is already scheduled to be sent" />
-            <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism"/>
+            <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
+                <constraints nullable="false"/>
+            </column>
             <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
             <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
@@ -1097,7 +1100,9 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_COMMAND"/>
             </column>
-            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name"/>
+            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
+                <constraints nullable="false"/>
+            </column>
             <column name="COMMAND_NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -1116,7 +1121,9 @@
                 <constraints nullable="false"/>
             </column>
             <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
-            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command"/>
+            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
+                <constraints nullable="false"/>
+            </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -1138,8 +1145,12 @@
                 <constraints primaryKey="true" primaryKeyName="PK_ENCRYPTION_KEY"/>
             </column>
             <column name="KEY_USAGE" type="VARCHAR(255)" remarks="The encryption usage: PAYLOAD"/>
-            <column name="SECRET_KEY" type="LONGBLOB"  remarks="The secret key used for symmetric encryption"/>
-            <column name="INIT_VECTOR" type="LONGBLOB" remarks="The initialization vector used for encryption"/>
+            <column name="SECRET_KEY" type="LONGBLOB"  remarks="The secret key used for symmetric encryption">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INIT_VECTOR" type="LONGBLOB" remarks="The initialization vector used for encryption">
+                <constraints nullable="false"/>
+            </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -2418,7 +2429,9 @@
             </column>
             <column name="BATCH_ID" type="VARCHAR(255)"/>
             <column name="ORIGINAL_BATCH_ID" type="VARCHAR(255)" remarks="The original BATCH_ID from which this batch was generated/re-exported"/>
-            <column name="REEXPORTED" type="BOOLEAN" defaultValueBoolean="false" remarks="true if this batch messages were re-exported by a new batch"/>
+            <column name="REEXPORTED" type="BOOLEAN" defaultValueBoolean="false" remarks="true if this batch messages were re-exported by a new batch">
+                <constraints nullable="false"/>
+            </column>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
             <column name="BATCH_STATUS" type="VARCHAR(255)"/>
             <column name="DATE_REQUESTED" type="TIMESTAMP"/>
