@@ -26,7 +26,8 @@
     <changeSet author="Francois Gautier" id="EDELIVERY-2427">
         <comment>WS Plugin specific tables for backend dispatch</comment>
         <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true" remarks="Primary key identifying the record of the table">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true"
+                    remarks="Primary key identifying the record of the table">
                 <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_BACKEND_MSG_LOG"/>
             </column>
 
@@ -59,7 +60,8 @@
             <column name="SEND_ATTEMPTS_MAX" type="INT" remarks="Number of attempts maximal"/>
             <column name="NEXT_ATTEMPT" type="DATETIME" remarks="DateTime for the next attempt"/>
 
-            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the backend message is already scheduled to be sent"/>
+            <column name="SCHEDULED" type="BOOLEAN"
+                    remarks="true if the backend message is already scheduled to be sent"/>
         </createTable>
     </changeSet>
 
@@ -75,7 +77,7 @@
     <changeSet author="Ion Perpegel" id="EDELIVERY-7472">
         <comment>split plugin user unique constraints in 2</comment>
         <dropUniqueConstraint uniqueColumns="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
-                             tableName="TB_AUTHENTICATION_ENTRY"/>
+                              tableName="TB_AUTHENTICATION_ENTRY"/>
         <addUniqueConstraint columnNames="USERNAME" constraintName="UK_PLUGIN_USER_NAME"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
         <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UK_PLUGIN_USER_CERT"
@@ -85,18 +87,20 @@
 
     <!-- Start UI Replication Tables -->
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-temporary-drop-ui-replication-objects">
-        <dropTable tableName="TB_MESSAGE_UI" cascadeConstraints="true" />
+        <dropTable tableName="TB_MESSAGE_UI" cascadeConstraints="true"/>
         <sql dbms="mysql">
-            CREATE OR REPLACE VIEW V_MESSAGE_UI_DIFF AS SELECT 'Recreate view to prevent issues when dropping below caused by the old definer value of root@localhost';
+            CREATE
+            OR REPLACE VIEW V_MESSAGE_UI_DIFF AS
+            SELECT 'Recreate view to prevent issues when dropping below caused by the old definer value of root@localhost';
         </sql>
-        <dropView viewName="V_MESSAGE_UI_DIFF" />
+        <dropView viewName="V_MESSAGE_UI_DIFF"/>
     </changeSet>
 
     <include file="migration/common/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
 
     <include file="migration/single-tenancy/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
 
-    <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
+    <changeSet id="EDELIVERY-7668" author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version and build time">
             <column name="VERSION" type="VARCHAR(30)"/>
             <column name="BUILD_TIME" type="VARCHAR(30)"/>
@@ -104,13 +108,13 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION"/>
     </changeSet>
 
     <changeSet author="dussath" id="EDELIVERY-4669">
         <comment>Create pull request table</comment>
         <createTable tableName="TB_PULL_REQUEST">
-            <column name="PULL_REQUEST_UUID" type="VARCHAR(255)" >
+            <column name="PULL_REQUEST_UUID" type="VARCHAR(255)">
                 <constraints primaryKey="true" primaryKeyName="PK_PULL_REQUEST"/>
             </column>
             <column name="MPC" type="VARCHAR(255)">
@@ -120,15 +124,15 @@
     </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-longblob-data-type" dbms="mysql">
-        <modifyDataType tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" newDataType="LONGBLOB" />
-        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" columnDataType="LONGBLOB" />
+        <modifyDataType tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" newDataType="LONGBLOB"/>
+        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="SECRET_KEY" columnDataType="LONGBLOB"/>
 
-        <modifyDataType tableName="TB_ENCRYPTION_KEY" columnName="INIT_VECTOR" newDataType="LONGBLOB" />
-        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="INIT_VECTOR" columnDataType="LONGBLOB" />
+        <modifyDataType tableName="TB_ENCRYPTION_KEY" columnName="INIT_VECTOR" newDataType="LONGBLOB"/>
+        <addNotNullConstraint tableName="TB_ENCRYPTION_KEY" columnName="INIT_VECTOR" columnDataType="LONGBLOB"/>
 
-        <modifyDataType tableName="TB_PM_CONFIGURATION_RAW" columnName="XML" newDataType="LONGBLOB" />
+        <modifyDataType tableName="TB_PM_CONFIGURATION_RAW" columnName="XML" newDataType="LONGBLOB"/>
 
-        <modifyDataType tableName="TB_PM_CONFIGURATION_RAW_AUD" columnName="XML" newDataType="LONGBLOB" />
+        <modifyDataType tableName="TB_PM_CONFIGURATION_RAW_AUD" columnName="XML" newDataType="LONGBLOB"/>
     </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8384-drop-delete-expired-messages-procedures" dbms="oracle">
@@ -208,8 +212,10 @@
                 <constraints primaryKey="true" primaryKeyName="PK_EARCHIVE_BATCH"/>
             </column>
             <column name="BATCH_ID" type="VARCHAR(255)"/>
-            <column name="ORIGINAL_BATCH_ID" type="VARCHAR(255)" remarks="The original BATCH_ID from which this batch was generated/re-exported"/>
-            <column name="REEXPORTED" type="BOOLEAN" defaultValueBoolean="false" remarks="true if this batch messages were re-exported by a new batch">
+            <column name="ORIGINAL_BATCH_ID" type="VARCHAR(255)"
+                    remarks="The original BATCH_ID from which this batch was generated/re-exported"/>
+            <column name="REEXPORTED" type="BOOLEAN" defaultValueBoolean="false"
+                    remarks="true if this batch messages were re-exported by a new batch">
                 <constraints nullable="false"/>
             </column>
             <column name="REQUEST_TYPE" type="VARCHAR(255)"/>
@@ -283,26 +289,26 @@
 
     <!-- drop overlaping indexes -->
     <changeSet author="idragusa" id="EDELIVERY-8595">
-        <dropIndex tableName="TB_EVENT_ALERT" indexName="IDX_FK_EVENT" />
-        <dropIndex tableName="TB_USER_ROLES" indexName="IDX_USER_ID" />
+        <dropIndex tableName="TB_EVENT_ALERT" indexName="IDX_FK_EVENT"/>
+        <dropIndex tableName="TB_USER_ROLES" indexName="IDX_USER_ID"/>
     </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8602-recreate-audit-views-with-rev-id-and-id-nullability-off">
         <createView
                 replaceIfExists="true"
                 viewName="V_AUDIT_DETAIL">
-            SELECT
-            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
-            rc.MODIFICATION_TYPE as ACTION_TYPE,
-            ri.USER_NAME as USER_NAME ,
-            ri.REVISION_DATE as AUDIT_DATE,
-            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
-            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '') AS REV_ID
-            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
-            WHERE ri.ID=rc.REV
+            SELECT DISTINCT rc.GROUP_NAME                                       as AUDIT_TYPE,
+                            rc.MODIFICATION_TYPE                                as ACTION_TYPE,
+                            ri.USER_NAME                                        as USER_NAME,
+                            ri.REVISION_DATE                                    as AUDIT_DATE,
+                            COALESCE(TRIM(CAST(rc.ENTITY_ID AS CHAR(255))), '') AS ID,
+                            COALESCE(TRIM(CAST(ri.ID AS CHAR(19))), '')         AS REV_ID
+            FROM TB_REV_INFO ri,
+                 TB_REV_CHANGES rc
+            WHERE ri.ID = rc.REV
             UNION
-            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
-            TB_ACTION_AUDIT aa
+            SELECT aa.AUDIT_TYPE, aa.MODIFICATION_TYPE, aa.USER_NAME, aa.REVISION_DATE, aa.ENTITY_ID, '1'
+            FROM TB_ACTION_AUDIT aa
         </createView>
         <createView
                 replaceIfExists="true"
@@ -320,9 +326,10 @@
     </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8895-single-tenancy-performance">
-        <renameColumn tableName="TB_REV_CHANGES" oldColumnName="ENTIY_NAME" newColumnName="ENTITY_NAME" columnDataType="VARCHAR(255)" />
+        <renameColumn tableName="TB_REV_CHANGES" oldColumnName="ENTIY_NAME" newColumnName="ENTITY_NAME"
+                      columnDataType="VARCHAR(255)"/>
 
-        <dropTable tableName="TB_USER_MSG_DELETION_JOB" />
+        <dropTable tableName="TB_USER_MSG_DELETION_JOB"/>
     </changeSet>
 
     <changeSet author="Soumya Chandran" id="EDELIVERY-4609">
@@ -331,6 +338,21 @@
                 <constraints nullable="false"/>
             </column>
         </addColumn>
+    </changeSet>
+
+    <changeSet author="Thomas Dussart" id="EDELIVERY-9534">
+        <createIndex indexName="IDX_MSG_DOWNLOADED" tableName="TB_USER_MESSAGE_LOG" >
+            <column name="DOWNLOADED"/>
+        </createIndex>
+        <createIndex indexName="IDX_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE_LOG" >
+            <column name="DOWNLOADED"/>
+            <column name="ID_PK"/>
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE" >
+            <column name="MPC_ID_FK"/>
+            <column name="ID_PK"/>
+        </createIndex>
     </changeSet>
 
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
