@@ -122,23 +122,6 @@ import java.util.Date;
                         "and uml.downloaded < :DATE                                                                     " +
                         "and uml.archived is not null"),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
-                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
-                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
-                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,      " +
-                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,      " +
-                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
-                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
-                        "FROM UserMessageLog uml                                                                     " +
-                        "JOIN uml.userMessage um                                                                     " +
-                        "left join um.messageProperties p                                                            " +
-                        "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED    " +
-                        "or uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)       " +
-                        "and uml.deleted is null                                                                     " +
-                        "and um.mpc.value = :MPC                                                                     " +
-                        "and uml.modificationTime is not null                                                        " +
-                        "and uml.modificationTime < :DATE                                                            " +
-                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false) "),
-        @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
                 query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)"+
                         "FROM UserMessageLog uml                                                                        " +
                         "INNER JOIN uml.userMessage um  " +
