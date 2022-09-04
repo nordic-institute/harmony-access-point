@@ -344,12 +344,12 @@
         <createIndex indexName="IDX_MSG_DOWNLOADED" tableName="TB_USER_MESSAGE_LOG" >
             <column name="DOWNLOADED"/>
         </createIndex>
-        <createIndex indexName="IDX_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE_LOG" >
+        <createIndex indexName="IDX_UML_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE_LOG" >
             <column name="DOWNLOADED"/>
             <column name="ID_PK"/>
             <column name="MESSAGE_STATUS_ID_FK"/>
         </createIndex>
-        <createIndex indexName="IDX_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE" >
+        <createIndex indexName="IDX_UM_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE" >
             <column name="MPC_ID_FK"/>
             <column name="ID_PK"/>
         </createIndex>
