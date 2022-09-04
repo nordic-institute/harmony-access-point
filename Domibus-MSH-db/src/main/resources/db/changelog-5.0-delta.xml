@@ -322,7 +322,7 @@
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-8895-single-tenancy-performance">
         <renameColumn tableName="TB_REV_CHANGES" oldColumnName="ENTIY_NAME" newColumnName="ENTITY_NAME" columnDataType="VARCHAR(255)" />
 
-        <dropTable tableName="TB_USER_MSG_DELETION_JOB"/>
+        <dropTable tableName="TB_USER_MSG_DELETION_JOB" />
     </changeSet>
 
     <changeSet author="Soumya Chandran" id="EDELIVERY-4609">
