@@ -111,10 +111,10 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit, boolean eArchiveIsActive) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
-        deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit,eArchiveIsActive);
-        deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit,eArchiveIsActive);
-        deleteExpiredSentMessages(mpc, expiredSentMessagesLimit,eArchiveIsActive);
-        deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit,eArchiveIsActive);
+        deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit, eArchiveIsActive);
+        deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit, eArchiveIsActive);
+        deleteExpiredSentMessages(mpc, expiredSentMessagesLimit, eArchiveIsActive);
+        deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit, eArchiveIsActive);
     }
 
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
@@ -125,9 +125,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             return;
         }
 
-        LOG.debug("Deleting expired downloaded messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit);
+        LOG.debug("Deleting [{}] expired downloaded messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]", expiredDownloadedMessagesLimit, mpc, expiredDownloadedMessagesLimit);
         List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
-                mpc, expiredDownloadedMessagesLimit,eArchiveIsActive);
+                mpc, expiredDownloadedMessagesLimit, eArchiveIsActive);
         if (CollectionUtils.isEmpty(downloadedMessages)) {
             LOG.debug("There are no expired downloaded messages.");
             return;

@@ -36,6 +36,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DELETED )        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.deleted IS NOT NULL                                                                    " +
@@ -46,6 +47,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DELETED )        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.deleted IS NOT NULL                                                                    " +
@@ -85,6 +87,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED_WITH_WARNINGS)        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.deleted is null                                                                 " +
@@ -95,6 +98,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED_WITH_WARNINGS)        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.deleted is null                                                                 " +
@@ -106,6 +110,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED)        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.downloaded is not null                                                                 " +
@@ -116,6 +121,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED)        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.downloaded is not null                                                                 " +
@@ -127,6 +133,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
                         "and mpc.value = :MPC                                                                           " +
                         "and uml.deleted is null                                                                        " +
@@ -138,6 +145,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
                         "and mpc.value = :MPC                                                                           " +
                         "and uml.deleted is null                                                                        " +
@@ -150,6 +158,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.modificationTime is not null                                                                 " +
@@ -160,6 +169,7 @@ import java.util.Date;
                         "INNER JOIN uml.userMessage um  " +
                         "INNER JOIN uml.messageStatus mstat "+
                         "INNER JOIN um.mpc mpc "+
+                        "left join um.messageProperties p "+
                         "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
                         "and mpc.value = :MPC                                                                        " +
                         "and uml.modificationTime is not null                                                                 " +
