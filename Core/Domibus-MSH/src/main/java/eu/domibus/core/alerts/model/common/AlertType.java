@@ -28,7 +28,8 @@ public enum AlertType {
     ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl"),
     ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl"),
     ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl"),
-    PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification.");
+    PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification."),
+    CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", "Connection monitoring failed");
 
     private final String template;
     private final String configurationProperty;
