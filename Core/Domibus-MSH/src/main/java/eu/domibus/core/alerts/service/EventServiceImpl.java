@@ -46,11 +46,11 @@ public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
 
-    private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
-
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
-    public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
+    private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
+
+    private static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
     @Autowired
     private EventDao eventDao;
