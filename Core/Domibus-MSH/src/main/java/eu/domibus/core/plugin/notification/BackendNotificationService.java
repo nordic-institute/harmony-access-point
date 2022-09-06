@@ -424,7 +424,7 @@ public class BackendNotificationService {
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional
-    public void notifyOfMessageStatusChange(String messageId, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
+    public void notifyOfMessageStatusChange(UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
         UserMessage userMessage = userMessageDao.findByEntityId(messageLog.getEntityId());
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
@@ -442,19 +442,13 @@ public class BackendNotificationService {
         if (isPluginNotificationDisabled()) {
             return;
         }
-        final String messageId = userMessage.getMessageId();
-        if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-            if (userMessage.getMshRole() != null && userMessage.getMshRole().getRole() != null) {
-                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
-            } else {
-                LOG.warn("No MshRole for message [{}]", userMessage);
-            }
-        }
+
+        handleMDC(userMessage);
         if (messageLog.getMessageStatus() == newStatus) {
             LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);
             return;
         }
+
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, messageLog.getMessageStatus(), newStatus);
 
         final Map<String, String> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
@@ -464,6 +458,18 @@ public class BackendNotificationService {
         }
 
         notify(userMessage, messageLog.getBackend(), notificationType, messageProperties);
+    }
+
+    private void handleMDC(UserMessage userMessage) {
+        final String messageId = userMessage.getMessageId();
+        if (StringUtils.isNotBlank(messageId)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+            if (userMessage.getMshRole() != null && userMessage.getMshRole().getRole() != null) {
+                LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, userMessage.getMshRole().getRole().name());
+            } else {
+                LOG.warn("No MshRole for message [{}]", userMessage);
+            }
+        }
     }
 
     protected Map<String, String> getMessageProperties(UserMessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {
