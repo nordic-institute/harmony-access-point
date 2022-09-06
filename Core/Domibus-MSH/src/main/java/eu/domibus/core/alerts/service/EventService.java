@@ -27,6 +27,16 @@ public interface EventService {
     void enqueueMessageEvent(String messageId, MessageStatus oldStatus, MessageStatus newStatus, MSHRole role);
 
     /**
+     * Will create a connection monitoring failed event with the given parameters and enqueue it to the alert/event monitoring queue.
+     *
+     * @param messageId the id of the monitored message.
+     * @param role      the role of the access point.
+     * @param status the new status of the message.
+     */
+    void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status);
+
+
+    /**
      * Will create login failure event and enqueue it to the alert/event monitoring queue.
      *
      * @param userName        the user name that had a failure login

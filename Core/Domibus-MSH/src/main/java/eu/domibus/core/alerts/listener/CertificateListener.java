@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
@@ -35,7 +36,7 @@ public class CertificateListener {
     private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'certificateImminentExpiration' or selector = 'certificateExpired'")
+            selector = "selector = '" + EventType.QuerySelectors.CERTIFICATE_IMMINENT_EXPIRATION + "' or selector = '" + EventType.QuerySelectors.CERTIFICATE_EXPIRED + "'")
     public void onCertificateEvent(final Event event, @Header(name = "DOMAIN") String domain) {
         saveEventAndTriggerAlert(event, domain);
     }

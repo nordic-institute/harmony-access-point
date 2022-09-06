@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.listener;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.dao.EventDao;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
@@ -35,7 +36,7 @@ public class PasswordExpirationListener {
     private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'PASSWORD_EXPIRATION'")
+            selector = "selector = '" + EventType.QuerySelectors.PASSWORD_EXPIRATION + "'")
     //TODO it would be nice to use here eventType.getQueueSelector() instead of hardcoded string
     // Intentionally used just one selector value for all 4 types of events
     public void onPasswordEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {

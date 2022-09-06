@@ -46,25 +46,11 @@ public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
 
-    static final String MESSAGE_EVENT_SELECTOR = "message";
-
-    static final String LOGIN_FAILURE = "loginFailure";
-
-    static final String ACCOUNT_DISABLED = "accountDisabled";
-
-    static final String ACCOUNT_ENABLED = "accountEnabled";
-
-    static final String CERTIFICATE_EXPIRED = "certificateExpired";
-
-    static final String CERTIFICATE_IMMINENT_EXPIRATION = "certificateImminentExpiration";
-
     private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
 
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
     public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
-
-    public static final String PARTITION_CHECK = "PARTITION_CHECK";
 
     @Autowired
     private EventDao eventDao;
@@ -96,17 +82,29 @@ public class EventServiceImpl implements EventService {
      * {@inheritDoc}
      */
     @Override
-    public void enqueueMessageEvent(
-            final String messageId,
-            final MessageStatus oldStatus,
-            final MessageStatus newStatus,
-            final MSHRole role) {
+    public void enqueueMessageEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
         Event event = new Event(EventType.MSG_STATUS_CHANGED);
         event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
         event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
         event.addStringKeyValue(MESSAGE_ID.name(), messageId);
         event.addStringKeyValue(ROLE.name(), role.name());
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, MESSAGE_EVENT_SELECTOR);
+
+        enqueueEvent(event);
+    }
+
+    @Override
+    // add from and to parties
+    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status) {
+        Event event = new Event(EventType.CONNECTION_MONITORING_FAILED);
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.MESSAGE_ID.name(), messageId);
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.ROLE.name(), role.name());
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.STATUS.name(), status.name());
+
+        enqueueEvent(event);
+    }
+
+    private void enqueueEvent(Event event) {
+        jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
         LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
     }
 
@@ -116,7 +114,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueLoginFailureEvent(UserEntityBase.Type userType, final String userName, final Date loginTime, final boolean accountDisabled) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
-        enqueueEvent(LOGIN_FAILURE, prepareAccountEvent(
+        enqueueEvent(prepareAccountEvent(
                 eventType, userName,
                 userType.getName(),
                 loginTime,
@@ -130,7 +128,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueAccountDisabledEvent(UserEntityBase.Type userType, final String userName, final Date accountDisabledTime) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
-        enqueueEvent(ACCOUNT_DISABLED, prepareAccountEvent(
+        enqueueEvent(prepareAccountEvent(
                 eventType, userName,
                 userType.getName(),
                 accountDisabledTime,
@@ -141,17 +139,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueAccountEnabledEvent(UserEntityBase.Type userType, String userName, Date accountEnabledTime) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
-        enqueueEvent(ACCOUNT_ENABLED, prepareAccountEvent(
+        enqueueEvent(prepareAccountEvent(
                 eventType, userName,
                 userType.getName(),
                 accountEnabledTime,
                 Boolean.toString(true),
                 AccountEventKey.ACCOUNT_ENABLED));
-    }
-
-    private void enqueueEvent(String selector, Event event) {
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, selector);
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
     }
 
     /**
@@ -160,7 +153,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueImminentCertificateExpirationEvent(final String accessPoint, final String alias, final Date expirationDate) {
         EventType eventType = EventType.CERT_IMMINENT_EXPIRATION;
-        enqueueEvent(CERTIFICATE_IMMINENT_EXPIRATION, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
+        enqueueEvent(prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
     }
 
     /**
@@ -170,7 +163,7 @@ public class EventServiceImpl implements EventService {
     public void enqueuePartitionCheckEvent(String partitionName) {
         Event event = new Event(EventType.PARTITION_CHECK);
         event.addStringKeyValue(PartitionCheckEvent.PARTITION_NAME.name(), partitionName);
-        enqueueEvent(PARTITION_CHECK, event);
+        enqueueEvent(event);
     }
 
     /**
@@ -179,7 +172,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
         EventType eventType = EventType.CERT_EXPIRED;
-        enqueueEvent(CERTIFICATE_EXPIRED, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
+        enqueueEvent(prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
     }
 
     /**
@@ -190,7 +183,7 @@ public class EventServiceImpl implements EventService {
         Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
         event.addStringKeyValue(ArchivingEventProperties.BATCH_ID.name(), batchId);
         event.addStringKeyValue(ArchivingEventProperties.BATCH_STATUS.name(), batchStatus.name());
-        enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED.name(), event);
+        enqueueEvent(event);
     }
 
     /**
@@ -363,7 +356,7 @@ public class EventServiceImpl implements EventService {
         Event event = new Event(EventType.ARCHIVING_MESSAGES_NON_FINAL);
         event.addStringKeyValue(OLD_STATUS.name(), status.name());
         event.addStringKeyValue(MESSAGE_ID.name(), messageId);
-        enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL.name(), event);
+        enqueueEvent(event);
     }
 
     /**
@@ -372,7 +365,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueEArchivingStartDateStopped() {
         Event event = new Event(EventType.ARCHIVING_START_DATE_STOPPED);
-        enqueueEvent(EventType.ARCHIVING_START_DATE_STOPPED.name(), event);
+        enqueueEvent(event);
     }
 
 }
