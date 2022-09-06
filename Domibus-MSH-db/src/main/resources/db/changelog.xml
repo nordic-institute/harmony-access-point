@@ -478,7 +478,7 @@
             </column>
             <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
             <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
-            <column name="FK_MSG_ACKNOWLEDGE" type="BIGINT">
+            <column name="MESSAGE_ACK_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
@@ -490,12 +490,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
-        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_ACK_ID_FK" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_MESSAGE_ACKNW"/>
-        <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
-            <column name="FK_MSG_ACKNOWLEDGE"/>
+        <createIndex indexName="IDX_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
+            <column name="MESSAGE_ACK_ID_FK"/>
         </createIndex>
 
         <createTable tableName="TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">

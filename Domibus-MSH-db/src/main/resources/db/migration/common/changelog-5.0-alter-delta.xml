@@ -62,4 +62,15 @@
             ALTER INDEX PK_TB_USER_ROLE RENAME TO PK_USER_ROLE;
         </sql>
     </changeSet>
+
+    <changeSet author="Soumya" id="EDELIVERY-9732-Not possible to call service ext/messages/acknowledgments/delivered with properties specified">
+    <sql dbms="oracle">
+        ALTER TABLE TB_MESSAGE_ACKNW_PROP RENAME COLUMN FK_MSG_ACKNOWLEDGE TO MESSAGE_ACK_ID_FK;
+        ALTER INDEX FK_MSG_ACK_PROP_MSG_ACK RENAME TO IDX_MSG_ACK_PROP_MSG_ACK;
+    </sql>
+    <sql dbms="mysql">
+        ALTER TABLE TB_MESSAGE_ACKNW_PROP RENAME COLUMN FK_MSG_ACKNOWLEDGE TO MESSAGE_ACK_ID_FK;
+        ALTER TABLE TB_MESSAGE_ACKNW_PROP RENAME INDEX FK_MSG_ACK_PROP_MSG_ACK TO IDX_MSG_ACK_PROP_MSG_ACK;
+    </sql>
+    </changeSet>
 </databaseChangeLog>
