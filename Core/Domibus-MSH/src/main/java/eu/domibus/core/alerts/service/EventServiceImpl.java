@@ -93,11 +93,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    // add from and to parties
     public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status) {
         Event event = new Event(EventType.CONNECTION_MONITORING_FAILED);
         event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.MESSAGE_ID.name(), messageId);
         event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.ROLE.name(), role.name());
+//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.FROM_PARTY.name(), fromParty);
+//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.TO_PARTY.name(), toParty);
         event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.STATUS.name(), status.name());
 
         enqueueEvent(event);

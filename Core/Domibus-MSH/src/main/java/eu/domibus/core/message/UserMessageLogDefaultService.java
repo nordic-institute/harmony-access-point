@@ -2,6 +2,9 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
+import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringConfigurationManager;
+import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -47,6 +50,12 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     @Autowired
     protected NotificationStatusDao notificationStatusDao;
 
+    @Autowired
+    protected ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
+
+    @Autowired
+    protected EventService eventService;
+
     public UserMessageLog findById(Long entityId) {
         return userMessageLogDao.findById(entityId);
     }
@@ -90,6 +99,11 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
         if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
+        } else {
+            final ConnectionMonitoringModuleConfiguration connMonitorConfig = connectionMonitoringConfigurationManager.getConfiguration();
+            if (connMonitorConfig.shouldMonitorMessageStatus(newStatus)) {
+                eventService.enqueueConnectionMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(), messageLog.getMessageStatus());
+            }
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);
     }
@@ -151,6 +165,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     public void updateStatusToArchived(List<Long> entityIds) {
         userMessageLogDao.updateArchived(entityIds);
     }
+
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateStatusToExported(List<Long> entityIds) {
         userMessageLogDao.updateExported(entityIds);
