@@ -44,6 +44,10 @@ public class Security extends AbstractBaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "SIGNATURE_METHOD")
     protected AsymmetricSignatureAlgorithm signatureMethod;
+    @XmlAttribute(name = "securityProfile", required = true)
+    @Enumerated(EnumType.STRING) //Will it be defined as an enum somewhere?
+    @Column(name = "SECURITY_PROFILE")
+    protected String securityProfile;
 
     /**
      * Gets the value of the name property.
@@ -103,6 +107,14 @@ public class Security extends AbstractBaseEntity {
      */
     public void setSignatureMethod(final AsymmetricSignatureAlgorithm value) {
         this.signatureMethod = value;
+    }
+
+    public String getSecurityProfile() {
+        return securityProfile;
+    }
+
+    public void setSecurityProfile(String securityProfile) {
+        this.securityProfile = securityProfile;
     }
 
     public void init(final Configuration configuration) {
