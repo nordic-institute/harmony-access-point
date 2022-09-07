@@ -34,10 +34,13 @@ import {ComponentName} from '../common/component-name-decorator';
 export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
+  @ViewChild('monitorStatusHeader', {static: false}) monitorStatusHeaderTemplate: TemplateRef<any>;
+
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
   @ViewChild('alertableStatus', {static: false}) alertableStatusTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
+  allMonitored: boolean;
 
   constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
               private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
@@ -62,10 +65,15 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let rows = await this.connectionsMonitorService.getMonitors();
     super.rows = rows;
     super.count = this.rows.length;
+
+    this.refreshAllMonitored();
+  }
+
+  private refreshAllMonitored() {
+    this.allMonitored = this.rows.filter(el => el.testable).every(el => el.monitored);
   }
 
   private initColumns() {
-
     this.columnPicker.allColumns = [
       {
         name: 'Party',
@@ -74,6 +82,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       },
       {
         cellTemplate: this.monitorStatusTemplate,
+        headerTemplate: this.monitorStatusHeaderTemplate,
         name: 'Monitoring',
         prop: 'monitorStatus',
         width: 20,
@@ -119,9 +128,11 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     try {
       await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
       row.monitored = newMonitoredValue;
+      this.refreshAllMonitored();
       this.alertService.success(`Monitoring ${newMonitorState} for <b>${row.partyId}</b>`);
     } catch (err) {
       row.monitored = !newMonitoredValue;
+      this.refreshAllMonitored();
       this.alertService.exception(`Monitoring could not be ${newMonitorState} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
@@ -161,5 +172,23 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     });
   }
 
+
+  async toggleMonitorAll() {
+    let newMonitorState = this.allMonitored;
+
+    let active: ConnectionMonitorEntry[] = this.rows.filter(row => row.testable);
+    active.forEach(row => {
+      row['original'] = row.monitored;
+      row.monitored = newMonitorState;
+    });
+    try {
+      await this.connectionsMonitorService.setMonitorStateForAll(active, newMonitorState);
+      // this.allMonitored = newMonitorState;
+      this.alertService.success(`Monitoring ${newMonitorState} for all parties`);
+    } catch (err) {
+      active.forEach(row => row.monitored = row['original']);
+      this.alertService.exception(`Monitoring could not be ${newMonitorState} for all parties`, err);
+    }
+  }
 
 }

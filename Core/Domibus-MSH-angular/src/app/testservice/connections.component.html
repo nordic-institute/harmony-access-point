@@ -5,6 +5,11 @@
     <page-grid [parent]="this" [selectionType]="'none'"></page-grid>
   </div>
 
+  <ng-template #monitorStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
+    <span>Monitoring</span>
+  </ng-template>
+
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <div *ngIf="row.testable">
       <button mat-icon-button (click)="openDetails(row)"

@@ -113,6 +113,17 @@ export class ConnectionsMonitorService {
     await this.propertiesService.updateProperty(prop);
   }
 
+  async setMonitorStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+    let propName = 'domibus.monitoring.connection.party.enabled';
+
+    let prop: PropertyModel = await this.propertiesService.getProperty(propName);
+    if (enabled) {
+      prop.value = list.map(el => el.partyId).join(',');
+    } else {
+      prop.value = '';
+    }
+    await this.propertiesService.updateProperty(prop);
+  }
 }
 
 export class ConnectionMonitorEntry {
