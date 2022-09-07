@@ -91,20 +91,26 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status) {
+    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency) {
         Event event = new Event(EventType.CONNECTION_MONITORING_FAILED);
+        event.setReportingTime(new Date());
+        event.addStringKeyValue(EVENT_IDENTIFIER, toParty);
+
         event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.MESSAGE_ID.name(), messageId);
         event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.ROLE.name(), role.name());
-//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.FROM_PARTY.name(), fromParty);
-//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.TO_PARTY.name(), toParty);
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.FROM_PARTY.name(), fromParty);
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.TO_PARTY.name(), toParty);
         event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.STATUS.name(), status.name());
 
-        enqueueEvent(event);
-    }
+        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
+        if (!shouldCreateAlert(entity, frequency)) {
+            return;
+        }
 
-    private void enqueueEvent(Event event) {
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
-        LOG.debug("Event:[{}] added to the queue", event);
+        entity.setLastAlertDate(LocalDate.now());
+        eventDao.update(entity);
+
+        enqueueEvent(event);
     }
 
     /**
@@ -232,28 +238,11 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private Event prepareCertificateEvent(String accessPoint, String alias, Date expirationDate, EventType eventType) {
-        Event event = new Event(eventType);
-        event.addStringKeyValue(CertificateEvent.ACCESS_POINT.name(), accessPoint);
-        event.addStringKeyValue(CertificateEvent.ALIAS.name(), alias);
-        event.addDateKeyValue(CertificateEvent.EXPIRATION_DATE.name(), expirationDate);
-        return event;
-    }
-
-    private Event prepareAccountEvent(final EventType eventType, final String userName, final String userType, final Date loginTime, final String value, final AccountEventKey key) {
-        Event event = new Event(eventType);
-        event.addAccountKeyValue(USER, userName);
-        event.addAccountKeyValue(USER_TYPE, userType);
-        event.addDateKeyValue(LOGIN_TIME.name(), loginTime);
-        event.addAccountKeyValue(key, value);
-        return event;
-    }
-
     @Override
     public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
 
+        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
         if (!shouldCreateAlert(entity, frequency)) {
             return;
         }
@@ -268,7 +257,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, int frequency) {
-
         if (entity == null) {
             LOG.debug("Should create alert because the event was not previously persisted");
             return true;
@@ -289,6 +277,28 @@ public class EventServiceImpl implements EventService {
 
         LOG.debug("Should NOT create alert for event [{}] because lastAlertDate is not old enough [{}]", entity.getType(), entity.getLastAlertDate());
         return false;
+    }
+
+    private void enqueueEvent(Event event) {
+        jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
+        LOG.debug("Event:[{}] added to the queue", event);
+    }
+
+    private Event prepareCertificateEvent(String accessPoint, String alias, Date expirationDate, EventType eventType) {
+        Event event = new Event(eventType);
+        event.addStringKeyValue(CertificateEvent.ACCESS_POINT.name(), accessPoint);
+        event.addStringKeyValue(CertificateEvent.ALIAS.name(), alias);
+        event.addDateKeyValue(CertificateEvent.EXPIRATION_DATE.name(), expirationDate);
+        return event;
+    }
+
+    private Event prepareAccountEvent(final EventType eventType, final String userName, final String userType, final Date loginTime, final String value, final AccountEventKey key) {
+        Event event = new Event(eventType);
+        event.addAccountKeyValue(USER, userName);
+        event.addAccountKeyValue(USER_TYPE, userType);
+        event.addDateKeyValue(LOGIN_TIME.name(), loginTime);
+        event.addAccountKeyValue(key, value);
+        return event;
     }
 
     private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event, String identifier) {

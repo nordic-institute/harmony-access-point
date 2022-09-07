@@ -17,15 +17,22 @@ public class ConnectionMonitoringModuleConfiguration extends AlertModuleConfigur
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringModuleConfiguration.class);
 
+    private int frequency;
+
     private List<String> enabledParties;
 
-    public ConnectionMonitoringModuleConfiguration(final AlertLevel alertLevel, final String mailSubject, final List<String> enabledParties) {
+    public ConnectionMonitoringModuleConfiguration(final int frequency, final AlertLevel alertLevel, final String mailSubject, final List<String> enabledParties) {
         super(AlertType.CONNECTION_MONITORING_FAILED, alertLevel, mailSubject);
         this.enabledParties = enabledParties;
+        this.frequency = frequency;
     }
 
     public ConnectionMonitoringModuleConfiguration() {
         super(AlertType.CONNECTION_MONITORING_FAILED);
+    }
+
+    public int getFrequency() {
+        return frequency;
     }
 
     public boolean shouldGenerateAlert(MessageStatus messageStatus, String toParty) {

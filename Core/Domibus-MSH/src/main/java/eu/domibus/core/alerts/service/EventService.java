@@ -33,8 +33,7 @@ public interface EventService {
      * @param role      the role of the access point.
      * @param status the new status of the message.
      */
-    void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status);
-
+    void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency);
 
     /**
      * Will create login failure event and enqueue it to the alert/event monitoring queue.

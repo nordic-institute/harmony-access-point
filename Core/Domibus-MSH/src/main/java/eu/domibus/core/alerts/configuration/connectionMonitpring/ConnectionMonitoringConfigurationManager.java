@@ -67,6 +67,7 @@ public class ConnectionMonitoringConfigurationManager
                 return new ConnectionMonitoringModuleConfiguration();
             }
 
+            final int frequency = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_FREQUENCY_DAYS);
             final AlertLevel alertLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_LEVEL));
             final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_MAIL_SUBJECT);
 
@@ -75,7 +76,7 @@ public class ConnectionMonitoringConfigurationManager
                     .filter(party -> StringUtils.isNotEmpty(party))
                     .collect(Collectors.toList());
 
-            return new ConnectionMonitoringModuleConfiguration(alertLevel, mailSubject, enabledParties);
+            return new ConnectionMonitoringModuleConfiguration(frequency, alertLevel, mailSubject, enabledParties);
         } catch (Exception ex) {
             LOG.warn("Error while configuring alerts related to connection monitoring notifications for domain:[{}].", currentDomain, ex);
             return new ConnectionMonitoringModuleConfiguration();
