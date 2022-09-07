@@ -6,11 +6,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <!-- leave as the first instruction to not trigger an error about not recognizing the DELIMITER statement when running as non-root -->
     <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-common" author="Soumya">
-        <sqlFile path="src/main/resources/db/migration/mysql/db-migration-utc-conversion.sql" endDelimiter="\n//"
+        <sqlFile path="src/main/resources/db/archive/5.0/migration/mysql/db-migration-utc-conversion.sql" endDelimiter="\n//"
                  dbms="mysql"/>
     </changeSet>
 

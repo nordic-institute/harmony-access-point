@@ -12,7 +12,7 @@ to a destination Domibus **v4.2.9** application or from a source Domibus **v5.0*
 ## 1. From v4.2.9 to v4.2.9
 
 The PL/SQL package for migrating ongoing messages between the source and destination databases is located in 
-_Domibus-MSH-db/src/main/resources/db/migration/oracle/db-migration-ongoing-messages-4.2.9-to-4.2.9.sql_.
+_Domibus-MSH-db/src/main/resources/db/archive/5.0/migration/oracle/db-migration-ongoing-messages-4.2.9-to-4.2.9.sql_.
 
 It must be compiled on the source database (v4.2.9 schema). It is intended to be only run using a few ongoing 
 messages at a time (hundreds or a few thousands), something to be decided by the DBA. In case of a large result
@@ -62,7 +62,7 @@ To run this procedure, the user could use a similar anonymous block, with the st
 ## 2. From v5.0 to v5.0
 
 The PL/SQL package for migrating ongoing messages between the source and destination databases is located in
-_Domibus-MSH-db/src/main/resources/db/migration/oracle/db-migration-ongoing-messages-5.0-to-5.0.sql_.
+_Domibus-MSH-db/src/main/resources/db/archive/5.0/migration/oracle/db-migration-ongoing-messages-5.0-to-5.0.sql_.
 
 It must be compiled on the source database (v5.0 schema). It is intended to be only run using a few ongoing
 messages at a time (hundreds or a few thousands), something to be decided by the DBA. In case of a large result
