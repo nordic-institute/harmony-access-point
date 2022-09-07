@@ -37,7 +37,6 @@ public class PasswordExpirationListener {
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = '" + EventType.QuerySelectors.PASSWORD_EXPIRATION + "'")
-    //TODO it would be nice to use here eventType.getQueueSelector() instead of hardcoded string
     // Intentionally used just one selector value for all 4 types of events
     public void onPasswordEvent(final Event event, @Header(name = "DOMAIN", required = false) String domain) {
         triggerAlert(event, domain);

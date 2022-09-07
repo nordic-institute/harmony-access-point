@@ -270,7 +270,7 @@ public class EventServiceImplTest {
             result = persistedEvent;
         }};
 
-        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge, passwordExpirationAlertModuleConfiguration);
+        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge, passwordExpirationAlertModuleConfiguration.getEventFrequency());
 
         new VerificationsInOrder() {{
             Event event;

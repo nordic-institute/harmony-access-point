@@ -48,8 +48,6 @@ public class EventServiceImpl implements EventService {
 
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
-    private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
-
     private static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
     @Autowired
@@ -106,7 +104,7 @@ public class EventServiceImpl implements EventService {
 
     private void enqueueEvent(Event event) {
         jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
+        LOG.debug("Event:[{}] added to the queue", event);
     }
 
     /**
@@ -115,12 +113,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueLoginFailureEvent(UserEntityBase.Type userType, final String userName, final Date loginTime, final boolean accountDisabled) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
-        enqueueEvent(prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                loginTime,
-                Boolean.toString(accountDisabled),
-                AccountEventKey.ACCOUNT_DISABLED));
+        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), loginTime, Boolean.toString(accountDisabled), AccountEventKey.ACCOUNT_DISABLED));
     }
 
     /**
@@ -129,23 +122,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueAccountDisabledEvent(UserEntityBase.Type userType, final String userName, final Date accountDisabledTime) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
-        enqueueEvent(prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                accountDisabledTime,
-                Boolean.toString(true),
-                AccountEventKey.ACCOUNT_DISABLED));
+        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), accountDisabledTime, Boolean.toString(true), AccountEventKey.ACCOUNT_DISABLED));
     }
 
     @Override
     public void enqueueAccountEnabledEvent(UserEntityBase.Type userType, String userName, Date accountEnabledTime) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
-        enqueueEvent(prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                accountEnabledTime,
-                Boolean.toString(true),
-                AccountEventKey.ACCOUNT_ENABLED));
+        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), accountEnabledTime, Boolean.toString(true), AccountEventKey.ACCOUNT_ENABLED));
     }
 
     /**
@@ -257,13 +240,7 @@ public class EventServiceImpl implements EventService {
         return event;
     }
 
-    private Event prepareAccountEvent(
-            final EventType eventType,
-            final String userName,
-            final String userType,
-            final Date loginTime,
-            final String value,
-            final AccountEventKey key) {
+    private Event prepareAccountEvent(final EventType eventType, final String userName, final String userType, final Date loginTime, final String value, final AccountEventKey key) {
         Event event = new Event(eventType);
         event.addAccountKeyValue(USER, userName);
         event.addAccountKeyValue(USER_TYPE, userType);
@@ -273,11 +250,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
         eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
 
-        if (!shouldCreateAlert(entity, alertConfiguration)) {
+        if (!shouldCreateAlert(entity, frequency)) {
             return;
         }
 
@@ -323,11 +300,6 @@ public class EventServiceImpl implements EventService {
         }
 
         return entity;
-    }
-
-    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
-        int frequency = alertConfiguration.getEventFrequency();
-        return shouldCreateAlert(entity, frequency);
     }
 
     private Event preparePasswordEvent(UserEntityBase user, EventType eventType, Integer maxPasswordAgeInDays) {

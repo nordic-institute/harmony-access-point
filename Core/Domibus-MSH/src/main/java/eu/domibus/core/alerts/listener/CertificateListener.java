@@ -36,7 +36,8 @@ public class CertificateListener {
     private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = '" + EventType.QuerySelectors.CERTIFICATE_IMMINENT_EXPIRATION + "' or selector = '" + EventType.QuerySelectors.CERTIFICATE_EXPIRED + "'")
+            selector = "selector = '" + EventType.QuerySelectors.CERTIFICATE_IMMINENT_EXPIRATION
+                    + "' or selector = '" + EventType.QuerySelectors.CERTIFICATE_EXPIRED + "'")
     public void onCertificateEvent(final Event event, @Header(name = "DOMAIN") String domain) {
         saveEventAndTriggerAlert(event, domain);
     }

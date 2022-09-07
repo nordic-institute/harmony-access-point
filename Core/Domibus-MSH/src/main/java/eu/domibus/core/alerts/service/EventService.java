@@ -115,7 +115,7 @@ public interface EventService {
      * @param user                 the user for which the event is triggered
      * @param maxPasswordAgeInDays the number of days the password is not expired
      */
-    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration);
+    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency);
 
 
     /**
