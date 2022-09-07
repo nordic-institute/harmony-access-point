@@ -253,9 +253,6 @@ public class SplitAndJoinDefaultServiceTest {
             ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             result = userMessage;
 
-            userMessagePayloadService.handlePayloads(sourceRequest, ebms3Messaging, null);
-            result = partInfos;
-
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
             result = userMessageExchangeConfiguration;
 
@@ -275,8 +272,6 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.rejoinSourceMessage(sourceMessageId, sourceMessageFile, backendName);
 
         new Verifications() {{
-            userMessagePayloadService.handlePayloads(sourceRequest, ebms3Messaging, null);
-            messagingService.storePayloads(userMessage, partInfos, MSHRole.RECEIVING, legConfiguration, backendName);
             messageGroupService.setSourceMessageId(sourceMessageId, sourceMessageId);
             incomingSourceMessageHandler.processMessage(sourceRequest, ebms3Messaging);
             userMessageService.scheduleSourceMessageReceipt(sourceMessageId, reversePModeKey);
