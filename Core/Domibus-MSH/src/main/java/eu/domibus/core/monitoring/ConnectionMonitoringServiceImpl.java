@@ -1,9 +1,9 @@
 package eu.domibus.core.monitoring;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -44,7 +44,26 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public boolean isMonitoringEnabled() {
-        boolean monitoringEnabled = StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED));
+        String monitoredParties = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+        if (StringUtils.isNotBlank(monitoredParties)) {
+            LOG.debug("Connection monitoring is not enabled");
+            return false;
+        }
+        monitoredParties = monitoredParties.replace(partyService.getGatewayPartyIdentifier(), StringUtils.EMPTY);
+        boolean monitoringEnabled = monitoredParties.split(",").length > 0;
+        LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
+        return monitoringEnabled;
+    }
+
+    @Override
+    public boolean isSelfMonitoringEnabled() {
+        String selfParty = partyService.getGatewayPartyIdentifier();
+        if (StringUtils.isEmpty(selfParty)) {
+            LOG.info("The self party is not configured -> connection self monitoring disabled");
+            return false;
+        }
+
+        boolean monitoringEnabled = StringUtils.contains(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED), selfParty);
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }

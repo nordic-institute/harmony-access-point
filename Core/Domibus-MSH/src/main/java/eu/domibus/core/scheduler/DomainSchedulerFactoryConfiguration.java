@@ -23,6 +23,7 @@ import eu.domibus.core.message.retention.PartitionWorker;
 import eu.domibus.core.message.retention.RetentionWorker;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinExpirationWorker;
 import eu.domibus.core.monitoring.ConnectionMonitoringJob;
+import eu.domibus.core.monitoring.ConnectionMonitoringSelfJob;
 import eu.domibus.core.payload.temp.TemporaryPayloadCleanerJob;
 import eu.domibus.core.user.multitenancy.ActivateSuspendedSuperUsersJob;
 import eu.domibus.core.user.plugin.job.ActivateSuspendedPluginUsersJob;
@@ -468,6 +469,27 @@ public class DomainSchedulerFactoryConfiguration {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(connectionMonitoringJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_CRON));
+        obj.setStartDelay(JOB_START_DELAY_IN_MS);
+        return obj;
+    }
+
+    @Bean
+    public JobDetailFactoryBean connectionMonitoringSelfJob() {
+        JobDetailFactoryBean obj = new JobDetailFactoryBean();
+        obj.setJobClass(ConnectionMonitoringSelfJob.class);
+        obj.setDurability(true);
+        return obj;
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public CronTriggerFactoryBean connectionMonitoringSelfTrigger() {
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
+            return null;
+        }
+        CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
+        obj.setJobDetail(connectionMonitoringSelfJob().getObject());
+        obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_SELF_CRON));
         obj.setStartDelay(JOB_START_DELAY_IN_MS);
         return obj;
     }

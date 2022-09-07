@@ -17,9 +17,14 @@ public interface ConnectionMonitoringService {
     void sendTestMessages();
 
     /**
-     * Checks whether the monitoring is enabled for at least a party.
+     * Checks whether the monitoring is enabled for at least a party except self.
      */
     boolean isMonitoringEnabled();
+
+    /**
+     * Checks whether the self monitoring is enabled.
+     */
+    boolean isSelfMonitoringEnabled();
 
     /**
      * Retrieves the last known connection status for the given parties.

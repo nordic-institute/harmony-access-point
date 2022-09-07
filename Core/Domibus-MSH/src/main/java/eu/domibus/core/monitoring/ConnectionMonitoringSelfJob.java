@@ -11,23 +11,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Ion Perpegel
- * @since 4.2
+ * @since 5.1
  */
 @DisallowConcurrentExecution
-public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
+public class ConnectionMonitoringSelfJob extends DomibusQuartzJobBean {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringJob.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringSelfJob.class);
 
     @Autowired
     protected ConnectionMonitoringService connectionMonitoringService;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
-        if (!connectionMonitoringService.isMonitoringEnabled()) {
+        if (!connectionMonitoringService.isSelfMonitoringEnabled()) {
             return;
         }
 
-        LOG.debug("ConnectionMonitoringJob started on [{}] domain", domain);
+        LOG.debug("ConnectionMonitoringSelfJob started on [{}] domain", domain);
         connectionMonitoringService.sendTestMessages();
         LOG.debug("ConnectionMonitoringJob ended on [{}] domain", domain);
     }
