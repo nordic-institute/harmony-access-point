@@ -167,8 +167,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
     String DOMIBUS_ALERT_RETRY_CRON = "domibus.alert.retry.cron";
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
+
     String DOMIBUS_MONITORING_CONNECTION_CRON = "domibus.monitoring.connection.cron";
+    String DOMIBUS_MONITORING_CONNECTION_SELF_CRON = "domibus.monitoring.connection.self.cron";
     String DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED = "domibus.monitoring.connection.party.enabled";
+//    String DOMIBUS_MONITORING_CONNECTION_FAIL_ALERT_PARTY_ENABLED = "domibus.monitoring.connection.fail.alert.party.enabled";
+
     String DOMIBUS_SMART_RETRY_ENABLED = "domibus.smart.retry.enabled";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
     String DOMIBUS_ALERT_MAIL_SENDING_ACTIVE = "domibus.alert.mail.sending.active";
@@ -244,7 +248,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX + ".mail.subject";
 
     String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX = "domibus.alert.connection.monitoring";
-    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_ACTIVE = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".active";
+    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".parties";
+//    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_ACTIVE = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".active";
     String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_LEVEL = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".level";
     String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_MAIL_SUBJECT = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".mail.subject";
 

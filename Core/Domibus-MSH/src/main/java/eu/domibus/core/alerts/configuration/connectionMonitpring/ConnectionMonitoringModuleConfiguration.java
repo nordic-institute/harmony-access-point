@@ -7,6 +7,8 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 
+import java.util.List;
+
 /**
  * @author Ion Perpegel
  * @since 5.1
@@ -15,16 +17,21 @@ public class ConnectionMonitoringModuleConfiguration extends AlertModuleConfigur
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringModuleConfiguration.class);
 
-    public ConnectionMonitoringModuleConfiguration(final AlertLevel alertLevel, final String mailSubject) {
+    private List<String> enabledParties;
+
+    public ConnectionMonitoringModuleConfiguration(final AlertLevel alertLevel, final String mailSubject, final List<String> enabledParties) {
         super(AlertType.CONNECTION_MONITORING_FAILED, alertLevel, mailSubject);
+        this.enabledParties = enabledParties;
     }
 
     public ConnectionMonitoringModuleConfiguration() {
         super(AlertType.CONNECTION_MONITORING_FAILED);
     }
 
-    public boolean shouldMonitorMessageStatus(MessageStatus messageStatus) {
-        return isActive() && MessageStatus.getUnSuccessfulStates().contains(messageStatus);
+    public boolean shouldGenerateAlert(MessageStatus messageStatus, String toParty) {
+        return isActive()
+                && MessageStatus.getUnSuccessfulStates().contains(messageStatus)
+                && enabledParties.contains(toParty);
     }
 
     @Override

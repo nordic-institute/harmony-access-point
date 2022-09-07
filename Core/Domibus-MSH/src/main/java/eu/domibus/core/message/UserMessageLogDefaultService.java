@@ -101,7 +101,8 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         } else {
             final ConnectionMonitoringModuleConfiguration connMonitorConfig = connectionMonitoringConfigurationManager.getConfiguration();
-            if (connMonitorConfig.shouldMonitorMessageStatus(newStatus)) {
+            String toParty = userMessage.getPartyInfo().getToParty();
+            if (connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
                 eventService.enqueueConnectionMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(), messageLog.getMessageStatus());
             }
         }

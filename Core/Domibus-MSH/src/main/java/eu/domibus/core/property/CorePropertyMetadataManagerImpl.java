@@ -235,6 +235,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ALERT_RETRY_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),
             new DomibusPropertyMetadata(DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_SELF_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
@@ -272,6 +273,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
+//            new DomibusPropertyMetadata(DOMIBUS_MONITORING_CONNECTION_FAIL_ALERT_PARTY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_SMART_RETRY_ENABLED, Type.COMMA_SEPARATED_LIST, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_ALERT_ACTIVE, Type.BOOLEAN, Usage.DOMAIN_AND_SUPER, true),
@@ -345,7 +347,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_MAIL_SUBJECT, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+//            new DomibusPropertyMetadata(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_LEVEL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_MAIL_SUBJECT, Usage.DOMAIN, true),
 
