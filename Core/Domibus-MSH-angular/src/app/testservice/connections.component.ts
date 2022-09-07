@@ -133,10 +133,10 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     try {
       await this.connectionsMonitorService.setAlertableState(row.partyId, newAlertableValue);
       row.alertable = newAlertableValue;
-      this.alertService.success(`Alert genration ${newAlertableState} for <b>${row.partyId}</b>`);
+      this.alertService.success(`Alert generation ${newAlertableState} for <b>${row.partyId}</b>`);
     } catch (err) {
       row.alertable = !newAlertableValue;
-      this.alertService.exception(`Alert genration could not be ${newAlertableState} for <b>${row.partyId}</b>:<br>`, err);
+      this.alertService.exception(`Alert generation could not be ${newAlertableState} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
 
