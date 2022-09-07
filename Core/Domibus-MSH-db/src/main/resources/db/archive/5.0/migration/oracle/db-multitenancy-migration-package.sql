@@ -252,8 +252,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_alert BULK COLLECT INTO alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN alert.COUNT = 0;
 
-            migr_alert := T_MIGR_ALERT();
-            migr_pks_alert := T_MIGR_PKS_ALERT();
+            migr_alert.DELETE();
+            migr_pks_alert.DELETE();
 
             SELECT MPKSTO.NEW_ID
             INTO v_fk_timezone_offset
@@ -394,8 +394,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_event BULK COLLECT INTO event LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event.COUNT = 0;
 
-            migr_event := T_MIGR_EVENT();
-            migr_pks_event := T_MIGR_PKS_EVENT();
+            migr_event.DELETE();
+            migr_pks_event.DELETE();
 
             FOR i IN event.FIRST .. event.LAST
                 LOOP
@@ -510,7 +510,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_event_alert BULK COLLECT INTO event_alert LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_alert.COUNT = 0;
 
-            migr_event_alert := T_MIGR_EVENT_ALERT();
+            migr_event_alert.DELETE();
 
             FOR i IN event_alert.FIRST .. event_alert.LAST
                 LOOP
@@ -612,7 +612,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_event_property BULK COLLECT INTO event_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN event_property.COUNT = 0;
 
-            migr_event_property := T_MIGR_EVENT_PROPERTY();
+            migr_event_property.DELETE();
 
             FOR i IN event_property.FIRST .. event_property.LAST
                 LOOP
@@ -721,8 +721,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_command BULK COLLECT INTO command LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command.COUNT = 0;
 
-            migr_command := T_MIGR_COMMAND();
-            migr_pks_command := T_MIGR_PKS_COMMAND();
+            migr_command.DELETE();
+            migr_pks_command.DELETE();
 
             FOR i IN command.FIRST .. command.LAST
                 LOOP
@@ -834,7 +834,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_command_property BULK COLLECT INTO command_property LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN command_property.COUNT = 0;
 
-            migr_command_property := T_MIGR_COMMAND_PROPERTY();
+            migr_command_property.DELETE();
 
             FOR i IN command_property.FIRST .. command_property.LAST
                 LOOP
@@ -938,7 +938,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_domain BULK COLLECT INTO user_domain LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_domain.COUNT = 0;
 
-            migr_user_domain := T_MIGR_USER_DOMAIN();
+            migr_user_domain.DELETE();
 
             FOR i IN user_domain.FIRST .. user_domain.LAST
                 LOOP
@@ -1052,8 +1052,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user BULK COLLECT INTO v_user LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN v_user.COUNT = 0;
 
-            migr_user := T_MIGR_USER();
-            migr_pks_user := T_MIGR_PKS_USER();
+            migr_user.DELETE();
+            migr_pks_user.DELETE();
 
             FOR i IN v_user.FIRST .. v_user.LAST
                 LOOP
@@ -1184,7 +1184,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_password_history BULK COLLECT INTO user_password_history LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_password_history.COUNT = 0;
 
-            migr_user_password_history := T_MIGR_USER_PASSWORD_HISTORY();
+            migr_user_password_history.DELETE();
 
             FOR i IN user_password_history.FIRST .. user_password_history.LAST
                 LOOP
@@ -1288,8 +1288,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_role BULK COLLECT INTO user_role LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role.COUNT = 0;
 
-            migr_user_role := T_MIGR_USER_ROLE();
-            migr_pks_user_role := T_MIGR_PKS_USER_ROLE();
+            migr_user_role.DELETE();
+            migr_pks_user_role.DELETE();
 
             FOR i IN user_role.FIRST .. user_role.LAST
                 LOOP
@@ -1400,7 +1400,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_roles BULK COLLECT INTO user_roles LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles.COUNT = 0;
 
-            migr_user_roles := T_MIGR_USER_ROLES();
+            migr_user_roles.DELETE();
 
             FOR i IN user_roles.FIRST .. user_roles.LAST
                 LOOP
@@ -1499,8 +1499,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_rev_info BULK COLLECT INTO rev_info LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_info.COUNT = 0;
 
-            migr_rev_info := T_MIGR_REV_INFO();
-            migr_pks_rev_info := T_MIGR_PKS_REV_INFO();
+            migr_rev_info.DELETE();
+            migr_pks_rev_info.DELETE();
 
             FOR i IN rev_info.FIRST .. rev_info.LAST
                 LOOP
@@ -1706,7 +1706,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_rev_changes BULK COLLECT INTO rev_changes LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN rev_changes.COUNT = 0;
 
-            migr_rev_changes := T_MIGR_REV_CHANGES();
+            migr_rev_changes.DELETE();
 
             FOR i IN rev_changes.FIRST .. rev_changes.LAST
                 LOOP
@@ -1850,7 +1850,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_aud BULK COLLECT INTO user_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_aud.COUNT = 0;
 
-            migr_user_aud := T_MIGR_USER_AUD();
+            migr_user_aud.DELETE();
 
             FOR i IN user_aud.FIRST .. user_aud.LAST
                 LOOP
@@ -1982,7 +1982,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_role_aud BULK COLLECT INTO user_role_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_role_aud.COUNT = 0;
 
-            migr_user_role_aud := T_MIGR_USER_ROLE_AUD();
+            migr_user_role_aud.DELETE();
 
             FOR i IN user_role_aud.FIRST .. user_role_aud.LAST
                 LOOP
@@ -2083,7 +2083,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FETCH c_user_roles_aud BULK COLLECT INTO user_roles_aud LIMIT BULK_COLLECT_LIMIT;
             EXIT WHEN user_roles_aud.COUNT = 0;
 
-            migr_user_roles_aud := T_MIGR_USER_ROLES_AUD();
+            migr_user_roles_aud.DELETE();
 
             FOR i IN user_roles_aud.FIRST .. user_roles_aud.LAST
                 LOOP
