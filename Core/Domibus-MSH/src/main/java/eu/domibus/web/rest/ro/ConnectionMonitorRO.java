@@ -12,6 +12,8 @@ public class ConnectionMonitorRO {
 
     boolean monitored;
 
+    boolean alertable;
+
     public enum ConnectionStatus {
         UNKNOWN,
         OK,
@@ -31,6 +33,14 @@ public class ConnectionMonitorRO {
 
     public void setMonitored(boolean monitored) {
         this.monitored = monitored;
+    }
+
+    public boolean isAlertable() {
+        return alertable;
+    }
+
+    public void setAlertable(boolean alertable) {
+        this.alertable = alertable;
     }
 
     public boolean isTestable() {

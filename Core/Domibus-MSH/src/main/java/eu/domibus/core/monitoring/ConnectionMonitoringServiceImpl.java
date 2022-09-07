@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
 
 /**
@@ -127,6 +128,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setMonitored(true);
         }
 
+        List<String> alertableParties = getAlertableParties();
+        if (result.isTestable() && alertableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+            result.setAlertable(true);
+        }
+
         result.setStatus(getConnectionStatus(lastSent));
 
         return result;
@@ -153,4 +159,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return enabledParties;
     }
 
+    private List<String> getAlertableParties() {
+        List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES).split(","));
+        enabledParties = enabledParties.stream()
+                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
+                .collect(Collectors.toList());
+        return enabledParties;
+    }
 }

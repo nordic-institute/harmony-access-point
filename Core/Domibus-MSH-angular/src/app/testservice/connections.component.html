@@ -29,6 +29,13 @@
     </span>
   </ng-template>
 
+  <ng-template #alertableStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="connection-monitor-status">
+      <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.alertable" (change)="toggleAlertable(row)"></mat-slide-toggle>
+      <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
+    </span>
+  </ng-template>
+
   <ng-template #connectionStatus let-row="row" let-value="value" ngx-datatable-cell-template>
     <div *ngIf="row.testable && row.status" class="connection-status">
       <span>

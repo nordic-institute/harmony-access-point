@@ -104,6 +104,28 @@ export class ConnectionsMonitorService {
     await this.propertiesService.updateProperty(prop);
   }
 
+  async setAlertableState(partyId: string, enabled: boolean) {
+    let testableParties = await this.http.get<string[]>(ConnectionsMonitorService.TEST_SERVICE_PARTIES_URL).toPromise();
+    if (!testableParties || !testableParties.length) {
+      throw new Error('The test service is not properly configured.');
+    }
+    if (enabled && !testableParties.includes(partyId)) {
+      throw new Error(partyId + ' is not configured for testing');
+    }
+
+    let propName = 'domibus.alert.connection.monitoring.parties';
+    let prop: PropertyModel = await this.propertiesService.getProperty(propName);
+
+    let enabledParties: string[] = prop.value.split(',').map(p => p.trim()).filter(p => p.toLowerCase() != partyId.toLowerCase());
+    // remove old parties that are no longer testable:
+    enabledParties = enabledParties.filter(p => testableParties.find(tp => tp.toLowerCase() == p.toLowerCase()));
+
+    if (enabled) {
+      enabledParties.push(partyId);
+    }
+    prop.value = enabledParties.join(',');
+    await this.propertiesService.updateProperty(prop);
+  }
 }
 
 export class ConnectionMonitorEntry {
@@ -111,6 +133,7 @@ export class ConnectionMonitorEntry {
   partyName?: string;
   testable: boolean;
   monitored: boolean;
+  alertable: boolean;
   status: string;
   lastSent: any;
   lastReceived: any;

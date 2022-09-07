@@ -1,4 +1,12 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
@@ -28,6 +36,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
+  @ViewChild('alertableStatus', {static: false}) alertableStatusTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
 
   constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
@@ -72,6 +81,14 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
         sortable: false
       },
       {
+        cellTemplate: this.alertableStatusTemplate,
+        name: 'Generate Alert',
+        prop: 'alertableStatus',
+        width: 20,
+        canAutoResize: true,
+        sortable: false
+      },
+      {
         cellTemplate: this.connectionStatusTemplate,
         name: 'Connection Status',
         prop: 'connectionStatus',
@@ -96,7 +113,6 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   async toggleConnectionMonitor(row: ConnectionMonitorEntry) {
-
     let newMonitoredValue = row.monitored;
     let newMonitorState = `${(newMonitoredValue ? 'enabled' : 'disabled')}`;
 
@@ -107,6 +123,20 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     } catch (err) {
       row.monitored = !newMonitoredValue;
       this.alertService.exception(`Monitoring could not be ${newMonitorState} for <b>${row.partyId}</b>:<br>`, err);
+    }
+  }
+
+  async toggleAlertable(row: ConnectionMonitorEntry) {
+    let newAlertableValue = row.alertable;
+    let newAlertableState = `${(newAlertableValue ? 'enabled' : 'disabled')}`;
+
+    try {
+      await this.connectionsMonitorService.setAlertableState(row.partyId, newAlertableValue);
+      row.alertable = newAlertableValue;
+      this.alertService.success(`Alert genration ${newAlertableState} for <b>${row.partyId}</b>`);
+    } catch (err) {
+      row.alertable = !newAlertableValue;
+      this.alertService.exception(`Alert genration could not be ${newAlertableState} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
 
@@ -130,4 +160,6 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       this.refreshMonitor(row);
     });
   }
+
+
 }
