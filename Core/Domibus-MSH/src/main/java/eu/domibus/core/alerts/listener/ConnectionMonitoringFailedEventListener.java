@@ -9,7 +9,6 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -24,17 +23,20 @@ public class ConnectionMonitoringFailedEventListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringFailedEventListener.class);
 
-    @Autowired
-    private AlertService alertService;
+    private final AlertService alertService;
 
-    @Autowired
-    private DomainContextProvider domainContextProvider;
+    private final DomainContextProvider domainContextProvider;
 
-    @Autowired
-    private DatabaseUtil databaseUtil;
+    private final DatabaseUtil databaseUtil;
 
-    @Autowired
-    private EventDao eventDao;
+    private final EventDao eventDao;
+
+    public ConnectionMonitoringFailedEventListener(AlertService alertService, DomainContextProvider domainContextProvider, DatabaseUtil databaseUtil, EventDao eventDao) {
+        this.alertService = alertService;
+        this.domainContextProvider = domainContextProvider;
+        this.databaseUtil = databaseUtil;
+        this.eventDao = eventDao;
+    }
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = '" + EventType.QuerySelectors.CONNECTION_MONITORING_FAILURE + "'")
@@ -43,6 +45,8 @@ public class ConnectionMonitoringFailedEventListener {
         saveEventAndTriggerAlert(event, domain);
     }
 
+    // todo all these listener classes seem to fall into 2 categories, so a base class could be foreseen (or the use of the same listener for more than one event)
+    //  in the task about simplifying the alerts creation
     private void saveEventAndTriggerAlert(Event event, final String domain) {
         LOG.debug("Connection Monitoring Falure event received:[{}]", event);
         domainContextProvider.setCurrentDomain(domain);
