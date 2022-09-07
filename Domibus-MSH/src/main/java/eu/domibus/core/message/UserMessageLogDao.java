@@ -253,15 +253,15 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findArchivedDeletedUserMessagesOlderThan", eArchiveIsActive);
+        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan", eArchiveIsActive);
     }
 
     public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findArchivedUndownloadedUserMessagesOlderThan", eArchiveIsActive);
+        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan", eArchiveIsActive);
     }
 
     public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findArchivedDownloadedUserMessagesOlderThan", eArchiveIsActive);
+        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan", eArchiveIsActive);
 
     }
 
@@ -282,7 +282,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
-            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findArchivedSentUserMessagesOlderThan", eArchiveIsActive);
+            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan", eArchiveIsActive);
         }
         // return only messages with payload not already cleared
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
@@ -334,7 +334,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findArchivedSSentUserMessagesWithPayloadNotClearedOlderThan", eArchiveIsActive);
+        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", eArchiveIsActive);
     }
 
 
