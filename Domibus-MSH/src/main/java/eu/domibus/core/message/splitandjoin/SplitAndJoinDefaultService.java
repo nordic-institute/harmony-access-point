@@ -253,15 +253,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             throw new SplitAndJoinException("Error getting the pmodeKey", e);
         }
 
-        List<PartInfo> partInfos;
-        try {
-            partInfos = userMessagePayloadService.handlePayloads(sourceRequest, ebms3Messaging, null);
-        } catch (EbMS3Exception | SOAPException | TransformerException e) {
-            throw new SplitAndJoinException("Error handling payloads", e);
-        }
-
-        messagingService.storePayloads(userMessage, partInfos, MSHRole.RECEIVING, legConfiguration, backendName);
-
         incomingSourceMessageHandler.processMessage(sourceRequest, ebms3Messaging);
 
         final String sourceMessageId = userMessage.getMessageId();

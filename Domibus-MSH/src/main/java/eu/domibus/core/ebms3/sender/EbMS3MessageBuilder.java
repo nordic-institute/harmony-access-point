@@ -153,7 +153,7 @@ public class EbMS3MessageBuilder {
                     this.attachPayload(partInfo, message);
                 }
             }
-
+            //message fragments
             if (messageGroupEntity != null) {
                 final Ebms3MessageFragmentType messageFragment = createMessageFragment(userMessage, messageFragmentEntity, partInfoList, messageGroupEntity);
                 jaxbContextMessageFragment.createMarshaller().marshal(messageFragment, message.getSOAPHeader());
@@ -163,9 +163,11 @@ public class EbMS3MessageBuilder {
                 messageFragmentElement.addAttribute(NonRepudiationConstants.ID_QNAME, ID_PREFIX_MESSAGE_FRAGMENT + messageIDDigest);
 
                 UserMessage cloneUserMessageFragment = userMessageFactory.cloneUserMessageFragment(userMessage);
-                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(cloneUserMessageFragment, partInfoList);
+                //message fragments do not contain any part infos
+                Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(cloneUserMessageFragment, null);
                 ebms3Messaging.setUserMessage(ebms3UserMessageFragment);
             } else {
+                //normal messages
                 Ebms3UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(userMessage, partInfoList);
                 ebms3Messaging.setUserMessage(ebms3UserMessageFragment);
             }
