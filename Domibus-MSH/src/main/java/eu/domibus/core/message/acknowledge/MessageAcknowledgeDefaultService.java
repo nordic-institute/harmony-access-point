@@ -100,7 +100,9 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
             });
         }
 
-        return messageAcknowledgeConverter.convert(entity);
+        MessageAcknowledgement messageAcknowledgement = messageAcknowledgeConverter.convert(entity);
+        messageAcknowledgement.setProperties(properties);
+        return messageAcknowledgement;
     }
 
     @Override
