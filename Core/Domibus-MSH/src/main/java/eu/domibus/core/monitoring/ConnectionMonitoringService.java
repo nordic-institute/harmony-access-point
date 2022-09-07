@@ -33,4 +33,6 @@ public interface ConnectionMonitoringService {
      * @return Details about the connection status of the given parties.
      */
     Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds);
+
+    void sendTestMessageToMyself();
 }

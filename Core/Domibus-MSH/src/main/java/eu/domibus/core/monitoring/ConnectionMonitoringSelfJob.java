@@ -28,7 +28,7 @@ public class ConnectionMonitoringSelfJob extends DomibusQuartzJobBean {
         }
 
         LOG.debug("ConnectionMonitoringSelfJob started on [{}] domain", domain);
-        connectionMonitoringService.sendTestMessages();
-        LOG.debug("ConnectionMonitoringJob ended on [{}] domain", domain);
+        connectionMonitoringService.sendTestMessageToMyself();
+        LOG.debug("ConnectionMonitoringSelfJob ended on [{}] domain", domain);
     }
 }

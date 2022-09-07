@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES;
@@ -46,12 +47,14 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     @Override
     public boolean isMonitoringEnabled() {
         String monitoredParties = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-        if (StringUtils.isNotBlank(monitoredParties)) {
+        if (StringUtils.isBlank(monitoredParties)) {
             LOG.debug("Connection monitoring is not enabled");
             return false;
         }
-        monitoredParties = monitoredParties.replace(partyService.getGatewayPartyIdentifier(), StringUtils.EMPTY);
-        boolean monitoringEnabled = monitoredParties.split(",").length > 0;
+        String selfParty = partyService.getGatewayPartyIdentifier();
+        boolean monitoringEnabled = Arrays.stream(monitoredParties.split(","))
+                .filter(party -> !StringUtils.equals(party, selfParty) && StringUtils.isNotBlank(party))
+                .count() > 0;
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
@@ -71,6 +74,15 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
+        sendTestMessagesTo(this::getAllMonitoredPartiesButMe);
+    }
+
+    @Override
+    public void sendTestMessageToMyself() {
+        sendTestMessagesTo(this::getMyself);
+    }
+
+    private void sendTestMessagesTo(BiFunction<List<String>, String, List<String>> getMonitoredPartiesFn) {
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to test");
@@ -83,10 +95,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return;
         }
 
-        List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
-                .collect(Collectors.toList());
+        List<String> monitoredParties = getMonitoredPartiesFn.apply(testableParties, selfParty);
+        if (CollectionUtils.isEmpty(monitoredParties)) {
+            LOG.debug("There are no monitored parties to test");
+            return;
+        }
+
         for (String party : monitoredParties) {
             try {
                 String testMessageId = testService.submitTest(selfParty, party);
@@ -95,6 +109,24 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
                 LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
             }
         }
+    }
+
+    private List<String> getAllMonitoredPartiesButMe(List<String> testableParties, String selfParty) {
+        List<String> enabledParties = getMonitorEnabledParties();
+        List<String> monitoredParties = testableParties.stream()
+                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
+                .filter(partyId -> !StringUtils.equals(partyId, selfParty))
+                .collect(Collectors.toList());
+        return monitoredParties;
+    }
+
+    private List<String> getMyself(List<String> testableParties, String selfParty) {
+        List<String> enabledParties = getMonitorEnabledParties();
+        List<String> monitoredParties = testableParties.stream()
+                .filter(partyId -> StringUtils.equals(partyId, selfParty))
+                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
+                .collect(Collectors.toList());
+        return monitoredParties;
     }
 
     @Override
