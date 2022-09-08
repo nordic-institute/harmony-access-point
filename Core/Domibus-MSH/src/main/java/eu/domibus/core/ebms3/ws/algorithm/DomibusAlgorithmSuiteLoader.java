@@ -48,7 +48,10 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
 
     public static final String AES128_GCM_ALGORITHM = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
     public static final String BASIC_128_GCM_SHA_256 = "Basic128GCMSha256";
+    //TODO: use the below algorithm for the new RSA profile
     public static final String BASIC_128_GCM_SHA_256_MGF_SHA_256 = "Basic128GCMSha256MgfSha256";
+
+    public static final String ECC = "Ecc";
 
     protected DomibusBus domibusBus;
 
@@ -78,6 +81,8 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
             assertions.put(qName, new PrimitiveAssertion(qName));
             qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, BASIC_128_GCM_SHA_256_MGF_SHA_256);
             assertions.put(qName, new PrimitiveAssertion(qName));
+            qName = new QName(E_DELIVERY_ALGORITHM_NAMESPACE, ECC);
+            assertions.put(qName, new PrimitiveAssertion(qName));
 
             reg.registerBuilder(new PrimitiveAssertionBuilder(assertions.keySet()) {
                 @Override
@@ -91,7 +96,6 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
                 }
             });
         }
-
     }
 
     @Override
@@ -131,6 +135,21 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
             );
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256).setMGFAlgo(MGF_SHA256);
             ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256).setEncryptionDigest(SPConstants.SHA256);
+
+            ALGORITHM_SUITE_TYPES.put(
+                    ECC,
+                    new AlgorithmSuiteType(
+                            ECC,
+                            //TODO: replace below parameters with ECC values
+                            SPConstants.SHA256,
+                            DomibusAlgorithmSuiteLoader.AES128_GCM_ALGORITHM,
+                            SPConstants.KW_AES128,
+                            WSS4JConstants.KEYTRANSPORT_RSAOAEP_XENC11,
+                            SPConstants.P_SHA1_L128,
+                            SPConstants.P_SHA1_L128,
+                            128, 128, 128, 256, 1024, 4096
+                    )
+            );
         }
 
         DomibusAlgorithmSuite(final SPConstants.SPVersion version, final Policy nestedPolicy) {
@@ -155,6 +174,9 @@ public class DomibusAlgorithmSuiteLoader implements AlgorithmSuiteLoader {
                 getAlgorithmSuiteType().setNamespace(assertionNamespace);
             } else if (BASIC_128_GCM_SHA_256_MGF_SHA_256.equals(assertionName)) {
                 setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(BASIC_128_GCM_SHA_256_MGF_SHA_256));
+                getAlgorithmSuiteType().setNamespace(assertionNamespace);
+            } else if (ECC.equals(assertionName)) {
+                setAlgorithmSuiteType(ALGORITHM_SUITE_TYPES.get(ECC));
                 getAlgorithmSuiteType().setNamespace(assertionNamespace);
             }
         }

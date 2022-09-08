@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -35,6 +36,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
+
 
 /**
  * @author Thomas Dussart
@@ -108,7 +110,23 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.put(PolicyConstants.POLICY_OVERRIDE, policy);
             message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
             message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
-            final String securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+
+            String profile = legConfiguration.getSecurity().getProfile();
+            String securityAlgorithm = null;
+            if (null == profile) {
+                securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+            } else {
+                switch (profile) {
+                    case "RSA":
+                        securityAlgorithm = AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
+                        break;
+                    case "ECC":
+                        securityAlgorithm = AsymmetricSignatureAlgorithm.ECC.getAlgorithm();
+                        break;
+                    default:
+                        LOG.error("No security profile was specified");
+                }
+            }
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);

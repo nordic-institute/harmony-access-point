@@ -292,44 +292,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         result.setProperty(keyStorePasswordProperty, keystorePassword);
         result.setProperty(Merlin.PREFIX + Merlin.KEYSTORE_ALIAS, privateKeyAlias);
 
-        //Load Security Profiles
-
-        //RSA Sign
-        final String privateKeyAliasRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_SIGN);
-//        final String privateKeyPasswordRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_RSA_SIGN);
-//        final String privateKeyCertificateTypeRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_RSA_SIGN);
-//        final String privateKeyCertificateKeyRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_RSA_SIGN);
-//        final String privateKeyHashFunctionRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_RSA_SIGN);
-//        final String privateKeyAlgorithmRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_RSA_SIGN);
-//
-//        //RSA Decrypt
-//        final String privateKeyAliasRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_DECRYPT);
-//        final String privateKeyPasswordRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_RSA_DECRYPT);
-//        final String privateKeyCertificateTypeRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_RSA_DECRYPT);
-//        final String privateKeyCertificateKeyRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_RSA_DECRYPT);
-//        final String privateKeyHashFunctionRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_RSA_DECRYPT);
-//        final String privateKeyAlgorithmRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_RSA_DECRYPT);
-//        final String privateKeyMinimumLengthRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_MINIMUM_LENGTH_RSA_DECRYPT);
-//        final String privateKeyAlgorithmSuiteTypeKeyExchangeTypeRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_SUITE_TYPE_KEY_EXCHANGE_TYPE_RSA_DECRYPT);
-//
-//        //ECC Sign
-//        final String privateKeyAliasEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_SIGN);
-//        final String privateKeyPasswordEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_ECC_SIGN);
-//        final String privateKeyCertificateTypeEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_ECC_SIGN);
-//        final String privateKeyCertificateKeyEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_ECC_SIGN);
-//        final String privateKeyHashFunctionEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_ECC_SIGN);
-//        final String privateKeyAlgorithmEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_ECC_SIGN);
-//
-//        //ECC Decrypt
-//        final String privateKeyAliasEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_DECRYPT);
-//        final String privateKeyPasswordEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_ECC_DECRYPT);
-//        final String privateKeyCertificateTypeEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_ECC_DECRYPT);
-//        final String privateKeyCertificateKeyEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_ECC_DECRYPT);
-//        final String privateKeyHashFunctionEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_ECC_DECRYPT);
-//        final String privateKeyAlgorithmEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_ECC_DECRYPT);
-//        final String privateKeyMinimumLengthEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_MINIMUM_LENGTH_ECC_DECRYPT);
-//        final String privateKeyAlgorithmSuiteTypeKeyExchangeTypeEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_SUITE_TYPE_KEY_EXCHANGE_TYPE_ECC_DECRYPT);
-
         Properties logProperties = new Properties();
         logProperties.putAll(result);
         logProperties.remove(keyStorePasswordProperty);
