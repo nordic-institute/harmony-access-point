@@ -35,12 +35,14 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   @ViewChild('monitorStatusHeader', {static: false}) monitorStatusHeaderTemplate: TemplateRef<any>;
+  @ViewChild('alertableStatusHeader', {static: false}) alertableStatusHeaderTemplate: TemplateRef<any>;
 
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
   @ViewChild('alertableStatus', {static: false}) alertableStatusTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
   allMonitored: boolean;
+  allAllertable: boolean;
 
   constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
               private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
@@ -67,10 +69,15 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     super.count = this.rows.length;
 
     this.refreshAllMonitored();
+    this.refreshAllAlertable();
   }
 
   private refreshAllMonitored() {
     this.allMonitored = this.rows.filter(el => el.testable).every(el => el.monitored);
+  }
+
+  private refreshAllAlertable() {
+    this.allAllertable = this.rows.filter(el => el.testable).every(el => el.alertable);
   }
 
   private initColumns() {
@@ -91,6 +98,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       },
       {
         cellTemplate: this.alertableStatusTemplate,
+        headerTemplate: this.alertableStatusHeaderTemplate,
         name: 'Generate Alert',
         prop: 'alertableStatus',
         width: 20,
@@ -144,9 +152,11 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     try {
       await this.connectionsMonitorService.setAlertableState(row.partyId, newAlertableValue);
       row.alertable = newAlertableValue;
+      this.refreshAllAlertable();
       this.alertService.success(`Alert generation ${newAlertableState} for <b>${row.partyId}</b>`);
     } catch (err) {
       row.alertable = !newAlertableValue;
+      this.refreshAllAlertable();
       this.alertService.exception(`Alert generation could not be ${newAlertableState} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
@@ -172,23 +182,39 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     });
   }
 
-
   async toggleMonitorAll() {
-    let newMonitorState = this.allMonitored;
+    let newState = this.allMonitored;
+    let newStateText = `${(newState ? 'enabled' : 'disabled')}`;
 
     let active: ConnectionMonitorEntry[] = this.rows.filter(row => row.testable);
     active.forEach(row => {
-      row['original'] = row.monitored;
-      row.monitored = newMonitorState;
+      row['originalMonitored'] = row.monitored;
+      row.monitored = newState;
     });
     try {
-      await this.connectionsMonitorService.setMonitorStateForAll(active, newMonitorState);
-      // this.allMonitored = newMonitorState;
-      this.alertService.success(`Monitoring ${newMonitorState} for all parties`);
+      await this.connectionsMonitorService.setMonitorStateForAll(active, newState);
+      this.alertService.success(`Monitoring ${newStateText} for all parties`);
     } catch (err) {
-      active.forEach(row => row.monitored = row['original']);
-      this.alertService.exception(`Monitoring could not be ${newMonitorState} for all parties`, err);
+      active.forEach(row => row.monitored = row['originalMonitored']);
+      this.alertService.exception(`Monitoring could not be ${newStateText} for all parties`, err);
     }
   }
 
+  async toggleAlertableAll() {
+    let newState = this.allAllertable;
+    let newStateText = `${(newState ? 'enabled' : 'disabled')}`;
+
+    let active: ConnectionMonitorEntry[] = this.rows.filter(row => row.testable);
+    active.forEach(row => {
+      row['originalAlertable'] = row.alertable;
+      row.alertable = newState;
+    });
+    try {
+      await this.connectionsMonitorService.setAlertableStateForAll(active, newState);
+      this.alertService.success(`Alert generation ${newStateText} for all parties`);
+    } catch (err) {
+      active.forEach(row => row.monitored = row['originalAlertable']);
+      this.alertService.exception(`Alert generation could not be ${newStateText} for all parties`, err);
+    }
+  }
 }

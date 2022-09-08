@@ -7,7 +7,12 @@
 
   <ng-template #monitorStatusHeader let-column="column" ngx-datatable-header-template>
     <mat-slide-toggle [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
-    <span>Monitoring</span>
+    <span style="margin-left: 5px;">Monitoring</span>
+  </ng-template>
+
+  <ng-template #alertableStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle [(ngModel)]="allAllertable" (change)="toggleAlertableAll()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Alert On Fail</span>
   </ng-template>
 
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
