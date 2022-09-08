@@ -74,7 +74,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        sendTestMessagesTo(this::getAllMonitoredPartiesButMe);
+        sendTestMessagesTo(this::getAllMonitoredPartiesButMiself);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
     }
 
-    private List<String> getAllMonitoredPartiesButMe(List<String> testableParties, String selfParty) {
+    private List<String> getAllMonitoredPartiesButMiself(List<String> testableParties, String selfParty) {
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = testableParties.stream()
                 .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
@@ -146,6 +146,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         result.setLastSent(lastSent);
 
         if (lastSent != null) {
+//            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, lastSent.getMessageId());
             TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
             result.setLastReceived(lastReceived);
         }

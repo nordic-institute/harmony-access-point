@@ -1,9 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.ActionEntity;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -183,6 +180,22 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
         query.setParameter("PARTY_ID", partyId);
         query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        query.setMaxResults(1);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public List<UserMessage> findTestMessagesToParty(String partyId, ActionEntity actionEntity) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
+        query.setParameter("PARTY_ID", partyId);
+        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        return query.getResultList();
+    }
+
+    public UserMessage findLastTestMessageWithStatus(String partyId, ActionEntity actionEntity, MessageStatus messageStatus) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageWithStatusDesc", UserMessage.class);
+        query.setParameter("PARTY_ID", partyId);
+        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        query.setParameter("STATUS", messageStatus);
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }

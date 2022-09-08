@@ -9,6 +9,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -82,7 +83,81 @@ public class TestService {
         messageData.getToParties().clear();
         messageData.addToParty(receiver, pModeProvider.getPartyIdType(receiver));
 
-        return messageSubmitter.submit(messageData, BACKEND_NAME);
+        String result = messageSubmitter.submit(messageData, BACKEND_NAME);
+
+        deleteOldIfApplicable(receiver);
+
+        return result;
+    }
+
+    private void deleteOldIfApplicable(String toParty) {
+        List<UserMessage> userMessages = new ArrayList<>();
+        List<Long> signalMessageIds = new ArrayList<>();
+
+        // find last successful message
+        UserMessage lastSentSuccess = getLastTestSentWithStatus(toParty, MessageStatus.ACKNOWLEDGED);
+        if (lastSentSuccess != null) {
+            keepUserAndSignal(userMessages, signalMessageIds, lastSentSuccess);
+        }
+
+        //find last unsuccessful message newer that the successful one
+        UserMessage lastSentError = getLastTestSentWithStatus(toParty, MessageStatus.SEND_FAILURE);
+        if (lastSentError != null) {
+            if (lastSentSuccess == null || lastSentError.getTimestamp().after(lastSentSuccess.getTimestamp())) {
+                keepUserAndSignal(userMessages, signalMessageIds, lastSentError);
+            }
+        }
+
+        //find pending message newer than any of those before
+        UserMessage lastSentPending = getLastTestSentWithStatus(toParty, MessageStatus.SEND_ENQUEUED);
+        if (lastSentPending != null) {
+            if (userMessages.isEmpty() || userMessages.get(userMessages.size() - 1).getTimestamp().before(lastSentPending.getTimestamp())) {
+                userMessages.add(lastSentPending);
+            }
+        }
+
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+
+        try {
+            List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty, actionEntity);
+            List<Long> toDelete = all.stream()
+                    .filter(el -> userMessages.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
+                    .map(el -> el.getEntityId())
+                    .collect(Collectors.toList());
+            userMessageService.deleteMessagesWithIDs(toDelete);
+
+
+            List<SignalMessage> allSignal = signalMessageDao.findTestMessagesToParty(toParty, actionEntity);
+            toDelete = allSignal.stream()
+                    .filter(el -> signalMessageIds.stream().noneMatch(el1 -> el1 == el.getEntityId()))
+                    .map(el -> el.getEntityId())
+                    .collect(Collectors.toList());
+            int i =1;
+//            signalMessageDao.deleteMessages(toDelete);
+        } catch (Exception ex) {
+        }
+
+    }
+
+    @Autowired
+    UserMessageDefaultService userMessageService;
+
+    private void keepUserAndSignal(List<UserMessage> userMessages, List<Long> signalMessageIds, UserMessage userMessage) {
+        userMessages.add(userMessage);
+        SignalMessage signalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
+        if (signalMessage != null) {
+            signalMessageIds.add(signalMessage.getEntityId());
+        }
+    }
+
+    public UserMessage getLastTestSentWithStatus(String partyId, MessageStatus messageStatus) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        UserMessage userMessage = userMessageDao.findLastTestMessageWithStatus(partyId, actionEntity, messageStatus);
+        if (userMessage == null) {
+            LOG.debug("Could not find last user message for party [{}]", partyId);
+            return null;
+        }
+        return userMessage;
     }
 
     public String submitTestDynamicDiscovery(String sender, String receiver, String receiverType) throws MessagingProcessingException, IOException {

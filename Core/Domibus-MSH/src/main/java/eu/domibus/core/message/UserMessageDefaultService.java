@@ -11,7 +11,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
-import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -565,13 +564,14 @@ public class UserMessageDefaultService implements UserMessageService {
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList());
 
-        deleteMessages(ids, userMessageIds);
+        deleteMessagesWithIDs(ids);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
         em.flush();
     }
 
-    public void deleteMessages(List<Long> ids, List<String> userMessageIds) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteMessagesWithIDs(List<Long> ids) {
 
         LOG.debug("Deleting [{}] user messages", ids.size());
         LOG.trace("Deleting user messages [{}]", ids);
