@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -37,6 +38,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES;
+
 /**
  * @author Cosmin Baciu
  * @author Ion Perpegel
@@ -53,26 +56,33 @@ public class TestService {
 
     private static final String BACKEND_NAME = "TestService";
 
-    @Autowired
-    private PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    @Autowired
-    private MessageSubmitter messageSubmitter;
+    private final MessageSubmitter messageSubmitter;
 
-    @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    private final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
-    private UserMessageDao userMessageDao;
+    private final UserMessageDao userMessageDao;
 
-    @Autowired
-    private SignalMessageDao signalMessageDao;
+    private final SignalMessageDao signalMessageDao;
 
-    @Autowired
-    private ErrorLogService errorLogService;
+    private final ErrorLogService errorLogService;
 
-    @Autowired
-    private ActionDictionaryService actionDictionaryService;
+    private final ActionDictionaryService actionDictionaryService;
+
+    private final UserMessageService userMessageService;
+
+    public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
+                       SignalMessageDao signalMessageDao, ErrorLogService errorLogService, ActionDictionaryService actionDictionaryService, UserMessageService userMessageService) {
+        this.pModeProvider = pModeProvider;
+        this.messageSubmitter = messageSubmitter;
+        this.userMessageLogDao = userMessageLogDao;
+        this.userMessageDao = userMessageDao;
+        this.signalMessageDao = signalMessageDao;
+        this.errorLogService = errorLogService;
+        this.actionDictionaryService = actionDictionaryService;
+        this.userMessageService = userMessageService;
+    }
 
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
@@ -88,66 +98,6 @@ public class TestService {
         deleteOldIfApplicable(receiver);
 
         return result;
-    }
-
-    private void deleteOldIfApplicable(String toParty) {
-        List<UserMessage> userMessages = new ArrayList<>();
-        List<Long> signalMessageIds = new ArrayList<>();
-
-        // find last successful message
-        UserMessage lastSentSuccess = getLastTestSentWithStatus(toParty, MessageStatus.ACKNOWLEDGED);
-        if (lastSentSuccess != null) {
-            keepUserAndSignal(userMessages, signalMessageIds, lastSentSuccess);
-        }
-
-        //find last unsuccessful message newer that the successful one
-        UserMessage lastSentError = getLastTestSentWithStatus(toParty, MessageStatus.SEND_FAILURE);
-        if (lastSentError != null) {
-            if (lastSentSuccess == null || lastSentError.getTimestamp().after(lastSentSuccess.getTimestamp())) {
-                keepUserAndSignal(userMessages, signalMessageIds, lastSentError);
-            }
-        }
-
-        //find pending message newer than any of those before
-        UserMessage lastSentPending = getLastTestSentWithStatus(toParty, MessageStatus.SEND_ENQUEUED);
-        if (lastSentPending != null) {
-            if (userMessages.isEmpty() || userMessages.get(userMessages.size() - 1).getTimestamp().before(lastSentPending.getTimestamp())) {
-                userMessages.add(lastSentPending);
-            }
-        }
-
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-
-        try {
-            List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty, actionEntity);
-            List<Long> toDelete = all.stream()
-                    .filter(el -> userMessages.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
-                    .map(el -> el.getEntityId())
-                    .collect(Collectors.toList());
-            userMessageService.deleteMessagesWithIDs(toDelete);
-
-
-            List<SignalMessage> allSignal = signalMessageDao.findTestMessagesToParty(toParty, actionEntity);
-            toDelete = allSignal.stream()
-                    .filter(el -> signalMessageIds.stream().noneMatch(el1 -> el1 == el.getEntityId()))
-                    .map(el -> el.getEntityId())
-                    .collect(Collectors.toList());
-            int i =1;
-//            signalMessageDao.deleteMessages(toDelete);
-        } catch (Exception ex) {
-        }
-
-    }
-
-    @Autowired
-    UserMessageDefaultService userMessageService;
-
-    private void keepUserAndSignal(List<UserMessage> userMessages, List<Long> signalMessageIds, UserMessage userMessage) {
-        userMessages.add(userMessage);
-        SignalMessage signalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
-        if (signalMessage != null) {
-            signalMessageIds.add(signalMessage.getEntityId());
-        }
     }
 
     public UserMessage getLastTestSentWithStatus(String partyId, MessageStatus messageStatus) {
@@ -365,4 +315,88 @@ public class TestService {
         }
         return messageInfoRO;
     }
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    protected void deleteOldIfApplicable(String toParty) {
+        String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
+        if (StringUtils.isEmpty(partyList) || !StringUtils.contains(partyList, toParty)) {
+            LOG.debug("Deleting old test messages for party [{}] is not enabled", toParty);
+            return;
+        }
+
+        LOG.debug("Deleting old test messages for party [{}]", toParty);
+        List<UserMessage> userMessages = findMessagesToKeep(toParty);
+        deleteAllExcept(toParty, userMessages);
+    }
+
+    private List<UserMessage> findMessagesToKeep(String toParty) {
+        List<UserMessage> userMessages = new ArrayList<>();
+
+        // find last successful message
+        UserMessage lastSentSuccess = getLastTestSentWithStatus(toParty, MessageStatus.ACKNOWLEDGED);
+        if (lastSentSuccess != null) {
+            userMessages.add(lastSentSuccess);
+        }
+
+        // find last unsuccessful message newer that the successful one
+        UserMessage lastSentError = getLastTestSentWithStatus(toParty, MessageStatus.SEND_FAILURE);
+        if (lastSentError != null) {
+            if (lastSentSuccess == null || lastSentError.getTimestamp().after(lastSentSuccess.getTimestamp())) {
+                userMessages.add(lastSentError);
+            }
+        }
+
+        // find pending message newer than any of those before
+        UserMessage lastSentPending = getLastTestSentWithStatus(toParty, MessageStatus.SEND_ENQUEUED);
+        if (lastSentPending != null) {
+            if (userMessages.isEmpty() || userMessages.get(userMessages.size() - 1).getTimestamp().before(lastSentPending.getTimestamp())) {
+                userMessages.add(lastSentPending);
+            }
+        }
+
+        return userMessages;
+    }
+
+    private void deleteAllExcept(String toParty, List<UserMessage> userMessages) {
+        // just for testing
+        List<Long> signalMessageIds = new ArrayList<>();
+        userMessages.stream().forEach(um -> {
+            SignalMessage signalMessage = signalMessageDao.findByUserMessageEntityId(um.getEntityId());
+            if (signalMessage != null) {
+                signalMessageIds.add(signalMessage.getEntityId());
+            }
+        });
+
+        try {
+            ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+
+            List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty, actionEntity);
+            List<Long> toDelete = all.stream()
+                    .filter(el -> userMessages.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
+                    .map(el -> el.getEntityId())
+                    .collect(Collectors.toList());
+            userMessageService.deleteMessagesWithIDs(toDelete);
+
+            // just for testing
+            List<SignalMessage> allSignal = signalMessageDao.findTestMessagesToParty(toParty, actionEntity);
+            toDelete = allSignal.stream()
+                    .filter(el -> signalMessageIds.stream().noneMatch(el1 -> el1 == el.getEntityId()))
+                    .map(el -> el.getEntityId())
+                    .collect(Collectors.toList());
+            int i = 1;
+//            signalMessageDao.deleteMessages(toDelete);
+        } catch (Exception ex) {
+        }
+    }
+
+//    private void keepUserAndSignal(List<UserMessage> userMessages, List<Long> signalMessageIds, UserMessage userMessage) {
+//        userMessages.add(userMessage);
+//        SignalMessage signalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
+//        if (signalMessage != null) {
+//            signalMessageIds.add(signalMessage.getEntityId());
+//        }
+//    }
+
 }

@@ -65,6 +65,8 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId, MSHRole mshRole);
 
+    void deleteMessagesWithIDs(List<Long> ids);
+
     void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException, MessagingException;
 
     List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);

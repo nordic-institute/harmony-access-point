@@ -14,6 +14,8 @@ public class ConnectionMonitorRO {
 
     boolean alertable;
 
+    boolean deleteOld;
+
     public enum ConnectionStatus {
         UNKNOWN,
         OK,
@@ -73,6 +75,14 @@ public class ConnectionMonitorRO {
 
     public void setLastReceived(TestServiceMessageInfoRO lastReceived) {
         this.lastReceived = lastReceived;
+    }
+
+    public boolean isDeleteOld() {
+        return deleteOld;
+    }
+
+    public void setDeleteOld(boolean deleteOld) {
+        this.deleteOld = deleteOld;
     }
 
     @Override

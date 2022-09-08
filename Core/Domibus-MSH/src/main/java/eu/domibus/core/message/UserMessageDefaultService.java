@@ -570,6 +570,7 @@ public class UserMessageDefaultService implements UserMessageService {
         em.flush();
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessagesWithIDs(List<Long> ids) {
 

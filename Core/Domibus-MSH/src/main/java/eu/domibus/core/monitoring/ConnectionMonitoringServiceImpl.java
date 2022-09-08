@@ -23,8 +23,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -74,7 +73,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        sendTestMessagesTo(this::getAllMonitoredPartiesButMiself);
+        sendTestMessagesTo(this::getAllMonitoredPartiesButMyself);
     }
 
     @Override
@@ -111,7 +110,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
     }
 
-    private List<String> getAllMonitoredPartiesButMiself(List<String> testableParties, String selfParty) {
+    private List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, String selfParty) {
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = testableParties.stream()
                 .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
@@ -166,6 +165,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setAlertable(true);
         }
 
+        List<String> deleteOldForParties = getDeleteOldForParties();
+        if (result.isTestable() && deleteOldForParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+            result.setDeleteOld(true);
+        }
+
         result.setStatus(getConnectionStatus(lastSent));
 
         return result;
@@ -187,7 +191,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     private List<String> getMonitorEnabledParties() {
         List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED).split(","));
         enabledParties = enabledParties.stream()
-                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
+                .map(StringUtils::trim)
                 .collect(Collectors.toList());
         return enabledParties;
     }
@@ -195,7 +199,15 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     private List<String> getAlertableParties() {
         List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES).split(","));
         enabledParties = enabledParties.stream()
-                .map(enabledPartyId -> StringUtils.trim(enabledPartyId))
+                .map(StringUtils::trim)
+                .collect(Collectors.toList());
+        return enabledParties;
+    }
+
+    private List<String> getDeleteOldForParties() {
+        List<String> enabledParties = Arrays.asList(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES).split(","));
+        enabledParties = enabledParties.stream()
+                .map(StringUtils::trim)
                 .collect(Collectors.toList());
         return enabledParties;
     }
