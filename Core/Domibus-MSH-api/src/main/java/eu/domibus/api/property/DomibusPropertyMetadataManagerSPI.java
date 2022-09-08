@@ -171,6 +171,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_MONITORING_CONNECTION_CRON = "domibus.monitoring.connection.cron";
     String DOMIBUS_MONITORING_CONNECTION_SELF_CRON = "domibus.monitoring.connection.self.cron";
     String DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED = "domibus.monitoring.connection.party.enabled";
+    String DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES = "domibus.monitoring.connection.delete.old.for.parties";
 
     String DOMIBUS_SMART_RETRY_ENABLED = "domibus.smart.retry.enabled";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";

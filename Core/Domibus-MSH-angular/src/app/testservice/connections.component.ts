@@ -34,15 +34,17 @@ import {ComponentName} from '../common/component-name-decorator';
 export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
-  @ViewChild('monitorStatusHeader', {static: false}) monitorStatusHeaderTemplate: TemplateRef<any>;
-  @ViewChild('alertableStatusHeader', {static: false}) alertableStatusHeaderTemplate: TemplateRef<any>;
-
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('monitorStatus', {static: false}) monitorStatusTemplate: TemplateRef<any>;
+  @ViewChild('monitorStatusHeader', {static: false}) monitorStatusHeaderTemplate: TemplateRef<any>;
   @ViewChild('alertableStatus', {static: false}) alertableStatusTemplate: TemplateRef<any>;
+  @ViewChild('alertableStatusHeader', {static: false}) alertableStatusHeaderTemplate: TemplateRef<any>;
+  @ViewChild('deleteOldStatus', {static: false}) deleteOldStatusTemplate: TemplateRef<any>;
+  @ViewChild('deleteOldStatusHeader', {static: false}) deleteOldStatusHeaderTemplate: TemplateRef<any>;
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
   allMonitored: boolean;
   allAllertable: boolean;
+  allDeleteOld: boolean;
 
   constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
               private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
@@ -70,6 +72,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
     this.refreshAllMonitored();
     this.refreshAllAlertable();
+    this.refreshAllDeleteOld();
   }
 
   private refreshAllMonitored() {
@@ -78,6 +81,10 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   private refreshAllAlertable() {
     this.allAllertable = this.rows.filter(el => el.testable).every(el => el.alertable);
+  }
+
+  private refreshAllDeleteOld() {
+    this.allDeleteOld = this.rows.filter(el => el.testable).every(el => el.deleteOld);
   }
 
   private initColumns() {
@@ -99,8 +106,17 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       {
         cellTemplate: this.alertableStatusTemplate,
         headerTemplate: this.alertableStatusHeaderTemplate,
-        name: 'Generate Alert',
+        name: 'Alert on Fail',
         prop: 'alertableStatus',
+        width: 20,
+        canAutoResize: true,
+        sortable: false
+      },
+      {
+        cellTemplate: this.deleteOldStatusTemplate,
+        headerTemplate: this.deleteOldStatusHeaderTemplate,
+        name: 'Delete Old',
+        prop: 'deleteOldStatus',
         width: 20,
         canAutoResize: true,
         sortable: false
@@ -130,34 +146,50 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   async toggleConnectionMonitor(row: ConnectionMonitorEntry) {
-    let newMonitoredValue = row.monitored;
-    let newMonitorState = `${(newMonitoredValue ? 'enabled' : 'disabled')}`;
+    let newValue = row.monitored;
+    let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
-      row.monitored = newMonitoredValue;
+      await this.connectionsMonitorService.setMonitorState(row.partyId, newValue);
+      row.monitored = newValue;
       this.refreshAllMonitored();
-      this.alertService.success(`Monitoring ${newMonitorState} for <b>${row.partyId}</b>`);
+      this.alertService.success(`Monitoring ${newValueText} for <b>${row.partyId}</b>`);
     } catch (err) {
-      row.monitored = !newMonitoredValue;
+      row.monitored = !newValue;
       this.refreshAllMonitored();
-      this.alertService.exception(`Monitoring could not be ${newMonitorState} for <b>${row.partyId}</b>:<br>`, err);
+      this.alertService.exception(`Monitoring could not be ${newValueText} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
 
   async toggleAlertable(row: ConnectionMonitorEntry) {
-    let newAlertableValue = row.alertable;
-    let newAlertableState = `${(newAlertableValue ? 'enabled' : 'disabled')}`;
+    let newValue = row.alertable;
+    let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setAlertableState(row.partyId, newAlertableValue);
-      row.alertable = newAlertableValue;
+      await this.connectionsMonitorService.setAlertableState(row.partyId, newValue);
+      row.alertable = newValue;
       this.refreshAllAlertable();
-      this.alertService.success(`Alert generation ${newAlertableState} for <b>${row.partyId}</b>`);
+      this.alertService.success(`Alert generation ${newValueText} for <b>${row.partyId}</b>`);
     } catch (err) {
-      row.alertable = !newAlertableValue;
+      row.alertable = !newValue;
       this.refreshAllAlertable();
-      this.alertService.exception(`Alert generation could not be ${newAlertableState} for <b>${row.partyId}</b>:<br>`, err);
+      this.alertService.exception(`Alert generation could not be ${newValueText} for <b>${row.partyId}</b>:<br>`, err);
+    }
+  }
+
+  async toggleDeleteOld(row: ConnectionMonitorEntry) {
+    let newValue = row.deleteOld;
+    let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
+
+    try {
+      await this.connectionsMonitorService.setDeleteOldState(row.partyId, newValue);
+      row.deleteOld = newValue;
+      this.refreshAllDeleteOld();
+      this.alertService.success(`Delete old ${newValueText} for <b>${row.partyId}</b>`);
+    } catch (err) {
+      row.deleteOld = !newValue;
+      this.refreshAllDeleteOld();
+      this.alertService.exception(`Delete old could not be ${newValueText} for <b>${row.partyId}</b>:<br>`, err);
     }
   }
 
@@ -213,8 +245,28 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       await this.connectionsMonitorService.setAlertableStateForAll(active, newState);
       this.alertService.success(`Alert generation ${newStateText} for all parties`);
     } catch (err) {
-      active.forEach(row => row.monitored = row['originalAlertable']);
+      active.forEach(row => row.alertable = row['originalAlertable']);
       this.alertService.exception(`Alert generation could not be ${newStateText} for all parties`, err);
     }
   }
+
+  async toggleDeleteOldAll() {
+    let newState = this.allDeleteOld;
+    let newStateText = `${(newState ? 'enabled' : 'disabled')}`;
+
+    let active: ConnectionMonitorEntry[] = this.rows.filter(row => row.testable);
+    active.forEach(row => {
+      row['originalDeleteOld'] = row.deleteOld;
+      row.deleteOld = newState;
+    });
+    try {
+      await this.connectionsMonitorService.setDeleteOldStateForAll(active, newState);
+      this.alertService.success(`Delete old ${newStateText} for all parties`);
+    } catch (err) {
+      active.forEach(row => row.deleteOld = row['originalDeleteOld']);
+      this.alertService.exception(`Delete old could not be ${newStateText} for all parties`, err);
+    }
+  }
+
+
 }

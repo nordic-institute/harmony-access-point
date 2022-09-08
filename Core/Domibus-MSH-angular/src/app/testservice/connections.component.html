@@ -5,16 +5,6 @@
     <page-grid [parent]="this" [selectionType]="'none'"></page-grid>
   </div>
 
-  <ng-template #monitorStatusHeader let-column="column" ngx-datatable-header-template>
-    <mat-slide-toggle [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
-    <span style="margin-left: 5px;">Monitoring</span>
-  </ng-template>
-
-  <ng-template #alertableStatusHeader let-column="column" ngx-datatable-header-template>
-    <mat-slide-toggle [(ngModel)]="allAllertable" (change)="toggleAlertableAll()"></mat-slide-toggle>
-    <span style="margin-left: 5px;">Alert On Fail</span>
-  </ng-template>
-
   <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <div *ngIf="row.testable">
       <button mat-icon-button (click)="openDetails(row)"
@@ -32,6 +22,10 @@
     </div>
   </ng-template>
 
+  <ng-template #monitorStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Monitoring</span>
+  </ng-template>
   <ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="connection-monitor-status">
       <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.monitored" (change)="toggleConnectionMonitor(row)"></mat-slide-toggle>
@@ -39,9 +33,24 @@
     </span>
   </ng-template>
 
+  <ng-template #alertableStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle [(ngModel)]="allAllertable" (change)="toggleAlertableAll()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Alert On Fail</span>
+  </ng-template>
   <ng-template #alertableStatus let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="connection-monitor-status">
       <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.alertable" (change)="toggleAlertable(row)"></mat-slide-toggle>
+      <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
+    </span>
+  </ng-template>
+
+  <ng-template #deleteOldStatusHeader let-column="column" ngx-datatable-header-template>
+    <mat-slide-toggle [(ngModel)]="allDeleteOld" (change)="toggleDeleteOldAll()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Delete Old</span>
+  </ng-template>
+  <ng-template #deleteOldStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+    <span class="connection-monitor-status">
+      <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.deleteOld" (change)="toggleDeleteOld(row)"></mat-slide-toggle>
       <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
     </span>
   </ng-template>

@@ -133,6 +133,15 @@ export class ConnectionsMonitorService {
     await this.propertiesService.updateProperty(prop);
   }
 
+  async setDeleteOldState(partyId: string, enabled: boolean) {
+    let propName = 'domibus.monitoring.connection.delete.old.for.parties';
+    await this.setState(enabled, partyId, propName);
+  }
+
+  async setDeleteOldStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+    let propName = 'domibus.monitoring.connection.delete.old.for.parties';
+    await this.setStateForAll(propName, enabled, list);
+  }
 }
 
 export class ConnectionMonitorEntry {
@@ -141,6 +150,7 @@ export class ConnectionMonitorEntry {
   testable: boolean;
   monitored: boolean;
   alertable: boolean;
+  deleteOld: boolean;
   status: string;
   lastSent: any;
   lastReceived: any;
