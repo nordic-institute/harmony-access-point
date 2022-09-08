@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -10,6 +11,9 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.TestMessageValidator;
+import eu.domibus.core.message.UserMessageErrorCreator;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -54,6 +58,13 @@ public class FaultInHandler extends AbstractFaultHandler {
 
     @Autowired
     protected Ebms3Converter ebms3Converter;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
+    @Autowired
+    UserMessageErrorCreator userMessageErrorCreator;
+    @Autowired
+    MshRoleDao mshRoleDao;
 
     @Override
     public Set<QName> getHeaders() {
@@ -118,6 +129,8 @@ public class FaultInHandler extends AbstractFaultHandler {
                                 .cause(cause)
                                 .mshRole(MSHRole.RECEIVING)
                                 .build();
+
+                        notifyPlugins(cause);
                     }
                 }
 
@@ -130,6 +143,7 @@ public class FaultInHandler extends AbstractFaultHandler {
                 }
         }
             this.processEbMSError(context, ebMS3Exception);
+
 
         } else {
             if (exception instanceof PolicyException) {
@@ -191,6 +205,15 @@ public class FaultInHandler extends AbstractFaultHandler {
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
 
         errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, null);
+    }
+
+
+    private void notifyPlugins(Throwable faultCause) {
+        UserMessage userMessage = new UserMessage();
+        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
+        backendNotificationService.notifyMessageReceivedFailure(userMessage,
+                userMessageErrorCreator.createErrorResult(faultCause));
+
     }
 
     @Override

@@ -1,10 +1,8 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.ErrorResultImpl;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -33,4 +31,16 @@ public class UserMessageErrorCreator {
         return result;
     }
 
+    public ErrorResult createErrorResult(Throwable exception) {
+        ErrorResultImpl result = new ErrorResultImpl();
+        result.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
+        result.setMessageInErrorId("[rzv]todo");
+        try {
+            result.setErrorCode(ErrorCode.findBy("[rzv]todo"));
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Could not find error code for [" + "[rzv]todo" + "]");
+        }
+        result.setErrorDetail(exception.getCause()==null ? exception.getMessage() : exception.getCause().getMessage());
+        return result;
+    }
 }
