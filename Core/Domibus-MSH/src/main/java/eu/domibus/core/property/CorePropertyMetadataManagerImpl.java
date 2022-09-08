@@ -101,32 +101,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, Usage.DOMAIN, false),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_RSA_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_RSA_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_RSA_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_RSA_SIGN, Usage.DOMAIN, true),
-
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_RSA_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_RSA_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_RSA_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_RSA_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_MINIMUM_LENGTH_RSA_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_SUITE_TYPE_KEY_EXCHANGE_TYPE_RSA_DECRYPT, Usage.DOMAIN, true),
-
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_ECC_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_ECC_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_ECC_SIGN, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_ECC_SIGN, Usage.DOMAIN, true),
-
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_TYPE_ECC_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_CERTIFICATE_KEY_ECC_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_HASH_FUNCTION_ECC_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_ECC_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_MINIMUM_LENGTH_ECC_DECRYPT, Usage.DOMAIN, true),
-//            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALGORITHM_SUITE_TYPE_KEY_EXCHANGE_TYPE_ECC_DECRYPT, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, Type.URI, true, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, Type.STRING, true, Usage.DOMAIN, false),
