@@ -61,10 +61,4 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public List<SignalMessage> findTestMessagesToParty(String partyId, ActionEntity actionEntity) {
-        final TypedQuery<SignalMessage> query = this.em.createNamedQuery("SignalMessage.findTestMessageDesc", SignalMessage.class);
-        query.setParameter("PARTY_ID", partyId);
-        query.setParameter("ACTION_ID", actionEntity.getEntityId());
-        return query.getResultList();
-    }
 }

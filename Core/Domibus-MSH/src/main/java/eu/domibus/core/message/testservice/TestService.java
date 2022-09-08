@@ -24,7 +24,6 @@ import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -72,8 +71,11 @@ public class TestService {
 
     private final UserMessageService userMessageService;
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
     public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
-                       SignalMessageDao signalMessageDao, ErrorLogService errorLogService, ActionDictionaryService actionDictionaryService, UserMessageService userMessageService) {
+                       SignalMessageDao signalMessageDao, ErrorLogService errorLogService, ActionDictionaryService actionDictionaryService,
+                       UserMessageService userMessageService, DomibusPropertyProvider domibusPropertyProvider) {
         this.pModeProvider = pModeProvider;
         this.messageSubmitter = messageSubmitter;
         this.userMessageLogDao = userMessageLogDao;
@@ -82,6 +84,7 @@ public class TestService {
         this.errorLogService = errorLogService;
         this.actionDictionaryService = actionDictionaryService;
         this.userMessageService = userMessageService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
@@ -316,9 +319,6 @@ public class TestService {
         return messageInfoRO;
     }
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
-
     protected void deleteOldIfApplicable(String toParty) {
         String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
         if (StringUtils.isEmpty(partyList) || !StringUtils.contains(partyList, toParty)) {
@@ -360,15 +360,6 @@ public class TestService {
     }
 
     private void deleteAllExcept(String toParty, List<UserMessage> userMessages) {
-        // just for testing
-        List<Long> signalMessageIds = new ArrayList<>();
-        userMessages.stream().forEach(um -> {
-            SignalMessage signalMessage = signalMessageDao.findByUserMessageEntityId(um.getEntityId());
-            if (signalMessage != null) {
-                signalMessageIds.add(signalMessage.getEntityId());
-            }
-        });
-
         try {
             ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
 
@@ -378,25 +369,9 @@ public class TestService {
                     .map(el -> el.getEntityId())
                     .collect(Collectors.toList());
             userMessageService.deleteMessagesWithIDs(toDelete);
-
-            // just for testing
-            List<SignalMessage> allSignal = signalMessageDao.findTestMessagesToParty(toParty, actionEntity);
-            toDelete = allSignal.stream()
-                    .filter(el -> signalMessageIds.stream().noneMatch(el1 -> el1 == el.getEntityId()))
-                    .map(el -> el.getEntityId())
-                    .collect(Collectors.toList());
-            int i = 1;
-//            signalMessageDao.deleteMessages(toDelete);
         } catch (Exception ex) {
+            LOG.warn("Could not delete old test messages for party [{}]", toParty, ex);
         }
     }
-
-//    private void keepUserAndSignal(List<UserMessage> userMessages, List<Long> signalMessageIds, UserMessage userMessage) {
-//        userMessages.add(userMessage);
-//        SignalMessage signalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
-//        if (signalMessage != null) {
-//            signalMessageIds.add(signalMessage.getEntityId());
-//        }
-//    }
 
 }
