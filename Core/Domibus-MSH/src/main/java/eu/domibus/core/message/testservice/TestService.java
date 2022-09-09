@@ -321,7 +321,7 @@ public class TestService {
 
     protected void deleteOldIfApplicable(String toParty) {
         String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
-        if (StringUtils.isEmpty(partyList) || !StringUtils.contains(partyList, toParty)) {
+        if (!StringUtils.contains(partyList, toParty)) {
             LOG.debug("Deleting old test messages for party [{}] is not enabled", toParty);
             return;
         }
