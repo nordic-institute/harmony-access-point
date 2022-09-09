@@ -27,7 +27,7 @@ public class DomibusTestActiveMQConfiguration {
     @Bean(name = "brokerFactory")
     public BrokerFactoryBean activeMQBroker() {
         LOG.debug("Creating the embedded test Active MQ broker from [{}]", activeMQConfiguration);
-        return new TestDomibusBrokerFactoryBean(activeMQConfiguration);
+        return new TestEmbeddedDomibusBrokerFactoryBean(activeMQConfiguration);
     }
 
 }

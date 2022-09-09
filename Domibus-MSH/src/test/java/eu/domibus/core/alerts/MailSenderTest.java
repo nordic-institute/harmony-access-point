@@ -138,7 +138,7 @@ public class MailSenderTest {
             javaMailSender.getJavaMailProperties();
             result = javaMailProperties;
 
-            domibusPropertyProvider.filterPropertiesName((Predicate<String>) any);
+            domibusPropertyProvider.filterPropertyNames((Predicate<String>) any);
             result = dynamicPropertySet;
 
             domibusPropertyProvider.getProperty("domibus.alert.mail.smtp.timeout");
