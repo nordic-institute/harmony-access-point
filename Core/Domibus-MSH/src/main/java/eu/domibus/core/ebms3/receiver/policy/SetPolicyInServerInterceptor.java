@@ -121,7 +121,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                         securityAlgorithm = AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
                         break;
                     case "ECC":
-                        securityAlgorithm = AsymmetricSignatureAlgorithm.ECC.getAlgorithm();
+                        securityAlgorithm = AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
                         break;
                     default:
                         LOG.error("No security profile was specified");

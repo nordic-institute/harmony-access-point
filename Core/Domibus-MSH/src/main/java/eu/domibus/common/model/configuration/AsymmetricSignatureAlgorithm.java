@@ -9,7 +9,7 @@ import org.apache.wss4j.policy.SPConstants;
 public enum AsymmetricSignatureAlgorithm {
     RSA_SHA1(SPConstants.RSA_SHA1), RSA_SHA256(SPConstants.RSA_SHA256),
     //TODO: update dummy value below when the ECC library will be chosen
-    ECC("");
+    ECC_SHA256("ECC_SHA256");
 
     private final String algorithm;
 

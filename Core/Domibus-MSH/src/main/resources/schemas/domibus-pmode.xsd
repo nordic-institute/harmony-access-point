@@ -278,6 +278,7 @@
                                                             <xs:restriction base="xs:string">
                                                                 <xs:enumeration value="RSA_SHA1" />
                                                                 <xs:enumeration value="RSA_SHA256" />
+                                                                <xs:enumeration value="ECC_SHA256" />
                                                             </xs:restriction>
                                                         </xs:simpleType>
                                                 </xs:attribute>
