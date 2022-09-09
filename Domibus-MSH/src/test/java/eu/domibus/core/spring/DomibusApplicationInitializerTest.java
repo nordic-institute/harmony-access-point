@@ -149,7 +149,7 @@ public class DomibusApplicationInitializerTest {
         new FullVerifications() {{
 
             annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
-
+            annotationConfigWebApplicationContext.setClassLoader((PluginClassLoader)any);
         }};
     }
 

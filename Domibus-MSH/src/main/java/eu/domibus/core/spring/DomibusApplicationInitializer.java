@@ -68,6 +68,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
+        rootContext.setClassLoader(pluginClassLoader);
 
         try {
             configurePropertySources(rootContext, domibusConfigLocation);
