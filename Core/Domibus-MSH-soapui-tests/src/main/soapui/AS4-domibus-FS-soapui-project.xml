@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_FS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="${#Project#localUrl}/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_FS" resourceRoot="" soapui-version="5.7.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="${#Project#localUrl}/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
   <wsdl:types>
     <xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:tns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
       <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
@@ -744,7 +744,716 @@
   <con:entry key="passwordPl" value="DomibusEdel-12345"/>
   <con:entry key="userPl" value="pluginAdmin"/>
   <con:entry key="userRole" value="ADMIN_ROLE"/>
-</con:parameters><con:parameterOrder><con:entry>passwordPl</con:entry><con:entry>userPl</con:entry><con:entry>userRole</con:entry></con:parameterOrder></con:request></con:method></con:resource><con:resource name="properties" path="/rest/configuration/properties" id="c9d66526-374f-4179-ae29-bffa3524027c"><con:settings/><con:parameters><con:parameter><con:name>propName</con:name><con:value/><con:style>PLAIN</con:style><con:default/><con:description xsi:nil="true"/></con:parameter></con:parameters><con:resource name="${propName}" path="{propName}" id="5eef888f-1598-4d59-b65d-6541a72db60a"><con:settings/><con:parameters><con:parameter><con:name>propName</con:name><con:value>domibus.UI.title.name</con:value><con:style>TEMPLATE</con:style><con:default>domibus.UI.title.name</con:default></con:parameter></con:parameters><con:method name="Method 1" id="0c35d316-221b-4bf4-a88c-86a389579351" method="PUT"><con:settings/><con:parameters/><con:representation type="FAULT"><con:mediaType>text/html;charset=utf-8</con:mediaType><con:status>403</con:status><con:params/><con:element>html</con:element></con:representation><con:representation type="REQUEST"><con:mediaType>application/json</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>application/xml</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>text/xml</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>application/x-www-form-urlencoded</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>multipart/form-data</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>multipart/mixed</con:mediaType><con:params/></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:request name="Request 1" id="cdb83ed7-cbca-4d93-b6f2-f64dd386d908" mediaType="text/xml" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#localUrl}</con:endpoint><con:request>"New data"</con:request><con:originalUri>http://localhost/domibus/rest/configuration/properties/</con:originalUri><con:credentials><con:username>${#Project#defaultAdminUsername}</con:username><con:password>123456</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:preemptive>true</con:preemptive><con:authType>Preemptive</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="propName" value="domibus.UI.title.name" xmlns="http://eviware.com/soapui/config"/></con:parameters></con:request></con:method></con:resource><con:method name="Method 1" id="96738251-924a-47ed-b00c-b61fc620b382" method="GET"><con:settings/><con:parameters/><con:representation type="FAULT"><con:mediaType>text/html</con:mediaType><con:status>404</con:status><con:params/><con:element>html</con:element></con:representation><con:representation type="FAULT"><con:mediaType>text/html;charset=utf-8</con:mediaType><con:status>403</con:status><con:params/><con:element>html</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType>application/json;charset=UTF-8</con:mediaType><con:status>200</con:status><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>application/json</con:mediaType><con:params/></con:representation><con:request name="Request 1" id="72ac648c-e949-4748-8334-6153846daf64" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#localUrl}</con:endpoint><con:request>"New Tab Title"</con:request><con:originalUri>http://localhost/domibus/domibus/rest/configuration/properties</con:originalUri><con:credentials><con:username>${#Project#defaultAdminUsername}</con:username><con:password>${#Project#defaultAdminPassword}</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:preemptive>true</con:preemptive><con:authType>Preemptive</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="propName" value="domibus.UI.title.name" xmlns="http://eviware.com/soapui/config"/></con:parameters><con:parameterOrder><con:entry>propName</con:entry></con:parameterOrder></con:request></con:method></con:resource></con:interface><con:testSuite id="26f47105-33a8-4994-9eb3-c2073227b909" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="3588311a-372e-4dce-80ad-21700d5a5684">
+</con:parameters><con:parameterOrder><con:entry>passwordPl</con:entry><con:entry>userPl</con:entry><con:entry>userRole</con:entry></con:parameterOrder></con:request></con:method></con:resource><con:resource name="properties" path="/rest/configuration/properties" id="c9d66526-374f-4179-ae29-bffa3524027c"><con:settings/><con:parameters><con:parameter><con:name>propName</con:name><con:value/><con:style>PLAIN</con:style><con:default/><con:description xsi:nil="true"/></con:parameter></con:parameters><con:resource name="${propName}" path="{propName}" id="5eef888f-1598-4d59-b65d-6541a72db60a"><con:settings/><con:parameters><con:parameter><con:name>propName</con:name><con:value>domibus.UI.title.name</con:value><con:style>TEMPLATE</con:style><con:default>domibus.UI.title.name</con:default></con:parameter></con:parameters><con:method name="Method 1" id="0c35d316-221b-4bf4-a88c-86a389579351" method="PUT"><con:settings/><con:parameters/><con:representation type="FAULT"><con:mediaType>text/html;charset=utf-8</con:mediaType><con:status>403</con:status><con:params/><con:element>html</con:element></con:representation><con:representation type="REQUEST"><con:mediaType>application/json</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>application/xml</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>text/xml</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>application/x-www-form-urlencoded</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>multipart/form-data</con:mediaType><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>multipart/mixed</con:mediaType><con:params/></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>200</con:status><con:params/><con:element>data</con:element></con:representation><con:request name="Request 1" id="cdb83ed7-cbca-4d93-b6f2-f64dd386d908" mediaType="text/xml" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#localUrl}</con:endpoint><con:request>"New data"</con:request><con:originalUri>http://localhost/domibus/rest/configuration/properties/</con:originalUri><con:credentials><con:username>${#Project#defaultAdminUsername}</con:username><con:password>123456</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:preemptive>true</con:preemptive><con:authType>Preemptive</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="propName" value="domibus.UI.title.name" xmlns="http://eviware.com/soapui/config"/></con:parameters></con:request></con:method></con:resource><con:method name="Method 1" id="96738251-924a-47ed-b00c-b61fc620b382" method="GET"><con:settings/><con:parameters/><con:representation type="FAULT"><con:mediaType>text/html</con:mediaType><con:status>404</con:status><con:params/><con:element>html</con:element></con:representation><con:representation type="FAULT"><con:mediaType>text/html;charset=utf-8</con:mediaType><con:status>403</con:status><con:params/><con:element>html</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType>application/json;charset=UTF-8</con:mediaType><con:status>200</con:status><con:params/></con:representation><con:representation type="REQUEST"><con:mediaType>application/json</con:mediaType><con:params/></con:representation><con:request name="Request 1" id="72ac648c-e949-4748-8334-6153846daf64" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>${#Project#localUrl}</con:endpoint><con:request>"New Tab Title"</con:request><con:originalUri>http://localhost/domibus/domibus/rest/configuration/properties</con:originalUri><con:credentials><con:username>${#Project#defaultAdminUsername}</con:username><con:password>${#Project#defaultAdminPassword}</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:preemptive>true</con:preemptive><con:authType>Preemptive</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters><entry key="propName" value="domibus.UI.title.name" xmlns="http://eviware.com/soapui/config"/></con:parameters><con:parameterOrder><con:entry>propName</con:entry></con:parameterOrder></con:request></con:method></con:resource></con:interface><con:interface xsi:type="con:WsdlInterface" id="4bea4595-1065-4cf1-95a6-dfbce27b6a3a" wsaVersion="NONE" name="WebServicePluginSoapBinding" type="wsdl" bindingName="{http://eu.domibus.wsplugin/}WebServicePluginSoapBinding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8080/domibus/services/wsplugin?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/wsplugin?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/wsplugin?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="WebServicePlugin" targetNamespace="http://eu.domibus.wsplugin/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://eu.domibus.wsplugin/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+  <wsdl:types>
+    <xsd:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://eu.domibus.wsplugin/" xmlns:ns1="http://www.w3.org/2005/05/xmlmime">
+      <xsd:import namespace="http://www.w3.org/2005/05/xmlmime"/>
+      <xsd:simpleType name="max255-non-empty-string">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="255"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:element name="FaultDetail">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="code" type="xsd:string"/>
+            <xsd:element name="message" nillable="true" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="retrieveMessageRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" nillable="true" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="retrieveMessageResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" type="tns:LargePayloadType"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="listPendingMessagesRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element minOccurs="0" name="messageId" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="conversationId" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="refToMessageId" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="fromPartyId" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="finalRecipient" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="originalSender" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="receivedFrom" type="xsd:dateTime"/>
+            <xsd:element minOccurs="0" name="receivedTo" type="xsd:dateTime"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="listPendingMessagesResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="messageErrorsRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="messageStatusRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="submitRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" nillable="true" type="tns:LargePayloadType"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="submitResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:complexType name="PayloadType">
+        <xsd:simpleContent>
+          <xsd:extension base="ns1:base64Binary">
+            <xsd:attribute name="payloadId" type="xsd:token" use="required"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:complexType name="LargePayloadType">
+        <xsd:sequence>
+          <xsd:element name="value" ns1:expectedContentTypes="application/octet-stream" type="xsd:base64Binary"/>
+        </xsd:sequence>
+        <xsd:attribute name="payloadId" type="xsd:token"/>
+        <xsd:attribute name="contentType" type="xsd:string"/>
+      </xsd:complexType>
+      <xsd:complexType name="errorResultImpl">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" name="errorCode" type="tns:errorCode"/>
+          <xsd:element minOccurs="0" name="errorDetail" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="messageInErrorId" type="xsd:string"/>
+          <xsd:element minOccurs="0" name="mshRole" type="tns:mshRole"/>
+          <xsd:element minOccurs="0" name="notified" type="xsd:dateTime"/>
+          <xsd:element minOccurs="0" name="timestamp" type="xsd:dateTime"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="PayloadURLType">
+        <xsd:simpleContent>
+          <xsd:extension base="xsd:string">
+            <xsd:attribute name="payloadId" type="xsd:token" use="required"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:simpleType name="messageStatus">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="READY_TO_SEND"/>
+          <xsd:enumeration value="READY_TO_PULL"/>
+          <xsd:enumeration value="BEING_PULLED"/>
+          <xsd:enumeration value="SEND_ENQUEUED"/>
+          <xsd:enumeration value="SEND_IN_PROGRESS"/>
+          <xsd:enumeration value="WAITING_FOR_RECEIPT"/>
+          <xsd:enumeration value="ACKNOWLEDGED"/>
+          <xsd:enumeration value="ACKNOWLEDGED_WITH_WARNING"/>
+          <xsd:enumeration value="SEND_ATTEMPT_FAILED"/>
+          <xsd:enumeration value="SEND_FAILURE"/>
+          <xsd:enumeration value="NOT_FOUND"/>
+          <xsd:enumeration value="WAITING_FOR_RETRY"/>
+          <xsd:enumeration value="RECEIVED"/>
+          <xsd:enumeration value="RECEIVED_WITH_WARNINGS"/>
+          <xsd:enumeration value="DELETED"/>
+          <xsd:enumeration value="DOWNLOADED"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="errorCode">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="EBMS_0001"/>
+          <xsd:enumeration value="EBMS_0002"/>
+          <xsd:enumeration value="EBMS_0003"/>
+          <xsd:enumeration value="EBMS_0004"/>
+          <xsd:enumeration value="EBMS_0005"/>
+          <xsd:enumeration value="EBMS_0006"/>
+          <xsd:enumeration value="EBMS_0007"/>
+          <xsd:enumeration value="EBMS_0008"/>
+          <xsd:enumeration value="EBMS_0009"/>
+          <xsd:enumeration value="EBMS_0010"/>
+          <xsd:enumeration value="EBMS_0011"/>
+          <xsd:enumeration value="EBMS_0101"/>
+          <xsd:enumeration value="EBMS_0102"/>
+          <xsd:enumeration value="EBMS_0103"/>
+          <xsd:enumeration value="EBMS_0201"/>
+          <xsd:enumeration value="EBMS_0202"/>
+          <xsd:enumeration value="EBMS_0301"/>
+          <xsd:enumeration value="EBMS_0302"/>
+          <xsd:enumeration value="EBMS_0303"/>
+          <xsd:enumeration value="EBMS_0020"/>
+          <xsd:enumeration value="EBMS_0021"/>
+          <xsd:enumeration value="EBMS_0022"/>
+          <xsd:enumeration value="EBMS_0023"/>
+          <xsd:enumeration value="EBMS_0030"/>
+          <xsd:enumeration value="EBMS_0031"/>
+          <xsd:enumeration value="EBMS_0040"/>
+          <xsd:enumeration value="EBMS_0041"/>
+          <xsd:enumeration value="EBMS_0042"/>
+          <xsd:enumeration value="EBMS_0043"/>
+          <xsd:enumeration value="EBMS_0044"/>
+          <xsd:enumeration value="EBMS_0045"/>
+          <xsd:enumeration value="EBMS_0046"/>
+          <xsd:enumeration value="EBMS_0047"/>
+          <xsd:enumeration value="EBMS_0048"/>
+          <xsd:enumeration value="EBMS_0049"/>
+          <xsd:enumeration value="EBMS_0050"/>
+          <xsd:enumeration value="EBMS_0051"/>
+          <xsd:enumeration value="EBMS_0052"/>
+          <xsd:enumeration value="EBMS_0053"/>
+          <xsd:enumeration value="EBMS_0054"/>
+          <xsd:enumeration value="EBMS_0055"/>
+          <xsd:enumeration value="EBMS_0060"/>
+          <xsd:enumeration value="EBMS_0065"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="mshRole">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="SENDING"/>
+          <xsd:enumeration value="RECEIVING"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType final="#all" name="errorResultImplArray">
+        <xsd:sequence>
+          <xsd:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="tns:errorResultImpl"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="getStatusRequest" nillable="true">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="statusRequest" nillable="true">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getStatusResponse" nillable="true" type="tns:messageStatus"/>
+      <xsd:element name="getErrorsRequest" nillable="true">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getMessageErrorsResponse" nillable="true" type="tns:errorResultImplArray"/>
+    </xsd:schema>
+    <xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:tns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+      <xsd:annotation>
+        <xsd:appinfo>Schema for Domibus messages' headers submission</xsd:appinfo>
+        <xsd:documentation xml:lang="en">This schema defines an XML subset of ebMS-3 headers which is used to validate messages submitted to Domibus
+            through WS plugin.</xsd:documentation>
+      </xsd:annotation>
+      <xsd:element name="Messaging" type="Messaging"/>
+      <xsd:complexType name="Messaging">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" name="UserMessage" type="UserMessage"/>
+        </xsd:sequence>
+        <xsd:attribute name="mustUnderstand" type="xsd:boolean" use="optional"/>
+      </xsd:complexType>
+      <xsd:complexType name="UserMessage">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="MessageInfo" type="MessageInfo"/>
+          <xsd:element name="PartyInfo" type="PartyInfo"/>
+          <xsd:element name="CollaborationInfo" type="CollaborationInfo"/>
+          <xsd:element minOccurs="0" name="MessageProperties" type="tns:MessageProperties"/>
+          <xsd:element minOccurs="0" name="PayloadInfo" type="tns:PayloadInfo"/>
+        </xsd:all>
+        <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
+      </xsd:complexType>
+      <xsd:complexType name="MessageInfo">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Timestamp" type="xsd:dateTime"/>
+          <xsd:element minOccurs="0" name="MessageId" type="tns:max255-non-empty-string"/>
+          <xsd:element minOccurs="0" name="RefToMessageId" type="tns:max255-non-empty-string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="PartyInfo">
+        <xsd:all>
+          <xsd:element name="From" type="tns:From"/>
+          <xsd:element minOccurs="0" name="To" type="tns:To"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="PartyId">
+        <xsd:simpleContent>
+          <xsd:extension base="tns:max255-non-empty-string">
+            <xsd:attribute name="type" type="tns:max255-non-empty-string"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:complexType name="From">
+        <xsd:all>
+          <xsd:element name="PartyId" type="tns:PartyId"/>
+          <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="To">
+        <xsd:all>
+          <xsd:element name="PartyId" type="tns:PartyId"/>
+          <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="CollaborationInfo">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="AgreementRef" type="tns:AgreementRef"/>
+          <xsd:element name="Service" type="tns:Service"/>
+          <xsd:element name="Action" type="xsd:token"/>
+          <xsd:element minOccurs="0" name="ConversationId" type="xsd:token"/>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="Service">
+        <xsd:simpleContent>
+          <xsd:extension base="tns:max255-non-empty-string">
+            <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:complexType name="AgreementRef">
+        <xsd:simpleContent>
+          <xsd:extension base="tns:max255-non-empty-string">
+            <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+            <xsd:attribute name="pmode" type="tns:max255-non-empty-string" use="optional"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:complexType name="PayloadInfo">
+        <xsd:sequence>
+          <xsd:element maxOccurs="unbounded" name="PartInfo" type="tns:PartInfo"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="PartInfo">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="PartProperties" type="tns:PartProperties"/>
+        </xsd:all>
+        <xsd:attribute name="href" type="xsd:token"/>
+      </xsd:complexType>
+      <xsd:complexType name="Property">
+        <xsd:simpleContent>
+          <xsd:extension base="tns:max1024-non-empty-string">
+            <xsd:attribute name="name" type="tns:max255-non-empty-string" use="required"/>
+            <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+          </xsd:extension>
+        </xsd:simpleContent>
+      </xsd:complexType>
+      <xsd:complexType name="PartProperties">
+        <xsd:sequence>
+          <xsd:element maxOccurs="unbounded" name="Property" type="tns:Property"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="MessageProperties">
+        <xsd:sequence>
+          <xsd:element maxOccurs="unbounded" name="Property" type="Property"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="max255-non-empty-string">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="255"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="max1024-non-empty-string">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="1"/>
+          <xsd:maxLength value="1024"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:schema>
+    <xs:schema targetNamespace="http://www.w3.org/XML/1998/namespace" xml:lang="en" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:annotation>
+        <xs:documentation>See http://www.w3.org/XML/1998/namespace.html and
+   http://www.w3.org/TR/REC-xml for information about this namespace.
+
+    This schema document describes the XML namespace, in a form
+    suitable for import by other schema documents.
+
+    Note that local names in this namespace are intended to be defined
+    only by the World Wide Web Consortium or its subgroups.  The
+    following names are currently defined in this namespace and should
+    not be used with conflicting semantics by any Working Group,
+    specification, or document instance:
+
+    base (as an attribute name): denotes an attribute whose value
+         provides a URI to be used as the base for interpreting any
+         relative URIs in the scope of the element on which it
+         appears; its value is inherited.  This name is reserved
+         by virtue of its definition in the XML Base specification.
+
+    lang (as an attribute name): denotes an attribute whose value
+         is a language code for the natural language of the content of
+         any element; its value is inherited.  This name is reserved
+         by virtue of its definition in the XML specification.
+
+    space (as an attribute name): denotes an attribute whose
+         value is a keyword indicating what whitespace processing
+         discipline is intended for the content of the element; its
+         value is inherited.  This name is reserved by virtue of its
+         definition in the XML specification.
+
+    Father (in any context at all): denotes Jon Bosak, the chair of
+         the original XML Working Group.  This name is reserved by
+         the following decision of the W3C XML Plenary and
+         XML Coordination groups:
+
+             In appreciation for his vision, leadership and dedication
+             the W3C XML Plenary on this 10th day of February, 2000
+             reserves for Jon Bosak in perpetuity the XML name
+             xml:Father</xs:documentation>
+      </xs:annotation>
+      <xs:annotation>
+        <xs:documentation>This schema defines attributes and an attribute group
+        suitable for use by
+        schemas wishing to allow xml:base, xml:lang or xml:space attributes
+        on elements they define.
+
+        To enable this, such a schema must import this schema
+        for the XML namespace, e.g. as follows:
+        &lt;schema . . .>
+         . . .
+         &lt;import namespace="http://www.w3.org/XML/1998/namespace"
+                    schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
+
+        Subsequently, qualified reference to any of the attributes
+        or the group defined below will have the desired effect, e.g.
+
+        &lt;type . . .>
+         . . .
+         &lt;attributeGroup ref="xml:specialAttrs"/>
+
+         will define a type which will schema-validate an instance
+         element with any of those attributes</xs:documentation>
+      </xs:annotation>
+      <xs:annotation>
+        <xs:documentation>In keeping with the XML Schema WG's standard versioning
+   policy, this schema document will persist at
+   http://www.w3.org/2001/03/xml.xsd.
+   At the date of issue it can also be found at
+   http://www.w3.org/2001/xml.xsd.
+   The schema document at that URI may however change in the future,
+   in order to remain compatible with the latest version of XML Schema
+   itself.  In other words, if the XML Schema namespace changes, the version
+   of this document at
+   http://www.w3.org/2001/xml.xsd will change
+   accordingly; the version at
+   http://www.w3.org/2001/03/xml.xsd will not change.</xs:documentation>
+      </xs:annotation>
+      <xs:attribute name="lang" type="xs:language">
+        <xs:annotation>
+          <xs:documentation>In due course, we should install the relevant ISO 2- and 3-letter
+         codes as the enumerated possible values . . .</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute default="preserve" name="space">
+        <xs:simpleType>
+          <xs:restriction base="xs:NCName">
+            <xs:enumeration value="default"/>
+            <xs:enumeration value="preserve"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="base" type="xs:anyURI">
+        <xs:annotation>
+          <xs:documentation>See http://www.w3.org/TR/xmlbase/ for
+                     information about this attribute.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attributeGroup name="specialAttrs">
+        <xs:attribute ref="xml:base"/>
+        <xs:attribute ref="xml:lang"/>
+        <xs:attribute ref="xml:space"/>
+      </xs:attributeGroup>
+    </xs:schema>
+    <xs:schema targetNamespace="http://www.w3.org/2005/05/xmlmime" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xmime="http://www.w3.org/2005/05/xmlmime">
+      <xs:attribute name="contentType">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="3"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="expectedContentTypes" type="xs:string"/>
+      <xs:complexType name="base64Binary">
+        <xs:simpleContent>
+          <xs:extension base="xs:base64Binary">
+            <xs:attribute ref="xmime:contentType"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+      <xs:complexType name="hexBinary">
+        <xs:simpleContent>
+          <xs:extension base="xs:hexBinary">
+            <xs:attribute ref="xmime:contentType"/>
+          </xs:extension>
+        </xs:simpleContent>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="submitMessage">
+    <wsdl:part element="tns:submitRequest" name="submitRequest"></wsdl:part>
+    <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrieveMessage">
+    <wsdl:part element="tns:retrieveMessageRequest" name="retrieveMessageRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SubmitMessageFault">
+    <wsdl:part element="tns:FaultDetail" name="SubmitMessageFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listPendingMessages">
+    <wsdl:part element="tns:listPendingMessagesRequest" name="listPendingMessagesRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="StatusFault">
+    <wsdl:part element="tns:FaultDetail" name="StatusFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrieveMessageResponse">
+    <wsdl:part element="tns:retrieveMessageResponse" name="retrieveMessageResponse"></wsdl:part>
+    <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="submitMessageResponse">
+    <wsdl:part element="tns:submitResponse" name="submitResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getStatusResponse">
+    <wsdl:part element="tns:getStatusResponse" name="getStatusResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listPendingMessagesResponse">
+    <wsdl:part element="tns:listPendingMessagesResponse" name="listPendingMessagesResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getMessageErrorsResponse">
+    <wsdl:part element="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RetrieveMessageFault">
+    <wsdl:part element="tns:FaultDetail" name="RetrieveMessageFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getMessageErrors">
+    <wsdl:part element="tns:getErrorsRequest" name="getErrorsRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getStatus">
+    <wsdl:part element="tns:statusRequest" name="statusRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="WebServicePluginInterface">
+    <wsdl:operation name="getMessageErrors">
+      <wsdl:input message="tns:getMessageErrors" name="getMessageErrors"></wsdl:input>
+      <wsdl:output message="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getStatus">
+      <wsdl:input message="tns:getStatus" name="getStatus"></wsdl:input>
+      <wsdl:output message="tns:getStatusResponse" name="getStatusResponse"></wsdl:output>
+      <wsdl:fault message="tns:StatusFault" name="StatusFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="submitMessage">
+      <wsdl:input message="tns:submitMessage" name="submitMessage"></wsdl:input>
+      <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse"></wsdl:output>
+      <wsdl:fault message="tns:SubmitMessageFault" name="SubmitMessageFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="retrieveMessage" parameterOrder="retrieveMessageRequest retrieveMessageResponse ebMSHeaderInfo">
+      <wsdl:input message="tns:retrieveMessage" name="retrieveMessage"></wsdl:input>
+      <wsdl:output message="tns:retrieveMessageResponse" name="retrieveMessageResponse"></wsdl:output>
+      <wsdl:fault message="tns:RetrieveMessageFault" name="RetrieveMessageFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="listPendingMessages">
+      <wsdl:input message="tns:listPendingMessages" name="listPendingMessages"></wsdl:input>
+      <wsdl:output message="tns:listPendingMessagesResponse" name="listPendingMessagesResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="WebServicePluginSoapBinding" type="tns:WebServicePluginInterface">
+    <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getMessageErrors">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="getMessageErrors">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getMessageErrorsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getStatus">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="getStatus">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getStatusResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="StatusFault">
+        <soap12:fault name="StatusFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="submitMessage">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="submitMessage">
+        <soap12:header message="tns:submitMessage" part="ebMSHeaderInfo" use="literal"></soap12:header>
+        <soap12:body parts="submitRequest" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="submitMessageResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="SubmitMessageFault">
+        <soap12:fault name="SubmitMessageFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="retrieveMessage">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="retrieveMessage">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="retrieveMessageResponse">
+        <soap12:header message="tns:retrieveMessageResponse" part="ebMSHeaderInfo" use="literal"></soap12:header>
+        <soap12:body parts="retrieveMessageResponse" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RetrieveMessageFault">
+        <soap12:fault name="RetrieveMessageFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="listPendingMessages">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="listPendingMessages">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="listPendingMessagesResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="WebServicePlugin">
+    <wsdl:port binding="tns:WebServicePluginSoapBinding" name="WEBSERVICEPLUGIN_PORT">
+      <soap12:address location="http://localhost:8080/domibus/services/wsplugin"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint></con:endpoints><con:operation id="ff6869e3-3ba5-4ff4-9e81-d91be12db2e7" isOneWay="false" action="" name="getMessageErrors" bindingOperationName="getMessageErrors" type="Request-Response" outputName="getMessageErrorsResponse" inputName="getMessageErrors" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="9a4960ed-593a-4c1a-999b-9884e4725e7b" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:getErrorsRequest>
+         <messageID>?</messageID>
+      </eu:getErrorsRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getMessageErrors"/></con:call></con:operation><con:operation id="0c2cbeb0-b0fd-4eb8-95ea-ada6f0eaf98e" isOneWay="false" action="" name="getStatus" bindingOperationName="getStatus" type="Request-Response" outputName="getStatusResponse" inputName="getStatus" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="a4a52a7a-09c3-42f9-98f3-60cefdb16bf5" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>?</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/></con:call></con:operation><con:operation id="0280a864-aaf4-49db-924d-ab7de6135ac6" isOneWay="false" action="" name="listPendingMessages" bindingOperationName="listPendingMessages" type="Request-Response" outputName="listPendingMessagesResponse" inputName="listPendingMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="90594b2d-4cb5-4c80-bd1b-91890b07a5bd" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:listPendingMessagesRequest>
+         <!--Optional:-->
+         <messageId>?</messageId>
+         <!--Optional:-->
+         <conversationId>?</conversationId>
+         <!--Optional:-->
+         <refToMessageId>?</refToMessageId>
+         <!--Optional:-->
+         <fromPartyId>?</fromPartyId>
+         <!--Optional:-->
+         <finalRecipient>?</finalRecipient>
+         <!--Optional:-->
+         <originalSender>?</originalSender>
+         <!--Optional:-->
+         <receivedFrom>?</receivedFrom>
+         <!--Optional:-->
+         <receivedTo>?</receivedTo>
+      </eu:listPendingMessagesRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/listPendingMessages"/></con:call></con:operation><con:operation id="129b73ad-ce01-4e07-af98-3807aff4db55" isOneWay="false" action="" name="retrieveMessage" bindingOperationName="retrieveMessage" type="Request-Response" outputName="retrieveMessageResponse" inputName="retrieveMessage" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="fdd15ba9-0d46-4b41-b6ce-79796815da23" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:retrieveMessageRequest>
+         <messageID>?</messageID>
+      </eu:retrieveMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/retrieveMessage"/></con:call></con:operation><con:operation id="a6b49d16-3ee5-4733-8aea-e834e0cd7468" isOneWay="false" action="" name="submitMessage" bindingOperationName="submitMessage" type="Request-Response" outputName="submitMessageResponse" inputName="submitMessage" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="028a8b4d-d591-479c-a887-024484d17058" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header>
+      <ns:Messaging mustUnderstand="?">
+         <!--Optional:-->
+         <ns:UserMessage mpc="?">
+            <!--You may enter the following 5 items in any order-->
+            <!--Optional:-->
+            <ns:MessageInfo>
+               <!--You may enter the following 3 items in any order-->
+               <!--Optional:-->
+               <ns:Timestamp>?</ns:Timestamp>
+               <!--Optional:-->
+               <ns:MessageId>?</ns:MessageId>
+               <!--Optional:-->
+               <ns:RefToMessageId>?</ns:RefToMessageId>
+            </ns:MessageInfo>
+            <ns:PartyInfo>
+               <!--You may enter the following 2 items in any order-->
+               <ns:From>
+                  <!--You may enter the following 2 items in any order-->
+                  <ns:PartyId type="?">?</ns:PartyId>
+                  <ns:Role>?</ns:Role>
+               </ns:From>
+               <!--Optional:-->
+               <ns:To>
+                  <!--You may enter the following 2 items in any order-->
+                  <ns:PartyId type="?">?</ns:PartyId>
+                  <ns:Role>?</ns:Role>
+               </ns:To>
+            </ns:PartyInfo>
+            <ns:CollaborationInfo>
+               <!--You may enter the following 4 items in any order-->
+               <!--Optional:-->
+               <ns:AgreementRef type="?" pmode="?">?</ns:AgreementRef>
+               <ns:Service type="?">?</ns:Service>
+               <ns:Action>?</ns:Action>
+               <!--Optional:-->
+               <ns:ConversationId>?</ns:ConversationId>
+            </ns:CollaborationInfo>
+            <!--Optional:-->
+            <ns:MessageProperties>
+               <!--1 or more repetitions:-->
+               <ns:Property name="?" type="?">?</ns:Property>
+            </ns:MessageProperties>
+            <!--Optional:-->
+            <ns:PayloadInfo>
+               <!--1 or more repetitions:-->
+               <ns:PartInfo href="?">
+                  <!--Optional:-->
+                  <ns:PartProperties>
+                     <!--1 or more repetitions:-->
+                     <ns:Property name="?" type="?">?</ns:Property>
+                  </ns:PartProperties>
+               </ns:PartInfo>
+            </ns:PayloadInfo>
+         </ns:UserMessage>
+      </ns:Messaging>
+   </soap:Header>
+   <soap:Body>
+      <eu:submitRequest>
+         <!--Optional:-->
+         <bodyload payloadId="?" contentType="?">
+            <value>cid:761025335821</value>
+         </bodyload>
+         <!--Zero or more repetitions:-->
+         <payload payloadId="?" contentType="?">
+            <value>cid:1507713908007</value>
+         </payload>
+      </eu:submitRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/submitMessage"/></con:call></con:operation></con:interface><con:testSuite id="26f47105-33a8-4994-9eb3-c2073227b909" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="3588311a-372e-4dce-80ad-21700d5a5684">
             <con:settings/>
 
 
@@ -4179,5 +4888,154 @@ Domibus.changePropertyAtRuntime("C2", "fsplugin.messages.payload.id", "cid:messa
 
 
 </script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Reset log levels'].run(testRunner, context);
-testRunner.testCase.testSteps['Reset cid property'].run(testRunner, context);</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>10</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>10</con:value></con:property></con:properties></con:testCase><con:properties><con:property><con:name>domainsNamesList</con:name><con:value>{"C30":"default","C20":"default","C32":"domibus_c3dom2","C24":"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc","C23":"a","C22":"domibus_c2dom2","C21":"domibus_c2dom1","C31":"domibus_c3dom1"}</con:value></con:property></con:properties></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8080/domibus</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>C:/domibus/1-mainBranch/sender/domibus/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>C:/domibus/1-mainBranch/receiver/domibus/</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>C:/domibus/1-mainBranch/greenReceiver/domibus/</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}/reports/Domibus_3_3_2_test_results.xlsx</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresDefault</con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>tempFilesDir</con:name><con:value>${projectDir}/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}/resources/fileSmall.pdf </con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}/resources/videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>adminC1Default</con:name><con:value>adminC1Default</con:value></con:property><con:property><con:name>adminC4Default</con:name><con:value>adminC4Default</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
-"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"}}</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>superAdminUsername</con:name><con:value>super</con:value></con:property><con:property><con:name>superAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>defaultAdminUsername</con:name><con:value>admin</con:value></con:property><con:property><con:name>defaultAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>true</con:value></con:property><con:property><con:name>multitenancyModeThird</con:name><con:value>0</con:value></con:property><con:property><con:name>unsecureLoginAllowedC2</con:name><con:value>true</con:value></con:property><con:property><con:name>unsecureLoginAllowedC3</con:name><con:value>true</con:value></con:property><con:property><con:name>logsPathBlue</con:name><con:value>${#Project#pathBlue}logs/</con:value></con:property><con:property><con:name>logsPathRed</con:name><con:value>${#Project#pathRed}logs/</con:value></con:property><con:property><con:name>logsPathGreen</con:name><con:value>${#Project#pathGreen}logs/</con:value></con:property><con:property><con:name>databaseBlue</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverBlue</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlBlue</con:name><con:value>jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>blueDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>blueDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>databaseRed</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverRed</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlRed</con:name><con:value>jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>redDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>redDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>payloadsPath</con:name><con:value>C:/ec/soapui/resources</con:value></con:property><con:property><con:name>adminC1Dom1Default</con:name><con:value>userC1C2Dom1</con:value></con:property><con:property><con:name>adminC1Dom2Default</con:name><con:value>userC1C2Dom2</con:value></con:property><con:property><con:name>adminC4Dom1Default</con:name><con:value>userC4C3Dom1</con:value></con:property><con:property><con:name>adminC4Dom2Default</con:name><con:value>userC4C3Dom2</con:value></con:property><con:property><con:name>userC1DomDefault</con:name><con:value>userC1DomDefault</con:value></con:property><con:property><con:name>userC1Dom1</con:name><con:value>userC1Dom1</con:value></con:property><con:property><con:name>userC1Dom2</con:name><con:value>userC1Dom2</con:value></con:property><con:property><con:name>userC1Dom2SelfC4</con:name><con:value>userC1Dom2SelfC4</con:value></con:property><con:property><con:name>userC1Dom3</con:name><con:value>userC1Dom3</con:value></con:property><con:property><con:name>userC1Dom4</con:name><con:value>userC1Dom4</con:value></con:property><con:property><con:name>userC4DomDefault</con:name><con:value>userC4DomDefault</con:value></con:property><con:property><con:name>userC4Dom1</con:name><con:value>userC4Dom1</con:value></con:property><con:property><con:name>userC4Dom2</con:name><con:value>userC4Dom2</con:value></con:property><con:property><con:name>usersPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>c1OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</con:value></con:property><con:property><con:name>c4OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</con:value></con:property><con:property><con:name>fsFilesPathBlue</con:name><con:value>C:/domibus/1-mainBranch/sender/fs_plugin_data</con:value></con:property><con:property><con:name>fsFilesPathRed</con:name><con:value>C:/domibus/1-mainBranch/receiver/fs_plugin_data</con:value></con:property><con:property><con:name>fsFilesPathGreen</con:name><con:value>C:/domibus/1-mainBranch/greenReceiver/fs_plugin_data</con:value></con:property><con:property><con:name>fsMetadataStandard</con:name><con:value><![CDATA[<UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithMimeType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <Property name="MimeType">text/xml</Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithPayloadName</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <ns:Property name="PayloadName">PayloadName.xml</ns:Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithProcessingType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties>    <PayloadInfo>       <PartInfo href="cid:messagefrompp">          <PartProperties>             <Property name="MimeType">text/xml</Property>          </PartProperties>       </PartInfo>    </PayloadInfo>    <!--Optional: PUSH per default-->    <ProcessingType>PUSH</ProcessingType> </UserMessage>]]></con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>
+testRunner.testCase.testSteps['Reset cid property'].run(testRunner, context);</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>10</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>10</con:value></con:property></con:properties></con:testCase><con:properties><con:property><con:name>domainsNamesList</con:name><con:value>{"C30":"default","C20":"default","C32":"domibus_c3dom2","C24":"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc","C23":"a","C22":"domibus_c2dom2","C21":"domibus_c2dom1","C31":"domibus_c3dom1"}</con:value></con:property></con:properties></con:testSuite><con:testSuite id="931e7192-aec4-4d0e-8a2a-9184fdbf5d1b" name="SplitandJoin-Auto-Not-for-Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="4a7557bc-2d3a-4e8b-98ec-68f73b72aa44" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set log level to debug" id="af549cc7-808a-4727-89de-34d9547bd42f"><con:settings/><con:config><script>//----Set Log level to debug-----------
+log.info "Set logger level to DEBUG for required classes"
+
+ //Domibus.setLogLevel("C3",context,log,"eu.domibus.core.message.splitandjoin","DEBUG")</script></con:config></con:testStep><con:testStep type="groovy" name="Set message filters" id="a7faa644-080e-430f-a1d4-00556749e490"><con:settings/><con:config><script>//----Set Message filters ---------
+log.info "Set FS message filter for sender and receiver on Admin console if not set before"
+
+Domibus.setMessageFilters("sender","backendFSPlugin",context,log);
+Domibus.setMessageFilters("receiver","backendFSPlugin",context,log);
+</script></con:config></con:testStep><con:testStep type="groovy" name="PMode upload" id="cbdb725f-5807-4ebe-98ef-8d6e10c3b5e0"><con:settings/><con:config><script>import java.nio.file.Paths
+def suffix =  "_SoapuiStringReplace.xml"
+def joinedPath = Paths.get(context.expand('${#Project#specialPModesPath}'),"/splitandjoin/blue/domibus-pmode-blue.xml").toUri()
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("sender","special","/splitandjoin/blue/domibus-pmode-blue.xml" + suffix, context, log)
+
+joinedPath = Paths.get(context.expand('${#Project#specialPModesPath}'),"/splitandjoin/red/domibus-pmode-red.xml").toUri()
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("receiver","special","/splitandjoin/red/domibus-pmode-red.xml" + suffix, context, log)
+</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="e7ad7c73-e5dd-4faf-a970-1fa000a1f840" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ001-Push-Basic Flow-Smal file - only one fragment" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="354efe0f-4a6b-46be-9df5-49fd354dfc02"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="7ea61f3d-07d2-4c56-bb0b-46518c5aad57"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="07439267-664a-4ef6-a331-9bf47ebb31df"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def parametersMap=[]
+def test = new Domibus(log,null,context)
+def twoFiles = false
+def testFileSuffix = "_split"
+def inputFileName = "Test_file_split.xml"
+def subFolder = ""
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,100*1024, inputFileName)
+//FSPluginUtils.createRandomEmptyFSFile(log, context,1*1024*1024,inputFileName)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"splitStandard","default",parametersMap, twoFiles, testFileSuffix, subFolder, inputFileName)
+messageId=test.waitAndFindLatestMessageIdInDb(testRunner)
+testRunner.testCase.setPropertyValue("lastMessageId", messageId)
+
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="aba8b7f5-5a12-4c2f-a530-842df39b9750"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="272852fe-c277-4efa-b67e-ceb88a352e6e"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def numberOfFragments=1 
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="request" id="f0883f36-19fd-47a3-9156-6c30aef82ca9" name="getStatus of orignal message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of orignal message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="f4dd5907-1459-4d5c-aa80-d729e679e4d2" name="getStatus of fragment message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of fragment message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_1</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="147c8c24-dc2f-4cf5-8a8c-5b68992c56af" name="getStatus of orignal message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of orignal message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>DOWNLOADED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="76a62c1a-02c0-47f5-92b3-ad605524c440" name="getStatus of fragment message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of fragment message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_1</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>400</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>370</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>f7b8e09d-3018-11ed-9729-0a0027000006@domibus.eu</con:value></con:property></con:properties></con:testCase><con:testCase id="f778839f-6923-4220-947e-c0451b5c0533" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ002-Push-Basic Flow-Smal file - two fragments" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="20d5e0fc-bbd4-49ba-8789-1191d63a5ed0"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="a89388d6-599d-470b-95ce-157dd19f2efc"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="c0a701c2-dc39-4896-920f-cad1025808a6"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def parametersMap=[]
+def test = new Domibus(log,null,context)
+def twoFiles = false
+def testFileSuffix = "_split"
+def inputFileName = "Test_file_split.xml"
+def subFolder = ""
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,1536*1024, inputFileName)
+//FSPluginUtils.createRandomEmptyFSFile(log, context,1*1024*1024,inputFileName)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"splitStandard","default",parametersMap, twoFiles, testFileSuffix, subFolder, inputFileName)
+messageId=test.waitAndFindLatestMessageIdInDb(testRunner)
+testRunner.testCase.setPropertyValue("lastMessageId", messageId)
+
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="340a5083-6867-44c7-b1fd-d34ef19fb84a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="bb388979-0f0c-4ed9-8bd7-21a05559aa64"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def numberOfFragments=2 
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="request" id="4f8b55e9-3c92-49ea-a97b-37289cfcca98" name="getStatus of orignal message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of orignal message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="c7b81f4d-6428-4e87-a531-b0338d3ad4dc" name="getStatus of fragment message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of fragment message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_1</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="0c2eb681-3b5f-48ef-8ce4-a3fa679798ce" name="getStatus of second fragment message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of second fragment message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_2</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="8589a74a-6396-46d3-aeda-f58a48556efb" name="getStatus of orignal message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of orignal message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>DOWNLOADED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="01176f50-c31f-4b90-8334-37dd5f9a57f2" name="getStatus of fragment message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of fragment message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_1</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="9bc3add2-5278-4143-a6a6-d06c93030518" name="getStatus of second fragment message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of second fragment message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_2</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>402</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>371</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>3f3b74ff-3019-11ed-9729-0a0027000006@domibus.eu</con:value></con:property></con:properties></con:testCase><con:testCase id="296b6105-77de-46bc-b78b-29e32e8b29c9" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ003-Push-Basic Flow-Smal file - split to many parts" searchProperties="true" disabled="true"><con:settings/><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>c:/ec/501/blue/domibus/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>c:/ec/501/red/domibus/</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>c:/ec/4211/green/domibus/</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}/reports/Domibus_3_3_2_test_results.xlsx</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresDefault</con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>tempFilesDir</con:name><con:value>${projectDir}/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}/resources/fileSmall.pdf </con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}/resources/videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>adminC1Default</con:name><con:value>adminC1Default</con:value></con:property><con:property><con:name>adminC4Default</con:name><con:value>adminC4Default</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_501_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}, "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_501_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}}</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>superAdminUsername</con:name><con:value>super</con:value></con:property><con:property><con:name>superAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>defaultAdminUsername</con:name><con:value>admin</con:value></con:property><con:property><con:name>defaultAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>true</con:value></con:property><con:property><con:name>multitenancyModeThird</con:name><con:value>0</con:value></con:property><con:property><con:name>unsecureLoginAllowedC2</con:name><con:value>true</con:value></con:property><con:property><con:name>unsecureLoginAllowedC3</con:name><con:value>true</con:value></con:property><con:property><con:name>logsPathBlue</con:name><con:value>${#Project#pathBlue}logs/</con:value></con:property><con:property><con:name>logsPathRed</con:name><con:value>${#Project#pathRed}logs/</con:value></con:property><con:property><con:name>logsPathGreen</con:name><con:value>${#Project#pathGreen}logs/</con:value></con:property><con:property><con:name>databaseBlue</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverBlue</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlBlue</con:name><con:value>jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>blueDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>blueDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>databaseRed</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverRed</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlRed</con:name><con:value>jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>redDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>redDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>payloadsPath</con:name><con:value>C:/ec/soapui/resources</con:value></con:property><con:property><con:name>adminC1Dom1Default</con:name><con:value>userC1C2Dom1</con:value></con:property><con:property><con:name>adminC1Dom2Default</con:name><con:value>userC1C2Dom2</con:value></con:property><con:property><con:name>adminC4Dom1Default</con:name><con:value>userC4C3Dom1</con:value></con:property><con:property><con:name>adminC4Dom2Default</con:name><con:value>userC4C3Dom2</con:value></con:property><con:property><con:name>userC1DomDefault</con:name><con:value>userC1DomDefault</con:value></con:property><con:property><con:name>userC1Dom1</con:name><con:value>userC1Dom1</con:value></con:property><con:property><con:name>userC1Dom2</con:name><con:value>userC1Dom2</con:value></con:property><con:property><con:name>userC1Dom2SelfC4</con:name><con:value>userC1Dom2SelfC4</con:value></con:property><con:property><con:name>userC1Dom3</con:name><con:value>userC1Dom3</con:value></con:property><con:property><con:name>userC1Dom4</con:name><con:value>userC1Dom4</con:value></con:property><con:property><con:name>userC4DomDefault</con:name><con:value>userC4DomDefault</con:value></con:property><con:property><con:name>userC4Dom1</con:name><con:value>userC4Dom1</con:value></con:property><con:property><con:name>userC4Dom2</con:name><con:value>userC4Dom2</con:value></con:property><con:property><con:name>usersPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>c1OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</con:value></con:property><con:property><con:name>c4OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</con:value></con:property><con:property><con:name>fsFilesPathBlue</con:name><con:value>c:/ec/501/blue/domibus/fs_plugin</con:value></con:property><con:property><con:name>fsFilesPathRed</con:name><con:value>c:/ec/501/red/domibus/fs_plugin</con:value></con:property><con:property><con:name>fsFilesPathGreen</con:name><con:value>C:/domibus/1-mainBranch/greenReceiver/fs_plugin_data</con:value></con:property><con:property><con:name>fsMetadataStandard</con:name><con:value><![CDATA[<UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithMimeType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <Property name="MimeType">text/xml</Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithPayloadName</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <ns:Property name="PayloadName">PayloadName.xml</ns:Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithProcessingType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties>    <PayloadInfo>       <PartInfo href="cid:messagefrompp">          <PartProperties>             <Property name="MimeType">text/xml</Property>          </PartProperties>       </PartInfo>    </PayloadInfo>    <!--Optional: PUSH per default-->    <ProcessingType>PUSH</ProcessingType> </UserMessage>]]></con:value></con:property><con:property><con:name>splitMetadataStandard</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <Service type="tc1">bdx:noprocess</Service>         <Action>TC1Leg1</Action>     </CollaborationInfo>     <MessageProperties>         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties> </UserMessage>]]></con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>
