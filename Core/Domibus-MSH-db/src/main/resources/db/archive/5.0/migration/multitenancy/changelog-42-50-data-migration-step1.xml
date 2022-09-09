@@ -104,4 +104,9 @@ DROP TABLE IF EXISTS MIGR_TB_USER_DOMAIN
             <column name="USERS_MOD" type="BOOLEAN"/>
         </createTable>
     </changeSet>
+
+    <changeSet id="EDELIVERY-7849-Migrate-Timestamp-to-UTC-multitenancy" author="Soumya">
+        <sqlFile path="src/main/resources/db/archive/5.0/migration/oracle/db-multitenancy-migration-utc-conversion.sql" endDelimiter="\n/"
+                 dbms="oracle"/>
+    </changeSet>
 </databaseChangeLog>
