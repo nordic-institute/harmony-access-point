@@ -3964,7 +3964,7 @@ class Domibus{
         }
         closeDbConnections([domainId])
 
-        assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitAndFindLatestMessageIdInDb: Message Id didn't change even after " + maxWaittingTime/1000 + " seconds."
+        assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitAndFindLatestMessageIdInDb: Message Id didn't change even after " + maxWaitingTime/1000 + " seconds."
         testRunner.testCase.setPropertyValue( "lastMessageId", newestMessageIdFetchFromDB )
 
         debugLog("  ====  Ending \"waitAndFindLatestMessageIdInDb\".", log)
@@ -3990,7 +3990,7 @@ class Domibus{
 
         List messageIdExist = sqlHandler.rows(sqlQuery)
 
-        assert messageIdExist.size() == 1, "Error: storeLatestMessagesId: One message ID should be returned not '${messageIdExist.size()}'"
+        assert messageIdExist.size() < 2, "Error: storeLatestMessagesId: No more than one message ID should be returned, not '${messageIdExist.size()}'"
 
         closeDbConnections([domainId])
 
