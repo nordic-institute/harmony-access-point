@@ -271,13 +271,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         query.setParameter("MPC", mpc);
         query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
         query.setMaxResults(expiredMessagesLimit);
+        return query.getResultList();
 
-        try {
-            return query.getResultList();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Query [{}] did not find any result for startDate [{}] and MPC [{}]", queryName, startDate, mpc);
-            return Collections.emptyList();
-        }
     }
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
