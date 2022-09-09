@@ -136,15 +136,16 @@
                    </execution>
 
                    <!-- partitioning starts here -->
+                   <!-- 5.1 starts here -->
                    <execution>
-                       <id>generate-oracle-script-partitioning</id>
+                       <id>generate-oracle-script-partitioning-5.1</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/archive/5.0/partitioning/oracle/changelog-partitioning.xml
+                               src/main/resources/db/partitioning/oracle/changelog-partitioning.xml
                            </changeLogFile>
                            <url>
                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-partitioning.oracle
@@ -154,6 +155,52 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
+                   <!-- 5.1 end here -->
+
+                   <!-- partitioning migration 5.0.1 to 5.1 starts here -->
+                   <!-- partitioning migration 5.0.1 to 5.1 ends here -->
+
+                   <!-- 5.0.1 starts here -->
+                   <execution>
+                       <id>generate-oracle-script-partitioning-5.0.1</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/archive/5.0.1/partitioning/oracle/changelog-5.0.1-partitioning.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0.1-partitioning.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-5.0.1-partitioning.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- 5.0.1 end here -->
+
+                   <!-- 5.0 starts here -->
+                   <execution>
+                       <id>generate-oracle-script-partitioning-5.0</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/archive/5.0/partitioning/oracle/changelog-5.0-partitioning.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0-partitioning.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-5.0-partitioning.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- 5.0 end here -->
                    <!-- partitioning ends here -->
 
                    <!-- 5.1 starts here -->
@@ -455,7 +502,7 @@
 
                    <!-- data migration 4.2.9 to 5.0 starts here -->
                    <execution>
-                       <id>generate-mysql-script-migration-single-tenancy-step1</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step1-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -473,7 +520,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-single-tenancy-step2</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step2-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -491,7 +538,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-single-tenancy-step3</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step3-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -509,7 +556,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-single-tenancy-step4</id>
+                       <id>generate-mysql-script-migration-single-tenancy-step4-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -528,7 +575,7 @@
                    </execution>
 
                    <execution>
-                       <id>generate-oracle-script-migration-single-tenancy-step1</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step1-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -546,7 +593,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-single-tenancy-step2</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step2-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -564,7 +611,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-single-tenancy-step3</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step3-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -582,7 +629,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-single-tenancy-step4</id>
+                       <id>generate-oracle-script-migration-single-tenancy-step4-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -600,7 +647,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-multitenancy-step1</id>
+                       <id>generate-mysql-script-migration-multitenancy-step1-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -618,7 +665,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-multitenancy-step2</id>
+                       <id>generate-mysql-script-migration-multitenancy-step2-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -636,7 +683,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-multitenancy-step3</id>
+                       <id>generate-mysql-script-migration-multitenancy-step3-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -654,7 +701,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-mysql-script-migration-multitenancy-step4</id>
+                       <id>generate-mysql-script-migration-multitenancy-step4-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -673,7 +720,7 @@
                    </execution>
 
                    <execution>
-                       <id>generate-oracle-script-migration-multitenancy-step1</id>
+                       <id>generate-oracle-script-migration-multitenancy-step1-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -691,7 +738,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-multitenancy-step2</id>
+                       <id>generate-oracle-script-migration-multitenancy-step2-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -709,7 +756,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-multitenancy-step3</id>
+                       <id>generate-oracle-script-migration-multitenancy-step3-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
@@ -727,7 +774,7 @@
                        </configuration>
                    </execution>
                    <execution>
-                       <id>generate-oracle-script-migration-multitenancy-step4</id>
+                       <id>generate-oracle-script-migration-multitenancy-step4-5.0</id>
                        <phase>generate-resources</phase>
                        <goals>
                            <goal>updateSQL</goal>
