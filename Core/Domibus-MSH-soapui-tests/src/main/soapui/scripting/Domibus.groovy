@@ -8,7 +8,6 @@ import groovy.io.FileType
 import groovy.sql.Sql
 
 import javax.swing.JOptionPane
-import java.nio.file.*
 import java.sql.SQLException
 
 import static javax.swing.JOptionPane.showConfirmDialog
@@ -756,7 +755,7 @@ class Domibus{
     // Wait until status or timer expire
     def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID, String role = null) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
-        def messageID=null;
+        def messageID=null
 
 
         if (IDMes != null) {
@@ -3933,13 +3932,13 @@ class Domibus{
      * @param maxWaitingTime
      * @return
      */
-    def waitAndFindLatestMessageIdInDb(testRunner, domainId = blueDomainID, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
-        debugLog("  ====  Calling \"waitAndFindLatestMessageIdInDb\".", log)
+    def waitFindAndUpdateLatestMessageIdIn(testRunner, domainId = blueDomainID, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
+        debugLog("  ====  Calling \"waitFindAndUpdateLatestMessageIdIn\".", log)
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
         def MAX_WAIT_TIME = maxWaitingTime
 
         def lastStoredMessageId = testRunner.testCase.getPropertyValue("lastMessageId")
-        assert (lastStoredMessageId), "Error: waitAndFindLatestMessageIdInDb: Message Id not stored before running method waitAndFindLatestMessageIdDb"
+        assert (lastStoredMessageId), "Error: waitFindAndUpdateLatestMessageIdIn: Message Id not stored before running method waitAndFindLatestMessageIdDb"
         def newestMessageIdFetchFromDB = lastStoredMessageId
         List messageIdExist
 
@@ -3952,7 +3951,11 @@ class Domibus{
 
         while ( (lastStoredMessageId == newestMessageIdFetchFromDB) && MAX_WAIT_TIME > 0)  {
             messageIdExist = sqlHandler.rows(sqlQuery)
-            newestMessageIdFetchFromDB = messageIdExist[0].MESSAGE_ID
+            assert messageIdExist.size() < 2, "Error: waitFindAndUpdateLatestMessageIdIn: No more than one message ID should be returned, not '${messageIdExist.size()}'"
+            if (messageIdExist.size() == 1)
+                newestMessageIdFetchFromDB = messageIdExist[0].MESSAGE_ID
+            else
+                newestMessageIdFetchFromDB = "Empty DB no message Id to retrieve"
 
             if (lastStoredMessageId != newestMessageIdFetchFromDB)
                 break
@@ -3960,26 +3963,27 @@ class Domibus{
             sleep(STEP_WAIT_TIME)
 
             MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
-            log.info "  waitAndFindLatestMessageIdInDb  [][]  Will wait up to: " + MAX_WAIT_TIME/1000 + " seconds for new message Id"
+            log.info "  waitFindAndUpdateLatestMessageIdIn  [][]  Will wait up to: " + MAX_WAIT_TIME/1000 + " seconds for new message Id"
         }
         closeDbConnections([domainId])
 
-        assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitAndFindLatestMessageIdInDb: Message Id didn't change even after " + maxWaitingTime/1000 + " seconds."
+        assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitFindAndUpdateLatestMessageIdIn: Message Id didn't change even after " + maxWaitingTime/1000 + " seconds."
         testRunner.testCase.setPropertyValue( "lastMessageId", newestMessageIdFetchFromDB )
 
-        debugLog("  ====  Ending \"waitAndFindLatestMessageIdInDb\".", log)
+        debugLog("  ====  Ending \"waitFindAndUpdateLatestMessageIdIn\".", log)
         return newestMessageIdFetchFromDB
     }
 
     /**
      * Store latest message ID value in Test Case custom property
-     * to be used with waitAndFindLatestMessageIdInDb
+     * to be used with waitFindAndUpdateLatestMessageIdIn
      * @param testRunner
      * @param domainId
      * @return
      */
     def storeLatestMessagesId(testRunner, domainId = blueDomainID){
         debugLog("  ====  Calling \"storeLatestMessagesId\".", log)
+        def outputMessageId
         def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
         openDbConnections([domainId])
 
@@ -3991,13 +3995,18 @@ class Domibus{
         List messageIdExist = sqlHandler.rows(sqlQuery)
 
         assert messageIdExist.size() < 2, "Error: storeLatestMessagesId: No more than one message ID should be returned, not '${messageIdExist.size()}'"
+        if (messageIdExist.size() == 1)
+            outputMessageId = messageIdExist[0].MESSAGE_ID
+        else
+            outputMessageId = "Empty DB no message Id to retrieve"
+
 
         closeDbConnections([domainId])
 
-        testRunner.testCase.setPropertyValue( "lastMessageId", messageIdExist[0].MESSAGE_ID )
-        log.info "Setting property \"lastMessageId\" value: '${messageIdExist[0]}'"
+        testRunner.testCase.setPropertyValue( "lastMessageId",  outputMessageId)
+        log.info "Setting property \"lastMessageId\" value: '${outputMessageId}'"
         debugLog("  ====  Ending \"storeLatestMessagesId\".", log)
-        return messageIdExist[0].MESSAGE_ID
+        return outputMessageId
     }
 
 
