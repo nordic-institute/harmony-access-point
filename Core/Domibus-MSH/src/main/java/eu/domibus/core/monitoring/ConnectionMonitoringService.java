@@ -2,6 +2,7 @@ package eu.domibus.core.monitoring;
 
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -35,4 +36,6 @@ public interface ConnectionMonitoringService {
     Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds);
 
     void sendTestMessageToMyself();
+
+    List<String> getAsList(String propertyValue);
 }

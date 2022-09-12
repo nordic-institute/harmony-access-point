@@ -571,7 +571,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public void deleteMessagesWithIDs(List<Long> ids) {
 
         LOG.debug("Deleting [{}] user messages", ids.size());

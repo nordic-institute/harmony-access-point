@@ -9,15 +9,14 @@ import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManage
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
+import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -40,12 +39,16 @@ public class ConnectionMonitoringConfigurationManager
 
     protected final AlertConfigurationService alertConfigurationService;
 
+    protected final ConnectionMonitoringService connectionMonitoringService;
+
     public ConnectionMonitoringConfigurationManager(DomibusPropertyProvider domibusPropertyProvider,
                                                     DomainContextProvider domainContextProvider,
-                                                    AlertConfigurationService alertConfigurationService) {
+                                                    AlertConfigurationService alertConfigurationService,
+                                                    ConnectionMonitoringService connectionMonitoringService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domainContextProvider = domainContextProvider;
         this.alertConfigurationService = alertConfigurationService;
+        this.connectionMonitoringService = connectionMonitoringService;
     }
 
     @Override
@@ -71,10 +74,7 @@ public class ConnectionMonitoringConfigurationManager
             final AlertLevel alertLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_LEVEL));
             final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_MAIL_SUBJECT);
 
-            final List<String> enabledParties = Arrays.stream(enabledPartiesPropValue.split(","))
-                    .map(party -> StringUtils.trim(party))
-                    .filter(party -> StringUtils.isNotEmpty(party))
-                    .collect(Collectors.toList());
+            final List<String> enabledParties = connectionMonitoringService.getAsList(enabledPartiesPropValue);
 
             return new ConnectionMonitoringModuleConfiguration(frequency, alertLevel, mailSubject, enabledParties);
         } catch (Exception ex) {
