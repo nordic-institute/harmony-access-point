@@ -15,9 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -66,18 +68,17 @@ public class MessagingConfigurationManager
                         currentDomain, alertActive, messageAlertActive);
                 return new MessagingModuleConfiguration(mailSubject);
             }
-            final String messageCommunicationStates = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
-            final String messageCommunicationLevels = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
+            final List<String> messageCommunicationStates = domibusPropertyProvider.getStringListProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
+            final List<String> messageCommunicationLevels = domibusPropertyProvider.getStringListProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
 
-            if (StringUtils.isEmpty(messageCommunicationStates) || StringUtils.isEmpty(messageCommunicationLevels)) {
+            if (CollectionUtils.isEmpty(messageCommunicationStates) || CollectionUtils.isEmpty(messageCommunicationLevels)) {
                 LOG.warn("Message status change alert module misconfiguration -> states[{}], levels[{}]", messageCommunicationStates, messageCommunicationLevels);
                 return new MessagingModuleConfiguration();
             }
-            final String[] states = messageCommunicationStates.split(",");
-            final String[] trimmedStates = Arrays.stream(states).filter(state -> StringUtils.isNotBlank(state)).map(state -> StringUtils.trim(state)).distinct().toArray(String[]::new);
 
-            final String[] levels = messageCommunicationLevels.split(",");
-            final String[] trimmedLevels = Arrays.stream(levels).filter(level -> StringUtils.isNotBlank(level)).map(level -> StringUtils.trim(level)).distinct().toArray(String[]::new);
+            final String[] trimmedStates = messageCommunicationStates.stream().distinct().toArray(String[]::new);
+
+            final String[] trimmedLevels = messageCommunicationLevels.stream().distinct().toArray(String[]::new);
 
             final boolean eachStatusHasALevel = (trimmedStates.length == trimmedLevels.length);
             LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);
