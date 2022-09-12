@@ -6,6 +6,7 @@ import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,11 +35,13 @@ public class UserMessageErrorCreator {
     public ErrorResult createErrorResult(Throwable exception) {
         ErrorResultImpl result = new ErrorResultImpl();
         result.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
-        result.setMessageInErrorId("[rzv]todo");
         try {
-            result.setErrorCode(ErrorCode.findBy("[rzv]todo"));
+            if (exception instanceof WSSecurityException) {
+                result.setErrorCode(ErrorCode.EBMS_0102);
+                result.setMessageInErrorId("Couldn't decrypt message Id");
+            }
         } catch (IllegalArgumentException e) {
-            LOG.warn("Could not find error code for [" + "[rzv]todo" + "]");
+            LOG.warn("Could not find error code for [" + e.getClass() + "]");
         }
         result.setErrorDetail(exception.getCause()==null ? exception.getMessage() : exception.getCause().getMessage());
         return result;
