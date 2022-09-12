@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -44,13 +46,13 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public boolean isMonitoringEnabled() {
-        String monitoredParties = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-        if (StringUtils.isBlank(monitoredParties)) {
+        List<String> monitoredParties = domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+        if (CollectionUtils.isEmpty(monitoredParties)) {
             LOG.debug("Connection monitoring is not enabled");
             return false;
         }
         String selfParty = partyService.getGatewayPartyIdentifier();
-        boolean monitoringEnabled = getAsList(monitoredParties).stream()
+        boolean monitoringEnabled = monitoredParties.stream()
                 .anyMatch(party -> !StringUtils.equals(party, selfParty));
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
@@ -139,18 +141,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return result;
     }
 
-    @Override
-    public List<String> getAsList(String propertyValue) {
-        if (StringUtils.isEmpty(propertyValue)) {
-            return new ArrayList<>();
-        }
-        return Arrays.stream(propertyValue.split(","))
-                .map(StringUtils::trim)
-                .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.toList());
-    }
-
-
     protected ConnectionMonitorRO getConnectionStatus(String partyId) {
         ConnectionMonitorRO result = new ConnectionMonitorRO();
 
@@ -158,7 +148,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         result.setLastSent(lastSent);
 
         if (lastSent != null) {
-//            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, lastSent.getMessageId());
             TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
             result.setLastReceived(lastReceived);
         }
@@ -202,18 +191,15 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private List<String> getMonitorEnabledParties() {
-        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-        return getAsList(propertyValue);
+        return domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
     }
 
     private List<String> getAlertableParties() {
-        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
-        return getAsList(propertyValue);
+        return domibusPropertyProvider.getStringListProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
     }
 
     private List<String> getDeleteOldForParties() {
-        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
-        return getAsList(propertyValue);
+        return domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
     }
 
     private void handleAllValue() {

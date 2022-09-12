@@ -118,6 +118,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     @Override
+    public List<String> getStringListProperty(String propertyName) {
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (propMeta.getTypeAsEnum() != DomibusPropertyMetadata.Type.COMMA_SEPARATED_LIST) {
+            throw new DomibusPropertyException(String.format("Property named %s is not a comma separated list", propertyName));
+        }
+        String value = getProperty(propertyName);
+        return primitivePropertyTypesManager.getAsStringList(value);
+    }
+
+    @Override
     @Deprecated
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return filterPropertyNames(predicate);

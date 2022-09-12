@@ -37,5 +37,4 @@ public interface ConnectionMonitoringService {
 
     void sendTestMessageToMyself();
 
-    List<String> getAsList(String propertyValue);
 }

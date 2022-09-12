@@ -15,6 +15,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -39,16 +40,12 @@ public class ConnectionMonitoringConfigurationManager
 
     protected final AlertConfigurationService alertConfigurationService;
 
-    protected final ConnectionMonitoringService connectionMonitoringService;
-
     public ConnectionMonitoringConfigurationManager(DomibusPropertyProvider domibusPropertyProvider,
                                                     DomainContextProvider domainContextProvider,
-                                                    AlertConfigurationService alertConfigurationService,
-                                                    ConnectionMonitoringService connectionMonitoringService) {
+                                                    AlertConfigurationService alertConfigurationService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domainContextProvider = domainContextProvider;
         this.alertConfigurationService = alertConfigurationService;
-        this.connectionMonitoringService = connectionMonitoringService;
     }
 
     @Override
@@ -65,17 +62,20 @@ public class ConnectionMonitoringConfigurationManager
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
             final Boolean alertsActive = alertConfigurationService.isAlertModuleEnabled();
-            String enabledPartiesPropValue = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
-            if (BooleanUtils.isNotTrue(alertsActive) || StringUtils.isEmpty(enabledPartiesPropValue)) {
-                LOG.info("No connection monitoring notifications for domain:[{}] because the alerts are not enabled or enabled parties list is empty.", currentDomain);
+            if (BooleanUtils.isNotTrue(alertsActive)) {
+                LOG.info("No connection monitoring notifications for domain:[{}] because the alerts are not enabled", currentDomain);
+                return new ConnectionMonitoringModuleConfiguration();
+            }
+
+            List<String> enabledParties = domibusPropertyProvider.getStringListProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
+            if (CollectionUtils.isEmpty(enabledParties)) {
+                LOG.info("No connection monitoring notifications for domain:[{}] because the enabled parties list is empty.", currentDomain);
                 return new ConnectionMonitoringModuleConfiguration();
             }
 
             final int frequency = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_FREQUENCY_DAYS);
             final AlertLevel alertLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_LEVEL));
             final String mailSubject = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_MAIL_SUBJECT);
-
-            final List<String> enabledParties = connectionMonitoringService.getAsList(enabledPartiesPropValue);
 
             return new ConnectionMonitoringModuleConfiguration(frequency, alertLevel, mailSubject, enabledParties);
         } catch (Exception ex) {

@@ -4,10 +4,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Service
 public class PrimitivePropertyTypesManager {
@@ -63,6 +68,16 @@ public class PrimitivePropertyTypesManager {
             return getDefaultBooleanValue(propertyName);
         }
         return getDefaultBooleanValue(propertyName);
+    }
+
+    protected List<String> getAsStringList(String propertyValue) {
+        if (StringUtils.isEmpty(propertyValue)) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(propertyValue.split(","))
+                .map(StringUtils::trim)
+                .filter(StringUtils::isNotEmpty)
+                .collect(Collectors.toList());
     }
 
     protected Boolean getDefaultBooleanValue(String propertyName) {
