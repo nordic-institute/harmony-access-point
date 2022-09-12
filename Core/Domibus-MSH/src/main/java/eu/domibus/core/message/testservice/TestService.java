@@ -337,6 +337,7 @@ public class TestService {
         // find last successful message
         UserMessage lastSentSuccess = getLastTestSentWithStatus(toParty, MessageStatus.ACKNOWLEDGED);
         if (lastSentSuccess != null) {
+            LOG.debug("Adding the last successful message [{}]", lastSentSuccess.getMessageId());
             userMessages.add(lastSentSuccess);
         }
 
@@ -344,6 +345,7 @@ public class TestService {
         UserMessage lastSentError = getLastTestSentWithStatus(toParty, MessageStatus.SEND_FAILURE);
         if (lastSentError != null) {
             if (lastSentSuccess == null || lastSentError.getTimestamp().after(lastSentSuccess.getTimestamp())) {
+                LOG.debug("Adding the last sent message with error [{}]", lastSentError.getMessageId());
                 userMessages.add(lastSentError);
             }
         }
@@ -352,6 +354,7 @@ public class TestService {
         UserMessage lastSentPending = getLastTestSentWithStatus(toParty, MessageStatus.SEND_ENQUEUED);
         if (lastSentPending != null) {
             if (userMessages.isEmpty() || userMessages.get(userMessages.size() - 1).getTimestamp().before(lastSentPending.getTimestamp())) {
+                LOG.debug("Adding the last pending message [{}]", lastSentPending.getMessageId());
                 userMessages.add(lastSentPending);
             }
         }
@@ -368,6 +371,7 @@ public class TestService {
                     .filter(el -> userMessages.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
                     .map(el -> el.getEntityId())
                     .collect(Collectors.toList());
+            LOG.debug("Deleting messages with ids [{}]", toDelete);
             userMessageService.deleteMessagesWithIDs(toDelete);
         } catch (Exception ex) {
             LOG.warn("Could not delete old test messages for party [{}]", toParty, ex);

@@ -67,6 +67,7 @@ public class ConnectionMonitoringConfigurationManager
             final Boolean alertsActive = alertConfigurationService.isAlertModuleEnabled();
             String enabledPartiesPropValue = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
             if (BooleanUtils.isNotTrue(alertsActive) || StringUtils.isEmpty(enabledPartiesPropValue)) {
+                LOG.info("No connection monitoring notifications for domain:[{}] because the alerts are not enabled or enabled parties list is empty.", currentDomain);
                 return new ConnectionMonitoringModuleConfiguration();
             }
 
