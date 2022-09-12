@@ -700,6 +700,66 @@
                    </execution>
                    <!-- delta 4.2.9 to 5.0 ends here -->
 
+                   <!-- delta 4.2.10 to 4.2.11 starts here -->
+                   <!-- delta 4.2.10 to 4.2.11 ends here -->
+
+                   <!-- delta 4.2.9 to 4.2.10 starts here -->
+                   <!-- delta 4.2.9 to 4.2.10 ends here -->
+
+                   <!-- delta 4.2.8 to 4.2.9 starts here -->
+                   <!-- delta 4.2.8 to 4.2.9 ends here -->
+
+                   <!-- delta 4.2.7 to 4.2.8 starts here -->
+                   <!-- delta 4.2.7 to 4.2.8 ends here -->
+
+                   <!-- delta 4.2.6 to 4.2.7 starts here -->
+                   <!-- delta 4.2.6 to 4.2.7 ends here -->
+
+                   <!-- delta 4.2.5 to 4.2.6 starts here -->
+                   <execution>
+                       <id>generate-mysql-script-delta-4.2.6</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/archive/changelog-4.2.6-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.2.6-delta.mysql
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/mysql-4.2.5-to-4.2.6-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <execution>
+                       <id>generate-oracle-script-delta-4.2.6</id>
+                       <phase>generate-resources</phase>
+                       <goals>
+                           <goal>updateSQL</goal>
+                       </goals>
+                       <configuration>
+                           <changeLogFile>
+                               src/main/resources/db/archive/changelog-4.2.6-delta.xml
+                           </changeLogFile>
+                           <url>
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2.6-delta.oracle
+                           </url>
+                           <migrationSqlOutputFile>
+                               ${project.build.directory}/sql-scripts/oracle-4.2.5-to-4.2.6-migration.ddl
+                           </migrationSqlOutputFile>
+                       </configuration>
+                   </execution>
+                   <!-- delta 4.2.5 to 4.2.6 ends here -->
+
+                   <!-- delta 4.2.4 to 4.2.5 starts here -->
+                   <!-- delta 4.2.4 to 4.2.5 ends here -->
+
+                   <!-- delta 4.2.3 to 4.2.4 starts here -->
+                   <!-- delta 4.2.3 to 4.2.4 ends here -->
+
                    <!-- delta 4.2.2 to 4.2.3 starts here -->
                    <execution>
                        <id>generate-mysql-script-delta-4.2.3</id>

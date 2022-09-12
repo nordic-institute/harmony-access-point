@@ -43,85 +43,93 @@
     <!--        <discardingThreshold>0</discardingThreshold>-->
     <!--        <appender-ref ref="file" />-->
     <!--    </appender>-->
-    <appender name="security_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/security.log</file>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <!-- multitenancy: uncomment this
-        <filter class="eu.domibus.logging.DomibusLoggerDomainFilter">
-            <domain></domain>
-            <OnMismatch>DENY</OnMismatch>
-        </filter>
-        -->
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-                <marker>SECURITY</marker>
-            </evaluator>
-            <onMismatch>DENY</onMismatch>
-            <onMatch>NEUTRAL</onMatch>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/security-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>30MB</maxFileSize>
-            <maxHistory>60</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>${encoderPattern}</pattern>
-        </encoder>
-    </appender>
-    <appender name="business_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/business.log</file>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <!-- multitenancy: uncomment this
-        <filter class="eu.domibus.logging.DomibusLoggerDomainFilter">
-            <domain></domain>
-            <OnMismatch>DENY</OnMismatch>
-        </filter>
-        -->
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-                <marker>BUSINESS</marker>
-            </evaluator>
-            <onMismatch>DENY</onMismatch>
-            <onMatch>NEUTRAL</onMatch>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/business-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>30MB</maxFileSize>
-            <maxHistory>60</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>${encoderPattern}</pattern>
-        </encoder>
-    </appender>
 
-    <appender name="statistic_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/statistic.log</file>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+    <!-- Security file appender start: uncomment this-->
+<!--    <appender name="security_file" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>logs/security.log</file>-->
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>INFO</level>-->
+<!--        </filter>-->
+        <!-- multitenancy: uncomment this
+        <filter class="eu.domibus.logging.DomibusLoggerDomainFilter">
+            <domain></domain>
+            <OnMismatch>DENY</OnMismatch>
         </filter>
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-                <marker>STATISTIC</marker>
-            </evaluator>
-            <onMismatch>DENY</onMismatch>
-            <onMatch>NEUTRAL</onMatch>
+        -->
+<!--        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">-->
+<!--            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">-->
+<!--                <marker>SECURITY</marker>-->
+<!--            </evaluator>-->
+<!--            <onMismatch>DENY</onMismatch>-->
+<!--            <onMatch>NEUTRAL</onMatch>-->
+<!--        </filter>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>logs/security-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--            <maxFileSize>30MB</maxFileSize>-->
+<!--            <maxHistory>60</maxHistory>-->
+<!--            <totalSizeCap>20GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>${encoderPattern}</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+    <!-- Security file appender end -->
+
+    <!-- Business file appender: uncomment this-->
+<!--    <appender name="business_file" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>logs/business.log</file>-->
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>INFO</level>-->
+<!--        </filter>-->
+        <!-- multitenancy: uncomment this
+        <filter class="eu.domibus.logging.DomibusLoggerDomainFilter">
+            <domain></domain>
+            <OnMismatch>DENY</OnMismatch>
         </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>logs/statistics-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>30MB</maxFileSize>
-            <maxHistory>60</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>${statisticsPattern}</pattern>
-        </encoder>
-    </appender>
+        -->
+<!--        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">-->
+<!--            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">-->
+<!--                <marker>BUSINESS</marker>-->
+<!--            </evaluator>-->
+<!--            <onMismatch>DENY</onMismatch>-->
+<!--            <onMatch>NEUTRAL</onMatch>-->
+<!--        </filter>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>logs/business-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--            <maxFileSize>30MB</maxFileSize>-->
+<!--            <maxHistory>60</maxHistory>-->
+<!--            <totalSizeCap>20GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>${encoderPattern}</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+    <!-- Business file appender end -->
+
+    <!-- Statistics file appender: uncomment this -->
+<!--    <appender name="statistic_file" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>logs/statistic.log</file>-->
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>INFO</level>-->
+<!--        </filter>-->
+<!--        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">-->
+<!--            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">-->
+<!--                <marker>STATISTIC</marker>-->
+<!--            </evaluator>-->
+<!--            <onMismatch>DENY</onMismatch>-->
+<!--            <onMatch>NEUTRAL</onMatch>-->
+<!--        </filter>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>logs/statistics-%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--            <maxFileSize>30MB</maxFileSize>-->
+<!--            <maxHistory>60</maxHistory>-->
+<!--            <totalSizeCap>20GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>${statisticsPattern}</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+    <!-- Statistics file appender end -->
 
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <Target>System.out</Target>
@@ -131,13 +139,16 @@
     </appender>
 
     <logger name="eu.domibus" level="INFO">
-        <appender-ref ref="security_file"/>
-        <appender-ref ref="business_file"/>
+        <!--  Enable for security log: uncomment this -->
+<!--        <appender-ref ref="security_file"/>-->
+        <!--  Enable for business log: uncomment this -->
+<!--        <appender-ref ref="business_file"/>-->
     </logger>
 
-    <logger name="eu.domibus.statistic" level="INFO" additivity="false">
-        <appender-ref ref="statistic_file"/>
-    </logger>
+    <!-- Statistics log: uncomment this-->
+<!--    <logger name="eu.domibus.statistic" level="INFO" additivity="false">-->
+<!--        <appender-ref ref="statistic_file"/>-->
+<!--    </logger>-->
     <!--  In order to enable logging of request/responses please change the loglevel to INFO -->
     <logger name="org.apache.cxf" level="WARN"/>
 
