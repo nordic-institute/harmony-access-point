@@ -19,6 +19,7 @@ import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
@@ -31,9 +32,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.util.Collections;
-import java.util.MissingResourceException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This handler is resposible for creation of ebMS3 conformant error messages
@@ -130,7 +129,7 @@ public class FaultInHandler extends AbstractFaultHandler {
                                 .mshRole(MSHRole.RECEIVING)
                                 .build();
 
-                        notifyPlugins(cause);
+                        notifyPlugins(ebMS3Exception);
                     }
                 }
 
@@ -208,9 +207,20 @@ public class FaultInHandler extends AbstractFaultHandler {
     }
 
 
-    private void notifyPlugins(Throwable faultCause) {
+    private void notifyPlugins(EbMS3Exception faultCause) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
+        userMessage.setMessageId(faultCause.getRefToMessageId());
+        userMessage.setRefToMessageId(faultCause.getRefToMessageId());
+
+        final Map<String, String> properties = new HashMap<>();
+        if (faultCause.getErrorCode() != null) {
+            properties.put(MessageConstants.ERROR_CODE, faultCause.getErrorCode().name());
+        }
+        properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
+
+        backendNotificationService.fillEventProperties(userMessage, properties);
+
         backendNotificationService.notifyMessageReceivedFailure(userMessage,
                 userMessageErrorCreator.createErrorResult(faultCause));
 
