@@ -21,7 +21,7 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
- * Manages the reading of e-archiving notification failures alert alert configuration
+ * Manages the reading of connection monitoring notification failure properties
  *
  * @author Ion Perpegel
  * @since 5.1
