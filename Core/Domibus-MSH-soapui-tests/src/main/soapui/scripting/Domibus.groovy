@@ -29,7 +29,7 @@ class Domibus{
     def sleepDelay = 50_000
 
     def dbConnections = [:]
-    def blueDomainID = null //"C2Default"checkLogFile
+    def blueDomainID = null //"C2Default"
     def redDomainID = null //"C3Default"
     def greenDomainID = null //"thirdDefault"
     def thirdGateway = "false"
@@ -284,7 +284,7 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
     // Retrieve domain ID reference from provided name. When name exists use it
     def retrieveDomainId(String inputName) {
-        debugLog("  ====  Calling \"retrieveDomainId\". With inputName: \"${inputName}\"", log)
+        //debugLog("  ====  Calling \"retrieveDomainId\". With inputName: \"${inputName}\"", log)
         def domID = null
 
         // For Backward compatibility
@@ -311,7 +311,7 @@ class Domibus{
                     break
             }
         }
-        debugLog("   retrieveDomainId  [][]  Input value ${inputName} translated to following domain ID: ${domID}", log)
+        //debugLog("   retrieveDomainId  [][]  Input value ${inputName} translated to following domain ID: ${domID}", log)
 
         return domID as String
     }
@@ -756,8 +756,6 @@ class Domibus{
     // Wait until status or timer expire
     def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID, String role = null) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
-        def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
-        def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
         def messageID=null;
 
 
@@ -3925,6 +3923,84 @@ class Domibus{
 
         debugLog("  ====  \"managePartyInPmode\" DONE.", log)
     }
+
+    /**
+     * Search in DB to find latest message ID different from previously stored,
+     * this method support only sequential message sending
+     * to be used with storeLatestMessagesId
+     * @param testRunner
+     * @param domainId
+     * @param maxWaitingTime
+     * @return
+     */
+    def waitAndFindLatestMessageIdInDb(testRunner, domainId = blueDomainID, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
+        debugLog("  ====  Calling \"waitAndFindLatestMessageIdInDb\".", log)
+        def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
+        def MAX_WAIT_TIME = maxWaitingTime
+
+        def lastStoredMessageId = testRunner.testCase.getPropertyValue("lastMessageId")
+        assert (lastStoredMessageId), "Error: waitAndFindLatestMessageIdInDb: Message Id not stored before running method waitAndFindLatestMessageIdDb"
+        def newestMessageIdFetchFromDB = lastStoredMessageId
+        List messageIdExist
+
+        def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
+        openDbConnections([domainId])
+
+        def sqlQuery = """SELECT MESSAGE_ID
+                    FROM TB_USER_MESSAGE 
+                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+
+        while ( (lastStoredMessageId == newestMessageIdFetchFromDB) && MAX_WAIT_TIME > 0)  {
+            messageIdExist = sqlHandler.rows(sqlQuery)
+            newestMessageIdFetchFromDB = messageIdExist[0].MESSAGE_ID
+
+            if (lastStoredMessageId != newestMessageIdFetchFromDB)
+                break
+
+            sleep(STEP_WAIT_TIME)
+
+            MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
+            log.info "  waitAndFindLatestMessageIdInDb  [][]  Will wait up to: " + MAX_WAIT_TIME/1000 + " seconds for new message Id"
+        }
+        closeDbConnections([domainId])
+
+        assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitAndFindLatestMessageIdInDb: Message Id didn't change even after " + maxWaitingTime/1000 + " seconds."
+        testRunner.testCase.setPropertyValue( "lastMessageId", newestMessageIdFetchFromDB )
+
+        debugLog("  ====  Ending \"waitAndFindLatestMessageIdInDb\".", log)
+        return newestMessageIdFetchFromDB
+    }
+
+    /**
+     * Store latest message ID value in Test Case custom property
+     * to be used with waitAndFindLatestMessageIdInDb
+     * @param testRunner
+     * @param domainId
+     * @return
+     */
+    def storeLatestMessagesId(testRunner, domainId = blueDomainID){
+        debugLog("  ====  Calling \"storeLatestMessagesId\".", log)
+        def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
+        openDbConnections([domainId])
+
+        // Query DB
+        def sqlQuery = """SELECT MESSAGE_ID 
+                    FROM TB_USER_MESSAGE 
+                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+
+        List messageIdExist = sqlHandler.rows(sqlQuery)
+
+        assert messageIdExist.size() < 2, "Error: storeLatestMessagesId: No more than one message ID should be returned, not '${messageIdExist.size()}'"
+
+        closeDbConnections([domainId])
+
+        testRunner.testCase.setPropertyValue( "lastMessageId", messageIdExist[0].MESSAGE_ID )
+        log.info "Setting property \"lastMessageId\" value: '${messageIdExist[0]}'"
+        debugLog("  ====  Ending \"storeLatestMessagesId\".", log)
+        return messageIdExist[0].MESSAGE_ID
+    }
+
+
 //---------------------------------------------------------------------------------------------------------------------------------
 // Domibus text reporting
 //---------------------------------------------------------------------------------------------------------------------------------
