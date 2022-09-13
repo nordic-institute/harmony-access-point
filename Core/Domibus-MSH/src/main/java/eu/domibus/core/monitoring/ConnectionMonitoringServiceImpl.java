@@ -145,7 +145,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
     }
 
-    private List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, String selfParty) {
+    protected List<String> getAllMonitoredPartiesButMyself(List<String> testableParties, String selfParty) {
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = testableParties.stream()
                 .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))

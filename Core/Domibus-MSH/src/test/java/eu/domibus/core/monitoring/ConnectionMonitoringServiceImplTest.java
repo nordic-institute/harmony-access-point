@@ -17,9 +17,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
@@ -45,18 +48,42 @@ public class ConnectionMonitoringServiceImplTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
-    public void isMonitoringEnabled() {
+    public void isMonitoringEnabledFalse() {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            returns("", "blue_gw");
+            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = new ArrayList<>();
         }};
 
         boolean res = connectionMonitoringService.isMonitoringEnabled();
         Assert.assertFalse(res);
+    }
+
+    @Test
+    public void isMonitoringEnabledTrue() {
+        new Expectations() {{
+            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = Arrays.asList("blue_gw");
+
+            partyService.getGatewayPartyIdentifier();
+            result = "my_gw";
+        }};
 
         boolean res2 = connectionMonitoringService.isMonitoringEnabled();
         Assert.assertTrue(res2);
+    }
 
+    @Test
+    public void isMonitoringEnabledAlsoFalse() {
+        new Expectations() {{
+            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = Arrays.asList("blue_gw");
+
+            partyService.getGatewayPartyIdentifier();
+            result = "blue_gw";
+        }};
+
+        boolean res2 = connectionMonitoringService.isMonitoringEnabled();
+        Assert.assertFalse(res2);
     }
 
     @Test
@@ -64,15 +91,15 @@ public class ConnectionMonitoringServiceImplTest {
         String selfParty = "self";
         String partyId2 = "partyId2";
 
-        new Expectations() {{
+        new Expectations(connectionMonitoringService) {{
             partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
             result = Arrays.asList(selfParty);
 
             partyService.getGatewayPartyIdentifier();
             result = selfParty;
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = "";
+            connectionMonitoringService.getAllMonitoredPartiesButMyself((List<String>)any, anyString);
+            result = new ArrayList<>();
 
         }};
 
@@ -89,16 +116,15 @@ public class ConnectionMonitoringServiceImplTest {
         String selfParty = "self";
         String partyId2 = "partyId2";
 
-        new Expectations() {{
+        new Expectations(connectionMonitoringService) {{
             partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
             result = Arrays.asList(selfParty, partyId2);
 
             partyService.getGatewayPartyIdentifier();
             result = selfParty;
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = "";
-
+            connectionMonitoringService.getAllMonitoredPartiesButMyself((List<String>)any, anyString);
+            result = new ArrayList<>();
         }};
 
         connectionMonitoringService.sendTestMessages();
@@ -114,15 +140,15 @@ public class ConnectionMonitoringServiceImplTest {
         String selfParty = "self";
         String partyId2 = "partyId2";
 
-        new Expectations() {{
+        new Expectations(connectionMonitoringService) {{
             partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
             result = Arrays.asList(selfParty, partyId2);
 
             partyService.getGatewayPartyIdentifier();
             result = selfParty;
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = partyId2;
+            connectionMonitoringService.getAllMonitoredPartiesButMyself((List<String>)any, anyString);
+            result = Arrays.asList(partyId2);
 
             testService.submitTest(selfParty, partyId2);
             result = "testMessageId";
@@ -173,8 +199,8 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
             result = Arrays.asList(partyId1, partyId2);
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = partyId1;
+            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = Arrays.asList(partyId1);
         }};
 
         // When
