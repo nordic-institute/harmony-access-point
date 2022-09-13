@@ -121,7 +121,9 @@ public class FaultInHandler extends AbstractFaultHandler {
                             errorMessage = wsSecurityException.getMessage();
                             switch (wsSecurityException.getErrorCode()) {
                                 case FAILED_CHECK: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0102; //The signature or decryption was invalid
+                                    break;
                                 case FAILED_AUTHENTICATION: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0101;
+                                    break;
                                 default: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
                             }
                         }
