@@ -44,7 +44,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   @ViewChild('connectionStatus', {static: false}) connectionStatusTemplate: TemplateRef<any>;
   allMonitored: boolean;
   allAllertable: boolean;
-  allDeleteOld: boolean;
+  allDeleteHistory: boolean;
 
   constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
               private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
@@ -84,7 +84,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   private refreshAllDeleteOld() {
-    this.allDeleteOld = this.rows.filter(el => el.testable).every(el => el.deleteOld);
+    this.allDeleteHistory = this.rows.filter(el => el.testable).every(el => el.deleteHistory);
   }
 
   private initColumns() {
@@ -177,17 +177,17 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     }
   }
 
-  async toggleDeleteOld(row: ConnectionMonitorEntry) {
-    let newValue = row.deleteOld;
+  async toggleDeleteHistory(row: ConnectionMonitorEntry) {
+    let newValue = row.deleteHistory;
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setDeleteOldState(row.partyId, newValue);
-      row.deleteOld = newValue;
+      await this.connectionsMonitorService.setDeleteHistoryState(row.partyId, newValue);
+      row.deleteHistory = newValue;
       this.refreshAllDeleteOld();
       this.alertService.success(`Delete old ${newValueText} for <b>${row.partyId}</b>`);
     } catch (err) {
-      row.deleteOld = !newValue;
+      row.deleteHistory = !newValue;
       this.refreshAllDeleteOld();
       this.alertService.exception(`Delete old could not be ${newValueText} for <b>${row.partyId}</b>:<br>`, err);
     }
@@ -250,20 +250,20 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     }
   }
 
-  async toggleDeleteOldAll() {
-    let newState = this.allDeleteOld;
+  async toggleDeleteAllHistory() {
+    let newState = this.allDeleteHistory;
     let newStateText = `${(newState ? 'enabled' : 'disabled')}`;
 
     let active: ConnectionMonitorEntry[] = this.rows.filter(row => row.testable);
     active.forEach(row => {
-      row['originalDeleteOld'] = row.deleteOld;
-      row.deleteOld = newState;
+      row['originalDeleteOld'] = row.deleteHistory;
+      row.deleteHistory = newState;
     });
     try {
-      await this.connectionsMonitorService.setDeleteOldStateForAll(active, newState);
+      await this.connectionsMonitorService.setDeleteHistoryStateForAll(active, newState);
       this.alertService.success(`Delete old ${newStateText} for all parties`);
     } catch (err) {
-      active.forEach(row => row.deleteOld = row['originalDeleteOld']);
+      active.forEach(row => row.deleteHistory = row['originalDeleteOld']);
       this.alertService.exception(`Delete old could not be ${newStateText} for all parties`, err);
     }
   }

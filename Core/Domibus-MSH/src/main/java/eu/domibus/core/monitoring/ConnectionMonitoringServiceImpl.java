@@ -167,9 +167,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setAlertable(true);
         }
 
-        List<String> deleteOldForParties = getDeleteOldForParties();
-        if (result.isTestable() && deleteOldForParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
-            result.setDeleteOld(true);
+        List<String> deleteHistoryForParties = getDeleteHistoryForParties();
+        if (result.isTestable() && deleteHistoryForParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+            result.setDeleteHistory(true);
         }
 
         result.setStatus(getConnectionStatus(lastSent));
@@ -198,7 +198,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return domibusPropertyProvider.getStringListProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
     }
 
-    private List<String> getDeleteOldForParties() {
+    private List<String> getDeleteHistoryForParties() {
         return domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
     }
 

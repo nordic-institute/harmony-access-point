@@ -45,12 +45,12 @@
   </ng-template>
 
   <ng-template #deleteOldStatusHeader let-column="column" ngx-datatable-header-template>
-    <mat-slide-toggle [(ngModel)]="allDeleteOld" (change)="toggleDeleteOldAll()"></mat-slide-toggle>
-    <span style="margin-left: 5px;">Delete Old</span>
+    <mat-slide-toggle [(ngModel)]="allDeleteHistory" (change)="toggleDeleteAllHistory()"></mat-slide-toggle>
+    <span style="margin-left: 5px;">Delete History</span>
   </ng-template>
   <ng-template #deleteOldStatus let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="connection-monitor-status">
-      <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.deleteOld" (change)="toggleDeleteOld(row)"></mat-slide-toggle>
+      <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.deleteHistory" (change)="toggleDeleteHistory(row)"></mat-slide-toggle>
       <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
     </span>
   </ng-template>

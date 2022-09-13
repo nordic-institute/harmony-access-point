@@ -98,7 +98,7 @@ public class TestService {
 
         String result = messageSubmitter.submit(messageData, BACKEND_NAME);
 
-        deleteOldIfApplicable(receiver);
+        deleteHistoryIfApplicable(receiver);
 
         return result;
     }
@@ -319,7 +319,7 @@ public class TestService {
         return messageInfoRO;
     }
 
-    protected void deleteOldIfApplicable(String toParty) {
+    protected void deleteHistoryIfApplicable(String toParty) {
         String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
         if (!StringUtils.contains(partyList, toParty)) {
             LOG.debug("Deleting old test messages for party [{}] is not enabled", toParty);

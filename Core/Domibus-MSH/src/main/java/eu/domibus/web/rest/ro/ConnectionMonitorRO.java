@@ -14,7 +14,7 @@ public class ConnectionMonitorRO {
 
     boolean alertable;
 
-    boolean deleteOld;
+    boolean deleteHistory;
 
     public enum ConnectionStatus {
         UNKNOWN,
@@ -77,12 +77,12 @@ public class ConnectionMonitorRO {
         this.lastReceived = lastReceived;
     }
 
-    public boolean isDeleteOld() {
-        return deleteOld;
+    public boolean isDeleteHistory() {
+        return deleteHistory;
     }
 
-    public void setDeleteOld(boolean deleteOld) {
-        this.deleteOld = deleteOld;
+    public void setDeleteHistory(boolean deleteHistory) {
+        this.deleteHistory = deleteHistory;
     }
 
     @Override
