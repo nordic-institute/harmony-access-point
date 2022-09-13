@@ -185,17 +185,32 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     }
 
     public List<UserMessage> findTestMessagesToParty(String partyId, ActionEntity actionEntity) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
         query.setParameter("PARTY_ID", partyId);
         query.setParameter("ACTION_ID", actionEntity.getEntityId());
         return query.getResultList();
     }
 
-    public UserMessage findLastTestMessageWithStatus(String partyId, ActionEntity actionEntity, MessageStatus messageStatus) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageWithStatusDesc", UserMessage.class);
+    public List<UserMessage> findTestMessagesFromParty(String partyId, ActionEntity actionEntity) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
+        query.setParameter("PARTY_ID", partyId);
+        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+        return query.getResultList();
+    }
+
+    public UserMessage findLastSentTestMessageWithStatus(String partyId, ActionEntity actionEntity, MessageStatus messageStatus) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findSentTestMessageWithStatusDesc", UserMessage.class);
         query.setParameter("PARTY_ID", partyId);
         query.setParameter("ACTION_ID", actionEntity.getEntityId());
         query.setParameter("STATUS", messageStatus);
+        query.setMaxResults(1);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public UserMessage findLastReceivedTestMessage(String partyId, ActionEntity actionEntity) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findReceivedTestMessageDesc", UserMessage.class);
+        query.setParameter("PARTY_ID", partyId);
+        query.setParameter("ACTION_ID", actionEntity.getEntityId());
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }

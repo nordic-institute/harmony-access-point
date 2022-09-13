@@ -37,4 +37,7 @@ public interface ConnectionMonitoringService {
 
     void sendTestMessageToMyself();
 
+    boolean isDeleteHistoryEnabled();
+
+    void deleteReceivedTestMessageHistory();
 }

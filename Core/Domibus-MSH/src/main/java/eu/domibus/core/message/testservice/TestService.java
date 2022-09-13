@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES;
 
 /**
  * @author Cosmin Baciu
@@ -101,16 +101,6 @@ public class TestService {
         deleteHistoryIfApplicable(receiver);
 
         return result;
-    }
-
-    public UserMessage getLastTestSentWithStatus(String partyId, MessageStatus messageStatus) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        UserMessage userMessage = userMessageDao.findLastTestMessageWithStatus(partyId, actionEntity, messageStatus);
-        if (userMessage == null) {
-            LOG.debug("Could not find last user message for party [{}]", partyId);
-            return null;
-        }
-        return userMessage;
     }
 
     public String submitTestDynamicDiscovery(String sender, String receiver, String receiverType) throws MessagingProcessingException, IOException {
@@ -268,6 +258,21 @@ public class TestService {
         return getTestServiceMessageInfoRO(partyId, signalMessage);
     }
 
+    public void deleteReceivedMessageHistoryForParty(String party) {
+        LOG.debug("Deleting received test messages for party [{}]", party);
+        List<UserMessage> userMessages = findReceivedMessagesToKeep(party);
+
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        List<UserMessage> all = userMessageDao.findTestMessagesFromParty(party, actionEntity);
+
+        try {
+            deleteByDifference(userMessages, all);
+        } catch (Exception ex) {
+            LOG.warn("Could not delete old test messages from party [{}]", party, ex);
+        }
+
+    }
+
     protected String getErrorsDetails(String userMessageId, MSHRole mshRole) {
         String result;
         String errorDetails = getErrorsForMessage(userMessageId, mshRole);
@@ -320,18 +325,26 @@ public class TestService {
     }
 
     protected void deleteHistoryIfApplicable(String toParty) {
-        String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
+        String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
         if (!StringUtils.contains(partyList, toParty)) {
             LOG.debug("Deleting old test messages for party [{}] is not enabled", toParty);
             return;
         }
 
         LOG.debug("Deleting old test messages for party [{}]", toParty);
-        List<UserMessage> userMessages = findMessagesToKeep(toParty);
-        deleteAllExcept(toParty, userMessages);
+        List<UserMessage> userMessages = findSentMessagesToKeep(toParty);
+
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty, actionEntity);
+
+        try {
+            deleteByDifference(userMessages, all);
+        } catch (Exception ex) {
+            LOG.warn("Could not delete old test messages to party [{}]", toParty, ex);
+        }
     }
 
-    private List<UserMessage> findMessagesToKeep(String toParty) {
+    private List<UserMessage> findSentMessagesToKeep(String toParty) {
         List<UserMessage> userMessages = new ArrayList<>();
 
         // find last successful message
@@ -362,20 +375,46 @@ public class TestService {
         return userMessages;
     }
 
-    private void deleteAllExcept(String toParty, List<UserMessage> userMessages) {
-        try {
-            ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+    private List<UserMessage> findReceivedMessagesToKeep(String party) {
+        List<UserMessage> userMessages = new ArrayList<>();
 
-            List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty, actionEntity);
-            List<Long> toDelete = all.stream()
-                    .filter(el -> userMessages.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
-                    .map(el -> el.getEntityId())
-                    .collect(Collectors.toList());
-            LOG.debug("Deleting messages with ids [{}]", toDelete);
-            userMessageService.deleteMessagesWithIDs(toDelete);
-        } catch (Exception ex) {
-            LOG.warn("Could not delete old test messages for party [{}]", toParty, ex);
+        // find last received message
+        UserMessage lastReceivedSuccess = getLastTestReceived(party);
+        if (lastReceivedSuccess != null) {
+            LOG.debug("Adding the last received successful message [{}]", lastReceivedSuccess.getMessageId());
+            userMessages.add(lastReceivedSuccess);
         }
+
+        return userMessages;
+    }
+
+    protected UserMessage getLastTestSentWithStatus(String partyId, MessageStatus messageStatus) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        UserMessage userMessage = userMessageDao.findLastSentTestMessageWithStatus(partyId, actionEntity, messageStatus);
+        if (userMessage == null) {
+            LOG.debug("Could not find last sent user message for party [{}]", partyId);
+            return null;
+        }
+        return userMessage;
+    }
+
+    private UserMessage getLastTestReceived(String partyId) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        UserMessage userMessage = userMessageDao.findLastReceivedTestMessage(partyId, actionEntity);
+        if (userMessage == null) {
+            LOG.debug("Could not find last received user message for party [{}]", partyId);
+            return null;
+        }
+        return userMessage;
+    }
+
+    private void deleteByDifference(List<UserMessage> except, List<UserMessage> all) {
+        List<Long> toDelete = all.stream()
+                .filter(el -> except.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
+                .map(el -> el.getEntityId())
+                .collect(Collectors.toList());
+        LOG.debug("Deleting messages with ids [{}]", toDelete);
+        userMessageService.deleteMessagesWithIDs(toDelete);
     }
 
 }

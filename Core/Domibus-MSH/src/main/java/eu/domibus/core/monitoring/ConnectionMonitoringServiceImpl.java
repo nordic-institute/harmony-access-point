@@ -81,6 +81,39 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         sendTestMessagesTo(this::getMyself);
     }
 
+    @Override
+    public boolean isDeleteHistoryEnabled() {
+        List<String> deleteHistoryParties = domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        if (CollectionUtils.isEmpty(deleteHistoryParties)) {
+            LOG.debug("Delete test message history is not enabled");
+            return false;
+        }
+        String selfParty = partyService.getGatewayPartyIdentifier();
+        boolean deleteHistoryEnabled = deleteHistoryParties.stream()
+                .anyMatch(party -> !StringUtils.equals(party, selfParty));
+        LOG.debug("Delete test message history enabled: [{}]", deleteHistoryEnabled);
+        return deleteHistoryEnabled;
+    }
+
+    @Override
+    public void deleteReceivedTestMessageHistory() {
+        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        if (CollectionUtils.isEmpty(testableParties)) {
+            LOG.debug("There are no available parties to delete test message history");
+            return;
+        }
+
+        List<String> deleteHistoryParties = domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        if (CollectionUtils.isEmpty(deleteHistoryParties)) {
+            LOG.debug("There are no parties to delete test message history");
+            return;
+        }
+
+        for (String party : deleteHistoryParties) {
+            testService.deleteReceivedMessageHistoryForParty(party);
+        }
+    }
+
     private void sendTestMessagesTo(BiFunction<List<String>, String, List<String>> getMonitoredPartiesFn) {
         List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
         if (CollectionUtils.isEmpty(testableParties)) {
@@ -199,7 +232,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private List<String> getDeleteHistoryForParties() {
-        return domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES);
+        return domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
     }
 
     private void handleAllValue() {
@@ -208,7 +241,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         handleAllValue(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
         handleAllValue(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, testablePartiesStr);
-        handleAllValue(DOMIBUS_MONITORING_CONNECTION_DELETE_OLD_FOR_PARTIES, testablePartiesStr);
+        handleAllValue(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, testablePartiesStr);
     }
 
     private void handleAllValue(String propName, String propValue) {
