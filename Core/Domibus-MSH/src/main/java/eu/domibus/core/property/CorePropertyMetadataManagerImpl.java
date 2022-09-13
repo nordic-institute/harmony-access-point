@@ -239,7 +239,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_CRON, Type.CRON, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_DELETE_TEST_MESSAGE_HISTORY_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DELETE_RECEIVED_TEST_MESSAGE_HISTORY_CRON, Type.CRON, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_ACTIVE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS, Type.NUMERIC, Usage.DOMAIN, true),

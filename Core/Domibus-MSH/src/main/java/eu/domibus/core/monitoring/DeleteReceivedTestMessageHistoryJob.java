@@ -16,9 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 5.1
  */
 @DisallowConcurrentExecution
-public class DeleteTestMessageHistoryJob extends DomibusQuartzJobBean {
+public class DeleteReceivedTestMessageHistoryJob extends DomibusQuartzJobBean {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(DeleteTestMessageHistoryJob.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DeleteReceivedTestMessageHistoryJob.class);
 
     @Autowired
     protected ConnectionMonitoringService connectionMonitoringService;

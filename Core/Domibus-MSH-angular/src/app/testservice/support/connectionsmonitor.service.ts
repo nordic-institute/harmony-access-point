@@ -134,12 +134,12 @@ export class ConnectionsMonitorService {
   }
 
   async setDeleteHistoryState(partyId: string, enabled: boolean) {
-    let propName = 'domibus.monitoring.connection.delete.old.for.parties';
+    let propName = 'domibus.monitoring.connection.delete.history.for.parties';
     await this.setState(enabled, partyId, propName);
   }
 
   async setDeleteHistoryStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
-    let propName = 'domibus.monitoring.connection.delete.old.for.parties';
+    let propName = 'domibus.monitoring.connection.delete.history.for.parties';
     await this.setStateForAll(propName, enabled, list);
   }
 }
