@@ -433,7 +433,7 @@ class Domibus{
 				"delete from TB_SJ_MESSAGE_FRAGMENT where ID_PK IN (" + select_ID_PK + ")",
 				"delete from TB_SJ_MESSAGE_GROUP where ID_PK IN (" + select_ID_PK + ")",
 				"delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
-		        "delete from TB_MESSAGE_ACKNW_PROP where FK_MSG_ACKNOWLEDGE IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
+		        "delete from TB_MESSAGE_ACKNW_PROP where MESSAGE_ACK_ID_FK IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
 				"delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
 				"delete from TB_ERROR_LOG where (USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")) OR (MESSAGE_IN_ERROR_ID "+messageIDCheck+")",
 				"delete from TB_USER_MESSAGE where (MESSAGE_ID " + messageIDCheck + ") AND (ID_PK NOT IN (19700101))",
