@@ -77,6 +77,7 @@ public class PrimitivePropertyTypesManager {
         return Arrays.stream(propertyValue.split(","))
                 .map(StringUtils::trim)
                 .filter(StringUtils::isNotEmpty)
+                .distinct()
                 .collect(Collectors.toList());
     }
 
