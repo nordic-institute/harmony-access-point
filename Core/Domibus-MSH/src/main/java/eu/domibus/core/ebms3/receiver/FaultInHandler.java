@@ -117,9 +117,15 @@ public class FaultInHandler extends AbstractFaultHandler {
                         ErrorCode.EbMS3ErrorCode ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0004;
                         String errorMessage = "unknown error occurred";
                         if (cause instanceof WSSecurityException) {
-                            errorMessage = cause.getMessage();
-                            ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
+                            WSSecurityException wsSecurityException = (WSSecurityException) cause;
+                            errorMessage = wsSecurityException.getMessage();
+                            switch (wsSecurityException.getErrorCode()) {
+                                case FAILED_CHECK: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0102; //The signature or decryption was invalid
+                                case FAILED_AUTHENTICATION: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0101;
+                                default: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
+                            }
                         }
+
 
                         ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ebMS3ErrorCode)
@@ -128,14 +134,15 @@ public class FaultInHandler extends AbstractFaultHandler {
                                 .cause(cause)
                                 .mshRole(MSHRole.RECEIVING)
                                 .build();
-
-                        notifyPlugins(ebMS3Exception);
                     }
                 }
 
             } else {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
+
+            notifyPlugins(ebMS3Exception);
+
             if (ebMS3Exception != null){
                 if (StringUtils.isBlank(ebMS3Exception.getRefToMessageId()) && StringUtils.isNotBlank(messageId)) {
                     ebMS3Exception.setRefToMessageId(messageId);
@@ -164,9 +171,9 @@ public class FaultInHandler extends AbstractFaultHandler {
                         .build();
             }
 
+            notifyPlugins(ebMS3Exception);
             this.processEbMSError(context, ebMS3Exception);
         }
-
 
         return true;
     }
