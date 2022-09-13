@@ -166,7 +166,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
         new Verifications() {{
             messageAcknowledgementDao.create(entity);
-            messageAcknowledgeConverter.convert(entity);
+            messageAcknowledgeConverter.convert(entity, properties);
         }};
     }
 }
