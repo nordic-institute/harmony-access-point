@@ -15,8 +15,6 @@ import java.util.List;
  */
 public class ConnectionMonitoringModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringModuleConfiguration.class);
-
     private int frequency;
 
     private List<String> enabledParties;
@@ -43,8 +41,10 @@ public class ConnectionMonitoringModuleConfiguration extends AlertModuleConfigur
 
     @Override
     public String toString() {
-        return "MessagingConfiguration{" +
-                "messageCommunicationActive=" + isActive() +
+        return "ConnectionMonitoringConfiguration{" +
+                "Active=" + isActive() +
+                "Frequency=" + getFrequency() +
+                "EnabledParties=" + enabledParties +
                 '}';
     }
 

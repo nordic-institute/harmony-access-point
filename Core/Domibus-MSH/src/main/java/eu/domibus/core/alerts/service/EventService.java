@@ -30,8 +30,11 @@ public interface EventService {
      * Will create a connection monitoring failed event with the given parameters and enqueue it to the alert/event monitoring queue.
      *
      * @param messageId the id of the monitored message.
-     * @param role      the role of the access point.
+     * @param role      the role of the message
      * @param status the new status of the message.
+     * @param fromParty the sender party of the message
+     * @param toParty the destination party of the message
+     * @param frequency how often to raise an alert if events are repeating
      */
     void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency);
 
@@ -113,7 +116,8 @@ public interface EventService {
      * @param eventType            the specific type of expiration event: expired and imminent expiration for console or plugin users
      * @param user                 the user for which the event is triggered
      * @param maxPasswordAgeInDays the number of days the password is not expired
-     */
+     * @param frequency the period in days to send another alert
+     * */
     void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency);
 
 
