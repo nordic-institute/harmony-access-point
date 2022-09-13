@@ -104,6 +104,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return;
         }
 
+        // todo check/filter the listed parties specified in the property to ensure they are among testable parties from above
         List<String> deleteHistoryParties = domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
             LOG.debug("There are no parties to delete test message history");
@@ -111,7 +112,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         for (String party : deleteHistoryParties) {
-            testService.deleteReceivedMessageHistoryForParty(party);
+            testService.deleteReceivedMessageHistoryFromParty(party);
         }
     }
 

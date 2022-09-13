@@ -495,6 +495,7 @@ public class DomainSchedulerFactoryConfiguration {
         return obj;
     }
 
+    // todo all these methods are similar: code can be reused
     @Bean
     public JobDetailFactoryBean deleteTestMessageHistoryJob() {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();

@@ -98,7 +98,7 @@ public class TestService {
 
         String result = messageSubmitter.submit(messageData, BACKEND_NAME);
 
-        deleteHistoryIfApplicable(receiver);
+        deleteSentHistoryIfApplicable(receiver);
 
         return result;
     }
@@ -258,10 +258,11 @@ public class TestService {
         return getTestServiceMessageInfoRO(partyId, signalMessage);
     }
 
-    public void deleteReceivedMessageHistoryForParty(String party) {
+    public void deleteReceivedMessageHistoryFromParty(String party) {
         LOG.debug("Deleting received test messages for party [{}]", party);
         List<UserMessage> userMessages = findReceivedMessagesToKeep(party);
 
+        // todo this line can be incorporated in the dao method
         ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         List<UserMessage> all = userMessageDao.findTestMessagesFromParty(party, actionEntity);
 
@@ -324,14 +325,14 @@ public class TestService {
         return messageInfoRO;
     }
 
-    protected void deleteHistoryIfApplicable(String toParty) {
+    protected void deleteSentHistoryIfApplicable(String toParty) {
         String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
         if (!StringUtils.contains(partyList, toParty)) {
             LOG.debug("Deleting old test messages for party [{}] is not enabled", toParty);
             return;
         }
 
-        LOG.debug("Deleting old test messages for party [{}]", toParty);
+        LOG.debug("Deleting old test messages to party [{}]", toParty);
         List<UserMessage> userMessages = findSentMessagesToKeep(toParty);
 
         ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
