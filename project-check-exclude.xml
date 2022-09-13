@@ -333,6 +333,7 @@
         <cve>CVE-2022-25857</cve>
     </suppress>
     <suppress>
+        <!-- snakeyaml is not used in production - used in swagger and tests -->
         <notes><![CDATA[
    file name: snakeyaml-1.26.jar
    ]]></notes>
