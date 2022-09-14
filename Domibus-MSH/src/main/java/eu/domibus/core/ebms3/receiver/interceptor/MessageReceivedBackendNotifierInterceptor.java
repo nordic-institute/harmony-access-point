@@ -1,4 +1,4 @@
-package eu.domibus.core.message.nonrepudiation;
+package eu.domibus.core.ebms3.receiver.interceptor;
 
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.routing.BackendFilter;
@@ -6,6 +6,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.UserMessageContextKeyProvider;
+import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -17,6 +18,9 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static eu.domibus.messaging.MessageConstants.BACKEND_FILTER;
+import static eu.domibus.messaging.MessageConstants.USER_MESSAGE;
 
 /**
  * Interceptor to notify plugin of message received
@@ -42,8 +46,8 @@ public class MessageReceivedBackendNotifierInterceptor extends AbstractSoapInter
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
-        BackendFilter matchingBackendFilter = (BackendFilter) userMessageContextKeyProvider.getObjectFromTheCurrentMessage("matchingBackendFilter");
-        UserMessage userMessage = (UserMessage) userMessageContextKeyProvider.getObjectFromTheCurrentMessage("userMessage");
+        BackendFilter matchingBackendFilter = (BackendFilter) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(BACKEND_FILTER);
+        UserMessage userMessage = (UserMessage) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(USER_MESSAGE);
 
         try {
             backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);

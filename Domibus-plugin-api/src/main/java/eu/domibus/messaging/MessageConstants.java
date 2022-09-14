@@ -45,4 +45,8 @@ public final class MessageConstants {
      * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer
      */
     public static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
+
+    public static final String USER_MESSAGE = "userMessage";
+    public static final String BACKEND_FILTER = "backendFilter";
+
 }

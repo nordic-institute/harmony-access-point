@@ -11,7 +11,7 @@ import eu.domibus.core.ebms3.receiver.policy.SetPolicyOutInterceptorServer;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderInInterceptor;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderOutInterceptor;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
-import eu.domibus.core.message.nonrepudiation.MessageReceivedBackendNotifierInterceptor;
+import eu.domibus.core.ebms3.receiver.interceptor.MessageReceivedBackendNotifierInterceptor;
 import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
 import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
 import eu.domibus.logging.DomibusLogger;

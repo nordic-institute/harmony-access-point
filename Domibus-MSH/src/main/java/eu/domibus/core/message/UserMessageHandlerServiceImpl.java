@@ -57,6 +57,9 @@ import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.List;
 
+import static eu.domibus.messaging.MessageConstants.BACKEND_FILTER;
+import static eu.domibus.messaging.MessageConstants.USER_MESSAGE;
+
 /**
  * @author Thomas Dussart
  * @author Catalin Enache
@@ -339,8 +342,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
-                userMessageContextKeyProvider.setObjectOnTheCurrentMessage("matchingBackendFilter", matchingBackendFilter);
-                userMessageContextKeyProvider.setObjectOnTheCurrentMessage("userMessage", userMessage);
+                // we add this objects to use on out Interceptor
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
 
                 if (ebms3MessageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");
