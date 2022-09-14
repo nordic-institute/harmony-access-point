@@ -45,6 +45,7 @@ import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -338,17 +339,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
-                try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-                } catch (SubmissionValidationException e) {
-                    LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
-                    throw EbMS3ExceptionBuilder.getInstance()
-                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                            .message(e.getMessage())
-                            .refToMessageId(messageId)
-                            .cause(e)
-                            .build();
-                }
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage("matchingBackendFilter", matchingBackendFilter);
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage("userMessage", userMessage);
 
                 if (ebms3MessageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");
