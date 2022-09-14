@@ -10,11 +10,14 @@ import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
+import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -217,22 +220,17 @@ public class FaultInHandler extends AbstractFaultHandler {
 
 
     private void notifyPlugins(EbMS3Exception faultCause) {
-        UserMessage userMessage = new UserMessage();
-        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
-        userMessage.setMessageId(faultCause.getRefToMessageId());
-        userMessage.setRefToMessageId(faultCause.getRefToMessageId());
+
+        Ebms3Messaging ebms3Messaging = (Ebms3Messaging) PhaseInterceptorChain.getCurrentMessage().getExchange().get(MessageConstants.EMBS3_MESSAGING_OBJECT);
+        UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
 
         final Map<String, String> properties = new HashMap<>();
         if (faultCause.getErrorCode() != null) {
             properties.put(MessageConstants.ERROR_CODE, faultCause.getErrorCode().name());
         }
         properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
-
         backendNotificationService.fillEventProperties(userMessage, properties);
-
-        backendNotificationService.notifyMessageReceivedFailure(userMessage,
-                userMessageErrorCreator.createErrorResult(faultCause));
-
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
     }
 
     @Override
