@@ -19,6 +19,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
@@ -111,6 +112,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             final String securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+            message.getExchange().put(MessageConstants.EMBS3_MESSAGING_OBJECT, ebms3Messaging);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
         } catch (EbMS3Exception e) {

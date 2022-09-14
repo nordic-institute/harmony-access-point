@@ -49,4 +49,10 @@ public final class MessageConstants {
     public static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
 
     public static final String PAYLOAD_PROPERTY_FILE_PATH = "FilePath";
+
+    /**
+     * property name used to share a ebms3Messaging object between interceptors (e.g. for taking the userMessage inside to
+     * transmit details to plugins in case of early faults)
+     */
+    public static final String EMBS3_MESSAGING_OBJECT = "ebms3.messaging.obj";
 }

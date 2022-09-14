@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -10,11 +11,15 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.TestMessageValidator;
+import eu.domibus.core.message.UserMessageErrorCreator;
+import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
@@ -27,9 +32,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import java.util.Collections;
-import java.util.MissingResourceException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This handler is resposible for creation of ebMS3 conformant error messages
@@ -54,6 +57,13 @@ public class FaultInHandler extends AbstractFaultHandler {
 
     @Autowired
     protected Ebms3Converter ebms3Converter;
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
+    @Autowired
+    UserMessageErrorCreator userMessageErrorCreator;
+    @Autowired
+    MshRoleDao mshRoleDao;
 
     @Override
     public Set<QName> getHeaders() {
@@ -107,9 +117,18 @@ public class FaultInHandler extends AbstractFaultHandler {
                         ErrorCode.EbMS3ErrorCode ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0004;
                         String errorMessage = "unknown error occurred";
                         if (cause instanceof WSSecurityException) {
-                            errorMessage = cause.getMessage();
-                            ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
+                            WSSecurityException wsSecurityException = (WSSecurityException) cause;
+                            errorMessage = wsSecurityException.getMessage();
+                            switch (wsSecurityException.getErrorCode()) {
+                                case FAILED_CHECK: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0102; //The signature or decryption was invalid
+                                    break;
+                                case FAILED_AUTHENTICATION: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0101;
+                                    break;
+                                default: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
+                            }
+                            LOG.error("Security exception encountered with ebMS3 error code: [{}]", ebMS3ErrorCode);
                         }
+
 
                         ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ebMS3ErrorCode)
@@ -124,12 +143,16 @@ public class FaultInHandler extends AbstractFaultHandler {
             } else {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
+
+            notifyPlugins(ebMS3Exception);
+
             if (ebMS3Exception != null){
                 if (StringUtils.isBlank(ebMS3Exception.getRefToMessageId()) && StringUtils.isNotBlank(messageId)) {
                     ebMS3Exception.setRefToMessageId(messageId);
                 }
         }
             this.processEbMSError(context, ebMS3Exception);
+
 
         } else {
             if (exception instanceof PolicyException) {
@@ -151,9 +174,9 @@ public class FaultInHandler extends AbstractFaultHandler {
                         .build();
             }
 
+            notifyPlugins(ebMS3Exception);
             this.processEbMSError(context, ebMS3Exception);
         }
-
 
         return true;
     }
@@ -191,6 +214,24 @@ public class FaultInHandler extends AbstractFaultHandler {
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
 
         errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, null);
+    }
+
+
+    private void notifyPlugins(EbMS3Exception faultCause) {
+
+        LOG.debug("Preparing message details for plugin notification about the receive failure");
+        Ebms3Messaging ebms3Messaging = (Ebms3Messaging) PhaseInterceptorChain.getCurrentMessage().getExchange().get(MessageConstants.EMBS3_MESSAGING_OBJECT);
+        UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
+
+        final Map<String, String> properties = new HashMap<>();
+        if (faultCause.getErrorCode() != null) {
+            properties.put(MessageConstants.ERROR_CODE, faultCause.getErrorCode().name());
+        }
+        properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
+        backendNotificationService.fillEventProperties(userMessage, properties);
+        backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
+        LOG.debug("Plugins notified about failure to receive message with id: [{}]", userMessage.getMessageId());
+
     }
 
     @Override

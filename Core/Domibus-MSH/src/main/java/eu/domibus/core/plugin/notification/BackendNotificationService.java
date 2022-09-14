@@ -282,7 +282,7 @@ public class BackendNotificationService {
         notify(userMessage, matchingBackendFilter.getBackendName(), notificationType, properties);
     }
 
-    protected void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
+    public void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
         if (userMessage == null) {
             return;
         }
