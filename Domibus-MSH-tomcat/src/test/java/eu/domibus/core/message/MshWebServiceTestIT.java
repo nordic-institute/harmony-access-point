@@ -6,6 +6,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.*;
 import eu.domibus.api.plugin.BackendConnectorService;
+import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
@@ -15,6 +16,7 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -107,6 +109,9 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    protected RoutingService routingService;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
@@ -116,6 +121,8 @@ public class MshWebServiceTestIT extends AbstractIT {
     public void testDuplicateDetection() throws Exception {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";

@@ -3,12 +3,16 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.ITTestsService;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +36,14 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
     @Autowired
     ITTestsService itTestsService;
 
+    @Autowired
+    protected RoutingService routingService;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
     }
 
     @Test
