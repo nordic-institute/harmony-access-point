@@ -33,16 +33,7 @@ public interface PartyService {
                            int pageSize);
 
     /**
-     * Returns the list of Party Names for a specific Service and Action
-     *
-     * @param service Service name
-     * @param action  Action name
-     * @return List of Party names
-     */
-//    List<String> findPartyNamesByServiceAndAction(final String service, final String action);
-
-    /**
-     * Returns the list of Party Names for testing
+     * Returns the list of Party Names that can be tested (can send test messages)
      *
      * @return List of Party names
      */

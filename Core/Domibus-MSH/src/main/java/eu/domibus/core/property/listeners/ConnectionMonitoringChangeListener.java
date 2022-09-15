@@ -49,7 +49,6 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
 
         List<Party> knownParties = pModeProvider.findAllParties();
         List<String> testablePartyIds = partyService.findPushToPartyNamesForTest();
-//        List<String> testablePartyIds = pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         newPartyIds.forEach(partyId -> {
             LOG.trace("Checking that [{}] is a known party", partyId);

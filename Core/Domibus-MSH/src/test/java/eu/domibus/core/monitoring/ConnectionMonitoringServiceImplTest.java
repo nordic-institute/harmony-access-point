@@ -17,7 +17,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,7 +91,7 @@ public class ConnectionMonitoringServiceImplTest {
         String partyId2 = "partyId2";
 
         new Expectations(connectionMonitoringService) {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty);
 
             partyService.getGatewayPartyIdentifier();
@@ -117,7 +116,7 @@ public class ConnectionMonitoringServiceImplTest {
         String partyId2 = "partyId2";
 
         new Expectations(connectionMonitoringService) {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
 
             partyService.getGatewayPartyIdentifier();
@@ -141,7 +140,7 @@ public class ConnectionMonitoringServiceImplTest {
         String partyId2 = "partyId2";
 
         new Expectations(connectionMonitoringService) {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
 
             partyService.getGatewayPartyIdentifier();
@@ -196,7 +195,7 @@ public class ConnectionMonitoringServiceImplTest {
             testService.getLastTestReceived(partyId2, null);
             result = lastReceived2;
 
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(partyId1, partyId2);
 
             domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);

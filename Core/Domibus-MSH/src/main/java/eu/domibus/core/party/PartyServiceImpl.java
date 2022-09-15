@@ -102,17 +102,9 @@ public class PartyServiceImpl implements PartyService {
     /**
      * {@inheritDoc}
      */
-//    @Override
-//    public List<String> findPartyNamesByServiceAndAction(String service, String action) {
-//        return pModeProvider.findPartyIdByServiceAndAction(service, action, null);
-//    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<String> findPushToPartyNamesForTest() {
-        // todo add parameter initiating party
+        // todo add parameter initiating party: gateway party-me
         return findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
     }
 

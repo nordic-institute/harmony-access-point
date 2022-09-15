@@ -72,7 +72,7 @@ public class TestServiceResourceTest {
         testPartiesList.add("testParty2");
 
         new Expectations() {{
-            partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+            partyService.findPushToPartyNamesForTest();
             result = testPartiesList;
         }};
 
