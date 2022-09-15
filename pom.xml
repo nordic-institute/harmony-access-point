@@ -50,7 +50,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.69</bouncycastle.version>
+        <bouncycastle.version>1.71</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
         <jackson.version>2.13.2</jackson.version>
@@ -676,7 +676,7 @@
                      bcprov-jdk15to18 version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
+                        <artifactId>bcprov-jdk18on</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -746,7 +746,7 @@
                      bcprov-jdk15to18 version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
+                        <artifactId>bcprov-jdk18on</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -759,7 +759,7 @@
                      bcprov-jdk15to18 version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
+                        <artifactId>bcprov-jdk18on</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -780,7 +780,7 @@
                     bcprov-jdk15to18 version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
+                        <artifactId>bcprov-jdk18on</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -864,11 +864,11 @@
                     latest version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
+                        <artifactId>bcprov-jdk18on</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcpkix-jdk15on</artifactId>
+                        <artifactId>bcpkix-jdk18on</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
