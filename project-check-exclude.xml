@@ -325,5 +325,16 @@
         <cve>CVE-2022-2047</cve>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
-
+    <suppress>
+        <!-- snakeyaml is not used in production - used in swagger and tests -->
+        <notes><![CDATA[
+   file name: snakeyaml-1.26.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+        <cve>CVE-2022-25857</cve>
+        <cve>CVE-2022-38749</cve>
+        <cve>CVE-2022-38751</cve>
+        <cve>CVE-2022-38750</cve>
+        <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
+    </suppress>
 </suppressions>
