@@ -115,13 +115,13 @@ public class GatewayConfigurationValidator implements DomainsAware {
         if (privateKeyAliasRsaSign != null) {
             validateAlias(privateKeyAliasRsaSign, trustStore, domain);
         }
-        if (privateKeyAliasRsaSign != null) {
+        if (privateKeyAliasRsaDecrypt != null) {
             validateAlias(privateKeyAliasRsaDecrypt, trustStore, domain);
         }
-        if (privateKeyAliasRsaSign != null) {
+        if (privateKeyAliasEccSign != null) {
             validateAlias(privateKeyAliasEccSign, trustStore, domain);
         }
-        if (privateKeyAliasRsaSign != null) {
+        if (privateKeyAliasEccDecrypt != null) {
             validateAlias(privateKeyAliasEccDecrypt, trustStore, domain);
         }
     }
