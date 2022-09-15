@@ -2,6 +2,7 @@ package eu.domibus.core.party;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
@@ -101,16 +102,21 @@ public class PartyServiceImpl implements PartyService {
     /**
      * {@inheritDoc}
      */
-    @Override
-    public List<String> findPartyNamesByServiceAndAction(String service, String action) {
-        return pModeProvider.findPartyIdByServiceAndAction(service, action, null);
-    }
+//    @Override
+//    public List<String> findPartyNamesByServiceAndAction(String service, String action) {
+//        return pModeProvider.findPartyIdByServiceAndAction(service, action, null);
+//    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<String> findPushToPartyNamesByServiceAndAction(String service, String action) {
+    public List<String> findPushToPartyNamesForTest() {
+        // todo add parameter initiating party
+        return findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+    }
+
+    protected List<String> findPushToPartyNamesByServiceAndAction(String service, String action) {
         List<MessageExchangePattern> meps = new ArrayList<>();
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
         meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);

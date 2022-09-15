@@ -39,18 +39,14 @@ public interface PartyService {
      * @param action  Action name
      * @return List of Party names
      */
-    List<String> findPartyNamesByServiceAndAction(final String service, final String action);
+//    List<String> findPartyNamesByServiceAndAction(final String service, final String action);
 
     /**
-     * Returns the list of Party Names for a specific Service and Action configured as responders in process including
-     * a push binding
+     * Returns the list of Party Names for testing
      *
-     * @param service Service name
-     * @param action  Action name
      * @return List of Party names
      */
-    List<String> findPushToPartyNamesByServiceAndAction(final String service, final String action);
-
+    List<String> findPushToPartyNamesForTest();
 
     /**
      * Returns the Party Identifier Name for the gateway party

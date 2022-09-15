@@ -67,14 +67,12 @@ public class TestService {
 
     private final ErrorLogService errorLogService;
 
-    private final ActionDictionaryService actionDictionaryService;
-
     private final UserMessageService userMessageService;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
     public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
-                       SignalMessageDao signalMessageDao, ErrorLogService errorLogService, ActionDictionaryService actionDictionaryService,
+                       SignalMessageDao signalMessageDao, ErrorLogService errorLogService,
                        UserMessageService userMessageService, DomibusPropertyProvider domibusPropertyProvider) {
         this.pModeProvider = pModeProvider;
         this.messageSubmitter = messageSubmitter;
@@ -82,7 +80,6 @@ public class TestService {
         this.userMessageDao = userMessageDao;
         this.signalMessageDao = signalMessageDao;
         this.errorLogService = errorLogService;
-        this.actionDictionaryService = actionDictionaryService;
         this.userMessageService = userMessageService;
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
@@ -198,8 +195,7 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSent(String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        UserMessage userMessage = userMessageDao.findLastTestMessage(partyId, actionEntity);
+        UserMessage userMessage = userMessageDao.findLastTestMessageToParty(partyId);
         if (userMessage == null) {
             LOG.debug("Could not find last user message for party [{}]", partyId);
             return null;
@@ -247,8 +243,7 @@ public class TestService {
             }
         } else {
             // if userMessageId is not provided, find the most recent signal message received for a test message
-            ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-            signalMessage = signalMessageDao.findLastTestMessage(partyId, actionEntity);
+            signalMessage = signalMessageDao.findLastTestMessage(partyId);
             if (signalMessage == null) {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;
@@ -263,8 +258,7 @@ public class TestService {
         List<UserMessage> userMessages = findReceivedMessagesToKeep(party);
 
         // todo this line can be incorporated in the dao method
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        List<UserMessage> all = userMessageDao.findTestMessagesFromParty(party, actionEntity);
+        List<UserMessage> all = userMessageDao.findTestMessagesFromParty(party);
 
         try {
             deleteByDifference(userMessages, all);
@@ -334,9 +328,7 @@ public class TestService {
 
         LOG.debug("Deleting old test messages to party [{}]", toParty);
         List<UserMessage> userMessages = findSentMessagesToKeep(toParty);
-
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty, actionEntity);
+        List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty);
 
         try {
             deleteByDifference(userMessages, all);
@@ -390,8 +382,7 @@ public class TestService {
     }
 
     protected UserMessage getLastTestSentWithStatus(String partyId, MessageStatus messageStatus) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        UserMessage userMessage = userMessageDao.findLastSentTestMessageWithStatus(partyId, actionEntity, messageStatus);
+        UserMessage userMessage = userMessageDao.findLastTestMessageToPartyWithStatus(partyId, messageStatus);
         if (userMessage == null) {
             LOG.debug("Could not find last sent user message for party [{}]", partyId);
             return null;
@@ -400,8 +391,7 @@ public class TestService {
     }
 
     private UserMessage getLastTestReceived(String partyId) {
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        UserMessage userMessage = userMessageDao.findLastReceivedTestMessage(partyId, actionEntity);
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromParty(partyId);
         if (userMessage == null) {
             LOG.debug("Could not find last received user message for party [{}]", partyId);
             return null;

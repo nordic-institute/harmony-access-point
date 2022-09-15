@@ -98,7 +98,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     @Override
     public void deleteReceivedTestMessageHistory() {
         // todo new selection method is needed here to get the sending parties to me
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to delete test message history");
             return;
@@ -117,7 +117,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private void sendTestMessagesTo(BiFunction<List<String>, String, List<String>> getMonitoredPartiesFn) {
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to test");
             return;
@@ -187,7 +187,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setLastReceived(lastReceived);
         }
 
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (testableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
             result.setTestable(true);
         }
@@ -238,7 +238,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     private void handleAllValue() {
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         String testablePartiesStr = testableParties.stream().collect(Collectors.joining(","));
 
         handleAllValue(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
