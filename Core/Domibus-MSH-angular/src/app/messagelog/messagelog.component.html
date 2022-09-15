@@ -177,6 +177,12 @@
       <mat-icon>send</mat-icon>
       <span>Resend</span>
     </button>
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
+            (click)="resendBatchDialog()"
+            id="resendbatchbutton_id" button-click-behaviour>
+      <mat-icon>send</mat-icon>
+      <span>Batch Resend</span>
+    </button>
   </div>
 
 </div>

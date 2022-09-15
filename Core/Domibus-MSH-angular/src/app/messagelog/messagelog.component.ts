@@ -42,6 +42,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
+  static readonly BATCH_RESEND_URL: string = 'rest/message/restore';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}&mshRole=${mshRole}';
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}&mshRole=${mshRole}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
@@ -365,10 +366,37 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
+  resendBatchDialog() {
+    this.dialogsService.openResendDialog().then(resend => {
+      if (resend && this.selected[0]) {
+        this.resendBatch(this.selected[0].messageId);
+        super.selected = [];
+        this.messageResent.subscribe(() => {
+          this.page();
+        });
+      }
+    });
+  }
+
   resend(messageId: string) {
     console.log('Resending message with id ', messageId);
 
     let url = MessageLogComponent.RESEND_URL.replace('${messageId}', encodeURIComponent(messageId));
+
+    this.http.put(url, {}, {}).subscribe(res => {
+      this.alertService.success('The operation resend message completed successfully');
+      setTimeout(() => {
+        this.messageResent.emit();
+      }, 500);
+    }, err => {
+      this.alertService.exception('The message ' + this.alertService.escapeHtml(messageId) + ' could not be resent.', err);
+    });
+  }
+
+  resendBatch(messageId: string) {
+    console.log('Resending message with id ', messageId);
+
+    let url = MessageLogComponent.BATCH_RESEND_URL.replace('${messageId}', encodeURIComponent(messageId));
 
     this.http.put(url, {}, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
