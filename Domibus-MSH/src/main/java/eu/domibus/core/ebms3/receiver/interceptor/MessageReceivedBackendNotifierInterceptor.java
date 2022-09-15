@@ -51,15 +51,7 @@ public class MessageReceivedBackendNotifierInterceptor extends AbstractSoapInter
 
         try {
             backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-        } catch (SubmissionValidationException e) {
-            String messageId = userMessage.getMessageId();
-            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
-            EbMS3Exception ex = EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                    .message(e.getMessage())
-                    .refToMessageId(messageId)
-                    .cause(e)
-                    .build();
+        } catch (Exception ex) {
             throw new Fault(ex);
         }
     }

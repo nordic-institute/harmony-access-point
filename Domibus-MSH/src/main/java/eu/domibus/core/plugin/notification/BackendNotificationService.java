@@ -20,7 +20,6 @@ import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
-import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -96,9 +95,6 @@ public class BackendNotificationService {
 
     @Autowired
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
-
-    @Autowired
-    protected SubmissionValidatorService submissionValidatorService;
 
     @Autowired
     protected BackendConnectorProvider backendConnectorProvider;
@@ -283,7 +279,7 @@ public class BackendNotificationService {
     }
 
     protected void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
-        if(userMessage == null) {
+        if (userMessage == null) {
             return;
         }
 
@@ -294,14 +290,14 @@ public class BackendNotificationService {
         target.put(CONVERSATION_ID, userMessage.getConversationId());
 
         final PartyId partyFrom = userMessageServiceHelper.getPartyFrom(userMessage);
-        if(partyFrom != null) {
+        if (partyFrom != null) {
             target.put(FROM_PARTY_ID, partyFrom.getValue());
             target.put(FROM_PARTY_TYPE, partyFrom.getType());
         }
         target.put(FROM_PARTY_ROLE, userMessageServiceHelper.getPartyFromRole(userMessage));
 
         final PartyId partyTo = userMessageServiceHelper.getPartyTo(userMessage);
-        if(partyTo != null) {
+        if (partyTo != null) {
             target.put(TO_PARTY_ID, partyTo.getValue());
             target.put(TO_PARTY_TYPE, partyTo.getType());
         }

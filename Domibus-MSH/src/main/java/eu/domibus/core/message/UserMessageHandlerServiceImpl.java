@@ -41,7 +41,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
-import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -289,18 +288,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList, null);
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
-            try {
-                // we keep the notification here as the parent method returns a null soap response (so there is no out interceptor executing)
-                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            } catch (SubmissionValidationException e) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
-                throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                        .message(e.getMessage())
-                        .refToMessageId(messageId)
-                        .cause(e)
-                        .build();
-            }
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
         }
     }
 
@@ -349,7 +337,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
                 if (ebms3MessageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");
-
                     splitAndJoinService.incrementReceivedFragments(ebms3MessageFragmentType.getGroupId(), backendName);
                 }
             }
