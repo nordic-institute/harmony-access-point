@@ -43,6 +43,6 @@ public class UserMessageContextKeyProviderImpl implements UserMessageContextKeyP
             LOG.debug("Could not get value for key [{}], current message does not exist.", key);
             return null;
         }
-        return (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get(key);
+        return PhaseInterceptorChain.getCurrentMessage().getExchange().get(key);
     }
 }
