@@ -290,6 +290,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
+                // we keep the notification here as the parent method returns a null soap response (so there is no out interceptor executing)
                 backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             } catch (SubmissionValidationException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
