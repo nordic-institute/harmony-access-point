@@ -46,7 +46,7 @@ public class MessageReceivedBackendNotifierInterceptor extends AbstractSoapInter
         LOG.debug("Notifying plugin of message received event for message [{}]", userMessage);
 
         try {
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+            backendNotificationService.notifyMessageReceivedReplySent(matchingBackendFilter, userMessage);
         } catch (Exception ex) {
             throw new Fault(ex);
         }

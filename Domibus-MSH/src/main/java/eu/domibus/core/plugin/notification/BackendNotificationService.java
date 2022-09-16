@@ -133,6 +133,7 @@ public class BackendNotificationService {
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
         if (isPluginNotificationDisabled()) {
+            LOG.info("Plugin notification is disabled.");
             return;
         }
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
@@ -140,6 +141,19 @@ public class BackendNotificationService {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
         }
 
+        final Map<String, String> properties = new HashMap<>();
+        fillEventProperties(userMessage, properties);
+        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
+    }
+
+    @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceivedReplySent")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceivedReplySent")
+    public void notifyMessageReceivedReplySent(BackendFilter matchingBackendFilter, UserMessage userMessage) {
+        if (isPluginNotificationDisabled()) {
+            LOG.info("Plugin notification is disabled.");
+            return;
+        }
+        NotificationType notificationType = NotificationType.MESSAGE_RECEIVED_REPLY_SENT;
         final Map<String, String> properties = new HashMap<>();
         fillEventProperties(userMessage, properties);
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
@@ -466,4 +480,6 @@ public class BackendNotificationService {
     protected boolean isPluginNotificationDisabled() {
         return !domibusPropertyProvider.getBooleanProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE);
     }
+
+
 }

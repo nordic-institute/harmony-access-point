@@ -166,6 +166,13 @@ public interface BackendConnector<U, T> {
     void messageReceiveFailed(MessageReceiveFailureEvent event);
 
     /**
+     * This method gets called when a response was sent to c2 for an incoming message
+     *
+     * @param event event containing details about the message receive failure event
+     */
+    void messageReceiveReplySent(MessageReceiveReplySentEvent event);
+
+    /**
      * This method gets called when the status of a User Message changes
      *
      * @param event event containing details about the message status change event

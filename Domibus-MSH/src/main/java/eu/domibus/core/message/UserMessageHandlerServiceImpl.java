@@ -331,9 +331,11 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
                 persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
-                // we add this objects to use on out Interceptor
+                // we add this objects to use on out Interceptor to notify when reply is sent
                 userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
                 userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
+
+                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
 
                 if (ebms3MessageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");

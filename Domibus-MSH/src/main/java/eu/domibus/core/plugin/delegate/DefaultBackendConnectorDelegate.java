@@ -37,9 +37,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
 
     @Override
     public void messageStatusChanged(BackendConnector backendConnector, MessageStatusChangeEvent event) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Notifying connector [{}] about status change event [{}]", backendConnector.getName(), event);
-        }
+        LOG.debug("Notifying connector [{}] about status change event [{}]", backendConnector.getName(), event);
         backendConnector.messageStatusChanged(event);
     }
 
@@ -47,6 +45,12 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
     public void messageReceiveFailed(BackendConnector backendConnector, MessageReceiveFailureEvent event) {
         LOG.info("Calling messageReceiveFailed method");
         backendConnector.messageReceiveFailed(event);
+    }
+
+    @Override
+    public void messageReceiveReplySent(BackendConnector backendConnector, MessageReceiveReplySentEvent event) {
+        LOG.trace("Calling messageReceiveReplySent method");
+        backendConnector.messageReceiveReplySent(event);
     }
 
     @Override
