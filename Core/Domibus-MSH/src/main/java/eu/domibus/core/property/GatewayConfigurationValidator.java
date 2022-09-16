@@ -160,7 +160,7 @@ public class GatewayConfigurationValidator implements DomainsAware {
     }
 
     private void debugOutput(Domain domain, String message) {
-        LOG.debug("Domain [" + domain.getCode() + "]:" + message);
+        LOG.debug(WarningUtil.warnOutput("Domain [" + domain.getCode() + "]:" + message));
     }
 
 }
