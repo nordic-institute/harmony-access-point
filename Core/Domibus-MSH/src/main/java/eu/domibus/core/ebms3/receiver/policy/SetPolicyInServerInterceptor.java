@@ -49,6 +49,10 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
+    private static final String RSA_PROFILE = "RSA";
+
+    private static final String ECC_PROFILE = "ECC";
+
     protected final ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
     protected final BackendNotificationService backendNotificationService;
@@ -118,10 +122,10 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                 securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
             } else {
                 switch (profile) {
-                    case "RSA":
+                    case RSA_PROFILE:
                         securityAlgorithm = AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
                         break;
-                    case "ECC":
+                    case ECC_PROFILE:
                         securityAlgorithm = AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
                         break;
                     default:
