@@ -72,7 +72,7 @@ public class ITTestsService {
         Submission submission = submissionUtil.createSubmission();
         final String messageId = messageSubmitter.submit(submission, "mybackend");
 
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         userMessageLogDao.setMessageStatus(userMessageLog, endStatus);
 
         return messageId;
@@ -82,6 +82,7 @@ public class ITTestsService {
     public UserMessage getUserMessage() {
         final MessageTestUtility messageTestUtility = new MessageTestUtility();
         final UserMessage userMessage = messageTestUtility.createSampleUserMessage();
+        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         final List<PartInfo> partInfoList = messageTestUtility.createPartInfoList(userMessage);
 
         PartyId senderPartyId = messageTestUtility.createSenderPartyId();

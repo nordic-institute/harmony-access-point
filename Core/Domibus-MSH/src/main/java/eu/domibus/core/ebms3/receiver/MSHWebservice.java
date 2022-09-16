@@ -52,7 +52,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
 
     @Timer(clazz = MSHWebservice.class,value = "incoming_user_message")
     @Counter(clazz = MSHWebservice.class,value = "incoming_user_message")
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");

@@ -2,6 +2,7 @@ package eu.domibus.core.audit;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -107,15 +108,14 @@ public class AuditServiceImplTest {
                 0,
                 10))
                 .thenReturn(audits);
-        when(auditDao.listAuditExceptSuperUsers(
+        when(auditDao.listAudit(
                 Sets.newHashSet("User", "Pmode"),
                 Sets.newHashSet("ADD"),
                 Sets.newHashSet("Admin"),
                 from,
                 from,
                 0,
-                10,
-                null))
+                10))
                 .thenReturn(audits);
         auditService.listAudit(
                 Sets.newHashSet("User", "Pmode"),
@@ -132,13 +132,12 @@ public class AuditServiceImplTest {
     @Test
     public void countAudit() {
         Date from = new Date();
-        when(auditDao.countAuditExceptSuperUsers(
+        when(auditDao.countAudit(
                 Sets.newHashSet("User", "Pmode"),
                 Sets.newHashSet("ADD"),
                 Sets.newHashSet("Admin"),
                 from,
-                from,
-                null))
+                from))
                 .thenReturn(1L);
         auditService.countAudit(
                 Sets.newHashSet("User", "Pmode"),
@@ -146,20 +145,13 @@ public class AuditServiceImplTest {
                 Sets.newHashSet("Admin"),
                 from,
                 from, true);
-        verify(auditDao, times(0)).countAudit(
+
+        verify(auditDao, times(1)).countAudit(
                 Sets.newHashSet("User", "Pmode"),
                 Sets.newHashSet("ADD"),
                 Sets.newHashSet("Admin"),
                 from,
                 from
-        );
-        verify(auditDao, times(1)).countAuditExceptSuperUsers(
-                Sets.newHashSet("User", "Pmode"),
-                Sets.newHashSet("ADD"),
-                Sets.newHashSet("Admin"),
-                from,
-                from,
-                null
         );
     }
 
@@ -179,7 +171,7 @@ public class AuditServiceImplTest {
     @Test
     public void addMessageDownloadedAudit() {
         when(authUtils.getAuthenticatedUser()).thenReturn("thomas");
-        auditService.addMessageDownloadedAudit("resendMessageId");
+        auditService.addMessageDownloadedAudit("resendMessageId", MSHRole.RECEIVING);
         ArgumentCaptor<MessageAudit> messageAuditCaptor = ArgumentCaptor.forClass(MessageAudit.class);
         verify(auditDao, times(1)).saveMessageAudit(messageAuditCaptor.capture());
         MessageAudit value = messageAuditCaptor.getValue();

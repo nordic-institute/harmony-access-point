@@ -15,8 +15,8 @@ import java.util.Date;
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.signalMessageId = :SIGNAL_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageByUserMessageEntityId",
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.entityId = :ENTITY_ID"),
-        @NamedQuery(name = "SignalMessage.findSignalMessageWithUserMessageByUserMessageId",
-                query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage where signalMessage.userMessage.messageId = :MESSAGE_ID"),
+        @NamedQuery(name = "SignalMessage.findSignalMessageWithUserMessageByUserMessageIdAndRole",
+                query = "select signalMessage from SignalMessage signalMessage join fetch signalMessage.userMessage where signalMessage.userMessage.messageId = :MESSAGE_ID and signalMessage.userMessage.mshRole.role = :MSH_ROLE"),
         @NamedQuery(name = "SignalMessage.findSignalMessageIdByRefMessageId",
                 query = "select signalMessage.signalMessageId from SignalMessage signalMessage where signalMessage.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findMessageIdsWithRefToMessageIds", query = "select mi.signalMessageId from SignalMessage mi where mi.refToMessageId in :MESSAGEIDS"),
@@ -37,6 +37,10 @@ public class SignalMessage extends AbstractNoGeneratedPkEntity {
     @Column(name = "SIGNAL_MESSAGE_ID", nullable = false, unique = true, updatable = false)
     @NotNull
     protected String signalMessageId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "MSH_ROLE_ID_FK")
+    private MSHRoleEntity mshRole;
 
     @Column(name = "REF_TO_MESSAGE_ID")
     protected String refToMessageId;
@@ -80,5 +84,13 @@ public class SignalMessage extends AbstractNoGeneratedPkEntity {
 
     public void setUserMessage(UserMessage userMessage) {
         this.userMessage = userMessage;
+    }
+
+    public MSHRoleEntity getMshRole() {
+        return mshRole;
+    }
+
+    public void setMshRole(MSHRoleEntity mshRole) {
+        this.mshRole = mshRole;
     }
 }

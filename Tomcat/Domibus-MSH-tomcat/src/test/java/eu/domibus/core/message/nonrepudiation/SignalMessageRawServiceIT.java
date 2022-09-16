@@ -2,6 +2,7 @@ package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -45,10 +46,10 @@ public class SignalMessageRawServiceIT extends AbstractIT {
     @Transactional
     public void SignalFoundNoRaw() {
         messageDaoTestUtil.createSignalMessageLog("msg1", new Date());
-        SignalMessage msg1 = signalMessageDao.findByUserMessageIdWithUserMessage("msg1");
+        SignalMessage msg1 = signalMessageDao.findByUserMessageIdWithUserMessage("msg1", MSHRole.SENDING);
 
         signalMessageRawService.saveSignalMessageRawService(RAW_XML, msg1.getEntityId());
 
-        Assert.assertEquals(RAW_XML, signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId("msg1").getRawXmlMessage());
+        Assert.assertEquals(RAW_XML, signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId("msg1", MSHRole.SENDING).getRawXmlMessage());
     }
 }

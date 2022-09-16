@@ -3,15 +3,11 @@ package eu.domibus.core.message;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.model.MessageStatusEntity;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -21,7 +17,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,16 +74,17 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public void restoreFailedMessage(String messageId) {
-        LOG.info("Restoring message [{}]", messageId);
+        LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
+
         final UserMessageLog userMessageLog = userMessageService.getFailedMessage(messageId);
 
         if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
         }
 
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
 
-        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
+        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
         backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus.getMessageStatus(), new Timestamp(System.currentTimeMillis()));
         userMessageLog.setMessageStatus(newMessageStatus);
         final Date currentDate = new Date();
@@ -96,7 +92,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         userMessageLog.setFailed(null);
         userMessageLog.setNextAttempt(currentDate);
 
-        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog, messageId);
+        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog);
         LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
         userMessageLog.setSendAttemptsMax(newMaxAttempts);
 
@@ -108,7 +104,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             try {
                 MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-                Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
                 LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessage.getMessageId());
                 pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             } catch (EbMS3Exception ebms3Ex) {
@@ -117,19 +112,19 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         }
     }
 
-    protected Integer getMaxAttemptsConfiguration(final String messageId) {
-        final LegConfiguration legConfiguration = pModeService.getLegConfiguration(messageId);
+    protected Integer getMaxAttemptsConfiguration(final Long messageEntityId) {
+        final LegConfiguration legConfiguration = pModeService.getLegConfiguration(messageEntityId);
         Integer result = 1;
         if (legConfiguration == null) {
-            LOG.warn("Could not get the leg configuration for message [{}]. Using the default maxAttempts configuration [{}]", messageId, result);
+            LOG.warn("Could not get the leg configuration for message with entity id [{}]. Using the default maxAttempts configuration [{}]", messageEntityId, result);
         } else {
             result = pModeServiceHelper.getMaxAttempts(legConfiguration);
         }
         return result;
     }
 
-    protected Integer computeNewMaxAttempts(final UserMessageLog userMessageLog, final String messageId) {
-        Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(messageId);
+    protected Integer computeNewMaxAttempts(final UserMessageLog userMessageLog) {
+        Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(userMessageLog.getEntityId());
         // always increase maxAttempts (even when not reached by sendAttempts)
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
@@ -137,7 +132,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }

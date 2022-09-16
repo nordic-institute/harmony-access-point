@@ -44,6 +44,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     private static final String STR_MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
 
     public static final int IN_CLAUSE_MAX_SIZE = 1000;
+    public static final String MSH_ROLE = "MSH_ROLE";
 
     private final DateUtil dateUtil;
 
@@ -143,9 +144,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return true;
     }
 
-    public List<String> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
-
-        TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", String.class);
+    public List<UserMessageLogDto> findMessagesToDelete(String finalRecipient, Long startDate, Long endDate) {
+        TypedQuery<UserMessageLogDto> query = this.em.createNamedQuery("UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod", UserMessageLogDto.class);
         query.setParameter("MESSAGE_STATUSES", MessageStatus.getSuccessfulStates());
         query.setParameter("FINAL_RECIPIENT", finalRecipient);
         query.setParameter("START_DATE", startDate);
@@ -160,8 +160,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
      * @return The UserMessageLog
      */
     @Transactional
-    public UserMessageLog findByMessageIdSafely(String messageId) {
-        final UserMessageLog userMessageLog = findByMessageId(messageId);
+    public UserMessageLog findByMessageIdSafely(String messageId, MSHRole mshRole) {
+        final UserMessageLog userMessageLog = findByMessageId(messageId, mshRole);
+        return initChildren(messageId, userMessageLog);
+    }
+
+    private UserMessageLog initChildren(String messageId, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
             LOG.debug("Could not find any result for message with id [{}]", messageId);
             return null;
@@ -178,10 +182,11 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         userMessageLog.getNotificationStatus();
     }
 
-    public MessageStatus getMessageStatus(String messageId) {
+    public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
         try {
-            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatusEntity.class);
+            TypedQuery<MessageStatusEntity> query = em.createNamedQuery("UserMessageLog.getMessageStatusByIdAndRole", MessageStatusEntity.class);
             query.setParameter(STR_MESSAGE_ID, messageId);
+            query.setParameter(MSH_ROLE, mshRole);
             return query.getSingleResult().getMessageStatus();
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [{}]", messageId);
@@ -229,18 +234,34 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    // keep this until we remove the deprecated ext methods
     public UserMessageLog findByMessageId(String messageId) {
-
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
-        UserMessageLog userMessageLog = DataAccessUtils.singleResult(query.getResultList());
-        if (userMessageLog == null) {
-            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+        List<UserMessageLog> results = query.getResultList();
+        if (CollectionUtils.isEmpty(results)) {
+            LOG.info("Query UserMessageLog.findByMessageId did not find any result for message with id [{}]", messageId);
+            return null;
         }
-        return userMessageLog;
+
+        if (results.size() == 1) {
+            LOG.debug("Returning the message with role [{}]", results.get(0).getMshRole().getRole());
+            return results.get(0);
+        }
+
+        LOG.info("Query UserMessageLog.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
+        UserMessageLog result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
+                .orElse(results.get(0));
+        LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
+        return result;
     }
 
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
+        if (mshRole == null) {
+            LOG.debug("Provided MSHRole is null; calling findByMessageId(messageId) for id [{}]", messageId);
+            return findByMessageId(messageId);
+        }
+
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
         query.setParameter("MSH_ROLE", mshRole);
@@ -381,9 +402,10 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public String findBackendForMessageId(String messageId) {
+    public String findBackendForMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<String> query = em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
         query.setParameter(STR_MESSAGE_ID, messageId);
+        query.setParameter(MSH_ROLE, mshRole);
         return query.getSingleResult();
     }
 
@@ -391,7 +413,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         final NotificationStatusEntity status = notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED);
         messageLog.setNotificationStatus(status);
     }
-
 
     @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
@@ -465,7 +486,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return userMessageLogInfoFilter;
     }
 
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
         MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(messageStatus);
         messageLog.setMessageStatus(messageStatusEntity);
@@ -492,7 +513,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", messageStatus);
     }
-
 
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<UserMessageLog> mle) {
@@ -595,4 +615,5 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
             LOG.trace("UserMessageLogs [{}] updated to archived(0:no, 1: yes) with current_time: [{}]", entityIds, i);
         }
     }
+
 }

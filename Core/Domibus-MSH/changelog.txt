@@ -1,4 +1,5 @@
 Domibus 5.1
+- Update the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup
 - Split DatabaseMessageHandler bean in 3 beans (MessageSubmitter, MessageRetriever, MessagePuller), each implementing just one interface
 - New Keystore page in the Domibus Admin Console
 - Smart retry introduced for failed messages retrials (now taking advantage of the monitoring and attempting retry only after remote party is reachable)

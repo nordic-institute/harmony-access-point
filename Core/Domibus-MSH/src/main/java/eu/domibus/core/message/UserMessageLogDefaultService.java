@@ -114,17 +114,11 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
             return false;
         }
 
-        String signalMessageId = signalMessage.getSignalMessageId();
-        setSignalMessageAsDeleted(signalMessageId);
-        LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessageId);
-        return true;
-    }
-
-    protected void setSignalMessageAsDeleted(final String signalMessageId) {
-        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(signalMessageId);
-        final MessageStatusEntity messageStatusEntity = messageStatusDao.findOrCreate(MessageStatus.DELETED);
+        final SignalMessageLog signalMessageLog = signalMessageLogDao.read(signalMessage.getEntityId());
         signalMessageLog.setDeleted(new Date());
-        signalMessageLog.setMessageStatus(messageStatusEntity);
+        signalMessageLog.setMessageStatus(messageStatusDao.findOrCreate(MessageStatus.DELETED));
+        LOG.debug("SignalMessage [{}] was set as DELETED.", signalMessage.getSignalMessageId());
+        return true;
     }
 
     public void setMessageAsDownloaded(UserMessage userMessage, UserMessageLog userMessageLog) {
@@ -143,12 +137,9 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         updateUserMessageStatus(userMessage, userMessageLog, MessageStatus.SEND_FAILURE);
     }
 
-    public UserMessageLog findByMessageId(String messageId) {
-        return userMessageLogDao.findByMessageId(messageId);
-    }
-
-    public MessageStatus getMessageStatus(String messageId) {
-        return userMessageLogDao.getMessageStatus(messageId);
+    @Override
+    public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
+        return userMessageLogDao.getMessageStatus(messageId, mshRole);
     }
 
     @Override

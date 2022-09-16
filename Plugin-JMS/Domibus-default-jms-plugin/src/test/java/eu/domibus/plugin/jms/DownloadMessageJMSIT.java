@@ -12,6 +12,7 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -33,8 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static eu.domibus.messaging.MessageConstants.MESSAGE_ENTITY_ID;
-import static eu.domibus.messaging.MessageConstants.MESSAGE_ID;
+import static eu.domibus.messaging.MessageConstants.*;
 
 /**
  * This JUNIT implements the Test cases Download Message-03 and Download Message-04.
@@ -66,8 +66,12 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
     @Autowired
     UserMessageService userMessageService;
+
     @Autowired
     JMSMessageUtil jmsMessageUtil;
+
+    @Autowired
+    MshRoleDao mshRoleDao;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -113,6 +117,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
         String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
         final UserMessage userMessage = userMessageService.getUserMessage();
+        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
         userMessage.setMessageId(messageId);
         ArrayList<PartInfo> partInfoList = new ArrayList<>();
@@ -148,6 +153,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         Message msg = session.createTextMessage();
         msg.setStringProperty(MessageConstants.DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());
         msg.setStringProperty(MESSAGE_ID, messageId);
+        msg.setStringProperty(MSH_ROLE, MSHRole.SENDING.name());
         msg.setStringProperty(MESSAGE_ENTITY_ID, entityId + "");
         msg.setStringProperty(MessageConstants.NOTIFICATION_TYPE, NotificationType.MESSAGE_RECEIVED.name());
         msg.setStringProperty(MessageConstants.ENDPOINT, "backendInterfaceEndpoint");

@@ -58,7 +58,7 @@ public class WSSendMessageListener implements MessageListener {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(Message message) {
         authUtils.runWithSecurityContext(()-> doOnMessage(message),
                 "wsplugin_backend_notif", "wsplugin_backend_notif", AuthRole.ROLE_ADMIN);

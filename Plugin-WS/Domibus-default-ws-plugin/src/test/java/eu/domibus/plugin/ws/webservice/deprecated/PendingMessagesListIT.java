@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
@@ -38,7 +39,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
 
         for (Pair<Long, String> messageId : messageIds) {
-            final JmsMessage message = new NotifyMessageCreator(messageId.getLeft(), messageId.getRight(), NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
+            final JmsMessage message = new NotifyMessageCreator(messageId.getLeft(), messageId.getRight(), MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
             jmsManager.sendMessageToQueue(message, WS_NOT_QUEUE);
         }
 

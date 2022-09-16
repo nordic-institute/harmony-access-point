@@ -10,6 +10,7 @@ import java.util.Map;
 public interface DomibusLogger extends Logger, MDCAccessor {
     String MDC_USER = "user";
     String MDC_MESSAGE_ID = "messageId";
+    String MDC_MESSAGE_ROLE = "messageMSHRole";
     String MDC_MESSAGE_ENTITY_ID = "messageEntityId";
     String MDC_BATCH_ENTITY_ID = "batchEntityId";
     String MDC_DOMAIN = "domain";

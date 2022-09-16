@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.usermessage;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.UserMessage;
+import eu.domibus.common.MSHRole;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -41,48 +42,84 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     @Override
     public UserMessageDTO getMessage(String messageId) throws MessageNotFoundException {
-        LOG.debug("Getting message with messageId[{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorization(messageId);
-        final UserMessage userMessage = userMessageCoreService.getMessage(messageId);
+        return getMessage(messageId, null);
+    }
+
+    @Override
+    public UserMessageDTO getMessage(String messageId, MSHRole role) throws MessageNotFoundException {
+        LOG.debug("Getting message with messageId [{}] and role [{}].", messageId, role);
+        
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
+
+        userMessageSecurityService.checkMessageAuthorization(messageId, mshRole);
+
+        final UserMessage userMessage = userMessageCoreService.getMessage(messageId, mshRole);
 
         if (userMessage == null) {
-            throw new MessageNotFoundException(String.format("Message [%s] was not found", messageId));
+            throw new MessageNotFoundException(String.format("Message [%s]-[%s] was not found", messageId, mshRole));
         }
         return domibusExtMapper.userMessageToUserMessageDTO(userMessage);
     }
 
     @Override
     public String getUserMessageEnvelope(String messageId) {
-        LOG.debug("Getting user message envelope with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        return getUserMessageEnvelope(messageId, null);
+    }
 
-        return userMessageCoreService.getUserMessageEnvelope(messageId);
+    @Override
+    public String getUserMessageEnvelope(String messageId, MSHRole role) {
+        LOG.debug("Getting user message envelope with messageId [{}].", messageId);
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
+
+        userMessageSecurityService.checkMessageAuthorization(messageId, mshRole);
+
+        return userMessageCoreService.getUserMessageEnvelope(messageId, mshRole);
     }
 
     @Override
     public String getSignalMessageEnvelope(String messageId) {
-        LOG.debug("Getting user message envelope with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorization(messageId);
+        return getSignalMessageEnvelope(messageId, null);
+    }
 
-        return userMessageCoreService.getSignalMessageEnvelope(messageId);
+    @Override
+    public String getSignalMessageEnvelope(String messageId, MSHRole role) {
+        LOG.debug("Getting user message envelope with messageId [{}].", messageId);
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
+
+        userMessageSecurityService.checkMessageAuthorization(messageId, mshRole);
+
+        return userMessageCoreService.getSignalMessageEnvelope(messageId, mshRole);
     }
 
     @Override
     public String getFinalRecipient(String messageId) {
-        LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        return getFinalRecipient(messageId, null);
+    }
 
-        return userMessageCoreService.getFinalRecipient(messageId);
+    @Override
+    public String getFinalRecipient(String messageId, MSHRole role) {
+        LOG.debug("Getting message final recipient with messageId [{}].", messageId);
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
+
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, mshRole);
+
+        return userMessageCoreService.getFinalRecipient(messageId, mshRole);
     }
 
     @Override
     public String getOriginalSender(String messageId) {
-        LOG.debug("Getting message final recipient with messageId [{}].", messageId);
-        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
-
-        return userMessageCoreService.getOriginalSender(messageId);
+        return getOriginalSender(messageId, null);
     }
 
+    @Override
+    public String getOriginalSender(String messageId, MSHRole role) {
+        LOG.debug("Getting message final recipient with messageId [{}].", messageId);
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
+
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, mshRole);
+
+        return userMessageCoreService.getOriginalSender(messageId, mshRole);
+    }
 
     @Override
     public void validateUserMessage(UserMessageDTO userMessage) throws UserMessageExtException {

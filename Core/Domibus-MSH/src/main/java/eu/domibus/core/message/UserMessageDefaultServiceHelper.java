@@ -5,10 +5,12 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Cosmin Baciu
@@ -18,6 +20,9 @@ import java.util.Map;
 public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultServiceHelper.class);
+
+    @Autowired
+    private UserMessageDao userMessageDao;
 
     @Override
     public String getOriginalSender(UserMessage userMessage) {
@@ -146,4 +151,14 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         }
         return result;
     }
+
+    @Override
+    public Map<String, String> getProperties(Long messageEntityId) {
+        HashMap<String, String> properties = new HashMap<>();
+        final UserMessage userMessage = userMessageDao.read(messageEntityId);
+        final Set<MessageProperty> propertiesForMessageId = userMessage.getMessageProperties();
+        propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
+        return properties;
+    }
+
 }

@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.dispatch;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -79,7 +80,7 @@ public class WSPluginMessageBuilder {
     public SOAPMessage buildSOAPMessageSubmit(final WSBackendMessageLogEntity messageLogEntity) {
         UserMessage userMessage = new UserMessage();
         try {
-            userMessage = wsPlugin.browseMessage(messageLogEntity.getMessageId(), userMessage);
+            userMessage = wsPlugin.browseMessage(messageLogEntity.getMessageId(), MSHRole.SENDING, userMessage);
         } catch (MessageNotFoundException e) {
             throw new WSPluginException("Domibus message could not be found with message id: [" + messageLogEntity.getMessageId() + "]", e);
         }

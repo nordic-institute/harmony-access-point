@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface PModeService {
 
-    LegConfiguration getLegConfiguration(String messageId) throws PModeException;
+    LegConfiguration getLegConfiguration(Long messageEntityId) throws PModeException;
 
     byte[] getPModeFile(long id);
 

@@ -37,8 +37,6 @@ public class WSPluginBackendReliabilityService {
 
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
 
-    protected final DomibusPropertyExtService domibusPropertyProvider;
-
     protected final WSPluginRetryStrategyProvider wsPluginRetryStrategyProvider;
 
     private final PluginEventExtService pluginEventExtService;
@@ -46,12 +44,10 @@ public class WSPluginBackendReliabilityService {
     private final WSPluginPropertyManager wsPluginPropertyManager;
 
     public WSPluginBackendReliabilityService(WSBackendMessageLogDao wsBackendMessageLogDao,
-                                             DomibusPropertyExtService domibusPropertyProvider,
                                              WSPluginRetryStrategyProvider wsPluginRetryStrategyProvider,
                                              PluginEventExtService pluginEventExtService,
                                              WSPluginPropertyManager wsPluginPropertyManager) {
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
-        this.domibusPropertyProvider = domibusPropertyProvider;
         this.wsPluginRetryStrategyProvider = wsPluginRetryStrategyProvider;
         this.pluginEventExtService = pluginEventExtService;
         this.wsPluginPropertyManager = wsPluginPropertyManager;

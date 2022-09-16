@@ -81,7 +81,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
      *
      * @param map The incoming JMS Message
      */
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = JMSPluginImpl.class, value = "receiveMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
@@ -163,15 +163,15 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
-        final ErrorResult errorResult = getErrorResult(event.getMessageId());
+        final ErrorResult errorResult = getErrorResult(event.getMessageId(), MSHRole.SENDING);
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errorResult, null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
 
         QueueContext queueContext = createQueueContext(event);
         sendJmsMessage(jmsMessageDTO, queueContext, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING);
     }
 
-    protected ErrorResult getErrorResult(String messageId) {
-        List<ErrorResult> errors = super.getErrorsForMessage(messageId);
+    protected ErrorResult getErrorResult(String messageId, MSHRole mshRole) {
+        List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
         if(CollectionUtils.isEmpty(errors)) {
             return null;
         }
@@ -240,7 +240,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         }
 
         @Override
-        @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+        @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
         public MapMessage createMessage(final Session session) throws JMSException {
             final MapMessage mapMessage = session.createMapMessage();
             try {

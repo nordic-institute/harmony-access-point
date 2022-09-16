@@ -303,7 +303,7 @@ public class WebServicePluginImpl implements BackendInterface {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
                                 Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
@@ -320,7 +320,6 @@ public class WebServicePluginImpl implements BackendInterface {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
-
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage userMessage =
                 getUserMessage(retrieveMessageRequest, trimmedMessageId);
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messagingWs =
@@ -417,6 +416,7 @@ public class WebServicePluginImpl implements BackendInterface {
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
+        // cannot know the msh role unless we add it on StatusRequest class
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
     }
 

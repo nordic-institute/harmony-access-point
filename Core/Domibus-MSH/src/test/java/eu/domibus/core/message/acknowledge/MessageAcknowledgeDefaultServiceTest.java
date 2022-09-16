@@ -1,5 +1,6 @@
 package eu.domibus.core.message.acknowledge;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDao;
@@ -58,7 +59,7 @@ public class MessageAcknowledgeDefaultServiceTest {
         final String localAccessPointId = "C3";
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.getUserMessage(messageId);
+            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
@@ -67,11 +68,11 @@ public class MessageAcknowledgeDefaultServiceTest {
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
-            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties);
+            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, localAccessPointId, finalRecipient, properties, true);
 
         }};
 
-        messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
+        messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties, true);
     }
 
 
@@ -81,14 +82,14 @@ public class MessageAcknowledgeDefaultServiceTest {
         final Timestamp acknowledgeTimestamp = new Timestamp(System.currentTimeMillis());
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
+            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null, true);
 
         }};
 
         messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp);
 
         new Verifications() {{
-            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null);
+            messageAcknowledgeDefaultService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, null, true);
         }};
     }
 
@@ -104,7 +105,7 @@ public class MessageAcknowledgeDefaultServiceTest {
         properties.put("prop1", "value1");
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgeDefaultService.getUserMessage(messageId);
+            messageAcknowledgeDefaultService.getUserMessage(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             messageAcknowledgeDefaultService.getLocalAccessPointId(userMessage);
@@ -113,7 +114,7 @@ public class MessageAcknowledgeDefaultServiceTest {
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
-            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties);
+            messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, finalRecipient, localAccessPointId, properties, true);
 
         }};
 
@@ -129,7 +130,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
 
         new Expectations(messageAcknowledgeDefaultService) {{
-            messageAcknowledgementDao.findByMessageId(messageId);
+            messageAcknowledgementDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = messageAcknowledgements;
 
         }};
@@ -162,7 +163,7 @@ public class MessageAcknowledgeDefaultServiceTest {
 
         }};
 
-        messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, from, to, properties);
+        messageAcknowledgeDefaultService.acknowledgeMessage(userMessage, acknowledgeTimestamp, from, to, properties, true);
 
         new Verifications() {{
             messageAcknowledgementDao.create(entity);

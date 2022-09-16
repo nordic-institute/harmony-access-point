@@ -118,13 +118,8 @@
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.javassist</groupId>
-                    <artifactId>javassist</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

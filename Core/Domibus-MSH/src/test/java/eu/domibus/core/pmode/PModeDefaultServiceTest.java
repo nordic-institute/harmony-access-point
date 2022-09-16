@@ -4,6 +4,7 @@ import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -40,13 +41,16 @@ public class PModeDefaultServiceTest {
     @Injectable
     PModeValidationHelper pModeValidationHelper;
 
+    @Injectable
+    MpcService mpcService;
+
     @Test
     public void testGetLegConfiguration(@Injectable final UserMessage userMessage,
                                         @Injectable final eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) throws Exception {
-        final String messageId = "1";
+        final Long messageEntityId = 1L;
         final MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("1", ",", "", "", "", "");
         new Expectations() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByEntityId(messageEntityId);
             result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean);
@@ -57,7 +61,7 @@ public class PModeDefaultServiceTest {
 
         }};
 
-        pModeDefaultService.getLegConfiguration(messageId);
+        pModeDefaultService.getLegConfiguration(messageEntityId);
 
         new Verifications() {{
             pModeDefaultService.convert(legConfigurationEntity);

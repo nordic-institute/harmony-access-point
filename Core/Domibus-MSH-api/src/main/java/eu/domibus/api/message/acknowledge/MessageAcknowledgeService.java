@@ -16,10 +16,11 @@ public interface MessageAcknowledgeService {
      * @param messageId            The message id for which the acknowledgement is registered
      * @param acknowledgeTimestamp Timestamp of the acknowledged time
      * @param properties           Custom properties of the message acknowledgment
+     * @param markAsAcknowledged   If true change the status of the message to acknowledged
      * @return The newly created message acknowledgement
      * @throws MessageAcknowledgeException Raised in case an exception occurs while trying to register an acknowledgment
      */
-    MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties) throws MessageAcknowledgeException;
+    MessageAcknowledgement acknowledgeMessageDelivered(String messageId, Timestamp acknowledgeTimestamp, Map<String, String> properties, boolean markAsAcknowledged) throws MessageAcknowledgeException;
 
     /**
      * Acknowledges that a message has been delivered to the backend

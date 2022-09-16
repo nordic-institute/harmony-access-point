@@ -102,10 +102,9 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     public MessagingLock getLock(final String messageId) {
         try {
             LOG.debug("Message[{}] Getting lock", messageId);
-            Query q = entityManager.createNamedQuery("MessagingLock.lockByMessageId",
-                    MessagingLock.class);
+            TypedQuery<MessagingLock> q = entityManager.createNamedQuery("MessagingLock.lockByMessageId", MessagingLock.class);
             q.setParameter(1, messageId);
-            return (MessagingLock) q.getSingleResult();
+            return q.getSingleResult();
         } catch (NoResultException nr) {
             LOG.trace("Message:[{}] lock not found. It is has been removed by another process.", messageId, nr);
             return null;
@@ -154,18 +153,6 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
     public List<MessagingLock> findDeletedMessages() {
         TypedQuery<MessagingLock> query = entityManager.createNamedQuery("MessagingLock.findDeletedMessages", MessagingLock.class);
         return query.getResultList();
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public List<MessagingLock> findReadyToPull(final String mpc, final String initiator) {
-        final TypedQuery<MessagingLock> namedQuery = entityManager.createNamedQuery("MessagingLock.findReadyToPull", MessagingLock.class);
-        namedQuery.setFirstResult(0);
-        namedQuery.setMaxResults(50);
-        namedQuery.setParameter(MPC, mpc);
-        namedQuery.setParameter(CURRENT_TIMESTAMP, dateUtil.getUtcDate());
-        namedQuery.setParameter(INITIATOR, initiator);
-        return namedQuery.getResultList();
     }
 
     @Override

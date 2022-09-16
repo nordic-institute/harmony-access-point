@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
 import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -154,6 +155,7 @@ public class SoapInterceptorTest {
         bus.setExtension(new PolicyBuilderImpl(bus), PolicyBuilder.class);
         exchange.put(Bus.class, bus);
         exchange.put(DispatchClientDefaultProvider.MESSAGE_ID, "123123123");
+        exchange.put(DispatchClientDefaultProvider.MESSAGE_ROLE, MSHRole.SENDING.name());
         exchange.put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.USER_MESSAGE);
         msg.setExchange(exchange);
 

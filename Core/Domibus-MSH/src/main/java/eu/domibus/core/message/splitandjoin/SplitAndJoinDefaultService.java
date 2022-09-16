@@ -187,7 +187,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         messageGroupEntity.setSoapAction(StringUtils.EMPTY);
-        final UserMessage dbUserMessage = userMessageDao.findByMessageId(userMessage.getMessageId());
+        final UserMessage dbUserMessage = userMessageDao.findByEntityId(userMessage.getEntityId());
         messageGroupEntity.setSourceMessage(dbUserMessage);
 
         MessageExchangeConfiguration userMessageExchangeConfiguration;
@@ -270,7 +270,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void sendSourceMessageReceipt(String sourceMessageId, String pModeKey) {
         SOAPMessage receiptMessage;
         try {
-            receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, false);
+            receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.SENDING, false);
         } catch (EbMS3Exception e) {
             throw new SplitAndJoinException("Error generating the source message receipt", e);
         }
@@ -394,13 +394,13 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void setUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Setting the UserMessage fragment [{}] as failed", messageId);
 
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
         if (userMessage == null) {
             LOG.error("UserMessage not found for message [{}]: could not mark the message as failed", messageId);
             return;
         }
 
-        final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.RECEIVING);
         if (messageLog == null) {
             LOG.error("UserMessageLogEntity not found for message [{}]: could not mark the message as failed", messageId);
             return;
@@ -507,7 +507,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         final String messageId = userMessage.getMessageId();
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, userMessage.getMshRole().getRole());
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
@@ -551,7 +551,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         sendSplitAndJoinFailed(groupId);
 
         final List<UserMessage> groupUserMessages = userMessageDao.findUserMessageByGroupId(groupId);
-        groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId()));
+        groupUserMessages.forEach(userMessage ->
+                userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId(), userMessage.getMshRole().getRole()));
 
         LOG.debug("Creating error entry for message [{}]", groupId);
         errorLogService.createErrorLog(groupId, ErrorCode.EBMS_0004, "[SPLIT] " + errorDetail, MSHRole.SENDING, groupUserMessages.stream().findAny().orElse(null));

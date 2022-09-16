@@ -3,7 +3,7 @@
 <databaseChangeLog
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
 
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
@@ -29,6 +29,11 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
+    </changeSet>
+
+    <changeSet author="Razvan Cretu"  id="EDELIVERY-10064-mysql-migration-plans-are-failing">
+        <addNotNullConstraint tableName="TB_COMMAND_PROPERTY" columnName="FK_COMMAND" columnDataType="BIGINT"/>
+        <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
     </changeSet>
 
     <changeSet author="Lucian Furca" id="EDELIVERY-9686_security_profile">

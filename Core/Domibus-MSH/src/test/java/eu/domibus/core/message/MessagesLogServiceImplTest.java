@@ -97,33 +97,4 @@ public class MessagesLogServiceImplTest {
         Assert.assertEquals(resultList.size(), res.getMessageLogEntries().size());
     }
 
-    @Test
-    public void findUserMessageById() {
-        String userMessageId = "id1";
-        int from = 0, max = 1;
-        String column = null;
-        boolean asc = true;
-        HashMap<String, Object> filters = new HashMap<>();
-        long numberOfLogs = 1;
-        MessageLogInfo item1 = new MessageLogInfo();
-        MessageLogRO converted = new MessageLogRO();
-        filters.put("messageId", userMessageId);
-        List<MessageLogInfo> resultList = Arrays.asList(item1);
-        List<MessageLogRO> convertedList = Arrays.asList(converted);
-
-        new Expectations(messagesLogServiceImpl) {{
-            messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
-            result = numberOfLogs;
-            userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
-            result = resultList;
-            messageCoreConverter.messageLogInfoToMessageLogRO(item1);
-            result = converted;
-            messagesLogServiceImpl.setCanDownloadMessageAndEnvelope(convertedList);
-            result = convertedList;
-        }};
-
-        MessageLogRO res = messagesLogServiceImpl.findUserMessageById(userMessageId);
-
-        Assert.assertEquals(converted, res);
-    }
 }

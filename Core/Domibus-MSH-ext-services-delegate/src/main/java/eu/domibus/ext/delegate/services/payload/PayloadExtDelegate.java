@@ -8,6 +8,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.usermessage.UserMessageLogService;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.common.MSHRole;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.PartInfoDTO;
@@ -66,8 +67,9 @@ public class PayloadExtDelegate implements PayloadExtService {
     }
 
     @Override
-    public PartInfoDTO getPayload(String messageId, String cid) throws PayloadExtException {
-        final UserMessage userMessage = userMessageService.getMessageEntity(messageId);
+    public PartInfoDTO getPayload(String messageId, MSHRole role, String cid) throws PayloadExtException {
+        eu.domibus.api.model.MSHRole mshRole = role != null ? eu.domibus.api.model.MSHRole.valueOf(role.name()) : null;
+        final UserMessage userMessage = userMessageService.getMessageEntity(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

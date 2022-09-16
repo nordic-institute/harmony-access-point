@@ -175,7 +175,7 @@ public class PullMessageEbms3ServiceImplTest {
         assertEquals(messageId, returnedMessageId);
 
         new FullVerifications() {{
-            userMessageDao.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             rawEnvelopeLogDao.deleteUserMessageRawEnvelope(id);
         }};
 

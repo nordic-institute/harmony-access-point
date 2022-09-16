@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
@@ -25,14 +26,14 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSecurityDefaultService.class);
 
-    protected AuthUtils authUtils;
-    protected UserMessageService userMessageService;
-    protected UserMessageServiceHelper userMessageServiceHelper;
+    protected final AuthUtils authUtils;
+    protected final UserMessageServiceHelper userMessageServiceHelper;
+    protected final UserMessageDao userMessageDao;
 
-    public UserMessageSecurityDefaultService(AuthUtils authUtils, UserMessageService userMessageService, UserMessageServiceHelper userMessageServiceHelper) {
+    public UserMessageSecurityDefaultService(AuthUtils authUtils, UserMessageServiceHelper userMessageServiceHelper, UserMessageDao userMessageDao) {
         this.authUtils = authUtils;
-        this.userMessageService = userMessageService;
         this.userMessageServiceHelper = userMessageServiceHelper;
+        this.userMessageDao = userMessageDao;
     }
 
     @Override
@@ -101,23 +102,42 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
     }
 
     public void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId) {
-        UserMessage userMessage = userMessageService.findByEntityId(messageEntityId);
+        UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageEntityId);
         }
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
-    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
-        UserMessage userMessage = userMessageService.findByMessageId(messageId);
+    @Override
+    public void checkMessageAuthorization(String messageId, MSHRole mshRole) {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }
         validateUserAccessWithUnsecureLoginAllowed(userMessage);
     }
 
+    // we keep this for back-ward compatibility
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    }
+
+    public void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
+        if (userMessage == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+        validateUserAccessWithUnsecureLoginAllowed(userMessage);
+    }
+
+    // we keep this for now
     public void checkMessageAuthorization(String messageId) {
-        UserMessage userMessage = userMessageService.findByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

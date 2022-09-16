@@ -11,6 +11,7 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,8 @@ public class ErrorLogDaoIT extends AbstractIT {
 
     @Before
     public void setUp() {
+        errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
+
         createErrorLog(MSHRole.SENDING, "messageId_123", ErrorCode.EBMS_0003, "error test 4", new Date());
         createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0001, "error test 1", DateUtils.addDays(new Date(), -1));
         createErrorLog(MSHRole.SENDING, null, ErrorCode.EBMS_0002, "error test 2", DateUtils.addDays(new Date(), -2));
@@ -69,7 +72,6 @@ public class ErrorLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void test_deleteErrorLogsWithoutMessageIdOlderThan() {
-
         int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
         Assert.assertEquals(2, result);
     }

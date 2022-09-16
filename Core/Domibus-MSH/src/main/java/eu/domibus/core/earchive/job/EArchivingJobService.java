@@ -235,7 +235,7 @@ public class EArchivingJobService {
         List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
 
         for (EArchiveBatchUserMessage userMessageDto : messagesNotFinalAsc) {
-            MessageStatus messageStatus = userMessageLogDao.getMessageStatus(userMessageDto.getMessageId());
+            MessageStatus messageStatus = userMessageLogDao.getMessageStatus(userMessageDto.getUserMessageEntityId());
             LOG.debug("Message [{}] has status [{}]", userMessageDto.getMessageId(), messageStatus);
             eArchivingEventService.sendEventMessageNotFinal(userMessageDto.getMessageId(), messageStatus);
         }

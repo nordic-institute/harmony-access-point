@@ -23,11 +23,6 @@ public class MessageConfig {
     }
 
     @Bean
-    public MessageInfoDao messageInfoDao() {
-        return new MessageInfoDao();
-    }
-
-    @Bean
     public MessageStatusDao messageStatusDao() {
         return new MessageStatusDao();
     }

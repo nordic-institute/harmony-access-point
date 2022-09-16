@@ -1,5 +1,6 @@
 package eu.domibus.api.message;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthenticationException;
 
@@ -19,6 +20,8 @@ public interface UserMessageSecurityService {
      */
     void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId) throws AuthenticationException;
 
+    void checkMessageAuthorizationWithUnsecureLoginAllowed(String messageId, MSHRole mshRole) throws AuthenticationException;
+
     void checkMessageAuthorization(String messageId) throws AuthenticationException;
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(UserMessage userMessage) throws AuthenticationException;
@@ -28,5 +31,7 @@ public interface UserMessageSecurityService {
     void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName);
 
     void checkMessageAuthorizationWithUnsecureLoginAllowed(final Long messageEntityId);
+
+    void checkMessageAuthorization(String messageId, MSHRole mshRole);
 
 }

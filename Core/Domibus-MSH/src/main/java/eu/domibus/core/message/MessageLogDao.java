@@ -17,7 +17,6 @@ import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
 import java.util.*;
 
-
 /**
  * @param <F> MessageLog type: either UserMessageLog or SignalMessageLog
  * @author Federico Martini

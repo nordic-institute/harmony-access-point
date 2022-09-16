@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 
 import eu.domibus.ITTestsService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -65,7 +66,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
         deleteAllMessages();
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        Assert.assertNull(userMessageLogDao.findByMessageId(messageId));
+        Assert.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
     }
 
 }

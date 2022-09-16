@@ -43,8 +43,11 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.logging.DomibusMessageCode.BUS_MSG_NOT_FOUND;
 import static eu.domibus.messaging.MessageConstants.PAYLOAD_PROPERTY_FILE_PATH;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
+import static org.apache.commons.lang3.BooleanUtils.toBooleanDefaultIfNull;
+import static org.apache.commons.lang3.BooleanUtils.toBooleanObject;
 
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
@@ -150,7 +153,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         return response;
     }
 
-    public UserMessage getUserMessage(String messageId) {
+    public UserMessage downloadUserMessage(String messageId) {
         UserMessage userMessage;
         try {
             userMessage = wsPlugin.downloadMessage(messageId, null);
@@ -413,30 +416,63 @@ public class WebServiceImpl implements WebServicePluginInterface {
     }
 
     /**
+     * The message status is updated to downloaded (the message is not removed from the plugin table containing the pending messages so it can be downloaded using retrieveMessage
+     * @param markMessageAsDownloadedRequest
+     * @param markMessageAsDownloadedResponse
+     * @param ebMSHeaderInfo
+     * @throws eu.domibus.plugin.webService.generated.MarkMessageAsDownloadedFault
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    public void markMessageAsDownloaded(MarkMessageAsDownloadedRequest markMessageAsDownloadedRequest,
+                                        Holder<MarkMessageAsDownloadedResponse> markMessageAsDownloadedResponse,
+                                        Holder<Messaging> ebMSHeaderInfo) throws MarkMessageAsDownloadedFault {
+
+        String messageID = markMessageAsDownloadedRequest.getMessageID();
+        if (StringUtils.isEmpty(messageID)) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new MarkMessageAsDownloadedFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+        }
+
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(messageID);
+        WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
+        if (wsMessageLogEntity == null) {
+            LOG.businessError(BUS_MSG_NOT_FOUND, trimmedMessageId);
+            throw new MarkMessageAsDownloadedFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
+        }
+        markMessageAsDownloaded(trimmedMessageId);
+
+        markMessageAsDownloadedResponse.value =  WEBSERVICE_OF.createMarkMessageAsDownloadedResponse();
+        markMessageAsDownloadedResponse.value.setMessageID(trimmedMessageId);
+    }
+
+    /**
      * Add support for large files using DataHandler instead of byte[]
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
                                 Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
         UserMessage userMessage;
-        boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
+        boolean messageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
 
-        if (!isMessageIdNotEmpty) {
+        if (!messageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
+        boolean markAsDownloaded = toBooleanDefaultIfNull(toBooleanObject(retrieveMessageRequest.getMarkAsDownloaded()), true);  //workaround jaxws bug
         WSMessageLogEntity wsMessageLogEntity = wsMessageLogService.findByMessageId(trimmedMessageId);
-        if (wsMessageLogEntity == null) {
-            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
+        if (markAsDownloaded && wsMessageLogEntity == null) {
+            LOG.businessError(BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
 
-        userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
+        userMessage = downloadUserMessage(trimmedMessageId, markAsDownloaded);
 
         // To avoid blocking errors during the Header's response validation
         if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
@@ -450,34 +486,47 @@ public class WebServiceImpl implements WebServicePluginInterface {
         fillInfoPartsForLargeFiles(retrieveMessageResponse, messaging);
 
         try {
-            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
+            messageAcknowledgeExtService.acknowledgeMessageDeliveredWithUnsecureLoginAllowed(trimmedMessageId, new Timestamp(System.currentTimeMillis()), markAsDownloaded);
         } catch (AuthenticationExtException | MessageAcknowledgeExtException e) {
             //if an error occurs related to the message acknowledgement do not block the download message operation
             LOG.error("Error acknowledging message [" + retrieveMessageRequest.getMessageID() + "]", e);
         }
-
-        // remove downloaded message from the plugin table containing the pending messages
-        wsMessageLogService.delete(wsMessageLogEntity);
+        if (markAsDownloaded) {
+            // remove downloaded message from the plugin table containing the pending messages
+            wsMessageLogService.delete(wsMessageLogEntity);
+        }
     }
 
-    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws
+    private UserMessage downloadUserMessage(String trimmedMessageId, boolean markAsAcknowledged) throws
             RetrieveMessageFault {
         UserMessage userMessage;
         try {
             userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
         } catch (final MessageNotFoundException mnfEx) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
+                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
             }
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
 
         if (userMessage == null) {
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            LOG.error(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]");
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(trimmedMessageId));
         }
         return userMessage;
+    }
+
+    private void markMessageAsDownloaded(String trimmedMessageId) throws MarkMessageAsDownloadedFault {
+        try {
+            wsPlugin.markMessageAsDownloaded(trimmedMessageId);
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
+            }
+            LOG.businessError(BUS_MSG_NOT_FOUND, trimmedMessageId);
+            throw new MarkMessageAsDownloadedFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
+        }
     }
 
     private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging
@@ -528,6 +577,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
+        // cannot know the msh role unless we add it on StatusRequest class
         return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
     }
 
@@ -538,7 +588,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID());
         } catch (Exception e) {
-            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
+            LOG.businessError(BUS_MSG_NOT_FOUND, messageErrorsRequest.getMessageID());
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageErrorsRequest.getMessageID() + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageErrorsRequest.getMessageID()));
         }
         return transformFromErrorResults(errorsForMessage);

@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -27,6 +28,9 @@ public class UserMessageSecurityDefaultServiceTest {
     UserMessageService userMessageService;
 
     @Injectable
+    UserMessageDao userMessageDao;
+
+    @Injectable
     AuthUtils authUtils;
 
     @Injectable
@@ -37,25 +41,25 @@ public class UserMessageSecurityDefaultServiceTest {
     public void testCheckMessageAuthorizationWithNonExistingMessage() {
         final String messageId = "1";
         new Expectations() {{
-            userMessageService.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = null;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
     }
 
     @Test
     public void testCheckMessageAuthorizationWithExistingMessage(@Injectable UserMessage userMessage) {
         final String messageId = "1";
         new Expectations(userMessageSecurityDefaultService) {{
-            userMessageService.findByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessage;
 
             userMessageSecurityDefaultService.validateUserAccessWithUnsecureLoginAllowed(userMessage);
             times = 1;
         }};
 
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
 
     }
 

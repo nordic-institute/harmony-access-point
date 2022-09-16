@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3Receipt;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -72,7 +73,7 @@ public class PullReceiptListener implements MessageListener {
     protected ReceiptDao receiptDao;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     @Counter(clazz = PullReceiptListener.class, value = "outgoing_pull_receipt")
     public void onMessage(final Message message) {
@@ -98,8 +99,8 @@ public class PullReceiptListener implements MessageListener {
             final Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             final Policy policy = policyService.getPolicy(legConfiguration);
 
-            final ReceiptEntity receipt = receiptDao.findBySignalRefToMessageId(refToMessageId);
-
+            final ReceiptEntity receipt = receiptDao.findBySignalRefToMessageIdAndRole(refToMessageId, MSHRole.SENDING);
+            LOG.debug("Found receipt [{}]", receipt != null ? receipt.getSignalMessage() : null);
             int retryCount = 0;
             try {
                 if (message.propertyExists(MessageConstants.RETRY_COUNT)) {
@@ -122,9 +123,6 @@ public class PullReceiptListener implements MessageListener {
                 return;
             }
 
-            if (pModeProvider.checkSelfSending(pModeKey)) {
-                removeSelfSendingPrefix(receipt.getSignalMessage());
-            }
             final Ebms3SignalMessage ebms3SignalMessage = convert(receipt.getSignalMessage(), receipt);
             SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(ebms3SignalMessage, legConfiguration);
             pullReceiptSender.sendReceipt(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey, refToMessageId, domainCode);
@@ -135,7 +133,7 @@ public class PullReceiptListener implements MessageListener {
 
         LOG.trace("[PullReceiptListener] ~~~ The end of onMessage ~~~");
     }
-    
+
     protected Ebms3SignalMessage convert(SignalMessage signalMessage, ReceiptEntity receiptEntity) {
         Ebms3SignalMessage result = new Ebms3SignalMessage();
         Ebms3MessageInfo ebms3MessageInfo = new Ebms3MessageInfo();
@@ -146,19 +144,8 @@ public class PullReceiptListener implements MessageListener {
         Ebms3Receipt receipt = new Ebms3Receipt();
         receipt.getAny().add(new String(receiptEntity.getRawXML(), StandardCharsets.UTF_8));
         result.setReceipt(receipt);
-        
+
         return result;
-    }
-
-    protected void removeSelfSendingPrefix(SignalMessage signalMessage) {
-        if (signalMessage == null) {
-            return;
-        }
-        String messageId = removePrefix(signalMessage.getSignalMessageId(), UserMessageHandlerService.SELF_SENDING_SUFFIX);
-        String refToMessageId = removePrefix(signalMessage.getRefToMessageId(), UserMessageHandlerService.SELF_SENDING_SUFFIX);
-
-        signalMessage.setSignalMessageId(messageId);
-        signalMessage.setRefToMessageId(refToMessageId);
     }
 
     protected String removePrefix(String messageId, String prefix) {

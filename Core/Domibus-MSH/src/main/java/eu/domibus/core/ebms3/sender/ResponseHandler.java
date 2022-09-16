@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
@@ -13,6 +14,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
@@ -39,8 +41,9 @@ public class ResponseHandler {
     private final SignalMessageDao signalMessageDao;
     protected final MessageUtil messageUtil;
     private final ErrorLogService errorLogService;
-    protected Ebms3Converter ebms3Converter;
-    protected UserMessageDao userMessageDao;
+    protected final Ebms3Converter ebms3Converter;
+    protected final UserMessageDao userMessageDao;
+    protected final MshRoleDao mshRoleDao;
 
     public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
                            NonRepudiationService nonRepudiationService,
@@ -48,7 +51,7 @@ public class ResponseHandler {
                            MessageUtil messageUtil,
                            ErrorLogService errorLogService,
                            Ebms3Converter ebms3Converter,
-                           UserMessageDao userMessageDao) {
+                           UserMessageDao userMessageDao, MshRoleDao mshRoleDao) {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
         this.nonRepudiationService = nonRepudiationService;
         this.signalMessageDao = signalMessageDao;
@@ -56,6 +59,7 @@ public class ResponseHandler {
         this.errorLogService = errorLogService;
         this.ebms3Converter = ebms3Converter;
         this.userMessageDao = userMessageDao;
+        this.mshRoleDao = mshRoleDao;
     }
 
     public ResponseResult verifyResponse(final SOAPMessage response, String messageId) throws EbMS3Exception {
@@ -90,10 +94,12 @@ public class ResponseHandler {
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
         final eu.domibus.api.model.SignalMessage signalMessage = signalMessageResult.getSignalMessage();
-
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.RECEIVING);
+        signalMessage.setMshRole(mshRoleEntity);
 
         // Stores the signal message
-        signalMessage.setUserMessage(userMessageDao.findByReference(userMessage.getEntityId()));
+        UserMessage message = userMessageDao.findByReference(userMessage.getEntityId());
+        signalMessage.setUserMessage(message);
         signalMessageDao.create(signalMessage);
 
         nonRepudiationService.saveResponse(response, signalMessage.getEntityId());

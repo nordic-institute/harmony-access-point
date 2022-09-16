@@ -2,6 +2,7 @@ package eu.domibus.core.message;
 
 
 import eu.domibus.ITTestsService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -50,7 +51,7 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
      * Test to delete a sent success message
      */
     @Test
-    public void testDeleteSentMessage() throws MessagingProcessingException, IOException {
+    public void testDeleteSentMessage() throws MessagingProcessingException {
         deleteAllMessages();
 
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
@@ -68,6 +69,6 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
         deleteAllMessages();
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        Assert.assertNull(userMessageLogDao.findByMessageId(messageId));
+        Assert.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
     }
 }

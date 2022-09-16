@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender.retry;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageDao;
@@ -136,7 +137,7 @@ public class RetryDefaultService implements RetryService {
     }
 
     /**
-     * Method call by job to reset waiting_for_receipt messages into ready to pull.
+     * Method called by job to reset waiting_for_receipt messages into ready to pull.
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -157,7 +158,7 @@ public class RetryDefaultService implements RetryService {
         final List<MessagingLock> expiredMessages = messagingLockDao.findStaledMessages();
         LOG.trace("Delete expired pull message");
         for (MessagingLock staledMessage : expiredMessages) {
-            pullMessageService.expireMessage(staledMessage.getMessageId());
+            pullMessageService.expireMessage(staledMessage.getMessageId(), MSHRole.SENDING);
         }
     }
 

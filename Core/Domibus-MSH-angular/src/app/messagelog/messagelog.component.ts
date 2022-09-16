@@ -42,10 +42,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
-  static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
-  static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
+  static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}&mshRole=${mshRole}';
+  static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}&mshRole=${mshRole}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
-  static readonly DOWNLOAD_ENVELOPE_URL: string = 'rest/message/envelopes?messageId=${messageId}';
+  static readonly DOWNLOAD_ENVELOPE_URL: string = 'rest/message/envelopes?messageId=${messageId}&mshRole=${mshRole}';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
@@ -420,9 +420,14 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private async downloadMessage(row) {
     const messageId = row.messageId;
-    let canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+    const mshRole = row.mshRole;
+    let canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL
+      .replace('${messageId}', encodeURIComponent(messageId))
+      .replace('${mshRole}', mshRole);
     this.http.get(canDownloadUrl).subscribe(res => {
-      const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+      const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL
+        .replace('${messageId}', encodeURIComponent(messageId))
+        .replace('${mshRole}', mshRole);
       DownloadService.downloadNative(downloadUrl);
     }, err => {
       if (err.error.message.includes('Message content is no longer available for message id')) {
@@ -434,20 +439,21 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   downloadEnvelopeAction(row: MessageLogEntry) {
     if (row.messageType == 'USER_MESSAGE') {
-      this.downloadEnvelopesForUserMessage(row.messageId);
+      this.downloadEnvelopesForUserMessage(row.messageId, row.mshRole);
     } else {
-      this.downloadEnvelopesForSignalMessage(row);
+      this.downloadEnvelopesForSignalMessage(row, row.mshRole);
     }
   }
 
-  private downloadEnvelopesForSignalMessage(row) {
-    this.downloadEnvelopesForUserMessage(row.refToMessageId);
+  private downloadEnvelopesForSignalMessage(row, mshRole) {
+    this.downloadEnvelopesForUserMessage(row.refToMessageId, mshRole);
   }
 
-  private async downloadEnvelopesForUserMessage(messageId) {
+  private async downloadEnvelopesForUserMessage(messageId, mshRole) {
     try {
       const downloadUrl = MessageLogComponent.DOWNLOAD_ENVELOPE_URL
-        .replace('${messageId}', encodeURIComponent(messageId));
+        .replace('${messageId}', encodeURIComponent(messageId))
+        .replace('${mshRole}', mshRole);
       const res = await this.http.get(downloadUrl, {responseType: 'arraybuffer' as 'json'}).toPromise();
       if (!res) {
         this.alertService.error('Could not find envelopes to download.');

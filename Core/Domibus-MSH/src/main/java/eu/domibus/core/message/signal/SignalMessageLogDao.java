@@ -34,12 +34,6 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         this.signalMessageLogInfoFilter = signalMessageLogInfoFilter;
     }
 
-    public SignalMessageLog findByMessageId(String messageId) {
-        TypedQuery<SignalMessageLog> query = em.createNamedQuery("SignalMessageLog.findByMessageId", SignalMessageLog.class);
-        query.setParameter("MESSAGE_ID", messageId);
-        return query.getSingleResult();
-    }
-
     public SignalMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<SignalMessageLog> query = em.createNamedQuery("SignalMessageLog.findByMessageIdAndRole", SignalMessageLog.class);
         query.setParameter("MESSAGE_ID", messageId);
@@ -62,7 +56,6 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         LOG.trace("deleteSignalMessageLogs result [{}]", result);
         return result;
     }
-
 
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return signalMessageLogInfoFilter;

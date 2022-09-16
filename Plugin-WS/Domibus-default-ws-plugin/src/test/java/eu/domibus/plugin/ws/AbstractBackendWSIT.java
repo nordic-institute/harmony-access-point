@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
@@ -106,7 +107,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
                 .withRequestBody(matching(".*"))
                 .withHeader("Content-Type", notMatching("application/soap+xml")));
 
-        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
+        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId, MSHRole.SENDING);
         Assert.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
 
     }
@@ -128,7 +129,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
                 .withRequestBody(matching(".*"))
                 .withHeader("Content-Type", notMatching("application/soap+xml")));
 
-        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
+        final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId, MSHRole.SENDING);
         Assert.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
 
     }
@@ -359,20 +360,21 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         return null;
     }
 
-    protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+    protected void waitUntilMessageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS)
+                .until(messageHasStatus(messageId, mshRole, messageStatus));
     }
 
-    protected Callable<Boolean> messageHasStatus(String messageId, MessageStatus messageStatus) {
-        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId);
+    protected Callable<Boolean> messageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
+        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId, mshRole);
     }
 
     protected void waitUntilMessageIsInWaitingForRetry(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.WAITING_FOR_RETRY);
+        waitUntilMessageHasStatus(messageId, MSHRole.SENDING, MessageStatus.WAITING_FOR_RETRY);
     }
 
     public void waitUntilMessageIsReceived(String messageId) {
-        waitUntilMessageHasStatus(messageId, MessageStatus.RECEIVED);
+        waitUntilMessageHasStatus(messageId, MSHRole.RECEIVING, MessageStatus.RECEIVED);
     }
 
     public void createEntityAndFlush(List<WSBackendMessageLogEntity> entities) {
@@ -397,7 +399,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         entity.setSendAttempts(1);
         entity.setSendAttemptsMax(3);
         entity.setNextAttempt(yesterday());
-        if(localDateTime != null) {
+        if (localDateTime != null) {
             entity.setCreationTime(getDate(localDateTime));
         }
         return entity;

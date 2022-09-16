@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -25,13 +26,17 @@ public class UserMessageRollbackListener {
     /**
      * On transaction rollback, the message status is reverted from DOWNLOADED to RECEIVED, add a business log for it.
      */
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
     public void handleEvent(UserMessageDownloadEvent downloadEvent) {
         final String messageId = downloadEvent.getMessageId();
+        final String messageRole = downloadEvent.getMshRole();
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_ROLLBACK, "USER_MESSAGE", MessageStatus.RECEIVED);
+        if (StringUtils.isNotBlank(messageRole)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, messageRole);
+        }
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_ROLLBACK, "USER_MESSAGE", MSHRole.valueOf(messageRole));
     }
 }

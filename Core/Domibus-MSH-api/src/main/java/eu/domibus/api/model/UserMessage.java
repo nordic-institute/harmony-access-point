@@ -15,6 +15,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = "UserMessage.findByGroupEntityId", query = "select mg.sourceMessage from MessageGroupEntity mg where mg.entityId=:ENTITY_ID"),
         @NamedQuery(name = "UserMessage.findByMessageId", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "UserMessage.findByMessageIdAndRole", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID and um.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "UserMessage.deleteMessages", query = "delete from UserMessage mi where mi.entityId in :IDS"),
         @NamedQuery(name = "UserMessage.findUserMessageByGroupId",
                 query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
@@ -54,6 +55,10 @@ public class UserMessage extends AbstractBaseEntity {
     @Column(name = "MESSAGE_ID", nullable = false, unique = true, updatable = false)
     @NotNull
     protected String messageId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "MSH_ROLE_ID_FK")
+    private MSHRoleEntity mshRole;
 
     @Column(name = "REF_TO_MESSAGE_ID")
     protected String refToMessageId;
@@ -237,10 +242,19 @@ public class UserMessage extends AbstractBaseEntity {
         this.messageFragment = messageFragment;
     }
 
+    public MSHRoleEntity getMshRole() {
+        return mshRole;
+    }
+
+    public void setMshRole(MSHRoleEntity mshRole) {
+        this.mshRole = mshRole;
+    }
+
     @Override
     public String toString() {
         return "UserMessage{" +
                 "messageId='" + messageId + '\'' +
+                ", mshRole='" + (mshRole == null ? null : mshRole.getRole()) + '\'' +
                 ", refToMessageId='" + refToMessageId + '\'' +
                 ", conversationId='" + conversationId + '\'' +
                 ", timestamp=" + timestamp +

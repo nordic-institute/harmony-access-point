@@ -1,10 +1,7 @@
 package eu.domibus.core.converter;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
-import eu.domibus.api.model.From;
-import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.To;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.web.rest.ro.MessageLogRO;
@@ -44,6 +41,9 @@ public class MessageCoreMapperTest extends AbstractMapperTest {
     @Test
     public void convertUserMessage() {
         UserMessage toConvert = (UserMessage) objectService.createInstance(UserMessage.class);
+        MSHRoleEntity roleE = new MSHRoleEntity();
+        roleE.setRole(MSHRole.SENDING);
+        toConvert.setMshRole(roleE);
         final eu.domibus.api.usermessage.domain.UserMessage converted = messageCoreMapper.userMessageToUserMessageApi(toConvert);
         final UserMessage convertedBack = messageCoreMapper.userMessageApiToUserMessage(converted);
 

@@ -6,6 +6,7 @@ import java.util.List;
  * @author Thomas Dussart
  * @since 3.3.4
  */
+
 public interface MessagingLockDao {
 
     PullMessageId getNextPullMessageToProcess(String initiator, String mpc);
@@ -23,8 +24,6 @@ public interface MessagingLockDao {
     List<MessagingLock> findStaledMessages();
 
     List<MessagingLock> findDeletedMessages();
-
-    List<MessagingLock> findReadyToPull(String mpc, String initiator);
 
     List<MessagingLock> findWaitingForReceipt();
 

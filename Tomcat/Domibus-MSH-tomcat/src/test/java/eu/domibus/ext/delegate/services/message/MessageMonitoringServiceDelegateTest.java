@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -85,7 +86,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getFailedMessageInterval(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             userMessageService.getFailedMessageElapsedTime(messageId);
         }};
     }
@@ -114,7 +115,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.restoreFailedMessage(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             restoreService.restoreFailedMessage(messageId);
         }};
     }
@@ -126,7 +127,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.deleteFailedMessage(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             userMessageService.deleteFailedMessage(messageId);
         }};
     }
@@ -143,7 +144,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getAttemptsHistory(messageId);
 
         new Verifications() {{
-            userMessageSecurityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
             messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
         }};
     }
@@ -173,7 +174,7 @@ public class MessageMonitoringServiceDelegateTest {
 
         new Verifications() {{
             userMessageSecurityService.checkMessageAuthorization(messageId);
-            userMessageService.deleteMessageNotInFinalStatus(messageId);
+            userMessageService.deleteMessageNotInFinalStatus(messageId, MSHRole.SENDING);
         }};
     }
 }

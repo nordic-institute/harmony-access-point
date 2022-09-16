@@ -1,5 +1,6 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
@@ -47,7 +48,6 @@ public class RetentionListener implements MessageListener {
     }
 
     protected void onMessagePrivate(final Message message) {
-
         try {
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             LOG.debug("Processing JMS message for domain [{}]", domainCode);
@@ -56,8 +56,9 @@ public class RetentionListener implements MessageListener {
             MessageDeleteType deleteType = MessageDeleteType.valueOf(message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE));
             if (MessageDeleteType.SINGLE == deleteType) {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
-                LOG.debug("Delete one message [{}]", messageId);
-                userMessageDefaultService.deleteMessage(messageId);
+                String mshRole = message.getStringProperty(MessageConstants.MSH_ROLE);
+                LOG.debug("Delete one message [{}] [{}]", messageId, mshRole);
+                userMessageDefaultService.deleteMessage(messageId, MSHRole.valueOf(mshRole));
                 return;
             }
 

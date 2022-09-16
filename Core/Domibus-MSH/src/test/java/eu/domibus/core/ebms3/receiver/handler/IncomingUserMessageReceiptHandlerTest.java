@@ -86,10 +86,10 @@ public class IncomingUserMessageReceiptHandlerTest {
             signalMessage.getRefToMessageId();
             result = messageId;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = userMessageLog;
 
-            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
             result = messageConfiguration;
 
             messageConfiguration.getPmodeKey();
@@ -148,7 +148,7 @@ public class IncomingUserMessageReceiptHandlerTest {
             signalMessage.getRefToMessageId();
             result = messageId;
 
-            userMessageLogDao.findByMessageId(messageId);
+            userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessageLog;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);

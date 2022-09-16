@@ -8,7 +8,6 @@ import groovy.io.FileType
 import groovy.sql.Sql
 
 import javax.swing.JOptionPane
-import java.nio.file.*
 import java.sql.SQLException
 
 import static javax.swing.JOptionPane.showConfirmDialog
@@ -29,7 +28,7 @@ class Domibus{
     def sleepDelay = 50_000
 
     def dbConnections = [:]
-    def blueDomainID = null //"C2Default"checkLogFile
+    def blueDomainID = null //"C2Default"
     def redDomainID = null //"C3Default"
     def greenDomainID = null //"thirdDefault"
     def thirdGateway = "false"
@@ -284,7 +283,7 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
     // Retrieve domain ID reference from provided name. When name exists use it
     def retrieveDomainId(String inputName) {
-        debugLog("  ====  Calling \"retrieveDomainId\". With inputName: \"${inputName}\"", log)
+        //debugLog("  ====  Calling \"retrieveDomainId\". With inputName: \"${inputName}\"", log)
         def domID = null
 
         // For Backward compatibility
@@ -311,7 +310,7 @@ class Domibus{
                     break
             }
         }
-        debugLog("   retrieveDomainId  [][]  Input value ${inputName} translated to following domain ID: ${domID}", log)
+        //debugLog("   retrieveDomainId  [][]  Input value ${inputName} translated to following domain ID: ${domID}", log)
 
         return domID as String
     }
@@ -681,7 +680,7 @@ class Domibus{
 
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null){
+    def checkStatus(sideName,targetStatus,sqlConn,messageID,bonusTime=null, String role = null){
         debugLog("  ====  Calling \"checkStatus\".", log)
         debugLog("  checkStatus  [][]  params: sideName: " + sideName + " targetStatus: " + targetStatus + " messageID: " + messageID + " bonusTime: " + bonusTime,log)
         def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
@@ -691,6 +690,7 @@ class Domibus{
         def msgPK=null
         def numberAttempts = 0
         def maxNumberAttempts = 5
+        def roleID = null
 
         if (bonusTime) {
             if (bonusTime.isInteger()) MAX_WAIT_TIME = (bonusTime as Integer) * 1000
@@ -710,9 +710,19 @@ class Domibus{
             log.info "  checkStatus  [][]  WAIT: " + MAX_WAIT_TIME
             // Extract message ID PK
             if(msgPK==null){
-                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-                    msgPK = it.ID_PK
+                if (role != null) {
+                    sqlConn.eachRow("Select * from TB_D_MSH_ROLE where REPLACE(LOWER(ROLE),' ','') = REPLACE(LOWER(${role}),' ','')") {
+                        roleID = it.ID_PK
+                    }
+                    sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','') AND MSH_ROLE_ID_FK = ${roleID}") {
+                        msgPK = it.ID_PK
+                    }
+                } else {
+                    sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+                        msgPK = it.ID_PK
+                    }
                 }
+
             }
 
             sqlConn.eachRow("select d.STATUS, m.SEND_ATTEMPTS from TB_USER_MESSAGE_LOG m inner join TB_D_MESSAGE_STATUS d on d.ID_PK = m.MESSAGE_STATUS_ID_FK where m.ID_PK = ${msgPK}") {
@@ -743,11 +753,9 @@ class Domibus{
 //---------------------------------------------------------------------------------------------------------------------------------
 
     // Wait until status or timer expire
-    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID) {
+    def waitForStatus(String SMSH = null, String RMSH = null, String IDMes = null, String bonusTimeC2 = null, String bonusTimeC3 = null, String C2DomainId = blueDomainID, String C3DomainId =  redDomainID, String role = null) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
-        def MAX_WAIT_TIME = MSG_STATUS_MAX_WAIT_TIME
-        def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
-        def messageID=null;
+        def messageID=null
 
 
         if (IDMes != null) {
@@ -756,7 +764,7 @@ class Domibus{
             messageID = findReturnedMessageID()
         }
 
-        debugLog("  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForC2: " + bonusTimeC2 + " bonusTimeC3: " + bonusTimeC3,log)
+        debugLog("  waitForStatus  [][]  params: messageID: " + messageID + " SMSH: " + SMSH + " RMSH: " + RMSH + " IDMes: " + IDMes + " bonusTimeForC2: " + bonusTimeC2 + " bonusTimeC3: " + bonusTimeC3 + " role: " + role,log)
 
         debugLog("  waitForStatus  [][]  C2DomainId = " + C2DomainId + " C3DomainId = " + C3DomainId, log)
         def sqlC2 = retrieveSqlConnectionRefFromDomainId(C2DomainId)
@@ -767,7 +775,7 @@ class Domibus{
 
         if (SMSH) {
             try {
-                checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2)
+                checkStatus("C2",SMSH,sqlC2,messageID,bonusTimeC2, role)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
@@ -776,7 +784,7 @@ class Domibus{
 
         if (RMSH) {
             try {
-                checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3)
+                checkStatus("C3",RMSH,sqlC3,messageID,bonusTimeC3, role)
             } catch (SQLException ex) {
                 closeDbConnections(usedDomains)
                 assert 0,"SQLException occurred: " + ex
@@ -1521,7 +1529,7 @@ class Domibus{
         try {
             debugLog("  disableDomain  [][]  Fetch domains list and verify that domain \"$domainName\" exists and is enabled.",log)
             if (checkDomainExistsAndIsEnabledDisabled(side, context, log, domainName, true)) {
-                def commandString = ["curl ", urlToDomibus(side, log, context) + "/rest/domains/$domainName", "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "\"Content-Type: application/json\"", "-H", "\"X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authUser, authPwd) + "\"", "-v","-X", "DELETE"]
+                def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/domains/$domainName","--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt", "-H", "Content-Type: application/json", "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authUser, authPwd), "-X", "DELETE", "-v"]
                 def commandResult = runCommandInShell(commandString, log)
                 assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/),"Error:disableDomain: Error while trying to disable domain $domainName."
                 log.info "  disableDomain  [][]  Domain \"$domainName\" was disabled."
@@ -1567,29 +1575,26 @@ class Domibus{
         def jsonSlurper = new JsonSlurper()
         def domainsMap = jsonSlurper.parseText(getDomains(side, context, log))
         def activeDomainsMap = jsonSlurper.parseText(getDomains(side, context, log, true))
-        if (isEnabled) {
-            if (!domainExists(domainsMap, domainName, log)) {
-                log.info "  disableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
-                return false
-            } else {
-                if (!domainExists(activeDomainsMap, domainName, log)) {
-                    log.info "  disableDomain  [][]  Domain \"$domainName\" is already disabled. No action needed."
-                    return false
-                }
+
+        if (!domainExists(domainsMap, domainName, log)) {
+            log.info "  disableDomain/enableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
+            return false
+        }
+
+        if (domainExists(activeDomainsMap, domainName, log)) {
+            if(isEnabled) {
+                return true
             }
-            return true
+            log.info "  enableDomain  [][]  Domain \"$domainName\" is already active. No action needed."
+            return false
         } else {
-            if (!domainExists(domainsMap, domainName, log)) {
-                log.info "  enableDomain  [][]  Domain \"$domainName\" doesn't exist. No action needed."
+            if(isEnabled) {
+                log.info "  disableDomain  [][]  Domain \"$domainName\" is already disabled. No action needed."
                 return false
-            } else {
-                if (domainExists(activeDomainsMap, domainName, log)) {
-                    log.info "  enableDomain  [][]  Domain \"$domainName\" is already active. No action needed."
-                    return false
-                }
             }
             return true
         }
+
     }
 
     /**
@@ -3917,6 +3922,94 @@ class Domibus{
 
         debugLog("  ====  \"managePartyInPmode\" DONE.", log)
     }
+
+    /**
+     * Search in DB to find latest message ID different from previously stored,
+     * this method support only sequential message sending
+     * to be used with storeLatestMessagesId
+     * @param testRunner
+     * @param domainId
+     * @param maxWaitingTime
+     * @return
+     */
+    def waitFindAndUpdateLatestMessageIdIn(testRunner, domainId = blueDomainID, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
+        debugLog("  ====  Calling \"waitFindAndUpdateLatestMessageIdIn\".", log)
+        def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
+        def MAX_WAIT_TIME = maxWaitingTime
+
+        def lastStoredMessageId = testRunner.testCase.getPropertyValue("lastMessageId")
+        assert (lastStoredMessageId), "Error: waitFindAndUpdateLatestMessageIdIn: Message Id not stored before running method waitAndFindLatestMessageIdDb"
+        def newestMessageIdFetchFromDB = lastStoredMessageId
+        List messageIdExist
+
+        def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
+        openDbConnections([domainId])
+
+        def sqlQuery = """SELECT MESSAGE_ID
+                    FROM TB_USER_MESSAGE 
+                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+
+        while ( (lastStoredMessageId == newestMessageIdFetchFromDB) && MAX_WAIT_TIME > 0)  {
+            messageIdExist = sqlHandler.rows(sqlQuery)
+            assert messageIdExist.size() < 2, "Error: waitFindAndUpdateLatestMessageIdIn: No more than one message ID should be returned, not '${messageIdExist.size()}'"
+            if (messageIdExist.size() == 1)
+                newestMessageIdFetchFromDB = messageIdExist[0].MESSAGE_ID
+            else
+                newestMessageIdFetchFromDB = "Empty DB no message Id to retrieve"
+
+            if (lastStoredMessageId != newestMessageIdFetchFromDB)
+                break
+
+            sleep(STEP_WAIT_TIME)
+
+            MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
+            log.info "  waitFindAndUpdateLatestMessageIdIn  [][]  Will wait up to: " + MAX_WAIT_TIME/1000 + " seconds for new message Id"
+        }
+        closeDbConnections([domainId])
+
+        assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitFindAndUpdateLatestMessageIdIn: Message Id didn't change even after " + maxWaitingTime/1000 + " seconds."
+        testRunner.testCase.setPropertyValue( "lastMessageId", newestMessageIdFetchFromDB )
+
+        debugLog("  ====  Ending \"waitFindAndUpdateLatestMessageIdIn\".", log)
+        return newestMessageIdFetchFromDB
+    }
+
+    /**
+     * Store latest message ID value in Test Case custom property
+     * to be used with waitFindAndUpdateLatestMessageIdIn
+     * @param testRunner
+     * @param domainId
+     * @return
+     */
+    def storeLatestMessagesId(testRunner, domainId = blueDomainID){
+        debugLog("  ====  Calling \"storeLatestMessagesId\".", log)
+        def outputMessageId
+        def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
+        openDbConnections([domainId])
+
+        // Query DB
+        def sqlQuery = """SELECT MESSAGE_ID 
+                    FROM TB_USER_MESSAGE 
+                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+
+        List messageIdExist = sqlHandler.rows(sqlQuery)
+
+        assert messageIdExist.size() < 2, "Error: storeLatestMessagesId: No more than one message ID should be returned, not '${messageIdExist.size()}'"
+        if (messageIdExist.size() == 1)
+            outputMessageId = messageIdExist[0].MESSAGE_ID
+        else
+            outputMessageId = "Empty DB no message Id to retrieve"
+
+
+        closeDbConnections([domainId])
+
+        testRunner.testCase.setPropertyValue( "lastMessageId",  outputMessageId)
+        log.info "Setting property \"lastMessageId\" value: '${outputMessageId}'"
+        debugLog("  ====  Ending \"storeLatestMessagesId\".", log)
+        return outputMessageId
+    }
+
+
 //---------------------------------------------------------------------------------------------------------------------------------
 // Domibus text reporting
 //---------------------------------------------------------------------------------------------------------------------------------

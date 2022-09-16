@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
@@ -120,8 +121,9 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
-    public void deleteMessage(@PathVariable(value = "messageId") String messageId) {
-        messageMonitorExtService.deleteMessageNotInFinalStatus(messageId);
+    public void deleteMessage(@PathVariable(value = "messageId") String messageId,
+                              @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
+        messageMonitorExtService.deleteMessageNotInFinalStatus(messageId, mshRole);
     }
 
     @Operation(summary = "Delete messages payload",

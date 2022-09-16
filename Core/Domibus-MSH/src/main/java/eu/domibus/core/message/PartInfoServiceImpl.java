@@ -76,11 +76,6 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    public PartInfo findPartInfo(String messageId, String cid) {
-        return partInfoDao.findPartInfoByUserMessageIdAndCid(messageId, getCid(cid));
-    }
-
-    @Override
     public PartInfo findPartInfo(Long messageEntityId, String cid) {
         return partInfoDao.findPartInfoByUserMessageEntityIdAndCid(messageEntityId, getCid(cid));
     }
@@ -104,7 +99,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void clearPayloadData(long entityId) {
         LOG.debug("Start clearing payloadData");
 
@@ -194,7 +189,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    public List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds) {
+    public List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds) {
         return partInfoDao.findFileSystemPayloadFilenames(userMessageEntityIds);
     }
 

@@ -96,13 +96,8 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     @Timer(clazz = ErrorLogServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     @Counter(clazz = ErrorLogServiceImpl.class, value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     @Override
-    public int deleteErrorLogsByMessageIdInError(List<String> messageIds) {
-        return errorLogDao.deleteErrorLogsByMessageIdInError(messageIds);
-    }
-
-    @Override
-    public List<ErrorLogEntry> getErrorsForMessage(final String messageId) {
-        return errorLogDao.getErrorsForMessage(messageId);
+    public int deleteErrorLogsByMessageIdInError(List<Long> messageEntityIds) {
+        return errorLogDao.deleteErrorLogsByMessageIdInError(messageEntityIds);
     }
 
     @Override
@@ -111,9 +106,14 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     }
 
     @Override
-    public List<ErrorResult> getErrors(String messageId) {
-        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId);
+    public List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole) {
+        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId, mshRole);
         return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole role) {
+        return errorLogDao.getErrorsForMessage(messageId, role);
     }
 
     protected ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {
@@ -132,4 +132,5 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     public long countEntries(Map<String, Object> filters) {
         return errorLogDao.countEntries(filters);
     }
+
 }

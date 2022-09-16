@@ -2,6 +2,7 @@ package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.audit.envers.RevisionLogicalName;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -49,9 +50,6 @@ public class AuditServiceImpl implements AuditService {
     private AuditDao auditDao;
 
     @Autowired
-    private UserDao userDao;
-
-    @Autowired
     private AuditLogCoreMapper auditLogCoreMapper;
 
     @Autowired
@@ -78,12 +76,7 @@ public class AuditServiceImpl implements AuditService {
                                     final Date from, final Date to, final int start, final int max, boolean domain) {
         List<Audit> auditList;
         if (domain) {
-            List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
-            List<String> superIds = null;
-            if (CollectionUtils.isNotEmpty(superUsers)) {
-                superIds = superUsers.stream().map(u -> ""+u.getEntityId()).collect(Collectors.toList());
-            }
-            auditList = auditDao.listAuditExceptSuperUsers(auditTargets, actions, users, from, to, start, max, superIds);
+            auditList = auditDao.listAudit(auditTargets, actions, users, from, to, start, max);
         } else {
             auditList = domainTaskExecutor.submit(() -> auditDao.listAudit(auditTargets, actions, users, from, to, start, max));
         }
@@ -101,12 +94,7 @@ public class AuditServiceImpl implements AuditService {
                            final Date from,
                            final Date to, boolean domain) {
         if (domain) {
-            List<User> superUsers = domainTaskExecutor.submit(() -> userDao.findByRole(AuthRole.ROLE_AP_ADMIN.name()));
-            List<String> superIds = null;
-            if (CollectionUtils.isNotEmpty(superUsers)) {
-                superIds = superUsers.stream().map(u -> ""+u.getEntityId()).collect(Collectors.toList());
-            }
-            return auditDao.countAuditExceptSuperUsers(auditTargetName, action, user, from, to, superIds);
+            return auditDao.countAudit(auditTargetName, action, user, from, to);
         } else {
             return domainTaskExecutor.submit(() -> auditDao.countAudit(auditTargetName, action, user, from, to));
         }
@@ -172,7 +160,7 @@ public class AuditServiceImpl implements AuditService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void addMessageDownloadedAudit(final String messageId) {
+    public void addMessageDownloadedAudit(final String messageId, MSHRole mshRole) {
         auditDao.saveMessageAudit(
                 new MessageAudit(messageId,
                         authUtils.getAuthenticatedUser(),

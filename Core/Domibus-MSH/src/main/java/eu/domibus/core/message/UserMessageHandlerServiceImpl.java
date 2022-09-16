@@ -164,9 +164,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected MessageFragmentDao messageFragmentDao;
 
     @Autowired
-    private PullMessageService pullMessageService;
-
-    @Autowired
     protected UserMessagePersistenceService userMessagePersistenceService;
 
     @Autowired
@@ -307,13 +304,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throws IOException, TransformerException, EbMS3Exception {
         soapUtil.logMessage(request);
 
-        if (selfSending) {
-                /* we add a defined suffix in order to assure DB integrity - messageId uniqueness
-                basically we are generating another messageId for Signal Message on receiver side
-                */
-            userMessage.setMessageId(userMessage.getMessageId() + SELF_SENDING_SUFFIX);
-        }
-
         String messageId = userMessage.getMessageId();
         partInfoService.checkPartInfoCharset(userMessage, partInfoList);
         messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
@@ -359,7 +349,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "persistReceivedMessage")
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     protected String persistReceivedMessage(
             final SOAPMessage request,
             final LegConfiguration legConfiguration,

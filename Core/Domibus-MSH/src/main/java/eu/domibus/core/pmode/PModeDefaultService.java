@@ -10,6 +10,7 @@ import eu.domibus.api.pmode.domain.ReceptionAwareness;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
@@ -37,20 +38,20 @@ public class PModeDefaultService implements PModeService {
     private PModeProvider pModeProvider;
 
     @Autowired
-    private MessageExchangeService messageExchangeService;
+    private MpcService mpcService;
 
     @Autowired
     PModeValidationHelper pModeValidationHelper;
 
     @Override
-    public LegConfiguration getLegConfiguration(String messageId) {
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
-        boolean isPull = messageExchangeService.forcePullOnMpc(userMessage);
+    public LegConfiguration getLegConfiguration(Long messageEntityId) {
+        final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
+        boolean isPull = mpcService.forcePullOnMpc(userMessage);
         String pModeKey;
         try {
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, isPull).getPmodeKey();
         } catch (EbMS3Exception e) {
-            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + messageId + "]. Pull [" + isPull + "]", e);
+            throw new PModeException(DomibusCoreErrorCode.DOM_001, "Could not get the PMode key for message [" + userMessage.getMessageId() + "]. Pull [" + isPull + "]", e);
         }
         eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity = pModeProvider.getLegConfiguration(pModeKey);
         return convert(legConfigurationEntity);

@@ -1,6 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageRaw;
@@ -118,8 +119,8 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    public String getUserMessageEnvelope(String messageId) {
-        UserMessage userMessage = getUserMessageById(messageId);
+    public String getUserMessageEnvelope(String messageId, MSHRole mshRole) {
+        UserMessage userMessage = getUserMessageById(messageId, mshRole);
 
         RawEnvelopeDto rawEnvelopeDto = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
         if (rawEnvelopeDto == null) {
@@ -133,10 +134,10 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    public String getSignalMessageEnvelope(String userMessageId) {
-        RawEnvelopeDto rawEnvelopeDto = signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId);
+    public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
+        RawEnvelopeDto rawEnvelopeDto = signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId, mshRole);
         if (rawEnvelopeDto == null) {
-            if (userMessageDao.findByMessageId(userMessageId) == null) {
+            if (userMessageDao.findByMessageId(userMessageId, mshRole) == null) {
                 throw new MessageNotFoundException(userMessageId);
             }
             LOG.debug("Signal message with corresponding user message id [{}] was not found.", userMessageId);
@@ -149,10 +150,10 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    public Map<String, InputStream> getMessageEnvelopes(String messageId) {
+    public Map<String, InputStream> getMessageEnvelopes(String messageId, MSHRole mshRole) {
         Map<String, InputStream> result = new HashMap<>();
 
-        String userMessageEnvelope = getUserMessageEnvelope(messageId);
+        String userMessageEnvelope = getUserMessageEnvelope(messageId, mshRole);
         if (userMessageEnvelope != null) {
             try (InputStream userEnvelopeStream = new ByteArrayInputStream(userMessageEnvelope.getBytes())) {
                 result.put("user_message_envelope.xml", userEnvelopeStream);
@@ -161,7 +162,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             }
         }
 
-        String signalEnvelope = getSignalMessageEnvelope(messageId);
+        String signalEnvelope = getSignalMessageEnvelope(messageId, mshRole);
         if (signalEnvelope != null) {
             try (InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getBytes())) {
                 result.put("signal_message_envelope.xml", signalEnvelopeStream);
@@ -173,8 +174,8 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         return result;
     }
 
-    protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    protected UserMessage getUserMessageById(String messageId, MSHRole mshRole) throws MessageNotFoundException {
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
             throw new MessageNotFoundException(messageId);
         }

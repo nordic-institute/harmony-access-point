@@ -64,8 +64,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageExchangeServiceImpl.class);
 
-    private static final String PULL = "pull";
-
     @Autowired
     UserMessageDao userMessageDao;
 
@@ -81,7 +79,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     private UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Autowired
-    private ProcessValidator processValidator;
+    private PullProcessValidator pullProcessValidator;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -127,7 +125,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
         if (ProcessingType.PULL.equals(processingType)) {
             List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
-            processValidator.validatePullProcess(Lists.newArrayList(processes));
+            pullProcessValidator.validatePullProcess(Lists.newArrayList(processes));
             messageStatus = MessageStatus.READY_TO_PULL;
         }
         return messageStatusDao.findOrCreate(messageStatus);
@@ -146,8 +144,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      */
     @Override
     @Transactional(readOnly = true)
-    public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId) {
-        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+    public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId, MSHRole role) {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId, role);
         if (forcePullOnMpc(userMessage)) {
             return messageStatusDao.findOrCreate(MessageStatus.READY_TO_PULL);
         }
@@ -202,7 +200,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         final List<Process> validPullProcesses = new ArrayList<>();
         for (Process pullProcess : pullProcesses) {
             try {
-                processValidator.validatePullProcess(Lists.newArrayList(pullProcess));
+                pullProcessValidator.validatePullProcess(Lists.newArrayList(pullProcess));
                 validPullProcesses.add(pullProcess);
             } catch (PModeException e) {
                 LOG.warn("Invalid pull process configuration found during pull try", e);
@@ -288,7 +286,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             LOG.trace("Retrieving party id(s), initiator list with size:[{}] found", collect.size());
             return collect;
         }
-        if (pullMessageService.allowDynamicInitiatorInPullProcess()) {
+        if (pullProcessValidator.allowDynamicInitiatorInPullProcess()) {
             LOG.debug("Pmode initiator list is empty, extracting partyId from mpc [{}]", mpc);
             return Sets.newHashSet(mpcService.extractInitiator(mpc));
         }
@@ -315,7 +313,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                     LOG.debug("Process:[{}] correspond to mpc:[{}]", process.getName(), mpc);
                 }
             }
-            processValidator.validatePullProcess(processes);
+            pullProcessValidator.validatePullProcess(processes);
             return new PullContext(processes.get(0), gatewayParty, mpc);
         } catch (IllegalArgumentException e) {
             throw new PModeException(DomibusCoreErrorCode.DOM_003, "No pmode configuration found");
@@ -324,8 +322,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
 
     @Override
-    public RawEnvelopeDto findPulledMessageRawXmlByMessageId(final String messageId) {
-        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(messageId);
+    public RawEnvelopeDto findPulledMessageRawXmlByMessageId(final String messageId, MSHRole role) {
+        final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageIdAndRole(messageId, role);
         if (rawXmlByMessageId == null) {
             throw new ReliabilityException(DomibusCoreErrorCode.DOM_004, "There should always have a raw message for message " + messageId);
         }
@@ -337,18 +335,18 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * Saving the raw xml message in the case of the pull is occurring on the last outgoing interceptor in order
      * to have all the cxf message modification saved (reliability check.) Unfortunately this saving is not done in the
      * same transaction.
-     *
-     * @param rawXml    the soap envelope
+     *  @param rawXml    the soap envelope
      * @param messageId the user message
+     * @param mshRole
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void saveRawXml(String rawXml, String messageId) {
+    public void saveRawXml(String rawXml, String messageId, MSHRole mshRole) {
         LOG.debug("Saving rawXML for message [{}]", messageId);
 
         UserMessageRaw newRawEnvelopeLog = new UserMessageRaw();
         newRawEnvelopeLog.setRawXML(rawXml);
-        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         newRawEnvelopeLog.setUserMessage(userMessage);
         rawEnvelopeLogDao.create(newRawEnvelopeLog);
     }

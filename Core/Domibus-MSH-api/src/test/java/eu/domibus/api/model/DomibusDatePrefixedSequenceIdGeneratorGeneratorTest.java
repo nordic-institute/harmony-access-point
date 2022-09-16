@@ -43,15 +43,6 @@ public class DomibusDatePrefixedSequenceIdGeneratorGeneratorTest {
         public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry) throws MappingException {}
 
         @Override
-        public String[] sqlCreateStrings(Dialect dialect) throws HibernateException {
-            return null;
-        }
-
-        @Override
-        public String[] sqlDropStrings(Dialect dialect) throws HibernateException {
-            return null;
-        }
-        @Override
         public Object generatorKey() {
             return null;
         }

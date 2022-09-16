@@ -111,7 +111,7 @@ public class BackendMessageValidator {
      * @param messageId the message id.
      * @throws EbMS3Exception if the message id value is invalid
      */
-    public void validateMessageId(final String messageId) throws EbMS3Exception, DuplicateMessageException {
+    public void validateMessageId(final String messageId, MSHRole mshRole) throws EbMS3Exception, DuplicateMessageException {
         if (isBlank(messageId)) {
             LOG.debug("Message id is empty: validation skipped");
             return;
@@ -129,7 +129,7 @@ public class BackendMessageValidator {
         validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
 
         // handle if the messageId is unique. This should only fail if the ID is set from the outside
-        if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
+        if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId, mshRole))) {
             LOG.businessError(DUPLICATE_MESSAGEID, messageId);
             throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique.");
         }
@@ -300,7 +300,7 @@ public class BackendMessageValidator {
                     .message("Mandatory header metadata UserMessage/MessageInfo is not provided.")
                     .build();
         }
-        validateMessageId(submission.getMessageId());
+        validateMessageId(submission.getMessageId(), MSHRole.SENDING);
         //check duplicate message id
         validateRefToMessageId(submission.getRefToMessageId());
     }
@@ -534,10 +534,10 @@ public class BackendMessageValidator {
         propertyProfileValidator.validate(userMessage, pModeKey);
     }
 
-    public void validateMessageIsUnique(String messageId) throws DuplicateMessageException {
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
+    public void validateMessageIsUnique(String messageId, MSHRole mshRole) throws DuplicateMessageException {
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId, mshRole);
         if (!MessageStatus.NOT_FOUND.equals(messageStatus)) {
-            throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
+            throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + " and role " + mshRole + ALREADY_EXISTS_MESSAGE_IDENTIFIERS_MUST_BE_UNIQUE);
         }
     }
 

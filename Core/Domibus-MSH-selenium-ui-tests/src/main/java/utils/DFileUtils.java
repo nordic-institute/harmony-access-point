@@ -1,5 +1,6 @@
 package utils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,5 +92,19 @@ public class DFileUtils {
 //		String fileStr = Thread.currentThread().getContextClassLoader().getResource(relativePath).getFile();
 		return new File(relativePath).getAbsolutePath();
 	}
+
+	public static void createDownloadFolder(String path){
+		File directory = new File(path);
+		if (! directory.exists()){
+			directory.mkdir();
+		}
+	}
+
+	public static void cleanDownloadFolder(String path) throws IOException {
+		File directory = new File(path);
+		FileUtils.cleanDirectory(directory);
+	}
+
+
 
 }

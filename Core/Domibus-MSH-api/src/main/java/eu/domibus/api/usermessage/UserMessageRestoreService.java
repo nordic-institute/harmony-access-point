@@ -11,8 +11,7 @@ public interface UserMessageRestoreService {
     void restoreFailedMessage(String messageId);
 
     /**
-     * Resend a message in the status SEND_FAILURE or
-     * SEND_ENQUEUED
+     * Resend a message in the status SEND_FAILURE or SEND_ENQUEUED
      *
      * @param messageId message Id of the message
      */

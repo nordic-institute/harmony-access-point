@@ -5,7 +5,7 @@ import javax.persistence.*;
 @NamedQueries({
         @NamedQuery(name = "SignalMessageRaw.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML,l.compressed) " +
                 "FROM SignalMessageRaw l JOIN l.signalMessage sm " +
-                "JOIN sm.userMessage um where um.messageId=:MESSAGE_ID"),
+                "JOIN sm.userMessage um where um.messageId=:MESSAGE_ID and sm.userMessage.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "SignalMessageRaw.deleteMessages", query = "delete from SignalMessageRaw mi where mi.entityId in :IDS"),
 })
 @Entity

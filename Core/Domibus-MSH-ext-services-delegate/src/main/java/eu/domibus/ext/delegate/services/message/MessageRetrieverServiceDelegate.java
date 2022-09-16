@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -38,19 +39,34 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         this.userMessageService = userMessageService;
     }
 
-
     @Override
     public Submission downloadMessage(String messageId) throws MessageNotFoundException {
+        return downloadMessage(messageId, true);
+    }
+
+    @Override
+    public Submission downloadMessage(String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         checkMessageAuthorization(messageId);
 
-        return messageRetriever.downloadMessage(messageId);
+        return messageRetriever.downloadMessage(messageId, markAsDownloaded);
     }
 
     @Override
     public Submission downloadMessage(Long messageEntityId) throws MessageNotFoundException {
+        return downloadMessage(messageEntityId, true);
+    }
+
+    @Override
+    public Submission downloadMessage(Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException {
         checkMessageAuthorization(messageEntityId);
 
-        return messageRetriever.downloadMessage(messageEntityId);
+        return messageRetriever.downloadMessage(messageEntityId, markAsDownloaded);
+    }
+
+    @Override
+    public void markMessageAsDownloaded(String messageId) {
+        checkMessageAuthorization(messageId);
+        messageRetriever.markMessageAsDownloaded(messageId);
     }
 
     @Override
@@ -58,6 +74,13 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         checkMessageAuthorization(messageId);
 
         return messageRetriever.browseMessage(messageId);
+    }
+
+    @Override
+    public Submission browseMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
+        checkMessageAuthorization(messageId, mshRole);
+
+        return messageRetriever.browseMessage(messageId, mshRole);
     }
 
     @Override
@@ -79,6 +102,18 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
     }
 
     @Override
+    public MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) {
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+        try {
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.debug(e.getMessage());
+            return eu.domibus.common.MessageStatus.NOT_FOUND;
+        }
+        return messageRetriever.getStatus(messageId, mshRole);
+    }
+
+    @Override
     public MessageStatus getStatus(Long messageEntityId) {
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageEntityId);
@@ -96,10 +131,27 @@ public class MessageRetrieverServiceDelegate implements MessageRetrieverExtServi
         return messageRetriever.getErrorsForMessage(messageId);
     }
 
+    @Override
+    public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) {
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+
+        userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
+
+        return messageRetriever.getErrorsForMessage(messageId, mshRole);
+    }
+
     protected void checkMessageAuthorization(Long messageEntityId) {
         checkUnsecure();
 
         final UserMessage userMessage = userMessageService.getByMessageEntityId(messageEntityId);
+        checkMessageAuthorization(userMessage);
+    }
+
+    private void checkMessageAuthorization(String messageId, eu.domibus.common.MSHRole mshRole) {
+        checkUnsecure();
+
+        MSHRole role = MSHRole.valueOf(mshRole.name());
+        final UserMessage userMessage = userMessageService.getByMessageId(messageId, role);
         checkMessageAuthorization(userMessage);
     }
 

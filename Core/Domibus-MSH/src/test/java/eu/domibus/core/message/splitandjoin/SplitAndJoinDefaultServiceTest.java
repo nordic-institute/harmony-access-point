@@ -12,7 +12,6 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
@@ -47,7 +46,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -308,7 +306,7 @@ public class SplitAndJoinDefaultServiceTest {
         String pModeKey = "mykey";
 
         new Expectations(splitAndJoinDefaultService) {{
-            as4ReceiptService.generateReceipt(sourceMessageId, false);
+            as4ReceiptService.generateReceipt(sourceMessageId, MSHRole.SENDING, false);
             result = sourceRequest;
 
             splitAndJoinDefaultService.sendSignalMessage(sourceRequest, pModeKey);
@@ -450,7 +448,7 @@ public class SplitAndJoinDefaultServiceTest {
                                                            @Injectable UserMessageLog messageLog) {
         String messageId = "123";
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.RECEIVING);
             result = messageLog;
 
             messageLog.getMessageStatus();
@@ -470,7 +468,7 @@ public class SplitAndJoinDefaultServiceTest {
                                                   @Injectable UserMessageLog messageLog, MessageStatus messageStatus) {
         String messageId = "123";
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.RECEIVING);
             result = messageLog;
 
             messageLog.getMessageStatus();
@@ -491,7 +489,7 @@ public class SplitAndJoinDefaultServiceTest {
                                                               @Injectable UserMessageLog messageLog) {
         String messageId = "123";
         new Expectations() {{
-            userMessageLogDao.findByMessageIdSafely(messageId);
+            userMessageLogDao.findByMessageIdSafely(messageId, MSHRole.RECEIVING);
             result = messageLog;
 
             messageLog.getMessageStatus();
@@ -707,7 +705,7 @@ public class SplitAndJoinDefaultServiceTest {
             legConfiguration.getSplitting().getJoinInterval();
             result = 1;
 
-            userMessageLogDao.findByMessageId(userMessageId);
+            userMessageLogDao.findByMessageId(userMessageId, userMessage.getMshRole().getRole());
             result = userMessageLog;
         }};
 
@@ -736,7 +734,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.splitAndJoinSendFailed(groupId, "Send failed");
 
         new Verifications() {{
-            userMessageService.scheduleSetUserMessageFragmentAsFailed(MESSAGE_ID);
+            userMessageService.scheduleSetUserMessageFragmentAsFailed(MESSAGE_ID, userMessage.getMshRole().getRole());
             times = 1;
 
             errorLogService.createErrorLog(groupId, ErrorCode.EBMS_0004, "[SPLIT] " + "Send failed", MSHRole.SENDING, userMessage);

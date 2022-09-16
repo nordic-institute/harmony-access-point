@@ -49,6 +49,9 @@ public class SubmissionAS4Transformer {
     @Autowired
     protected PartPropertyDictionaryService partPropertyDictionaryService;
 
+    @Autowired
+    protected MshRoleDao mshRoleDao;
+
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
         String mpc = submission.getMpc();
@@ -58,6 +61,9 @@ public class SubmissionAS4Transformer {
         this.generatePartyInfo(submission, result);
         this.generateCollaborationInfo(submission, result);
         this.generateMessageProperties(submission, result);
+
+        final MSHRoleEntity mshRoleEntity = mshRoleDao.findOrCreate(MSHRole.SENDING);
+        result.setMshRole(mshRoleEntity);
 
         return result;
     }

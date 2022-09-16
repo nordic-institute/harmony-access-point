@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.ActionEntity;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.dao.BasicDao;
@@ -41,7 +42,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     public UserMessage findByEntityId(Long entityId) {
         final UserMessage userMessage = super.read(entityId);
 
-        if(userMessage != null) {
+        if (userMessage != null) {
             initializeChildren(userMessage);
         }
 
@@ -51,14 +52,14 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     private void initializeChildren(UserMessage userMessage) {
         //initialize values from the second level cache
         final Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
-        if(CollectionUtils.isNotEmpty(messageProperties)) {
+        if (CollectionUtils.isNotEmpty(messageProperties)) {
             messageProperties.forEach(messageProperty -> messageProperty.getValue());
         }
         userMessage.getMpcValue();
         userMessage.getServiceValue();
         userMessage.getActionValue();
         userMessage.getAgreementRefValue();
-        if(userMessage.getPartyInfo() != null) {
+        if (userMessage.getPartyInfo() != null) {
             userMessage.getPartyInfo().getFrom().getFromPartyId().getValue();
             userMessage.getPartyInfo().getFrom().getRoleValue();
             userMessage.getPartyInfo().getTo().getToPartyId().getValue();
@@ -67,14 +68,45 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     }
 
     @Transactional
-    public UserMessage findByMessageId(String messageId) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
+    public UserMessage findByMessageId(String messageId, MSHRole mshRole) {
+        if (mshRole == null) {
+            return findByMessageId(messageId);
+        }
+
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageIdAndRole", UserMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
+        query.setParameter("MSH_ROLE", mshRole);
         final UserMessage userMessage = DataAccessUtils.singleResult(query.getResultList());
-        if(userMessage != null) {
+        if (userMessage != null) {
             initializeChildren(userMessage);
         }
         return userMessage;
+    }
+
+    // we keep this until deprecated ext methods are deleted
+    @Transactional
+    public UserMessage findByMessageId(String messageId) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
+        query.setParameter("MESSAGE_ID", messageId);
+        List<UserMessage> results = query.getResultList();
+        if (CollectionUtils.isEmpty(results)) {
+            LOG.info("Query UserMessage.findByMessageId did not find any result for message with id [{}]", messageId);
+            return null;
+        }
+        UserMessage result;
+        if (results.size() == 1) {
+            result = results.get(0);
+        } else {
+            LOG.info("Query UserMessage.findByMessageId found more than one result for message with id [{}], Trying to return the one with SENDING role", messageId);
+            result = results.stream().filter(el -> el.getMshRole().getRole() == MSHRole.SENDING).findAny()
+                    .orElse(results.get(0));
+        }
+
+        if (result != null) {
+            initializeChildren(result);
+        }
+        LOG.debug("Returning the message with role [{}]", result.getMshRole().getRole());
+        return result;
     }
 
     public UserMessage findByGroupEntityId(Long groupEntityId) {
@@ -146,7 +178,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         LOG.debug("deleteMessages result [{}]", result);
         return result;
     }
-    
+
     public UserMessage findLastTestMessage(String partyId, ActionEntity actionEntity) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
         query.setParameter("PARTY_ID", partyId);
@@ -155,13 +187,13 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public Boolean checkPartitionExists(String partitionName)  {
+    public Boolean checkPartitionExists(String partitionName) {
         Query q = em.createNamedQuery("UserMessage.verifyPartitionExistsByName");
         q.setParameter("PNAME", partitionName);
         LOG.debug("Find partition [{}]", partitionName);
 
         try {
-            Integer result = ((BigDecimal)  DataAccessUtils.singleResult(q.getResultList())).intValue();
+            Integer result = ((BigDecimal) DataAccessUtils.singleResult(q.getResultList())).intValue();
             if (result > 0) {
                 LOG.debug("Partition exists [{}]", partitionName);
                 return true;

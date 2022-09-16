@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.PartInfoDTO;
 import eu.domibus.ext.domain.PartPropertiesDTO;
@@ -81,10 +82,11 @@ public class UserMessagePayloadExtResource {
     @Operation(summary = "Download the UserMessage payload", description = "Download the UserMessage payload with a specific cid",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "{messageId}/payloads/{cid}", produces = MediaType.APPLICATION_XML_VALUE)
-    public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid, HttpServletResponse response) {
-        LOG.debug("Downloading the payload with cid [{}] for message with id [{}]", cid, messageId);
+    public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid,
+                                           @RequestParam(value = "mshRole", required = false) MSHRole mshRole, HttpServletResponse response) {
+        LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, mshRole);
 
-        final PartInfoDTO payload = payloadExtService.getPayload(messageId, cid);
+        final PartInfoDTO payload = payloadExtService.getPayload(messageId, mshRole, cid);
         writePayloadToResponse(cid, response, payload);
     }
 

@@ -71,7 +71,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public T downloadMessage(final Long messageEntityId, final T target) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageEntityId);
         if (messageEntityId != null) {
@@ -102,25 +102,43 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
-    public T downloadMessage(final String messageId, final T target) throws MessageNotFoundException {
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    public T downloadMessage(String messageId, T target) throws MessageNotFoundException {
+        return downloadMessage(messageId, target, true);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    public void markMessageAsDownloaded(final String messageId) throws MessageNotFoundException {
         LOG.debug("Downloading message [{}]", messageId);
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
 
         try {
-            MessageStatus status = messageRetriever.getStatus(messageId);
-            if (MessageStatus.NOT_FOUND == status) {
-                LOG.debug("Message with id [{}] was not found", messageId);
-                throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
-            }
-            if (MessageStatus.DOWNLOADED == status) {
-                LOG.debug("Message with id [{}] was already downloaded", messageId);
-                throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
-            }
+            validateMessageStatus(messageId, true);
+            messageRetriever.markMessageAsDownloaded(messageId);
+            LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED);
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
+            throw ex;
+        }
+    }
 
-            Submission submission = messageRetriever.downloadMessage(messageId);
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    public T downloadMessage(final String messageId, final T target, boolean markAsDownloaded) throws MessageNotFoundException {
+        LOG.debug("Downloading message [{}]", messageId);
+        if (StringUtils.isNotBlank(messageId)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        }
+
+        try {
+            validateMessageStatus(messageId, markAsDownloaded);
+
+            Submission submission = messageRetriever.downloadMessage(messageId, markAsDownloaded);
             T t = this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
 
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RETRIEVED);
@@ -131,11 +149,31 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
     }
 
+    private void validateMessageStatus(String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
+        MessageStatus status = messageRetriever.getStatus(messageId, MSHRole.RECEIVING);
+        if (MessageStatus.NOT_FOUND == status) {
+            LOG.debug("Message with id [{}] was not found", messageId);
+            throw new MessageNotFoundException(String.format("Message with id [%s] was not found", messageId));
+        }
+        if (markAsDownloaded && MessageStatus.DOWNLOADED == status) {
+            LOG.debug("Message with id [{}] was already downloaded", messageId);
+            throw new MessageNotFoundException(String.format("Message with id [%s] was already downloaded", messageId));
+        }
+    }
+
     @Override
     public T browseMessage(String messageId, T target) throws MessageNotFoundException {
         LOG.debug("Browsing message [{}]", messageId);
 
         final Submission submission = messageRetriever.browseMessage(messageId);
+        return this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
+    }
+
+    @Override
+    public T browseMessage(String messageId, MSHRole mshRole, T target) throws MessageNotFoundException {
+        LOG.debug("Browsing message [{}]-[{}]", messageId, mshRole);
+
+        final Submission submission = messageRetriever.browseMessage(messageId, mshRole);
         return this.getMessageRetrievalTransformer().transformFromSubmission(submission, target);
     }
 
@@ -153,6 +191,11 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
+    public MessageStatus getStatus(final String messageId, final MSHRole mshRole) {
+        return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId), mshRole);
+    }
+
+    @Override
     public MessageStatus getStatus(final Long messageEntityId) {
         return this.messageRetriever.getStatus(messageEntityId);
     }
@@ -160,6 +203,11 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     @Override
     public List<ErrorResult> getErrorsForMessage(final String messageId) {
         return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
+    }
+
+    @Override
+    public List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole) {
+        return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId, mshRole));
     }
 
     @Override

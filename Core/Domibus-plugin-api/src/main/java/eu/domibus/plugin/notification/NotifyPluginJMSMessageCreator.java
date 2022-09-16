@@ -1,5 +1,6 @@
 package eu.domibus.plugin.notification;
 
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
@@ -16,11 +17,20 @@ public class NotifyPluginJMSMessageCreator {
     private final String messageId;
     private NotificationType notificationType;
     private Map<String, Object> properties;
+    private MSHRole mshRole;
 
+    @Deprecated
     public NotifyPluginJMSMessageCreator(final String messageId, final NotificationType notificationType, final Map<String, Object> properties) {
         this.messageId = messageId;
         this.notificationType = notificationType;
         this.properties = properties;
+    }
+
+    public NotifyPluginJMSMessageCreator(final String messageId, MSHRole mshRole, final NotificationType notificationType, final Map<String, Object> properties, MSHRole mshRole1) {
+        this.messageId = messageId;
+        this.notificationType = notificationType;
+        this.properties = properties;
+        this.mshRole = mshRole1;
     }
 
     public JmsMessageDTO createMessage() {
@@ -29,6 +39,7 @@ public class NotifyPluginJMSMessageCreator {
             jmsMessageBuilder.properties(properties);
         }
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
+        jmsMessageBuilder.property(MessageConstants.MSH_ROLE, mshRole);
         jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
 
         return jmsMessageBuilder.build();
@@ -40,5 +51,9 @@ public class NotifyPluginJMSMessageCreator {
 
     public NotificationType getNotificationType() {
         return notificationType;
+    }
+
+    public MSHRole getMshRole() {
+        return mshRole;
     }
 }

@@ -6,9 +6,11 @@ package eu.domibus.messaging;
  */
 public final class MessageConstants {
 
-    private MessageConstants() {}
+    private MessageConstants() {
+    }
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
+    public static final String MSH_ROLE = "MSH_ROLE";
     public static final String MESSAGE_ENTITY_ID = "MESSAGE_ENTITY_ID";
     public static final String BATCH_ID = "BATCH_ID";
     public static final String BATCH_ENTITY_ID = "BATCH_ENTITY_ID";
@@ -47,4 +49,10 @@ public final class MessageConstants {
     public static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
 
     public static final String PAYLOAD_PROPERTY_FILE_PATH = "FilePath";
+
+    /**
+     * property name used to share a ebms3Messaging object between interceptors (e.g. for taking the userMessage inside to
+     * transmit details to plugins in case of early faults)
+     */
+    public static final String EMBS3_MESSAGING_OBJECT = "ebms3.messaging.obj";
 }

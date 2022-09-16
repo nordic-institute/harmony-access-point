@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<UserMessage xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+<UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
     <PartyInfo>
         <From>
             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>
