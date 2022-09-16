@@ -29,10 +29,12 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_RSA_SIGN, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_RSA_DECRYPT, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_ECC_SIGN, Type.PASSWORD, false, Usage.DOMAIN, false, true),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_ECC_DECRYPT, Type.PASSWORD, false, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
 
             new DomibusPropertyMetadata(DOMIBUS_DATABASE_SCHEMA, false, Usage.DOMAIN, false),
 
@@ -100,10 +102,12 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_PASSWORD, Type.PASSWORD, true, Usage.DOMAIN, false, true),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, Usage.DOMAIN, false),
 
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_SIGN, Usage.DOMAIN, false),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_DECRYPT, Usage.DOMAIN, false),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_SIGN, Usage.DOMAIN, false),
-            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_DECRYPT, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, Usage.DOMAIN, false),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, Type.URI, true, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, Type.STRING, true, Usage.DOMAIN, false),
