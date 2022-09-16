@@ -2,6 +2,7 @@
 
 ## Domibus 5.0.1 (from 5.0):
                 - Replace the Domibus war
+                - Run the appropriate DB migration script(mysql-5.0-to-5.0.1-migration.ddl for MySQL or oracle-5.0-to-5.0.1-migration.ddl for Oracle)
 
 ## Domibus 5.0 (from 4.2.9)
 
@@ -191,30 +192,30 @@
                         Domibus application (.war) should be stopped while running these:
                             - single tenancy:
                                 - step 1: mysql-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                 - step 2: mysql-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                 - step 3: mysql-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                 This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                 - (Optional) step 4: mysql-4.2.9-to-5.0-data-migration-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                 This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                             - multitenancy:
                                 - general database:
                                     - step 1: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 2: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - (Optional) step 4: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain databases:
                                     - step 1: mysql-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
+                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - step 2: mysql-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
                                     This step isn't reversible so it must be executed once step 1 and step 2 are successful
-                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
                                     - (Optional) step 4: mysql-4.2.9-to-5.0-data-migration-step4.ddl (during this step the original tables and the migration subprograms are dropped)
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
   ### Cache
@@ -294,7 +295,11 @@
                                eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
                                eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
                                eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
- ## Domibus 4.2.9 (from 4.2.8):
+## Domibus 4.2.10 (from 4.2.11):
+                - Replace the Domibus war
+## Domibus 4.2.9 (from 4.2.10):
+                - Replace the Domibus war
+## Domibus 4.2.8 (from 4.2.9):
                 - Replace the Domibus war
  ## Domibus 4.2.8 (from 4.2.7):
                 - Replace the Domibus war

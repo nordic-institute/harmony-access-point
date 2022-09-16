@@ -5,6 +5,7 @@ import eu.domibus.api.model.UserMessage;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -15,6 +16,8 @@ public interface MessageAcknowledgeConverter {
     MessageAcknowledgementEntity create(String user, UserMessage userMessage, Timestamp acknowledgeTimestamp, String from, String to);
 
     MessageAcknowledgement convert(MessageAcknowledgementEntity entity);
+
+    MessageAcknowledgement convert(MessageAcknowledgementEntity entity,  Map<String, String> properties);
 
     List<MessageAcknowledgement> convert(List<MessageAcknowledgementEntity> entities);
 }

@@ -32,11 +32,15 @@ public class UserMessageLogDto {
         this.backend = backend;
     }
 
+    public UserMessageLogDto(Long entityId, String messageId, String backend) {
+        this(entityId, messageId, null, backend);
+    }
+
     public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
         this.entityId = (Long) getObjectNullSafe(tuple, aliasToIndexMap, ENTITY_ID);
         this.messageId = (String) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ID);
         Object subtype = getObjectNullSafe(tuple, aliasToIndexMap, TEST_MESSAGE);
-        if(subtype != null) {
+        if (subtype != null) {
             this.testMessage = (Boolean) subtype;
         }
         this.backend = (String) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_BACKEND);
@@ -44,7 +48,7 @@ public class UserMessageLogDto {
 
     private Object getObjectNullSafe(Object[] tuple, Map<String, Integer> aliasToIndexMap, String entityId) {
         Integer integer = aliasToIndexMap.get(entityId);
-        if(integer == null) {
+        if (integer == null) {
             return null;
         }
         return tuple[integer];
