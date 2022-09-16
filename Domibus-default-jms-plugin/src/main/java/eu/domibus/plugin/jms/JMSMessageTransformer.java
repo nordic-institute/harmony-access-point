@@ -453,12 +453,13 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         }
 
         //try to get the payload as an URL eg file sytem
+        String payloadReference = null;
         try {
-            final String payloadReference = messageIn.getStringProperty(propPayload);
+            payloadReference = messageIn.getStringProperty(propPayload);
             LOG.debug("Trying to get the payload via URL [{}]", payloadReference);
             return new DataHandler(new URLDataSource(new URL(payloadReference)));
         } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Could not get payload [" + propPayload + "] via URL reference, aborting transformation", e);
+            throw new IllegalArgumentException("Could not get payload [" + propPayload + "] via URL reference [" + payloadReference + "], aborting transformation", e);
         }
     }
 

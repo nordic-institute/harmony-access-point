@@ -185,6 +185,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(PAYLOAD_1_FILENAME, FILENAME_TEST);
         messageMap.setStringProperty(PAYLOAD_1_TEST_PROPERTY, TEST_VALUE);
         messageMap.setStringProperty(PAYLOAD_1_EMPTY_PROPERTY, "blabla");
+        messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 2), PAY_LOAD.getBytes());
 
         messageMap.setStringProperty(PROPERTY_PREFIX + PROPERTY_TEST, "test property");
         messageMap.setStringProperty(JMSMessageConstants.PROCESSING_TYPE, ProcessingType.PUSH.name());
