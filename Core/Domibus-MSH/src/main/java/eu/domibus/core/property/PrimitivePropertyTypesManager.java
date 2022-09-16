@@ -70,17 +70,6 @@ public class PrimitivePropertyTypesManager {
         return getDefaultBooleanValue(propertyName);
     }
 
-    protected List<String> getAsStringList(String propertyValue) {
-        if (StringUtils.isEmpty(propertyValue)) {
-            return new ArrayList<>();
-        }
-        return Arrays.stream(propertyValue.split(","))
-                .map(StringUtils::trim)
-                .filter(StringUtils::isNotEmpty)
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
     protected Boolean getDefaultBooleanValue(String propertyName) {
         // We need to fetch the Boolean value in two steps as the MapUtils#getBoolean(Properties, String) does not return "null" when the value is an invalid Boolean.
         String defaultValue = MapUtils.getString(domibusDefaultProperties, propertyName);

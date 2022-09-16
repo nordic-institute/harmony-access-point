@@ -4,8 +4,6 @@ import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -35,7 +33,7 @@ public class ConnectionMonitoringModuleConfiguration extends AlertModuleConfigur
 
     public boolean shouldGenerateAlert(MessageStatus messageStatus, String toParty) {
         return isActive()
-                && MessageStatus.getUnSuccessfulStates().contains(messageStatus)
+                && MessageStatus.getUnsuccessfulStates().contains(messageStatus)
                 && enabledParties.contains(toParty);
     }
 

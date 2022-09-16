@@ -98,14 +98,6 @@ public interface DomibusPropertyProvider {
     Boolean getBooleanProperty(String propertyName);
 
     /**
-     * Reads a property value ( that should be a comma separated list) and parses it safely as a list of strings
-     *
-     * @param propertyName
-     * @return
-     */
-    List<String> getStringListProperty(String propertyName);
-
-    /**
      * <p>Reads a domain property value and parses it safely as a {@code Boolean} before returning it.</p><br />
      *
      * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific

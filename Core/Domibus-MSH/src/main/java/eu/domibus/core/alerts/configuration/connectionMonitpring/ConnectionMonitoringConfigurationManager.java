@@ -67,7 +67,7 @@ public class ConnectionMonitoringConfigurationManager
                 return new ConnectionMonitoringModuleConfiguration();
             }
 
-            List<String> enabledParties = domibusPropertyProvider.getStringListProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
+            List<String> enabledParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
             if (CollectionUtils.isEmpty(enabledParties)) {
                 LOG.info("No connection monitoring notifications for domain:[{}] because the enabled parties list is empty.", currentDomain);
                 return new ConnectionMonitoringModuleConfiguration();

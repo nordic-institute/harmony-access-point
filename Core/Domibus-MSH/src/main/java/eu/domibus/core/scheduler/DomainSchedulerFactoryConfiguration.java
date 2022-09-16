@@ -496,6 +496,7 @@ public class DomainSchedulerFactoryConfiguration {
     }
 
     // todo all these methods are similar: code can be reused
+    // EDELIVERY-10150 Ion Perpegel 16/09/22
     @Bean
     public JobDetailFactoryBean deleteTestMessageHistoryJob() {
         JobDetailFactoryBean obj = new JobDetailFactoryBean();

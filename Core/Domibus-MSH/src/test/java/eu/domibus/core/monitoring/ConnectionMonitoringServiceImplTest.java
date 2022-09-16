@@ -49,7 +49,7 @@ public class ConnectionMonitoringServiceImplTest {
     @Test
     public void isMonitoringEnabledFalse() {
         new Expectations() {{
-            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
             result = new ArrayList<>();
         }};
 
@@ -60,7 +60,7 @@ public class ConnectionMonitoringServiceImplTest {
     @Test
     public void isMonitoringEnabledTrue() {
         new Expectations() {{
-            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
             result = Arrays.asList("blue_gw");
 
             partyService.getGatewayPartyIdentifier();
@@ -74,7 +74,7 @@ public class ConnectionMonitoringServiceImplTest {
     @Test
     public void isMonitoringEnabledAlsoFalse() {
         new Expectations() {{
-            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
             result = Arrays.asList("blue_gw");
 
             partyService.getGatewayPartyIdentifier();
@@ -198,7 +198,7 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(partyId1, partyId2);
 
-            domibusPropertyProvider.getStringListProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
             result = Arrays.asList(partyId1);
         }};
 

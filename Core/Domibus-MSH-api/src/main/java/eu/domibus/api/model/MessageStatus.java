@@ -117,7 +117,7 @@ public enum MessageStatus {
         return messageStatusNames;
     }
 
-    public static List<MessageStatus> getUnSuccessfulStates() {
+    public static List<MessageStatus> getUnsuccessfulStates() {
         return Arrays.asList(
                 SEND_ATTEMPT_FAILED,
                 SEND_FAILURE,
