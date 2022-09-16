@@ -29,7 +29,7 @@ public class DeleteReceivedTestMessageHistoryJob extends DomibusQuartzJobBean {
             return;
         }
 
-        LOG.debug("DeleteTestMessageHistoryJob started on [{}] domain", domain);
+        LOG.debug("DeleteReceivedTestMessageHistoryJob started on [{}] domain", domain);
         connectionMonitoringService.deleteReceivedTestMessageHistory();
         LOG.debug("DeleteTestMessageHistoryJob ended on [{}] domain", domain);
     }
