@@ -110,7 +110,7 @@ public class GatewayConfigurationValidator implements DomainsAware {
         final String privateKeyAliasRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_SIGN);
         final String privateKeyAliasRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_RSA_DECRYPT);
         final String privateKeyAliasEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_SIGN);
-        final String privateKeyAliasEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_SIGN);
+        final String privateKeyAliasEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_DECRYPT);
 
         if (privateKeyAliasRsaSign != null) {
             validateAlias(privateKeyAliasRsaSign, trustStore, domain);
