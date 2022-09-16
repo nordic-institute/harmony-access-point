@@ -153,6 +153,10 @@ public class BackendNotificationService {
             LOG.info("Plugin notification is disabled.");
             return;
         }
+        if (userMessage.isMessageFragment()) {
+            LOG.info("No MessageReceivedReplySent event for message fragments.");
+            return;
+        }
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED_REPLY_SENT;
         final Map<String, String> properties = new HashMap<>();
         fillEventProperties(userMessage, properties);
