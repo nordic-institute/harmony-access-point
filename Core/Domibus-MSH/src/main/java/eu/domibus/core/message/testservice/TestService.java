@@ -256,8 +256,7 @@ public class TestService {
     public void deleteReceivedMessageHistoryFromParty(String party) {
         LOG.debug("Deleting received test messages for party [{}]", party);
         List<UserMessage> userMessages = findReceivedMessagesToKeep(party);
-
-        // todo this line can be incorporated in the dao method
+        
         List<UserMessage> all = userMessageDao.findTestMessagesFromParty(party);
 
         try {
