@@ -253,20 +253,31 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDeletedUserMessagesOlderThan");
+        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan", eArchiveIsActive);
     }
 
     public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
+        return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan", eArchiveIsActive);
     }
 
     public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, eArchiveIsActive, "UserMessageLog.findDownloadedUserMessagesOlderThan");
+        return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan", eArchiveIsActive);
+
+    }
+
+    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName, boolean eArchiveIsActive) {
+        Query query = em.createNamedQuery(queryName);
+        query.setParameter("DATE", startDate);
+        query.setParameter("MPC", mpc);
+        query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
+        query.setMaxResults(expiredMessagesLimit);
+        return query.getResultList();
+
     }
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata, boolean eArchiveIsActive) {
         if (isDeleteMessageMetadata) {
-            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesOlderThan");
+            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan", eArchiveIsActive);
         }
         // return only messages with payload not already cleared
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive);
@@ -318,29 +329,9 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean eArchiveIsActive) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, eArchiveIsActive, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
+        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", eArchiveIsActive);
     }
 
-    /**
-     * EDELIVERY-7772 Hibernate setResultTransformer deprecated
-     */
-    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, boolean eArchiveIsActive, String queryName) {
-        Query query = em.createNamedQuery(queryName);
-
-        query.unwrap(org.hibernate.query.Query.class)
-                .setResultTransformer(new UserMessageLogDtoResultTransformer());
-        query.setParameter("DATE", startDate);
-        query.setParameter("MPC", mpc);
-        query.setParameter("EARCHIVE_IS_ACTIVE", eArchiveIsActive);
-        query.setMaxResults(expiredMessagesLimit);
-
-        try {
-            return query.getResultList();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Query [{}] did not find any result for startDate [{}] and MPC [{}]", queryName, startDate, mpc);
-            return Collections.emptyList();
-        }
-    }
 
     @Transactional
     public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String partitionName) {
