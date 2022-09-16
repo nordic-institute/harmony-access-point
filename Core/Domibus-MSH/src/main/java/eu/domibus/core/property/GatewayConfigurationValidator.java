@@ -107,22 +107,30 @@ public class GatewayConfigurationValidator implements DomainsAware {
         }
 
         //check if the aliases defined in domibus.properties exist in the Trustore
-        final String privateKeyAliasRsaSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_RSA_SIGN);
-        final String privateKeyAliasRsaDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD_RSA_DECRYPT);
-        final String privateKeyAliasEccSign = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_SIGN);
-        final String privateKeyAliasEccDecrypt = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS_ECC_DECRYPT);
+        final String privateKeyRsaAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS);
+        final String privateKeyRsaSignAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS);
+        final String privateKeyRsaDecryptAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS);
+        final String privateKeyEccAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS);
+        final String privateKeyEccSignAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS);
+        final String privateKeyEccDecryptAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS);
 
-        if (privateKeyAliasRsaSign != null) {
-            validateAlias(privateKeyAliasRsaSign, trustStore, domain);
+        if (privateKeyRsaAlias != null) {
+            validateAlias(privateKeyRsaAlias, trustStore, domain);
         }
-        if (privateKeyAliasRsaDecrypt != null) {
-            validateAlias(privateKeyAliasRsaDecrypt, trustStore, domain);
+        if (privateKeyRsaSignAlias != null) {
+            validateAlias(privateKeyRsaSignAlias, trustStore, domain);
         }
-        if (privateKeyAliasEccSign != null) {
-            validateAlias(privateKeyAliasEccSign, trustStore, domain);
+        if (privateKeyRsaDecryptAlias != null) {
+            validateAlias(privateKeyRsaDecryptAlias, trustStore, domain);
         }
-        if (privateKeyAliasEccDecrypt != null) {
-            validateAlias(privateKeyAliasEccDecrypt, trustStore, domain);
+        if (privateKeyEccAlias != null) {
+            validateAlias(privateKeyEccAlias, trustStore, domain);
+        }
+        if (privateKeyEccSignAlias != null) {
+            validateAlias(privateKeyEccSignAlias, trustStore, domain);
+        }
+        if (privateKeyEccDecryptAlias != null) {
+            validateAlias(privateKeyEccDecryptAlias, trustStore, domain);
         }
     }
 
