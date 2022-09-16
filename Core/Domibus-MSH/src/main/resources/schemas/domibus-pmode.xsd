@@ -273,7 +273,6 @@
                                                               use="required"/>
                                                 <xs:attribute
                                                         name="signatureMethod">
-<!--                                                        use="required">-->
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
                                                                 <xs:enumeration value="RSA_SHA1" />
