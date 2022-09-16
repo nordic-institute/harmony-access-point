@@ -449,7 +449,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 return new DataHandler(new ByteArrayDataSource(payloadBytes, mimeType));
             }
         } catch (JMSException jmsEx) {
-            LOG.debug("no payload data as byte[] available for payload [" + propPayload + "] trying payload via URL", jmsEx);
+            LOG.debug("No payload data as byte[] available for payload [" + propPayload + "]", jmsEx);
         }
 
         //try to get the payload as an URL eg file sytem
@@ -458,7 +458,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             LOG.debug("Trying to get the payload via URL [{}]", payloadReference);
             return new DataHandler(new URLDataSource(new URL(payloadReference)));
         } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Could not get payload [" + propPayload + "] via URL reference, aborting transformation");
+            throw new IllegalArgumentException("Could not get payload [" + propPayload + "] via URL reference, aborting transformation", e);
         }
     }
 
