@@ -3,6 +3,22 @@
 <databaseChangeLog
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
+    <changeSet author="Thomas Dussart"  id="EDELIVERY-9534 fix java deletion slowness">
+        <createIndex indexName="IDX_MSG_DOWNLOADED" tableName="TB_USER_MESSAGE_LOG" >
+            <column name="DOWNLOADED"/>
+        </createIndex>
+        <createIndex indexName="IDX_UML_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE_LOG" >
+            <column name="DOWNLOADED"/>
+            <column name="ID_PK"/>
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_UM_DELETION_COMPOSITE" tableName="TB_USER_MESSAGE" >
+            <column name="MPC_ID_FK"/>
+            <column name="ID_PK"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <!-- properties - to be used in column definitions -->
