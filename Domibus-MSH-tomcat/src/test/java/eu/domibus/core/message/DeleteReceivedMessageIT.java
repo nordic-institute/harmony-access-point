@@ -1,16 +1,12 @@
 package eu.domibus.core.message;
 
 
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.routing.BackendFilter;
-import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -25,8 +21,7 @@ import java.util.Map;
  */
 @Transactional
 public class DeleteReceivedMessageIT extends DeleteMessageAbstractIT {
-    @Autowired
-    protected RoutingService routingService;
+
     /**
      * Test to delete a received message
      */
@@ -34,8 +29,6 @@ public class DeleteReceivedMessageIT extends DeleteMessageAbstractIT {
     public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
 
         deleteAllMessages();
 

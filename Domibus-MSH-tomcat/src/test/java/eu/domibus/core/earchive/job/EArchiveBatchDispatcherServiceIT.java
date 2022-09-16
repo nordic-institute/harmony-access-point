@@ -5,12 +5,10 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
@@ -19,7 +17,6 @@ import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -27,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,14 +78,9 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     private EArchiveBatchDao userMessageDao;
     @Autowired
     private EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
-    @Autowired
-    protected RoutingService routingService;
 
     @Before
     public void setUp() throws Exception {
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
-
         domain = new Domain("default", "default");
         uploadPmode(SERVICE_PORT);
 
