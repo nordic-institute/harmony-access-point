@@ -1253,6 +1253,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
 
         TYPE T_SJ_MESSAGE_GROUP IS TABLE OF c_sj_message_group%ROWTYPE;
         sj_message_group T_SJ_MESSAGE_GROUP;
+        
+        v_msh_role_id_fk NUMBER;
     BEGIN
         DBMS_OUTPUT.PUT_LINE('Migrating TB_SJ_MESSAGE_GROUP entries...');
         OPEN c_sj_message_group;
@@ -1261,6 +1263,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
             EXIT WHEN sj_message_group.COUNT = 0;
 
             FOR i IN sj_message_group.FIRST .. sj_message_group.LAST LOOP
+                    -- NOT NULL
+                    SELECT REMOTE_ID INTO v_msh_role_id_fk FROM MIGR_TB_PKS_MSH_ROLE WHERE LOCAL_ID = sj_message_group(i).MSH_ROLE_ID_FK;
+            
                     EXECUTE IMMEDIATE 'INSERT INTO TB_SJ_MESSAGE_GROUP@' || db_link || ' (ID_PK, GROUP_ID, MESSAGE_SIZE, FRAGMENT_COUNT, SENT_FRAGMENTS, RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM, COMPRESSED_MESSAGE_SIZE, SOAP_ACTION, REJECTED, EXPIRED, MSH_ROLE_ID_FK, SOURCE_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY) VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
                         USING sj_message_group(i).ID_PK,
                         sj_message_group(i).GROUP_ID,
@@ -1273,7 +1278,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_ONGOING_MESSAGES_50 IS
                         sj_message_group(i).SOAP_ACTION,
                         sj_message_group(i).REJECTED,
                         sj_message_group(i).EXPIRED,
-                        sj_message_group(i).MSH_ROLE_ID_FK,
+                        v_msh_role_id_fk,
                         sj_message_group(i).SOURCE_MESSAGE_ID_FK,
                         sj_message_group(i).CREATION_TIME,
                         sj_message_group(i).CREATED_BY;
