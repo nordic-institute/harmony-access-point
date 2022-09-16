@@ -2,6 +2,7 @@
 
 ## Domibus 5.0.1 (from 5.0):
                 - Replace the Domibus war
+                - Run the appropriate DB migration script(mysql-5.0-to-5.0.1-migration.ddl for MySQL or oracle-5.0-to-5.0.1-migration.ddl for Oracle)
 
 ## Domibus 5.0 (from 4.2.9)
 
