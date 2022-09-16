@@ -100,8 +100,8 @@
 			<security name="eDeliveryAS4Policy_IS" policy="eDeliveryAS4Policy_IS.xml" signatureMethod="RSA_SHA256"/>
 			<security name="eDeliveryAS4PolicyEncryptBody" policy="eDeliveryAS4PolicyEncryptBody.xml" signatureMethod="RSA_SHA256"/>
 			<security name="eDeliveryAS4PolicyNoBodyEncrypt" policy="eDeliveryAS4PolicyNoBodyEncrypt.xml" signatureMethod="RSA_SHA256"/>
-			<!--<security name="eDeliveryAS4PolicyRSA" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256" profile = "RSA"/>
-			<security name="eDeliveryAS4PolicyECC" policy="eDeliveryAS4Policy.xml" signatureMethod="ECC_SHA256" profile = "ECC"/>-->
+			<!--<security name="eDeliveryAS4PolicyRSA" policy="eDeliveryAS4Policy.xml" profile="RSA"/>-->
+			<!--<security name="eDeliveryAS4PolicyECC" policy="eDeliveryAS4Policy.xml" profile="ECC"/>-->
 		</securities>
 		<errorHandlings>
 			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
