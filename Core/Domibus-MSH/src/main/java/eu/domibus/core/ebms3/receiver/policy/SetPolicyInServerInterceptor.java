@@ -116,22 +116,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
             message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
 
-            String profile = legConfiguration.getSecurity().getProfile();
-            String securityAlgorithm = null;
-            if (null == profile) {
-                securityAlgorithm = legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
-            } else {
-                switch (profile) {
-                    case RSA_PROFILE:
-                        securityAlgorithm = AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
-                        break;
-                    case ECC_PROFILE:
-                        securityAlgorithm = AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
-                        break;
-                    default:
-                        LOG.error("No security profile was specified");
-                }
-            }
+            String securityAlgorithm = getSecurityAlgorithm(legConfiguration);
+
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(MessageConstants.EMBS3_MESSAGING_OBJECT, ebms3Messaging);
@@ -154,6 +140,25 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                     .mshRole(MSHRole.RECEIVING)
                     .build());
         }
+    }
+
+    protected String getSecurityAlgorithm(LegConfiguration legConfiguration) {
+        String profile = legConfiguration.getSecurity().getProfile();
+
+        if (profile == null) {
+            return legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+        }
+
+        switch (profile) {
+            case RSA_PROFILE:
+                return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
+            case ECC_PROFILE:
+                return AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
+            default:
+                LOG.error("No security profile was specified");
+        }
+
+        return null;
     }
 
     protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Ebms3Messaging ebms3Messaging) {
