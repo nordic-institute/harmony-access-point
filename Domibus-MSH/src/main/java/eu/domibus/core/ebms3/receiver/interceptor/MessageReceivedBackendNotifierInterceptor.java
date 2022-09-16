@@ -18,7 +18,7 @@ import static eu.domibus.messaging.MessageConstants.BACKEND_FILTER;
 import static eu.domibus.messaging.MessageConstants.USER_MESSAGE;
 
 /**
- * Interceptor to notify plugin of message received
+ * Interceptor to notify plugin of message received reply sent
  *
  * @author Ion Perpegel
  * @since 5.0.1
@@ -47,8 +47,10 @@ public class MessageReceivedBackendNotifierInterceptor extends AbstractSoapInter
 
         try {
             backendNotificationService.notifyMessageReceivedReplySent(matchingBackendFilter, userMessage);
-        } catch (Exception ex) {
-            throw new Fault(ex);
+        } catch (Throwable ex) {
+            // we swallow the exception because it is too late to send an error reply
+            LOG.info("An error occurred while notifying plugin [{}] of message received reply sent.",
+                    matchingBackendFilter.getBackendName(), ex);
         }
     }
 
