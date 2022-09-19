@@ -15,4 +15,15 @@
     <packaging>pom</packaging>
     <name>FS Plugin modules</name>
 
+    <profiles>
+        <profile>
+            <id>default-plugins</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>Domibus-default-fs-plugin</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

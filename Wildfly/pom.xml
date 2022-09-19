@@ -20,4 +20,14 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>wildfly</id>
+            <modules>
+                <module>Domibus-MSH-jms-wildfly-artemis</module>
+                <module>Domibus-MSH-taskexecutor-wildfly</module>
+                <module>Domibus-MSH-wildfly</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
