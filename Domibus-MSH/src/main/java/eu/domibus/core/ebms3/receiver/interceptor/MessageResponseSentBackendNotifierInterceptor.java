@@ -44,6 +44,10 @@ public class MessageResponseSentBackendNotifierInterceptor extends AbstractSoapI
     public void handleMessage(SoapMessage message) throws Fault {
         BackendFilter matchingBackendFilter = (BackendFilter) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(BACKEND_FILTER);
         UserMessage userMessage = (UserMessage) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(USER_MESSAGE);
+        if (userMessage == null) {
+            LOG.info("User message was not present in the userMessageContextKeyProvider; exiting.");
+            return;
+        }
         LOG.debug("Notifying plugin of message response sent event for message [{}]", userMessage);
 
         try {
