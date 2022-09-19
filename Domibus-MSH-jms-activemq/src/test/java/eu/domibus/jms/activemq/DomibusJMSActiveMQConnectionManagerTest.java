@@ -109,9 +109,7 @@ public class DomibusJMSActiveMQConnectionManagerTest {
     }
 
     @Test
-    public void init_createsClusterOfBrokersForEachBrokerConfiguration(@Injectable MBeanServerConnection serverConnection1,
-                                                                       @Injectable MBeanServerConnection serverConnection2,
-                                                                       @Injectable DomibusJMSActiveMQBroker domibusJMSActiveMQBroker1,
+    public void init_createsClusterOfBrokersForEachBrokerConfiguration(@Injectable DomibusJMSActiveMQBroker domibusJMSActiveMQBroker1,
                                                                        @Injectable DomibusJMSActiveMQBroker domibusJMSActiveMQBroker2) throws Exception {
         // GIVEN
         final List<String> serviceNames = Arrays.asList(
@@ -127,16 +125,10 @@ public class DomibusJMSActiveMQConnectionManagerTest {
             domibusPropertyProvider.getCommaSeparatedPropertyValues(ACTIVE_MQ_BROKER_NAME);
             result = brokerNames;
 
-            mBeanServerConnections.getObject("service:jmx:rmi:///jndi/rmi://broker1:1099/jmxrmi");
-            result = serverConnection1;
-
-            mBeanServerConnections.getObject("service:jmx:rmi:///jndi/rmi://broker2:1099/jmxrmi");
-            result = serverConnection2;
-
-            domibusJMSActiveMQBrokers.getObject("broker1", "service:jmx:rmi:///jndi/rmi://broker1:1099/jmxrmi", serverConnection1, mBeanProxyFactoryBeans);
+            domibusJMSActiveMQBrokers.getObject("broker1", "service:jmx:rmi:///jndi/rmi://broker1:1099/jmxrmi", mBeanServerConnections, mBeanProxyFactoryBeans);
             result = domibusJMSActiveMQBroker1;
 
-            domibusJMSActiveMQBrokers.getObject("broker2", "service:jmx:rmi:///jndi/rmi://broker2:1099/jmxrmi", serverConnection2, mBeanProxyFactoryBeans);
+            domibusJMSActiveMQBrokers.getObject("broker2", "service:jmx:rmi:///jndi/rmi://broker2:1099/jmxrmi", mBeanServerConnections, mBeanProxyFactoryBeans);
             result = domibusJMSActiveMQBroker2;
         }};
 

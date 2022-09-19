@@ -78,9 +78,7 @@ public class DomibusJMSActiveMQConnectionManager {
                     String brokerName = brokerNames.get(index);
 
                     LOG.trace("Creating an ActiveMQ broker using the service URL [{}] and the broker name [{}]", serviceUrl, brokerName);
-
-                    MBeanServerConnection mBeanServerConnection = mBeanServerConnections.getObject(serviceUrl);
-                    brokerCluster.add(domibusJMSActiveMQBrokers.getObject(brokerName, serviceUrl, mBeanServerConnection, mBeanProxyFactoryBeans));
+                    brokerCluster.add(domibusJMSActiveMQBrokers.getObject(brokerName, serviceUrl, mBeanServerConnections, mBeanProxyFactoryBeans));
                 });
     }
 

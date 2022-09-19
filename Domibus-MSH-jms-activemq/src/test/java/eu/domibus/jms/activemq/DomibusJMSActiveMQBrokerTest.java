@@ -6,6 +6,7 @@ import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.ObjectProvider;
@@ -26,19 +27,35 @@ public class DomibusJMSActiveMQBrokerTest {
     private DomibusJMSActiveMQBroker domibusJMSActiveMQBroker;
 
     @Injectable
-    private MBeanServerConnection mBeanServerConnection;
-
-    @Injectable
     private ObjectProvider<BrokerViewMBean> brokerViewMBeans;
 
     @Injectable
+    private ObjectProvider<MBeanServerConnection> mBeanServerConnections;
+
+    @Injectable
     private BrokerViewMBean brokerViewMBean;
+
+    @Injectable
+    private MBeanServerConnection mBeanServerConnection;
 
     @Injectable
     private String brokerName = "broker";
 
     @Injectable
     private String serviceUrl = "service:jmx:rmi:///jndi/rmi://localhost:123/jmxrmi";
+
+    @Before
+    public void ignorePostConstructInvocation() {
+        new MockUp<DomibusJMSActiveMQBroker>() {
+            @Mock
+            void init(Invocation invocation) {
+                // ignore the first invocation due to @PostConstruct
+                if (invocation.getInvocationCount() > 1) {
+                    invocation.proceed();
+                }
+            }
+        };
+    }
 
     @Test
     public void isMaster_returnsTrueWhenBrokerViewMBeanReturnsTheSlaveFlagAsFalse() {
@@ -159,8 +176,39 @@ public class DomibusJMSActiveMQBrokerTest {
         }};
     }
 
+    @Test
+    public void refresh(@Injectable ObjectName objectName) throws Exception {
+        // GIVEN
+        Map<String, ObjectName> queueMap = getQueueMap();
+        queueMap.put("queueViewMBeanName", objectName);
+        Assert.assertFalse("Should have correctly initialized the queue map", queueMap.isEmpty());
+        new Expectations() {{
+            mBeanServerConnections.getObject(serviceUrl);
+            result = mBeanServerConnection;
+
+            brokerViewMBeans.getObject(brokerName, mBeanServerConnection);
+            result = brokerViewMBean;
+        }};
+
+        // WHEN
+        domibusJMSActiveMQBroker.refresh();
+
+        // THEN
+        Assert.assertSame("Should have refreshed the broker view MBean", brokerViewMBean, getBrokerViewMBean());
+        Assert.assertSame("Should have refreshed the server connection MBean", mBeanServerConnection, getMBeanServerConnection());
+        Assert.assertTrue("Should have had the queue map cleared", queueMap.isEmpty());
+    }
+
     private Map<String, ObjectName> getQueueMap() throws IllegalAccessException {
         return (Map<String, ObjectName>) FieldUtils.readField(domibusJMSActiveMQBroker, "queueMap", true);
+    }
+
+    private BrokerViewMBean getBrokerViewMBean() throws IllegalAccessException {
+        return (BrokerViewMBean) FieldUtils.readField(domibusJMSActiveMQBroker, "brokerViewMBean", true);
+    }
+
+    private MBeanServerConnection getMBeanServerConnection() throws IllegalAccessException {
+        return (MBeanServerConnection) FieldUtils.readField(domibusJMSActiveMQBroker, "mBeanServerConnection", true);
     }
 
 }

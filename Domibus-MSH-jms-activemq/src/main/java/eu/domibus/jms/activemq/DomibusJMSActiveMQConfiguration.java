@@ -78,19 +78,19 @@ public class DomibusJMSActiveMQConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public BrokerViewMBean mBeanProxyFactoryBeans(String brokerName, String serviceUrl) throws MalformedObjectNameException, MalformedURLException {
+    public BrokerViewMBean mBeanProxyFactoryBeans(String brokerName, MBeanServerConnection server) throws MalformedObjectNameException, MalformedURLException {
         MBeanProxyFactoryBean result = new MBeanProxyFactoryBean();
         result.setObjectName(MQ_BROKER_NAME + brokerName);
         result.setProxyInterface(BrokerViewMBean.class);
-        result.setServiceUrl(serviceUrl);
+        result.setServer(server);
         result.afterPropertiesSet();
         return (BrokerViewMBean) result.getObject();
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusJMSActiveMQBroker domibusJMSActiveMQBroker(String brokerName, String serviceName, MBeanServerConnection mBeanServerConnection, ObjectProvider<BrokerViewMBean> brokerViewMBeans) {
-        return new DomibusJMSActiveMQBroker(brokerName, serviceName, mBeanServerConnection, brokerViewMBeans);
+    public DomibusJMSActiveMQBroker domibusJMSActiveMQBroker(String brokerName, String serviceName, ObjectProvider<MBeanServerConnection> mBeanServerConnections, ObjectProvider<BrokerViewMBean> brokerViewMBeans) {
+        return new DomibusJMSActiveMQBroker(brokerName, serviceName, mBeanServerConnections, brokerViewMBeans);
     }
 
     @Bean("jmsSender")

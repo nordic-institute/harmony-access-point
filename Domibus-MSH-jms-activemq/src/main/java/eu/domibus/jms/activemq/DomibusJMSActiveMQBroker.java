@@ -6,6 +6,7 @@ import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.springframework.beans.factory.ObjectProvider;
 
+import javax.annotation.PostConstruct;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
@@ -26,7 +27,7 @@ public class DomibusJMSActiveMQBroker {
 
     private final String serviceUrl;
 
-    private final MBeanServerConnection mBeanServerConnection;
+    private final ObjectProvider<MBeanServerConnection> mBeanServerConnections;
 
     /**
      * Broker view MBean provider for the case when a broker needs to be refreshed.
@@ -35,14 +36,19 @@ public class DomibusJMSActiveMQBroker {
 
     private BrokerViewMBean brokerViewMBean;
 
+    private MBeanServerConnection mBeanServerConnection;
+
     private final Map<String, ObjectName> queueMap = new HashMap<>();
 
-    public DomibusJMSActiveMQBroker(String brokerName, String serviceUrl, MBeanServerConnection mBeanServerConnection, ObjectProvider<BrokerViewMBean> brokerViewMBeans) {
+    public DomibusJMSActiveMQBroker(String brokerName, String serviceUrl, ObjectProvider<MBeanServerConnection> mBeanServerConnections, ObjectProvider<BrokerViewMBean> brokerViewMBeans) {
         this.brokerName = brokerName;
         this.serviceUrl = serviceUrl;
-        this.mBeanServerConnection = mBeanServerConnection;
+        this.mBeanServerConnections = mBeanServerConnections;
         this.brokerViewMBeans = brokerViewMBeans;
+    }
 
+    @PostConstruct
+    public void init() {
         refresh();
     }
 
@@ -80,7 +86,8 @@ public class DomibusJMSActiveMQBroker {
 
     public void refresh() {
         LOG.trace("Refreshing broker view MBean [{}]", getBrokerDetails());
-        brokerViewMBean = brokerViewMBeans.getObject(brokerName, serviceUrl);
+        mBeanServerConnection = mBeanServerConnections.getObject(serviceUrl);
+        brokerViewMBean = brokerViewMBeans.getObject(brokerName, mBeanServerConnection);
         queueMap.clear();
     }
 }
