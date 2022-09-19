@@ -146,18 +146,18 @@ public class BackendNotificationService {
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
     }
 
-    @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceivedReplySent")
-    @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceivedReplySent")
-    public void notifyMessageReceivedReplySent(BackendFilter matchingBackendFilter, UserMessage userMessage) {
+    @Timer(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
+    public void notifyMessageResponseSent(BackendFilter matchingBackendFilter, UserMessage userMessage) {
         if (isPluginNotificationDisabled()) {
             LOG.info("Plugin notification is disabled.");
             return;
         }
         if (userMessage.isMessageFragment()) {
-            LOG.info("No MessageReceivedReplySent event for message fragments.");
+            LOG.debug("No MessageReceivedReplySent event for message fragments.");
             return;
         }
-        NotificationType notificationType = NotificationType.MESSAGE_RECEIVED_REPLY_SENT;
+        NotificationType notificationType = NotificationType.MESSAGE_RESPONSE_SENT;
         final Map<String, String> properties = new HashMap<>();
         fillEventProperties(userMessage, properties);
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);

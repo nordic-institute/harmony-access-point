@@ -7,7 +7,6 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -166,11 +165,11 @@ public interface BackendConnector<U, T> {
     void messageReceiveFailed(MessageReceiveFailureEvent event);
 
     /**
-     * This method gets called when a response was sent to c2 for an incoming message
+     * This method gets called just before the message is sent to C2 over the wire
      *
      * @param event event containing details about the message receive failure event
      */
-    void messageReceiveReplySent(MessageReceiveReplySentEvent event);
+    void messageResponseSent(MessageReplySentEvent event);
 
     /**
      * This method gets called when the status of a User Message changes

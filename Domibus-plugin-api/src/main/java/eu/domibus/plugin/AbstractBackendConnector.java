@@ -171,7 +171,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public void messageReceiveReplySent(final MessageReceiveReplySentEvent event) {
+    public void messageResponseSent(final MessageReplySentEvent event) {
         // nothing to do by default
     }
 

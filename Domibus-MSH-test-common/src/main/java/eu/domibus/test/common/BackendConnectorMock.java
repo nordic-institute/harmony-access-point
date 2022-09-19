@@ -19,7 +19,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     private MessageSendFailedEvent messageSendFailedEvent;
     private MessageSendSuccessEvent messageSendSuccessEvent;
 
-    private MessageReceiveReplySentEvent messageReceiveReplySentEvent;
+    private MessageReplySentEvent messageReplySentEvent;
 
     public BackendConnectorMock(String name) {
         super(name);
@@ -36,8 +36,8 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     }
 
     @Override
-    public void messageReceiveReplySent(final MessageReceiveReplySentEvent messageReceiveReplySentEvent) {
-        this.messageReceiveReplySentEvent = messageReceiveReplySentEvent;
+    public void messageResponseSent(final MessageReplySentEvent messageReplySentEvent) {
+        this.messageReplySentEvent = messageReplySentEvent;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
         this.deliverMessageEvent = null;
         this.messageSendFailedEvent = null;
         this.messageSendSuccessEvent = null;
-        this.messageReceiveReplySentEvent = null;
+        this.messageReplySentEvent = null;
     }
 
     public MessageReceiveFailureEvent getMessageReceiveFailureEvent() {
@@ -119,7 +119,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
         return messageSendSuccessEvent;
     }
 
-    public MessageReceiveReplySentEvent getMessageReceiveReplySentEvent() {
-        return messageReceiveReplySentEvent;
+    public MessageReplySentEvent getMessageReceiveReplySentEvent() {
+        return messageReplySentEvent;
     }
 }

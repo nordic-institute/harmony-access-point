@@ -46,7 +46,4 @@ public final class MessageConstants {
      */
     public static final String PAYLOAD_PROPERTY_FILE_NAME = "PayloadName";
 
-    public static final String USER_MESSAGE = "userMessage";
-    public static final String BACKEND_FILTER = "backendFilter";
-
 }

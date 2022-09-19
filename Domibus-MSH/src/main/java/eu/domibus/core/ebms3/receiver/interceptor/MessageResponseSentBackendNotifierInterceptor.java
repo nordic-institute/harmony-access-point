@@ -14,8 +14,8 @@ import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.messaging.MessageConstants.BACKEND_FILTER;
-import static eu.domibus.messaging.MessageConstants.USER_MESSAGE;
+import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
+import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 
 /**
  * Interceptor to notify plugin of message received reply sent
@@ -24,9 +24,9 @@ import static eu.domibus.messaging.MessageConstants.USER_MESSAGE;
  * @since 5.0.1
  */
 @Service
-public class MessageReceivedBackendNotifierInterceptor extends AbstractSoapInterceptor {
+public class MessageResponseSentBackendNotifierInterceptor extends AbstractSoapInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageReceivedBackendNotifierInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageResponseSentBackendNotifierInterceptor.class);
 
     @Autowired
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
@@ -34,7 +34,7 @@ public class MessageReceivedBackendNotifierInterceptor extends AbstractSoapInter
     @Autowired
     private BackendNotificationService backendNotificationService;
 
-    public MessageReceivedBackendNotifierInterceptor() {
+    public MessageResponseSentBackendNotifierInterceptor() {
         super(Phase.WRITE_ENDING);
         addAfter(SaveRawEnvelopeInterceptor.class.getName());
     }
@@ -46,10 +46,10 @@ public class MessageReceivedBackendNotifierInterceptor extends AbstractSoapInter
         LOG.debug("Notifying plugin of message received event for message [{}]", userMessage);
 
         try {
-            backendNotificationService.notifyMessageReceivedReplySent(matchingBackendFilter, userMessage);
+            backendNotificationService.notifyMessageResponseSent(matchingBackendFilter, userMessage);
         } catch (Throwable ex) {
             // we swallow the exception because it is too late to send an error reply
-            LOG.info("An error occurred while notifying plugin [{}] of message received reply sent.",
+            LOG.warn("An error occurred while notifying plugin [{}] of message response sent.",
                     matchingBackendFilter.getBackendName(), ex);
         }
     }

@@ -8,22 +8,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *  This event is used to transfer information on the received message reply sent event, from the core to the plugins implementing PUSH methods.
+ *  This event is used to transfer information on the message response sent event, from the core to the plugins implementing PUSH methods.
  *
  * @author Ion Perpegel
  * @since 5.0.1
  */
-public class MessageReceiveReplySentEvent implements Serializable, MessageEvent {
+public class MessageReplySentEvent implements Serializable, MessageEvent {
 
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected long messageEntityId;
 
-    public MessageReceiveReplySentEvent(String messageId) {
+    public MessageReplySentEvent(String messageId) {
         this.messageId = messageId;
     }
 
-    public MessageReceiveReplySentEvent(long messageEntityId, String messageId, Map<String, String> properties) {
+    public MessageReplySentEvent(long messageEntityId, String messageId, Map<String, String> properties) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.properties = properties;

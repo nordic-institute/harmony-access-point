@@ -14,7 +14,7 @@ import static java.util.Collections.unmodifiableList;
  */
 public enum NotificationType {
     MESSAGE_RECEIVED,
-    MESSAGE_RECEIVED_REPLY_SENT,
+    MESSAGE_RESPONSE_SENT,
     MESSAGE_FRAGMENT_RECEIVED,
     MESSAGE_SEND_FAILURE,
     MESSAGE_FRAGMENT_SEND_FAILURE,

@@ -48,9 +48,9 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
     }
 
     @Override
-    public void messageReceiveReplySent(BackendConnector backendConnector, MessageReceiveReplySentEvent event) {
+    public void messageResponseSent(BackendConnector backendConnector, MessageReplySentEvent event) {
         LOG.trace("Calling messageReceiveReplySent method");
-        backendConnector.messageReceiveReplySent(event);
+        backendConnector.messageResponseSent(event);
     }
 
     @Override
