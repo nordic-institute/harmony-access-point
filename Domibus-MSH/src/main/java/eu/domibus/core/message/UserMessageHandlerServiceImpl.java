@@ -46,6 +46,7 @@ import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,9 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.List;
+
+import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
+import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 
 /**
  * @author Thomas Dussart
@@ -282,12 +286,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
             String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-            submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
-            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList, null);
-            LOG.debug("Source message saved: [{}]", messageInfoId);
-
             try {
-                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
             } catch (SubmissionValidationException e) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
@@ -305,6 +305,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                         .cause(e)
                         .build();
             }
+            String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList, null);
+            LOG.debug("Source message saved: [{}]", messageInfoId);
+
+            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
         }
     }
 
@@ -344,11 +348,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-                submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
-                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
                 try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                    submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw EbMS3ExceptionBuilder.getInstance()
@@ -367,9 +369,16 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                             .build();
                 }
 
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
+
+                backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+
+                // we add this objects for use in out Interceptor to notify when reply is sent
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
+
                 if (ebms3MessageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");
-
                     splitAndJoinService.incrementReceivedFragments(ebms3MessageFragmentType.getGroupId(), backendName);
                 }
             }

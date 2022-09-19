@@ -9,7 +9,6 @@ import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
@@ -542,7 +541,7 @@ public class BackendMessageValidator {
     }
 
     public void validateSubmissionPayload(Submission submission, MSHRole mshRole) throws EbMS3Exception {
-        if(submission.getPayloads() == null){
+        if (submission.getPayloads() == null) {
             return;
         }
         validateSubmissionAttachmentCount(submission, mshRole);
@@ -573,7 +572,7 @@ public class BackendMessageValidator {
     }
 
     protected void validateSubmissionPayloadProperty(Submission.TypedProperty payloadProperty, MSHRole mshRole) throws EbMS3Exception {
-        if(payloadProperty == null || payloadProperty.getValue() == null){
+        if (payloadProperty == null || payloadProperty.getValue() == null) {
             LOG.debug("Payload properties empty in usermessage submission");
             return;
         }
