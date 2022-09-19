@@ -461,7 +461,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
                 return new DataHandler(new ByteArrayDataSource(payloadBytes, mimeType));
             }
         } catch (JMSException jmsEx) {
-            LOG.debug("Could not get payload data as byte[] available for payload [" + propPayload + "]", jmsEx);
+            LOG.debug("Could not get data as byte[] for payload [" + propPayload + "]", jmsEx);
         }
         throw new DefaultJmsPluginException("Could not get the content for payload [" + propPayload + "]");
     }
