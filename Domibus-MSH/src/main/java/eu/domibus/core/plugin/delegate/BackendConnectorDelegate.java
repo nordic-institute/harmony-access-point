@@ -11,7 +11,7 @@ public interface BackendConnectorDelegate {
 
     void messageReceiveFailed(BackendConnector backendConnector, MessageReceiveFailureEvent event);
 
-    void messageResponseSent(BackendConnector backendConnector, MessageReplySentEvent event);
+    void messageResponseSent(BackendConnector backendConnector, MessageResponseSentEvent event);
 
     void messageStatusChanged(BackendConnector backendConnector, MessageStatusChangeEvent event);
 

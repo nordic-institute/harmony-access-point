@@ -13,17 +13,17 @@ import java.util.Map;
  * @author Ion Perpegel
  * @since 5.0.1
  */
-public class MessageReplySentEvent implements Serializable, MessageEvent {
+public class MessageResponseSentEvent implements Serializable, MessageEvent {
 
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected long messageEntityId;
 
-    public MessageReplySentEvent(String messageId) {
+    public MessageResponseSentEvent(String messageId) {
         this.messageId = messageId;
     }
 
-    public MessageReplySentEvent(long messageEntityId, String messageId, Map<String, String> properties) {
+    public MessageResponseSentEvent(long messageEntityId, String messageId, Map<String, String> properties) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.properties = properties;

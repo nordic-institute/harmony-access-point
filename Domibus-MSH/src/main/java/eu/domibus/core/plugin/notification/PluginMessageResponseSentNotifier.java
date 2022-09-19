@@ -1,6 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.common.MessageReplySentEvent;
+import eu.domibus.common.MessageResponseSentEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.plugin.BackendConnector;
@@ -27,7 +27,7 @@ public class PluginMessageResponseSentNotifier implements PluginEventNotifier {
 
     @Override
     public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
-        MessageReplySentEvent deliverMessageEvent = new MessageReplySentEvent(messageEntityId, messageId, properties);
+        MessageResponseSentEvent deliverMessageEvent = new MessageResponseSentEvent(messageEntityId, messageId, properties);
         backendConnectorDelegate.messageResponseSent(backendConnector, deliverMessageEvent);
     }
 }

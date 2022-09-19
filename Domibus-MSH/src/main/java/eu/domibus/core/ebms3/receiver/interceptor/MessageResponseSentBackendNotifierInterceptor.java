@@ -19,7 +19,7 @@ import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILT
 import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 
 /**
- * Interceptor to notify plugin of message reply sent
+ * Interceptor to notify plugin of message response sent
  *
  * @author Ion Perpegel
  * @since 5.0.1
@@ -44,7 +44,7 @@ public class MessageResponseSentBackendNotifierInterceptor extends AbstractSoapI
     public void handleMessage(SoapMessage message) throws Fault {
         BackendFilter matchingBackendFilter = (BackendFilter) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(BACKEND_FILTER);
         UserMessage userMessage = (UserMessage) userMessageContextKeyProvider.getObjectFromTheCurrentMessage(USER_MESSAGE);
-        LOG.debug("Notifying plugin of message received event for message [{}]", userMessage);
+        LOG.debug("Notifying plugin of message response sent event for message [{}]", userMessage);
 
         try {
             backendNotificationService.notifyMessageResponseSent(matchingBackendFilter, userMessage);
