@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *  This event is used to transfer information on the message response sent event, from the core to the plugins implementing PUSH methods.
+ *  This event is used to transfer information on the message reply sent event, from the core to the plugins implementing PUSH methods.
  *
  * @author Ion Perpegel
  * @since 5.0.1

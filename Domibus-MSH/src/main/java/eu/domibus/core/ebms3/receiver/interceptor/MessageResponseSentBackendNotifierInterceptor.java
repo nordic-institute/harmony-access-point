@@ -7,6 +7,7 @@ import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -18,7 +19,7 @@ import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILT
 import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 
 /**
- * Interceptor to notify plugin of message received reply sent
+ * Interceptor to notify plugin of message reply sent
  *
  * @author Ion Perpegel
  * @since 5.0.1
@@ -49,8 +50,7 @@ public class MessageResponseSentBackendNotifierInterceptor extends AbstractSoapI
             backendNotificationService.notifyMessageResponseSent(matchingBackendFilter, userMessage);
         } catch (Throwable ex) {
             // we swallow the exception because it is too late to send an error reply
-            LOG.warn("An error occurred while notifying plugin [{}] of message response sent.",
-                    matchingBackendFilter.getBackendName(), ex);
+            LOG.businessWarn(DomibusMessageCode.BUS_NOTIFY_MESSAGE_RESPONSE_SENT_ERROR, matchingBackendFilter.getBackendName(), ex);
         }
     }
 

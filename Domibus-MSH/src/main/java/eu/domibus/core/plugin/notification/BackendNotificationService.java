@@ -154,7 +154,7 @@ public class BackendNotificationService {
             return;
         }
         if (userMessage.isMessageFragment()) {
-            LOG.debug("No MessageReceivedReplySent event for message fragments.");
+            LOG.debug("No MessageResponseSent event for message fragments.");
             return;
         }
         NotificationType notificationType = NotificationType.MESSAGE_RESPONSE_SENT;
