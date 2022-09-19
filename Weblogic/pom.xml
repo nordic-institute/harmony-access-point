@@ -15,6 +15,13 @@
     <packaging>pom</packaging>
     <name>Weblogic modules</name>
 
+    <modules>
+        <module>Domibus-MSH-taskexecutor-weblogic</module>
+        <module>Domibus-MSH-jms-weblogic</module>
+        <module>Domibus-MSH-weblogic-common</module>
+        <module>Domibus-MSH-weblogic</module>
+    </modules>
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -24,18 +31,12 @@
         <profile>
             <id>weblogic</id>
             <modules>
-                <module>Domibus-MSH-taskexecutor-weblogic</module>
-                <module>Domibus-MSH-jms-weblogic</module>
-                <module>Domibus-MSH-weblogic-common</module>
                 <module>Domibus-MSH-weblogic</module>
             </modules>
         </profile>
         <profile>
             <id>weblogic-ecas</id>
             <modules>
-                <module>Domibus-MSH-taskexecutor-weblogic</module>
-                <module>Domibus-MSH-jms-weblogic</module>
-                <module>Domibus-MSH-weblogic-common</module>
                 <module>Domibus-MSH-weblogic-eu-login</module>
             </modules>
         </profile>

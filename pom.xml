@@ -1468,15 +1468,6 @@
             </modules>
         </profile>
         <profile>
-            <id>UI</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>Core</module>
-            </modules>
-        </profile>
-        <profile>
             <id>default-plugins</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
