@@ -41,6 +41,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.exception.PluginMessageReceiveException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -295,6 +296,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                         .refToMessageId(messageId)
                         .cause(e)
                         .build();
+            } catch (PluginMessageReceiveException e) {
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PLUGIN_RECEIVE_FAILED, backendName);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(e.getEbMS3ErrorCode())
+                        .message(e.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(e)
+                        .build();
             }
         }
     }
@@ -344,6 +353,14 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                            .message(e.getMessage())
+                            .refToMessageId(messageId)
+                            .cause(e)
+                            .build();
+                } catch (PluginMessageReceiveException e) {
+                    LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PLUGIN_RECEIVE_FAILED, backendName);
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(e.getEbMS3ErrorCode())
                             .message(e.getMessage())
                             .refToMessageId(messageId)
                             .cause(e)
