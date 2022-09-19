@@ -7,7 +7,6 @@ import eu.domibus.common.ErrorCode;
  */
 public class PluginMessageReceiveException extends RuntimeException {
 
-    //default value
     protected ErrorCode.EbMS3ErrorCode ebMS3ErrorCode;
 
     public PluginMessageReceiveException(ErrorCode.EbMS3ErrorCode ebMS3ErrorCode) {
