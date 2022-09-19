@@ -433,7 +433,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         }
 
         DataHandler payloadDataHandler = getPayloadDataHandler(messageIn, mimeType, propPayload);
-        ;
+
         boolean inBody = (i == 1 && "true".equalsIgnoreCase(bodyloadEnabled));
 
         final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
