@@ -104,17 +104,17 @@ public class PartyServiceImpl implements PartyService {
      */
     @Override
     public List<String> findPushToPartyNamesForTest() {
-        // todo add parameter initiating party: gateway party-me
-        return findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        String selfParty = getGatewayPartyIdentifier();
+        return findPushToPartyNamesByServiceAndAction(selfParty, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
     }
 
-    protected List<String> findPushToPartyNamesByServiceAndAction(String service, String action) {
+    protected List<String> findPushToPartyNamesByServiceAndAction(String initiatingPartyId, String service, String action) {
         List<MessageExchangePattern> meps = new ArrayList<>();
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
         meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
         meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
         meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
-        return pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
+        return pModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, service, action, meps);
     }
 
     /**

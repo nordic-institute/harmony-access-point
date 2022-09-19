@@ -3,6 +3,7 @@ package eu.domibus.core.party;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
@@ -1281,21 +1282,22 @@ public class PartyServiceImplTest {
         // Given
         final String service = "service1";
         final String action = "action1";
+        String initiatingPartyId = "blue_gw";
         List<MessageExchangePattern> meps = new ArrayList<>();
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
         meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
         meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
         meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
         new Expectations(partyService) {{
-            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
+            pModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, service, action, meps);
             result = (List<String>) any;
         }};
 
         // When
-        partyService.findPushToPartyNamesByServiceAndAction (service, action);
+        partyService.findPushToPartyNamesByServiceAndAction (Ebms3Constants.TEST_SERVICE, service, action);
         // Then
         new Verifications() {{
-            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
+            pModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, service, action, meps);
             times = 1;
         }};
     }

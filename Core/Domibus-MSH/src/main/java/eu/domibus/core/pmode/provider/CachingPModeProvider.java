@@ -15,7 +15,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
@@ -190,7 +189,7 @@ public class CachingPModeProvider extends PModeProvider {
      * The match means that either there is no initiator and it is allowed
      * by configuration OR the initiator name matches
      *
-     * @param process                   the process containing the initiators
+     * @param process     the process containing the initiators
      * @param senderParty the senderParty
      */
     protected boolean matchInitiator(final Process process, final String senderParty) {
@@ -220,8 +219,8 @@ public class CachingPModeProvider extends PModeProvider {
     /**
      * The match requires that the responder exists in the process
      *
-     * @param process        the process containing the responder
-     * @param receiverParty  the receiverParty
+     * @param process       the process containing the responder
+     * @param receiverParty the receiverParty
      */
     protected boolean matchResponder(final Process process, final String receiverParty) {
         //Responder is always required for this method to return true
@@ -1015,9 +1014,11 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
+    public List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
         List<String> result = new ArrayList<>();
-        List<Process> processes = filterProcessesByMep(meps);
+        List<Process> processes = filterProcessesByMep(meps).stream()
+                .filter(proc -> proc.getInitiatorParties().stream().anyMatch(initParty -> initParty.getIdentifiers().stream().anyMatch(id -> StringUtils.equals(id.getPartyId(), initiatingPartyId))))
+                        .collect(Collectors.toList());
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
@@ -1026,6 +1027,11 @@ public class CachingPModeProvider extends PModeProvider {
         }
         return result.stream().distinct().collect(Collectors.toList());
     }
+    
+//    @Override
+//    public List<String> findPartiesByResponderServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
+//
+//    }
 
     protected List<Process> filterProcessesByMep(final List<MessageExchangePattern> meps) {
         List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
