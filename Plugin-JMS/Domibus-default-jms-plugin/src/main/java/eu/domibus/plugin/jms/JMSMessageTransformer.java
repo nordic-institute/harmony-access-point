@@ -441,7 +441,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         target.addPayload(contentId, payloadDataHandler, partProperties, inBody, null, null);
     }
 
-    private DataHandler getPayloadDataHandler(MapMessage messageIn, String mimeType, String propPayload) throws IllegalArgumentException, JMSException {
+    private DataHandler getPayloadDataHandler(MapMessage messageIn, String mimeType, String propPayload) throws JMSException {
         //try to get the payload as an URL eg file sytem
         String payloadReference = messageIn.getStringProperty(propPayload);
         if (StringUtils.isNotBlank(payloadReference)) {
@@ -449,7 +449,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             try {
                 return new DataHandler(new URLDataSource(new URL(payloadReference)));
             } catch (MalformedURLException e) {
-                throw new IllegalArgumentException("Could not get payload [" + propPayload + "] via URL reference [" + payloadReference + "], aborting transformation", e);
+                throw new DefaultJmsPluginException("Could not get payload [" + propPayload + "] via URL reference [" + payloadReference + "], aborting transformation", e);
             }
         }
 
