@@ -4,10 +4,10 @@ package eu.domibus.plugin;
 import eu.domibus.common.*;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.exception.PluginMessageReceiveException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -115,8 +115,10 @@ public interface BackendConnector<U, T> {
      * Delivers the message with the associated messageId to the backend application. Plugins MUST OVERRIDE this method.
      *
      * @param event containing details about the deliver message event
+     * throws {@link PluginMessageReceiveException} In case there was an issue while delivering the message to the plugin or
+     *              while processing the message by the plugin
      */
-    void deliverMessage(final DeliverMessageEvent event);
+    void deliverMessage(final DeliverMessageEvent event) throws PluginMessageReceiveException;
 
     /**
      * Initiates a pull request for the given mpc
@@ -164,6 +166,13 @@ public interface BackendConnector<U, T> {
      * @param event event containing details about the message receive failure event
      */
     void messageReceiveFailed(MessageReceiveFailureEvent event);
+
+    /**
+     * This method gets called just before the message is sent to C2 over the wire
+     *
+     * @param event event containing details about the message response event
+     */
+    void messageResponseSent(MessageResponseSentEvent event);
 
     /**
      * This method gets called when the status of a User Message changes

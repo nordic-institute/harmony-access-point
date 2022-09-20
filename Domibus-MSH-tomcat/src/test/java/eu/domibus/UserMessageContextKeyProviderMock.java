@@ -30,4 +30,14 @@ public class UserMessageContextKeyProviderMock implements UserMessageContextKeyP
     public String getKeyFromTheCurrentMessage(String key) {
         return (String) getProperties().get(key);
     }
+
+    @Override
+    public void setObjectOnTheCurrentMessage(String key, Object value) {
+        getProperties().setProperty(key, value.toString());
+    }
+
+    @Override
+    public Object getObjectFromTheCurrentMessage(String key) {
+        return getProperties().get(key);
+    }
 }

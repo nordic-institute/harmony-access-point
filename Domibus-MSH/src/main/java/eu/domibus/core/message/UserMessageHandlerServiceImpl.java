@@ -41,6 +41,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.exception.PluginMessageReceiveException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +56,9 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.List;
+
+import static eu.domibus.core.message.UserMessageContextKeyProvider.BACKEND_FILTER;
+import static eu.domibus.core.message.UserMessageContextKeyProvider.USER_MESSAGE;
 
 /**
  * @author Thomas Dussart
@@ -281,16 +285,26 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
             String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-            submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
+            try {
+                submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
+            } catch (SubmissionValidationException e) {
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                        .message(e.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(e)
+                        .build();
+            }
             String messageInfoId = persistReceivedSourceMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, partInfoList, null);
             LOG.debug("Source message saved: [{}]", messageInfoId);
 
             try {
                 backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            } catch (SubmissionValidationException e) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
+            } catch (PluginMessageReceiveException e) {
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PLUGIN_RECEIVE_FAILED, backendName);
                 throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                        .ebMS3ErrorCode(e.getEbMS3ErrorCode())
                         .message(e.getMessage())
                         .refToMessageId(messageId)
                         .cause(e)
@@ -335,11 +349,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-                submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
-                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
 
                 try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                    submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw EbMS3ExceptionBuilder.getInstance()
@@ -350,9 +362,26 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                             .build();
                 }
 
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, partInfoList, ebms3MessageFragmentType, backendName, signalMessageResult);
+
+                try {
+                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
+                } catch (PluginMessageReceiveException e) {
+                    LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PLUGIN_RECEIVE_FAILED, backendName);
+                    throw EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(e.getEbMS3ErrorCode())
+                            .message(e.getMessage())
+                            .refToMessageId(messageId)
+                            .cause(e)
+                            .build();
+                }
+
+                // we add this objects for use in out Interceptor to notify when reply is sent
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
+                userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
+
                 if (ebms3MessageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");
-
                     splitAndJoinService.incrementReceivedFragments(ebms3MessageFragmentType.getGroupId(), backendName);
                 }
             }

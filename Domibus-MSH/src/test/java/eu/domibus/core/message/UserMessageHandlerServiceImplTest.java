@@ -268,9 +268,6 @@ public class UserMessageHandlerServiceImplTest {
             soapUtil.logMessage(soapRequestMessage);
             times = 1;
 
-            backendNotificationService.notifyMessageReceived(null, userMessage);
-            times = 1;
-
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
 
@@ -313,10 +310,6 @@ public class UserMessageHandlerServiceImplTest {
 
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
             times = 1;
-
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            times = 1;
-
         }};
     }
 
@@ -353,9 +346,6 @@ public class UserMessageHandlerServiceImplTest {
             Assert.assertEquals("1234" + UserMessageHandlerService.SELF_SENDING_SUFFIX, capturedId);
 
             messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
-            times = 1;
-
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
             times = 1;
 
             splitAndJoinService.incrementReceivedFragments(null, "backEndName");
@@ -563,75 +553,6 @@ public class UserMessageHandlerServiceImplTest {
 
         new FullVerifications() {
         };
-    }
-
-    @Test
-    public void testInvoke_ErrorInNotifyingIncomingMessage(@Injectable final BackendFilter matchingBackendFilter,
-                                                           @Injectable final LegConfiguration legConfiguration,
-                                                           @Injectable final UserMessage userMessage,
-                                                           @Injectable Ebms3MessageFragmentType messageFragment,
-                                                           @Injectable Reliability reliability)
-            throws EbMS3Exception, TransformerException, IOException, SOAPException {
-
-        final String pmodeKey = "blue_gw:red_gw:testService1:tc1Action:OAE:pushTestcase1tc1Action";
-
-        new Expectations(userMessageHandlerService) {{
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            legConfiguration.getReliability().getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            legConfiguration.getReliability().isNonRepudiation();
-            result = true;
-
-            final SOAPMessage responseMessage = as4ReceiptService.generateReceipt(
-                    soapRequestMessage,
-                    userMessage,
-                    ReplyPattern.RESPONSE,
-                    true,
-                    false,
-                    false);
-
-            as4ReceiptService.generateResponse(responseMessage, false);
-            result = new SignalMessageResult();
-            userMessage.getMessageId();
-            result = "TestMessage123";
-
-            routingService.getMatchingBackendFilter(userMessage);
-            result = matchingBackendFilter;
-
-            matchingBackendFilter.getBackendName();
-            result = "matchingBackendFilter";
-
-            legConfiguration.getReliability();
-            result = reliability;
-
-            reliability.getReplyPattern();
-            result = ReplyPattern.RESPONSE;
-
-            reliability.isNonRepudiation();
-            result = true;
-
-            pModeProvider.checkSelfSending(pmodeKey);
-            result = false;
-
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            result = new SubmissionValidationException("Error while submitting the message!!");
-        }};
-        try {
-            userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false);
-            fail();
-        } catch (EbMS3Exception e) {
-            // OK
-        }
-
-        new Verifications() {{
-            soapUtil.logMessage(soapRequestMessage);
-            backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
-            messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
-        }};
     }
 
     protected UserMessage createSampleUserMessage() {
