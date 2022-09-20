@@ -39,5 +39,5 @@ public interface ConnectionMonitoringService {
 
     boolean isDeleteHistoryEnabled();
 
-    void deleteReceivedTestMessageHistory();
+    void deleteReceivedTestMessageHistoryIfApplicable();
 }

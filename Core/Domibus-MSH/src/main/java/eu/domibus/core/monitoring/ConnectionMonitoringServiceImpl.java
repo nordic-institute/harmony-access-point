@@ -95,19 +95,24 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public void deleteReceivedTestMessageHistory() {
+    public void deleteReceivedTestMessageHistoryIfApplicable() {
         handleAllValueForCommaSeparatedProperties();
+
+        if (!isDeleteHistoryEnabled()) {
+            LOG.debug("Delete received test message history is not enabled; exiting.");
+            return;
+        }
 
         List<String> testableParties = partyService.findPushFromPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
-            LOG.debug("There are no available parties to delete test message history");
+            LOG.debug("There are no available parties to delete test message history; exiting.");
             return;
         }
 
         List<String> deleteHistoryParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
         deleteHistoryParties = deleteHistoryParties.stream().filter(testableParties::contains).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
-            LOG.debug("There are no parties to delete test message history");
+            LOG.debug("There are no parties to delete test message history; exiting.");
             return;
         }
 
