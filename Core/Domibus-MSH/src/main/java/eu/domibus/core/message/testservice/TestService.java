@@ -322,7 +322,7 @@ public class TestService {
             return;
         }
 
-        LOG.debug("Deleting old test messages to party [{}]", toParty);
+        LOG.debug("Deleting sent test message history for toParty [{}]", toParty);
         List<UserMessage> userMessages = findSentMessagesToKeep(toParty);
         List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty);
 
