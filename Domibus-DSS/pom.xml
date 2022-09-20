@@ -12,16 +12,4 @@
     <artifactId>domibus-dss</artifactId>
     <packaging>pom</packaging>
     <name>Domibus DSS</name>
-
-    <profiles>
-        <profile>
-            <id>dss-extension</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>Domibus-authentication-dss-extension</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>
