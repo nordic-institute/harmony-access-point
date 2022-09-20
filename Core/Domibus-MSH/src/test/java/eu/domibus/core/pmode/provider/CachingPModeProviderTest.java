@@ -1346,27 +1346,27 @@ public class CachingPModeProviderTest {
         Assert.assertFalse(cachingPModeProvider.isDeleteMessageMetadataByMpcURI(DEFAULT_MPC_URI));
     }
 
-//    @Test
-//    public void handleProcessParties(@Mocked Process process, @Mocked Party party1, @Mocked Party party2) {
-//        Set<Party> parties = new HashSet<>();
-//        parties.add(party1);
-//        parties.add(party2);
-//        String partyId1 = "partyId1", partyId2 = "partyId2";
-//
-//        new Expectations(cachingPModeProvider) {{
-//            process.getResponderParties();
-//            result = parties;
-//            cachingPModeProvider.getOnePartyId(party1);
-//            result = partyId1;
-//            cachingPModeProvider.getOnePartyId(party2);
-//            result = partyId2;
-//        }};
-//
-//        List<String> result = cachingPModeProvider.getPartiesId(process);
-//
-//        assertEquals(2, result.size());
-//        Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));
-//    }
+    @Test
+    public void handleProcessParties(@Mocked Process process, @Mocked Party party1, @Mocked Party party2) {
+        Set<Party> parties = new HashSet<>();
+        parties.add(party1);
+        parties.add(party2);
+        String partyId1 = "partyId1", partyId2 = "partyId2";
+
+        new Expectations(cachingPModeProvider) {{
+            process.getResponderParties();
+            result = parties;
+            cachingPModeProvider.getOnePartyId(party1);
+            result = partyId1;
+            cachingPModeProvider.getOnePartyId(party2);
+            result = partyId2;
+        }};
+
+        List<String> result = cachingPModeProvider.getDistinctPartiesId(process, Process::getResponderParties);
+
+        assertEquals(2, result.size());
+        Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));
+    }
 
     @Test
     public void getOnePartyId(@Mocked Party party) {

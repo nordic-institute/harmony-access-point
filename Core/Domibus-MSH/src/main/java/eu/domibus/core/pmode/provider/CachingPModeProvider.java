@@ -1016,16 +1016,16 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
-        return findByParams(initiatingPartyId, Process::getInitiatorParties, Process::getResponderParties, service, action, meps);
+        return findPartiesByParameters(initiatingPartyId, Process::getInitiatorParties, Process::getResponderParties, service, action, meps);
     }
 
     @Override
     public List<String> findPartiesByResponderServiceAndAction(String responderPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
-        return findByParams(responderPartyId, Process::getResponderParties, Process::getInitiatorParties, service, action, meps);
+        return findPartiesByParameters(responderPartyId, Process::getResponderParties, Process::getInitiatorParties, service, action, meps);
     }
 
-    protected List<String> findByParams(String partyId, Function<Process, Set<Party>> getProcessPartiesByRoleFn, Function<Process, Set<Party>> getCorrespondingPartiesFn,
-                                        String service, String action, List<MessageExchangePattern> meps) {
+    protected List<String> findPartiesByParameters(String partyId, Function<Process, Set<Party>> getProcessPartiesByRoleFn, Function<Process, Set<Party>> getCorrespondingPartiesFn,
+                                                   String service, String action, List<MessageExchangePattern> meps) {
         List<String> result = new ArrayList<>();
         List<Process> processes = filterProcessesByMep(meps).stream()
                 .filter(proc -> getProcessPartiesByRoleFn.apply(proc).stream().

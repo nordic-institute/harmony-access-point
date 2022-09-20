@@ -39,7 +39,7 @@ public class ConnectionMonitoringChangeListenerTest {
     protected PartyService partyService;
 
     @Tested
-    protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener(partyService, pModeProvider);
+    protected ConnectionMonitoringChangeListener listener;
 
     @Before
     public void setupTest() throws IOException {
