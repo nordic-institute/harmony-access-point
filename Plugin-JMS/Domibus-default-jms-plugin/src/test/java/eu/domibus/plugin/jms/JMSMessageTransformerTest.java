@@ -197,6 +197,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, 1), "filename");
         messageMap.setStringProperty(MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, 1), JMS_PAYLOAD_NAME_FORMAT + "name");
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
+        messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 2), PAY_LOAD.getBytes());
 
         Submission objSubmission = testObj.transformToSubmission(messageMap);
         Assert.assertNotNull(objSubmission);

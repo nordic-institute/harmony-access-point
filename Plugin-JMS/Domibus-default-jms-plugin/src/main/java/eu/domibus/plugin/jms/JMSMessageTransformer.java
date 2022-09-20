@@ -176,11 +176,11 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         final JMSPluginAttachmentReferenceType attachmentReferenceType = getAttachmentReferenceType();
         LOG.debug("The attachment reference type is [{}]", attachmentReferenceType);
 
-        if(JMSPluginAttachmentReferenceType.FILE == attachmentReferenceType) {
+        if (JMSPluginAttachmentReferenceType.FILE == attachmentReferenceType) {
             setPayloadInJMSMessageUsingFileReference(messageOut, counter, p);
             return;
         }
-        if(JMSPluginAttachmentReferenceType.URL == attachmentReferenceType) {
+        if (JMSPluginAttachmentReferenceType.URL == attachmentReferenceType) {
             setPayloadInJMSMessageUsingURLReference(messageOut, counter, userMessageEntityId, p);
             return;
         }
@@ -211,7 +211,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     protected String getCid(String cid) {
-        if(StringUtils.startsWith(cid, "cid:")) {
+        if (StringUtils.startsWith(cid, "cid:")) {
             return StringUtils.substringAfter(cid, "cid:");
         }
         return cid;
@@ -432,22 +432,38 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             partProperties.add(new Submission.TypedProperty(propName, messageIn.getStringProperty(key)));
         }
 
-        DataHandler payloadDataHandler;
-        try {
-            payloadDataHandler = new DataHandler(new ByteArrayDataSource(messageIn.getBytes(propPayload), mimeType));
-        } catch (JMSException jmsEx) {
-            LOG.debug("no payload data as byte[] available, trying payload via URL", jmsEx);
-            try {
-                payloadDataHandler = new DataHandler(new URLDataSource(new URL(messageIn.getString(propPayload))));
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException(propPayload + " neither available as byte[] or URL, aborting transformation");
-            }
-        }
+        DataHandler payloadDataHandler = getPayloadDataHandler(messageIn, mimeType, propPayload);
+
         boolean inBody = (i == 1 && "true".equalsIgnoreCase(bodyloadEnabled));
 
         final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
         final String contentId = trim(messageIn.getStringProperty(payContID));
         target.addPayload(contentId, payloadDataHandler, partProperties, inBody, null, null);
+    }
+
+    private DataHandler getPayloadDataHandler(MapMessage messageIn, String mimeType, String propPayload) throws JMSException {
+        //try to get the payload as an URL eg file sytem
+        String payloadReference = messageIn.getStringProperty(propPayload);
+        if (StringUtils.isNotBlank(payloadReference)) {
+            LOG.debug("Trying to get the payload via URL [{}]", payloadReference);
+            try {
+                return new DataHandler(new URLDataSource(new URL(payloadReference)));
+            } catch (MalformedURLException e) {
+                throw new DefaultJmsPluginException("Could not get payload [" + propPayload + "] via URL reference [" + payloadReference + "], aborting transformation", e);
+            }
+        }
+
+        //try to get the payload as a binary from the JMS message
+        try {
+            final byte[] payloadBytes = messageIn.getBytes(propPayload);
+            if (payloadBytes != null) {
+                LOG.debug("Getting payload binary for payload [{}]", propPayload);
+                return new DataHandler(new ByteArrayDataSource(payloadBytes, mimeType));
+            }
+        } catch (JMSException jmsEx) {
+            LOG.debug("Could not get data as byte[] for payload [" + propPayload + "]", jmsEx);
+        }
+        throw new DefaultJmsPluginException("Could not get the content for payload [" + propPayload + "]");
     }
 
     /**
