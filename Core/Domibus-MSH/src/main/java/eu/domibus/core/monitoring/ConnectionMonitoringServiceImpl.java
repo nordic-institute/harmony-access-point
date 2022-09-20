@@ -1,6 +1,5 @@
 package eu.domibus.core.monitoring;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -97,14 +96,16 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void deleteReceivedTestMessageHistory() {
+        handleAllValueForCommaSeparatedProperties();
+
         List<String> testableParties = partyService.findPushFromPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to delete test message history");
             return;
         }
 
-        // todo check/filter the listed parties specified in the property to ensure they are among testable parties from above
         List<String> deleteHistoryParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        deleteHistoryParties = deleteHistoryParties.stream().filter(testableParties::contains).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(deleteHistoryParties)) {
             LOG.debug("There are no parties to delete test message history");
             return;
@@ -165,7 +166,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     @Override
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds) {
 
-        handleAllValue();
+        handleAllValueForCommaSeparatedProperties();
 
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
@@ -236,16 +237,16 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
     }
 
-    private void handleAllValue() {
+    private void handleAllValueForCommaSeparatedProperties() {
         List<String> testableParties = partyService.findPushToPartyNamesForTest();
         String testablePartiesStr = testableParties.stream().collect(Collectors.joining(","));
 
-        handleAllValue(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
-        handleAllValue(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, testablePartiesStr);
-        handleAllValue(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, testablePartiesStr);
+        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, testablePartiesStr);
+        handleAllValueForCommaSeparatedProperties(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES, testablePartiesStr);
+        handleAllValueForCommaSeparatedProperties(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES, testablePartiesStr);
     }
 
-    private void handleAllValue(String propName, String propValue) {
+    private void handleAllValueForCommaSeparatedProperties(String propName, String propValue) {
         if (StringUtils.equalsIgnoreCase("ALL", domibusPropertyProvider.getProperty(propName))) {
             domibusPropertyProvider.setProperty(propName, propValue);
         }

@@ -12,7 +12,6 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -256,9 +255,7 @@ public class TestService {
     public void deleteReceivedMessageHistoryFromParty(String party) {
         LOG.debug("Deleting received test messages for party [{}]", party);
         List<UserMessage> userMessages = findReceivedMessagesToKeep(party);
-
         List<UserMessage> all = userMessageDao.findTestMessagesFromParty(party);
-
         try {
             deleteByDifference(userMessages, all);
         } catch (Exception ex) {
@@ -319,9 +316,9 @@ public class TestService {
     }
 
     protected void deleteSentHistoryIfApplicable(String toParty) {
-        String partyList = domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
-        if (!StringUtils.contains(partyList, toParty)) {
-            LOG.debug("Deleting old test messages for party [{}] is not enabled", toParty);
+        List<String> partyList = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        if (!partyList.contains(toParty)) {
+            LOG.debug("Deleting sent test message history for party [{}] is not enabled", toParty);
             return;
         }
 
