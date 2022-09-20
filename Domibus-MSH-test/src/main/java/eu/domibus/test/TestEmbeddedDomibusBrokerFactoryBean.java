@@ -2,7 +2,7 @@ package eu.domibus.test;
 
 import java.util.List;
 
-import eu.domibus.jms.activemq.DomibusBrokerFactoryBean;
+import eu.domibus.jms.activemq.EmbeddedDomibusBrokerFactoryBean;
 import org.apache.activemq.broker.BrokerFactory;
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerService;
@@ -22,14 +22,14 @@ import eu.domibus.logging.DomibusLoggerFactory;
  * @author Sebastian-Ion TINCU
  * @since 4.2
  */
-public class TestDomibusBrokerFactoryBean extends DomibusBrokerFactoryBean {
+public class TestEmbeddedDomibusBrokerFactoryBean extends EmbeddedDomibusBrokerFactoryBean {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestDomibusBrokerFactoryBean.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestEmbeddedDomibusBrokerFactoryBean.class);
 
     @Autowired(required = false)
     private List<BrokerPlugin> brokerPlugins;
 
-    public TestDomibusBrokerFactoryBean(Resource config) {
+    public TestEmbeddedDomibusBrokerFactoryBean(Resource config) {
         super(config);
 
         // Prevent auto-start, we're going to start the embedded broker later

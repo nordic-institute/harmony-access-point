@@ -8,12 +8,16 @@ import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.core.cache.DomibusCacheService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -25,27 +29,27 @@ import static org.junit.Assert.assertEquals;
 public class DomibusPropertyProviderImplTest {
 
     @Tested
-    DomibusPropertyProviderImpl domibusPropertyProvider;
+    private DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Injectable
     @Qualifier("domibusProperties")
-    protected Properties domibusProperties;
+    private  Properties domibusProperties;
 
     @Injectable
     @Qualifier("domibusDefaultProperties")
-    protected Properties domibusDefaultProperties;
+    private  Properties domibusDefaultProperties;
 
     @Injectable
-    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Injectable
-    ConfigurableEnvironment environment;
+    private ConfigurableEnvironment environment;
 
     @Injectable
-    PropertyProviderDispatcher propertyProviderDispatcher;
+    private PropertyProviderDispatcher propertyProviderDispatcher;
 
     @Injectable
-    PrimitivePropertyTypesManager primitivePropertyTypesManager;
+    private PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
     @Injectable
     private NestedPropertiesManager nestedPropertiesManager;
@@ -66,7 +70,9 @@ public class DomibusPropertyProviderImplTest {
     private DomibusCacheService domibusCacheService;
 
     private String propertyName = "domibus.property.name";
+
     private String propertyValue = "domibus.property.value";
+
     private Domain domain = new Domain("domain1", "Domain 1");
 
     @Test
@@ -101,7 +107,6 @@ public class DomibusPropertyProviderImplTest {
 
     @Test
     public void setProperty() {
-
         domibusPropertyProvider.setProperty(propertyName, propertyValue);
 
         new Verifications() {{
@@ -111,7 +116,6 @@ public class DomibusPropertyProviderImplTest {
 
     @Test
     public void setPropertyWithDomain() {
-
         domibusPropertyProvider.setProperty(domain, propertyName, propertyValue, true);
 
         new Verifications() {{
@@ -121,7 +125,6 @@ public class DomibusPropertyProviderImplTest {
 
     @Test
     public void setPropertyWithDomainNull() {
-
         domibusPropertyProvider.setProperty(null, propertyName, propertyValue, true);
 
         new Verifications() {{
@@ -131,7 +134,7 @@ public class DomibusPropertyProviderImplTest {
 
     @Test(expected = DomibusPropertyException.class)
     public void getDomainProperty_NullDomain() {
-        String result = domibusPropertyProvider.getProperty(null, propertyName);
+        domibusPropertyProvider.getProperty(null, propertyName);
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -175,7 +178,7 @@ public class DomibusPropertyProviderImplTest {
     @Test
     public void getBooleanProperty() {
         String val = "true";
-        boolean boolVal = Boolean.valueOf(val);
+        Boolean boolVal = Boolean.valueOf(val);
 
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(propertyName);
@@ -192,7 +195,7 @@ public class DomibusPropertyProviderImplTest {
     @Test
     public void getBooleanDomainProperty() {
         String val = "true";
-        boolean boolVal = Boolean.valueOf(val);
+        Boolean boolVal = Boolean.valueOf(val);
 
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(domain, propertyName);
@@ -208,7 +211,6 @@ public class DomibusPropertyProviderImplTest {
 
     @Test
     public void getPropertyValue(@Mocked DomibusPropertyMetadata meta) {
-
         new Expectations() {{
             propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
             result = propertyValue;
@@ -218,12 +220,151 @@ public class DomibusPropertyProviderImplTest {
             result = true;
         }};
 
-        String result = domibusPropertyProvider.getPropertyValue(propertyName, domain);
+        domibusPropertyProvider.getPropertyValue(propertyName, domain);
 
         new Verifications() {{
             passwordDecryptionService.decryptProperty(domain, propertyName, propertyValue);
         }};
-
     }
 
+    @Test
+    public void getCommaSeparatedPropertyValues_throwsExceptionForPropertiesNotHavingTheCommaSeparatedListType(
+            @Injectable DomibusPropertyMetadata domibusPropertyMetadata) {
+        // GIVEN
+        new Expectations() {{
+            domibusPropertyMetadata.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.NUMERIC;
+
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = domibusPropertyMetadata;
+        }};
+
+        // THEN
+        DomibusPropertyException exception = Assert.assertThrows(
+                "Should have thrown a DomibusPropertyException when retrieving the comma separated property " +
+                        "values for a property not having a comma separated list type",
+                DomibusPropertyException.class,
+                () -> {
+                    // WHEN
+                    domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+                });
+        Assert.assertEquals("Should have thrown a DomibusPropertyException indicating the property type is " +
+                        "not a comma separated list type",
+                "Cannot get the individual parts for property " + propertyName + " because its type "
+                        + DomibusPropertyMetadata.Type.NUMERIC + " is not a comma separated list one",
+                exception.getMessage());
+    }
+
+
+    @Test
+    public void getCommaSeparatedPropertyValues_returnsEmptyListForPropertyHavingTheCommaSeparatedListTypeWhenItsValueIsNull(
+            @Injectable DomibusPropertyMetadata domibusPropertyMetadata) {
+        final String value = null;
+
+        new Expectations() {{
+            domibusPropertyMetadata.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.COMMA_SEPARATED_LIST;
+
+            domibusPropertyMetadata.isEncrypted();
+            result = false;
+
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = domibusPropertyMetadata;
+
+            propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, (Domain) any);
+            result = value;
+        }};
+
+        // WHEN
+        List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+
+        // THEN
+        Assert.assertEquals("Should have returned an empty list when getting the comma separated property " +
+                        "values for a property having a comma separated list type and a null value",
+                Collections.emptyList(), result);
+    }
+
+    @Test
+    public void getCommaSeparatedPropertyValues_returnsEmptyListForPropertyHavingTheCommaSeparatedListTypeWhenItsValueIsEmpty(
+            @Injectable DomibusPropertyMetadata domibusPropertyMetadata) {
+        final String value = "";
+
+        new Expectations() {{
+            domibusPropertyMetadata.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.COMMA_SEPARATED_LIST;
+
+            domibusPropertyMetadata.isEncrypted();
+            result = false;
+
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = domibusPropertyMetadata;
+
+            propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, (Domain) any);
+            result = value;
+        }};
+
+        // WHEN
+        List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+
+        // THEN
+        Assert.assertEquals("Should have returned an empty list when getting the comma separated property " +
+                        "values for a property having a comma separated list type and an empty value",
+                Collections.emptyList(), result);
+    }
+
+    @Test
+    public void getCommaSeparatedPropertyValues_returnsEmptyListForPropertyHavingTheCommaSeparatedListTypeWhenItsValueIsBlank(
+            @Injectable DomibusPropertyMetadata domibusPropertyMetadata) {
+        final String value = "   ";
+
+        new Expectations() {{
+            domibusPropertyMetadata.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.COMMA_SEPARATED_LIST;
+
+            domibusPropertyMetadata.isEncrypted();
+            result = false;
+
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = domibusPropertyMetadata;
+
+            propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, (Domain) any);
+            result = value;
+        }};
+
+        // WHEN
+        List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+
+        // THEN
+        Assert.assertEquals("Should have returned an empty list when getting the comma separated property " +
+                        "values for a property having a comma separated list type and a blank value",
+                Collections.emptyList(), result);
+    }
+
+    @Test
+    public void getCommaSeparatedPropertyValues_returnsListContainingAllIndividualElementsForPropertyHavingTheCommaSeparatedListTypeWhenItsValueIsValid(
+            @Injectable DomibusPropertyMetadata domibusPropertyMetadata) {
+        final String value = "value1,value2,value3,,value4, value5 ,";
+
+        new Expectations() {{
+            domibusPropertyMetadata.getTypeAsEnum();
+            result = DomibusPropertyMetadata.Type.COMMA_SEPARATED_LIST;
+
+            domibusPropertyMetadata.isEncrypted();
+            result = false;
+
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = domibusPropertyMetadata;
+
+            propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, (Domain) any);
+            result = value;
+        }};
+
+        // WHEN
+        List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+
+        // THEN
+        Assert.assertEquals("Should have returned a list containing all the individual elements when getting " +
+                        "the comma separated property values for a property having a comma separated list type and a valid value",
+                Arrays.asList("value1", "value2", "value3", "value4", "value5"), result);
+    }
 }
