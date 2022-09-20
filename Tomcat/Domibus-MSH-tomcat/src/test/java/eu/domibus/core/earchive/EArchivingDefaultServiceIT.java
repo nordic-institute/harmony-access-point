@@ -289,7 +289,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         List<String> messageIds =  new ArrayList<>();
         messageList.stream().forEach(ml -> messageIds.add(ml.getMessageId()));
 
-        userMessageDefaultService.deleteMessages(entityIds, messageIds);
+        userMessageDefaultService.deleteMessagesWithIDs(entityIds);
 
     }
 

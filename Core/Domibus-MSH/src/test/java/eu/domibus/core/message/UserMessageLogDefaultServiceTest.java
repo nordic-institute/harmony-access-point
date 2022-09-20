@@ -1,6 +1,8 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringConfigurationManager;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -49,6 +51,12 @@ public class UserMessageLogDefaultServiceTest {
 
     @Injectable
     protected NotificationStatusDao notificationStatusDao;
+
+    @Injectable
+    ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
+
+    @Injectable
+    EventService eventService;
 
     @Test
     public void setSignalMessageAsDeleted_signalIsNull() {

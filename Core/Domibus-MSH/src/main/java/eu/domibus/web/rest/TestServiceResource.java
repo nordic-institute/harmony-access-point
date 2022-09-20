@@ -46,7 +46,7 @@ public class TestServiceResource {
 
     @RequestMapping(value = "parties", method = RequestMethod.GET)
     public List<String> getTestParties() {
-        return partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        return partyService.findPushToPartyNamesForTest();
     }
 
     @RequestMapping(method = RequestMethod.POST)

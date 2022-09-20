@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
@@ -67,6 +69,12 @@ public class TestServiceTest {
 
     @Injectable
     ActionDictionaryService actionDictionaryService;
+
+    @Injectable
+    UserMessageService userMessageService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

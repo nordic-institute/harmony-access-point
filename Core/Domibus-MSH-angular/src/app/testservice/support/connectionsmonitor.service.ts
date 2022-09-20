@@ -82,6 +82,16 @@ export class ConnectionsMonitorService {
   }
 
   async setMonitorState(partyId: string, enabled: boolean) {
+    let propName = 'domibus.monitoring.connection.party.enabled';
+    await this.setState(enabled, partyId, propName);
+  }
+
+  async setAlertableState(partyId: string, enabled: boolean) {
+    let propName = 'domibus.alert.connection.monitoring.parties';
+    await this.setState(enabled, partyId, propName);
+  }
+
+  private async setState(enabled: boolean, partyId: string, propName: string) {
     let testableParties = await this.http.get<string[]>(ConnectionsMonitorService.TEST_SERVICE_PARTIES_URL).toPromise();
     if (!testableParties || !testableParties.length) {
       throw new Error('The test service is not properly configured.');
@@ -90,7 +100,6 @@ export class ConnectionsMonitorService {
       throw new Error(partyId + ' is not configured for testing');
     }
 
-    let propName = 'domibus.monitoring.connection.party.enabled';
     let prop: PropertyModel = await this.propertiesService.getProperty(propName);
 
     let enabledParties: string[] = prop.value.split(',').map(p => p.trim()).filter(p => p.toLowerCase() != partyId.toLowerCase());
@@ -104,6 +113,35 @@ export class ConnectionsMonitorService {
     await this.propertiesService.updateProperty(prop);
   }
 
+  async setMonitorStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+    let propName = 'domibus.monitoring.connection.party.enabled';
+    await this.setStateForAll(propName, enabled, list);
+  }
+
+  async setAlertableStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+    let propName = 'domibus.alert.connection.monitoring.parties';
+    await this.setStateForAll(propName, enabled, list);
+  }
+
+  private async setStateForAll(propName: string, enabled: boolean, list: ConnectionMonitorEntry[]) {
+    let prop: PropertyModel = await this.propertiesService.getProperty(propName);
+    if (enabled) {
+      prop.value = list.map(el => el.partyId).join(',');
+    } else {
+      prop.value = '';
+    }
+    await this.propertiesService.updateProperty(prop);
+  }
+
+  async setDeleteHistoryState(partyId: string, enabled: boolean) {
+    let propName = 'domibus.monitoring.connection.party.history.delete';
+    await this.setState(enabled, partyId, propName);
+  }
+
+  async setDeleteHistoryStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+    let propName = 'domibus.monitoring.connection.party.history.delete';
+    await this.setStateForAll(propName, enabled, list);
+  }
 }
 
 export class ConnectionMonitorEntry {
@@ -111,6 +149,8 @@ export class ConnectionMonitorEntry {
   partyName?: string;
   testable: boolean;
   monitored: boolean;
+  alertable: boolean;
+  deleteHistory: boolean;
   status: string;
   lastSent: any;
   lastReceived: any;

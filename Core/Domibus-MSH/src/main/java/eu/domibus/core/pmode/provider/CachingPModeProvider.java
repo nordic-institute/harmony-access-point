@@ -15,7 +15,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
@@ -33,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.ebms3.MessageExchangePattern.*;
@@ -190,7 +190,7 @@ public class CachingPModeProvider extends PModeProvider {
      * The match means that either there is no initiator and it is allowed
      * by configuration OR the initiator name matches
      *
-     * @param process                   the process containing the initiators
+     * @param process     the process containing the initiators
      * @param senderParty the senderParty
      */
     protected boolean matchInitiator(final Process process, final String senderParty) {
@@ -220,8 +220,8 @@ public class CachingPModeProvider extends PModeProvider {
     /**
      * The match requires that the responder exists in the process
      *
-     * @param process        the process containing the responder
-     * @param receiverParty  the receiverParty
+     * @param process       the process containing the responder
+     * @param receiverParty the receiverParty
      */
     protected boolean matchResponder(final Process process, final String receiverParty) {
         //Responder is always required for this method to return true
@@ -1015,13 +1015,30 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
+    public List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
+        return findPartiesByParameters(initiatingPartyId, Process::getInitiatorParties, Process::getResponderParties, service, action, meps);
+    }
+
+    @Override
+    public List<String> findPartiesByResponderServiceAndAction(String responderPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
+        return findPartiesByParameters(responderPartyId, Process::getResponderParties, Process::getInitiatorParties, service, action, meps);
+    }
+
+    protected List<String> findPartiesByParameters(String partyId, Function<Process, Set<Party>> getProcessPartiesByRoleFn, Function<Process, Set<Party>> getCorrespondingPartiesFn,
+                                                   String service, String action, List<MessageExchangePattern> meps) {
         List<String> result = new ArrayList<>();
-        List<Process> processes = filterProcessesByMep(meps);
+        List<Process> processes = filterProcessesByMep(meps).stream()
+                .filter(proc -> getProcessPartiesByRoleFn.apply(proc).stream().
+                        anyMatch(initParty -> initParty.getIdentifiers().stream().
+                                anyMatch(id -> StringUtils.equals(id.getPartyId(), partyId))))
+                .collect(Collectors.toList());
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
+                if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                        && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
+                    result.addAll(getDistinctPartiesId(process, getCorrespondingPartiesFn));
+                }
             }
         }
         return result.stream().distinct().collect(Collectors.toList());
@@ -1054,17 +1071,9 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
-        if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
-                && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
-            return handleProcessParties(process);
-        }
-        return new ArrayList<>();
-    }
-
-    protected List<String> handleProcessParties(Process process) {
+    protected List<String> getDistinctPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
         List<String> result = new ArrayList<>();
-        for (Party party : process.getResponderParties()) {
+        for (Party party : getProcessPartiesByRoleFn.apply(process)) {
             String partyId = getOnePartyId(party);
             if (partyId != null) {
                 result.add(partyId);

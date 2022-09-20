@@ -1,16 +1,16 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.ActionEntity;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.model.*;
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.procedure.ProcedureOutputs;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +33,11 @@ public class UserMessageDao extends BasicDao<UserMessage> {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDao.class);
 
     private static final String GROUP_ID = "GROUP_ID";
+    public static final String PARTY_ID = "PARTY_ID";
+    public static final String ACTION_ID = "ACTION_ID";
+
+    @Autowired
+    private ActionDictionaryService actionDictionaryService;
 
     public UserMessageDao() {
         super(UserMessage.class);
@@ -179,10 +184,46 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return result;
     }
 
-    public UserMessage findLastTestMessage(String partyId, ActionEntity actionEntity) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
-        query.setParameter("PARTY_ID", partyId);
-        query.setParameter("ACTION_ID", actionEntity.getEntityId());
+    public UserMessage findLastTestMessageToParty(String partyId) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
+        query.setParameter(PARTY_ID, partyId);
+        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        query.setMaxResults(1);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public List<UserMessage> findTestMessagesToParty(String partyId) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
+        query.setParameter(PARTY_ID, partyId);
+        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        return query.getResultList();
+    }
+
+    public UserMessage findLastTestMessageToPartyWithStatus(String partyId, MessageStatus messageStatus) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findSentTestMessageWithStatusDesc", UserMessage.class);
+        query.setParameter(PARTY_ID, partyId);
+        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        query.setParameter("STATUS", messageStatus);
+        query.setMaxResults(1);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public List<UserMessage> findTestMessagesFromParty(String partyId) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
+        query.setParameter(PARTY_ID, partyId);
+        query.setParameter(ACTION_ID, actionEntity.getEntityId());
+        return query.getResultList();
+    }
+
+    public UserMessage findLastTestMessageFromParty(String partyId) {
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageFromPartyDesc", UserMessage.class);
+        query.setParameter(PARTY_ID, partyId);
+        query.setParameter(ACTION_ID, actionEntity.getEntityId());
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());
     }

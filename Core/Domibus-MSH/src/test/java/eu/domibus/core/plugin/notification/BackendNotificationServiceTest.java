@@ -338,7 +338,7 @@ public class BackendNotificationServiceTest {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
         }};
 
-        backendNotificationService.notifyOfMessageStatusChange(MESSAGE_ID, messageLog, status, TIMESTAMP);
+        backendNotificationService.notifyOfMessageStatusChange(messageLog, status, TIMESTAMP);
 
         new FullVerifications() {
         };

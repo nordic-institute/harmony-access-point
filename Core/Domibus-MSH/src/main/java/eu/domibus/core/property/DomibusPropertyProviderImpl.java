@@ -239,6 +239,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return Arrays.stream(StringUtils.split(StringUtils.trimToEmpty(propertyValue), ','))
                 .map(StringUtils::trimToEmpty)
                 .filter(StringUtils::isNotBlank)
+                .distinct()
                 .collect(Collectors.toList());
     }
 

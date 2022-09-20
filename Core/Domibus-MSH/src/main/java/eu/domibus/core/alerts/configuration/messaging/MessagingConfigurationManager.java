@@ -66,6 +66,7 @@ public class MessagingConfigurationManager
                         currentDomain, alertActive, messageAlertActive);
                 return new MessagingModuleConfiguration(mailSubject);
             }
+            // todo replace with getCommaSeparatedPropertyValues EDELIVERY-10149 Ion Perpegel 16/09/22
             final String messageCommunicationStates = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
             final String messageCommunicationLevels = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
 

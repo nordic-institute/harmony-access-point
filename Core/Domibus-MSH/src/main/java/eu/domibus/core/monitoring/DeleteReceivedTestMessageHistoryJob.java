@@ -10,25 +10,23 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
+ * Job that's deleting old test messages on the receiving side (c3)
+ *
  * @author Ion Perpegel
- * @since 4.2
+ * @since 5.1
  */
 @DisallowConcurrentExecution
-public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
+public class DeleteReceivedTestMessageHistoryJob extends DomibusQuartzJobBean {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringJob.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DeleteReceivedTestMessageHistoryJob.class);
 
     @Autowired
     protected ConnectionMonitoringService connectionMonitoringService;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
-        if (!connectionMonitoringService.isMonitoringEnabled()) {
-            return;
-        }
-
-        LOG.debug("ConnectionMonitoringJob started on [{}] domain", domain);
-        connectionMonitoringService.sendTestMessages();
-        LOG.debug("ConnectionMonitoringJob ended on [{}] domain", domain);
+        LOG.debug("DeleteReceivedTestMessageHistoryJob started on [{}] domain", domain);
+        connectionMonitoringService.deleteReceivedTestMessageHistoryIfApplicable();
+        LOG.debug("DeleteTestMessageHistoryJob ended on [{}] domain", domain);
     }
 }
