@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.ebms3.MessageExchangePattern.*;
@@ -1015,23 +1016,33 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
+        return findByParams(initiatingPartyId, Process::getInitiatorParties, Process::getResponderParties, service, action, meps);
+    }
+
+    @Override
+    public List<String> findPartiesByResponderServiceAndAction(String responderPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
+        return findByParams(responderPartyId, Process::getResponderParties, Process::getInitiatorParties, service, action, meps);
+    }
+
+    protected List<String> findByParams(String partyId, Function<Process, Set<Party>> getProcessPartiesByRoleFn, Function<Process, Set<Party>> getCorrespondingPartiesFn,
+                                        String service, String action, List<MessageExchangePattern> meps) {
         List<String> result = new ArrayList<>();
         List<Process> processes = filterProcessesByMep(meps).stream()
-                .filter(proc -> proc.getInitiatorParties().stream().anyMatch(initParty -> initParty.getIdentifiers().stream().anyMatch(id -> StringUtils.equals(id.getPartyId(), initiatingPartyId))))
-                        .collect(Collectors.toList());
+                .filter(proc -> getProcessPartiesByRoleFn.apply(proc).stream().
+                        anyMatch(initParty -> initParty.getIdentifiers().stream().
+                                anyMatch(id -> StringUtils.equals(id.getPartyId(), partyId))))
+                .collect(Collectors.toList());
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
+                if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                        && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
+                    result.addAll(getDistinctPartiesId(process, getCorrespondingPartiesFn));
+                }
             }
         }
         return result.stream().distinct().collect(Collectors.toList());
     }
-    
-//    @Override
-//    public List<String> findPartiesByResponderServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
-//
-//    }
 
     protected List<Process> filterProcessesByMep(final List<MessageExchangePattern> meps) {
         List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
@@ -1060,17 +1071,9 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
-        if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
-                && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
-            return handleProcessParties(process);
-        }
-        return new ArrayList<>();
-    }
-
-    protected List<String> handleProcessParties(Process process) {
+    protected List<String> getDistinctPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
         List<String> result = new ArrayList<>();
-        for (Party party : process.getResponderParties()) {
+        for (Party party : getProcessPartiesByRoleFn.apply(process)) {
             String partyId = getOnePartyId(party);
             if (partyId != null) {
                 result.add(partyId);

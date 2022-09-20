@@ -1294,7 +1294,7 @@ public class PartyServiceImplTest {
         }};
 
         // When
-        partyService.findPushToPartyNamesByServiceAndAction (Ebms3Constants.TEST_SERVICE, service, action);
+        partyService.findPushToPartyNamesForTest();
         // Then
         new Verifications() {{
             pModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, service, action, meps);

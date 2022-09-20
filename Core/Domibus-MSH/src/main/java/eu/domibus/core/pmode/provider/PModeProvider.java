@@ -533,7 +533,7 @@ public abstract class PModeProvider {
 
     public abstract List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps);
 
-//    public abstract List<String> findPartiesByResponderServiceAndAction(String responderPartyId, final String service, final String action, final List<MessageExchangePattern> meps);
+    public abstract List<String> findPartiesByResponderServiceAndAction(String responderPartyId, final String service, final String action, final List<MessageExchangePattern> meps);
 
     public abstract String getPartyIdType(String partyIdentifier);
 

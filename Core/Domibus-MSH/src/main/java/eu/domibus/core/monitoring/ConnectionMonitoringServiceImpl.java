@@ -97,8 +97,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void deleteReceivedTestMessageHistory() {
-        // todo new selection method is needed here to get the sending parties to me
-        List<String> testableParties = partyService.findPushToPartyNamesForTest();
+        List<String> testableParties = partyService.findPushFromPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to delete test message history");
             return;

@@ -39,6 +39,8 @@ public interface PartyService {
      */
     List<String> findPushToPartyNamesForTest();
 
+    List<String> findPushFromPartyNamesForTest();
+
     /**
      * Returns the Party Identifier Name for the gateway party
      *
