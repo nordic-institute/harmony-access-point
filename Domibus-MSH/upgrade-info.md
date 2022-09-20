@@ -192,7 +192,10 @@
                         Domibus application (.war) should be stopped while running these:
                             - single tenancy:
                                 - step 1: mysql-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
+                                - UTC date migration step
+                                    1. Identify your current named time zone such as 'Europe/Brussels', 'US/Eastern', 'MET' or 'UTC' (e.g. issue SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;)
+                                    2. Populate the MySQL time zone tables if not already done: https://dev.mysql.com/doc/refman/8.0/en/time-zone-support.html#time-zone-installation
+                                    3. call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE named time zone parameter identified above - i.e. the timezone ID in which the date time values have been previously saved -;
                                 - step 2: mysql-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                 If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                 - step 3: mysql-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
@@ -202,7 +205,10 @@
                             - multitenancy:
                                 - general database:
                                     - step 1: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
+                                    - UTC date migration step
+                                        1. Identify your current named time zone such as 'Europe/Brussels', 'US/Eastern', 'MET' or 'UTC' (e.g. issue SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;)
+                                        2. Populate the MySQL time zone tables if not already done: https://dev.mysql.com/doc/refman/8.0/en/time-zone-support.html#time-zone-installation
+                                        3. call the MIGRATE_42_TO_50_utc_conversion_multitenancy procedure providing the correct TIMEZONE named time zone parameter identified above - i.e. the timezone ID in which the date time values have been previously saved -;
                                     - step 2: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.9-to-5.0-data-migration-multi-tenancy-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
@@ -211,7 +217,10 @@
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                 - domain databases:
                                     - step 1: mysql-4.2.9-to-5.0-data-migration-step1.ddl (it will drop and then recreate new version of the tables - errors which appear during dropping could be ignored)
-                                    - UTC date migration step: call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE parameter - i.e. the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels') -;
+                                    - UTC date migration step
+                                        1. Identify your current named time zone such as 'Europe/Brussels', 'US/Eastern', 'MET' or 'UTC' (e.g. issue SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;)
+                                        2. Populate the MySQL time zone tables if not already done: https://dev.mysql.com/doc/refman/8.0/en/time-zone-support.html#time-zone-installation
+                                        3. call the MIGRATE_42_TO_50_utc_conversion procedure providing the correct TIMEZONE named time zone parameter identified above - i.e. the timezone ID in which the date time values have been previously saved -;
                                     - step 2: mysql-4.2.9-to-5.0-data-migration-step2.ddl (it will create the package for data migration, run the migration procedure)
                                     If migration procedure fails step 1 and step 2 could be run again. Once migration procedure ends successfully we could proceed to step 3
                                     - step 3: mysql-4.2.9-to-5.0-data-migration-step3.ddl (this step will finish the migration - during this step 4.2 version of the tables will be renamed to OLD_);
