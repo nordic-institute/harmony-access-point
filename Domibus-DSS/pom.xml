@@ -38,6 +38,7 @@
         <module>dss-service</module>
         <module>dss-utils-apache-commons</module>
         <module>domibus-dss-test</module>
+        <module>domibus-authentication-dss-extension</module>
     </modules>
 
 </project>
