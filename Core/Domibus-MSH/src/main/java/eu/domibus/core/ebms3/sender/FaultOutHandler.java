@@ -3,9 +3,11 @@ package eu.domibus.core.ebms3.sender;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessageResult;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogService;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -39,6 +41,9 @@ public class FaultOutHandler extends AbstractFaultHandler {
     @Autowired
     protected Ebms3Converter ebms3Converter;
 
+    @Autowired
+    UserMessageDao userMessageDao;
+
     @Override
     public Set<QName> getHeaders() {
         return Collections.emptySet();
@@ -63,19 +68,25 @@ public class FaultOutHandler extends AbstractFaultHandler {
 
         final SOAPMessage soapMessage = context.getMessage();
         final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessage);
-        if(ebms3Messaging == null) {
+        if (ebms3Messaging == null) {
             LOG.trace("Messaging header is null, error log not created");
             return true;
         }
         SignalMessageResult signalMessageResult = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        final String messageId = signalMessageResult.getSignalMessage().getSignalMessageId();
+        final String signalMessageId = signalMessageResult.getSignalMessage().getSignalMessageId();
 
         //log the raw xml Signal message
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessage);
 
         //save to database
-        LOG.debug("An ebMS3 error was received for message with ebMS3 messageId [{}]. Please check the database for more detailed information.", messageId);
-        this.errorLogService.createErrorLog(ebms3Messaging, MSHRole.SENDING, null);
+        LOG.debug("An ebMS3 error was received for message with ebMS3 signalMessageId [{}]. Please check the database for more detailed information.", signalMessageId);
+
+        final String messageId = signalMessageResult.getSignalMessage().getRefToMessageId();
+        UserMessage userMessage = null;
+        if(messageId != null) {
+            userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+        }
+        this.errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, userMessage);
 
         return true;
     }
