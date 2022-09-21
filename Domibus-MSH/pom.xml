@@ -327,7 +327,7 @@
             <artifactId>dynamic-discovery-client</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>bcprov-jdk18on</artifactId>
+                    <artifactId>bcprov-jdk15on</artifactId>
                     <groupId>org.bouncycastle</groupId>
                 </exclusion>
                 <exclusion>
