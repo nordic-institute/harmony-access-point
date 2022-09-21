@@ -17,6 +17,7 @@ import {MatDialog} from '@angular/material';
 import {ConnectionDetailsComponent} from './connection-details/connection-details.component';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
+import {HttpClient, HttpParams} from '@angular/common/http';
 
 /**
  * @author Ion Perpegel
@@ -47,7 +48,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   allDeleteHistory: boolean;
 
   constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
-              private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef) {
+              private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef,  private http: HttpClient) {
     super();
   }
 
@@ -269,4 +270,14 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
 
+  async showErrors(row) {
+    try {
+      let searchParams = new HttpParams();
+      searchParams = searchParams.append('partyId', row.partyId);
+      searchParams = searchParams.append('userMessageId', row.lastSent.messageId);
+      let result = await this.http.get<any>(ConnectionDetailsComponent.MESSAGE_LOG_LAST_TEST_RECEIVED_URL, {params: searchParams}).toPromise();
+    } catch (ex) {
+      this.alertService.exception('', ex);
+    }
+  }
 }

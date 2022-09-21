@@ -213,10 +213,10 @@ public class TestService {
      * @throws TestServiceException
      */
     public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
-        TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
+        TestServiceMessageInfoRO result =  getLastTestReceived(partyId, userMessageId);
         if (result == null) {
             String errorDetails = getErrorsDetails(userMessageId);
-            throw new TestServiceException("No Signal Message found. " + errorDetails);
+            throw new TestServiceException(errorDetails);
         }
 
         return result;
@@ -279,7 +279,7 @@ public class TestService {
         List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
         return errorLogEntries.stream()
                 .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining("->"));
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
