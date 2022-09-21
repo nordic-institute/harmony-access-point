@@ -177,7 +177,7 @@ public class TestService {
         }
 
         if (result.getTimeReceived() == null) {
-            String errorDetails = getErrorsDetails(result.getMessageId(), result.getMshRole());
+            String errorDetails = getErrorsDetails(result.getMessageId());
             throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
         }
 
@@ -215,7 +215,7 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
         if (result == null) {
-            String errorDetails = getErrorsDetails(userMessageId, MSHRole.RECEIVING);
+            String errorDetails = getErrorsDetails(userMessageId);
             throw new TestServiceException("No Signal Message found. " + errorDetails);
         }
 
@@ -264,9 +264,9 @@ public class TestService {
 
     }
 
-    protected String getErrorsDetails(String userMessageId, MSHRole mshRole) {
+    protected String getErrorsDetails(String userMessageId) {
         String result;
-        String errorDetails = getErrorsForMessage(userMessageId, mshRole);
+        String errorDetails = getErrorsForMessage(userMessageId);
         if (StringUtils.isEmpty(errorDetails)) {
             result = "Please call the method again to see the details.";
         } else {
@@ -275,8 +275,8 @@ public class TestService {
         return result;
     }
 
-    protected String getErrorsForMessage(String userMessageId, MSHRole mshRole) {
-        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId, mshRole);
+    protected String getErrorsForMessage(String userMessageId) {
+        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
         return errorLogEntries.stream()
                 .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
                 .collect(Collectors.joining(", "));
