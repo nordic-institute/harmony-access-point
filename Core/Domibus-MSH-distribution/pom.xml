@@ -32,21 +32,7 @@
 
     <dependencies>
         <!--Prerequisites of 'make-assembly-default-plugins':-->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>domibus-default-fs-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>domibus-default-jms-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>domibus-default-ws-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -55,6 +41,23 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>domibus-default-fs-plugin</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>domibus-default-ws-plugin</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>domibus-default-jms-plugin</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -87,6 +90,13 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>domibus-authentication-dss-extension</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -121,6 +131,13 @@
             <properties>
                 <tomcat.version>9.0.59</tomcat.version>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>domibus-default-ws-plugin</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -318,6 +335,13 @@
             <properties>
                 <wildfly.version>26.1.0.Final</wildfly.version>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>domibus-authentication-dss-extension</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>
