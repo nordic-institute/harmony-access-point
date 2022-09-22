@@ -186,7 +186,7 @@ public class DomibusJMSActiveMQBrokerTest {
             mBeanServerConnections.getObject(serviceUrl);
             result = mBeanServerConnection;
 
-            brokerViewMBeans.getObject(brokerName, mBeanServerConnection);
+            brokerViewMBeans.getObject(brokerName, serviceUrl);
             result = brokerViewMBean;
         }};
 

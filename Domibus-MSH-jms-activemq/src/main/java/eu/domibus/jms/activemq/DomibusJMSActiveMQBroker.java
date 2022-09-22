@@ -87,7 +87,7 @@ public class DomibusJMSActiveMQBroker {
     public void refresh() {
         LOG.trace("Refreshing broker view MBean [{}]", getBrokerDetails());
         mBeanServerConnection = mBeanServerConnections.getObject(serviceUrl);
-        brokerViewMBean = brokerViewMBeans.getObject(brokerName, mBeanServerConnection);
+        brokerViewMBean = brokerViewMBeans.getObject(brokerName, serviceUrl);
         queueMap.clear();
     }
 }

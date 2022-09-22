@@ -63,13 +63,13 @@ public class DomibusJMSActiveMQConfigurationTest {
         }};
 
         // WHEN
-        BrokerViewMBean result = domibusJMSActiveMQConfiguration.mBeanProxyFactoryBeans(brokerName, server);
+        BrokerViewMBean result = domibusJMSActiveMQConfiguration.mBeanProxyFactoryBeans(brokerName, serviceUrl);
 
         // THEN
         new Verifications() {{
             mBeanProxyFactoryBean.setObjectName(MQ_BROKER_NAME + brokerName);
             mBeanProxyFactoryBean.setProxyInterface(BrokerViewMBean.class);
-            mBeanProxyFactoryBean.setServer(server);
+            mBeanProxyFactoryBean.setServiceUrl(serviceUrl);
             mBeanProxyFactoryBean.afterPropertiesSet();
             Assert.assertEquals(brokerViewMBean, result);
         }};
