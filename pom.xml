@@ -1441,18 +1441,36 @@
 
     <profiles>
         <profile>
+            <id>distribution</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>Core/Domibus-MSH-distribution</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>sample-configuration</id>
+            <modules>
+                <module>Core/Domibus-MSH-distribution</module>
+            </modules>
+        </profile>
+        <profile>
             <id>tomcat</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>Plugin-WS</module>
                 <module>Tomcat</module>
+                <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
             <id>weblogic</id>
             <modules>
                 <module>Weblogic</module>
+                <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
@@ -1464,7 +1482,9 @@
         <profile>
             <id>wildfly</id>
             <modules>
+                <module>Plugin-WS</module>
                 <module>Wildfly</module>
+                <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
@@ -1476,6 +1496,7 @@
                 <module>Plugin-WS</module>
                 <module>Plugin-JMS</module>
                 <module>Plugin-FS</module>
+                <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
@@ -1485,6 +1506,7 @@
             </activation>
             <modules>
                 <module>Domibus-DSS</module>
+                <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>

@@ -11,7 +11,7 @@
 
     <parent>
         <groupId>eu.domibus</groupId>
-        <artifactId>core</artifactId>
+        <artifactId>domibus</artifactId>
         <version>5.1-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
@@ -247,7 +247,6 @@
                                 <artifactId>domibus-default-ws-plugin</artifactId>
                                 <version>${project.version}</version>
                             </dependency>
-                            <!--TODO depends on domibus-MSH-tomcat-distribution -->
                         </dependencies>
                         <executions>
                             <execution>
@@ -410,7 +409,6 @@
                                 <artifactId>domibus-default-ws-plugin</artifactId>
                                 <version>${project.version}</version>
                             </dependency>
-                            <!--TODO depends on domibus-MSH-wildfly-->
                         </dependencies>
                         <executions>
                             <execution>
