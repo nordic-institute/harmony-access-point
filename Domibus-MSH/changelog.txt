@@ -1,4 +1,5 @@
 Domibus 5.0.1
+- Filter out TEST messages from earchived messages
 - Updated two earchive properties default values: domibus.earchive.export.empty set to false and domibus.earchive.batch.retry.timeout set to 0.
 - Fixed the properties issue for ext/messages/acknowledgments/delivered API"
 - Added possibility to throw a specific exception while receiving a message in the plugin
