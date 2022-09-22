@@ -5,6 +5,7 @@ Domibus 5.0.1
 - Fixed the properties issue for ext/messages/acknowledgments/delivered API"
 - Added possibility to throw a specific exception while receiving a message in the plugin
 - Update the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup
+- Fixed the disabling of a domain added at runtime
 Domibus 5.0
 - Send alert when partitions are not properly created in advance
 - Fixed issue when MessageProperties is missing in ebMS3 message
