@@ -135,6 +135,7 @@ import java.util.Date;
                         "  and uml.messageStatus.messageStatus in :STATUSES                                          " +
                         "  and uml.deleted IS NULL                                                                   " +
                         "  and uml.exported IS NULL                                                                  " +
+                        "  and uml.userMessage.testMessage IS FALSE                                                  " +
                         "order by uml.entityId asc                                                                   "),
         @NamedQuery(name = "UserMessageLog.countMessagesForArchiving",
                 query = "select new java.lang.Long(count(uml.entityId)) " +
@@ -142,6 +143,7 @@ import java.util.Date;
                         "where uml.entityId > :LAST_ENTITY_ID " +
                         "  and uml.entityId < :MAX_ENTITY_ID " +
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.userMessage.testMessage IS FALSE " +
                         "  and uml.deleted IS NULL " +
                         "  and uml.exported IS NULL "),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query =
