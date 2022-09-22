@@ -112,8 +112,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
     }
 
     protected void internalRemoveDomain(Domain domain) {
-        domibusPropertyProvider.removeProperties(domain);
-
         try {
             notifyInternalBeansOfRemoval(domain);
         } catch (Exception ex) {
@@ -122,6 +120,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         }
 
         domainService.removeDomain(domain.getCode());
+        domibusPropertyProvider.removeProperties(domain);
     }
 
     protected void notifyInternalBeansOfRemoval(Domain domain) throws Exception {
