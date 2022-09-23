@@ -12,6 +12,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
+        <relativePath>../../pom.xml</relativePath>
         <version>5.1-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
@@ -247,6 +248,12 @@
                                 <artifactId>domibus-default-ws-plugin</artifactId>
                                 <version>${project.version}</version>
                             </dependency>
+                            <dependency>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>domibus-MSH-tomcat-distribution</artifactId>
+                                <version>${project.version}</version>
+                                <type>war</type>
+                            </dependency>
                         </dependencies>
                         <executions>
                             <execution>
@@ -277,6 +284,14 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>domibus-MSH-weblogic</artifactId>
+                                <version>${project.version}</version>
+                                <type>war</type>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <id>make-assembly-weblogic</id>
@@ -305,6 +320,14 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>domibus-MSH-weblogic-eu-login</artifactId>
+                                <version>${project.version}</version>
+                                <type>war</type>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <id>make-assembly-weblogic-eu-login</id>
@@ -408,6 +431,12 @@
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>domibus-default-ws-plugin</artifactId>
                                 <version>${project.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>domibus-MSH-wildfly</artifactId>
+                                <version>${project.version}</version>
+                                <type>war</type>
                             </dependency>
                         </dependencies>
                         <executions>

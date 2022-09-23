@@ -1477,6 +1477,7 @@
             <id>weblogic-ecas</id>
             <modules>
                 <module>Weblogic</module>
+                <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
