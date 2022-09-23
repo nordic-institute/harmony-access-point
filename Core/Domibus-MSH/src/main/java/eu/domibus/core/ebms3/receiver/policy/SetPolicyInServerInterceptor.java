@@ -4,7 +4,6 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.model.configuration.AsymmetricSignatureAlgorithm;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -17,6 +16,7 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -63,15 +63,18 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected final UserMessageErrorCreator userMessageErrorCreator;
 
+    private final SecurityUtilImpl securityUtil;
+
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         BackendNotificationService backendNotificationService,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
-                                        UserMessageErrorCreator userMessageErrorCreator) {
+                                        UserMessageErrorCreator userMessageErrorCreator, SecurityUtilImpl securityUtil) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.backendNotificationService = backendNotificationService;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
         this.userMessageErrorCreator = userMessageErrorCreator;
+        this.securityUtil = securityUtil;
     }
 
     @Override
@@ -116,7 +119,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
             message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
 
-            String securityAlgorithm = getSecurityAlgorithm(legConfiguration);
+            String securityAlgorithm = securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
 
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
@@ -140,25 +143,6 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                     .mshRole(MSHRole.RECEIVING)
                     .build());
         }
-    }
-
-    protected String getSecurityAlgorithm(LegConfiguration legConfiguration) {
-        String profile = legConfiguration.getSecurity().getProfile();
-
-        if (profile == null) {
-            return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
-        }
-
-        switch (profile) {
-            case RSA_PROFILE:
-                return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
-            case ECC_PROFILE:
-                return AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
-            default:
-                LOG.error("Profile [{}] is not a valid profile. No security profile was set.", profile);
-        }
-
-        return null;
     }
 
     protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Ebms3Messaging ebms3Messaging) {

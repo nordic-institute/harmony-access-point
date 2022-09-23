@@ -45,8 +45,9 @@ public class Security extends AbstractBaseEntity {
     @Column(name = "SIGNATURE_METHOD")
     protected AsymmetricSignatureAlgorithm signatureMethod;
     @XmlAttribute(name = "profile", required = true)
+    @Enumerated(EnumType.STRING)
     @Column(name = "PROFILE")
-    protected String profile;
+    protected SecurityProfile profile;
 
     /**
      * Gets the value of the name property.
@@ -108,11 +109,11 @@ public class Security extends AbstractBaseEntity {
         this.signatureMethod = value;
     }
 
-    public String getProfile() {
+    public SecurityProfile getProfile() {
         return profile;
     }
 
-    public void setProfile(String securityProfile) {
+    public void setProfile(SecurityProfile securityProfile) {
         this.profile = securityProfile;
     }
 

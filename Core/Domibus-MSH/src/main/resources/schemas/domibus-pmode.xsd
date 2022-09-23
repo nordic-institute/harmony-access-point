@@ -39,8 +39,8 @@
                         <xs:field xpath="@qualifiedName"/>
                     </xs:unique>
                 </xs:element>
-                <xs:element name="businessProcesses">
-                    <xs:complexType>
+                <xs:element name="businessProcesses" >
+                    <xs:complexType mixed="true">
                         <xs:sequence>
                             <xs:element name="roles">
                                 <xs:complexType>
@@ -281,8 +281,15 @@
                                                             </xs:restriction>
                                                         </xs:simpleType>
                                                 </xs:attribute>
-                                                <xs:attribute name="profile"
-                                                              type="max255-non-empty-string"/>
+                                                <xs:attribute
+                                                        name="profile">
+                                                        <xs:simpleType>
+                                                            <xs:restriction base="xs:string">
+                                                                <xs:enumeration value="RSA" />
+                                                                <xs:enumeration value="ECC" />
+                                                            </xs:restriction>
+                                                        </xs:simpleType>
+                                                </xs:attribute>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>
