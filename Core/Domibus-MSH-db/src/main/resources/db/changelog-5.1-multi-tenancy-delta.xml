@@ -36,10 +36,4 @@
         <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
     </changeSet>
 
-    <changeSet author="Lucian Furca" id="EDELIVERY-9686_security_profile">
-        <addColumn tableName="TB_PM_SECURITY">
-            <column name="PROFILE" type="VARCHAR(255)"/>
-        </addColumn>
-    </changeSet>
-
 </databaseChangeLog>
