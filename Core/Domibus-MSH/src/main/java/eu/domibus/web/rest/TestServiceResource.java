@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
+import eu.domibus.web.rest.ro.TestErrorsInfoRO;
 import eu.domibus.web.rest.ro.TestServiceRequestRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -64,5 +65,10 @@ public class TestServiceResource {
     @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
     public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String[] partyIds) {
         return connectionMonitoringService.getConnectionStatus(partyIds);
+    }
+
+    @RequestMapping(value = "errors", method = RequestMethod.GET)
+    public TestErrorsInfoRO getErrorsDetails(String userMessageId) {
+        return testService.getErrorsDetails(userMessageId);
     }
 }

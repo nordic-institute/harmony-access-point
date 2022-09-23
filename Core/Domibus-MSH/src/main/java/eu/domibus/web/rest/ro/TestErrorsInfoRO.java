@@ -14,12 +14,11 @@ public class TestErrorsInfoRO {
     private List<TestErrorRo> issues;
 
     public TestErrorsInfoRO(String message) {
-        this(message, new ArrayList<>());
+        this.message = message;
     }
 
-    public TestErrorsInfoRO(String message, List<TestErrorRo> issues) {
+    public TestErrorsInfoRO(List<TestErrorRo> issues) {
         this.issues = issues;
-        this.message = message;
     }
 
     public String getMessage() {

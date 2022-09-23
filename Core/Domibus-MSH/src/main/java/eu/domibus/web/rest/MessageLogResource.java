@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageType;
@@ -17,10 +16,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,11 +85,6 @@ public class MessageLogResource extends BaseResource {
         this.domibusConfigurationService = domibusConfigurationService;
         this.errorHandlerService = errorHandlerService;
     }
-
-//    @ExceptionHandler({TestServiceException.class})
-//    public ResponseEntity<TestErrorsInfoRO> handleTestServiceException(TestServiceException ex) {
-//        return errorHandlerService.createResponse(ex, HttpStatus.EXPECTATION_FAILED);
-//    }
 
     @GetMapping
     public MessageLogResultRO getMessageLog(@Valid MessageLogFilterRequestRO request) {

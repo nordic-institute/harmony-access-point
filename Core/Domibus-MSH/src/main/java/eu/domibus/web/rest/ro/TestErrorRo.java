@@ -17,7 +17,6 @@ public class TestErrorRo {
     public TestErrorRo(String code, String message) {
         this.message = message;
         this.code = code;
-        this.level = Level.NOTE;
     }
 
     public Level getLevel() {

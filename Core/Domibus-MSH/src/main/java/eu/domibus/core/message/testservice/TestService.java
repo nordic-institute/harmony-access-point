@@ -176,12 +176,12 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSentWithErrors(String partyId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestSent(partyId);
         if (result == null) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message found for party [" + partyId + "]");
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No sent user message found for party [" + partyId + "]");
         }
 
         if (result.getTimeReceived() == null) {
             TestErrorsInfoRO errorDetails = getErrorsDetails(result.getMessageId());
-//            throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
+            errorDetails.setMessage("No user message response found.");
             throw new TestServiceException(errorDetails);
         }
 
@@ -220,6 +220,7 @@ public class TestService {
         TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
         if (result == null) {
             TestErrorsInfoRO errorDetails = getErrorsDetails(userMessageId);
+            errorDetails.setMessage("No user message response found.");
             throw new TestServiceException(errorDetails);
         }
 
@@ -265,15 +266,15 @@ public class TestService {
         } catch (Exception ex) {
             LOG.warn("Could not delete old test messages from party [{}]", party, ex);
         }
-
     }
 
-    protected TestErrorsInfoRO getErrorsDetails(String userMessageId) {
+    public TestErrorsInfoRO getErrorsDetails(String userMessageId) {
         TestErrorsInfoRO result;
         TestErrorsInfoRO errorDetails = getErrorsForMessage(userMessageId);
         if (errorDetails == null) {
             result = new TestErrorsInfoRO("Please call the method again to see the details.");
         } else {
+            errorDetails.setMessage("Errors for the test message with id " + userMessageId);
             result = errorDetails;
         }
         return result;
@@ -284,10 +285,11 @@ public class TestService {
         if (CollectionUtils.isEmpty(errorLogEntries)) {
             return null;
         }
-        return new TestErrorsInfoRO("Errors sending test message with id " + userMessageId,
+        return new TestErrorsInfoRO(
                 errorLogEntries.stream()
                         .map(err -> new TestErrorRo(err.getErrorCode().getErrorCodeName(), err.getErrorDetail()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList())
+        );
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
