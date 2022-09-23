@@ -75,7 +75,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
             Path batchDirectory = Paths.get(storageProvider.getCurrentStorage().getStorageDirectory().getAbsolutePath(), batchId);
             methodTimer.stop();
             com.codahale.metrics.Timer.Context cleanTimer = metricRegistry.timer(name("createEArkSipStructure", "createParentDirectories", "timer")).time();
-            FileUtils.createParentDirectories(batchDirectory.toFile());
+            FileUtils.forceMkdir(batchDirectory.toFile());
             cleanTimer.stop();
             com.codahale.metrics.Timer.Context eArkSi = metricRegistry.timer(name("createEArkSipStructure", "getMetsWrapper", "timer")).time();
             MetsWrapper mainMETSWrapper = eArkSipBuilderService.getMetsWrapper(
