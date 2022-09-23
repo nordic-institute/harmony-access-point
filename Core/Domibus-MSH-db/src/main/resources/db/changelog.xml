@@ -2967,6 +2967,12 @@
         <addUniqueConstraint columnNames="PARTY_NAME" constraintName="UK_PARTY_NAME" tableName="TB_PARTY_STATUS"/>
     </changeSet>
 
+    <changeSet author="Lucian Furca" id="EDELIVERY-9686">
+        <addColumn tableName="TB_PM_SECURITY">
+            <column name="PROFILE" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+
     <!-- End User Tables -->
 
 </databaseChangeLog>
