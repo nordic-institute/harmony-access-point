@@ -265,8 +265,10 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     public void executeBatchIsArchived(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
         userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED);
-        LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED,
-                eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation(),
-                userMessageDtos.get(userMessageDtos.size() - 1), userMessageDtos.get(0));
+        if(userMessageDtos.size() > 0 ) {
+            LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_ARCHIVED,
+                    eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation(),
+                    userMessageDtos.get(userMessageDtos.size() - 1), userMessageDtos.get(0));
+        }
     }
 }
