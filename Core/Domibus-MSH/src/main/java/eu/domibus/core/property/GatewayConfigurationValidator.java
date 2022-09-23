@@ -106,7 +106,7 @@ public class GatewayConfigurationValidator implements DomainsAware {
             warnOutput(domain, "CERTIFICATES ARE NOT CONFIGURED PROPERLY - NOT FOR PRODUCTION USAGE");
         }
 
-        //check if the aliases defined in domibus.properties exist in the Trustore
+        //check if the aliases defined in domibus.properties exist in the Keystore
         final String privateKeyRsaAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS);
         final String privateKeyRsaSignAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS);
         final String privateKeyRsaDecryptAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS);
@@ -114,29 +114,41 @@ public class GatewayConfigurationValidator implements DomainsAware {
         final String privateKeyEccSignAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS);
         final String privateKeyEccDecryptAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS);
 
+        KeyStore keyStore = null;
+        try {
+            keyStore = multiDomainCertificateProvider.getKeyStore(domain);
+        } catch (Exception e) {
+            LOG.warn("Failed to load certificates for domain [{}]! : [{}]", domain.getCode(), e.getMessage(), e);
+            warnOutput(domain, "CERTIFICATES ARE NOT CONFIGURED PROPERLY");
+        }
+        if (keyStore == null) {
+            LOG.warn("Failed to load certificates for domain [{}]", domain.getCode());
+            return;
+        }
+
         if (privateKeyRsaAlias != null) {
-            validateAlias(privateKeyRsaAlias, trustStore, domain);
+            validateAlias(privateKeyRsaAlias, keyStore, domain);
         }
         if (privateKeyRsaSignAlias != null) {
-            validateAlias(privateKeyRsaSignAlias, trustStore, domain);
+            validateAlias(privateKeyRsaSignAlias, keyStore, domain);
         }
         if (privateKeyRsaDecryptAlias != null) {
-            validateAlias(privateKeyRsaDecryptAlias, trustStore, domain);
+            validateAlias(privateKeyRsaDecryptAlias, keyStore, domain);
         }
         if (privateKeyEccAlias != null) {
-            validateAlias(privateKeyEccAlias, trustStore, domain);
+            validateAlias(privateKeyEccAlias, keyStore, domain);
         }
         if (privateKeyEccSignAlias != null) {
-            validateAlias(privateKeyEccSignAlias, trustStore, domain);
+            validateAlias(privateKeyEccSignAlias, keyStore, domain);
         }
         if (privateKeyEccDecryptAlias != null) {
-            validateAlias(privateKeyEccDecryptAlias, trustStore, domain);
+            validateAlias(privateKeyEccDecryptAlias, keyStore, domain);
         }
     }
 
-    private void validateAlias(String certificateAlias, KeyStore trustStore, Domain domain) {
+    private void validateAlias(String certificateAlias, KeyStore keyStore, Domain domain) {
         try {
-            if (trustStore.containsAlias(certificateAlias)) {
+            if (keyStore.containsAlias(certificateAlias)) {
                 debugOutput(domain, "CERTIFICATE WITH THE FOLLOWING ALIAS WAS FOUND: " + certificateAlias);
             }
         } catch (KeyStoreException e) {
