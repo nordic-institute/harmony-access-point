@@ -101,6 +101,7 @@ public class DomibusJMSActiveMQConnectionManager {
         }
 
         Optional<DomibusJMSActiveMQBroker> domibusActiveMQBroker = brokerCluster.stream()
+                .filter(DomibusJMSActiveMQBroker::isOnline)
                 .filter(this::isMasterSafely)
                 .findFirst();
 
@@ -124,6 +125,7 @@ public class DomibusJMSActiveMQConnectionManager {
             master = currentBroker.isMaster();
         } catch(Throwable e) { // NOSONAR: org.springframework.jmx.access.MBeanClientInterceptor.doInvoke(MethodInvocation) throws Throwable
             LOG.warn("Treating the current broker [{}] as slave because it is not reachable" , currentBroker.getBrokerDetails(), e);
+            currentBroker.setOffline();
         }
         return master;
     }
