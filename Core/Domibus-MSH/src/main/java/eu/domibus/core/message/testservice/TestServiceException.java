@@ -3,6 +3,7 @@ package eu.domibus.core.message.testservice;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.web.rest.ro.TestErrorsInfoRO;
 
 /**
  * This exceptions indicates the errors in sending and receiving of messages for the selected party in test Service UI.
@@ -41,5 +42,16 @@ public class TestServiceException extends DomibusCoreException {
      */
     public TestServiceException(String message) {
         super(message);
+    }
+
+    public TestErrorsInfoRO getDetails() {
+        return details;
+    }
+
+    public TestErrorsInfoRO details;
+
+    public TestServiceException(TestErrorsInfoRO errorDetails) {
+        super(errorDetails.getMessage());
+        details = errorDetails;
     }
 }

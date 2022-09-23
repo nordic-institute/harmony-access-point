@@ -20,12 +20,15 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.web.rest.ro.TestErrorRo;
+import eu.domibus.web.rest.ro.TestErrorsInfoRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -177,8 +180,9 @@ public class TestService {
         }
 
         if (result.getTimeReceived() == null) {
-            String errorDetails = getErrorsDetails(result.getMessageId());
-            throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
+            TestErrorsInfoRO errorDetails = getErrorsDetails(result.getMessageId());
+//            throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
+            throw new TestServiceException(errorDetails);
         }
 
         return result;
@@ -213,9 +217,9 @@ public class TestService {
      * @throws TestServiceException
      */
     public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
-        TestServiceMessageInfoRO result =  getLastTestReceived(partyId, userMessageId);
+        TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
         if (result == null) {
-            String errorDetails = getErrorsDetails(userMessageId);
+            TestErrorsInfoRO errorDetails = getErrorsDetails(userMessageId);
             throw new TestServiceException(errorDetails);
         }
 
@@ -264,22 +268,26 @@ public class TestService {
 
     }
 
-    protected String getErrorsDetails(String userMessageId) {
-        String result;
-        String errorDetails = getErrorsForMessage(userMessageId);
-        if (StringUtils.isEmpty(errorDetails)) {
-            result = "Please call the method again to see the details.";
+    protected TestErrorsInfoRO getErrorsDetails(String userMessageId) {
+        TestErrorsInfoRO result;
+        TestErrorsInfoRO errorDetails = getErrorsForMessage(userMessageId);
+        if (errorDetails == null) {
+            result = new TestErrorsInfoRO("Please call the method again to see the details.");
         } else {
-            result = "Error details: " + errorDetails;
+            result = errorDetails;
         }
         return result;
     }
 
-    protected String getErrorsForMessage(String userMessageId) {
+    protected TestErrorsInfoRO getErrorsForMessage(String userMessageId) {
         List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
-        return errorLogEntries.stream()
-                .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
-                .collect(Collectors.joining("->"));
+        if (CollectionUtils.isEmpty(errorLogEntries)) {
+            return null;
+        }
+        return new TestErrorsInfoRO("Errors sending test message with id " + userMessageId,
+                errorLogEntries.stream()
+                        .map(err -> new TestErrorRo(err.getErrorCode().getErrorCodeName(), err.getErrorDetail()))
+                        .collect(Collectors.toList()));
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {

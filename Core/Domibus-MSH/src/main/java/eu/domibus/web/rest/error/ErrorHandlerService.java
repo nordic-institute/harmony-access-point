@@ -3,9 +3,11 @@ package eu.domibus.web.rest.error;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.TestErrorsInfoRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -45,6 +47,20 @@ public class ErrorHandlerService {
 
     public ResponseEntity<ErrorRO> createResponse(Throwable ex) {
         return this.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public ResponseEntity<TestErrorsInfoRO> createResponse(TestServiceException ex, HttpStatus status) {
+        HttpHeaders headers = new HttpHeaders();
+        //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
+        headers.set(HttpHeaders.CONNECTION, "close");
+
+        TestErrorsInfoRO body;
+        if (ex.getDetails() != null) {
+            body = ex.getDetails();
+        } else {
+            body = new TestErrorsInfoRO(ex.getMessage());
+        }
+        return new ResponseEntity(body, headers, status);
     }
 
     public ResponseEntity<ValidationResponseRO> createResponse(PModeValidationException ex, HttpStatus status) {
