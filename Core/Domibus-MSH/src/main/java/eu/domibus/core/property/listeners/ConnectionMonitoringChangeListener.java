@@ -1,9 +1,10 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -28,9 +29,12 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringChangeListener.class);
 
-    protected PModeProvider pModeProvider;
+    private final PartyService partyService;
 
-    public ConnectionMonitoringChangeListener(PModeProvider pModeProvider) {
+    protected final PModeProvider pModeProvider;
+
+    public ConnectionMonitoringChangeListener(PartyService partyService, PModeProvider pModeProvider) {
+        this.partyService = partyService;
         this.pModeProvider = pModeProvider;
     }
 
@@ -44,7 +48,7 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
         List<String> newPartyIds = parsePropertyValue(propertyValue);
 
         List<Party> knownParties = pModeProvider.findAllParties();
-        List<String> testablePartyIds = pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
+        List<String> testablePartyIds = partyService.findPushToPartyNamesForTest();
 
         newPartyIds.forEach(partyId -> {
             LOG.trace("Checking that [{}] is a known party", partyId);

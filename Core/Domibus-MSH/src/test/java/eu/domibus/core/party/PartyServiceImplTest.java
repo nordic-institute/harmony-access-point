@@ -22,7 +22,6 @@ import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.PartyCoreMapper;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.messaging.XmlProcessingException;
@@ -339,22 +338,22 @@ public class PartyServiceImplTest {
         assertFalse(partyService.processPredicate("tc1ProcessIR").test(party));
     }
 
-    @Test
-    public void testFindPartyNamesByServiceAndAction() throws EbMS3Exception {
-        // Given
-        List<String> parties = new ArrayList<>();
-        parties.add("test");
-        new Expectations() {{
-            pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
-            result = parties;
-        }};
-
-        // When
-        List<String> partyNamesByServiceAndAction = partyService.findPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-
-        // Then
-        Assert.assertEquals(parties, partyNamesByServiceAndAction);
-    }
+//    @Test
+//    public void testFindPartyNamesByServiceAndAction() throws EbMS3Exception {
+//        // Given
+//        List<String> parties = new ArrayList<>();
+//        parties.add("test");
+//        new Expectations() {{
+//            pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
+//            result = parties;
+//        }};
+//
+//        // When
+//        List<String> partyNamesByServiceAndAction = partyService.findPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+//
+//        // Then
+//        Assert.assertEquals(parties, partyNamesByServiceAndAction);
+//    }
 
     @Test
     public void testGetGatewayPartyIdentifier() {
@@ -1275,31 +1274,6 @@ public class PartyServiceImplTest {
 
         // When
         partyService.updateParties(Lists.newArrayList(), partyToCertificateMap);
-    }
-
-    @Test
-    public void findPushToPartyNamesByServiceAndActionTest(@Mocked MessageExchangePattern messageExchangePattern) {
-
-        // Given
-        final String service = "service1";
-        final String action = "action1";
-        List<MessageExchangePattern> meps = new ArrayList<>();
-        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
-        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
-        new Expectations(partyService) {{
-            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
-            result = (List<String>) any;
-        }};
-
-        // When
-        partyService.findPushToPartyNamesByServiceAndAction(service, action);
-        // Then
-        new Verifications() {{
-            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
-            times = 1;
-        }};
     }
 
     @Test

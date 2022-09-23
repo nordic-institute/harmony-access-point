@@ -2,6 +2,7 @@ package eu.domibus.core.monitoring;
 
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -17,9 +18,14 @@ public interface ConnectionMonitoringService {
     void sendTestMessages();
 
     /**
-     * Checks whether the monitoring is enabled for at least a party.
+     * Checks whether the monitoring is enabled for at least a party except self.
      */
     boolean isMonitoringEnabled();
+
+    /**
+     * Checks whether the self monitoring is enabled.
+     */
+    boolean isSelfMonitoringEnabled();
 
     /**
      * Retrieves the last known connection status for the given parties.
@@ -28,4 +34,10 @@ public interface ConnectionMonitoringService {
      * @return Details about the connection status of the given parties.
      */
     Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds);
+
+    void sendTestMessageToMyself();
+
+    boolean isDeleteHistoryEnabled();
+
+    void deleteReceivedTestMessageHistoryIfApplicable();
 }

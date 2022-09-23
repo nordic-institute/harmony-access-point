@@ -112,7 +112,7 @@ public class UserAlertsServiceImplTest {
         userAlertsService.triggerExpiredEvents(false);
 
         new VerificationsInOrder() {{
-            eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, (User) any, maxPasswordAge, alertConfiguration);
+            eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, (User) any, maxPasswordAge, anyInt);
             times = 2;
         }};
     }
@@ -162,7 +162,7 @@ public class UserAlertsServiceImplTest {
 
         new VerificationsInOrder() {{
             eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_IMMINENT_EXPIRATION, (UserEntityBase) any,
-                    maxPasswordAge, alertConfiguration);
+                    maxPasswordAge, anyInt);
             times = 2;
         }};
     }

@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -22,7 +23,6 @@ import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES;
 
 /**
  * @author Cosmin Baciu
@@ -52,26 +54,34 @@ public class TestService {
 
     private static final String BACKEND_NAME = "TestService";
 
-    @Autowired
-    private PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    @Autowired
-    private MessageSubmitter messageSubmitter;
+    private final MessageSubmitter messageSubmitter;
 
-    @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    private final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
-    private UserMessageDao userMessageDao;
+    private final UserMessageDao userMessageDao;
 
-    @Autowired
-    private SignalMessageDao signalMessageDao;
+    private final SignalMessageDao signalMessageDao;
 
-    @Autowired
-    private ErrorLogService errorLogService;
+    private final ErrorLogService errorLogService;
 
-    @Autowired
-    private ActionDictionaryService actionDictionaryService;
+    private final UserMessageService userMessageService;
+
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
+                       SignalMessageDao signalMessageDao, ErrorLogService errorLogService,
+                       UserMessageService userMessageService, DomibusPropertyProvider domibusPropertyProvider) {
+        this.pModeProvider = pModeProvider;
+        this.messageSubmitter = messageSubmitter;
+        this.userMessageLogDao = userMessageLogDao;
+        this.userMessageDao = userMessageDao;
+        this.signalMessageDao = signalMessageDao;
+        this.errorLogService = errorLogService;
+        this.userMessageService = userMessageService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
@@ -82,7 +92,11 @@ public class TestService {
         messageData.getToParties().clear();
         messageData.addToParty(receiver, pModeProvider.getPartyIdType(receiver));
 
-        return messageSubmitter.submit(messageData, BACKEND_NAME);
+        String result = messageSubmitter.submit(messageData, BACKEND_NAME);
+
+        deleteSentHistoryIfApplicable(receiver);
+
+        return result;
     }
 
     public String submitTestDynamicDiscovery(String sender, String receiver, String receiverType) throws MessagingProcessingException, IOException {
@@ -180,8 +194,7 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSent(String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        UserMessage userMessage = userMessageDao.findLastTestMessage(partyId, actionEntity);
+        UserMessage userMessage = userMessageDao.findLastTestMessageToParty(partyId);
         if (userMessage == null) {
             LOG.debug("Could not find last user message for party [{}]", partyId);
             return null;
@@ -229,8 +242,7 @@ public class TestService {
             }
         } else {
             // if userMessageId is not provided, find the most recent signal message received for a test message
-            ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-            signalMessage = signalMessageDao.findLastTestMessage(partyId, actionEntity);
+            signalMessage = signalMessageDao.findLastTestMessage(partyId);
             if (signalMessage == null) {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;
@@ -238,6 +250,18 @@ public class TestService {
         }
 
         return getTestServiceMessageInfoRO(partyId, signalMessage);
+    }
+
+    public void deleteReceivedMessageHistoryFromParty(String party) {
+        LOG.debug("Deleting received test messages for party [{}]", party);
+        List<UserMessage> userMessages = findReceivedMessagesToKeep(party);
+        List<UserMessage> all = userMessageDao.findTestMessagesFromParty(party);
+        try {
+            deleteByDifference(userMessages, all);
+        } catch (Exception ex) {
+            LOG.warn("Could not delete old test messages from party [{}]", party, ex);
+        }
+
     }
 
     protected String getErrorsDetails(String userMessageId, MSHRole mshRole) {
@@ -290,4 +314,94 @@ public class TestService {
         }
         return messageInfoRO;
     }
+
+    protected void deleteSentHistoryIfApplicable(String toParty) {
+        List<String> partyList = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
+        if (!partyList.contains(toParty)) {
+            LOG.debug("Deleting sent test message history for party [{}] is not enabled", toParty);
+            return;
+        }
+
+        LOG.debug("Deleting sent test message history for toParty [{}]", toParty);
+        List<UserMessage> userMessages = findSentMessagesToKeep(toParty);
+        List<UserMessage> all = userMessageDao.findTestMessagesToParty(toParty);
+
+        try {
+            deleteByDifference(userMessages, all);
+        } catch (Exception ex) {
+            LOG.warn("Could not delete old test messages to party [{}]", toParty, ex);
+        }
+    }
+
+    private List<UserMessage> findSentMessagesToKeep(String toParty) {
+        List<UserMessage> userMessages = new ArrayList<>();
+
+        // find last successful message
+        UserMessage lastSentSuccess = getLastTestSentWithStatus(toParty, MessageStatus.ACKNOWLEDGED);
+        if (lastSentSuccess != null) {
+            LOG.debug("Adding the last successful message [{}]", lastSentSuccess.getMessageId());
+            userMessages.add(lastSentSuccess);
+        }
+
+        // find last unsuccessful message newer that the successful one
+        UserMessage lastSentError = getLastTestSentWithStatus(toParty, MessageStatus.SEND_FAILURE);
+        if (lastSentError != null) {
+            if (lastSentSuccess == null || lastSentError.getTimestamp().after(lastSentSuccess.getTimestamp())) {
+                LOG.debug("Adding the last sent message with error [{}]", lastSentError.getMessageId());
+                userMessages.add(lastSentError);
+            }
+        }
+
+        // find pending message newer than any of those before
+        UserMessage lastSentPending = getLastTestSentWithStatus(toParty, MessageStatus.SEND_ENQUEUED);
+        if (lastSentPending != null) {
+            if (userMessages.isEmpty() || userMessages.get(userMessages.size() - 1).getTimestamp().before(lastSentPending.getTimestamp())) {
+                LOG.debug("Adding the last pending message [{}]", lastSentPending.getMessageId());
+                userMessages.add(lastSentPending);
+            }
+        }
+
+        return userMessages;
+    }
+
+    private List<UserMessage> findReceivedMessagesToKeep(String party) {
+        List<UserMessage> userMessages = new ArrayList<>();
+
+        // find last received message
+        UserMessage lastReceivedSuccess = getLastTestReceived(party);
+        if (lastReceivedSuccess != null) {
+            LOG.debug("Adding the last received successful message [{}]", lastReceivedSuccess.getMessageId());
+            userMessages.add(lastReceivedSuccess);
+        }
+
+        return userMessages;
+    }
+
+    protected UserMessage getLastTestSentWithStatus(String partyId, MessageStatus messageStatus) {
+        UserMessage userMessage = userMessageDao.findLastTestMessageToPartyWithStatus(partyId, messageStatus);
+        if (userMessage == null) {
+            LOG.debug("Could not find last sent user message for party [{}]", partyId);
+            return null;
+        }
+        return userMessage;
+    }
+
+    private UserMessage getLastTestReceived(String partyId) {
+        UserMessage userMessage = userMessageDao.findLastTestMessageFromParty(partyId);
+        if (userMessage == null) {
+            LOG.debug("Could not find last received user message for party [{}]", partyId);
+            return null;
+        }
+        return userMessage;
+    }
+
+    private void deleteByDifference(List<UserMessage> except, List<UserMessage> all) {
+        List<Long> toDelete = all.stream()
+                .filter(el -> except.stream().noneMatch(el1 -> el1.getEntityId() == el.getEntityId()))
+                .map(el -> el.getEntityId())
+                .collect(Collectors.toList());
+        LOG.debug("Deleting messages with ids [{}]", toDelete);
+        userMessageService.deleteMessagesWithIDs(toDelete);
+    }
+
 }

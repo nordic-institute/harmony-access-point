@@ -266,8 +266,13 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
-        return getCurrentPModeProvider().findPartyIdByServiceAndAction(service, action, meps);
+    public List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps) {
+        return getCurrentPModeProvider().findPartiesByInitiatorServiceAndAction(initiatingPartyId, service, action, meps);
+    }
+
+    @Override
+    public List<String> findPartiesByResponderServiceAndAction(String responderPartyId, String service, String action, List<MessageExchangePattern> meps) {
+        return getCurrentPModeProvider().findPartiesByResponderServiceAndAction(responderPartyId, service, action, meps);
     }
 
     @Override

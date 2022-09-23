@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
@@ -36,7 +37,7 @@ public class EventMessageListener {
     private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'message'")
+            selector = "selector = '" + EventType.QuerySelectors.MESSAGE + "'")
     @Transactional
     public void onMessageEvent(final Event event, @Header(name = "DOMAIN") String domain) {
         LOG.debug("Message event received:[{}]", event);

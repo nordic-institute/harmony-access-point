@@ -37,7 +37,6 @@ import java.util.Date;
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
 import static eu.domibus.core.alerts.model.common.CertificateEvent.*;
 import static eu.domibus.core.alerts.model.common.MessageEvent.*;
-import static eu.domibus.core.alerts.service.EventServiceImpl.MESSAGE_EVENT_SELECTOR;
 
 /**
  * @author Thomas Dussart
@@ -83,7 +82,7 @@ public class EventServiceImplTest {
         eventService.enqueueMessageEvent(messageId, oldMessageStatus, newMessageStatus, mshRole);
         new Verifications() {{
             Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, MESSAGE_EVENT_SELECTOR);
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.MSG_STATUS_CHANGED.getQueueSelector());
             times = 1;
             Assert.assertEquals(oldMessageStatus.name(), event.getProperties().get(OLD_STATUS.name()).getValue());
             Assert.assertEquals(newMessageStatus.name(), event.getProperties().get(NEW_STATUS.name()).getValue());
@@ -101,7 +100,7 @@ public class EventServiceImplTest {
         eventService.enqueueLoginFailureEvent(UserEntityBase.Type.CONSOLE, userName, loginTime, accountDisabled);
         new Verifications() {{
             Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventServiceImpl.LOGIN_FAILURE);
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_LOGIN_FAILURE.getQueueSelector());
             times = 1;
             Assert.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
             Assert.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
@@ -119,7 +118,7 @@ public class EventServiceImplTest {
         eventService.enqueueAccountDisabledEvent(UserEntityBase.Type.CONSOLE, userName, loginTime);
         new Verifications() {{
             Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventServiceImpl.ACCOUNT_DISABLED);
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_DISABLED.getQueueSelector());
             times = 1;
             Assert.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
             Assert.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
@@ -136,7 +135,7 @@ public class EventServiceImplTest {
         eventService.enqueueAccountEnabledEvent(UserEntityBase.Type.CONSOLE, userName, loginTime);
         new Verifications() {{
             Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventServiceImpl.ACCOUNT_ENABLED);
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_ENABLED.getQueueSelector());
             times = 1;
             Assert.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
             Assert.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
@@ -153,7 +152,7 @@ public class EventServiceImplTest {
         eventService.enqueueImminentCertificateExpirationEvent(accessPoint, alias, expirationDate);
         new Verifications() {{
             Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventServiceImpl.CERTIFICATE_IMMINENT_EXPIRATION);
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_IMMINENT_EXPIRATION.getQueueSelector());
             times = 1;
             Assert.assertEquals(accessPoint, event.getProperties().get(ACCESS_POINT.name()).getValue());
             Assert.assertEquals(alias, event.getProperties().get(ALIAS.name()).getValue());
@@ -170,7 +169,7 @@ public class EventServiceImplTest {
         eventService.enqueueCertificateExpiredEvent(accessPoint, alias, expirationDate);
         new Verifications() {{
             Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventServiceImpl.CERTIFICATE_EXPIRED);
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_EXPIRED.getQueueSelector());
             times = 1;
             Assert.assertEquals(accessPoint, event.getProperties().get(ACCESS_POINT.name()).getValue());
             Assert.assertEquals(alias, event.getProperties().get(ALIAS.name()).getValue());
@@ -271,7 +270,7 @@ public class EventServiceImplTest {
             result = persistedEvent;
         }};
 
-        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge, passwordExpirationAlertModuleConfiguration);
+        eventService.enqueuePasswordExpirationEvent(EventType.PASSWORD_EXPIRED, user, maxPasswordAge, passwordExpirationAlertModuleConfiguration.getEventFrequency());
 
         new VerificationsInOrder() {{
             Event event;

@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
@@ -37,7 +38,9 @@ public class UserAccountListener {
     private DatabaseUtil databaseUtil;
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'loginFailure' or selector = 'accountDisabled' or selector = 'accountEnabled'")
+            selector = "selector = '" + EventType.QuerySelectors.LOGIN_FAILURE
+                    + "' or selector = '" + EventType.QuerySelectors.ACCOUNT_DISABLED
+                    + "' or selector = '" + EventType.QuerySelectors.ACCOUNT_ENABLED + "'")
     @Transactional
     public void onLoginFailure(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
