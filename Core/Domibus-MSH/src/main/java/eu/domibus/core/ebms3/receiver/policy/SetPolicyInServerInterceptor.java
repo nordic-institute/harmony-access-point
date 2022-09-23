@@ -146,7 +146,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         String profile = legConfiguration.getSecurity().getProfile();
 
         if (profile == null) {
-            return legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+            return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
         }
 
         switch (profile) {
@@ -155,7 +155,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             case ECC_PROFILE:
                 return AsymmetricSignatureAlgorithm.ECC_SHA256.getAlgorithm();
             default:
-                LOG.error("No security profile was specified");
+                LOG.error("Profile [{}] is not a valid profile. No security profile was set.", profile);
         }
 
         return null;
