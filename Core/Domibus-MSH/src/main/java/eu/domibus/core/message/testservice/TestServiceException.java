@@ -12,7 +12,7 @@ import eu.domibus.web.rest.ro.TestErrorsInfoRO;
  * @since 4.2
  */
 public class TestServiceException extends DomibusCoreException {
-
+    public TestErrorsInfoRO details;
 
     /**
      * Constructs a new DomibusCoreException with a specific error and message.
@@ -47,8 +47,6 @@ public class TestServiceException extends DomibusCoreException {
     public TestErrorsInfoRO getDetails() {
         return details;
     }
-
-    public TestErrorsInfoRO details;
 
     public TestServiceException(TestErrorsInfoRO errorDetails) {
         super(errorDetails.getMessage());

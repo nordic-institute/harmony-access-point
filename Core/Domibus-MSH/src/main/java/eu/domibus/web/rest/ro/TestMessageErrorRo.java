@@ -2,29 +2,18 @@ package eu.domibus.web.rest.ro;
 
 /**
  * @author Ion Perpegel
- * @since 4.2
+ * @since 5.1
  *
- * Class that encapsulates information about a pMode validation: code, level and message
+ * Class that encapsulates information about an error in test service: code, level and message
  */
-public class TestErrorRo {
+public class TestMessageErrorRo {
 
-    private Level level;
     private String code;
     private String message;
 
-    public TestErrorRo() {}
-
-    public TestErrorRo(String code, String message) {
+    public TestMessageErrorRo(String code, String message) {
         this.message = message;
         this.code = code;
-    }
-
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
     }
 
     public String getCode() {
@@ -45,12 +34,7 @@ public class TestErrorRo {
 
     @Override
     public String toString() {
-        return message;
+        return code + ':' +message;
     }
 
-    public enum Level {
-        NOTE,
-        WARNING,
-        ERROR,
-    }
 }

@@ -83,7 +83,8 @@ public class FaultOutHandler extends AbstractFaultHandler {
 
         final String messageId = signalMessageResult.getSignalMessage().getRefToMessageId();
         UserMessage userMessage = null;
-        if(messageId != null) {
+        if (messageId != null) {
+            LOG.debug("Message id is present [{}]; saving it in error log.", messageId);
             userMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
         }
         this.errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, userMessage);

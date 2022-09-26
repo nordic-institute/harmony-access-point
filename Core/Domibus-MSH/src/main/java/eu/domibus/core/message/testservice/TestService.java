@@ -20,7 +20,7 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
-import eu.domibus.web.rest.ro.TestErrorRo;
+import eu.domibus.web.rest.ro.TestMessageErrorRo;
 import eu.domibus.web.rest.ro.TestErrorsInfoRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
@@ -283,11 +283,12 @@ public class TestService {
     protected TestErrorsInfoRO getErrorsForMessage(String userMessageId) {
         List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
         if (CollectionUtils.isEmpty(errorLogEntries)) {
+            LOG.debug("No error log entries found for message with id [{}]", userMessageId);
             return null;
         }
         return new TestErrorsInfoRO(
                 errorLogEntries.stream()
-                        .map(err -> new TestErrorRo(err.getErrorCode().getErrorCodeName(), err.getErrorDetail()))
+                        .map(err -> new TestMessageErrorRo(err.getErrorCode().getErrorCodeName(), err.getErrorDetail()))
                         .collect(Collectors.toList())
         );
     }

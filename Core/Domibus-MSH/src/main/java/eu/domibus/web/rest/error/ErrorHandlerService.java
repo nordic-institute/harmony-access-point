@@ -25,6 +25,7 @@ import javax.validation.Path;
 import javax.validation.ValidationException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXCEPTIONS_REST_ENABLE;
 
@@ -54,12 +55,7 @@ public class ErrorHandlerService {
         //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
         headers.set(HttpHeaders.CONNECTION, "close");
 
-        TestErrorsInfoRO body;
-        if (ex.getDetails() != null) {
-            body = ex.getDetails();
-        } else {
-            body = new TestErrorsInfoRO(ex.getMessage());
-        }
+        TestErrorsInfoRO body = Optional.ofNullable(ex.getDetails()).orElse(new TestErrorsInfoRO(ex.getMessage()));
         return new ResponseEntity(body, headers, status);
     }
 

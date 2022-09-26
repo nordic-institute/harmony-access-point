@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,13 +10,13 @@ public class TestErrorsInfoRO {
 
     private String message;
 
-    private List<TestErrorRo> issues;
+    private List<TestMessageErrorRo> issues;
 
     public TestErrorsInfoRO(String message) {
         this.message = message;
     }
 
-    public TestErrorsInfoRO(List<TestErrorRo> issues) {
+    public TestErrorsInfoRO(List<TestMessageErrorRo> issues) {
         this.issues = issues;
     }
 
@@ -29,11 +28,11 @@ public class TestErrorsInfoRO {
         this.message = message;
     }
 
-    public List<TestErrorRo> getIssues() {
+    public List<TestMessageErrorRo> getIssues() {
         return issues;
     }
 
-    public void setIssues(List<TestErrorRo> issues) {
+    public void setIssues(List<TestMessageErrorRo> issues) {
         this.issues = issues;
     }
 

@@ -23,6 +23,8 @@ public class TestServiceMessageInfoRO {
 
     MessageStatus messageStatus;
 
+    TestErrorsInfoRO errorInfo;
+
     public TestErrorsInfoRO getErrorInfo() {
         return errorInfo;
     }
@@ -30,8 +32,6 @@ public class TestServiceMessageInfoRO {
     public void setErrorInfo(TestErrorsInfoRO errorInfo) {
         this.errorInfo = errorInfo;
     }
-
-    TestErrorsInfoRO errorInfo;
 
     public String getPartyId() {
         return partyId;
