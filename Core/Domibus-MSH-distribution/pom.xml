@@ -244,6 +244,7 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <dependencies>
                             <dependency>
+                                <!-- needed by tomcat-full.xml assembly -->
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>domibus-default-ws-plugin</artifactId>
                                 <version>${project.version}</version>
@@ -428,6 +429,7 @@
                                 <version>${project.version}</version>
                             </dependency>
                             <dependency>
+                                <!-- needed by wildfly-full.xml assembly -->
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>domibus-default-ws-plugin</artifactId>
                                 <version>${project.version}</version>

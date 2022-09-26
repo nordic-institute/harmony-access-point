@@ -1442,9 +1442,6 @@
     <profiles>
         <profile>
             <id>distribution</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>Core/Domibus-MSH-distribution</module>
             </modules>
@@ -1457,9 +1454,6 @@
         </profile>
         <profile>
             <id>tomcat</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>Tomcat</module>
             </modules>
@@ -1484,9 +1478,6 @@
         </profile>
         <profile>
             <id>default-plugins</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>Plugin-WS</module>
                 <module>Plugin-JMS</module>
@@ -1495,9 +1486,6 @@
         </profile>
         <profile>
             <id>dss-extension</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
             <modules>
                 <module>Domibus-DSS</module>
             </modules>

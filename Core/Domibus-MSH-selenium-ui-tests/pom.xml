@@ -67,9 +67,6 @@
 
         <profile>
             <id>selenium_local</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -89,9 +86,6 @@
 
         <profile>
             <id>bamboo-remote</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
             <build>
                 <plugins>
                     <plugin>
