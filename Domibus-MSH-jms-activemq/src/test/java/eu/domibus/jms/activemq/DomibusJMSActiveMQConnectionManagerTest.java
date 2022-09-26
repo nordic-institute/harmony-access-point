@@ -170,8 +170,14 @@ public class DomibusJMSActiveMQConnectionManagerTest {
         List<DomibusJMSActiveMQBroker> brokerCluster = getDomibusJMSActiveMQBrokers();
         brokerCluster.addAll(Arrays.asList(broker1, broker2));
         new Expectations() {{
+            broker1.isOnline();
+            result = true;
+
             broker1.isMaster();
             result = false;
+
+            broker2.isOnline();
+            result = true;
 
             broker2.isMaster();
             result = true;
@@ -186,7 +192,7 @@ public class DomibusJMSActiveMQConnectionManagerTest {
     }
 
     @Test
-    public void getMasterDomibusActiveMQBroker_ignoresPossibleMastersBrokerInstancesToWhichTheClientDoesNotHaveIssuesConnectingToWhenClusterConstainsMultipleEntries(
+    public void getMasterDomibusActiveMQBroker_ignoresPossibleMastersBrokerInstancesToWhichTheClientHasIssuesConnectingToWhenClusterConstainsMultipleEntries(
             @Injectable DomibusJMSActiveMQBroker broker1,
             @Injectable DomibusJMSActiveMQBroker broker2) throws Exception {
         // GIVEN
@@ -196,9 +202,16 @@ public class DomibusJMSActiveMQConnectionManagerTest {
             broker1.getBrokerDetails();
             result = "broker1@service:jmx:rmi:///jndi/rmi://broker1:1099/jmxrmi";
 
+            // assume online to be able to simulate exception below
+            broker1.isOnline();
+            result = true;
+
             broker1.isMaster();
             result = new MBeanConnectFailureException("I/O failure during JMX access",
                     new ConnectException("Connection refused to host: 172.K.."));
+
+            broker2.isOnline();
+            result = true;
 
             broker2.isMaster();
             result = true;
@@ -208,9 +221,36 @@ public class DomibusJMSActiveMQConnectionManagerTest {
         DomibusJMSActiveMQBroker result = domibusJMSActiveMQConnectionManager.getMasterDomibusActiveMQBroker();
 
         // THEN
-        Assert.assertEquals("Should have returned the first master broker instance to which the client doesn't have issues connecting to when the cluster has multiple entry",
+        Assert.assertEquals("Should have returned the first master broker instance to which the client doesn't have issues connecting to when the cluster has multiple entries",
                 broker2, result);
     }
+
+    @Test
+    public void getMasterDomibusActiveMQBroker_ignoresPossibleMastersBrokerInstancesMarkedOfflineWhenClusterConstainsMultipleEntries(
+            @Injectable DomibusJMSActiveMQBroker broker1,
+            @Injectable DomibusJMSActiveMQBroker broker2) throws Exception {
+        // GIVEN
+        List<DomibusJMSActiveMQBroker> brokerCluster = getDomibusJMSActiveMQBrokers();
+        brokerCluster.addAll(Arrays.asList(broker1, broker2));
+        new Expectations() {{
+            broker1.isOnline();
+            result = false;
+
+            broker2.isOnline();
+            result = true;
+
+            broker2.isMaster();
+            result = true;
+        }};
+
+        // WHEN
+        DomibusJMSActiveMQBroker result = domibusJMSActiveMQConnectionManager.getMasterDomibusActiveMQBroker();
+
+        // THEN
+        Assert.assertEquals("Should have returned the first master broker instance to which the client doesn't have issues connecting to when the cluster has multiple entries",
+                broker2, result);
+    }
+
 
     @Test
     public void getMasterDomibusActiveMQBroker_throwsExceptionAndRefreshesAllBrokersWhenClusterConstainsMultipleEntriesButNoneIsMaster(
@@ -220,6 +260,12 @@ public class DomibusJMSActiveMQConnectionManagerTest {
         List<DomibusJMSActiveMQBroker> brokerCluster = getDomibusJMSActiveMQBrokers();
         brokerCluster.addAll(Arrays.asList(broker1, broker2));
         new Expectations() {{
+            broker1.isOnline();
+            result = true;
+
+            broker2.isOnline();
+            result = true;
+
             broker1.isMaster();
             result = false;
 

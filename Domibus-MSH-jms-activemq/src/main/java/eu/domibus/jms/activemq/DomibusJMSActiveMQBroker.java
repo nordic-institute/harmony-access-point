@@ -38,6 +38,8 @@ public class DomibusJMSActiveMQBroker {
 
     private MBeanServerConnection mBeanServerConnection;
 
+    private boolean online;
+
     private final Map<String, ObjectName> queueMap = new HashMap<>();
 
     public DomibusJMSActiveMQBroker(String brokerName, String serviceUrl, ObjectProvider<MBeanServerConnection> mBeanServerConnections, ObjectProvider<BrokerViewMBean> brokerViewMBeans) {
@@ -85,9 +87,19 @@ public class DomibusJMSActiveMQBroker {
     }
 
     public void refresh() {
-        LOG.trace("Refreshing broker view MBean [{}]", getBrokerDetails());
+        LOG.debug("Refreshing broker [{}]", getBrokerDetails());
         mBeanServerConnection = mBeanServerConnections.getObject(serviceUrl);
         brokerViewMBean = brokerViewMBeans.getObject(brokerName, serviceUrl);
         queueMap.clear();
+        online = true;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOffline() {
+        LOG.debug("Marking broker offline [{}]", getBrokerDetails());
+        online = false;
     }
 }
