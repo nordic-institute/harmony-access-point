@@ -76,14 +76,12 @@ public class MessageLogResource extends BaseResource {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    private final ErrorHandlerService errorHandlerService;
-
-    public MessageLogResource(TestService testService, DateUtil dateUtil, MessagesLogService messagesLogService, DomibusConfigurationService domibusConfigurationService, ErrorHandlerService errorHandlerService) {
+    public MessageLogResource(TestService testService, DateUtil dateUtil, MessagesLogService messagesLogService,
+                              DomibusConfigurationService domibusConfigurationService) {
         this.testService = testService;
         this.dateUtil = dateUtil;
         this.messagesLogService = messagesLogService;
         this.domibusConfigurationService = domibusConfigurationService;
-        this.errorHandlerService = errorHandlerService;
     }
 
     @GetMapping
