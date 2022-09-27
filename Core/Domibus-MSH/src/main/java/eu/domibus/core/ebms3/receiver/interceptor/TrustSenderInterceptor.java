@@ -65,7 +65,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
- * This interceptor is responsible of the trust of an incoming messages.
+ * This interceptor is responsible for the trust of an incoming messages.
  * Useful info on this topic are here: http://tldp.org/HOWTO/SSL-Certificates-HOWTO/x64.html
  *
  * @author Martini Federico
@@ -241,7 +241,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             throw new SoapFault("InvalidCanonicalizerException", invalidCanonicalizerEx, version.getSender());
         }
 
-
         SAAJInInterceptor.INSTANCE.handleMessage(msg);
         try {
             requestData.setMsgContext(msg);
@@ -358,7 +357,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                     final byte[] bytes = Base64.decodeBase64(certString);
                     org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory certificateFactory = new org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory();
                     return certificateFactory.engineGenerateCertPath(new ByteArrayInputStream(bytes)).getCertificates();
-
                 }
             }
         }
