@@ -162,12 +162,10 @@ public class MessagesPgTest extends SeleniumTest {
 			String messID = resultInfo.get("Message Id");
 			soft.assertEquals(resultInfo.get("Message Id"), messInfo.getMessageId(), "checked message id");
 			soft.assertEquals(resultInfo.get("Conversation Id"), messInfo.getConversationId(), messID + " - check conversation id");
-//			soft.assertTrue(StringUtils.equalsIgnoreCase(resultInfo.get("Ref To Message Id"), messInfo.getRefToMessageId()), messID + " - check Ref To Message Id");
 			soft.assertEquals(resultInfo.get("From Party Id"), MessageConstants.From_Party_Id, messID + " - check From Party Id");
 			soft.assertEquals(resultInfo.get("To Party Id"), MessageConstants.To_Party_Id, messID + " - check To Party Id");
 			soft.assertEquals(resultInfo.get("Original Sender"), MessageConstants.Original_Sender, messID + " - check Original Sender");
 			soft.assertEquals(resultInfo.get("Final Recipient"), MessageConstants.Final_Recipient, messID + " - check Final Recipient");
-//			soft.assertEquals(resultInfo.get("AP Role"), MessageConstants.AP_Role, messID + " - check AP Role");
 		}
 
 		soft.assertAll();
@@ -288,7 +286,6 @@ public class MessagesPgTest extends SeleniumTest {
 		soft.assertTrue(foundXMLfile, "Found file containing message properties");
 		Reporter.log("checking the message payload");
 		log.info("checking the message payload");
-//		soft.assertEquals(zipContent.get("message"), MessageConstants.Message_Content, "Correct message content is downloaded");
 
 		String xmlString = zipContent.get("message.xml");
 
@@ -553,7 +550,7 @@ public class MessagesPgTest extends SeleniumTest {
 
 		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
 
-		page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
+		page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime");
 		soft.assertAll();
 	}
 

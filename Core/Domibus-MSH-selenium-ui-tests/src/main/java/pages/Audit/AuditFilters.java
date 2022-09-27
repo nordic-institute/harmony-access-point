@@ -1,6 +1,7 @@
 package pages.Audit;
 
 import ddsl.dcomponents.FilterArea;
+import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DatePicker;
 import ddsl.dobjects.multi_select.MultiSelect;
 import org.apache.commons.lang3.StringUtils;
@@ -13,88 +14,95 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import java.util.Date;
 
 public class AuditFilters extends FilterArea {
-	@FindBy(css = "#table_id")
-	public WebElement tableFilterContainer;
-	@FindBy(css = "#user_id:nth-of-type(2)")
-	public WebElement userFilterContainer;
-	@FindBy(css = "#action_id:nth-of-type(3)")
-	public WebElement actionFilterContainer;
-	@FindBy(css = "#from_id")
-	public WebElement changedFrom;
-	@FindBy(css = "#to_id")
-	public WebElement changedTo;
+    @FindBy(css = "#table_id")
+    public WebElement tableFilterContainer;
+    @FindBy(css = "#user_id:nth-of-type(2)")
+    public WebElement userFilterContainer;
+    @FindBy(css = "#action_id:nth-of-type(3)")
+    public WebElement actionFilterContainer;
+    @FindBy(css = "#from_id")
+    public WebElement changedFrom;
+    @FindBy(css = "#to_id")
+    public WebElement changedTo;
 
-	public AuditFilters(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
+    @FindBy(css = "#isDomain_id")
+    public WebElement isDomainChk;
 
-	public MultiSelect getTableFilter() {
-		return weToMultiSelect(tableFilterContainer);
-	}
+    public AuditFilters(WebDriver driver) {
+        super(driver);
+        PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+    }
 
-	public MultiSelect getUserFilter() {
-		return weToMultiSelect(userFilterContainer);
-	}
+    public MultiSelect getTableFilter() {
+        return weToMultiSelect(tableFilterContainer);
+    }
 
-	public MultiSelect getActionFilter() {
-		return weToMultiSelect(actionFilterContainer);
-	}
+    public MultiSelect getUserFilter() {
+        return weToMultiSelect(userFilterContainer);
+    }
 
-	public DatePicker getChangedFrom() {
-		return weToDatePicker(changedFrom);
-	}
+    public MultiSelect getActionFilter() {
+        return weToMultiSelect(actionFilterContainer);
+    }
 
-	public DatePicker getChangedTo() {
-		return weToDatePicker(changedTo);
-	}
+    public DatePicker getChangedFrom() {
+        return weToDatePicker(changedFrom);
+    }
 
-	public void simpleFilter(String table, String user, String action, String changeFrom, String changeTo) throws Exception {
-		log.debug("table = " + table);
-		log.debug("user = " + user);
-		log.debug("action = " + action);
-		log.debug("changeFrom = " + changeFrom);
-		log.debug("changeTo = " + changeTo);
+    public DatePicker getChangedTo() {
+        return weToDatePicker(changedTo);
+    }
 
-		getTableFilter().selectOptionByText(table);
-		getUserFilter().selectOptionByText(user);
-		getActionFilter().selectOptionByText(action);
+    public Checkbox getIsDomainChk() {
+        return weToCheckbox(isDomainChk);
+    }
 
-		if (!StringUtils.isEmpty(changeFrom)) {
-			expandArea();
-			getChangedFrom().selectDate(changeFrom);
-		}
-		if (!StringUtils.isEmpty(changeTo)) {
-			expandArea();
-			getChangedTo().selectDate(changeTo);
-		}
+    public void simpleFilter(String table, String user, String action, String changeFrom, String changeTo) throws Exception {
+        log.debug("table = " + table);
+        log.debug("user = " + user);
+        log.debug("action = " + action);
+        log.debug("changeFrom = " + changeFrom);
+        log.debug("changeTo = " + changeTo);
 
-		clickSearch();
-	}
+        getTableFilter().selectOptionByText(table);
+        getUserFilter().selectOptionByText(user);
+        getActionFilter().selectOptionByText(action);
+
+        if (!StringUtils.isEmpty(changeFrom)) {
+            expandArea();
+            getChangedFrom().selectDate(changeFrom);
+        }
+        if (!StringUtils.isEmpty(changeTo)) {
+            expandArea();
+            getChangedTo().selectDate(changeTo);
+        }
+
+        clickSearch();
+    }
 
 
-	public void advancedFilter(String table, String user, String action, Date changeFrom, Date changeTo) throws Exception {
-		log.debug("table = " + table);
-		log.debug("user = " + user);
-		log.debug("action = " + action);
-		log.debug("changeFrom = " + changeFrom);
-			log.debug("changeTo = " + changeTo);
+    public void advancedFilter(String table, String user, String action, Date changeFrom, Date changeTo) throws Exception {
+        log.debug("table = " + table);
+        log.debug("user = " + user);
+        log.debug("action = " + action);
+        log.debug("changeFrom = " + changeFrom);
+        log.debug("changeTo = " + changeTo);
 
-		getTableFilter().selectOptionByText(table);
-		getUserFilter().selectOptionByText(user);
-		getActionFilter().selectOptionByText(action);
+        getTableFilter().selectOptionByText(table);
+        getUserFilter().selectOptionByText(user);
+        getActionFilter().selectOptionByText(action);
 
-		expandArea();
+        expandArea();
 
-		if (changeFrom != null) {
-			getChangedFrom().selectDate(changeFrom);
-		}
-		if (changeTo != null) {
-			getChangedTo().selectDate(changeTo);
-		}
+        if (changeFrom != null) {
+            getChangedFrom().selectDate(changeFrom);
+        }
+        if (changeTo != null) {
+            getChangedTo().selectDate(changeTo);
+        }
 
-		clickSearch();
-	}
+        clickSearch();
+    }
 
 
 }

@@ -38,7 +38,7 @@
                 </methods>
             </class>
             <class name="domibus.ui.ux.UsersPgUXTest">
-              </class>
+            </class>
 
             <class name="domibus.ui.ux.AlertPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
@@ -103,6 +103,8 @@
             </class>
             <class name="domibus.ui.functional.MessageFilter2PgTest">
             </class>
+            <class name="domibus.ui.functional.DomainsPgTest">
+            </class>
         </classes>
     </test>
     <test name="LAST">
@@ -113,7 +115,8 @@
                 </methods>
             </class>
             <class name="domibus.ui.functional.TruststorePgTest"></class>
-            <class name="domibus.ui.functional.TlsTrustStorePgTest">
+            <class name="domibus.ui.functional.TlsTrustStorePgTest"/>
+            <class name="domibus.ui.ux.TlsTruststoreUXTest">
             </class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>

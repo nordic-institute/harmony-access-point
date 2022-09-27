@@ -97,8 +97,7 @@ public class PmodePartiesClient extends BaseRestClient {
 		if (StringUtils.isEmpty(partyIdVal)) {
 			partyIdVal = Gen.randomAlphaNumeric(10);
 		}
-//		if(null == initiatorsProc || initiatorsProc.length == 0){ initiatorsProc = {Generator.randomAlphaNumeric(10)};}
-//		if(null == respondersProc || respondersProc.length == 0){ respondersProc = {Generator.randomAlphaNumeric(10)};}
+
 
 		JSONObject newParty = createPartyObject(name, endpoint, initiatorsProc, respondersProc, partyID, partyType, partyIdVal);
 

@@ -13,7 +13,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 public class ProcessSection extends DComponent {
 	@FindBy(css = "#processTable")
 	protected WebElement processTable;
-	//	By checkBox = By.cssSelector("input[type='checkbox']");
 	By checkBox = By.tagName("mat-checkbox");
 
 	public ProcessSection(WebDriver driver) {

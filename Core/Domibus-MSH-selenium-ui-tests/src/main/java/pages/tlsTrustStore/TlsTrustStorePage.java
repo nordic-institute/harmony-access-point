@@ -16,9 +16,10 @@ import java.io.File;
 
 public class TlsTrustStorePage extends DomibusPage {
 
+	@FindBy(css = "app-column-picker > div[class='ng-star-inserted']")
+	public WebElement showHideAdditionalArea;
 	@FindBy(css = "#pageGridId")
 	WebElement tlsTruststoreTable;
-
 	@FindBy(id = "uploadbutton_id")
 	WebElement uploadButton;
 	@FindBy(id = "downloadbutton_id")
@@ -27,7 +28,6 @@ public class TlsTrustStorePage extends DomibusPage {
 	WebElement addCertButton;
 	@FindBy(id = "removeCertificate_id")
 	WebElement removeCertButton;
-
 	@FindBy(id = "truststore")
 	WebElement chooseFileButton;
 	@FindBy(id = "password_id")
@@ -38,12 +38,8 @@ public class TlsTrustStorePage extends DomibusPage {
 	WebElement okButton;
 	@FindBy(id = "cancelbuttonupload_id")
 	WebElement cancelButton;
-
 	@FindBy(css = ".error")
 	WebElement passValidationMsg;
-
-	@FindBy(css = "app-column-picker > div[class='ng-star-inserted']")
-	public WebElement showHideAdditionalArea;
 
 	public TlsTrustStorePage(WebDriver driver) {
 		super(driver);
@@ -83,10 +79,12 @@ public class TlsTrustStorePage extends DomibusPage {
 	}
 
 	public void uploadTruststore(String filePath, String password) throws Exception {
-		log.debug("uploading truststore certificate");
+		log.info("uploading truststore certificate");
+
+		File file = new File(filePath);
 
 		getUploadButton().click();
-		chooseFileButton.sendKeys(filePath);
+		chooseFileButton.sendKeys(file.getAbsolutePath());
 		getPassInputField().fill(password);
 
 		wait.forElementToBeClickable(okButton);
