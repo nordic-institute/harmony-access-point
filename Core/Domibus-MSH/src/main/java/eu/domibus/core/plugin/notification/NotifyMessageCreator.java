@@ -35,7 +35,7 @@ public class NotifyMessageCreator {
     public JmsMessage createMessage() {
         final JMSMessageBuilder jmsMessageBuilder = JMSMessageBuilder.create();
         if (properties != null) {
-            jmsMessageBuilder.properties(new HashMap<>(properties)); //because properties is unmodifiable and cannot accept more values below
+            jmsMessageBuilder.properties(new HashMap<>(properties));
         }
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);

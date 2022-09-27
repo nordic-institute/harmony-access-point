@@ -86,10 +86,11 @@ public class PluginAsyncNotificationListener implements MessageListener {
             Map<String, String> messageProperties = getMessageProperties(message);
 
 
-            // deserialize the message body into the proper MessageEvent
+            // deserialize the message body into the correct MessageEvent instance
             String serializedBody = message.getStringProperty("body");
             String eventClass = message.getStringProperty("eventClass");
             MessageEvent event = (MessageEvent) new ObjectMapper().readValue(serializedBody, Class.forName(eventClass));
+
             pluginEventNotifier.notifyPlugin(event, asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);

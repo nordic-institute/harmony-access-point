@@ -147,7 +147,7 @@ public class BackendNotificationService {
 
         addMessagePropertiesToEvent(event, userMessage);
 
-        notifyOfIncoming(event, userMessage, notificationType);
+        notifyOfIncoming(event, routingService.getMatchingBackendFilter(userMessage), notificationType);
     }
 
 
@@ -166,7 +166,8 @@ public class BackendNotificationService {
         deliverMessageEvent.setMessageEntityId(userMessage.getEntityId());
         deliverMessageEvent.setMessageId(userMessage.getMessageId());
         addMessagePropertiesToEvent(deliverMessageEvent, userMessage);
-        notifyOfIncoming(deliverMessageEvent, matchingBackendFilter, userMessage, notificationType);
+
+        notifyOfIncoming(deliverMessageEvent, matchingBackendFilter, notificationType);
     }
 
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
@@ -209,7 +210,7 @@ public class BackendNotificationService {
     protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
         MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
         messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
-        notify(messageDeletedBatchEvent, null, backend, NotificationType.MESSAGE_DELETE_BATCH);
+        notify(messageDeletedBatchEvent, backend, NotificationType.MESSAGE_DELETE_BATCH);
     }
 
     protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
@@ -258,7 +259,7 @@ public class BackendNotificationService {
                 userMessage.getEntityId(),
                 properties);
 
-        notify(messageDeletedEvent, null, backend, NotificationType.MESSAGE_DELETED);
+        notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED);
 
         /*backendConnectorDelegate.messageDeletedEvent(
                 backend,
@@ -279,7 +280,7 @@ public class BackendNotificationService {
         payloadSubmittedEvent.setMime(partInfo.getMime());
         addMessagePropertiesToEvent(payloadSubmittedEvent, userMessage);
 
-        notify(payloadSubmittedEvent, null, backendName, NotificationType.PAYLOAD_SUBMITTED);
+        notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED);
     }
 
 
@@ -297,19 +298,26 @@ public class BackendNotificationService {
         payloadProcessedEvent.setMime(partInfo.getMime());
         addMessagePropertiesToEvent(payloadProcessedEvent, userMessage);
 
-        notify(payloadProcessedEvent, null, backendName, NotificationType.PAYLOAD_PROCESSED);
+        notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED);
     }
 
-    protected void notifyOfIncoming(MessageEvent messageEvent, final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType) {
+    protected void notifyOfIncoming(MessageEvent messageEvent, final BackendFilter matchingBackendFilter, final NotificationType notificationType) {
         if (matchingBackendFilter == null) {
-            LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageId(), unknownReceiverQueue);
-            MSHRole role = userMessage.getMshRole() != null ? userMessage.getMshRole().getRole() : null;
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getEntityId(), userMessage.getMessageId(), role,
-                    notificationType, messageEvent.getProps()).createMessage(), unknownReceiverQueue);
+            LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", messageEvent.getMessageId(), unknownReceiverQueue);
+            MSHRole role = null;
+            String mshRole = messageEvent.getProps().get(MSH_ROLE);
+            if (mshRole == null) {
+                LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
+            } else {
+                role = MSHRole.valueOf(mshRole);
+            }
+
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageEvent.getMessageEntityId(), messageEvent.getMessageId(), role,
+                    notificationType, messageEvent.getProps()).createMessage(messageEvent), unknownReceiverQueue);
             return;
         }
 
-        notify(messageEvent, userMessage, matchingBackendFilter.getBackendName(), notificationType);
+        notify(messageEvent, matchingBackendFilter.getBackendName(), notificationType);
     }
 
     public void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
@@ -351,12 +359,12 @@ public class BackendNotificationService {
         }
     }
 
-    protected void notifyOfIncoming(MessageEvent messageEvent, final UserMessage userMessage, final NotificationType notificationType) {
-        final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
-        notifyOfIncoming(messageEvent, matchingBackendFilter, userMessage, notificationType);
-    }
+    /*protected void notifyOfIncoming(MessageEvent messageEvent, BackendFilter matchingBackendFilter, final NotificationType notificationType) {
+        //final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
+        notifyOfIncoming(messageEvent, matchingBackendFilter, notificationType);
+    }*/
 
-    protected void notify(MessageEvent messageEvent, UserMessage userMessage, String backendName, NotificationType notificationType) {
+    protected void notify(MessageEvent messageEvent, String backendName, NotificationType notificationType) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, messageEvent.getMessageId(), notificationType);
 
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
@@ -449,7 +457,7 @@ public class BackendNotificationService {
 //        messageSendFailedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
 //        messageSendFailedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
 
-        notify(messageSendFailedEvent, userMessage, backendName, notificationType);
+        notify(messageSendFailedEvent, backendName, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
 
@@ -470,7 +478,7 @@ public class BackendNotificationService {
         messageSendSuccessEvent.setMessageId(userMessage.getMessageId());
         addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage);
 
-        notify(messageSendSuccessEvent, userMessage, userMessageLog.getBackend(), notificationType);
+        notify(messageSendSuccessEvent, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
 
@@ -522,7 +530,7 @@ public class BackendNotificationService {
         messageStatusChangeEvent.setChangeTimestamp(new Timestamp(NumberUtils.toLong(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP))));
         addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage);
 
-        notify(messageStatusChangeEvent, userMessage, messageLog.getBackend(), notificationType);
+        notify(messageStatusChangeEvent, messageLog.getBackend(), notificationType);
     }
 
     private void handleMDC(UserMessage userMessage) {
