@@ -80,13 +80,16 @@ public class FaultInHandler extends AbstractFaultHandler {
         return true;
     }
 
+    @Override
+    public void close(final MessageContext context) {
+    }
+
     /**
      * The {@code handleFault} method is responsible for handling and conversion of exceptions
      * thrown during the processing of incoming ebMS3 messages
      */
     @Override
     public boolean handleFault(final SOAPMessageContext context) {
-
         if (context == null) {
             LOG.error("Context is null and shouldn't be");
             throw new MissingResourceException("Context is null and shouldn't be", SOAPMessageContext.class.getName(), "context");
@@ -94,12 +97,16 @@ public class FaultInHandler extends AbstractFaultHandler {
 
         final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
         final Exception exception = (Exception) context.get(Exception.class.getName());
-
         EbMS3Exception ebMS3Exception = getEBMS3Exception(exception, messageId);
 
-        notifyPlugins(ebMS3Exception);
+        SOAPMessage soapMessageWithEbMS3Error = getSoapMessage(ebMS3Exception);
+        context.setMessage(soapMessageWithEbMS3Error);
 
-        processEbMSError(context, ebMS3Exception);
+        soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
+
+        updateErrorLog(soapMessageWithEbMS3Error, ebMS3Exception);
+
+        notifyPlugins(ebMS3Exception);
 
         return true;
     }
@@ -214,7 +221,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         return ebMS3Exception;
     }
 
-    private void processEbMSError(final SOAPMessageContext context, final EbMS3Exception ebMS3Exception) {
+    private SOAPMessage getSoapMessage(EbMS3Exception ebMS3Exception) {
         if (ebMS3Exception == null) {
             LOG.warn("ebMSException is null on this stage and shouldn't");
             throw new MissingResourceException("ebMSException is null on this stage and shouldn't", EbMS3Exception.class.getName(), "ebMS3Exception");
@@ -227,8 +234,10 @@ public class FaultInHandler extends AbstractFaultHandler {
         } catch (final EbMS3Exception e) {
             errorLogService.createErrorLog(e, MSHRole.RECEIVING, null);
         }
-        context.setMessage(soapMessageWithEbMS3Error);
+        return soapMessageWithEbMS3Error;
+    }
 
+    private void updateErrorLog(SOAPMessage soapMessageWithEbMS3Error, EbMS3Exception ebMS3Exception) {
         final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessageWithEbMS3Error);
         if (ebms3Messaging == null) {
             LOG.trace("Messaging header is null, error log not created");
@@ -241,9 +250,6 @@ public class FaultInHandler extends AbstractFaultHandler {
 
         final Boolean testMessage = testMessageValidator.checkTestMessage(service, action);
         LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId());
-
-        //log the raw xml Signal message
-        soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
 
         errorLogService.createErrorLog(ebms3Messaging, MSHRole.RECEIVING, null);
     }
@@ -263,7 +269,4 @@ public class FaultInHandler extends AbstractFaultHandler {
         LOG.debug("Plugins notified about failure to receive message with id: [{}]", userMessage.getMessageId());
     }
 
-    @Override
-    public void close(final MessageContext context) {
-    }
 }
