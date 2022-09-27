@@ -53,6 +53,9 @@ In order to build Domibus for Tomcat including all release artifacts use the fol
 
     mvn clean install -Ptomcat -Pdefault-plugins -Pdatabase -Psample-configuration -PUI -Pdistribution
 
+Or, for short, use the property 'default' instead of listing the profiles:
+
+    mvn clean install -Ddefault
 
 [Top](#top)
 

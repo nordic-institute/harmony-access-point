@@ -55,8 +55,7 @@ public class DatePicker extends DComponent {
 //------------------------------------------------------------------------
 
 	//-------------Calendar items selectors-----------------------------------
-//	@FindBy(css = "div.md2-calendar-body-cell-content")
-//	private List<WebElement> pickerBtns;
+
 	@FindBy(css = "div.md2-calendar-body-selected")
 	private WebElement selectedPickerBtn;
 	@FindBy(css = "div.md2-clock-hours")
