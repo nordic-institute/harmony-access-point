@@ -1442,18 +1442,33 @@
     <profiles>
         <profile>
             <id>distribution</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
             <modules>
                 <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
             <id>sample-configuration</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
             <modules>
                 <module>Core/Domibus-MSH-distribution</module>
             </modules>
         </profile>
         <profile>
             <id>tomcat</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
             <modules>
                 <module>Tomcat</module>
             </modules>
@@ -1478,6 +1493,11 @@
         </profile>
         <profile>
             <id>default-plugins</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
             <modules>
                 <module>Plugin-WS</module>
                 <module>Plugin-JMS</module>
@@ -1486,6 +1506,11 @@
         </profile>
         <profile>
             <id>dss-extension</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
             <modules>
                 <module>Domibus-DSS</module>
             </modules>

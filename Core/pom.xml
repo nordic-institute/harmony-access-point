@@ -35,12 +35,22 @@
     <profiles>
         <profile>
             <id>UI</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
             <modules>
                 <module>Domibus-MSH-angular</module>
             </modules>
         </profile>
         <profile>
             <id>database</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
             <modules>
                 <module>Domibus-MSH-db</module>
             </modules>
