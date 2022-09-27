@@ -22,6 +22,8 @@ public class NotifyMessageCreator {
     private final  MSHRole mshRole;
     private NotificationType notificationType;
     private Map<String, String> properties;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     public NotifyMessageCreator(final long messageEntityId, final String messageId, MSHRole mshRole,
                                 final NotificationType notificationType, final Map<String, String> properties) {
@@ -57,7 +59,7 @@ public class NotifyMessageCreator {
         jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
         String eventSerialized = null;
         try {
-            eventSerialized = new ObjectMapper().writeValueAsString(messageEvent);
+            eventSerialized = objectMapper.writeValueAsString(messageEvent);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

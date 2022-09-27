@@ -7,7 +7,6 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.MessageEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.metrics.Counter;
@@ -40,6 +39,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
     protected DomainContextProvider domainContextProvider;
     protected AsyncNotificationConfiguration asyncNotificationConfiguration;
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public PluginAsyncNotificationListener(DomainContextProvider domainContextProvider,
                                            AsyncNotificationConfiguration asyncNotificationConfiguration,
@@ -89,7 +89,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
             // deserialize the message body into the correct MessageEvent instance
             String serializedBody = message.getStringProperty("body");
             String eventClass = message.getStringProperty("eventClass");
-            MessageEvent event = (MessageEvent) new ObjectMapper().readValue(serializedBody, Class.forName(eventClass));
+            MessageEvent event = (MessageEvent) objectMapper.readValue(serializedBody, Class.forName(eventClass));
 
             pluginEventNotifier.notifyPlugin(event, asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
         } catch (JMSException jmsEx) {
