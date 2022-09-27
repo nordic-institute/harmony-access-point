@@ -41,7 +41,7 @@ public class PluginMessageSendSuccessNotifierTest {
         Map<String, String> properties = new HashMap<>();
 
 
-        pluginMessageSendSuccessNotifier.notifyPlugin(backendConnector, 123L, messageId, properties);
+        pluginMessageSendSuccessNotifier.notifyPlugin(null/**todo*/, backendConnector, 123L, messageId, properties);
 
         new Verifications() {{
             MessageSendSuccessEvent event = null;

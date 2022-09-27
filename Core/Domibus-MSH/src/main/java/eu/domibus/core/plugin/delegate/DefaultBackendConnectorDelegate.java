@@ -87,4 +87,16 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         backendConnector.messageDeletedBatchEvent(event);
     }
 
+    @Override
+    public void payloadSubmitted(BackendConnector backendConnector, PayloadSubmittedEvent event) {
+        LOG.trace("Calling payloadSubmittedEvent method");
+        backendConnector.payloadSubmittedEvent(event);
+    }
+
+    @Override
+    public void payloadProcessed(BackendConnector backendConnector, PayloadProcessedEvent event) {
+        LOG.trace("Calling payloadProcessed method");
+        backendConnector.payloadProcessedEvent(event);
+    }
+
 }

@@ -50,7 +50,7 @@ public class MessageSendFailedEvent implements Serializable, MessageEvent {
 
     @Override
     public Map<String, String> getProps() {
-        return Collections.unmodifiableMap(properties);
+        return properties;
     }
 
     @Override

@@ -1,9 +1,7 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.common.DeliverMessageEvent;
-import eu.domibus.common.NotificationType;
+import eu.domibus.common.*;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +12,7 @@ import java.util.Map;
  * @since 4.2
  */
 @Service
-public class PluginMessageReceivedNotifier implements PluginEventNotifier {
+public class PluginMessageReceivedNotifier implements PluginEventNotifier <DeliverMessageEvent> {
 
     protected BackendConnectorDelegate backendConnectorDelegate;
 
@@ -28,8 +26,7 @@ public class PluginMessageReceivedNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
-        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(messageEntityId, messageId, properties);
-        backendConnectorDelegate.deliverMessage(backendConnector, deliverMessageEvent);
+    public void notifyPlugin(DeliverMessageEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+        backendConnectorDelegate.deliverMessage(backendConnector, messageEvent);
     }
 }

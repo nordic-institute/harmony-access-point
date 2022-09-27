@@ -19,6 +19,9 @@ public class DeliverMessageEvent implements Serializable, MessageEvent {
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected long messageEntityId;
 
+
+    public DeliverMessageEvent() {}
+
     public DeliverMessageEvent(String messageId) {
         this.messageId = messageId;
     }
@@ -54,7 +57,7 @@ public class DeliverMessageEvent implements Serializable, MessageEvent {
 
     @Override
     public Map<String, String> getProps() {
-        return Collections.unmodifiableMap(properties);
+        return properties;
     }
 
     @Override

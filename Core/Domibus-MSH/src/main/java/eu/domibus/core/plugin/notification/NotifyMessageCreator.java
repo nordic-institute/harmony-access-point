@@ -1,11 +1,15 @@
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.MessageEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,12 +35,36 @@ public class NotifyMessageCreator {
     public JmsMessage createMessage() {
         final JMSMessageBuilder jmsMessageBuilder = JMSMessageBuilder.create();
         if (properties != null) {
-            jmsMessageBuilder.properties(properties);
+            jmsMessageBuilder.properties(new HashMap<>(properties)); //because properties is unmodifiable and cannot accept more values below
         }
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
         jmsMessageBuilder.property(MessageConstants.MSH_ROLE, mshRole.name());
         jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
+
+        return jmsMessageBuilder.build();
+    }
+
+
+    public JmsMessage createMessage(MessageEvent messageEvent) {
+        final JMSMessageBuilder jmsMessageBuilder = JMSMessageBuilder.create();
+        if (properties != null) {
+            jmsMessageBuilder.properties(new HashMap<>(properties)); //because properties is unmodifiable and cannot accept more values below
+        }
+        jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
+        jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
+        jmsMessageBuilder.property(MessageConstants.MSH_ROLE, mshRole.name());
+        jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
+        String eventSerialized = null;
+        try {
+            eventSerialized = new ObjectMapper().writeValueAsString(messageEvent);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        jmsMessageBuilder.content(eventSerialized);
+        jmsMessageBuilder.property("body", eventSerialized);
+        jmsMessageBuilder.property("eventClass", messageEvent.getClass().getName());
 
         return jmsMessageBuilder.build();
     }

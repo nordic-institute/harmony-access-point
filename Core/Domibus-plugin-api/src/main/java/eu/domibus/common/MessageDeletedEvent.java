@@ -2,6 +2,7 @@ package eu.domibus.common;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.2
  */
-public class MessageDeletedEvent implements MessageEvent {
+public class MessageDeletedEvent implements Serializable, MessageEvent {
 
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
@@ -29,7 +30,7 @@ public class MessageDeletedEvent implements MessageEvent {
 
     @Override
     public Map<String, String> getProps() {
-        return Collections.unmodifiableMap(properties);
+        return properties;
     }
 
     @Override

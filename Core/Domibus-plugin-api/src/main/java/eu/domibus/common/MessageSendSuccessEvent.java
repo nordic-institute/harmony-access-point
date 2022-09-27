@@ -19,6 +19,8 @@ public class MessageSendSuccessEvent implements Serializable, MessageEvent {
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected Long messageEntityId;
 
+    public MessageSendSuccessEvent(){}
+
     public MessageSendSuccessEvent(final Long messageEntityId, String messageId, Map<String, String> properties) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;
@@ -50,7 +52,7 @@ public class MessageSendSuccessEvent implements Serializable, MessageEvent {
 
     @Override
     public Map<String, String> getProps() {
-        return Collections.unmodifiableMap(properties);
+        return properties;
     }
 
     @Override

@@ -133,10 +133,10 @@ public class BackendNotificationServiceTest {
         String backendName = "backendName";
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         new Expectations(backendNotificationService) {{
-            backendNotificationService.notify(userMessage, backendName, notificationType, null);
+            backendNotificationService.notify(null/**todo*/, userMessage, backendName, notificationType);
         }};
 
-        backendNotificationService.notify(userMessage, backendName, notificationType, null);
+        backendNotificationService.notify(null/**todo*/, userMessage, backendName, notificationType);
 
         new Verifications() {
         };
@@ -167,10 +167,10 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
-            backendNotificationService.notifySync(backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, properties);
+            backendNotificationService.notifySync(null/**todo*/, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, properties);
         }};
 
-        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, properties);
+        backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -212,10 +212,10 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.RECEIVING;
 
-            backendNotificationService.notifyAsync(notificationListener, entityId, MESSAGE_ID, MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
+            backendNotificationService.notifyAsync(null/**todo*/, notificationListener, entityId, MESSAGE_ID, MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
-        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+        backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -253,10 +253,10 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
-            backendNotificationService.notifySync(backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
+            backendNotificationService.notifySync(null/**todo*/, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
-        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+        backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -280,7 +280,7 @@ public class BackendNotificationServiceTest {
             this.result = entityId;
         }};
 
-        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+        backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -294,7 +294,7 @@ public class BackendNotificationServiceTest {
             result = null;
         }};
 
-        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+        backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new Verifications() {
         };
@@ -320,7 +320,7 @@ public class BackendNotificationServiceTest {
             this.result = entityId;
         }};
 
-        backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED, null);
+        backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -428,7 +428,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.SENDING;
 
-            backendNotificationService.notify(userMessage, anyString, NotificationType.MESSAGE_STATUS_CHANGE, withAny(new HashMap<>()));
+            backendNotificationService.notify(null/**todo*/, userMessage, anyString, NotificationType.MESSAGE_STATUS_CHANGE);
             times = 1;
         }};
 
@@ -483,7 +483,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.SENDING;
 
-            backendNotificationService.notify(userMessage, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE, withAny(new HashMap<>()));
+            backendNotificationService.notify(null/**todo*/, userMessage, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE);
             times = 1;
         }};
 
@@ -821,7 +821,7 @@ public class BackendNotificationServiceTest {
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
-            backendNotificationService.notifyOfIncoming(userMessage, MESSAGE_FRAGMENT_RECEIVED_FAILURE, withCapture(propertiesList));
+            backendNotificationService.notifyOfIncoming(null, userMessage, MESSAGE_FRAGMENT_RECEIVED_FAILURE/**todo, withCapture(propertiesList)*/);
 
         }};
 
@@ -895,7 +895,7 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_SEND_SUCCESS, (Map<String, String>) any);
+            backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, MESSAGE_SEND_SUCCESS);
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
@@ -921,7 +921,7 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS, (Map<String, String>) any);
+            backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
@@ -963,7 +963,7 @@ public class BackendNotificationServiceTest {
             result = true;
             times = 1;
 
-            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_FRAGMENT_RECEIVED, withAny(new HashMap<>()));
+            backendNotificationService.notifyOfIncoming(null/**todo*/, matchingBackendFilter, userMessage, MESSAGE_FRAGMENT_RECEIVED);
             times = 1;
         }};
 
@@ -987,7 +987,7 @@ public class BackendNotificationServiceTest {
             result = false;
             times = 1;
 
-            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, MESSAGE_RECEIVED, withAny(new HashMap<>()));
+            backendNotificationService.notifyOfIncoming(null/**todo*/, matchingBackendFilter, userMessage, MESSAGE_RECEIVED);
             times = 1;
         }};
 
@@ -1129,7 +1129,7 @@ public class BackendNotificationServiceTest {
             result = MESSAGE_ID;
         }};
 
-        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
+        backendNotificationService.notifyOfIncoming(/**todo*/null, userMessage, notificationType);
 
         //It's not fullVerification because it was raising an UnexpectedInvocation on Queue#toString() (for logging)
         new Verifications() {{
@@ -1148,11 +1148,11 @@ public class BackendNotificationServiceTest {
             matchingBackendFilter.getBackendName();
             result = BACKEND_NAME;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, notificationType, properties);
+            backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, notificationType);
             times = 1;
         }};
 
-        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
+        backendNotificationService.notifyOfIncoming(null, userMessage, notificationType);
 
         new Verifications() {{
             routingService.getMatchingBackendFilter(userMessage);
@@ -1169,11 +1169,11 @@ public class BackendNotificationServiceTest {
             routingService.getMatchingBackendFilter(userMessage);
             result = matchingBackendFilter;
 
-            backendNotificationService.notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
+            backendNotificationService.notifyOfIncoming(null/**todo*/, matchingBackendFilter, userMessage, notificationType);
             times = 1;
         }};
 
-        backendNotificationService.notifyOfIncoming(userMessage, notificationType, properties);
+        backendNotificationService.notifyOfIncoming(null, userMessage, notificationType);
 
         new FullVerifications() {
         };
@@ -1203,7 +1203,7 @@ public class BackendNotificationServiceTest {
             userMessage.isMessageFragment();
             result = true;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE, (Map<String, String>) any);
+            backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE);
         }};
 
         backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
@@ -1226,7 +1226,7 @@ public class BackendNotificationServiceTest {
             userMessage.isMessageFragment();
             result = false;
 
-            backendNotificationService.notify(userMessage, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE, (Map<String, String>) any);
+            backendNotificationService.notify(null/**todo*/, userMessage, BACKEND_NAME, NotificationType.MESSAGE_SEND_FAILURE);
             times = 1;
         }};
 
@@ -1384,7 +1384,7 @@ public class BackendNotificationServiceTest {
         }};
 
         long messageEntityId = 1L;
-        backendNotificationService.notifyAsync(asyncNotificationConfiguration, messageEntityId, MESSAGE_ID, MSHRole.SENDING, notificationType, properties);
+        backendNotificationService.notifyAsync(null/**todo*/, asyncNotificationConfiguration, messageEntityId, MESSAGE_ID, MSHRole.SENDING, notificationType, properties);
 
         new FullVerifications() {
         };
@@ -1404,7 +1404,7 @@ public class BackendNotificationServiceTest {
             result = null;
         }};
 
-        backendNotificationService.notifySync(backendConnector, 1L, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(null/**todo*/, backendConnector, 1L, MESSAGE_ID, notificationType, properties);
 
         new FullVerifications() {
         };
@@ -1426,10 +1426,10 @@ public class BackendNotificationServiceTest {
         }};
 
         final long messageEntityId = 1L;
-        backendNotificationService.notifySync(backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
 
         new FullVerifications() {{
-            pluginEventNotifier.notifyPlugin(backendConnector, messageEntityId, MESSAGE_ID, properties);
+            pluginEventNotifier.notifyPlugin(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, properties);
             times = 1;
         }};
     }
@@ -1450,10 +1450,10 @@ public class BackendNotificationServiceTest {
         }};
 
         final long messageEntityId = 1L;
-        backendNotificationService.notifySync(backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
 
         new FullVerifications() {{
-            pluginEventNotifier.notifyPlugin(backendConnector, messageEntityId, MESSAGE_ID, properties);
+            pluginEventNotifier.notifyPlugin(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, properties);
             times = 1;
         }};
     }

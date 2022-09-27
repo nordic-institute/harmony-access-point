@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import eu.domibus.common.MessageEvent;
 import eu.domibus.common.MessageSendFailedEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
@@ -16,7 +17,7 @@ import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
  * @since 4.2
  */
 @Service
-public class PluginMessageSendFailureNotifier implements PluginEventNotifier {
+public class PluginMessageSendFailureNotifier implements PluginEventNotifier<MessageSendFailedEvent> {
 
     protected BackendConnectorDelegate backendConnectorDelegate;
 
@@ -30,10 +31,7 @@ public class PluginMessageSendFailureNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
-        MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(messageEntityId, messageId);
-        messageSendFailedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
-        messageSendFailedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
-        backendConnectorDelegate.messageSendFailed(backendConnector, messageSendFailedEvent);
+    public void notifyPlugin(MessageSendFailedEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+        backendConnectorDelegate.messageSendFailed(backendConnector, messageEvent);
     }
 }

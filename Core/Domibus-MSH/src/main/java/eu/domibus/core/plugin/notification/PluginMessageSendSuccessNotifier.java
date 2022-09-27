@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import eu.domibus.common.MessageEvent;
 import eu.domibus.common.MessageSendSuccessEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.metrics.Counter;
@@ -15,7 +16,7 @@ import java.util.Map;
  * @since 4.2
  */
 @Service
-public class PluginMessageSendSuccessNotifier implements PluginEventNotifier {
+public class PluginMessageSendSuccessNotifier implements PluginEventNotifier<MessageSendSuccessEvent> {
 
     protected BackendConnectorDelegate backendConnectorDelegate;
 
@@ -31,8 +32,7 @@ public class PluginMessageSendSuccessNotifier implements PluginEventNotifier {
     @Timer(clazz = PluginMessageSendSuccessNotifier.class, value = "notifyPluginSendSuccess")
     @Counter(clazz = PluginMessageSendSuccessNotifier.class, value = "notifyPluginSendSuccess")
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
-        MessageSendSuccessEvent messageSendSuccessEvent = new MessageSendSuccessEvent(messageEntityId, messageId, properties);
-        backendConnectorDelegate.messageSendSuccess(backendConnector, messageSendSuccessEvent);
+    public void notifyPlugin(MessageSendSuccessEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+        backendConnectorDelegate.messageSendSuccess(backendConnector, messageEvent);
     }
 }

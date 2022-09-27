@@ -1,11 +1,14 @@
 
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.MessageDeletedEvent;
+import eu.domibus.common.MessageEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -81,7 +84,13 @@ public class PluginAsyncNotificationListener implements MessageListener {
                 return;
             }
             Map<String, String> messageProperties = getMessageProperties(message);
-            pluginEventNotifier.notifyPlugin(asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
+
+
+            // deserialize the message body into the proper MessageEvent
+            String serializedBody = message.getStringProperty("body");
+            String eventClass = message.getStringProperty("eventClass");
+            MessageEvent event = (MessageEvent) new ObjectMapper().readValue(serializedBody, Class.forName(eventClass));
+            pluginEventNotifier.notifyPlugin(event, asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());

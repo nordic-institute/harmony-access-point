@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import eu.domibus.common.MessageEvent;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.MessageStatusChangeEvent;
 import eu.domibus.common.NotificationType;
@@ -18,7 +19,7 @@ import java.util.Map;
  * @since 4.2
  */
 @Service
-public class PluginMessageStatusChangeNotifier implements PluginEventNotifier {
+public class PluginMessageStatusChangeNotifier implements PluginEventNotifier<MessageStatusChangeEvent> {
 
     protected BackendConnectorDelegate backendConnectorDelegate;
 
@@ -32,17 +33,7 @@ public class PluginMessageStatusChangeNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
-        MessageStatusChangeEvent event = new MessageStatusChangeEvent(properties);
-        event.setMessageId(messageId);
-        event.setMessageEntityId(messageEntityId);
-
-        final String fromStatus = properties.get(MessageConstants.STATUS_FROM);
-        if (StringUtils.isNotEmpty(fromStatus)) {
-            event.setFromStatus(MessageStatus.valueOf(fromStatus));
-        }
-        event.setToStatus(MessageStatus.valueOf(properties.get(MessageConstants.STATUS_TO)));
-        event.setChangeTimestamp(new Timestamp(NumberUtils.toLong(properties.get(MessageConstants.CHANGE_TIMESTAMP))));
-        backendConnectorDelegate.messageStatusChanged(backendConnector, event);
+    public void notifyPlugin(MessageStatusChangeEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+        backendConnectorDelegate.messageStatusChanged(backendConnector, messageEvent);
     }
 }
