@@ -310,5 +310,22 @@ public class AlertPgUXTest extends SeleniumTest {
 	}
 
 
+	/*EDELIVERY-8216 - ALRT-54 - Check Ui when Plugin Alert is selected in search filter*/
+	@Test(description = "ALRT-54", groups = {"multiTenancy", "singleTenancy"})
+	public void selectPluginTypeAlert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+
+		page.filters().getAlertTypeSelect().selectOptionByText("Plugin");
+
+		soft.assertFalse(page.getAlertArea().isShown(), "Alert area is not displayed");
+		soft.assertTrue(page.grid().isPresent(), "Grid is displayed");
+
+		soft.assertAll();
+	}
+
+
 }
 

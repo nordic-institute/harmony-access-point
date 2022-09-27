@@ -16,8 +16,7 @@ public class SandwichMenu extends DComponent {
 	WebElement expandButton;
 	@FindBy(id = "settingsmenu_expanded_id")
 	WebElement menuContainer;
-	//	@FindBy(css = "#currentuser_id span")
-//	WebElement currentuser;
+
 	By currentuser = By.cssSelector("#currentuser_id span");
 	@FindBy(id = "changePassword_id")
 	WebElement changePassLnk;

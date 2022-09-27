@@ -176,7 +176,6 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 		page.setPassFields(data.defaultPass(), pass, pass);
 		Reporter.log("press tab ");
 		log.info("press tab ");
-//		page.getConfirmationField().pressTABKey();
 		page.pressTABKey();
 
 		soft.assertTrue(!page.getUpdateButton().isEnabled(), "Update button is disabled");

@@ -59,8 +59,6 @@ public class TruststorePage extends DomibusPage {
 
 		chooseFileButton.sendKeys(filePath);
 
-//		soft.assertTrue(passValidationMsg.isDisplayed(), "Validation under password field is present");
-
 		if (!password.isEmpty()) {
 			log.info("Entering value ");
 			getPassInputField().fill(password);
