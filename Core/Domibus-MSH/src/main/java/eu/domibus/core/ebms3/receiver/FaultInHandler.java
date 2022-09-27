@@ -21,9 +21,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +34,11 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import java.security.cert.CertificateException;
 import java.util.*;
 
 /**
- * This handler is resposible for creation of ebMS3 conformant error messages
+ * This handler is responsible for creation of ebMS3 conformant error messages
  *
  * @author Christian Koch, Stefan Mueller
  */
@@ -60,8 +63,10 @@ public class FaultInHandler extends AbstractFaultHandler {
 
     @Autowired
     protected BackendNotificationService backendNotificationService;
+
     @Autowired
     UserMessageErrorCreator userMessageErrorCreator;
+
     @Autowired
     MshRoleDao mshRoleDao;
 
@@ -88,15 +93,26 @@ public class FaultInHandler extends AbstractFaultHandler {
             throw new MissingResourceException("Context is null and shouldn't be", SOAPMessageContext.class.getName(), "context");
         }
 
-        final Exception exception = (Exception) context.get(Exception.class.getName());
-        final Throwable cause = exception.getCause();
-        EbMS3Exception ebMS3Exception = null;
         final String messageId = (String) PhaseInterceptorChain.getCurrentMessage().getContextualProperty("ebms.messageid");
+        final Exception exception = (Exception) context.get(Exception.class.getName());
+
+        EbMS3Exception ebMS3Exception = getEBMS3Exception(exception, messageId);
+
+        notifyPlugins(ebMS3Exception);
+
+        processEbMSError(context, ebMS3Exception);
+
+        return true;
+    }
+
+    private EbMS3Exception getEBMS3Exception(Exception exception, String messageId) {
+        EbMS3Exception ebMS3Exception = null;
+
+        final Throwable cause = exception.getCause();
 
         if (cause != null) {
-
             if (!(cause instanceof EbMS3Exception)) {
-                //do Mapping of non ebms exceptions
+                //do mapping of non ebms exceptions
                 if (cause instanceof NoMatchingPModeFoundException) {
                     ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
@@ -105,64 +121,74 @@ public class FaultInHandler extends AbstractFaultHandler {
                             .cause(cause)
                             .mshRole(MSHRole.RECEIVING)
                             .build();
-                } else {
-
-                    if (cause instanceof WebServiceException) {
-                        if (cause.getCause() instanceof EbMS3Exception) {
-                            ebMS3Exception = (EbMS3Exception) cause.getCause();
-                        }
+                } else if (cause instanceof WebServiceException) {
+                    if (cause.getCause() instanceof EbMS3Exception) {
+                        ebMS3Exception = (EbMS3Exception) cause.getCause();
                     } else {
-                        //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
-
-                        ErrorCode.EbMS3ErrorCode ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0004;
-                        String errorMessage = "unknown error occurred";
-                        if (cause instanceof WSSecurityException) {
-                            WSSecurityException wsSecurityException = (WSSecurityException) cause;
-                            errorMessage = wsSecurityException.getMessage();
-                            switch (wsSecurityException.getErrorCode()) {
-                                case FAILED_CHECK: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0102; //The signature or decryption was invalid
-                                    break;
-                                case FAILED_AUTHENTICATION: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0101;
-                                    break;
-                                default: ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
-                            }
-                            LOG.error("Security exception encountered with ebMS3 error code: [{}]", ebMS3ErrorCode);
-                        }
-
-
+                        Throwable ex = cause.getCause();
                         ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
-                                .ebMS3ErrorCode(ebMS3ErrorCode)
-                                .message(errorMessage)
+                                .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                                .message(ex.getMessage())
                                 .refToMessageId(messageId)
-                                .cause(cause)
+                                .cause(ex)
                                 .mshRole(MSHRole.RECEIVING)
                                 .build();
                     }
+                } else if (cause instanceof CertificateException || cause instanceof InvalidCanonicalizerException) {
+                    ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
+                            .message(cause.getMessage())
+                            .refToMessageId(messageId)
+                            .cause(cause)
+                            .mshRole(MSHRole.RECEIVING)
+                            .build();
+                } else {
+                    //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
+                    ErrorCode.EbMS3ErrorCode ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0004;
+                    String errorMessage = "unknown error occurred";
+                    if (cause instanceof WSSecurityException) {
+                        WSSecurityException wsSecurityException = (WSSecurityException) cause;
+                        errorMessage = wsSecurityException.getMessage();
+                        switch (wsSecurityException.getErrorCode()) {
+                            case FAILED_CHECK:
+                                ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0102; //The signature or decryption was invalid
+                                break;
+                            case FAILED_AUTHENTICATION:
+                                ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0101;
+                                break;
+                            default:
+                                ebMS3ErrorCode = ErrorCode.EbMS3ErrorCode.EBMS_0103;
+                        }
+                        LOG.error("Security exception encountered with ebMS3 error code: [{}]", ebMS3ErrorCode);
+                    }
+                    ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                            .ebMS3ErrorCode(ebMS3ErrorCode)
+                            .message(errorMessage)
+                            .refToMessageId(messageId)
+                            .cause(cause)
+                            .mshRole(MSHRole.RECEIVING)
+                            .build();
                 }
-
             } else {
                 ebMS3Exception = (EbMS3Exception) cause;
             }
-
-            notifyPlugins(ebMS3Exception);
-
-            if (ebMS3Exception != null){
-                if (StringUtils.isBlank(ebMS3Exception.getRefToMessageId()) && StringUtils.isNotBlank(messageId)) {
-                    ebMS3Exception.setRefToMessageId(messageId);
-                }
-        }
-            this.processEbMSError(context, ebMS3Exception);
-
-
         } else {
             if (exception instanceof PolicyException) {
                 //FIXME: use a consistent way of property exchange between JAXWS and CXF message model. This: PhaseInterceptorChain
-
                 ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0103)
                         .message(exception.getMessage())
                         .refToMessageId(messageId)
                         .cause(exception)
+                        .mshRole(MSHRole.RECEIVING)
+                        .build();
+            } else if (exception instanceof SoapFault) {
+                SoapFault fault = (SoapFault) exception;
+                ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                        .message(fault.getMessage())
+                        .refToMessageId(messageId)
+                        .cause(fault)
                         .mshRole(MSHRole.RECEIVING)
                         .build();
             } else {
@@ -173,12 +199,15 @@ public class FaultInHandler extends AbstractFaultHandler {
                         .mshRole(MSHRole.RECEIVING)
                         .build();
             }
-
-            notifyPlugins(ebMS3Exception);
-            this.processEbMSError(context, ebMS3Exception);
         }
 
-        return true;
+        if (ebMS3Exception != null) {
+            if (StringUtils.isBlank(ebMS3Exception.getRefToMessageId()) && StringUtils.isNotBlank(messageId)) {
+                ebMS3Exception.setRefToMessageId(messageId);
+            }
+        }
+
+        return ebMS3Exception;
     }
 
     private void processEbMSError(final SOAPMessageContext context, final EbMS3Exception ebMS3Exception) {
@@ -198,7 +227,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         context.setMessage(soapMessageWithEbMS3Error);
 
         final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessageWithEbMS3Error);
-        if(ebms3Messaging == null) {
+        if (ebms3Messaging == null) {
             LOG.trace("Messaging header is null, error log not created");
             return;
         }
@@ -218,7 +247,6 @@ public class FaultInHandler extends AbstractFaultHandler {
 
 
     private void notifyPlugins(EbMS3Exception faultCause) {
-
         LOG.debug("Preparing message details for plugin notification about the receive failure");
         Ebms3Messaging ebms3Messaging = (Ebms3Messaging) PhaseInterceptorChain.getCurrentMessage().getExchange().get(MessageConstants.EMBS3_MESSAGING_OBJECT);
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
@@ -231,7 +259,6 @@ public class FaultInHandler extends AbstractFaultHandler {
         backendNotificationService.fillEventProperties(userMessage, properties);
         backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));
         LOG.debug("Plugins notified about failure to receive message with id: [{}]", userMessage.getMessageId());
-
     }
 
     @Override

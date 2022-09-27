@@ -83,6 +83,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     public static final String X_509_PKIPATHV_1 = "X509PKIPathv1";
 
     public static final String ID = "Id";
+    public static final String COULD_NOT_EXTRACT_THE_CERTIFICATE_FOR_VALIDATION = "Could not extract the certificate for validation";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -253,7 +254,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                 msg.put(CertificateExchangeType.getKey(), CertificateExchangeType.KEY_INFO.name());
                 final List<? extends Certificate> certificateChain = getCertificateFromKeyInfo(requestData, securityHeader);
                 if (CollectionUtils.isEmpty(certificateChain)) {
-                    throw new SoapFault("CertificateException: Could not extract the certificate for validation", version.getSender());
+                    throw new CertificateException(COULD_NOT_EXTRACT_THE_CERTIFICATE_FOR_VALIDATION);
                 }
                 addSerializedCertificateToMessage(msg, certificateChain, CertificateExchangeType.KEY_INFO);
                 return certificateChain;
@@ -263,7 +264,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
                 addSerializedCertificateToMessage(msg, certificateChain, CertificateExchangeType.BINARY_SECURITY_TOKEN);
                 final Certificate certificate = certificateService.extractLeafCertificateFromChain(certificateChain);
                 if (certificate == null) {
-                    throw new SoapFault("CertificateException: Could not extract the certificate for validation", version.getSender());
+                    throw new CertificateException(COULD_NOT_EXTRACT_THE_CERTIFICATE_FOR_VALIDATION);
                 }
                 return certificateChain;
             }
@@ -271,10 +272,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             throw new SoapFault("CertificateException", certEx, version.getSender());
         } catch (WSSecurityException wssEx) {
             throw new SoapFault("WSSecurityException", wssEx, version.getSender());
-        } catch (SOAPException soapEx) {
+        } catch (SOAPException | URISyntaxException soapEx) {
             throw new SoapFault("SOAPException", soapEx, version.getSender());
-        } catch (URISyntaxException uriEx) {
-            throw new SoapFault("SOAPException", uriEx, version.getSender());
         }
     }
 
