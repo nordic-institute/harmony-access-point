@@ -45,7 +45,7 @@ public class DomibusCoreException extends RuntimeException {
      * @param message the Error message detail. It is saved for later retrieval by the {@link #getMessage()} method.
      */
     public DomibusCoreException(String message) {
-        super(". " + message);
+        super(message);
     }
 
 

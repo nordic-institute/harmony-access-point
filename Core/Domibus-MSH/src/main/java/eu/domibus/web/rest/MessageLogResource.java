@@ -14,6 +14,7 @@ import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -75,7 +76,8 @@ public class MessageLogResource extends BaseResource {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    public MessageLogResource(TestService testService, DateUtil dateUtil, MessagesLogService messagesLogService, DomibusConfigurationService domibusConfigurationService) {
+    public MessageLogResource(TestService testService, DateUtil dateUtil, MessagesLogService messagesLogService,
+                              DomibusConfigurationService domibusConfigurationService) {
         this.testService = testService;
         this.dateUtil = dateUtil;
         this.messagesLogService = messagesLogService;

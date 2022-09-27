@@ -5,23 +5,6 @@
     <page-grid [parent]="this" [selectionType]="'none'"></page-grid>
   </div>
 
-  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <div *ngIf="row.testable">
-      <button mat-icon-button (click)="openDetails(row)"
-              color="primary" tooltip="Details" button-click-behaviour>
-        <mat-icon>search</mat-icon>
-      </button>
-      <button mat-icon-button (click)="refreshMonitor(row)"
-              color="primary" tooltip="Refresh" button-click-behaviour>
-        <mat-icon>cached</mat-icon>
-      </button>
-      <button mat-icon-button (click)="sendTestMessage(row)"
-              color="primary" tooltip="Send" button-click-behaviour>
-        <mat-icon>send</mat-icon>
-      </button>
-    </div>
-  </ng-template>
-
   <ng-template #monitorStatusHeader let-column="column" ngx-datatable-header-template>
     <mat-slide-toggle [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
     <span style="margin-left: 5px;">Monitoring</span>
@@ -59,7 +42,7 @@
     <div *ngIf="row.testable && row.status" class="connection-status">
       <span>
         <mat-icon *ngIf="row.status == 'OK'" style="color: green">check_circle</mat-icon>
-        <mat-icon *ngIf="row.status == 'BROKEN'" style="color: red">error</mat-icon>
+        <mat-icon *ngIf="row.status == 'BROKEN'" (click)="showErrors(row)" style="color: red; cursor: pointer;">error</mat-icon>
         <mat-icon *ngIf="row.status == 'UNKNOWN'" style="color: orange">indeterminate_check_box</mat-icon>
         <mat-progress-spinner *ngIf="row.status == 'PENDING'" mode="indeterminate" diameter="32"></mat-progress-spinner>
       </span>
@@ -74,6 +57,23 @@
         <span *ngIf="row.lastReceived">{{ formatDate(row.lastReceived.timeReceived) }}</span>
         <span *ngIf="!row.lastReceived">never</span>
       </div>
+    </div>
+  </ng-template>
+
+  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+    <div *ngIf="row.testable">
+      <button mat-icon-button (click)="openDetails(row)"
+              color="primary" tooltip="Details" button-click-behaviour>
+        <mat-icon>search</mat-icon>
+      </button>
+      <button mat-icon-button (click)="refreshMonitor(row)"
+              color="primary" tooltip="Refresh" button-click-behaviour>
+        <mat-icon>cached</mat-icon>
+      </button>
+      <button mat-icon-button (click)="sendTestMessage(row)"
+              color="primary" tooltip="Send" button-click-behaviour>
+        <mat-icon>send</mat-icon>
+      </button>
     </div>
   </ng-template>
 </div>

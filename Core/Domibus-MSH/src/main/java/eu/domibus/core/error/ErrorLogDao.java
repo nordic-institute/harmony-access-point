@@ -46,6 +46,13 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         return initializeChildren(query.getResultList());
     }
 
+    public List<ErrorLogEntry> getErrorsForMessage(String messageId) {
+        final TypedQuery<ErrorLogEntry> query = this.em.createNamedQuery("ErrorLogEntry.findErrorsByMessageId", ErrorLogEntry.class);
+        query.setParameter(STR_MESSAGE_ID, messageId);
+
+        return initializeChildren(query.getResultList());
+    }
+
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<ErrorLogEntry> ele) {
         List<Predicate> predicates = new ArrayList<>();
@@ -143,5 +150,6 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         //initialize values from the second level cache
         errorLogEntry.getMshRole();
     }
+
 
 }

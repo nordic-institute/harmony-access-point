@@ -20,12 +20,15 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.web.rest.ro.TestMessageErrorRo;
+import eu.domibus.web.rest.ro.TestErrorsInfoRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -173,12 +176,13 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestSentWithErrors(String partyId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestSent(partyId);
         if (result == null) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message found for party [" + partyId + "]");
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No sent user message found for party [" + partyId + "]");
         }
 
         if (result.getTimeReceived() == null) {
-            String errorDetails = getErrorsDetails(result.getMessageId(), result.getMshRole());
-            throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
+            TestErrorsInfoRO errorDetails = getErrorsDetails(result.getMessageId());
+            errorDetails.setMessage("No user message response found.");
+            throw new TestServiceException(errorDetails);
         }
 
         return result;
@@ -215,8 +219,9 @@ public class TestService {
     public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
         if (result == null) {
-            String errorDetails = getErrorsDetails(userMessageId, MSHRole.RECEIVING);
-            throw new TestServiceException("No Signal Message found. " + errorDetails);
+            TestErrorsInfoRO errorDetails = getErrorsDetails(userMessageId);
+            errorDetails.setMessage("No user message response found.");
+            throw new TestServiceException(errorDetails);
         }
 
         return result;
@@ -261,25 +266,31 @@ public class TestService {
         } catch (Exception ex) {
             LOG.warn("Could not delete old test messages from party [{}]", party, ex);
         }
-
     }
 
-    protected String getErrorsDetails(String userMessageId, MSHRole mshRole) {
-        String result;
-        String errorDetails = getErrorsForMessage(userMessageId, mshRole);
-        if (StringUtils.isEmpty(errorDetails)) {
-            result = "Please call the method again to see the details.";
+    public TestErrorsInfoRO getErrorsDetails(String userMessageId) {
+        TestErrorsInfoRO result;
+        TestErrorsInfoRO errorDetails = getErrorsForMessage(userMessageId);
+        if (errorDetails == null) {
+            result = new TestErrorsInfoRO("Please call the method again to see the details.");
         } else {
-            result = "Error details: " + errorDetails;
+            errorDetails.setMessage("Errors for the test message with id " + userMessageId);
+            result = errorDetails;
         }
         return result;
     }
 
-    protected String getErrorsForMessage(String userMessageId, MSHRole mshRole) {
-        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId, mshRole);
-        return errorLogEntries.stream()
-                .map(err -> err.getErrorCode().getErrorCodeName() + "-" + err.getErrorDetail())
-                .collect(Collectors.joining(", "));
+    protected TestErrorsInfoRO getErrorsForMessage(String userMessageId) {
+        List<ErrorLogEntry> errorLogEntries = errorLogService.getErrorsForMessage(userMessageId);
+        if (CollectionUtils.isEmpty(errorLogEntries)) {
+            LOG.debug("No error log entries found for message with id [{}]", userMessageId);
+            return null;
+        }
+        return new TestErrorsInfoRO(
+                errorLogEntries.stream()
+                        .map(err -> new TestMessageErrorRo(err.getErrorCode().getErrorCodeName(), err.getErrorDetail()))
+                        .collect(Collectors.toList())
+        );
     }
 
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {

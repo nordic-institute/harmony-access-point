@@ -366,7 +366,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
                 if (!certificateChainValid) {
                     throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage);
                 }
-                LOG.info("Receiver certificate exists and is valid [{}}]", receiverName);
+                LOG.info("Receiver certificate exists and is valid [{}]", receiverName);
             } catch (DomibusCertificateException | CryptoException e) {
                 throw new ChainCertificateInvalidException(DomibusCoreErrorCode.DOM_001, chainExceptionMessage, e);
             }
