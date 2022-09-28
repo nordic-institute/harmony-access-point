@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.logging.DomibusLogger;
@@ -38,8 +39,10 @@ public class PluginAsyncNotificationListenerConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public PluginAsyncNotificationListener createAsyncNotificationListener(AsyncNotificationConfiguration asyncNotificationConfiguration) {
-        PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider, asyncNotificationConfiguration, pluginEventNotifierProvider, authUtils);
+    public PluginAsyncNotificationListener createAsyncNotificationListener(@Qualifier("domibusJsonMapper") ObjectMapper objectMapper,
+                                                                           AsyncNotificationConfiguration asyncNotificationConfiguration) {
+        PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider,
+                asyncNotificationConfiguration, pluginEventNotifierProvider, authUtils, objectMapper);
         return notificationListenerServiceImpl;
     }
 }

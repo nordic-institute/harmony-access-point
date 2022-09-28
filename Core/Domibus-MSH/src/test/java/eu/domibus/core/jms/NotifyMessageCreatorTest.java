@@ -1,5 +1,6 @@
 package eu.domibus.core.jms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.NotificationType;
@@ -20,7 +21,7 @@ public class NotifyMessageCreatorTest {
 
     @Test
     public void testCreateMessage() throws Exception {
-        NotifyMessageCreator creator = new NotifyMessageCreator(123, "myMessageId", MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
+        NotifyMessageCreator creator = new NotifyMessageCreator(123, "myMessageId", MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null, new ObjectMapper());
         JmsMessage message = creator.createMessage();
         assertEquals(message.getProperty(MessageConstants.MESSAGE_ID), "myMessageId");
         assertEquals(message.getProperty(MessageConstants.NOTIFICATION_TYPE), NotificationType.MESSAGE_RECEIVED.name());

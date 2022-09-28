@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
@@ -39,7 +40,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
 
         for (Pair<Long, String> messageId : messageIds) {
-            final JmsMessage message = new NotifyMessageCreator(messageId.getLeft(), messageId.getRight(), MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
+            final JmsMessage message = new NotifyMessageCreator(messageId.getLeft(), messageId.getRight(), MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, new HashMap<>(), new ObjectMapper()).createMessage();
             jmsManager.sendMessageToQueue(message, WS_NOT_QUEUE);
         }
 

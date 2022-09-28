@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -108,6 +109,8 @@ public class BackendNotificationService {
     @Autowired
     protected BackendConnectorHelper backendConnectorHelper;
 
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
@@ -260,10 +263,6 @@ public class BackendNotificationService {
                 properties);
 
         notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED);
-
-        /*backendConnectorDelegate.messageDeletedEvent(
-                backend,
-                messageDeletedEvent);*/
     }
 
 
@@ -313,7 +312,7 @@ public class BackendNotificationService {
             }
 
             jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageEvent.getMessageEntityId(), messageEvent.getMessageId(), role,
-                    notificationType, messageEvent.getProps()).createMessage(messageEvent), unknownReceiverQueue);
+                    notificationType, messageEvent.getProps(), objectMapper).createMessage(messageEvent), unknownReceiverQueue);
             return;
         }
 
@@ -359,10 +358,6 @@ public class BackendNotificationService {
         }
     }
 
-    /*protected void notifyOfIncoming(MessageEvent messageEvent, BackendFilter matchingBackendFilter, final NotificationType notificationType) {
-        //final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
-        notifyOfIncoming(messageEvent, matchingBackendFilter, notificationType);
-    }*/
 
     protected void notify(MessageEvent messageEvent, String backendName, NotificationType notificationType) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, messageEvent.getMessageId(), notificationType);
@@ -392,10 +387,6 @@ public class BackendNotificationService {
 
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
         if (shouldNotifyAsync(asyncNotificationConfiguration)) {
-            /*MSHRole role = messageEvent.getProps().get(MSH_ROLE) != null ? userMessage.getMshRole().getRole() : null;
-            if(role == null){
-
-            }*/
             MSHRole role = null;
             String mshRole = messageEvent.getProps().get(MSH_ROLE);
             if (mshRole == null) {
@@ -418,7 +409,7 @@ public class BackendNotificationService {
                                String messageId, MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
-        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(messageEntityId, messageId, mshRole, notificationType, properties);
+        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(messageEntityId, messageId, mshRole, notificationType, properties, objectMapper);
         jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(messageEvent), backendNotificationQueue);
     }
 

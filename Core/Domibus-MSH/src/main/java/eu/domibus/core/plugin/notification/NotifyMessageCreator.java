@@ -8,6 +8,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,16 +23,18 @@ public class NotifyMessageCreator {
     private final  MSHRole mshRole;
     private NotificationType notificationType;
     private Map<String, String> properties;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
 
     public NotifyMessageCreator(final long messageEntityId, final String messageId, MSHRole mshRole,
-                                final NotificationType notificationType, final Map<String, String> properties) {
+                                final NotificationType notificationType, final Map<String, String> properties,
+                                final ObjectMapper objectMapper) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.notificationType = notificationType;
         this.properties = properties;
         this.mshRole = mshRole;
+        this.objectMapper = objectMapper;
     }
 
     public JmsMessage createMessage() {
@@ -51,7 +54,7 @@ public class NotifyMessageCreator {
     public JmsMessage createMessage(MessageEvent messageEvent) {
         final JMSMessageBuilder jmsMessageBuilder = JMSMessageBuilder.create();
         if (properties != null) {
-            jmsMessageBuilder.properties(new HashMap<>(properties)); //because properties is unmodifiable and cannot accept more values below
+            jmsMessageBuilder.properties(new HashMap<>(properties));
         }
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
         jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
@@ -65,8 +68,8 @@ public class NotifyMessageCreator {
         }
 
         jmsMessageBuilder.content(eventSerialized);
-        jmsMessageBuilder.property("body", eventSerialized);
-        jmsMessageBuilder.property("eventClass", messageEvent.getClass().getName());
+        jmsMessageBuilder.property(AsyncNotificationConfiguration.BODY, eventSerialized);
+        jmsMessageBuilder.property(AsyncNotificationConfiguration.EVENT_CLASS, messageEvent.getClass().getName());
 
         return jmsMessageBuilder.build();
     }

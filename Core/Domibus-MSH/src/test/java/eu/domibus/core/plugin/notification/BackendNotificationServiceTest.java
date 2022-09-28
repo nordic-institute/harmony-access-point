@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
@@ -62,6 +63,9 @@ public class BackendNotificationServiceTest {
 
     @Tested
     BackendNotificationService backendNotificationService = new BackendNotificationService();
+
+    @Injectable
+    ObjectMapper objectMapper;
 
     @Injectable
     SubmissionValidatorService submissionValidatorService;
@@ -130,14 +134,14 @@ public class BackendNotificationServiceTest {
     TestMessageValidator testMessageValidator;
 
     @Test
-    public void testValidateAndNotify_propertyNull(@Mocked final UserMessage userMessage) {
+    public void testValidateAndNotify_propertyNull(@Mocked final DeliverMessageEvent messageEvent) {
         String backendName = "backendName";
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         new Expectations(backendNotificationService) {{
-            backendNotificationService.notify(null/**todo*/, backendName, notificationType);
+            backendNotificationService.notify(messageEvent, backendName, notificationType);
         }};
 
-        backendNotificationService.notify(null/**todo*/, backendName, notificationType);
+        backendNotificationService.notify(messageEvent, backendName, notificationType);
 
         new Verifications() {
         };
@@ -146,7 +150,8 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void testNotifyWithNoConfiguredNotificationListener(@Mocked final BackendConnector<?, ?> backendConnector,
-                                                               @Mocked UserMessage userMessage) {
+                                                               @Mocked UserMessage userMessage,
+                                                               @Mocked DeliverMessageEvent messageEvent) {
         List<NotificationType> requiredNotifications = new ArrayList<>();
         requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
         HashMap<String, String> properties = new HashMap<>();
@@ -168,10 +173,10 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
-            backendNotificationService.notifySync(null/**todo*/, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, properties);
+            backendNotificationService.notifySync(messageEvent, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, properties);
         }};
 
-        backendNotificationService.notify(null/**todo*/, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -182,7 +187,7 @@ public class BackendNotificationServiceTest {
     public void notify(
             @Injectable final AsyncNotificationConfiguration notificationListener,
             @Mocked final BackendConnector<?, ?> backendConnector,
-            @Mocked UserMessage userMessage) {
+            @Mocked UserMessage userMessage, @Mocked DeliverMessageEvent messageEvent) {
 
         List<NotificationType> requiredNotifications = new ArrayList<>();
         requiredNotifications.add(NotificationType.MESSAGE_RECEIVED);
@@ -213,10 +218,10 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.RECEIVING;
 
-            backendNotificationService.notifyAsync(null/**todo*/, notificationListener, entityId, MESSAGE_ID, MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
+            backendNotificationService.notifyAsync(messageEvent, notificationListener, entityId, MESSAGE_ID, MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
-        backendNotificationService.notify(null/**todo*/, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -226,7 +231,7 @@ public class BackendNotificationServiceTest {
     public void notifySync_propertiesNotNull(
             @Mocked final AsyncNotificationConfiguration notificationListener,
             @Mocked final BackendConnector<?, ?> backendConnector,
-            @Mocked UserMessage userMessage) {
+            @Mocked UserMessage userMessage, @Mocked DeliverMessageEvent messageEvent) {
         long entityId = 1L;
 
         List<NotificationType> requiredNotifications = new ArrayList<>();
@@ -254,10 +259,10 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
-            backendNotificationService.notifySync(null/**todo*/, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
+            backendNotificationService.notifySync(messageEvent, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
         }};
 
-        backendNotificationService.notify(null/**todo*/, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -265,7 +270,7 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notify_NoNotification(@Mocked final BackendConnector<?, ?> backendConnector,
-                                      @Mocked UserMessage userMessage) {
+                                      @Mocked UserMessage userMessage, @Mocked DeliverMessageEvent messageEvent) {
 
         new Expectations(backendNotificationService) {{
             backendConnectorProvider.getBackendConnector(BACKEND_NAME);
@@ -281,7 +286,7 @@ public class BackendNotificationServiceTest {
             this.result = entityId;
         }};
 
-        backendNotificationService.notify(null/**todo*/, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
+        backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
 
         new FullVerifications() {
         };
@@ -389,7 +394,8 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyOfMessageStatusChange_notFragment(@Mocked final UserMessageLog messageLog,
-                                                        @Mocked final UserMessage userMessage) {
+                                                        @Mocked final UserMessage userMessage,
+                                                        @Mocked final MessageStatusChangeEvent messageStatusChangeEvent) {
         final String messageId = "1";
         final String backend = "JMS";
         final MSHRole role = MSHRole.SENDING;
@@ -430,7 +436,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.SENDING;
 
-            backendNotificationService.notify(null/**todo*/, anyString, NotificationType.MESSAGE_STATUS_CHANGE);
+            backendNotificationService.notify(messageStatusChangeEvent, anyString, NotificationType.MESSAGE_STATUS_CHANGE);
             times = 1;
         }};
 
@@ -444,7 +450,8 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyOfMessageStatusChange_fragment(@Mocked final UserMessageLog messageLog,
-                                                     @Mocked final UserMessage userMessage) {
+                                                     @Mocked final UserMessage userMessage,
+                                                     @Mocked final MessageStatusChangeEvent messageStatusChangeEvent) {
         final String messageId = "1";
         final String backend = "JMS";
         final MSHRole role = MSHRole.SENDING;
@@ -485,7 +492,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMshRole().getRole();
             result = MSHRole.SENDING;
 
-            backendNotificationService.notify(null/**todo*/, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE);
+            backendNotificationService.notify(messageStatusChangeEvent, anyString, NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE);
             times = 1;
         }};
 
@@ -824,7 +831,7 @@ public class BackendNotificationServiceTest {
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
 
-            backendNotificationService.notifyOfIncoming(messageReceiveFailureEvent, null, MESSAGE_FRAGMENT_RECEIVED_FAILURE/**todo, withCapture(propertiesList)*/);
+            backendNotificationService.notifyOfIncoming(messageReceiveFailureEvent, null, MESSAGE_FRAGMENT_RECEIVED_FAILURE);
 
         }};
 
@@ -884,7 +891,8 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void notifyOfSendSuccess_notFragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+    public void notifyOfSendSuccess_notFragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage,
+                                                @Mocked MessageSendSuccessEvent messageSendSuccessEvent) {
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
@@ -898,7 +906,7 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
-            backendNotificationService.notify(null/**todo*/, BACKEND_NAME, MESSAGE_SEND_SUCCESS);
+            backendNotificationService.notify(messageSendSuccessEvent, BACKEND_NAME, MESSAGE_SEND_SUCCESS);
             times = 1;
 
             userMessageLogDao.setAsNotified(userMessageLog);
@@ -941,6 +949,7 @@ public class BackendNotificationServiceTest {
     public void notifyMessageReceived_isPluginNotificationDisabled(
             @Mocked final BackendFilter matchingBackendFilter,
             @Mocked final UserMessage userMessage) {
+
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = true;
@@ -956,7 +965,8 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyMessageReceived_fragment(
             @Mocked final BackendFilter matchingBackendFilter,
-            @Mocked final UserMessage userMessage) {
+            @Mocked final UserMessage userMessage,
+            @Mocked final DeliverMessageEvent messageEvent) {
 
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
@@ -967,7 +977,7 @@ public class BackendNotificationServiceTest {
             result = true;
             times = 1;
 
-            backendNotificationService.notifyOfIncoming(null/**todo*/, matchingBackendFilter, MESSAGE_FRAGMENT_RECEIVED);
+            backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_FRAGMENT_RECEIVED);
             times = 1;
         }};
 
@@ -980,7 +990,8 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyMessageReceived_NotFragment(
             @Mocked final BackendFilter matchingBackendFilter,
-            @Mocked final UserMessage userMessage) {
+            @Mocked final UserMessage userMessage,
+            @Mocked final DeliverMessageEvent messageEvent) {
 
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
@@ -991,7 +1002,7 @@ public class BackendNotificationServiceTest {
             result = false;
             times = 1;
 
-            backendNotificationService.notifyOfIncoming(null/**todo*/, matchingBackendFilter, MESSAGE_RECEIVED);
+            backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_RECEIVED);
             times = 1;
         }};
 
@@ -1122,7 +1133,8 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyOfIncoming_matchingBackendFilterNull(
             @Mocked UserMessage userMessage,
-            @Mocked NotificationType notificationType) {
+            @Mocked NotificationType notificationType,
+            @Mocked final DeliverMessageEvent messageEvent) {
 
         Map<String, String> properties = new HashMap<>();
 
@@ -1134,7 +1146,7 @@ public class BackendNotificationServiceTest {
             result = MESSAGE_ID;
         }};
 
-        backendNotificationService.notifyOfIncoming(/**todo*/null, null, notificationType);
+        backendNotificationService.notifyOfIncoming(messageEvent, null, notificationType);
 
         //It's not fullVerification because it was raising an UnexpectedInvocation on Queue#toString() (for logging)
         new Verifications() {{
@@ -1147,17 +1159,19 @@ public class BackendNotificationServiceTest {
     public void notifyOfIncoming(
             @Mocked BackendFilter matchingBackendFilter,
             @Mocked UserMessage userMessage,
-            @Mocked NotificationType notificationType) {
+            @Mocked NotificationType notificationType,
+            @Mocked final MessageEvent messageEvent) {
+
         Map<String, String> properties = new HashMap<>();
         new Expectations(backendNotificationService) {{
             matchingBackendFilter.getBackendName();
             result = BACKEND_NAME;
 
-            backendNotificationService.notify(null/**todo*/, BACKEND_NAME, notificationType);
+            backendNotificationService.notify(messageEvent, BACKEND_NAME, notificationType);
             times = 1;
         }};
 
-        backendNotificationService.notifyOfIncoming(null, matchingBackendFilter, notificationType);
+        backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, notificationType);
 
         new Verifications() {{
             routingService.getMatchingBackendFilter(userMessage);
@@ -1169,12 +1183,14 @@ public class BackendNotificationServiceTest {
     public void notifyOfIncoming(@Mocked UserMessage userMessage,
                                  @Mocked NotificationType notificationType,
                                  @Mocked Map<String, String> properties,
-                                 @Mocked BackendFilter matchingBackendFilter) {
+                                 @Mocked BackendFilter matchingBackendFilter,
+                                 @Mocked MessageEvent messageEvent) {
+
         new Expectations(backendNotificationService) {{
             routingService.getMatchingBackendFilter(userMessage);
             result = matchingBackendFilter;
 
-            backendNotificationService.notifyOfIncoming(null/**todo*/, matchingBackendFilter, notificationType);
+            backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, notificationType);
             times = 1;
         }};
 
@@ -1197,7 +1213,9 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void notifyOfSendFailure_fragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
+    public void notifyOfSendFailure_fragment(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage,
+                                             @Mocked MessageSendFailedEvent messageSendFailedEvent) {
+
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
@@ -1208,7 +1226,7 @@ public class BackendNotificationServiceTest {
             userMessage.isMessageFragment();
             result = true;
 
-            backendNotificationService.notify(null/**todo*/, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE);
+            backendNotificationService.notify(messageSendFailedEvent, BACKEND_NAME, NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE);
         }};
 
         backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
@@ -1434,7 +1452,8 @@ public class BackendNotificationServiceTest {
             @Mocked BackendConnector<?, ?> backendConnector,
             @Mocked AsyncNotificationConfiguration asyncNotificationConfiguration,
             @Mocked NotificationType notificationType,
-            @Mocked PluginEventNotifier pluginEventNotifier) {
+            @Mocked PluginEventNotifier pluginEventNotifier,
+            @Mocked MessageEvent messageEvent) {
         Map<String, String> properties = new HashMap<>();
         new Expectations() {{
             backendConnector.getName();
@@ -1445,10 +1464,10 @@ public class BackendNotificationServiceTest {
         }};
 
         final long messageEntityId = 1L;
-        backendNotificationService.notifySync(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
 
         new FullVerifications() {{
-            pluginEventNotifier.notifyPlugin(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, properties);
+            pluginEventNotifier.notifyPlugin(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, properties);
             times = 1;
         }};
     }
@@ -1458,7 +1477,8 @@ public class BackendNotificationServiceTest {
             @Mocked BackendConnector<?, ?> backendConnector,
             @Mocked NotificationListener asyncNotificationConfiguration,
             @Mocked NotificationType notificationType,
-            @Mocked PluginEventNotifier pluginEventNotifier) {
+            @Mocked PluginEventNotifier pluginEventNotifier,
+            @Mocked MessageEvent messageEvent) {
         Map<String, String> properties = new HashMap<>();
         new Expectations() {{
             backendConnector.getName();
@@ -1469,10 +1489,10 @@ public class BackendNotificationServiceTest {
         }};
 
         final long messageEntityId = 1L;
-        backendNotificationService.notifySync(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
 
         new FullVerifications() {{
-            pluginEventNotifier.notifyPlugin(null/**todo*/, backendConnector, messageEntityId, MESSAGE_ID, properties);
+            pluginEventNotifier.notifyPlugin(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, properties);
             times = 1;
         }};
     }

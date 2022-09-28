@@ -39,16 +39,17 @@ public class PluginAsyncNotificationListener implements MessageListener {
     protected DomainContextProvider domainContextProvider;
     protected AsyncNotificationConfiguration asyncNotificationConfiguration;
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    protected ObjectMapper objectMapper;
 
     public PluginAsyncNotificationListener(DomainContextProvider domainContextProvider,
                                            AsyncNotificationConfiguration asyncNotificationConfiguration,
                                            PluginEventNotifierProvider pluginEventNotifierProvider,
-                                           AuthUtils authUtils) {
+                                           AuthUtils authUtils, ObjectMapper objectMapper) {
         this.domainContextProvider = domainContextProvider;
         this.asyncNotificationConfiguration = asyncNotificationConfiguration;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
         this.authUtils = authUtils;
+        this.objectMapper = objectMapper;
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
@@ -87,9 +88,9 @@ public class PluginAsyncNotificationListener implements MessageListener {
 
 
             // deserialize the message body into the correct MessageEvent instance
-            String serializedBody = message.getStringProperty("body");
-            String eventClass = message.getStringProperty("eventClass");
-            MessageEvent event = (MessageEvent) objectMapper.readValue(serializedBody, Class.forName(eventClass));
+            String serializedBody = message.getStringProperty(AsyncNotificationConfiguration.BODY);
+            String eventClass = message.getStringProperty(AsyncNotificationConfiguration.EVENT_CLASS);
+            MessageEvent event = (MessageEvent) objectMapper.readValue(serializedBody, Class.forName(eventClass, true, this.getClass().getClassLoader()));
 
             pluginEventNotifier.notifyPlugin(event, asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
         } catch (JMSException jmsEx) {
