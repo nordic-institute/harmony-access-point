@@ -12,7 +12,7 @@ import java.util.Map;
  * @since 4.2
  */
 @Service
-public class PluginMessageReceivedNotifier implements PluginEventNotifier <DeliverMessageEvent> {
+public class PluginMessageReceivedNotifier implements PluginEventNotifier <MessageReceivedEvent> {
 
     protected BackendConnectorDelegate backendConnectorDelegate;
 
@@ -26,7 +26,7 @@ public class PluginMessageReceivedNotifier implements PluginEventNotifier <Deliv
     }
 
     @Override
-    public void notifyPlugin(DeliverMessageEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+    public void notifyPlugin(MessageReceivedEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
         backendConnectorDelegate.deliverMessage(backendConnector, messageEvent);
     }
 }

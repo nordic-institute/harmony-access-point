@@ -13,20 +13,20 @@ import java.util.Map;
  * @author idragusa
  * @since 4.2
  */
-public class DeliverMessageEvent implements Serializable, MessageEvent {
+public class MessageReceivedEvent implements Serializable, MessageEvent {
 
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected long messageEntityId;
 
 
-    public DeliverMessageEvent() {}
+    public MessageReceivedEvent() {}
 
-    public DeliverMessageEvent(String messageId) {
+    public MessageReceivedEvent(String messageId) {
         this.messageId = messageId;
     }
 
-    public DeliverMessageEvent(long messageEntityId, String messageId, Map<String, String> properties) {
+    public MessageReceivedEvent(long messageEntityId, String messageId, Map<String, String> properties) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.properties = properties;

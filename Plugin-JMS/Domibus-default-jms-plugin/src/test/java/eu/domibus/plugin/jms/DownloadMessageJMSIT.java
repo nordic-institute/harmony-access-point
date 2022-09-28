@@ -7,7 +7,7 @@ import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.DeliverMessageEvent;
+import eu.domibus.common.MessageReceivedEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
@@ -87,8 +87,8 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         // Prepare the request to the backend
         String messageId = "invalid@e-delivery.eu";
 
-        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(123, messageId, new HashMap<>());
-        backendJms.deliverMessage(deliverMessageEvent);
+        MessageReceivedEvent messageReceivedEvent = new MessageReceivedEvent(123, messageId, new HashMap<>());
+        backendJms.deliverMessage(messageReceivedEvent);
 
         Assert.fail("DownloadMessageFault was expected but was not raised");
     }

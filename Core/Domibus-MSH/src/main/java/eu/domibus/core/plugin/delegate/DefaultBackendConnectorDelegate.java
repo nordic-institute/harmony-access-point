@@ -50,7 +50,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
     }
 
     @Override
-    public void deliverMessage(BackendConnector backendConnector, DeliverMessageEvent event) {
+    public void deliverMessage(BackendConnector backendConnector, MessageReceivedEvent event) {
         LOG.trace("Calling deliverMessage method");
         backendConnector.deliverMessage(event);
     }
