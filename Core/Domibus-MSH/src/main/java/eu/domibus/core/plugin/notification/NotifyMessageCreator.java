@@ -18,36 +18,19 @@ import java.util.Map;
  */
 public class NotifyMessageCreator {
 
-    private final Long messageEntityId;
-    private final String messageId;
     private final  MSHRole mshRole;
     private NotificationType notificationType;
     private Map<String, String> properties;
     private final ObjectMapper objectMapper;
 
 
-    public NotifyMessageCreator(final long messageEntityId, final String messageId, MSHRole mshRole,
+    public NotifyMessageCreator(MSHRole mshRole,
                                 final NotificationType notificationType, final Map<String, String> properties,
                                 final ObjectMapper objectMapper) {
-        this.messageEntityId = messageEntityId;
-        this.messageId = messageId;
         this.notificationType = notificationType;
         this.properties = properties;
         this.mshRole = mshRole;
         this.objectMapper = objectMapper;
-    }
-
-    public JmsMessage createMessage() {
-        final JMSMessageBuilder jmsMessageBuilder = JMSMessageBuilder.create();
-        if (properties != null) {
-            jmsMessageBuilder.properties(new HashMap<>(properties));
-        }
-        jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
-        jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
-        jmsMessageBuilder.property(MessageConstants.MSH_ROLE, mshRole.name());
-        jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
-
-        return jmsMessageBuilder.build();
     }
 
 
@@ -56,9 +39,10 @@ public class NotifyMessageCreator {
         if (properties != null) {
             jmsMessageBuilder.properties(new HashMap<>(properties));
         }
-        jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEntityId));
-        jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageId);
-        jmsMessageBuilder.property(MessageConstants.MSH_ROLE, mshRole.name());
+
+        jmsMessageBuilder.property(MessageConstants.MESSAGE_ENTITY_ID, String.valueOf(messageEvent.getMessageEntityId()));
+        jmsMessageBuilder.property(MessageConstants.MESSAGE_ID, messageEvent.getMessageId());
+        jmsMessageBuilder.property(MessageConstants.MSH_ROLE, mshRole!=null ? mshRole.name() : null);
         jmsMessageBuilder.property(MessageConstants.NOTIFICATION_TYPE, notificationType.name());
         String eventSerialized = null;
         try {
@@ -72,14 +56,6 @@ public class NotifyMessageCreator {
         jmsMessageBuilder.property(AsyncNotificationConfiguration.EVENT_CLASS, messageEvent.getClass().getName());
 
         return jmsMessageBuilder.build();
-    }
-
-    public Long getMessageEntityId() {
-        return messageEntityId;
-    }
-
-    public String getMessageId() {
-        return messageId;
     }
 
     public MSHRole getMshRole() {

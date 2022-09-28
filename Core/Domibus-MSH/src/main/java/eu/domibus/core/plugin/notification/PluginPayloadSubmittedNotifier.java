@@ -6,8 +6,6 @@ import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 /**
  * @author Razvan Cretu
  * @since 5.1
@@ -27,7 +25,7 @@ public class PluginPayloadSubmittedNotifier implements PluginEventNotifier<Paylo
     }
 
     @Override
-    public void notifyPlugin(PayloadSubmittedEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+    public void notifyPlugin(PayloadSubmittedEvent messageEvent, BackendConnector<?, ?> backendConnector) {
         backendConnectorDelegate.payloadSubmitted(backendConnector, messageEvent);
     }
 }

@@ -38,7 +38,7 @@ public class PluginMessageStatusChangeNotifierTest {
     }
 
     @Test
-    public void notifyPlugin(@Injectable BackendConnector<?,?> backendConnector) {
+    public void notifyPlugin(@Injectable BackendConnector<?,?> backendConnector, @Injectable MessageStatusChangeEvent messageStatusChangeEvent) {
         String messageId = "123";
         Map<String, String> properties = new HashMap<>();
 
@@ -58,7 +58,7 @@ public class PluginMessageStatusChangeNotifierTest {
         properties.put(MessageConstants.STATUS_TO, MessageStatus.ACKNOWLEDGED.toString());
         properties.put(MessageConstants.CHANGE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 
-        pluginMessageStatusChangeNotifier.notifyPlugin(null/**todo*/, backendConnector, 123L, messageId, properties);
+        pluginMessageStatusChangeNotifier.notifyPlugin(messageStatusChangeEvent, backendConnector);
 
         new FullVerifications() {{
             MessageStatusChangeEvent event;

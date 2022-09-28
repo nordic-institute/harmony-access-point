@@ -173,7 +173,7 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
-            backendNotificationService.notifySync(messageEvent, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, properties);
+            backendNotificationService.notifySync(messageEvent, backendConnector, NotificationType.MESSAGE_RECEIVED);
         }};
 
         backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
@@ -259,7 +259,7 @@ public class BackendNotificationServiceTest {
             userMessage.getEntityId();
             this.result = entityId;
 
-            backendNotificationService.notifySync(messageEvent, backendConnector, entityId, MESSAGE_ID, NotificationType.MESSAGE_RECEIVED, null);
+            backendNotificationService.notifySync(messageEvent, backendConnector, NotificationType.MESSAGE_RECEIVED);
         }};
 
         backendNotificationService.notify(messageEvent, BACKEND_NAME, NotificationType.MESSAGE_RECEIVED);
@@ -1441,7 +1441,7 @@ public class BackendNotificationServiceTest {
             result = null;
         }};
 
-        backendNotificationService.notifySync(messageEvent, backendConnector, 1L, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(messageEvent, backendConnector, notificationType);
 
         new FullVerifications() {
         };
@@ -1464,10 +1464,10 @@ public class BackendNotificationServiceTest {
         }};
 
         final long messageEntityId = 1L;
-        backendNotificationService.notifySync(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(messageEvent, backendConnector, notificationType);
 
         new FullVerifications() {{
-            pluginEventNotifier.notifyPlugin(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, properties);
+            pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
             times = 1;
         }};
     }
@@ -1489,10 +1489,10 @@ public class BackendNotificationServiceTest {
         }};
 
         final long messageEntityId = 1L;
-        backendNotificationService.notifySync(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, notificationType, properties);
+        backendNotificationService.notifySync(messageEvent, backendConnector, notificationType);
 
         new FullVerifications() {{
-            pluginEventNotifier.notifyPlugin(messageEvent, backendConnector, messageEntityId, MESSAGE_ID, properties);
+            pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
             times = 1;
         }};
     }

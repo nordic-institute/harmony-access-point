@@ -36,12 +36,12 @@ public class PluginMessageSendFailureNotifierTest {
     }
 
     @Test
-    public void notifyPlugin(@Injectable BackendConnector backendConnector) {
+    public void notifyPlugin(@Injectable BackendConnector backendConnector, @Injectable MessageSendFailedEvent messageSendFailedEvent) {
         String messageId = "123";
         Map<String, String> properties = new HashMap<>();
 
 
-        pluginMessageSendFailureNotifier.notifyPlugin(null/**todo*/, backendConnector, 123L, messageId, properties);
+        pluginMessageSendFailureNotifier.notifyPlugin(messageSendFailedEvent, backendConnector);
 
         new Verifications() {{
             MessageSendFailedEvent event = null;

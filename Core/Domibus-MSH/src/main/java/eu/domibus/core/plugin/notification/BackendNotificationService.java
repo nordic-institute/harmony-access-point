@@ -312,7 +312,7 @@ public class BackendNotificationService {
                 role = MSHRole.valueOf(mshRole);
             }
 
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(messageEvent.getMessageEntityId(), messageEvent.getMessageId(), role,
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(role,
                     notificationType, messageEvent.getProps(), objectMapper).createMessage(messageEvent), unknownReceiverQueue);
             return;
         }
@@ -399,7 +399,7 @@ public class BackendNotificationService {
             return;
         }
 
-        notifySync(messageEvent, backendConnector, messageEntityId, messageId, notificationType, properties);
+        notifySync(messageEvent, backendConnector, notificationType);
     }
 
     protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
@@ -410,15 +410,12 @@ public class BackendNotificationService {
                                String messageId, MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
-        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(messageEntityId, messageId, mshRole, notificationType, properties, objectMapper);
+        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(mshRole, notificationType, properties, objectMapper);
         jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(messageEvent), backendNotificationQueue);
     }
 
     protected void notifySync(MessageEvent messageEvent, BackendConnector<?, ?> backendConnector,
-                              long messageEntityId,
-                              String messageId,
-                              NotificationType notificationType,
-                              Map<String, String> properties) {
+                              NotificationType notificationType) {
         LOG.debug("Notifying plugin [{}] using callback", backendConnector.getName());
         PluginEventNotifier pluginEventNotifier = pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
         if (pluginEventNotifier == null) {
@@ -426,7 +423,7 @@ public class BackendNotificationService {
             return;
         }
 
-        pluginEventNotifier.notifyPlugin(messageEvent, backendConnector, messageEntityId, messageId, properties);
+        pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
     }
 
     @Transactional

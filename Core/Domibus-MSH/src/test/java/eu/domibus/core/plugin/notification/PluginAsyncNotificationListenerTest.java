@@ -1,9 +1,11 @@
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
+import eu.domibus.common.MessageReceivedEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
@@ -31,6 +33,9 @@ public class PluginAsyncNotificationListenerTest {
     PluginAsyncNotificationListener pluginAsyncNotificationListener;
 
     @Injectable
+    ObjectMapper objectMapper;
+
+    @Injectable
     protected JmsListenerContainerFactory internalJmsListenerContainerFactory;
 
     @Injectable
@@ -49,7 +54,8 @@ public class PluginAsyncNotificationListenerTest {
     @Test
     public void onMessage(@Injectable Message message,
                           @Injectable PluginEventNotifier pluginEventNotifier,
-                          @Injectable Map<String, String> messageProperties) throws JMSException {
+                          @Injectable Map<String, String> messageProperties,
+                          @Injectable MessageReceivedEvent messageReceivedEvent) throws JMSException {
         String messageId = "123";
         NotificationType notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
 
@@ -70,7 +76,7 @@ public class PluginAsyncNotificationListenerTest {
         pluginAsyncNotificationListener.doOnMessage(message);
 
         new Verifications() {{
-            pluginEventNotifier.notifyPlugin(null/**todo*/, notificationListenerService.getBackendConnector(), anyLong, messageId, messageProperties);
+            pluginEventNotifier.notifyPlugin(messageReceivedEvent, notificationListenerService.getBackendConnector());
             times = 1;
         }};
     }

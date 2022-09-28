@@ -1,13 +1,10 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.common.MessageDeletedBatchEvent;
-import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 /**
  * @author Razvan Cretu
@@ -28,7 +25,7 @@ public class PluginMessageDeleteBatchNotifier implements PluginEventNotifier<Mes
     }
 
     @Override
-    public void notifyPlugin(MessageDeletedBatchEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+    public void notifyPlugin(MessageDeletedBatchEvent messageEvent, BackendConnector<?, ?> backendConnector) {
         backendConnectorDelegate.messageDeletedBatchEvent(backendConnector.getName(), messageEvent);
     }
 

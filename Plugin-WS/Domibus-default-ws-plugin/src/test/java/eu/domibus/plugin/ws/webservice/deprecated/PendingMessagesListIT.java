@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.MessageReceivedEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
@@ -40,7 +41,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         messageIds.add(Pair.of(random.nextLong(), UUID.randomUUID()+"@domibus.eu"));
 
         for (Pair<Long, String> messageId : messageIds) {
-            final JmsMessage message = new NotifyMessageCreator(messageId.getLeft(), messageId.getRight(), MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, new HashMap<>(), new ObjectMapper()).createMessage();
+            final JmsMessage message = new NotifyMessageCreator(MSHRole.RECEIVING, NotificationType.MESSAGE_RECEIVED, new HashMap<>(), new ObjectMapper()).createMessage(new MessageReceivedEvent());
             jmsManager.sendMessageToQueue(message, WS_NOT_QUEUE);
         }
 

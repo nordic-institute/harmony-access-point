@@ -5,8 +5,6 @@ import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -26,7 +24,7 @@ public class PluginMessageReceivedNotifier implements PluginEventNotifier <Messa
     }
 
     @Override
-    public void notifyPlugin(MessageReceivedEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+    public void notifyPlugin(MessageReceivedEvent messageEvent, BackendConnector<?, ?> backendConnector) {
         backendConnectorDelegate.deliverMessage(backendConnector, messageEvent);
     }
 }

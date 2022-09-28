@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static eu.domibus.messaging.MessageConstants.FINAL_RECIPIENT;
-import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
-
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -34,14 +31,11 @@ public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier
     }
 
     @Override
-    public void notifyPlugin(MessageReceiveFailureEvent messageEvent, BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
+    public void notifyPlugin(MessageReceiveFailureEvent messageEvent, BackendConnector<?, ?> backendConnector) {
         backendConnectorDelegate.messageReceiveFailed(backendConnector, messageEvent);
     }
 
-    @Deprecated
-    /**
-     * @deprecated - the ErrorResultImpl is obtained in BackendNotificationService.notifyMessageReceivedFailure()
-     */
+
     protected ErrorResultImpl getErrorResult(String messageId, Map<String, String> properties) {
         final String errorCode = properties.get(MessageConstants.ERROR_CODE);
         final String errorDetail = properties.get(MessageConstants.ERROR_DETAIL);

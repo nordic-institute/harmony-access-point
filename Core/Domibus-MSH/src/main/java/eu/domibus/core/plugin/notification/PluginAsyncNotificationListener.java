@@ -93,7 +93,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
             MessageEvent event = (MessageEvent) objectMapper.readValue(serializedBody, Class.forName(eventClass, true, this.getClass().getClassLoader()));
 
             LOG.info("Calling the plugin notifier for the event type [{}] with the following content: [{}]", eventClass, serializedBody);
-            pluginEventNotifier.notifyPlugin(event, asyncNotificationConfiguration.getBackendConnector(), messageEntityId, messageId, messageProperties);
+            pluginEventNotifier.notifyPlugin(event, asyncNotificationConfiguration.getBackendConnector());
         } catch (JMSException jmsEx) {
             LOG.error("Error getting the property from JMS message", jmsEx);
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error getting the property from JMS message", jmsEx.getCause());
