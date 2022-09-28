@@ -501,7 +501,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             RetrieveMessageFault {
         UserMessage userMessage;
         try {
-            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
+            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null, markAsAcknowledged);
         } catch (final MessageNotFoundException mnfEx) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);
