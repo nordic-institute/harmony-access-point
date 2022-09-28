@@ -12,6 +12,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.core.security.DomibusAuthorizationError.*;
+
 /**
  * @author Thomas Dussart
  * @since 4.1
@@ -58,7 +60,7 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
                         LOG.error("Authorization for incoming message was not granted:[{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                                .message("A0001:Authorization to access the targeted application refused to sender.")
+                                .message(A0001.toString())
                                 .refToMessageId(a.getMessageId())
                                 .build();
                     case AUTHORIZATION_MODULE_CONFIGURATION_ISSUE:
@@ -66,14 +68,14 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
                         LOG.error("System down in the authorization module:[{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                                .message("A0004:System down.")
+                                .message(A0004.toString())
                                 .refToMessageId(a.getMessageId())
                                 .build();
                     case AUTHORIZATION_CONNECTION_REJECTED:
                         LOG.error("Connection credential to Authorization was rejected:[{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                                .message("A0002:Connection rejected.")
+                                .message(A0002.toString())
                                 .refToMessageId(a.getMessageId())
                                 .build();
                     default:
@@ -84,7 +86,7 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
         LOG.error("Authorization module unforeseen error:[{}]", e.getMessage(), e);
         return EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                .message("A0003:Technical issue.")
+                .message(A0003.toString())
                 .build();
     }
 
