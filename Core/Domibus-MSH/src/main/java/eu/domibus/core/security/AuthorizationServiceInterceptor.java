@@ -63,17 +63,17 @@ public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterce
                                 .build();
                     case AUTHORIZATION_MODULE_CONFIGURATION_ISSUE:
                     case AUTHORIZATION_SYSTEM_DOWN:
-                        LOG.error("Technical issue with the authorization module:[{}]", a.getMessage(), e);
+                        LOG.error("System down in the authorization module:[{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                                .message("A0003:Technical issue.")
+                                .message("A0004:System down.")
                                 .refToMessageId(a.getMessageId())
                                 .build();
                     case AUTHORIZATION_CONNECTION_REJECTED:
                         LOG.error("Connection credential to Authorization was rejected:[{}]", a.getMessage(), e);
                         return EbMS3ExceptionBuilder.getInstance()
                                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
-                                .message("A0002:Technical issue.")
+                                .message("A0002:Connection rejected.")
                                 .refToMessageId(a.getMessageId())
                                 .build();
                     default:
