@@ -110,6 +110,7 @@ public class BackendNotificationService {
     protected BackendConnectorHelper backendConnectorHelper;
 
     @Autowired
+    @Qualifier("domibusJsonMapper")
     protected ObjectMapper objectMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
