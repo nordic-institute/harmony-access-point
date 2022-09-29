@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class MessageDeletedBatchEvent implements MessageEvent, Serializable {
 
-    private static final long serialVersionUID = 21775904047714919L;
+    private static final long serialVersionUID = 1L;
     protected List<MessageDeletedEvent> messageDeletedEvents;
 
     public List<MessageDeletedEvent> getMessageDeletedEvents() {

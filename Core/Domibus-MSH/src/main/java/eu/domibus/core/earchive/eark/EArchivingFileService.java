@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
 
@@ -53,7 +54,7 @@ public class EArchivingFileService {
 
     public EArchivingFileService(PartInfoService partInfoService,
                                  UserMessageRawEnvelopeDao userMessageRawEnvelopeDao,
-                                 @Qualifier("domibusJsonMapper") ObjectMapper objectMapper) {
+                                 @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
         this.partInfoService = partInfoService;
         this.userMessageRawEnvelopeDao = userMessageRawEnvelopeDao;
         this.objectMapper = objectMapper;

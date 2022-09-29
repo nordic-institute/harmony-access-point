@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 
 /**
  * @author François Gautier
@@ -79,7 +80,7 @@ public class EArchiveNotificationListener implements MessageListener {
             JmsUtil jmsUtil,
             DomibusPropertyProvider domibusPropertyProvider,
             DomibusProxyService domibusProxyService,
-            @Qualifier("domibusJsonMapper") ObjectMapper objectMapper,
+            @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper,
             EArchiveBatchUtils eArchiveBatchUtils) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;

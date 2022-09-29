@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class MessageReceiveFailureEvent implements MessageEvent, Serializable {
 
-    private static final long serialVersionUID = -4629417035350242509L;
+    private static final long serialVersionUID = 1L;
     protected String messageId;
     protected String endpoint;
     protected String service;

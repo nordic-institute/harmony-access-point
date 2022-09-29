@@ -7,6 +7,8 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageEvent;
 import eu.domibus.common.NotificationType;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 
@@ -17,6 +19,7 @@ import java.util.Map;
  * @author Christian Koch, Stefan Mueller
  */
 public class NotifyMessageCreator {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NotifyMessageCreator.class);
 
     private final  MSHRole mshRole;
     private NotificationType notificationType;
@@ -48,7 +51,8 @@ public class NotifyMessageCreator {
         try {
             eventSerialized = objectMapper.writeValueAsString(messageEvent);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            LOG.error("Error during serializing event of type [{}] with messageId: [{}], entityId: [{}]", messageEvent.getClass().getName(),
+                    messageEvent.getMessageId(), messageEvent.getMessageEntityId());
         }
 
         jmsMessageBuilder.content(eventSerialized);

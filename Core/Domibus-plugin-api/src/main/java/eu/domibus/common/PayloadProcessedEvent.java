@@ -5,5 +5,5 @@ package eu.domibus.common;
  * @since 4.1
  */
 public class PayloadProcessedEvent extends PayloadAbstractEvent {
-    private static final long serialVersionUID = 4498903899894487087L;
+    private static final long serialVersionUID = 1L;
 }

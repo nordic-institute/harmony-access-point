@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 import static java.util.stream.Collectors.toList;
@@ -110,7 +111,7 @@ public class BackendNotificationService {
     protected BackendConnectorHelper backendConnectorHelper;
 
     @Autowired
-    @Qualifier("domibusJsonMapper")
+    @Qualifier(JSON_MAPPER_BEAN)
     protected ObjectMapper objectMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

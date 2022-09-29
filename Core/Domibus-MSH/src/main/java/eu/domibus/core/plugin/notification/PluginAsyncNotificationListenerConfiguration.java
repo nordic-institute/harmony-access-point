@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 
+import static eu.domibus.core.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -39,7 +41,7 @@ public class PluginAsyncNotificationListenerConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public PluginAsyncNotificationListener createAsyncNotificationListener(@Qualifier("domibusJsonMapper") ObjectMapper objectMapper,
+    public PluginAsyncNotificationListener createAsyncNotificationListener(@Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper,
                                                                            AsyncNotificationConfiguration asyncNotificationConfiguration) {
         PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider,
                 asyncNotificationConfiguration, pluginEventNotifierProvider, authUtils, objectMapper);
