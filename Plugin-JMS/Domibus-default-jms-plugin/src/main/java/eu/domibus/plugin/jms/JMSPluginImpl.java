@@ -140,7 +140,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Override
     @Timer(clazz = JMSPluginImpl.class, value = "deliverMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "deliverMessage")
-    public void deliverMessage(final MessageReceivedEvent event) {
+    public void deliverMessage(final DeliverMessageEvent event) {
         String messageId = event.getMessageId();
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 

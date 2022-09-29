@@ -13,7 +13,7 @@ public interface BackendConnectorDelegate {
 
     void messageStatusChanged(BackendConnector backendConnector, MessageStatusChangeEvent event);
 
-    void deliverMessage(BackendConnector backendConnector, MessageReceivedEvent event);
+    void deliverMessage(BackendConnector backendConnector, DeliverMessageEvent event);
 
     void messageSendFailed(BackendConnector backendConnector, MessageSendFailedEvent event);
 

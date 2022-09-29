@@ -144,7 +144,7 @@ public interface BackendConnector<U, T> {
      *
      * @param event containing details about the deliver message event
      */
-    void deliverMessage(final MessageReceivedEvent event);
+    void deliverMessage(final DeliverMessageEvent event);
 
     /**
      * Initiates a pull request for the given mpc

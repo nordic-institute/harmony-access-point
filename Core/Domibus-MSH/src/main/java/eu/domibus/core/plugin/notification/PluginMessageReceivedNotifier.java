@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * @since 4.2
  */
 @Service
-public class PluginMessageReceivedNotifier implements PluginEventNotifier <MessageReceivedEvent> {
+public class PluginMessageReceivedNotifier implements PluginEventNotifier <DeliverMessageEvent> {
 
     protected BackendConnectorDelegate backendConnectorDelegate;
 
@@ -24,7 +24,7 @@ public class PluginMessageReceivedNotifier implements PluginEventNotifier <Messa
     }
 
     @Override
-    public void notifyPlugin(MessageReceivedEvent messageEvent, BackendConnector<?, ?> backendConnector) {
+    public void notifyPlugin(DeliverMessageEvent messageEvent, BackendConnector<?, ?> backendConnector) {
         backendConnectorDelegate.deliverMessage(backendConnector, messageEvent);
     }
 }

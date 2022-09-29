@@ -13,7 +13,7 @@ import java.util.Map;
  * @author idragusa
  * @since 4.2
  */
-public class MessageReceivedEvent implements Serializable, MessageEvent {
+public class DeliverMessageEvent implements Serializable, MessageEvent {
 
     private static final long serialVersionUID = -7578803476956533474L;
     protected String messageId;
@@ -21,13 +21,13 @@ public class MessageReceivedEvent implements Serializable, MessageEvent {
     protected long messageEntityId;
 
 
-    public MessageReceivedEvent() {}
+    public DeliverMessageEvent() {}
 
-    public MessageReceivedEvent(String messageId) {
+    public DeliverMessageEvent(String messageId) {
         this.messageId = messageId;
     }
 
-    public MessageReceivedEvent(long messageEntityId, String messageId, Map<String, String> properties) {
+    public DeliverMessageEvent(long messageEntityId, String messageId, Map<String, String> properties) {
         this.messageEntityId = messageEntityId;
         this.messageId = messageId;
         this.properties = properties;

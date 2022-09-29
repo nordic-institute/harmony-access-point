@@ -226,7 +226,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public void deliverMessage(final MessageReceivedEvent event) {
+    public void deliverMessage(final DeliverMessageEvent event) {
         throw new UnsupportedOperationException("Plugins must implement this method");
     }
 

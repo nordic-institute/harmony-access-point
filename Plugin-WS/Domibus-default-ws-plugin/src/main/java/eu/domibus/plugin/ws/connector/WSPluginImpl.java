@@ -57,7 +57,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     }
 
     @Override
-    public void deliverMessage(final MessageReceivedEvent event) {
+    public void deliverMessage(final DeliverMessageEvent event) {
         LOG.info("Deliver message: [{}]", event);
         WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(
                 event.getMessageId(),

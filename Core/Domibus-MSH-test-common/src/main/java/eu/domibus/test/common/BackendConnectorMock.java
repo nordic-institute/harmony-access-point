@@ -15,7 +15,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     private PayloadSubmittedEvent payloadSubmittedEvent;
     private PayloadProcessedEvent payloadProcessedEvent;
     private MessageDeletedBatchEvent messageDeletedBatchEvent;
-    private MessageReceivedEvent messageReceivedEvent;
+    private DeliverMessageEvent deliverMessageEvent;
     private MessageSendFailedEvent messageSendFailedEvent;
     private MessageSendSuccessEvent messageSendSuccessEvent;
 
@@ -59,8 +59,8 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     }
 
     @Override
-    public void deliverMessage(final MessageReceivedEvent messageReceivedEvent) {
-        this.messageReceivedEvent = messageReceivedEvent;
+    public void deliverMessage(final DeliverMessageEvent deliverMessageEvent) {
+        this.deliverMessageEvent = deliverMessageEvent;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
         this.payloadSubmittedEvent = null;
         this.payloadProcessedEvent = null;
         this.messageDeletedBatchEvent = null;
-        this.messageReceivedEvent = null;
+        this.deliverMessageEvent = null;
         this.messageSendFailedEvent = null;
         this.messageSendSuccessEvent = null;
     }
@@ -99,8 +99,8 @@ public class BackendConnectorMock extends AbstractBackendConnector {
         return messageDeletedBatchEvent;
     }
 
-    public MessageReceivedEvent getDeliverMessageEvent() {
-        return messageReceivedEvent;
+    public DeliverMessageEvent getDeliverMessageEvent() {
+        return deliverMessageEvent;
     }
 
     public MessageSendFailedEvent getMessageSendFailedEvent() {

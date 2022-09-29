@@ -70,14 +70,14 @@ public class WSPluginImplTest {
     MessagePullerExtService messagePullerExtService;
 
     @Test
-    public void deliverMessage(@Injectable MessageReceivedEvent messageReceivedEvent,
+    public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,
                                @Injectable WSMessageLogEntity wsMessageLogEntity) {
         new Expectations() {{
-            messageReceivedEvent.getMessageId();
+            deliverMessageEvent.getMessageId();
             result = MESSAGE_ID;
         }};
 
-        wsPlugin.deliverMessage(messageReceivedEvent);
+        wsPlugin.deliverMessage(deliverMessageEvent);
 
         new Verifications() {{
             wsMessageLogService.create(withAny(wsMessageLogEntity));

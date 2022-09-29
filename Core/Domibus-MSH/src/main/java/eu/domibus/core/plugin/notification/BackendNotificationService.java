@@ -163,12 +163,12 @@ public class BackendNotificationService {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
         }
 
-        MessageReceivedEvent messageReceivedEvent = new MessageReceivedEvent();
-        messageReceivedEvent.setMessageEntityId(userMessage.getEntityId());
-        messageReceivedEvent.setMessageId(userMessage.getMessageId());
-        addMessagePropertiesToEvent(messageReceivedEvent, userMessage, null);
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent();
+        deliverMessageEvent.setMessageEntityId(userMessage.getEntityId());
+        deliverMessageEvent.setMessageId(userMessage.getMessageId());
+        addMessagePropertiesToEvent(deliverMessageEvent, userMessage, null);
 
-        notifyOfIncoming(messageReceivedEvent, matchingBackendFilter, notificationType);
+        notifyOfIncoming(deliverMessageEvent, matchingBackendFilter, notificationType);
     }
 
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
