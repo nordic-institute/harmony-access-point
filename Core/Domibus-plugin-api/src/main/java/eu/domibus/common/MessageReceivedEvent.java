@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public class MessageReceivedEvent implements Serializable, MessageEvent {
 
+    private static final long serialVersionUID = -7578803476956533474L;
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected long messageEntityId;

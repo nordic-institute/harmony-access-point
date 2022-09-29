@@ -31,6 +31,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Named;
 import javax.jms.Queue;
 import javax.management.NotificationListener;
 import java.sql.Timestamp;
@@ -65,6 +66,7 @@ public class BackendNotificationServiceTest {
     BackendNotificationService backendNotificationService = new BackendNotificationService();
 
     @Injectable
+    @Named("domibusJsonMapper")
     ObjectMapper objectMapper;
 
     @Injectable

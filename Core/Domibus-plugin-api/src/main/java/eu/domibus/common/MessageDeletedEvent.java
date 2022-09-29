@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public class MessageDeletedEvent implements Serializable, MessageEvent {
 
+    private static final long serialVersionUID = 2820760379633342525L;
     protected String messageId;
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
     protected Long messageEntityId;

@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public class MessageStatusChangeEvent implements Serializable, MessageEvent {
 
+    private static final long serialVersionUID = 3538084673104774672L;
     protected String messageId;
     protected MessageStatus fromStatus;
     protected MessageStatus toStatus;

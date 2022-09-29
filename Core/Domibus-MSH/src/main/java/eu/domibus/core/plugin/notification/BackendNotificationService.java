@@ -133,8 +133,6 @@ public class BackendNotificationService {
 
         MessageReceiveFailureEvent event = new MessageReceiveFailureEvent();
 
-        event.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
-        event.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
         event.setMessageId(userMessage.getMessageId());
         event.setMessageEntityId(userMessage.getEntityId());
         String service = properties.get(MessageConstants.SERVICE);
@@ -328,6 +326,8 @@ public class BackendNotificationService {
         Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
         target.putAll(props);
 
+        target.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
+        target.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
         target.put(REF_TO_MESSAGE_ID, userMessage.getRefToMessageId());
         target.put(CONVERSATION_ID, userMessage.getConversationId());
 
@@ -442,9 +442,6 @@ public class BackendNotificationService {
 
         MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(userMessage.getEntityId(), userMessage.getMessageId());
         addMessagePropertiesToEvent(messageSendFailedEvent, userMessage);
-
-//        messageSendFailedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
-//        messageSendFailedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
 
         notify(messageSendFailedEvent, backendName, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);

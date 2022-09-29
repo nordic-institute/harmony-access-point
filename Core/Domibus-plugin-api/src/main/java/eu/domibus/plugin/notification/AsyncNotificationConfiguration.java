@@ -14,6 +14,7 @@ import javax.jms.Queue;
 public interface AsyncNotificationConfiguration {
 
     String EVENT_CLASS = "eventClass";
+
     String BODY = "body";
 
     /**
