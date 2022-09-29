@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="Thomas Dussart" id="EDELIVERY-9534 fix java deletion slowness">
         <createIndex indexName="IDX_MSG_DOWNLOADED" tableName="TB_USER_MESSAGE_LOG">
@@ -36,6 +36,6 @@
     </changeSet>
 
     <!-- this file must be included in every future changelog-xx-delta.xml or changelog-multi-tenancy-xx-delta.xml -->
-    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+    <include file="../../common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
