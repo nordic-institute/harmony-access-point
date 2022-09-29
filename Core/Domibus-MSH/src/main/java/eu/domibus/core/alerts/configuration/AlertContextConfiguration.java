@@ -23,6 +23,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import java.util.Optional;
 
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
 import static org.springframework.jms.support.converter.MessageType.TEXT;
 
 /**
@@ -73,7 +74,7 @@ public class AlertContextConfiguration {
                                                                                DomibusPropertyProvider domibusPropertyProvider,
                                                                                @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                @Qualifier("internalDestinationResolver") Optional<JndiDestinationResolver> internalDestinationResolver,
-                                                                               @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
+                                                                               @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         result.setTaskExecutor(schedulingTaskExecutor);

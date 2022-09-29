@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
@@ -46,6 +47,10 @@ public class ExtExceptionHelper {
         if (cause instanceof PModeValidationException) {
             return createResponseFromPModeValidationException((PModeValidationException) cause);
         }
+        if (cause instanceof AuthenticationException) {
+            return createResponseFromCoreException(cause, HttpStatus.UNAUTHORIZED);
+        }
+
         if (cause instanceof MessageNotFoundException) {
             return createResponse(cause, HttpStatus.NOT_FOUND, true);
         }

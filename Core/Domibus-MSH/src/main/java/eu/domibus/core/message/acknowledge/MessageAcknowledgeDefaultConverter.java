@@ -5,7 +5,9 @@ import eu.domibus.api.model.UserMessage;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -26,7 +28,6 @@ public class MessageAcknowledgeDefaultConverter implements MessageAcknowledgeCon
         return result;
     }
 
-
     @Override
     public MessageAcknowledgement convert(MessageAcknowledgementEntity entity) {
         MessageAcknowledgement result = new MessageAcknowledgement();
@@ -37,6 +38,13 @@ public class MessageAcknowledgeDefaultConverter implements MessageAcknowledgeCon
         result.setCreateDate(new Timestamp(entity.getCreationTime().getTime()));
         result.setCreateUser(entity.getCreatedBy());
         result.setAcknowledgeDate(entity.getAcknowledgeDate());
+        return result;
+    }
+
+    @Override
+    public MessageAcknowledgement convert(MessageAcknowledgementEntity entity, Map<String, String> properties) {
+        MessageAcknowledgement result = convert(entity);
+        result.setProperties(properties);
         return result;
     }
 
