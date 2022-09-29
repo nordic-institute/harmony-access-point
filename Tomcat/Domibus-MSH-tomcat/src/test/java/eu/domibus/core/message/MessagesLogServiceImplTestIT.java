@@ -42,8 +42,6 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode();
-        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
-        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
     }
 
     @Test
