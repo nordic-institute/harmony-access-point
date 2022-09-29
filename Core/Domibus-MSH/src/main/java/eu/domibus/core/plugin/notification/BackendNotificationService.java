@@ -121,11 +121,11 @@ public class BackendNotificationService {
             LOG.debug("Plugin notification is disabled.");
             return;
         }
-        final Map<String, String> properties = new HashMap<>();
+        final Map<String, String> errorProperties = new HashMap<>();
         if (errorResult.getErrorCode() != null) {
-            properties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCode().getErrorCodeName());
+            errorProperties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCode().getErrorCodeName());
         }
-        properties.put(MessageConstants.ERROR_DETAIL, errorResult.getErrorDetail());
+        errorProperties.put(MessageConstants.ERROR_DETAIL, errorResult.getErrorDetail());
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED_FAILURE;
         if (userMessage.isMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE;
@@ -135,19 +135,18 @@ public class BackendNotificationService {
 
         event.setMessageId(userMessage.getMessageId());
         event.setMessageEntityId(userMessage.getEntityId());
-        String service = properties.get(MessageConstants.SERVICE);
-        event.setService(service);
 
-        String serviceType = properties.get(MessageConstants.SERVICE_TYPE);
-        event.setServiceType(serviceType);
+        addMessagePropertiesToEvent(event, userMessage, errorProperties);
 
-        String action = properties.get(MessageConstants.ACTION);
-        event.setAction(action);
+        ServiceEntity service = userMessage.getService();
+        if (service!=null) {
+            event.setService(service.getValue());
+            event.setServiceType(service.getType());
+        }
 
+        event.setAction(userMessage.getActionValue());
         event.setErrorResult(errorResult);
-        event.setEndpoint(properties.get(MessageConstants.ENDPOINT));
-
-        addMessagePropertiesToEvent(event, userMessage);
+        event.setEndpoint(errorProperties.get(MessageConstants.ENDPOINT));
 
         notifyOfIncoming(event, routingService.getMatchingBackendFilter(userMessage), notificationType);
     }
@@ -167,7 +166,7 @@ public class BackendNotificationService {
         MessageReceivedEvent messageReceivedEvent = new MessageReceivedEvent();
         messageReceivedEvent.setMessageEntityId(userMessage.getEntityId());
         messageReceivedEvent.setMessageId(userMessage.getMessageId());
-        addMessagePropertiesToEvent(messageReceivedEvent, userMessage);
+        addMessagePropertiesToEvent(messageReceivedEvent, userMessage, null);
 
         notifyOfIncoming(messageReceivedEvent, matchingBackendFilter, notificationType);
     }
@@ -276,7 +275,7 @@ public class BackendNotificationService {
         payloadSubmittedEvent.setMessageEntityId(userMessage.getEntityId());
         payloadSubmittedEvent.setMessageId(userMessage.getMessageId());
         payloadSubmittedEvent.setMime(partInfo.getMime());
-        addMessagePropertiesToEvent(payloadSubmittedEvent, userMessage);
+        addMessagePropertiesToEvent(payloadSubmittedEvent, userMessage, null);
 
         notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED);
     }
@@ -294,7 +293,7 @@ public class BackendNotificationService {
         payloadProcessedEvent.setMessageEntityId(userMessage.getEntityId());
         payloadProcessedEvent.setMessageId(userMessage.getMessageId());
         payloadProcessedEvent.setMime(partInfo.getMime());
-        addMessagePropertiesToEvent(payloadProcessedEvent, userMessage);
+        addMessagePropertiesToEvent(payloadProcessedEvent, userMessage, null);
 
         notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED);
     }
@@ -441,7 +440,7 @@ public class BackendNotificationService {
         fillEventProperties(userMessage, properties);
 
         MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(userMessage.getEntityId(), userMessage.getMessageId());
-        addMessagePropertiesToEvent(messageSendFailedEvent, userMessage);
+        addMessagePropertiesToEvent(messageSendFailedEvent, userMessage, null);
 
         notify(messageSendFailedEvent, backendName, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
@@ -462,7 +461,7 @@ public class BackendNotificationService {
         MessageSendSuccessEvent messageSendSuccessEvent = new MessageSendSuccessEvent();
         messageSendSuccessEvent.setMessageEntityId(userMessage.getEntityId());
         messageSendSuccessEvent.setMessageId(userMessage.getMessageId());
-        addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage);
+        addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage, null);
 
         notify(messageSendSuccessEvent, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
@@ -514,7 +513,7 @@ public class BackendNotificationService {
         }
         messageStatusChangeEvent.setToStatus(eu.domibus.common.MessageStatus.valueOf(messageProperties.get(MessageConstants.STATUS_TO)));
         messageStatusChangeEvent.setChangeTimestamp(new Timestamp(NumberUtils.toLong(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP))));
-        addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage);
+        addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
 
         notify(messageStatusChangeEvent, messageLog.getBackend(), notificationType);
     }
@@ -547,14 +546,15 @@ public class BackendNotificationService {
         return !domibusPropertyProvider.getBooleanProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE);
     }
 
-    private void addMessagePropertiesToEvent(MessageEvent event, UserMessage userMessage) {
+    private void addMessagePropertiesToEvent(MessageEvent event, UserMessage userMessage, Map<String, String> otherProperties) {
         Map<String, String> existingProperties = userMessageServiceHelper.getProperties(userMessage);
-        final Map<String, String> properties = new HashMap<>();
-        fillEventProperties(userMessage, properties);
-        properties.putAll(existingProperties);
+        final Map<String, String> allProps = new HashMap<>();
+        allProps.putAll(otherProperties);
+        fillEventProperties(userMessage, allProps);
+        allProps.putAll(existingProperties);
 
-        if (MapUtils.isNotEmpty(properties)) {
-            properties.forEach((key, value) -> event.addProperty(key, value));
+        if (MapUtils.isNotEmpty(allProps)) {
+            allProps.forEach((key, value) -> event.addProperty(key, value));
         }
     }
 }
