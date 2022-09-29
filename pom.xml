@@ -130,7 +130,7 @@
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
         <xmlsec.version>2.2.4</xmlsec.version>
         <httpcore.version>4.4.15</httpcore.version>
-        <ehcache.version>3.9.9</ehcache.version>
+        <ehcache.version>3.10.0</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-net.version>3.8.0</commons-net.version>
@@ -890,6 +890,16 @@
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.istack</groupId>
+                        <artifactId>istack-commons-runtime</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.fastinfoset</groupId>
+                        <artifactId>FastInfoset</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>javax.cache</groupId>
