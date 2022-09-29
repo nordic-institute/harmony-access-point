@@ -39,6 +39,8 @@ public class TomcatPropertyMetadataManager implements DomibusPropertyMetadataMan
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_NAME, Type.COMMA_SEPARATED_LIST, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE, Type.URI, Module.TOMCAT),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_JMXURL, Type.COMMA_SEPARATED_LIST, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE, Type.URI, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_JMXURL, Type.COMMA_SEPARATED_LIST, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_CONNECTOR_PORT, Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, Type.URI, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_USERNAME, Module.TOMCAT), //move the usage from xml ?

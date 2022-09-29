@@ -123,6 +123,6 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
         String content = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(content, Exception.class);
-        MatcherAssert.assertThat(resultList.getMessage(), CoreMatchers.containsString("[DOM_002]:You are not allowed to access message [" + uml1.getUserMessage().getMessageId()));
+        MatcherAssert.assertThat(resultList.getMessage(), CoreMatchers.containsString("You are not allowed to handle this message [" + uml1.getUserMessage().getMessageId()));
     }
 }

@@ -79,9 +79,14 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     private EArchiveBatchDao userMessageDao;
     @Autowired
     private EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
+    @Autowired
+    protected RoutingService routingService;
 
     @Before
     public void setUp() throws Exception {
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+
         domain = new Domain("default", "default");
         uploadPmode(SERVICE_PORT);
 
