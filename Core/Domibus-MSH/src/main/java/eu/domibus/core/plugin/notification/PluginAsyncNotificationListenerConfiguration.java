@@ -28,21 +28,23 @@ public class PluginAsyncNotificationListenerConfiguration {
     protected AuthUtils authUtils;
     protected DomainContextProvider domainContextProvider;
     protected PluginEventNotifierProvider pluginEventNotifierProvider;
+    protected ObjectMapper objectMapper;
 
     public PluginAsyncNotificationListenerConfiguration(@Qualifier("internalJmsListenerContainerFactory") JmsListenerContainerFactory jmsListenerContainerFactory,
                                                         AuthUtils authUtils,
                                                         DomainContextProvider domainContextProvider,
-                                                        PluginEventNotifierProvider pluginEventNotifierProvider) {
+                                                        PluginEventNotifierProvider pluginEventNotifierProvider,
+                                                        @Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper) {
         this.jmsListenerContainerFactory = jmsListenerContainerFactory;
         this.authUtils = authUtils;
         this.domainContextProvider = domainContextProvider;
         this.pluginEventNotifierProvider = pluginEventNotifierProvider;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public PluginAsyncNotificationListener createAsyncNotificationListener(@Qualifier(JSON_MAPPER_BEAN) ObjectMapper objectMapper,
-                                                                           AsyncNotificationConfiguration asyncNotificationConfiguration) {
+    public PluginAsyncNotificationListener createAsyncNotificationListener(AsyncNotificationConfiguration asyncNotificationConfiguration) {
         PluginAsyncNotificationListener notificationListenerServiceImpl = new PluginAsyncNotificationListener(domainContextProvider,
                 asyncNotificationConfiguration, pluginEventNotifierProvider, authUtils, objectMapper);
         return notificationListenerServiceImpl;
