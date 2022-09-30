@@ -112,9 +112,8 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
 
     protected void saveOutgoingPayloadToDisk(PartInfo partInfo, UserMessage userMessage, LegConfiguration legConfiguration, PayloadFileStorage currentStorage, String backendName) throws IOException, EbMS3Exception {
         LOG.debug("Saving outgoing payload [{}] to file disk", partInfo.getHref());
-
+        final String originalFileName = partInfo.getFileName();
         try (InputStream is = partInfo.getPayloadDatahandler().getInputStream()) {
-            final String originalFileName = partInfo.getFileName();
 
             backendNotificationService.notifyPayloadSubmitted(userMessage, originalFileName, partInfo, backendName);
 
@@ -128,9 +127,9 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
 
             payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
             LOG.debug("Finished saving outgoing payload [{}] to file disk", partInfo.getHref());
-
-            backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
         }
+        backendNotificationService.notifyPayloadProcessed(userMessage, originalFileName, partInfo, backendName);
+
     }
 
     protected long saveOutgoingFileToDisk(File file, PartInfo partInfo, InputStream is, UserMessage userMessage, final LegConfiguration legConfiguration, final Boolean encryptionActive) throws IOException, EbMS3Exception {

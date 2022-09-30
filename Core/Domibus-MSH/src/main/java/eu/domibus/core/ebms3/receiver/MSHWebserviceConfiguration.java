@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.receiver.policy.SetPolicyOutInterceptorServer;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderInInterceptor;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderOutInterceptor;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
+import eu.domibus.core.ebms3.receiver.interceptor.MessageResponseSentBackendNotifierInterceptor;
 import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
 import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
 import eu.domibus.logging.DomibusLogger;
@@ -27,6 +28,8 @@ import javax.xml.ws.Endpoint;
 import java.util.*;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -41,7 +44,7 @@ public class MSHWebserviceConfiguration {
                         MSHWebservice mshWebservice,
                         @Qualifier("loggingFeature") LoggingFeature loggingFeature,
                         @Qualifier("ehCacheTokenStore") EHCacheTokenStore ehCacheTokenStore,
-                        @Qualifier("taskExecutor") Executor executor,
+                        @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) Executor executor,
                         SimpleKeystorePasswordCallback simpleKeystorePasswordCallback,
                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider,
                         DomibusReadyInterceptor domibusReadyInterceptor,
@@ -56,12 +59,14 @@ public class MSHWebserviceConfiguration {
                         SaveRawEnvelopeInterceptor saveRawEnvelopeInterceptor,
                         HttpHeaderOutInterceptor httpHeaderOutInterceptor,
                         @Qualifier("domibusSetCodeValueFaultOutInterceptor") SetCodeValueFaultOutInterceptor setCodeValueFaultOutInterceptor,
-                        FaultInHandler faultInHandler) {
+                        FaultInHandler faultInHandler,
+                        MessageResponseSentBackendNotifierInterceptor messageResponseSentBackendNotifierInterceptor) {
         EndpointImpl endpoint = new EndpointImpl(domibusBus, mshWebservice);
         Map<String, Object> endpointProperties = getEndpointProperties(ehCacheTokenStore, simpleKeystorePasswordCallback, wss4JMultiDomainCryptoProvider);
         endpoint.setProperties(endpointProperties);
         endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor));
-        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor, httpHeaderOutInterceptor, saveRawEnvelopeInterceptor));
+        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor,
+                httpHeaderOutInterceptor, saveRawEnvelopeInterceptor, messageResponseSentBackendNotifierInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
         endpoint.setFeatures(Arrays.asList(loggingFeature));
         endpoint.setHandlers(Arrays.asList(faultInHandler));

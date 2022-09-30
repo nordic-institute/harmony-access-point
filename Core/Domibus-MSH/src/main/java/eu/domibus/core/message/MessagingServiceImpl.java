@@ -74,6 +74,9 @@ public class MessagingServiceImpl implements MessagingService {
     protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
+    protected UserMessagePayloadService userMessagePayloadService;
+
+    @Autowired
     protected UpdateRetryLoggingService updateRetryLoggingService;
 
     @Override
@@ -123,6 +126,10 @@ public class MessagingServiceImpl implements MessagingService {
     protected void storeSourceMessagePayloads(UserMessage userMessage, List<PartInfo> partInfos, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         LOG.debug("Saving the SourceMessage payloads");
         storePayloads(userMessage, partInfos, mshRole, legConfiguration, backendName);
+
+        partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfos);
+
+        userMessagePayloadService.persistUpdatedPayloads(partInfos);
 
         final String messageId = userMessage.getMessageId();
         LOG.debug("Scheduling the SourceMessage sending");

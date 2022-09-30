@@ -22,6 +22,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
+import org.springframework.jndi.JndiPropertySource;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -33,13 +35,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZER_ORDER;
 
 /**
  * @author Cosmin Baciu
  * @since 4.2
- * The priority should be lower( the numbaer higher) than that of DomibusSessionInitializer so that the Spring session filter is added to the chain first
+ * The priority should be lower (i.e. the order number higher) than that of DomibusSessionInitializer so that the Spring session filter is added to the chain first
  */
 @Order(SESSION_INITIALIZER_ORDER + 1)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
@@ -65,6 +68,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
+        rootContext.setClassLoader(pluginClassLoader);
 
         try {
             configurePropertySources(rootContext, domibusConfigLocation);
@@ -80,6 +84,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
+        dispatcherContext.setClassLoader(pluginClassLoader);
 
         Set<SessionTrackingMode> sessionTrackingModes = new HashSet<>();
         sessionTrackingModes.add(SessionTrackingMode.COOKIE);
@@ -151,6 +156,14 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
 
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = createDomibusPropertiesPropertySource(domibusConfigLocation);
         propertySources.addLast(domibusPropertiesPropertySource);
+
+        Set<PropertySource> toRemove = propertySources.stream()
+                .filter(ps -> ps instanceof JndiPropertySource)
+                .collect(Collectors.toSet());
+        toRemove.forEach(ps -> {
+            LOG.debug("Removing Jndi property source: [{}]", ps.getName());
+            propertySources.remove(ps.getName());
+        });
     }
 
     public DomibusPropertiesPropertySource createDomibusPropertiesPropertySource(String domibusConfigLocation) throws IOException {
