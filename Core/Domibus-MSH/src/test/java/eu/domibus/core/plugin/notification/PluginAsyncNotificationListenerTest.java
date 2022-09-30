@@ -66,6 +66,11 @@ public class PluginAsyncNotificationListenerTest {
             message.getStringProperty(MessageConstants.NOTIFICATION_TYPE);
             result = notificationType.toString();
 
+            message.getStringProperty(AsyncNotificationConfiguration.BODY);
+            result = "{}";
+            message.getStringProperty(AsyncNotificationConfiguration.EVENT_CLASS);
+            result = DeliverMessageEvent.class.getName();
+
             pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
             result = pluginEventNotifier;
 

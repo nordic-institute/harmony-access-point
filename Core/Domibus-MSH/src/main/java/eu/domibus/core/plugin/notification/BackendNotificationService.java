@@ -369,17 +369,18 @@ public class BackendNotificationService {
             return;
         }
         final String messageId = messageEvent.getMessageId();
-        final long messageEntityId = messageEvent.getMessageEntityId();
 
         List<NotificationType> requiredNotificationTypeList = backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
         if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
-            LOG.debug("No plugin notification sent for message [{}]. Notification type [{}]]", messageId, notificationType);
+            if (notificationType!=NotificationType.MESSAGE_DELETE_BATCH) {
+                LOG.debug("No plugin notification sent for message [{}]. Notification type [{}]]", messageId, notificationType);
+            }
             return;
         }
 
         Map<String,String> properties = messageEvent.getProps();
-        if (properties != null) {
+        if (properties != null && notificationType!=NotificationType.MESSAGE_DELETE_BATCH) {
             String finalRecipient = properties.get(FINAL_RECIPIENT);
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}] and finalRecipient [{}]", backendName, messageId, notificationType, finalRecipient);
         } else {
@@ -395,7 +396,7 @@ public class BackendNotificationService {
             } else {
                 role = MSHRole.valueOf(mshRole);
             }
-            notifyAsync(messageEvent, asyncNotificationConfiguration, messageEntityId, messageId, role, notificationType, properties);
+            notifyAsync(messageEvent, asyncNotificationConfiguration, role, notificationType, properties);
             return;
         }
 
@@ -406,8 +407,8 @@ public class BackendNotificationService {
         return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
     }
 
-    protected void notifyAsync(MessageEvent messageEvent, AsyncNotificationConfiguration asyncNotificationConfiguration, Long messageEntityId,
-                               String messageId, MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
+    protected void notifyAsync(MessageEvent messageEvent, AsyncNotificationConfiguration asyncNotificationConfiguration,
+                               MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
         Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
         LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
         NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(mshRole, notificationType, properties, objectMapper);
@@ -550,7 +551,9 @@ public class BackendNotificationService {
     private void addMessagePropertiesToEvent(MessageEvent event, UserMessage userMessage, Map<String, String> otherProperties) {
         Map<String, String> existingProperties = userMessageServiceHelper.getProperties(userMessage);
         final Map<String, String> allProps = new HashMap<>();
-        allProps.putAll(otherProperties);
+        if (MapUtils.isNotEmpty(otherProperties)) {
+            allProps.putAll(otherProperties);
+        }
         fillEventProperties(userMessage, allProps);
         allProps.putAll(existingProperties);
 
