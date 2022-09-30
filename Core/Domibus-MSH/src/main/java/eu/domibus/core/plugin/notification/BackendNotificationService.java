@@ -373,14 +373,14 @@ public class BackendNotificationService {
         List<NotificationType> requiredNotificationTypeList = backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
         if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
-            if (notificationType!=NotificationType.MESSAGE_DELETE_BATCH) {
+            if (notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
                 LOG.debug("No plugin notification sent for message [{}]. Notification type [{}]]", messageId, notificationType);
             }
             return;
         }
 
         Map<String,String> properties = messageEvent.getProps();
-        if (properties != null && notificationType!=NotificationType.MESSAGE_DELETE_BATCH) {
+        if (properties != null && notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
             String finalRecipient = properties.get(FINAL_RECIPIENT);
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}] and finalRecipient [{}]", backendName, messageId, notificationType, finalRecipient);
         } else {
