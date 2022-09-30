@@ -21,6 +21,7 @@ public class SecurityUtilImpl {
     public String getSecurityAlgorithm(SecurityProfile profile) {
 
         if (profile == null) {
+            LOG.info("No security profile was specified so the default RSA_SHA256 algorithm is used.");
             return AsymmetricSignatureAlgorithm.RSA_SHA256.getAlgorithm();
         }
 
