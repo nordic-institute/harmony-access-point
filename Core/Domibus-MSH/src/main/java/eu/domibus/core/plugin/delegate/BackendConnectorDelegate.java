@@ -25,4 +25,8 @@ public interface BackendConnectorDelegate {
 
     void messageDeletedBatchEvent(String backendName, MessageDeletedBatchEvent event);
 
+    void payloadSubmitted(BackendConnector backendConnector, PayloadSubmittedEvent event);
+
+    void payloadProcessed(BackendConnector backendConnector, PayloadProcessedEvent event);
+
 }

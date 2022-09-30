@@ -1,9 +1,11 @@
 package eu.domibus.core.plugin.notification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
+import eu.domibus.common.DeliverMessageEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
@@ -31,6 +33,9 @@ public class PluginAsyncNotificationListenerTest {
     PluginAsyncNotificationListener pluginAsyncNotificationListener;
 
     @Injectable
+    ObjectMapper objectMapper;
+
+    @Injectable
     protected JmsListenerContainerFactory internalJmsListenerContainerFactory;
 
     @Injectable
@@ -49,7 +54,8 @@ public class PluginAsyncNotificationListenerTest {
     @Test
     public void onMessage(@Injectable Message message,
                           @Injectable PluginEventNotifier pluginEventNotifier,
-                          @Injectable Map<String, String> messageProperties) throws JMSException {
+                          @Injectable Map<String, String> messageProperties,
+                          @Injectable DeliverMessageEvent deliverMessageEvent) throws JMSException {
         String messageId = "123";
         NotificationType notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
 
@@ -59,6 +65,11 @@ public class PluginAsyncNotificationListenerTest {
 
             message.getStringProperty(MessageConstants.NOTIFICATION_TYPE);
             result = notificationType.toString();
+
+            message.getStringProperty(AsyncNotificationConfiguration.BODY);
+            result = "{}";
+            message.getStringProperty(AsyncNotificationConfiguration.EVENT_CLASS);
+            result = DeliverMessageEvent.class.getName();
 
             pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
             result = pluginEventNotifier;
@@ -70,7 +81,7 @@ public class PluginAsyncNotificationListenerTest {
         pluginAsyncNotificationListener.doOnMessage(message);
 
         new Verifications() {{
-            pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), anyLong, messageId, messageProperties);
+            pluginEventNotifier.notifyPlugin(deliverMessageEvent, notificationListenerService.getBackendConnector());
             times = 1;
         }};
     }

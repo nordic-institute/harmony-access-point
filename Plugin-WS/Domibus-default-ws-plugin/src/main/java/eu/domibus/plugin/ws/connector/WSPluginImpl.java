@@ -11,7 +11,6 @@ import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.exception.TransformationException;
-import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
