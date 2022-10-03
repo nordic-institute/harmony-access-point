@@ -46,7 +46,6 @@ export class ConnectionsMonitorService {
       if (monitorKey) {
         Object.assign(cmEntry, monitors[monitorKey]);
       } else {
-        // cmEntry.status = 'NOT_TESTABLE';
         cmEntry.error = 'Party not testable';
       }
       return cmEntry;

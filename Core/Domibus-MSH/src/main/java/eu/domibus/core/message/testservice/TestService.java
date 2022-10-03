@@ -289,14 +289,14 @@ public class TestService {
         return submission;
     }
 
-    private void validateReceiver(String receiverParty) {
+    protected void validateReceiver(String receiverParty) {
         List<String> toParties = partyService.findPushToPartyNamesForTest();
         if (!toParties.contains(receiverParty)) {
             throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiverParty party [" + receiverParty + "] is not a responder in any test process.");
         }
     }
 
-    private void validateSender(String senderParty) {
+    protected void validateSender(String senderParty) {
         List<String> fromParties = partyService.findPushFromPartyNamesForTest();
         if (!fromParties.contains(senderParty)) {
             throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the senderParty party [" + senderParty + "] is not an initiator in any test process.");
