@@ -106,13 +106,27 @@ public class TlsTrustStorePage extends DomibusPage {
 
 		Boolean isElmPresent;
 
+		tlsConfig = true;
+		if (getAlertArea().isShown()) {
+			tlsConfig = false;
+			getAlertArea().closeButton.click();
+		}
+
+
 		if (tlsConfig) {
-			isElmPresent = !getAlertArea().isShown() && getUploadButton().isEnabled() &&
-					getDownloadButton().isEnabled() && getAddCertButton().isEnabled() &&
-					getRemoveCertButton().isDisabled();
-		} else {
-			isElmPresent = getUploadButton().isEnabled() && getAddCertButton().isDisabled()
+			isElmPresent = getUploadButton().isEnabled()
+					&& getAddCertButton().isEnabled()
 					&& getRemoveCertButton().isDisabled();
+			if (grid().getRowsNo() > 0) {
+				isElmPresent = isElmPresent && getDownloadButton().isEnabled();
+			} else {
+				isElmPresent = isElmPresent && getDownloadButton().isDisabled();
+			}
+		} else {
+			isElmPresent = getUploadButton().isEnabled()
+					&& getAddCertButton().isDisabled()
+					&& getRemoveCertButton().isDisabled()
+					&& getDownloadButton().isDisabled();
 		}
 
 		return isElmPresent;

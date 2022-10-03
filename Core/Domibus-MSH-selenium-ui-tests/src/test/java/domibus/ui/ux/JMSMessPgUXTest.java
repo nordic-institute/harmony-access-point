@@ -649,7 +649,7 @@ public class JMSMessPgUXTest extends SeleniumTest {
 
         if (page.grid().getRowsNo() > 0) {
             log.info("Checking if delete all button is enabled when grid has messages");
-            soft.assertFalse(page.getDeleteAllButton().isEnabled(), "Delete button is disabled");
+            soft.assertTrue(page.getDeleteAllButton().isEnabled(), "Delete button is disabled");
         }
 
         page.filters().getJmsTypeInput().fill("text");
