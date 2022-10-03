@@ -29,14 +29,13 @@ export class ConnectionsMonitorService {
     }
 
     let parties = await this.http.get<any[]>(ConnectionsMonitorService.TEST_SERVICE_PARTIES_URL).toPromise();
-    if (!parties || !parties.length) {
-      this.alertService.error('The test service is not properly configured.');
-      return [];
-    }
-    console.log('parties ', parties)
-    let monitors = await this.getMonitorsForParties(parties);
-    console.log('monitors ', monitors);
 
+    if (!parties || !parties.length) {
+      const error = 'Could not find testable parties. Self-party could not be an initiator of the test process.';
+      this.alertService.error(error);
+    }
+
+    let monitors = await this.getMonitorsForParties(parties);
     return allParties.map(party => {
       let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
       let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
@@ -44,7 +43,12 @@ export class ConnectionsMonitorService {
       cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
 
       let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
-      Object.assign(cmEntry, monitors[monitorKey]);
+      if (monitorKey) {
+        Object.assign(cmEntry, monitors[monitorKey]);
+      } else {
+        // cmEntry.status = 'NOT_TESTABLE';
+        cmEntry.error = 'Party not testable';
+      }
       return cmEntry;
     });
   }
@@ -56,6 +60,9 @@ export class ConnectionsMonitorService {
   }
 
   private getMonitorsForParties(partyIds: string[]): Promise<Map<string, ConnectionMonitorEntry>> {
+    if (!partyIds.length) {
+      return new Promise<Map<string, ConnectionMonitorEntry>>((resolve, reject) => resolve(new Map()));
+    }
     let url = ConnectionsMonitorService.CONNECTION_MONITOR_URL;
     let searchParams = new HttpParams();
     partyIds.forEach(partyId => searchParams = searchParams.append('partyIds', partyId));
@@ -154,5 +161,6 @@ export class ConnectionMonitorEntry {
   status: string;
   lastSent: any;
   lastReceived: any;
+  error?: string;
 }
 

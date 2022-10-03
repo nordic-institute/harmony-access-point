@@ -89,6 +89,7 @@ public class TestService {
     public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
         LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
 
+        // check we a valid sender
         Submission messageData = createSubmission(sender);
 
         // Set Receiver
