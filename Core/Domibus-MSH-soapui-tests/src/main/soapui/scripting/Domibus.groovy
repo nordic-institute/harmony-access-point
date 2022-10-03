@@ -4001,7 +4001,13 @@ class Domibus{
 
 
         closeDbConnections([domainId])
+
+        testRunner.testCase.setPropertyValue( "lastMessageId",  outputMessageId)
+        log.info "Setting property \"lastMessageId\" value: '${outputMessageId}'"
+        debugLog("  ====  Ending \"storeLatestMessagesId\".", log)
+        return outputMessageId
     }
+
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // Domibus text reporting
