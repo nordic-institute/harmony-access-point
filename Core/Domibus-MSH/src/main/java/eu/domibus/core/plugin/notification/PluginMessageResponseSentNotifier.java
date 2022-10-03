@@ -6,14 +6,12 @@ import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.plugin.BackendConnector;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 /**
  * @author Ion Perpegel
  * @since 5.0.1
  */
 @Service
-public class PluginMessageResponseSentNotifier implements PluginEventNotifier {
+public class PluginMessageResponseSentNotifier implements PluginEventNotifier<MessageResponseSentEvent> {
     protected BackendConnectorDelegate backendConnectorDelegate;
 
     public PluginMessageResponseSentNotifier(BackendConnectorDelegate backendConnectorDelegate) {
@@ -26,8 +24,7 @@ public class PluginMessageResponseSentNotifier implements PluginEventNotifier {
     }
 
     @Override
-    public void notifyPlugin(BackendConnector<?, ?> backendConnector, Long messageEntityId, String messageId, Map<String, String> properties) {
-        MessageResponseSentEvent deliverMessageEvent = new MessageResponseSentEvent(messageEntityId, messageId, properties);
-        backendConnectorDelegate.messageResponseSent(backendConnector, deliverMessageEvent);
+    public void notifyPlugin(MessageResponseSentEvent messageEvent, BackendConnector<?, ?> backendConnector) {
+        backendConnectorDelegate.messageResponseSent(backendConnector, messageEvent);
     }
 }
