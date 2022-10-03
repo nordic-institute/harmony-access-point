@@ -130,8 +130,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
-        assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
-        assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
     }
 
     @Test
@@ -157,8 +155,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
-        assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
-        assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
     }
 
     @Test
@@ -177,8 +173,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(downloadedNoProperties, downloadedWithProperties));
-        assertEquals(0, getProperties(downloadedUserMessagesOlderThan, downloadedNoProperties).size());
-        assertEquals(2, getProperties(downloadedUserMessagesOlderThan, downloadedWithProperties).size());
     }
     @Test
     public void getDownloadedUserMessagesOlderThan_found_eArchive() {
@@ -195,6 +189,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     }
 
     @Test
+    @Transactional
     public void getUndownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> undownloadedUserMessagesOlderThan =
                 userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10, false);
@@ -203,8 +198,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(receivedNoProperties, receivedWithProperties));
-        assertEquals(0, getProperties(undownloadedUserMessagesOlderThan, receivedNoProperties).size());
-        assertEquals(2, getProperties(undownloadedUserMessagesOlderThan, receivedWithProperties).size());
     }
 
     @Test
@@ -230,8 +223,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(deletedNoProperties, deletedWithProperties));
-        assertEquals(0, getProperties(deletedUserMessagesOlderThan, deletedNoProperties).size());
-        assertEquals(2, getProperties(deletedUserMessagesOlderThan, deletedWithProperties).size());
     }
 
     @Test

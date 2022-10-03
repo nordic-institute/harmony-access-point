@@ -4,41 +4,59 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
+import org.springframework.beans.factory.ObjectProvider;
 
+import javax.annotation.PostConstruct;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * A Domibus ActiveMQ broker that could also participate in a master-slave setup.
  *
  * @author Sebastian-Ion TINCU
- * @since 5.1
+ * @since 5.0.1
  */
 public class DomibusJMSActiveMQBroker {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQBroker.class);
 
-    private final String brokerDetails;
+    private final String brokerName;
 
-    private final MBeanServerConnection mBeanServerConnection;
+    private final String serviceUrl;
 
-    private final BrokerViewMBean brokerViewMBean;
+    private final ObjectProvider<MBeanServerConnection> mBeanServerConnections;
+
+    /**
+     * Broker view MBean provider for the case when a broker needs to be refreshed.
+     */
+    private final ObjectProvider<BrokerViewMBean> brokerViewMBeans;
+
+    private BrokerViewMBean brokerViewMBean;
+
+    private MBeanServerConnection mBeanServerConnection;
+
+    private boolean online;
 
     private final Map<String, ObjectName> queueMap = new HashMap<>();
 
-    public DomibusJMSActiveMQBroker(String brokerDetails, MBeanServerConnection mBeanServerConnection, BrokerViewMBean brokerViewMBean) {
-        this.brokerDetails = brokerDetails;
-        this.mBeanServerConnection = mBeanServerConnection;
-        this.brokerViewMBean = brokerViewMBean;
+    public DomibusJMSActiveMQBroker(String brokerName, String serviceUrl, ObjectProvider<MBeanServerConnection> mBeanServerConnections, ObjectProvider<BrokerViewMBean> brokerViewMBeans) {
+        this.brokerName = brokerName;
+        this.serviceUrl = serviceUrl;
+        this.mBeanServerConnections = mBeanServerConnections;
+        this.brokerViewMBeans = brokerViewMBeans;
+    }
+
+    @PostConstruct
+    public void init() {
+        refresh();
     }
 
     public boolean isMaster() {
         boolean slave = brokerViewMBean.isSlave();
-        LOG.debug("Broker [{}] is {}currently in master mode", brokerDetails, slave ? "not " : "");
+        LOG.debug("Broker [{}] is {}currently in master mode", getBrokerDetails(), slave ? "not " : "");
         return !slave;
     }
 
@@ -65,6 +83,23 @@ public class DomibusJMSActiveMQBroker {
     }
 
     public String getBrokerDetails() {
-        return brokerDetails;
+        return brokerName + "@" + serviceUrl;
+    }
+
+    public void refresh() {
+        LOG.debug("Refreshing broker [{}]", getBrokerDetails());
+        mBeanServerConnection = mBeanServerConnections.getObject(serviceUrl);
+        brokerViewMBean = brokerViewMBeans.getObject(brokerName, serviceUrl);
+        queueMap.clear();
+        online = true;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOffline() {
+        LOG.debug("Marking broker offline [{}]", getBrokerDetails());
+        online = false;
     }
 }

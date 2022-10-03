@@ -108,13 +108,15 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final MessageSubmitterHelper messageSubmitterHelper;
 
+    protected final TestMessageValidator testMessageValidator;
+
     public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
                                 PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
                                 PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
                                 MessageExchangeService messageExchangeService, PullMessageService pullMessageService, MessageFragmentDao messageFragmentDao,
                                 MpcDictionaryService mpcDictionaryService, UserMessageValidatorSpiService userMessageValidatorSpiService,
-                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper) {
+                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper, TestMessageValidator testMessageValidator) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
         this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
@@ -135,6 +137,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         this.userMessageSecurityService = userMessageSecurityService;
         this.partInfoService = partInfoService;
         this.messageSubmitterHelper = messageSubmitterHelper;
+        this.testMessageValidator = testMessageValidator;
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
@@ -221,7 +224,15 @@ public class MessageSubmitterImpl implements MessageSubmitter {
                         .build();
             }
 
-            saveMessage(backendName, messageId, userMessage, partInfos, messageStatus, pModeKey, legConfiguration);
+            final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
+            userMessage.setTestMessage(testMessage);
+
+            if(splitAndJoin) {
+                saveSplitAndJoinMessage(backendName, messageId, userMessage, partInfos, messageStatus, pModeKey, legConfiguration);
+            } else {
+                saveMessage(backendName, messageId, userMessage, partInfos, messageStatus, pModeKey, legConfiguration);
+            }
+
             LOG.info("Message with id: [{}] submitted", messageId);
             return messageId;
         } catch (EbMS3Exception ebms3Ex) {
@@ -309,10 +320,42 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
     }
 
+    private void saveSplitAndJoinMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
+        try {
+            //we save first the UserMessage and the payloads; the payloads are saved on disk asynchronously in a different thread
+            //we update the PartInfo size and encryption fields after the payloads are saved on disk
+            messageSubmitterHelper.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+        } catch (CompressionException exc) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message(exc.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(exc)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        } catch (InvalidPayloadSizeException e) {
+            if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
+                //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
+                //to internal storage folder so we will not delete them
+                partInfoService.clearFileSystemPayloads(partInfos);
+            }
+            LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message(e.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(e)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        }
+    }
+
     private void saveMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
         try {
+            //we save first the payloads so that the payload size and the encryption fields are set before saving
             messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-
             messageSubmitterHelper.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
         } catch (CompressionException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);

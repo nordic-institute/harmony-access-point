@@ -30,7 +30,8 @@ public class DomibusJMSActiveMQConfigurationTest {
     public void mBeanServerConnections(@Injectable MBeanServerConnection mBeanServerConnection,
                                        @Mocked MBeanServerConnectionFactoryBean mBeanServerConnectionFactoryBean) throws Exception {
         // GIVEN
-        final String serviceUrl = "service:jmx:rmi:///jndi/rmi://localhost:123/jmxrmi";
+        String serviceUrl = "service:jmx:rmi:///jndi/rmi://localhost:123/jmxrmi";
+
         new Expectations() {{
             mBeanServerConnectionFactoryBean.getObject();
             result = mBeanServerConnection;
@@ -62,13 +63,13 @@ public class DomibusJMSActiveMQConfigurationTest {
         }};
 
         // WHEN
-        BrokerViewMBean result = domibusJMSActiveMQConfiguration.mBeanProxyFactoryBeans(server, brokerName);
+        BrokerViewMBean result = domibusJMSActiveMQConfiguration.mBeanProxyFactoryBeans(brokerName, serviceUrl);
 
         // THEN
         new Verifications() {{
             mBeanProxyFactoryBean.setObjectName(MQ_BROKER_NAME + brokerName);
             mBeanProxyFactoryBean.setProxyInterface(BrokerViewMBean.class);
-            mBeanProxyFactoryBean.setServer(server);
+            mBeanProxyFactoryBean.setServiceUrl(serviceUrl);
             mBeanProxyFactoryBean.afterPropertiesSet();
             Assert.assertEquals(brokerViewMBean, result);
         }};

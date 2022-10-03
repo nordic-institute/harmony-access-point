@@ -3,7 +3,10 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.ITTestsService;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.MessageDaoTestUtil;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.junit.Assert;
@@ -31,6 +34,10 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
 
     @Autowired
     ITTestsService itTestsService;
+
+    @Autowired
+    protected RoutingService routingService;
+
 
     @Before
     public void before() throws IOException, XmlProcessingException {

@@ -5,6 +5,14 @@ Domibus 5.1
 - Smart retry introduced for failed messages retrials (now taking advantage of the monitoring and attempting retry only after remote party is reachable)
 - Progressive retry feature introduced (in addition to constant). Retry attempts can now be scheduled with gradually increasing intervals
 - Files can be sent to WS Plugin as references to the filesystem
+Domibus 5.0.1
+- Added a new plugin notification called MessageResponseSent, fired right before the response to the c2 is sent, which means that the raw envelope of the signal is accessible.
+- Filter out TEST messages from earchived messages
+- Updated two earchive properties default values: domibus.earchive.export.empty set to false and domibus.earchive.batch.retry.timeout set to 0.
+- Fixed the properties issue for ext/messages/acknowledgments/delivered API"
+- Added possibility to throw a specific exception while receiving a message in the plugin
+- Update the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup
+- Fixed the disabling of a domain added at runtime
 Domibus 5.0
 - Send alert when partitions are not properly created in advance
 - Fixed issue when MessageProperties is missing in ebMS3 message
@@ -60,7 +68,21 @@ of the following values point to the same instant - the 21st of July 2021, 12:27
     - added specific domain property file e.g domain1-fs-plugin.properties
     - a domain could be disabled - by setting a property e.g. domain1.fsplugin.domain.enabled (default to true) in the specific domain domain1-fs-plugin.properties file
 - Removed UI replication mechanism
-
+Domibus 4.2.11
+- Added a new property domibus.jms.internal.address.expression - to ignore internal JMS addresses in Wildfly when building the address mappings
+- Disable business, security and statistics logging in the default logback configuration
+Domibus 4.2.10
+- Fix issue with domain name case
+- Fixed a bug when Domibus accepts messages signed with key corresponding to a different party
+- Updated Wildfly version to 26.1.0
+- Update several libraries to the latest version
+Domibus 4.2.9
+- Updated several libraries
+Domibus 4.2.8
+- Fixed issue when MessageProperties is missing in ebMS3 message
+- Upgraded Tomcat 9 to the latest version 9.0.59
+Domibus 4.2.7
+- Upgraded Spring to the latest version
 Domibus 4.2.6
 - Upgrade DSS library to version 5.8.
 - The following properties have been added into the authentication-dss-extension.properties file to configure DSS 5.8 data loader:

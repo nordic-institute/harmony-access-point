@@ -221,6 +221,11 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
+    public void messageResponseSent(final MessageResponseSentEvent event) {
+        // nothing to do by default
+    }
+
+    @Override
     public void messageStatusChanged(final MessageStatusChangeEvent event) {
         //this method should be implemented by the plugins needed to be notified when the User Message status changes
     }

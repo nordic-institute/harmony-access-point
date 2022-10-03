@@ -35,7 +35,7 @@ public class DefaultDomibusConfigurationServiceTest {
     @Injectable
     PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
-    @Mocked
+    @Injectable
     DomibusLoggerFactory domibusLoggerFactory;
 
     @Tested

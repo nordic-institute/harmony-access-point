@@ -149,7 +149,7 @@ public class DomibusApplicationInitializerTest {
         new FullVerifications() {{
 
             annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
-
+            annotationConfigWebApplicationContext.setClassLoader((PluginClassLoader)any);
         }};
     }
 
@@ -238,6 +238,8 @@ public class DomibusApplicationInitializerTest {
             propertySources.addAfter(UPDATED_PROPERTIES_NAME, domibusConfigLocationSource);
             times = 1;
             propertySources.addLast(domibusPropertiesPropertySource);
+            times = 1;
+            propertySources.stream();
             times = 1;
         }};
     }

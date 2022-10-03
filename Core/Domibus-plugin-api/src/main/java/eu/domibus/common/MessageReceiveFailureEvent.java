@@ -1,5 +1,6 @@
 package eu.domibus.common;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +11,9 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 3.2.2
  */
-public class MessageReceiveFailureEvent implements MessageEvent {
+public class MessageReceiveFailureEvent implements MessageEvent, Serializable {
 
+    private static final long serialVersionUID = 1L;
     protected String messageId;
     protected String endpoint;
     protected String service;
@@ -32,7 +34,7 @@ public class MessageReceiveFailureEvent implements MessageEvent {
 
     @Override
     public Map<String, String> getProps() {
-        return Collections.unmodifiableMap(properties);
+        return properties;
     }
 
     @Override

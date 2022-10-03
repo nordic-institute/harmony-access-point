@@ -32,6 +32,8 @@ import javax.jms.Session;
 import java.util.List;
 import java.util.Optional;
 
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
+
 /**
  * Class responsible for the configuration of the plugin, independent of any server
  *
@@ -86,7 +88,7 @@ public class JMSPluginConfiguration {
     public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(DomibusJMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  JmsPluginPropertyManager jmsPluginPropertyManager,
                                                                                  @Qualifier("jndiDestinationResolver") Optional<JndiDestinationResolver> jndiDestinationResolver,
-                                                                                 @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
+                                                                                 @Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         String queueInConcurrency = jmsPluginPropertyManager.getKnownPropertyValue(JMSPLUGIN_QUEUE_IN_CONCURRENCY);

@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -59,12 +58,10 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
         String messageId = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_MESSAGE_ID);
         boolean compression = Boolean.valueOf(getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION));
         String domainCode = getHeaderValue(headers, DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
-        String encoding = (String) message.get(Message.ENCODING);
-        String contentType = (String) message.get(Message.CONTENT_TYPE);
-        LOG.putMDC(Message.CONTENT_TYPE, contentType);
-        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
-        LOG.putMDC(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
+
+        String contentType = (String) message.get(Message.CONTENT_TYPE);
+
 
         final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
         if (StringUtils.isEmpty(temporaryDirectoryLocation)) {
@@ -90,7 +87,21 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
             LOG.error("Could not replace SoapEnvelope", e);
             throw new Fault(e);
         }
+
+        setContext(message, compression, domainCode, contentType, fileName);
+    }
+
+    private void setContext(Message message, boolean compression, String domainCode, String contentType, String fileName) {
+        LOG.putMDC(Message.CONTENT_TYPE, contentType);
+        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
+        LOG.putMDC(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
         LOG.putMDC(MSHSourceMessageWebservice.SOURCE_MESSAGE_FILE, fileName);
+
+        org.apache.cxf.binding.soap.SoapMessage soapMessage = (org.apache.cxf.binding.soap.SoapMessage) message;
+        soapMessage.getExchange().put(Message.CONTENT_TYPE, contentType);
+        soapMessage.getExchange().put(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
+        soapMessage.getExchange().put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
+        soapMessage.getExchange().put(MSHSourceMessageWebservice.SOURCE_MESSAGE_FILE, fileName);
     }
 
     protected void replaceSoapEnvelope(Message message, String contentTypeHeader) throws IOException {

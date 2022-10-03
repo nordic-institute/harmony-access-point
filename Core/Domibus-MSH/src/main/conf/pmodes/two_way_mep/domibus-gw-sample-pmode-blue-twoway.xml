@@ -73,6 +73,12 @@
             <security name="eDeliveryAS4Policy"
                       policy="eDeliveryAS4Policy.xml"
                       signatureMethod="RSA_SHA256" />
+            <!--<security name="eDeliveryAS4PolicyRSA"
+					  policy="eDeliveryAS4Policy.xml"
+					  profile="RSA"/>-->
+            <!--<security name="eDeliveryAS4PolicyECC"
+                      policy="eDeliveryAS4Policy.xml"
+                      profile="ECC"/>-->
         </securities>
         <errorHandlings>
             <errorHandling name="demoErrorHandling"
