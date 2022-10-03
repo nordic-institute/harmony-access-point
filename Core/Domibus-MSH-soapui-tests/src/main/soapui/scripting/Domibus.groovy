@@ -38,7 +38,6 @@ class Domibus{
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
 
-
     static def backup_file_suffix = "_backup_for_soapui_tests"
     static def DEFAULT_LOG_LEVEL = 1
     static def SUPER_USER = "super"
@@ -430,7 +429,7 @@ class Domibus{
                 "delete from TB_SJ_MESSAGE_FRAGMENT where ID_PK IN (" + select_ID_PK + ")",
                 "delete from TB_SJ_MESSAGE_GROUP where ID_PK IN (" + select_ID_PK + ")",
                 "delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
-                "delete from TB_MESSAGE_ACKNW_PROP where FK_MSG_ACKNOWLEDGE IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
+                "delete from TB_MESSAGE_ACKNW_PROP where MESSAGE_ACK_ID_FK IN (select ID_PK from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))",
                 "delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
                 "delete from TB_ERROR_LOG where (USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")) OR (MESSAGE_IN_ERROR_ID "+messageIDCheck+")",
                 "delete from TB_USER_MESSAGE where (MESSAGE_ID " + messageIDCheck + ") AND (ID_PK NOT IN (19700101))",
@@ -1401,7 +1400,7 @@ class Domibus{
         def authenticationUser = userLogin
         def authenticationPwd = passwordLogin
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/fourcornerenabled",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -1438,7 +1437,7 @@ class Domibus{
         def authenticationUser = userLogin
         def authenticationPwd = passwordLogin
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/name",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -1613,7 +1612,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
         def commandString = null
         if (!onlyActive) {
             commandString = "curl " + urlToDomibus(side, log, context) + "/rest/domains -b " + context.expand('${projectDir}') +
@@ -1655,7 +1654,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/user/users -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\" -X GET "
         def commandResult = runCommandInShell(commandString, log)
@@ -1670,7 +1669,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  addAdminConsoleUser  [][]  Fetch users list and verify that user \"$userAC\" doesn't already exist.",log)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
@@ -1713,7 +1712,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  removeAdminConsoleUser  [][]  Fetch users list and verify that user \"$userAC\" exists.",log)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
@@ -1778,7 +1777,7 @@ class Domibus{
 
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/password",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -1807,7 +1806,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users?pageSize=10000",
                              "--cookie", context.expand( '${projectDir}')+ File.separator + "cookie.txt",
@@ -1826,7 +1825,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  addPluginUser  [][]  Fetch users list and verify that user $userPl doesn't already exist.",log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log))
@@ -1874,7 +1873,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  removePluginUser  [][]  Fetch users list and verify that user $userPl exists.", log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log))
@@ -1929,7 +1928,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             debugLog("  updatePluginUser  [][]  Fetch users list and verify that user $userPl exists.", log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log))
@@ -2064,7 +2063,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  adminConsoleUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log, authenticationUser,authenticationPwd))
             debugLog("  adminConsoleUserSuspended  [][]  Admin console users map: $usersMap.", log)
@@ -2095,7 +2094,7 @@ class Domibus{
         int i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             debugLog("  pluginUserSuspended  [][]  Fetch users list and check user $username status: active or suspended.",log)
             def usersMap = jsonSlurper.parseText(getPluginUsers(side, context, log, authenticationUser, authenticationPwd))
             debugLog("  pluginUserSuspended  [][]  Plugin users map: $usersMap.", log)
@@ -2126,7 +2125,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/messagefilters",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -2198,7 +2197,7 @@ class Domibus{
         def jsonSlurper = new JsonSlurper()
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def filtersMap = jsonSlurper.parseText(getMessageFilters(side,context,log))
             debugLog("  setMessageFilters  [][]  filtersMap:" + filtersMap, log)
@@ -2390,15 +2389,15 @@ class Domibus{
     }
 
 // Return admin credentials for super user in multidomain configuration and admin user in single domain situation with domain provided
-    static def retriveAdminCredentialsForDomain(context, log, String side, String domainValue, String authUser, authPwd) {
-        debugLog("  ====  Calling \"retriveAdminCredentialsForDomain\".", log)
+    static def retrieveAdminCredentialsForDomain(context, log, String side, String domainValue, String authUser, authPwd) {
+        debugLog("  ====  Calling \"retrieveAdminCredentialsForDomain\".", log)
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
         def multitenancyOn = getMultitenancyFromSide(side, context, log)
         if (multitenancyOn) {
-            log.info("  retriveAdminCredentialsForDomain  [][]  retriveAdminCredentialsForDomain for Domibus $side and domain $domainValue.")
-            debugLog("  retriveAdminCredentialsForDomain  [][]  First, set domain to $domainValue.", log)
+            log.info("  retrieveAdminCredentialsForDomain  [][]  retrieveAdminCredentialsForDomain for Domibus $side and domain $domainValue.")
+            debugLog("  retrieveAdminCredentialsForDomain  [][]  First, set domain to $domainValue.", log)
             setDomain(side, context, log, domainValue)
             // If authentication details are not fully provided, use default values
             if ( (authUser == null) || (authPwd == null) ) {
@@ -2406,19 +2405,19 @@ class Domibus{
                 authenticationPwd = SUPER_USER_PWD
             }
         } else {
-            log.info("  retriveAdminCredentialsForDomain  [][]  retriveAdminCredentialsForDomain for Domibus $side.")
+            log.info("  retrieveAdminCredentialsForDomain  [][]  retrieveAdminCredentialsForDomain for Domibus $side.")
             // If authentication details are not fully provided, use default values
             if ( (authUser == null) || (authPwd == null) ) {
                 authenticationUser = DEFAULT_ADMIN_USER
                 authenticationPwd = DEFAULT_ADMIN_USER_PWD
             }
         }
-        debugLog("  ====  END \"retriveAdminCredentialsForDomain\": returning credentials: ["+authenticationUser+", "+authenticationPwd+"].", log)
+        debugLog("  ====  END \"retrieveAdminCredentialsForDomain\": returning credentials: ["+authenticationUser+", "+authenticationPwd+"].", log)
         return [authenticationUser, authenticationPwd]
     }
 
     // Return admin credentials for super user in multidomain configuration and admin user in single domaind situation without domain provided
-    static def retriveAdminCredentials(context, log, String side, String authUser, authPwd) {
+    static def retrieveAdminCredentials(context, log, String side, String authUser, authPwd) {
         def authenticationUser = authUser
         def authenticationPwd = authPwd
         // If authentication details are not fully provided, use default values
@@ -2788,7 +2787,7 @@ class Domibus{
         log.info "  changePropertyAtRuntime  [][]  Property to change: " + propName + " new value: " + propNewValue
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties/" + propName,
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -2826,7 +2825,7 @@ class Domibus{
         log.info "  getPropertyAtRuntime  [][]  Property to get: \"$propName\"."
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/configuration/properties?showDomain=$showDomain&name=$propName",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -3033,7 +3032,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
             if (userExists(usersMap, userAC, log, false)) {
                 log.error "Error:userInputCheck_PUT: Admin Console user \"$userAC\" already exist: usernames must be unique."
@@ -3071,8 +3070,8 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            //(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            //(authenticationUser, authenticationPwd) = retrieveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagelog?orderBy=received&asc=false&messageId="+ data +"&messageType=USER_MESSAGE&page=0&pageSize=10 -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) + "\" -X GET "
             def commandResult = runCommandInShell(commandString, log)
             if(listType.toLowerCase() == "blacklist"){
@@ -3157,7 +3156,7 @@ class Domibus{
         def authenticationUser = authUser
         def authenticationPwd = authPwd
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         try{
             // Try to retrieve the queue name from domibus to avoid problems like in case of cluster
@@ -3320,7 +3319,7 @@ class Domibus{
         }
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def json = ifWindowsEscapeJsonString('{\"name\":\"' + "${packageName}" + '\",\"level\":\"' + "${logLevel}" + '\"}')
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel",
@@ -3348,7 +3347,7 @@ class Domibus{
         log.info "  getLogLevel  [][]  getting Log level of Package/Class \"$packageName\" for Domibus \"$side\"."
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel?loggerName=$packageName&showClasses=false&page=0&pageSize=500&orderBy=name&asc=false",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
@@ -3476,7 +3475,7 @@ class Domibus{
         def i = 0
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/count",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
@@ -3516,7 +3515,7 @@ class Domibus{
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/uireplication/sync",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
@@ -3713,7 +3712,7 @@ class Domibus{
         def authenticationPwd = authPwd
         def isClusteredValue=false
 
-        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
         isClusteredValue=getPropertyAtRuntime(side, "domibus.deployment.clustered", context, log, domainValue,"false", authenticationUser, authenticationPwd) ?: "false"
         return isClusteredValue.toLowerCase().toBoolean()
     }
@@ -3880,7 +3879,7 @@ class Domibus{
         def jsonSlurper= new JsonSlurper()
 
         try{
-            (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def partyMap = jsonSlurper.parseText(getPartyListFromPmode(side,context,log,testRunner,domainValue,authenticationUser, authenticationPwd))
             switch(operation.toLowerCase()){
@@ -3981,7 +3980,7 @@ class Domibus{
      * @param domainId
      * @return
      */
-    def storeLatestMessagesId(testRunner, domainId = blueDomainID){
+    def storeLatestMessagesId(testRunner, domainId = blueDomainID) {
         debugLog("  ====  Calling \"storeLatestMessagesId\".", log)
         def outputMessageId
         def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
