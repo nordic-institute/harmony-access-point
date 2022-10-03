@@ -741,7 +741,12 @@
 test.cleanDatabaseAll()
 test.finalize()
 </script></con:config></con:testStep><con:tearDownScript>Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-localhost-tomcat-tomcat" searchProperties="true" id="a960fb17-e26f-44de-9983-a82f80a395e5">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="fbc236c7-7235-4db3-baeb-e23f49671aad" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestConnection" searchProperties="true"><con:settings/><con:testStep type="groovy" name="test connection DB" id="e5b3e0e1-d3f0-44cc-94fc-93b329c68e87" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.openConnection()
+log.info "CONNECTION OPENED";
+test.closeConnection()
+log.info "CONNECTION CLOSED";
+test.finalize()</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-localhost-tomcat-tomcat" searchProperties="true" id="19b456a7-c073-470e-83ab-3dd37e9401eb">
             <con:settings/>
 
 
@@ -755,30 +760,7 @@ test.finalize()
 
 
 
-            <con:testStep type="groovy" name="Set custom properties" id="d2cd0905-1c93-4657-a52c-907a14cadc8c"><con:settings/><con:config><script><![CDATA[// blue: tomcat (localhost)
-testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus")
-// red: tomcat (localhost)
-testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus")
-// Set DB configurations
-testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
-{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"thirdDefault":{"site":"third","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_green?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom1?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom2?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C2Dom3":{"site":"C2","domainName":"domibus_C2Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom3?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom1?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom2?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Dom3":{"site":"C3","domainName":"domibus_C3Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom3?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"} }''')
-// Set third gateway option
-testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false")
-// Set Multitenancy Modes
-testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC2", "0")
-testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0")
-log.info "Update done.";
-]]></script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="bd68956c-2847-443d-bdcd-c17ae88f88c8"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log)
-PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set custom properties-Default-Default-Main Branch" id="3b61f979-9c7d-4738-893c-6b3a53f46037"><con:settings/><con:config><script>// blue: tomcat (localhost)
+            <con:testStep type="groovy" name="Set custom properties-Default-Default" id="d691981f-60e3-44b2-bab0-c1a1bcf95bca"><con:settings/><con:config><script>// blue: tomcat (localhost)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus");
 
 // red: tomcat (localhost)
@@ -788,6 +770,10 @@ testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://loca
 testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
 {"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
 "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"}}''');
+
+testRunner.testCase.testSuite.project.setPropertyValue("allJMSDomainsProperties",'''\
+{"C2Default":{"site":"C2","jmsClientType":"tomcat","hostname":"localhost","jmxPort":"1199","jmsUrl":"tcp://localhost:61616","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":""},"C3Default":{"site":"C3","jmsClientType":"tomcat","hostname":"localhost","jmxPort":"1299","jmsUrl":"tcp://localhost:61716","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":""}}
+''');
 
 // Set third gateway option
 testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
@@ -803,21 +789,22 @@ testRunner.testCase.testSuite.project.setPropertyValue("pathGreen", "C:/domibus/
 
 log.info "Update done.";
 
-</script></con:config></con:testStep><con:testStep type="groovy" name="Set custom properties-multitenancy" id="51f93885-6b3a-4538-a24b-2fd335e2dfd8"><con:settings/><con:config><script><![CDATA[// blue: tomcat (localhost)
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set custom properties-multitenancy" id="19b623ae-28b2-4cce-8e37-38b12cc9f74d"><con:settings/><con:config><script><![CDATA[// blue: tomcat (localhost)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus")
 // red: tomcat (localhost)
 testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus")
+
 // Set DB configurations
 testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
-{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"thirdDefault":{"site":"third","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_green?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom1?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom2?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C2Dom3":{"site":"C2","domainName":"domibus_C2Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C2Dom3?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom1?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom2?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"},
-"C3Dom3":{"site":"C3","domainName":"domibus_C3Dom3","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_C3Dom3?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"root","dbPassword":"root"} }''')
+{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue_default?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
+"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red_default?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
+"C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom1?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
+"C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom2?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
+"C2Dom3":{"site":"C2","domainName":"a","domNo":3,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom3?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
+"C2Dom4":{"site":"C2","domainName":"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc","domNo":4,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom4?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
+"C3Dom1":{"site":"C3","domainName":"domibus_C3Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c3dom1?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"},
+"C3Dom2":{"site":"C3","domainName":"domibus_C3Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c3dom2?useLegacyDatetimeCode=false&serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"} }''');
+
 // Set third gateway option
 testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false")
 // Set Multitenancy Modes
@@ -825,195 +812,66 @@ testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC2", "0"
 testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0")
 log.info "Update done.";
 ]]></script></con:config></con:testStep><con:tearDownScript>Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-localhost-tomcat-tomcat-bugfix" searchProperties="true" id="c63dda13-9457-4b54-8527-38205436e824">
-            <con:settings/>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="860ceecc-3afc-4146-b991-879ccbb81372" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-localhost-weblogic-tomcat" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set custom properties-Default-Default" id="5bc93da8-10be-42cd-84b1-9675b7ef52ad"><con:settings/><con:config><script>// blue: tomcat (localhost)
+testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:7003/domibus");
 
-
-
-
-
-
-
-
-
-
-
-
-            <con:testStep type="groovy" name="Set custom properties" id="f3d823d9-4398-4486-b3e7-64891f785976"><con:settings/><con:config><script>// blue: tomcat (localhost)
-testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "mysql")
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.cj.jdbc.Driver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:mysql://localhost:3306/domibus_blue_alt?useLegacyDatetimeCode=false&amp;serverTimezone=UTC")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbUser", "root")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "root")
 // red: tomcat (localhost)
-testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql")
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:3306/domibus_red_alt?useLegacyDatetimeCode=false&amp;serverTimezone=UTC")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "root")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "root")
-testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false")
-log.info "Update done.";
+testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus");
 
-</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="4801679f-58d0-467b-ac9b-9ffe71c1dd5e"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-PModeUtils.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log)
-PModeUtils.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-cloud-weblogic-tomcat" searchProperties="true" id="37eaf0c7-af9e-4b61-817f-10659058615b">
-            <con:settings/>
-
-
-
-
-
-
-
-
-
-
-
-
-            <con:testStep type="groovy" name="Set custom properties" id="a4ada6ac-ba3d-4406-a8e2-6d3b82ea86b9"><con:settings/><con:config><script>// blue: weblogic (edeltest1)
-testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://edeltest1.westeurope.cloudapp.azure.com:7005/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "oracle")
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "oracle.jdbc.OracleDriver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:oracle:thin:@localhost:11521/xe")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbUser", "edelivery")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "edelivery")
-// red: tomcat (edeltest2)
-testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql")
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:23306/domtestusr?useLegacyDatetimeCode=false&amp;serverTimezone=UTC")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "root")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "edelCld2017")
-testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false")
-log.info "Update done.";
-</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="38c55729-9d1a-4571-97e8-7b17387f3719"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-PModeUtils.uploadPmode("sender","default","\\cloud\\weblogic\\blue\\domibus-pmode-blue.xml",context,log)
-PModeUtils.uploadPmode("receiver","default","\\cloud\\weblogic\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="New Set custom properties" id="9cb362cc-1080-4136-beb3-9f4b9e3adfd6"><con:settings/><con:config><script>
-// blue: weblogic (edeltest1)
-testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://edeltest4.westeurope.cloudapp.azure.com:7003/domibus-weblogic")
-// red: tomcat (edeltest2)
-testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus")
 // Set DB configurations
 testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
-{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"oracle","dbDriver":"oracle.jdbc.OracleDriver","dbJdbcUrl":"jdbc:oracle:thin:@localhost:41521/xe","dbUser":"domibus_default","dbPassword":"domibus_default"},
-"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:23306/domibus_default_tomcat?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"edelCld2017"},
-}''')
+{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"oracle","dbDriver":"oracle.jdbc.OracleDriver","dbJdbcUrl":"jdbc:oracle:thin:@localhost:1521/orcl","dbUser":"domibus_weblogic","dbPassword":"domibus_weblogic"},
+"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"}}''');
+
+
+testRunner.testCase.testSuite.project.setPropertyValue("allJMSDomainsProperties",'''\
+{"C2Default":{"site":"C2","jmsClientType":"weblogic","hostname":"localhost","jmxPort":"1199","jmsUrl":"t3://localhost:7003/","jmsServerUsername":"weblogic","jmsServerPassword":"Domibus-123","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"jms/domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":"jms/ConnectionFactory"},"C3Default":{"site":"C3","jmsClientType":"tomcat","hostname":"localhost","jmxPort":"1299","jmsUrl":"tcp://localhost:61716","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":""}}
+''');
+
 // Set third gateway option
-testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false")
+testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
+
 // Set Multitenancy Modes
-testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC2", "1")
-testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0")
-log.info "Update done.";</script></con:config></con:testStep><con:tearDownScript>Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-cloud-tomcat-tomcat" searchProperties="true" id="d2791afa-91fb-4a50-9b54-00d160370571">
-            <con:settings/>
+testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC2", "0");
+testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0");
+
+// Set C2 and C3 deployment paths
+testRunner.testCase.testSuite.project.setPropertyValue("pathBlue", "C:/Oracle/Middleware/Oracle_Home/user_projects/domains/standard_domain/");
+testRunner.testCase.testSuite.project.setPropertyValue("pathRed", "C:/domibus/1-mainBranch/receiver/domibus/");
+testRunner.testCase.testSuite.project.setPropertyValue("pathGreen", "C:/domibus/1-mainBranch/greenReceiver/domibus/");
 
 
-
-
-
-
-
-
-
-
-
-
-            <con:testStep type="groovy" name="Set custom properties" id="9fd91b65-10b2-4177-8803-1f605c880dda"><con:settings/><con:config><script>// blue: tomcat (edeltest1)
-testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://edeltest1.westeurope.cloudapp.azure.com:9080/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "mysql")
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.cj.jdbc.Driver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:mysql://localhost:13306/domtestusr?useLegacyDatetimeCode=false&amp;serverTimezone=UTC")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbUser", "root")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "edelCld2017")
-// red: tomcat (edeltest2)
-testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql")
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:23306/domtestusr?useLegacyDatetimeCode=false&amp;serverTimezone=UTC")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "root")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "edelCld2017")
-testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false")
 log.info "Update done.";
-</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="ad64bea4-6591-47ca-8a34-ab672c77990e"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-PModeUtils.uploadPmode("sender","default","\\cloud\\tomcat\\blue\\domibus-pmode-blue.xml",context,log)
-PModeUtils.uploadPmode("receiver","default","\\cloud\\tomcat\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-cloud-wildfly-tomcat" searchProperties="true" id="4bad65e0-2252-4435-b09d-1bb811b30eac">
-            <con:settings/>
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set custom properties-Default-Default-bugfix" id="b1704875-4889-4199-9b91-224e6ff7480b"><con:settings/><con:config><script>// blue: tomcat (localhost)
+testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus");
+
+// red: tomcat (localhost)
+testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus");
+
+// Set DB configurations
+testRunner.testCase.testSuite.project.setPropertyValue("allDomainsProperties",'''\
+{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"oracle","dbDriver":"oracle.jdbc.OracleDriver","dbJdbcUrl":"jdbc:oracle:thin:@localhost:1521/orcl","dbUser":"domibus_weblogic_bugfix","dbPassword":"domibus_weblogic_bugfix"},
+"C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red_bugfix?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"edelivery","dbPassword":"edelivery"}}''');
 
 
+testRunner.testCase.testSuite.project.setPropertyValue("allJMSDomainsProperties",'''\
+{"C2Default":{"site":"C2","jmsClientType":"weblogic","hostname":"localhost","jmxPort":"1199","jmsUrl":"t3://localhost:7003/","jmsServerUsername":"weblogic","jmsServerPassword":"Domibus-123","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"jms/domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":"jms/ConnectionFactory"},"C3Default":{"site":"C3","jmsClientType":"tomcat","hostname":"localhost","jmxPort":"1299","jmsUrl":"tcp://localhost:61716","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":""}}
+''');
+// Set third gateway option
+testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false");
+
+// Set Multitenancy Modes
+testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC2", "0");
+testRunner.testCase.testSuite.project.setPropertyValue("multitenancyModeC3", "0");
+
+// Set C2 and C3 deployment paths
+testRunner.testCase.testSuite.project.setPropertyValue("pathBlue", "C:/Oracle/Middleware/Oracle_Home/user_projects/domains/bugfix_domain/");
+testRunner.testCase.testSuite.project.setPropertyValue("pathRed", "C:/domibus/2-bugfixBranch/receiver/domibus/");
+testRunner.testCase.testSuite.project.setPropertyValue("pathGreen", "C:/domibus/2-bugfixBranch/greenReceiver/domibus/");
 
 
-
-
-
-
-
-
-
-
-            <con:testStep type="groovy" name="Set custom properties" id="38c6e65d-6f2e-44c1-861a-a16c61fc2543"><con:settings/><con:config><script>// blue: wildfly (edeltest2)
-testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://edeltest2.westeurope.cloudapp.azure.com:8085/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseBlue", "mysql")
-testRunner.testCase.testSuite.project.setPropertyValue("driverBlue", "com.mysql.cj.jdbc.Driver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlBlue", "jdbc:mysql://localhost:23306/domibus33wildfly?useLegacyDatetimeCode=false&amp;serverTimezone=UTC")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbUser", "domibus33wildfly")
-testRunner.testCase.testSuite.project.setPropertyValue("blueDbPassword", "domibus33wildfly")
-// red: tomcat (edeltest2)
-testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus")
-testRunner.testCase.testSuite.project.setPropertyValue("databaseRed", "mysql")
-testRunner.testCase.testSuite.project.setPropertyValue("driverRed", "com.mysql.cj.jdbc.Driver")
-testRunner.testCase.testSuite.project.setPropertyValue("jdbcUrlRed", "jdbc:mysql://localhost:23306/domtestusr?useLegacyDatetimeCode=false&amp;serverTimezone=UTC")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbUser", "domtestusr")
-testRunner.testCase.testSuite.project.setPropertyValue("redDbPassword", "domtestusr")
-testRunner.testCase.testSuite.project.setPropertyValue("thirdGateway", "false")
 log.info "Update done.";
-</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="c5aba1d7-4607-424d-af7f-6afc3e6140c2"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
-PModeUtils.uploadPmode("sender","default","\\cloud\\wildfly\\blue\\domibus-pmode-blue.xml",context,log)
-PModeUtils.uploadPmode("receiver","default","\\cloud\\wildfly\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration-setLocalInstallationsPaths" searchProperties="true" id="4b11c5b5-a6bf-4873-82b5-be2dec4d7201">
-            <con:settings/>
-
-
-
-
-
-
-
-
-
-
-
-
-            <con:testStep type="groovy" name="Set ec path" id="de040f9e-e68a-4d79-8e07-caa69af60037"><con:settings/><con:config><script>
-testRunner.testCase.testSuite.project.setPropertyValue("pathBlue", "C:/ec/blue/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathRed", "C:/ec/red/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathGreen", "C:/ec/greenReceiver/domibus/")
-log.info "Update done.";
-</script></con:config></con:testStep><con:testStep type="groovy" name="Set domibus path" id="b398f6f8-7d36-457d-89d4-287ec607e44c"><con:settings/><con:config><script>
-testRunner.testCase.testSuite.project.setPropertyValue("pathBlue", "C:/domibus/sender/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathRed", "C:/domibus/receiver/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathGreen", "C:/domibus/greenReceiver/domibus/")
-log.info "Update done.";
-</script></con:config></con:testStep><con:testStep type="groovy" name="Set Dynamic Discovery path PEPPOL" id="ea47d1fb-52c1-494a-8240-b4418a9625f1"><con:settings/><con:config><script>
-testRunner.testCase.testSuite.project.setPropertyValue("pathBlue", "C:/domibus/senderDynPeppol/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathRed", "C:/domibus/receiver/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathGreen", "C:/domibus/greenReceiver/domibus/")
-log.info "Update done.";
-</script></con:config></con:testStep><con:testStep type="groovy" name="Set Dynamic Discovery path OASIS" id="bb397097-afed-4406-869f-5e51c1a74691"><con:settings/><con:config><script>
-testRunner.testCase.testSuite.project.setPropertyValue("pathBlue", "C:/domibus/senderDynOasis/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathRed", "C:/domibus/receiver/domibus/")
-testRunner.testCase.testSuite.project.setPropertyValue("pathGreen", "C:/domibus/greenReceiver/domibus/")
-log.info "Update done.";
-</script></con:config></con:testStep><con:tearDownScript>Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="fbc236c7-7235-4db3-baeb-e23f49671aad" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="TestConnection" searchProperties="true"><con:settings/><con:testStep type="groovy" name="test connection DB" id="e5b3e0e1-d3f0-44cc-94fc-93b329c68e87" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.openConnection()
-log.info "CONNECTION OPENED";
-test.closeConnection()
-log.info "CONNECTION CLOSED";
-test.finalize()</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="956c05ad-4503-4d82-91bf-5c4bd8a6d9e0" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Start default configuration" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set custom properties" id="51e2bdfd-110f-4818-921b-0fc089f97498"><con:settings/><con:config><script><![CDATA[// blue: tomcat (localhost)
+</script></con:config></con:testStep><con:properties/><con:reportParameters/></con:testCase><con:testCase id="956c05ad-4503-4d82-91bf-5c4bd8a6d9e0" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Start default configuration" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set custom properties" id="51e2bdfd-110f-4818-921b-0fc089f97498"><con:settings/><con:config><script><![CDATA[// blue: tomcat (localhost)
 testRunner.testCase.testSuite.project.setPropertyValue("localUrl", "http://localhost:8080/domibus")
 // red: tomcat (localhost)
 testRunner.testCase.testSuite.project.setPropertyValue("remoteUrl", "http://localhost:8180/domibus")
@@ -4103,6 +3961,66 @@ test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS070-")
 test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS070-")
 test.finalize()
+Domibus.reportTestCaseCsv(testRunner, log)
+</con:tearDownScript><con:properties/>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS073-Submit Message-File-Reference-File" searchProperties="true" id="ec961fdd-4eb9-4fbf-b156-e4e5c23a28c1">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Submit Message To C2" id="b05e67da-0a5b-40fc-bfe5-1a2875693bf5"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc10")
+messageMap.setStringProperty("action", "TC10Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC")
+messageMap.setStringProperty("protocol", "AS4")
+
+messageMap.setStringProperty("messageId", "-DomJMS073-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+
+def filePath=context.expand('${projectDir}')+"\\resources\\PModesandKeystoresSpecialTests\\fsPlugin\\standard\\Test_file.xml"
+
+messageMap.setStringProperty("payload_1","file:///"+context.expand('${#Project#pdfAttachment}'));
+messageMap.setStringProperty("payload_1","file:///"+filePath);
+
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="591c2fdc-acb9-44bd-8261-a5da9a63edd9"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS073-") 
+test.finalize()
+</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.cleanDBMessageID("-DomJMS073-")
+test.finalize()
+
 Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:setupScript>def unsecureLoginAllowed = context.expand('${#Project#unsecureLoginAllowed}')
