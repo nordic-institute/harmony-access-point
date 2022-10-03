@@ -1,7 +1,6 @@
-package eu.domibus.test.utils
-
 class PushUtils {
     static def pushBackendMockServicePropertyName = "pushBackendMockServicePropertyName"
+    static def numberOfRequestsReceivedByMock = "numberOfRequestsReceivedByMock"
     /**
      * Retrieve SoapUI Backed Webservice WSDL mock service
      * @param testRunner
@@ -22,10 +21,10 @@ class PushUtils {
      * @return mockRunner
      */
     static def retrievePushMockRunner(testRunner, log) {
-        LogUtils.debugLog("  ====  Start \"storeLatestMessagesId\".", log)
+        LogUtils.debugLog("  ====  Start \"retrievePushMockRunner\".", log)
         def pushMock = retrievePushMock(testRunner)
         assert pushMock.mockRunner != null, "Mock runner should be turn on"
-        LogUtils.debugLog("  ====  Ending \"storeLatestMessagesId\".", log)
+        LogUtils.debugLog("  ====  Ending \"retrievePushMockRunner\".", log)
         return pushMock.mockRunner
     }
     /**
@@ -70,16 +69,44 @@ class PushUtils {
      * @param log
      */
     static def retrieveNthFromEndRequestForPushMock(testRunner, log, int indexFromEnd=1) {
-        LogUtils.debugLog("  ====  Start \"retrieveLastRequestFromPushMock\".", log)
-        def pushMockRunner = retrievePushMockRunner(testRunner)
+        LogUtils.debugLog("  ====  Start \"retrieveNthFromEndRequestForPushMock\".", log)
+        def pushMockRunner = retrievePushMockRunner(testRunner, log)
 
-        def numberOfMessages = pushMockRunner.getMockResultCount()
-        LogUtils.debugLog("  ====  \"numberOfMessages=\"" + numberOfMessages, log)
-        def mockResult = pushMockRunner.getMockResultAt(numberOfMessages-indexFromEnd)
+        def numberOfRequests = pushMockRunner.getMockResultCount()
+        LogUtils.debugLog("number of request in mock service=" + numberOfRequests, log)
+        def mockResult = pushMockRunner.getMockResultAt(numberOfRequests-indexFromEnd)
         def request = mockResult.getMockRequest()
 
-        LogUtils.debugLog("Retrieved request send to mock content: " + request.getRequestContent(), log)
-        LogUtils.debugLog("  ====  Ending \"retrieveLastRequestFromPushMock\".", log)
+        LogUtils.debugLog("Retrieved request number: ${numberOfRequests-indexFromEnd} send to mock content: " + request.getRequestContent(), log)
+        LogUtils.debugLog("  ====  Ending \"retrieveNthFromEndRequestForPushMock\".", log)
         return request
+    }
+
+    /**
+     * Save in test case properties current number of requests received in backend mock
+     * @param testRunner
+     * @param log
+     * @return
+     */
+    static def saveInitialNumberOfRequestsInMock(testRunner, log) {
+        def currentNumberOfRequestsInMock = retrievePushMockRunner(testRunner, log).getMockResultCount()
+        testRunner.testCase.setPropertyValue(numberOfRequestsReceivedByMock,currentNumberOfRequestsInMock.toString())
+        LogUtils.debugLog("Set test case property \"${numberOfRequestsReceivedByMock}\" to value ${currentNumberOfRequestsInMock}.", log)
+    }
+
+    /**
+     * Check that number of requests increased as expected - comparing to previously stored in test case properties  value
+     * @param testRunner
+     * @param log
+     * @param expectedIncrease
+     * @return
+     */
+    static def checkNumberOfRequestsIncreasedExactlyBy(testRunner, log, int expectedIncrease) {
+        def currentNumberOfRequestsInMock = retrievePushMockRunner(testRunner, log).getMockResultCount()
+        def previousNumberOfRequestsReceivedByMock = testRunner.testCase.getPropertyValue(numberOfRequestsReceivedByMock)  as Integer
+        assert currentNumberOfRequestsInMock == previousNumberOfRequestsReceivedByMock + expectedIncrease,
+                "Expecting number of requests to grow by ${expectedIncrease} but number of requests before was: " +
+                        "${previousNumberOfRequestsReceivedByMock} and number of request currently is: ${currentNumberOfRequestsInMock}"
+        log.info "Number of requests received by mock service grown as expected by ${expectedIncrease} requests"
     }
 }
