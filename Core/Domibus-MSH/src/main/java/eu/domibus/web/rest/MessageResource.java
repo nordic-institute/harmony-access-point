@@ -1,17 +1,25 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.core.message.MessagesLogService;
+import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
+import eu.domibus.ext.exceptions.AuthenticationExtException;
+import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
+import eu.domibus.ext.services.DateExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -20,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by musatmi on 10/05/2017.
@@ -42,6 +51,12 @@ public class MessageResource {
     @Autowired
     private UserMessageRestoreService restoreService;
 
+    @Autowired
+    private AuthUtils authUtils;
+
+    @Autowired
+    DateExtService dateExtService;
+
     @ExceptionHandler({MessagingException.class})
     public ResponseEntity<ErrorRO> handleMessagingException(MessagingException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.EXPECTATION_FAILED);
@@ -55,6 +70,33 @@ public class MessageResource {
     @RequestMapping(path = "/restore", method = RequestMethod.PUT)
     public void resend(@RequestParam(value = "messageId", required = true) String messageId) {
         restoreService.resendFailedOrSendEnqueuedMessage(messageId);
+    }
+
+    @RequestMapping(path = "/failed/restore/selected", method = RequestMethod.PUT)
+    public List<String> restoreSelectedFailedMessages(@RequestBody FailedMessagesCriteriaRO failedMessagesCriteriaRO) {
+
+        LOG.info("In restoreSelectedFailedMessages...");
+        Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
+        String originalUserFromSecurityContext = getUser();
+        if (fromDateHour >= toDateHour) {
+            throw getDatesValidationError();
+        }
+        return restoreService.batchRestoreFailedMessagesDuringPeriod(failedMessagesCriteriaRO.getMessageIds(), fromDateHour, toDateHour, null, originalUserFromSecurityContext);
+    }
+
+
+    @RequestMapping(path = "/failed/restore/all", method = RequestMethod.PUT)
+    public List<String> restoreAllFailedMessages(@RequestBody FailedMessagesCriteriaRO failedMessagesCriteriaRO) {
+
+        LOG.info("In restoreAllFailedMessages..");
+        Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
+        String originalUserFromSecurityContext = getUser();
+        if (fromDateHour >= toDateHour) {
+            throw getDatesValidationError();
+        }
+        return restoreService.batchRestoreFailedMessagesDuringPeriod(failedMessagesCriteriaRO.getMessageIds(), fromDateHour, toDateHour, null, originalUserFromSecurityContext);
     }
 
     @RequestMapping(value = "/download")
@@ -97,5 +139,17 @@ public class MessageResource {
                 .contentType(MediaType.parseMediaType("application/zip"))
                 .header("content-disposition", "attachment; filename=message_envelopes_" + messageId + ".zip")
                 .body(new ByteArrayResource(zip));
+    }
+
+    private String getUser() {
+        String originalUserFromSecurityContext = authUtils.getOriginalUser();
+        if (StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
+            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
+        }
+        return originalUserFromSecurityContext;
+    }
+
+    private DomibusDateTimeExtException getDatesValidationError() {
+        return new DomibusDateTimeExtException("starting date-hour and ending date-hour validation error", new DomibusDateTimeException(DomibusCoreErrorCode.DOM_007, "Starting date hour is after Ending date hour"));
     }
 }

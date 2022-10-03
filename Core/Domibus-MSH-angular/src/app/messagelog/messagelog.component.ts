@@ -42,7 +42,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
-  static readonly BATCH_RESEND_URL: string = 'rest/message/restore';
+  static readonly RESEND_SELECTED_URL: string = 'rest/message/failed/restore/selected';
+  static readonly RESEND_ALL_URL: string = 'rest/message/failed/restore/all';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}&mshRole=${mshRole}';
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}&mshRole=${mshRole}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
@@ -393,10 +394,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendBatch(messageId: string) {
-    console.log('Resending message with id ', messageId);
+  resendBatch(failedMessages: FailedMessagesCriteriaRO) {
+    console.log('Resending message with id ', );
 
-    let url = MessageLogComponent.BATCH_RESEND_URL.replace('${messageId}', encodeURIComponent(messageId));
+    let url = MessageLogComponent.RESEND_ALL_URL;
 
     this.http.put(url, {}, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
@@ -404,7 +405,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.exception('The message ' + this.alertService.escapeHtml(messageId) + ' could not be resent.', err);
+      this.alertService.exception('The message ' + this.alertService.escapeHtml('messageId') + ' could not be resent.', err);
     });
   }
 
@@ -569,4 +570,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
 interface DateInterval {
   value: number
   text: string
+}
+
+export class FailedMessagesCriteriaRO {
+  messageIds: string[];
+  toDate: string;
+  fromDate: string;
 }

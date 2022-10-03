@@ -3,6 +3,7 @@ package eu.domibus.ext.domain;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -10,6 +11,8 @@ import java.io.Serializable;
  */
 @Schema(description = "Search criteria with date + hour (hour is optional)")
 public class FailedMessagesCriteriaRO implements Serializable {
+
+    List<String> messageIds;
 
     @Schema(description = "Date and hour to start the search criteria", type = "string", pattern = "([0-9]{4})-(?:[0-9]{2})-([0-9]{2})(T([0-9]{2})H)?", required = true, example = "2022-01-31T20H")
     private String toDate;
@@ -31,5 +34,14 @@ public class FailedMessagesCriteriaRO implements Serializable {
 
     public void setFromDate(String fromDate) {
         this.fromDate = fromDate;
+    }
+
+
+    public List<String> getMessageIds() {
+        return messageIds;
+    }
+
+    public void setMessageIds(List<String> messageIds) {
+        this.messageIds = messageIds;
     }
 }

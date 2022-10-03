@@ -8,7 +8,6 @@ import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
-import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.pull.PullMessageService;
@@ -156,6 +155,28 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
+            try {
+                restoreFailedMessage(messageId);
+                restoredMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [" + messageId + "]", e);
+            }
+        }
+
+        LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, failedStartDate, failedEndDate, finalRecipient);
+
+        return restoredMessages;
+    }
+
+    @Transactional
+    @Override
+    public List<String> batchRestoreFailedMessagesDuringPeriod(List<String> messageIds, Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser) {
+        if (CollectionUtils.isEmpty(messageIds)) {
+            restoreFailedMessagesDuringPeriod(failedStartDate, failedEndDate, finalRecipient, originalUser);
+        }
+        final List<String> restoredMessages = new ArrayList<>();
+        for (String messageId : messageIds) {
+            LOG.debug("Message Id's selected to detele as batch [{}]", messageId);
             try {
                 restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);
