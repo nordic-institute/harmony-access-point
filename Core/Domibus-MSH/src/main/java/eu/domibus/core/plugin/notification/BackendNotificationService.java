@@ -184,10 +184,12 @@ public class BackendNotificationService {
             LOG.debug("No MessageResponseSent event for message fragments.");
             return;
         }
+
         NotificationType notificationType = NotificationType.MESSAGE_RESPONSE_SENT;
-        final Map<String, String> properties = new HashMap<>();
-        fillEventProperties(userMessage, properties);
-        notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, properties);
+        MessageResponseSentEvent messageResponseSentEvent = new MessageResponseSentEvent(userMessage.getMessageId());
+        messageResponseSentEvent.setMessageEntityId(userMessage.getEntityId());
+        addMessagePropertiesToEvent(messageResponseSentEvent, userMessage, null);
+        notifyOfIncoming(messageResponseSentEvent, matchingBackendFilter, notificationType);
     }
 
     public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
