@@ -189,24 +189,6 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* EDELIVERY-8205 - TLS-19-Open Tls Truststore page with Super Admin when no ssl configuration is done */
-	@Test(description = "TLS-19", groups = {"multiTenancy", "NoTlsConfig"})
-	public void openPageSuperAdmin() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		TlsTrustStorePage page = new TlsTrustStorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
-		int domainCount = rest.getDomainNames().size();
-		for (int i = 0; i < domainCount; i++) {
-			soft.assertTrue(page.getAlertArea().isShown(), "Error message is shown");
-			page.getDomainSelector().selectOptionByIndex(i);
-			page.grid().waitForRowsToLoad();
-			soft.assertTrue(page.isDefaultElmPresent(FALSE), "All default elements are present in default state");
-			page.grid().getGridCtrl().showCtrls();
-
-		}
-		soft.assertAll();
-	}
-
 	/* EDELIVERY-8267 - TLS-23- Verify Single click on grid row */
 	@Test(description = "TLS-23", groups = {"multiTenancy", "singleTenancy", "TlsConfig"})
 	public void singleClick() throws Exception {
@@ -319,14 +301,15 @@ public class TlsTruststoreUXTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_TLS);
 
 		try {
-			if(page.getAlertArea().isError()){
+			if (page.getAlertArea().isError()) {
 				log.info("uploading truststore...");
 				page.uploadTruststore(DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks"), "test123");
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 
 		log.info("remove all certificates");
-		while (page.getRemoveCertButton().isEnabled()){
+		while (page.getRemoveCertButton().isEnabled()) {
 			page.grid().selectRow(0);
 			page.getRemoveCertButton().click();
 		}

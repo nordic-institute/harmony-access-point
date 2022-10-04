@@ -38,7 +38,7 @@ public class AllPgTest extends SeleniumTest {
     private static String errCode = "EBMS_0001";
 
     private ArrayList<PAGES> pagesToSkip = new ArrayList<PAGES>(Arrays.asList(new PAGES[]{PAGES.MESSAGE_FILTER, PAGES.PMODE_CURRENT, PAGES.PMODE_ARCHIVE
-            , PAGES.TRUSTSTORES_DOMIBUS, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING, PAGES.TRUSTSTORES_TLS}));
+            , PAGES.TRUSTSTORES_DOMIBUS, PAGES.USERS, PAGES.AUDIT, PAGES.CONNECTION_MONITORING, PAGES.LOGGING, PAGES.JMS_MONITORING, PAGES.TRUSTSTORES_TLS, PAGES.KEYSTORE, PAGES.DOMAINS}));
 
 
     /* EDELIVERY-6360 - ALLDOM-1 - Verify extension of downloaded CSV file */
@@ -50,7 +50,7 @@ public class AllPgTest extends SeleniumTest {
 
         for (PAGES ppage : PAGES.values()) {
 
-            if (ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.CONNECTION_MONITORING) || ppage.equals(PAGES.LOGGING) || ppage.equals(PAGES.TRUSTSTORES_TLS)) {
+            if (ppage.equals(PAGES.PMODE_CURRENT) || ppage.equals(PAGES.CONNECTION_MONITORING) || ppage.equals(PAGES.LOGGING) || ppage.equals(PAGES.TRUSTSTORES_TLS) || ppage.equals(PAGES.DOMAINS)) {
 //skipping these pages as they dont have download csv feature available
                 continue;
             }
@@ -109,12 +109,12 @@ public class AllPgTest extends SeleniumTest {
         DomibusPage pg = new DomibusPage(driver);
 
         for (PAGES pageName : PAGES.values()) {
-            pg.getDomainSelector().selectOptionByIndex(0);
 
             if (pagesToSkip.contains(pageName)) {
                 continue;
             }
 
+            pg.getDomainSelector().selectOptionByIndex(0);
             pg.getSidebar().goToPage(pageName);
 
             String searchData = searchSpecificPage(pageName, RandomStringUtils.random(2, true, false));
@@ -275,10 +275,16 @@ public class AllPgTest extends SeleniumTest {
         log.info("all expired certificates are red");
 
         boolean tested = false;
-        PAGES[] certPgs = {PAGES.TRUSTSTORES_TLS, PAGES.TRUSTSTORES_TLS, PAGES.KEYSTORE};
+        PAGES[] certPgs = {PAGES.TRUSTSTORES_TLS, PAGES.KEYSTORE, PAGES.TRUSTSTORES_DOMIBUS};
         for (PAGES certPg : certPgs) {
             DomibusPage page = new DomibusPage(driver);
             page.getSidebar().goToPage(certPg);
+
+            try {
+                page.getAlertArea().closeAlert();
+            } catch (Exception e) {}
+
+
 
             // gets all "Valid until" date
             List<String> expirationDates = new DGrid(driver).getValuesOnColumn("Valid until");
