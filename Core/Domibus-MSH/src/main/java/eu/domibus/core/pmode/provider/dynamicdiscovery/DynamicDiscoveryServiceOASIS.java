@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 import static org.apache.commons.lang3.StringUtils.trim;
 
@@ -58,10 +59,6 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
 
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^(?<scheme>.+?)::(?<value>.+)$");
-
-    protected static final String DEFAULT_PARTY_TYPE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
-
-    protected static final String DEFAULT_RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -145,13 +142,13 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     }
 
     @Override
-    protected String getDefaultDiscoveryPartyIdType() {
-        return DEFAULT_PARTY_TYPE;
+    protected String getPartyIdTypePropertyName() {
+        return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE;
     }
 
     @Override
-    protected String getDefaultResponderRole() {
-        return DEFAULT_RESPONDER_ROLE;
+    protected String getPartyIdResponderRolePropertyName() {
+        return DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE;
     }
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
@@ -184,7 +181,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
             ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
 
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
-            String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            String transportProfileAS4 = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
             LOG.debug("Get the endpoint for [{}]", transportProfileAS4);
             List<ProcessType> processes = serviceMetadata.getOriginalServiceMetadata().getServiceMetadata().getServiceInformation().getProcessList().getProcess();
 
@@ -218,14 +215,14 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     }
 
     protected DynamicDiscovery createDynamicDiscoveryClient() {
-        final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
+        final String smlInfo = domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
         if (StringUtils.isBlank(smlInfo)) {
-            throw new ConfigurationException("SML Zone missing. Configure property [" + SMLZONE_KEY + "] in domibus configuration!");
+            throw new ConfigurationException("SML Zone missing. Configure property [" + DOMIBUS_SMLZONE + "] in domibus configuration!");
         }
 
-        final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
+        final String certRegex = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         if (StringUtils.isBlank(certRegex)) {
-            LOG.debug("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_REGEX);
+            LOG.debug("The value for property [{}] is empty.", DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         }
 
         final List<String> allowedCertificatePolicyIDs = getAllowedSMPCertificatePolicyOIDs();
@@ -290,7 +287,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
     public EndpointType getEndpoint(List<ProcessType> processes, String processId, String processIdScheme, String transportProfile) {
 
         if (StringUtils.isBlank(transportProfile)) {
-            throw new ConfigurationException("Unable to find endpoint information for null transport profile. Please check if property [" + DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4 + "] is set!");
+            throw new ConfigurationException("Unable to find endpoint information for null transport profile. Please check if property [" + DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4 + "] is set!");
         }
 
         if (StringUtils.isBlank(processId)) {

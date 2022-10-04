@@ -25,13 +25,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 
 import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
@@ -160,7 +159,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
      * @return true if domibus.dynamicdiscovery.useDynamicDiscovery is enabled for the current domain.
      */
     protected boolean useDynamicDiscovery() {
-        return domibusPropertyProvider.getBooleanProperty(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY);
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
     }
 
     /* Method finds MessageExchangeConfiguration for given user mesage and role. If property domibus.smlzone
@@ -175,7 +174,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                 LOG.info("PmodeKey not found, starting the dynamic discovery process");
                 doDynamicDiscovery(userMessage, mshRole);
             } else {
-                LOG.debug("PmodeKey not found, dynamic discovery is not enabled! Check parameter [{}] for current domain.", DynamicDiscoveryService.SMLZONE_KEY);
+                LOG.debug("PmodeKey not found, dynamic discovery is not enabled! Check parameter [{}] for current domain.", DOMIBUS_SMLZONE);
                 throw e;
             }
         }

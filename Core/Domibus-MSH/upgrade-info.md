@@ -303,6 +303,11 @@
                                   - replace the value of the "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class" property as follows:
                                             - set the value to "com.mysql.cj.jdbc.Driver" if it was "com.mysql.cj.jdbc.MysqlXADataSource"
                                             - set the value to "oracle.jdbc.driver.OracleDriver" if it was "oracle.jdbc.xa.client.OracleXADataSource"
+                                  - rename the "domibus.dynamicdiscovery.partyid.responder.role" and the "domibus.dynamicdiscovery.partyid.type" properties with Oasis and Peppol specific ones:
+                                            - domibus.dynamicdiscovery.peppolclient.partyid.responder.role
+                                            - domibus.dynamicdiscovery.oasisclient.partyid.responder.role
+                                            - domibus.dynamicdiscovery.peppolclient.partyid.type
+                                            - domibus.dynamicdiscovery.oasisclient.partyid.type
                         o [Tomcat only]
                             - Remove all properties under the section "Atomikos"( all com.atomikos.* properties)
                         o [WebLogic only]
