@@ -96,7 +96,7 @@ public class CachingPModeProviderTest {
     JMSManager jmsManager;
 
     @Injectable
-    FinalRecipientDao finalRecipientDao;
+    FinalRecipientService finalRecipientService;
 
     @Injectable
     XMLUtil xmlUtil;

@@ -17,7 +17,6 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
 import eu.domibus.logging.DomibusLogger;
@@ -56,21 +55,20 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     PullMessageService pullMessageService;
 
+    @Autowired
+    FinalRecipientService finalRecipientService;
+
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
 
     @Autowired
     private ProcessPartyExtractorProvider processPartyExtractorProvider;
 
-    @Autowired
-    protected FinalRecipientDao finalRecipientDao;
-
     //pull processes cache.
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
 
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
 
-    protected Map<String, String> finalRecipientAccessPointUrls = new HashMap<>();
 
     private Object configurationLock = new Object();
 
@@ -702,17 +700,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
-
-        if (StringUtils.isBlank(finalRecipientAPUrl)) {
-            LOG.debug("Checking from database the endpoint URL for final recipient [{}]", finalRecipient);
-            final FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
-            if (finalRecipientEntity != null) {
-                finalRecipientAPUrl = finalRecipientEntity.getEndpointURL();
-                LOG.debug("Updating the cache from database for final recipient [{}] with endpoint URL [{}]", finalRecipient, finalRecipientAPUrl);
-                finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
-            }
-        }
+        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
 
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
             LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
@@ -728,17 +716,7 @@ public class CachingPModeProvider extends PModeProvider {
     public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
         LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
 
-        FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
-        if (finalRecipientEntity == null) {
-            LOG.debug("Creating final recipient instance [{}]", finalRecipient);
-            finalRecipientEntity = new FinalRecipientEntity();
-            finalRecipientEntity.setFinalRecipient(finalRecipient);
-        }
-        LOG.debug("Updating in database the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
-        finalRecipientEntity.setEndpointURL(finalRecipientEndpointUrl);
-        finalRecipientDao.createOrUpdate(finalRecipientEntity);
-
-        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientEndpointUrl);
+        finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
     }
 
     @Override
@@ -936,7 +914,7 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
-            this.finalRecipientAccessPointUrls.clear();
+            finalRecipientService.clearFinalRecipientAccessPointUrls();
             this.init(); //reloads the config
         }
     }
@@ -1239,7 +1217,5 @@ public class CachingPModeProvider extends PModeProvider {
         return null;
     }
 
-    public void clearFinalRecipientAccessPointUrls() {
-        finalRecipientAccessPointUrls.clear();
-    }
+
 }
