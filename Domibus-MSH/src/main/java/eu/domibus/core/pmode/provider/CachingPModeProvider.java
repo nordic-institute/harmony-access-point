@@ -1238,4 +1238,8 @@ public class CachingPModeProvider extends PModeProvider {
         }
         return null;
     }
+
+    public void clearFinalRecipientAccessPointUrls() {
+        finalRecipientAccessPointUrls.clear();
+    }
 }
