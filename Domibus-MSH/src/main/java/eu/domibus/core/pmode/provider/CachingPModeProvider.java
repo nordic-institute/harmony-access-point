@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -16,6 +17,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
 import eu.domibus.logging.DomibusLogger;
@@ -59,6 +61,9 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Autowired
     private ProcessPartyExtractorProvider processPartyExtractorProvider;
+
+    @Autowired
+    protected FinalRecipientDao finalRecipientDao;
 
     //pull processes cache.
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
@@ -697,21 +702,43 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        final String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
+        String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
+
+        if (StringUtils.isBlank(finalRecipientAPUrl)) {
+            LOG.debug("Checking from database the endpoint URL for final recipient [{}]", finalRecipient);
+            final FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
+            if (finalRecipientEntity != null) {
+                finalRecipientAPUrl = finalRecipientEntity.getEndpointURL();
+                LOG.debug("Updating the cache from database for final recipient [{}] with endpoint URL [{}]", finalRecipient, finalRecipientAPUrl);
+                finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
+            }
+        }
+
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-            LOG.debug("Determined endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
+            LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
             return finalRecipientAPUrl;
         }
 
         final String receiverPartyEndpoint = receiverParty.getEndpoint();
-        LOG.debug("Determined endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
+        LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
         return receiverPartyEndpoint;
     }
 
 
-    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientAPUrl) {
-        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientAPUrl, finalRecipient);
-        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
+    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
+        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
+
+        FinalRecipientEntity finalRecipientEntity = finalRecipientDao.findByFinalRecipient(finalRecipient);
+        if (finalRecipientEntity == null) {
+            LOG.debug("Creating final recipient instance [{}]", finalRecipient);
+            finalRecipientEntity = new FinalRecipientEntity();
+            finalRecipientEntity.setFinalRecipient(finalRecipient);
+        }
+        LOG.debug("Updating in database the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
+        finalRecipientEntity.setEndpointURL(finalRecipientEndpointUrl);
+        finalRecipientDao.createOrUpdate(finalRecipientEntity);
+
+        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientEndpointUrl);
     }
 
     @Override
