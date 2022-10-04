@@ -25,6 +25,7 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
+import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
@@ -123,6 +124,10 @@ public class DynamicDiscoveryPModeProviderTest {
     MultiDomainCryptoService multiDomainCertificateProvider;
     @Mock
     DomainContextProvider domainProvider;
+
+    @Mock
+    FinalRecipientDao finalRecipientDao;
+
     @Mock
     PartyIdDictionaryService partyIdDictionaryService;
     @Mock
