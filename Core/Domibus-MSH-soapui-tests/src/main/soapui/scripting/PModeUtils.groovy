@@ -38,7 +38,7 @@ class PModeUtils {
         log.info "  uploadPmode  [][]  PMODE FILE PATH: " + pmodeFile
 
         try{
-            (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
 
             def commandString = ["curl", Domibus.urlToDomibus(side, log, context) + "/rest/pmode",
@@ -235,7 +235,7 @@ class PModeUtils {
 
 
         try{
-            (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
 
             def commandString = ["curl", Domibus.urlToDomibus(side, log, context) + "/rest/pmode/current",
@@ -277,7 +277,7 @@ class PModeUtils {
 
         def retrievedID = getCurrentPmodeID(side,context,log,testRunner,domainValue,authUser, authPwd)
         try{
-            (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = ["curl", Domibus.urlToDomibus(side, log, context) + "/rest/pmode/" + retrievedID + "?noAudit=true",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H", "Accept: application/json, text/plain, */*",
@@ -312,7 +312,7 @@ class PModeUtils {
 
         def authenticationUser = authUser
         def authenticationPwd = authPwd
-        (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         String pmodeText = getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd)
         LogUtils.debugLog("  updatePmodeParameterRest  [][]  Current Pmode successfully retrieved.", log)
@@ -406,7 +406,7 @@ class PModeUtils {
 
         def authenticationUser = authUser
         def authenticationPwd = authPwd
-        (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         String pmodeText = getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd)
 
@@ -435,7 +435,7 @@ class PModeUtils {
 
         LogUtils.debugLog("  updatePmodeStringRest  [][]  formattedPath: "+formattedPath, log)
 
-        (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+        (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
         try{
             def commandString = ["curl", Domibus.urlToDomibus(side, log, context) + "/rest/pmode",
@@ -473,7 +473,7 @@ class PModeUtils {
         def authenticationPwd = authPwd
 
         try{
-            (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
             def commandString = ["curl", Domibus.urlToDomibus(side, log, context) + "/rest/party/list?pageSize=100",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H", "Content-Type: application/json",
@@ -512,7 +512,7 @@ class PModeUtils {
         def jsonSlurper= new JsonSlurper()
 
         try{
-            (authenticationUser, authenticationPwd) = Domibus.retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+            (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
             def partyMap = jsonSlurper.parseText(getPartyListFromPmode(side,context,log,testRunner,domainValue,authenticationUser, authenticationPwd))
             switch(operation.toLowerCase()){
