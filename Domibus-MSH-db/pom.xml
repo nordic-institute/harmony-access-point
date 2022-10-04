@@ -155,7 +155,7 @@
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
-                   <!-- 5.0.1 ends here -->
+                   <!-- 5.0.2 ends here -->
 
 
                    <!-- partitioning migration 5.0 to 5.0.1 starts here -->
