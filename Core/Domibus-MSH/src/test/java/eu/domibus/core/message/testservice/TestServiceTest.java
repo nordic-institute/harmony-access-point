@@ -241,6 +241,7 @@ public class TestServiceTest {
 
         new Expectations(testService) {{
             testService.validateSender("sender");
+            testService.validateReceiver(anyString);
         }};
 
         whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery();
