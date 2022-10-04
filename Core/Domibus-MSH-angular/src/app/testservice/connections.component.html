@@ -6,7 +6,7 @@
   </div>
 
   <ng-template #monitorStatusHeader let-column="column" ngx-datatable-header-template>
-    <mat-slide-toggle [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
+    <mat-slide-toggle *ngIf="anyTestable()" [(ngModel)]="allMonitored" (change)="toggleMonitorAll()"></mat-slide-toggle>
     <span style="margin-left: 5px;">Monitoring</span>
   </ng-template>
   <ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
@@ -17,7 +17,7 @@
   </ng-template>
 
   <ng-template #alertableStatusHeader let-column="column" ngx-datatable-header-template>
-    <mat-slide-toggle [(ngModel)]="allAllertable" (change)="toggleAlertableAll()"></mat-slide-toggle>
+    <mat-slide-toggle *ngIf="anyTestable()" [(ngModel)]="allAllertable" (change)="toggleAlertableAll()"></mat-slide-toggle>
     <span style="margin-left: 5px;">Alert On Fail</span>
   </ng-template>
   <ng-template #alertableStatus let-row="row" let-value="value" ngx-datatable-cell-template>
@@ -28,7 +28,7 @@
   </ng-template>
 
   <ng-template #deleteOldStatusHeader let-column="column" ngx-datatable-header-template>
-    <mat-slide-toggle [(ngModel)]="allDeleteHistory" (change)="toggleDeleteAllHistory()"></mat-slide-toggle>
+    <mat-slide-toggle *ngIf="anyTestable()" [(ngModel)]="allDeleteHistory" (change)="toggleDeleteAllHistory()"></mat-slide-toggle>
     <span style="margin-left: 5px;">Delete History</span>
   </ng-template>
   <ng-template #deleteOldStatus let-row="row" let-value="value" ngx-datatable-cell-template>
