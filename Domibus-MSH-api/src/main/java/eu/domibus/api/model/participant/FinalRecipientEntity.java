@@ -4,6 +4,10 @@ import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0.2
+ */
 @Entity
 @Table(name = "TB_FINAL_RECIPIENT_URL")
 @NamedQueries({
