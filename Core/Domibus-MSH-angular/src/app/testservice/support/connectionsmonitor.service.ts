@@ -46,7 +46,8 @@ export class ConnectionsMonitorService {
       if (monitorKey) {
         Object.assign(cmEntry, monitors[monitorKey]);
       } else {
-        cmEntry.error = 'Party not testable';
+        cmEntry.error = 'Party not testable since it is not a destination in any test process';
+        console.log('Party ' + cmEntry.partyName + ' is not present in any test process');
       }
       return cmEntry;
     });
