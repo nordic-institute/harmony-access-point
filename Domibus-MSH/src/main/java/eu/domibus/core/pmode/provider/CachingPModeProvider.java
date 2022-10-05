@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -54,6 +55,9 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     PullMessageService pullMessageService;
 
+    @Autowired
+    FinalRecipientService finalRecipientService;
+
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
 
@@ -65,7 +69,6 @@ public class CachingPModeProvider extends PModeProvider {
 
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
 
-    protected Map<String, String> finalRecipientAccessPointUrls = new HashMap<>();
 
     private Object configurationLock = new Object();
 
@@ -697,21 +700,23 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        final String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
+        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
+
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-            LOG.debug("Determined endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
+            LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
             return finalRecipientAPUrl;
         }
 
         final String receiverPartyEndpoint = receiverParty.getEndpoint();
-        LOG.debug("Determined endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
+        LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
         return receiverPartyEndpoint;
     }
 
 
-    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientAPUrl) {
-        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientAPUrl, finalRecipient);
-        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
+    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
+        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
+
+        finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
     }
 
     @Override
@@ -909,7 +914,7 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
-            this.finalRecipientAccessPointUrls.clear();
+            finalRecipientService.clearFinalRecipientAccessPointUrls();
             this.init(); //reloads the config
         }
     }
@@ -1211,4 +1216,6 @@ public class CachingPModeProvider extends PModeProvider {
         }
         return null;
     }
+
+
 }

@@ -23,6 +23,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.*;
 import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.logging.DomibusLogger;
@@ -93,6 +94,9 @@ public class CachingPModeProviderTest {
 
     @Injectable
     JMSManager jmsManager;
+
+    @Injectable
+    FinalRecipientService finalRecipientService;
 
     @Injectable
     XMLUtil xmlUtil;

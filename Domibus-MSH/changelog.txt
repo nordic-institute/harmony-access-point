@@ -1,3 +1,5 @@
+Domibus 5.0.2
+- Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 Domibus 5.0.1
 - Added a new plugin notification called MessageResponseSent, fired right before the response to the c2 is sent, which means that the raw envelope of the signal is accessible.
 - Filter out TEST messages from earchived messages
