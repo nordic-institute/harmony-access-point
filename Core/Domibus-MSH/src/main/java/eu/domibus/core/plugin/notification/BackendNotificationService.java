@@ -152,7 +152,6 @@ public class BackendNotificationService {
         notifyOfIncoming(event, routingService.getMatchingBackendFilter(userMessage), notificationType);
     }
 
-
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
@@ -229,36 +228,6 @@ public class BackendNotificationService {
         });
     }
 
-    protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
-        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
-        messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
-        notify(messageDeletedBatchEvent, backend, NotificationType.MESSAGE_DELETE_BATCH);
-    }
-
-    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
-        List<MessageDeletedEvent> messageIds = userMessageLogs
-                .stream()
-                .filter(userMessageLog -> userMessageLog.getBackend().equals(backend))
-                .map(this::getMessageDeletedEvent)
-                .collect(toList());
-        LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
-        return messageIds;
-    }
-
-    protected MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
-        return getMessageDeletedEvent(userMessageLogDto.getMessageId(), userMessageLogDto.getEntityId(), userMessageLogDto.getProperties());
-    }
-
-    protected MessageDeletedEvent getMessageDeletedEvent(String messageId, Long messageEntityId, Map<String, String> properties) {
-        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
-        messageDeletedEvent.setMessageId(messageId);
-        messageDeletedEvent.setMessageEntityId(messageEntityId);
-        messageDeletedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
-        messageDeletedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
-        messageDeletedEvent.addProperty(MSH_ROLE, properties.get(MSH_ROLE));
-        return messageDeletedEvent;
-    }
-
     public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
             LOG.warn("Could not find message with id [{}]", userMessage);
@@ -284,7 +253,6 @@ public class BackendNotificationService {
         notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED);
     }
 
-
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
@@ -301,7 +269,6 @@ public class BackendNotificationService {
         notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED);
     }
 
-
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
         if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
@@ -317,134 +284,6 @@ public class BackendNotificationService {
         addMessagePropertiesToEvent(payloadProcessedEvent, userMessage, null);
 
         notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED);
-    }
-
-    protected void notifyOfIncoming(MessageEvent messageEvent, final BackendFilter matchingBackendFilter, final NotificationType notificationType) {
-        if (matchingBackendFilter == null) {
-            LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", messageEvent.getMessageId(), unknownReceiverQueue);
-            MSHRole role = null;
-            String mshRole = messageEvent.getProps().get(MSH_ROLE);
-            if (mshRole == null) {
-                LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
-            } else {
-                role = MSHRole.valueOf(mshRole);
-            }
-
-            jmsManager.sendMessageToQueue(new NotifyMessageCreator(role,
-                    notificationType, messageEvent.getProps(), objectMapper).createMessage(messageEvent), unknownReceiverQueue);
-            return;
-        }
-
-        notify(messageEvent, matchingBackendFilter.getBackendName(), notificationType);
-    }
-
-    public void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
-        if (userMessage == null) {
-            return;
-        }
-
-        Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
-        target.putAll(props);
-
-        target.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
-        target.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
-        target.put(REF_TO_MESSAGE_ID, userMessage.getRefToMessageId());
-        target.put(CONVERSATION_ID, userMessage.getConversationId());
-
-        final PartyId partyFrom = userMessageServiceHelper.getPartyFrom(userMessage);
-        if (partyFrom != null) {
-            target.put(FROM_PARTY_ID, partyFrom.getValue());
-            target.put(FROM_PARTY_TYPE, partyFrom.getType());
-        }
-        target.put(FROM_PARTY_ROLE, userMessageServiceHelper.getPartyFromRole(userMessage));
-
-        final PartyId partyTo = userMessageServiceHelper.getPartyTo(userMessage);
-        if (partyTo != null) {
-            target.put(TO_PARTY_ID, partyTo.getValue());
-            target.put(TO_PARTY_TYPE, partyTo.getType());
-        }
-        target.put(TO_PARTY_ROLE, userMessageServiceHelper.getPartyToRole(userMessage));
-
-        ServiceEntity service = userMessage.getService();
-        if (service != null) {
-            target.put(MessageConstants.SERVICE_TYPE, service.getType());
-            target.put(MessageConstants.SERVICE, service.getValue());
-        }
-        String actionValue = userMessage.getActionValue();
-        target.put(MessageConstants.ACTION, actionValue);
-
-        MSHRoleEntity mshRole = userMessage.getMshRole();
-        if (mshRole != null) {
-            target.put(MSH_ROLE, mshRole.getRole().name());
-        }
-    }
-
-
-    protected void notify(MessageEvent messageEvent, String backendName, NotificationType notificationType) {
-        LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, messageEvent.getMessageId(), notificationType);
-
-        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
-        if (backendConnector == null) {
-            LOG.warn("No backend connector found for backend [{}]", backendName);
-            return;
-        }
-        final String messageId = messageEvent.getMessageId();
-
-        List<NotificationType> requiredNotificationTypeList = backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
-        LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
-        if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
-            if (notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
-                LOG.debug("No plugin notification sent for message [{}]. Notification type [{}]]", messageId, notificationType);
-            }
-            return;
-        }
-
-        Map<String,String> properties = messageEvent.getProps();
-        if (properties != null && notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
-            String finalRecipient = properties.get(FINAL_RECIPIENT);
-            LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}] and finalRecipient [{}]", backendName, messageId, notificationType, finalRecipient);
-        } else {
-            LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
-        }
-
-        AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
-        if (shouldNotifyAsync(asyncNotificationConfiguration)) {
-            MSHRole role = null;
-            String mshRole = messageEvent.getProps().get(MSH_ROLE);
-            if (mshRole == null) {
-                LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
-            } else {
-                role = MSHRole.valueOf(mshRole);
-            }
-            notifyAsync(messageEvent, asyncNotificationConfiguration, role, notificationType, properties);
-            return;
-        }
-
-        notifySync(messageEvent, backendConnector, notificationType);
-    }
-
-    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
-        return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
-    }
-
-    protected void notifyAsync(MessageEvent messageEvent, AsyncNotificationConfiguration asyncNotificationConfiguration,
-                               MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
-        Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
-        LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
-        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(mshRole, notificationType, properties, objectMapper);
-        jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(messageEvent), backendNotificationQueue);
-    }
-
-    protected void notifySync(MessageEvent messageEvent, BackendConnector<?, ?> backendConnector,
-                              NotificationType notificationType) {
-        LOG.debug("Notifying plugin [{}] using callback", backendConnector.getName());
-        PluginEventNotifier pluginEventNotifier = pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
-        if (pluginEventNotifier == null) {
-            LOG.warn("Could not get plugin event notifier for notification type [{}]", notificationType);
-            return;
-        }
-
-        pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
     }
 
     @Transactional
@@ -488,7 +327,6 @@ public class BackendNotificationService {
         notify(messageSendSuccessEvent, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
-
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     @Transactional
@@ -538,6 +376,161 @@ public class BackendNotificationService {
         addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
 
         notify(messageStatusChangeEvent, messageLog.getBackend(), notificationType);
+    }
+
+    protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
+        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
+        messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
+        notify(messageDeletedBatchEvent, backend, NotificationType.MESSAGE_DELETE_BATCH);
+    }
+
+    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
+        List<MessageDeletedEvent> messageIds = userMessageLogs
+                .stream()
+                .filter(userMessageLog -> userMessageLog.getBackend().equals(backend))
+                .map(this::getMessageDeletedEvent)
+                .collect(toList());
+        LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
+        return messageIds;
+    }
+
+    protected MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
+        return getMessageDeletedEvent(userMessageLogDto.getMessageId(), userMessageLogDto.getEntityId(), userMessageLogDto.getProperties());
+    }
+
+    protected MessageDeletedEvent getMessageDeletedEvent(String messageId, Long messageEntityId, Map<String, String> properties) {
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(messageId);
+        messageDeletedEvent.setMessageEntityId(messageEntityId);
+        messageDeletedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
+        messageDeletedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
+        messageDeletedEvent.addProperty(MSH_ROLE, properties.get(MSH_ROLE));
+        return messageDeletedEvent;
+    }
+
+    protected void notifyOfIncoming(MessageEvent messageEvent, final BackendFilter matchingBackendFilter, final NotificationType notificationType) {
+        if (matchingBackendFilter == null) {
+            LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", messageEvent.getMessageId(), unknownReceiverQueue);
+            MSHRole role = getMshRole(messageEvent);
+            jmsManager.sendMessageToQueue(new NotifyMessageCreator(role,
+                    notificationType, messageEvent.getProps(), objectMapper).createMessage(messageEvent), unknownReceiverQueue);
+            return;
+        }
+
+        notify(messageEvent, matchingBackendFilter.getBackendName(), notificationType);
+    }
+
+    private MSHRole getMshRole(MessageEvent messageEvent) {
+        MSHRole role = null;
+        String mshRole = messageEvent.getProps().get(MSH_ROLE);
+        if (mshRole == null) {
+            LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
+        } else {
+            role = MSHRole.valueOf(mshRole);
+        }
+        return role;
+    }
+
+    public void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
+        if (userMessage == null) {
+            return;
+        }
+
+        Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
+        target.putAll(props);
+
+        target.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
+        target.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
+        target.put(REF_TO_MESSAGE_ID, userMessage.getRefToMessageId());
+        target.put(CONVERSATION_ID, userMessage.getConversationId());
+
+        final PartyId partyFrom = userMessageServiceHelper.getPartyFrom(userMessage);
+        if (partyFrom != null) {
+            target.put(FROM_PARTY_ID, partyFrom.getValue());
+            target.put(FROM_PARTY_TYPE, partyFrom.getType());
+        }
+        target.put(FROM_PARTY_ROLE, userMessageServiceHelper.getPartyFromRole(userMessage));
+
+        final PartyId partyTo = userMessageServiceHelper.getPartyTo(userMessage);
+        if (partyTo != null) {
+            target.put(TO_PARTY_ID, partyTo.getValue());
+            target.put(TO_PARTY_TYPE, partyTo.getType());
+        }
+        target.put(TO_PARTY_ROLE, userMessageServiceHelper.getPartyToRole(userMessage));
+
+        ServiceEntity service = userMessage.getService();
+        if (service != null) {
+            target.put(MessageConstants.SERVICE_TYPE, service.getType());
+            target.put(MessageConstants.SERVICE, service.getValue());
+        }
+        String actionValue = userMessage.getActionValue();
+        target.put(MessageConstants.ACTION, actionValue);
+
+        MSHRoleEntity mshRole = userMessage.getMshRole();
+        if (mshRole != null) {
+            target.put(MSH_ROLE, mshRole.getRole().name());
+        }
+    }
+
+    protected void notify(MessageEvent messageEvent, String backendName, NotificationType notificationType) {
+        LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, messageEvent.getMessageId(), notificationType);
+
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
+        if (backendConnector == null) {
+            LOG.warn("No backend connector found for backend [{}]", backendName);
+            return;
+        }
+        final String messageId = messageEvent.getMessageId();
+
+        List<NotificationType> requiredNotificationTypeList = backendConnectorHelper.getRequiredNotificationTypeList(backendConnector);
+        LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
+        if (requiredNotificationTypeList == null || !requiredNotificationTypeList.contains(notificationType)) {
+            if (notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
+                LOG.debug("No plugin notification sent for message [{}]. Notification type [{}]]", messageId, notificationType);
+            }
+            return;
+        }
+
+        Map<String,String> properties = messageEvent.getProps();
+        if (properties != null && notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
+            String finalRecipient = properties.get(FINAL_RECIPIENT);
+            LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}] and finalRecipient [{}]", backendName, messageId, notificationType, finalRecipient);
+        } else {
+            LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
+        }
+
+        AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
+        if (shouldNotifyAsync(asyncNotificationConfiguration)) {
+            MSHRole role = getMshRole(messageEvent);
+            notifyAsync(messageEvent, asyncNotificationConfiguration, role, notificationType, properties);
+            return;
+        }
+
+        notifySync(messageEvent, backendConnector, notificationType);
+    }
+
+    protected boolean shouldNotifyAsync(AsyncNotificationConfiguration asyncNotificationConfiguration) {
+        return asyncNotificationConfiguration != null && asyncNotificationConfiguration.getBackendNotificationQueue() != null;
+    }
+
+    protected void notifyAsync(MessageEvent messageEvent, AsyncNotificationConfiguration asyncNotificationConfiguration,
+                               MSHRole mshRole, NotificationType notificationType, Map<String, String> properties) {
+        Queue backendNotificationQueue = asyncNotificationConfiguration.getBackendNotificationQueue();
+        LOG.debug("Notifying plugin [{}] using queue", asyncNotificationConfiguration.getBackendConnector().getName());
+        NotifyMessageCreator notifyMessageCreator = new NotifyMessageCreator(mshRole, notificationType, properties, objectMapper);
+        jmsManager.sendMessageToQueue(notifyMessageCreator.createMessage(messageEvent), backendNotificationQueue);
+    }
+
+    protected void notifySync(MessageEvent messageEvent, BackendConnector<?, ?> backendConnector,
+                              NotificationType notificationType) {
+        LOG.debug("Notifying plugin [{}] using callback", backendConnector.getName());
+        PluginEventNotifier pluginEventNotifier = pluginEventNotifierProvider.getPluginEventNotifier(notificationType);
+        if (pluginEventNotifier == null) {
+            LOG.warn("Could not get plugin event notifier for notification type [{}]", notificationType);
+            return;
+        }
+
+        pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
     }
 
     private void handleMDC(UserMessage userMessage) {

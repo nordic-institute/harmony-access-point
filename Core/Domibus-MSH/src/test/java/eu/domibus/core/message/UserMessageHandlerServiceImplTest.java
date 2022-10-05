@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
@@ -48,11 +47,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.w3c.dom.Node;
 
-import javax.activation.DataHandler;
 import javax.xml.bind.JAXBContext;
-import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -62,7 +58,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
-import static eu.domibus.common.ErrorCode.EBMS_0001;
 import static org.junit.Assert.*;
 
 /**
@@ -298,7 +293,7 @@ public class UserMessageHandlerServiceImplTest {
 
         }};
 
-        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, true, false, false, null);
+        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, null, null, false, false, null);
 
         new Verifications() {{
             soapUtil.logMessage(soapRequestMessage);
@@ -331,7 +326,7 @@ public class UserMessageHandlerServiceImplTest {
 
         }};
 
-        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, new Ebms3MessageFragmentType(), null, true, false, false, null);
+        userMessageHandlerService.handleIncomingMessage(legConfiguration, pmodeKey, soapRequestMessage, userMessage, new Ebms3MessageFragmentType(), null, false, false, null);
 
         new Verifications() {{
             soapUtil.logMessage(soapRequestMessage);
