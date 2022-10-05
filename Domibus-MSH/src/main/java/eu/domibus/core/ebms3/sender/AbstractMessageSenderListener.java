@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +60,12 @@ public abstract class AbstractMessageSenderListener implements MessageListener {
             return;
         }
 
-        domainContextProvider.setCurrentDomain(domainCode);
+        try {
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
+        } catch (DomibusDomainException ex) {
+            getLogger().error("Invalid domain: [{}]", domainCode, ex);
+            return;
+        }
         getLogger().putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         getLogger().debug("Sending message ID [{}] for domain [{}]", messageId, domainCode);
 

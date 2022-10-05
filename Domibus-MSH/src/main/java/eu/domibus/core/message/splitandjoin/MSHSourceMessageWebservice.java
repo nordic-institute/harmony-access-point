@@ -71,7 +71,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
 
 
         final String domain = getPropertyValueFromRequest(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
-        domainContextProvider.setCurrentDomain(domain);
+        domainContextProvider.setCurrentDomainWithValidation(domain);
 
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
 

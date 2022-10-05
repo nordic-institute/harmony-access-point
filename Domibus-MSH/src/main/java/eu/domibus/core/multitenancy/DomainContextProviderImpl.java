@@ -67,6 +67,12 @@ public class DomainContextProviderImpl implements DomainContextProvider {
     }
 
     @Override
+    public void setCurrentDomainWithValidation(String domainCode) {
+        domainService.validateDomain(domainCode);
+        setCurrentDomain(domainCode);
+    }
+
+    @Override
     public void setCurrentDomain(Domain domain) {
         setCurrentDomain(domain.getCode());
     }

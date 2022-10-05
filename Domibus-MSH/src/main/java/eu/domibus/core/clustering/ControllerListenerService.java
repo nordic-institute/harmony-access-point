@@ -5,6 +5,7 @@ import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -86,9 +87,14 @@ public class ControllerListenerService implements MessageListener {
             LOG.warn("Invalid domain received in command: [{}]", domainCode);
             return false;
         }
+        try {
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
+        } catch (DomibusDomainException ex) {
+            LOG.warn("Invalid domain received in command: [{}]", domainCode, ex);
+            return false;
+        }
 
         LOG.debug("Received command for domain [{}]", domainCode);
-        domainContextProvider.setCurrentDomain(domain.getCode());
         return true;
     }
 

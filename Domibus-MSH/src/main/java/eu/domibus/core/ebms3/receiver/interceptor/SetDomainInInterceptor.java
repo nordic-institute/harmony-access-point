@@ -41,9 +41,6 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    protected DomainService domainService;
-
     protected SetDomainInInterceptor(String phase) {
         super(phase);
         this.addBefore(SetPolicyInInterceptor.class.getName());
@@ -61,7 +58,7 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
         HttpServletRequest httpRequest = (HttpServletRequest) message.get("HTTP.REQUEST");
         String domainCode = StringUtils.lowerCase(getDomainCode(httpRequest));
         try {
-            domainService.validateDomain(domainCode);
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
         } catch (DomibusDomainException ex) {
             throw new Fault(
                     EbMS3ExceptionBuilder.getInstance()
@@ -74,7 +71,6 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
             );
         }
         LOG.debug("Using domain [{}]", domainCode);
-        domainContextProvider.setCurrentDomain(domainCode);
         message.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
     }
 
