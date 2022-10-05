@@ -118,10 +118,10 @@ public class BackendNotificationService {
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
 
-        if (isPluginNotificationDisabled()) {
-            LOG.debug("Plugin notification is disabled.");
+        if (!shouldNotify(userMessage)) {
             return;
         }
+
         final Map<String, String> errorProperties = new HashMap<>();
         if (errorResult.getErrorCode() != null) {
             errorProperties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCode().getErrorCodeName());
@@ -140,7 +140,7 @@ public class BackendNotificationService {
         addMessagePropertiesToEvent(event, userMessage, errorProperties);
 
         ServiceEntity service = userMessage.getService();
-        if (service!=null) {
+        if (service != null) {
             event.setService(service.getValue());
             event.setServiceType(service.getType());
         }
@@ -155,10 +155,10 @@ public class BackendNotificationService {
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
-        if (isPluginNotificationDisabled()) {
-            LOG.info("Plugin notification is disabled.");
+        if (!shouldNotify(userMessage)) {
             return;
         }
+
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         if (userMessage.isMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
@@ -175,10 +175,10 @@ public class BackendNotificationService {
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     public void notifyMessageResponseSent(BackendFilter matchingBackendFilter, UserMessage userMessage) {
-        if (isPluginNotificationDisabled()) {
-            LOG.info("Plugin notification is disabled.");
+        if (!shouldNotify(userMessage)) {
             return;
         }
+
         if (userMessage.isMessageFragment()) {
             LOG.debug("No MessageResponseSent event for message fragments.");
             return;
@@ -229,14 +229,10 @@ public class BackendNotificationService {
     }
 
     public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
-        if (userMessageLog == null) {
-            LOG.warn("Could not find message with id [{}]", userMessage);
+        if (!shouldNotify(userMessage)) {
             return;
         }
-        if (userMessage.isTestMessage()) {
-            LOG.debug("Message [{}] is of type test: no notification for message deleted", userMessage);
-            return;
-        }
+
         String backend = userMessageLog.getBackend();
         if (StringUtils.isEmpty(backend)) {
             LOG.warn("Could not find backend for message with id [{}]", userMessage);
@@ -254,10 +250,10 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
-            LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
+        if (!shouldNotify(userMessage)) {
             return;
         }
+
         PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
         payloadSubmittedEvent.setCid(partInfo.getHref());
         payloadSubmittedEvent.setFileName(originalFilename);
@@ -270,8 +266,7 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
-            LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
+        if (!shouldNotify(userMessage)) {
             return;
         }
 
@@ -288,9 +283,10 @@ public class BackendNotificationService {
 
     @Transactional
     public void notifyOfSendFailure(final UserMessage userMessage, UserMessageLog userMessageLog) {
-        if (isPluginNotificationDisabled()) {
+        if (!shouldNotify(userMessage)) {
             return;
         }
+
         final String backendName = userMessageLog.getBackend();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
         if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
@@ -311,9 +307,10 @@ public class BackendNotificationService {
     @Counter(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
     @Transactional
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
-        if (isPluginNotificationDisabled()) {
+        if (!shouldNotify(userMessage)) {
             return;
         }
+
         NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
         if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
@@ -340,13 +337,13 @@ public class BackendNotificationService {
     @Transactional
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
-        if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
-            eventService.enqueueMessageEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole().getRole());
+        if (!shouldNotify(userMessage)) {
+            return;
         }
 
-        if (isPluginNotificationDisabled()) {
-            return;
+        final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
+        if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
+            eventService.enqueueMessageEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
         }
 
         handleMDC(userMessage);
@@ -376,6 +373,26 @@ public class BackendNotificationService {
         addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
 
         notify(messageStatusChangeEvent, messageLog.getBackend(), notificationType);
+    }
+
+
+    protected boolean shouldNotify(UserMessage userMessage) {
+        if (isPluginNotificationDisabled()) {
+            LOG.debug("Plugin notification is disabled.");
+            return false;
+        }
+
+        if (userMessage == null) {
+            LOG.warn("User message is null");
+            return false;
+        }
+
+        if (userMessage.isTestMessage()) {
+            LOG.debug("Message [{}] is of type test so no notification", userMessage);
+            return false;
+        }
+
+        return true;
     }
 
     protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
@@ -491,7 +508,7 @@ public class BackendNotificationService {
             return;
         }
 
-        Map<String,String> properties = messageEvent.getProps();
+        Map<String, String> properties = messageEvent.getProps();
         if (properties != null && notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
             String finalRecipient = properties.get(FINAL_RECIPIENT);
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}] and finalRecipient [{}]", backendName, messageId, notificationType, finalRecipient);

@@ -358,8 +358,11 @@ public class BackendNotificationServiceTest {
             times = 1;
 
             backendNotificationService.isPluginNotificationDisabled();
-            result = true;
+            result = false;
             times = 1;
+
+            userMessage.isTestMessage();
+            result = false;
 
             messageLog.getMessageStatus();
             result = previousStatus;
@@ -367,7 +370,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            messageLog.getMshRole().getRole();
+            userMessage.getMshRole().getRole();
             result = role;
         }};
 
@@ -513,6 +516,9 @@ public class BackendNotificationServiceTest {
             backendNotificationService.isPluginNotificationDisabled();
             result = false;
             times = 1;
+
+            userMessage.isTestMessage();
+            result = false;
 
             messageLog.getMessageStatus();
             result = previousStatus;
@@ -1115,9 +1121,12 @@ public class BackendNotificationServiceTest {
             @Mocked UserMessage userMessage,
             @Mocked PartInfo partInfo) {
 
-        new Expectations() {{
-            testMessageValidator.checkTestMessage(userMessage);
-            result = true;
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
+            userMessage.isTestMessage();
+            result = false;
         }};
 
         backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
@@ -1323,9 +1332,12 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyMessageDeleted_test(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
-        new Expectations() {{
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
             userMessage.isTestMessage();
-            result = true;
+            result = false;
         }};
 
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
@@ -1336,7 +1348,10 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyMessageDeleted_noBackend(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
-        new Expectations() {{
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
             userMessage.isTestMessage();
             result = false;
 
