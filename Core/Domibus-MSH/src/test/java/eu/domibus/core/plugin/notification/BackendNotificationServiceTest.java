@@ -9,6 +9,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
@@ -133,6 +134,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     TestMessageValidator testMessageValidator;
+
+    @Injectable
+    protected BackendConnectorService backendConnectorService;
 
     @Test
     public void testValidateAndNotify_propertyNull(@Mocked final DeliverMessageEvent messageEvent) {
@@ -930,6 +934,9 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
+            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            result = true;
+
             backendNotificationService.notify((MessageSendSuccessEvent)any, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
             times = 1;
 
@@ -1214,6 +1221,8 @@ public class BackendNotificationServiceTest {
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = true;
+            userMessageLog.getBackend();
+            result = "FSPlugin";
         }};
         backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
         new FullVerifications() {
@@ -1252,6 +1261,9 @@ public class BackendNotificationServiceTest {
 
             userMessageLog.getBackend();
             result = BACKEND_NAME;
+
+            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            result = true;
 
             userMessage.isMessageFragment();
             result = false;

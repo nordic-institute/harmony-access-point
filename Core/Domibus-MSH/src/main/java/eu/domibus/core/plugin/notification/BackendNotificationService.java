@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
@@ -111,14 +112,18 @@ public class BackendNotificationService {
     protected BackendConnectorHelper backendConnectorHelper;
 
     @Autowired
+    protected BackendConnectorService backendConnectorService;
+
+    @Autowired
     @Qualifier(JSON_MAPPER_BEAN)
     protected ObjectMapper objectMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
+        BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
 
-        if (!shouldNotify(userMessage)) {
+        if (!shouldNotify(userMessage, matchingBackendFilter.getBackendName())) {
             return;
         }
 
@@ -149,13 +154,13 @@ public class BackendNotificationService {
         event.setErrorResult(errorResult);
         event.setEndpoint(errorProperties.get(MessageConstants.ENDPOINT));
 
-        notifyOfIncoming(event, routingService.getMatchingBackendFilter(userMessage), notificationType);
+        notifyOfIncoming(event, matchingBackendFilter, notificationType);
     }
 
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
-        if (!shouldNotify(userMessage)) {
+        if (!shouldNotify(userMessage, matchingBackendFilter.getBackendName())) {
             return;
         }
 
@@ -175,7 +180,7 @@ public class BackendNotificationService {
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     public void notifyMessageResponseSent(BackendFilter matchingBackendFilter, UserMessage userMessage) {
-        if (!shouldNotify(userMessage)) {
+        if (!shouldNotify(userMessage, matchingBackendFilter.getBackendName())) {
             return;
         }
 
@@ -229,11 +234,12 @@ public class BackendNotificationService {
     }
 
     public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
-        if (!shouldNotify(userMessage)) {
+        String backend = userMessageLog.getBackend();
+
+        if (!shouldNotify(userMessage, backend)) {
             return;
         }
 
-        String backend = userMessageLog.getBackend();
         if (StringUtils.isEmpty(backend)) {
             LOG.warn("Could not find backend for message with id [{}]", userMessage);
             return;
@@ -250,7 +256,7 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (!shouldNotify(userMessage)) {
+        if (!shouldNotify(userMessage, backendName)) {
             return;
         }
 
@@ -266,7 +272,7 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (!shouldNotify(userMessage)) {
+        if (!shouldNotify(userMessage, backendName)) {
             return;
         }
 
@@ -283,11 +289,11 @@ public class BackendNotificationService {
 
     @Transactional
     public void notifyOfSendFailure(final UserMessage userMessage, UserMessageLog userMessageLog) {
-        if (!shouldNotify(userMessage)) {
+        final String backendName = userMessageLog.getBackend();
+        if (!shouldNotify(userMessage, backendName)) {
             return;
         }
 
-        final String backendName = userMessageLog.getBackend();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
         if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
@@ -307,7 +313,8 @@ public class BackendNotificationService {
     @Counter(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
     @Transactional
     public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
-        if (!shouldNotify(userMessage)) {
+        String backend = userMessageLog.getBackend();
+        if (!shouldNotify(userMessage, backend)) {
             return;
         }
 
@@ -321,7 +328,7 @@ public class BackendNotificationService {
         messageSendSuccessEvent.setMessageId(userMessage.getMessageId());
         addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage, null);
 
-        notify(messageSendSuccessEvent, userMessageLog.getBackend(), notificationType);
+        notify(messageSendSuccessEvent, backend, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
     }
 
@@ -337,7 +344,8 @@ public class BackendNotificationService {
     @Transactional
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        if (!shouldNotify(userMessage)) {
+        String backend = messageLog.getBackend();
+        if (!shouldNotify(userMessage, backend)) {
             return;
         }
 
@@ -372,11 +380,11 @@ public class BackendNotificationService {
         messageStatusChangeEvent.setChangeTimestamp(new Timestamp(NumberUtils.toLong(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP))));
         addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
 
-        notify(messageStatusChangeEvent, messageLog.getBackend(), notificationType);
+        notify(messageStatusChangeEvent, backend, notificationType);
     }
 
 
-    protected boolean shouldNotify(UserMessage userMessage) {
+    protected boolean shouldNotify(UserMessage userMessage, String backendName) {
         if (isPluginNotificationDisabled()) {
             LOG.debug("Plugin notification is disabled.");
             return false;
@@ -386,9 +394,13 @@ public class BackendNotificationService {
             LOG.warn("User message is null");
             return false;
         }
-
         if (userMessage.isTestMessage()) {
             LOG.debug("Message [{}] is of type test so no notification", userMessage);
+            return false;
+        }
+
+        if (!backendConnectorService.isBackendConnectorEnabled(backendName)) {
+            LOG.info("Backend connector [{}] is disabled so exiting notification", backendName);
             return false;
         }
 
