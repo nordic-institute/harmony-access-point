@@ -142,8 +142,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             LOG.debug("Found [{}] downloaded messages to delete", deleted);
             deleteMessages(downloadedMessages, mpc);
             LOG.debug("Deleted [{}] downloaded messages", deleted);
-
-            return;
         }
 
         Date payloadRetentionLimit = DateUtils.addMinutes(now, messageRetentionDownloaded  * -1);
