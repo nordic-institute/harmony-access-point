@@ -113,7 +113,7 @@
         </file>
         <file>
             <source>
-                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/resources/config/wildfly/ws-plugin.properties
+                ${project.basedir}/../../Plugin-WS/Domibus-default-ws-plugin/src/main/conf/wildfly/ws-plugin.properties
             </source>
             <outputDirectory>domibus/conf/domibus/plugins/config</outputDirectory>
             <filtered>false</filtered>

@@ -15,14 +15,14 @@
         <!-- Tomcat -->
         <file>
             <source>
-                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/resources/config/tomcat/fs-plugin.properties
+                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/conf/tomcat/fs-plugin.properties
             </source>
             <outputDirectory>conf/domibus/plugins/config/tomcat</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
             <source>
-                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/resources/config/example_metadata.xml
+                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/conf/example_metadata.xml
             </source>
             <outputDirectory>conf/domibus/plugins/config/tomcat</outputDirectory>
             <filtered>false</filtered>
@@ -37,14 +37,14 @@
         <!-- WebLogic -->
         <file>
             <source>
-                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/resources/config/weblogic/fs-plugin.properties
+                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/conf/weblogic/fs-plugin.properties
             </source>
             <outputDirectory>conf/domibus/plugins/config/weblogic</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
             <source>
-                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/resources/config/example_metadata.xml
+                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/conf/example_metadata.xml
             </source>
             <outputDirectory>conf/domibus/plugins/config/weblogic</outputDirectory>
             <filtered>false</filtered>
@@ -59,14 +59,14 @@
         <!-- WildFly -->
         <file>
             <source>
-                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/resources/config/wildfly/fs-plugin.properties
+                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/conf/wildfly/fs-plugin.properties
             </source>
             <outputDirectory>conf/domibus/plugins/config/wildfly</outputDirectory>
             <filtered>false</filtered>
         </file>
         <file>
             <source>
-                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/resources/config/example_metadata.xml
+                ${project.basedir}/../../Plugin-FS/Domibus-default-fs-plugin/src/main/conf/example_metadata.xml
             </source>
             <outputDirectory>conf/domibus/plugins/config/wildfly</outputDirectory>
             <filtered>false</filtered>
