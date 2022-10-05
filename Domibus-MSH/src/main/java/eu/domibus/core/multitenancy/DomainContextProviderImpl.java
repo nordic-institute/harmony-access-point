@@ -62,14 +62,6 @@ public class DomainContextProviderImpl implements DomainContextProvider {
             throw new DomainTaskException("Could not set current domain: domain is empty");
         }
 
-        Domain current = getCurrentDomainSafely();
-        if (current != null && StringUtils.equals(current.getCode(), domainCode)) {
-            LOG.trace("Domain [{}] is already the current domain so exiting;", domainCode);
-            return;
-        }
-
-        domainService.validateDomain(domainCode);
-
         LOG.putMDC(DomibusLogger.MDC_DOMAIN, domainCode);
         LOG.trace("Set domain to [{}]", domainCode);
     }

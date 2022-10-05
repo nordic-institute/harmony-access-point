@@ -92,6 +92,7 @@ public class AuthenticationResource {
         LOG.debug("Determined domain [{}] for user [{}]", domainCode, loginRO.getUsername());
 
         if (StringUtils.isNotBlank(domainCode)) {   //domain user
+            domainService.validateDomain(domainCode);
             domainContextProvider.setCurrentDomain(domainCode);
         } else {                    //ap user
             domainContextProvider.clearCurrentDomain();
