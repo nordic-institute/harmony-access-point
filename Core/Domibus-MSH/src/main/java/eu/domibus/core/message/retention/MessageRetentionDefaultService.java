@@ -6,8 +6,8 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.UserMessageLogDto;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
@@ -126,16 +126,42 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
 
         LOG.debug("Deleting expired downloaded messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit);
-        List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
-                mpc, expiredDownloadedMessagesLimit,eArchiveIsActive);
+
+        Date now = new Date();
+        if(pModeProvider.isDeleteMessageMetadataByMpcURI(mpc)) {
+            int metadataRetentionOffset = pModeProvider.getRetentionDownloadedMetadataOffsetByMpcURI(mpc);
+            Date metadataRetentionLimit = DateUtils.addMinutes(now, (messageRetentionDownloaded + metadataRetentionOffset) * -1);
+
+            List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(metadataRetentionLimit,
+                    mpc, expiredDownloadedMessagesLimit, eArchiveIsActive);
+            if (CollectionUtils.isEmpty(downloadedMessages)) {
+                LOG.debug("There are no expired downloaded messages with expired metadata.");
+                return;
+            }
+            final int deleted = downloadedMessages.size();
+            LOG.debug("Found [{}] downloaded messages to delete", deleted);
+            deleteMessages(downloadedMessages, mpc);
+            LOG.debug("Deleted [{}] downloaded messages", deleted);
+
+            return;
+        }
+
+        Date payloadRetentionLimit = DateUtils.addMinutes(now, messageRetentionDownloaded  * -1);
+
+        List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(payloadRetentionLimit,
+                mpc, expiredDownloadedMessagesLimit, eArchiveIsActive);
         if (CollectionUtils.isEmpty(downloadedMessages)) {
-            LOG.debug("There are no expired downloaded messages.");
+            LOG.debug("There are no expired downloaded messages with not-expired metadata.");
             return;
         }
         final int deleted = downloadedMessages.size();
-        LOG.debug("Found [{}] downloaded messages to delete", deleted);
-        deleteMessages(downloadedMessages, mpc);
-        LOG.debug("Deleted [{}] downloaded messages", deleted);
+        LOG.debug("Found [{}] downloaded message payloads to delete", deleted);
+        List<Long> entityIds = downloadedMessages.stream()
+                .map(UserMessageLogDto::getEntityId)
+                .collect(Collectors.toList());
+        entityIds.forEach(partInfoService::clearPayloadData);
+        userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
+        LOG.debug("Deleted [{}] downloaded message payloads", deleted);
     }
 
     protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {

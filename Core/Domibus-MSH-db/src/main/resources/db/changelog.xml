@@ -1842,6 +1842,9 @@
             <column name="DELETE_MESSAGE_METADATA"
                     remarks="Specifies whether the message metadata should be deleted or not." type="BOOLEAN"
                     defaultValueBoolean="false"/>
+            <column name="RETENTION_DOWNLOADED_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+            <column name="RETENTION_UNDOWNLOADED_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+            <column name="RETENTION_SENT_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
             <column name="MAX_BATCH_DELETE"
                     remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
                     type="INT" defaultValueNumeric="-1"/>

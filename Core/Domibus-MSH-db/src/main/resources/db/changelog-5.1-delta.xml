@@ -158,4 +158,12 @@
         <addNotNullConstraint tableName="TB_COMMAND_PROPERTY" columnName="FK_COMMAND" columnDataType="BIGINT"/>
         <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
     </changeSet>
+
+    <changeSet author="Gabriel Maier" id="EDELIVERY-10093_metadata_retention">
+        <addColumn tableName="TB_PM_MPC">
+            <column name="RETENTION_DOWNLOADED_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+            <column name="RETENTION_UNDOWNLOADED_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+            <column name="RETENTION_SENT_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

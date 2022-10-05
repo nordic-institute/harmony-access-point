@@ -616,4 +616,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    public void updateDeletedBatched(List<Long> entityIds) {
+        Query namedQuery = this.em.createNamedQuery("UserMessageLog.updateDeleted");
+
+        namedQuery.setParameter("ENTITY_IDS", entityIds);
+        namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        int i = namedQuery.executeUpdate();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("UserMessageLogs [{}] updated to deleted(0:no, 1: yes) with current_time: [{}]", entityIds, i);
+        }
+    }
 }
