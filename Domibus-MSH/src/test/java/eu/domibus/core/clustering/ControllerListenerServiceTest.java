@@ -55,7 +55,7 @@ public class ControllerListenerServiceTest {
         boolean handled = controllerListenerService.handleMessageDomain(message);
         Assert.assertTrue(handled);
         new Verifications() {{
-            domainContextProvider.setCurrentDomain(domainCode);
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
         }};
     }
 
