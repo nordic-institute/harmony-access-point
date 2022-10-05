@@ -8,7 +8,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
  * when looking up MBean objects.
  *
  * @author Sebastian-Ion TINCU
- * @since 5.1
+ * @since 5.0.1
  */
 public class DomibusJMXException extends DomibusCoreException {
 

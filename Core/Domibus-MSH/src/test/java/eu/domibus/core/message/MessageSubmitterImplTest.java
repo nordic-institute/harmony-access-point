@@ -203,6 +203,9 @@ public class MessageSubmitterImplTest {
     @Injectable
     protected MessageSubmitterHelper messageSubmitterHelper;
 
+    @Injectable
+    protected TestMessageValidator testMessageValidator;
+
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
         new Expectations() {{

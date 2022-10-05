@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.provider;
 
+import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
@@ -15,6 +16,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -88,6 +90,9 @@ public abstract class PModeProvider {
 
     @Autowired
     private MpcService mpcService;
+
+    @Autowired
+    private DomibusCacheService domibusCacheService;
 
     protected abstract void init();
 
@@ -183,6 +188,9 @@ public abstract class PModeProvider {
         configurationRawDAO.create(configurationRaw);
 
         LOG.info("Configuration successfully updated");
+
+        domibusCacheService.clearCache(CacheConstants.DICTIONARY_QUERIES);
+
         this.refresh();
 
         // Sends a message into the topic queue in order to refresh all the singleton instances of the PModeProvider.
@@ -531,7 +539,9 @@ public abstract class PModeProvider {
 
     public abstract List<Party> findAllParties();
 
-    public abstract List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps);
+    public abstract List<String> findPartiesByInitiatorServiceAndAction(String initiatingPartyId, final String service, final String action, final List<MessageExchangePattern> meps);
+
+    public abstract List<String> findPartiesByResponderServiceAndAction(String responderPartyId, final String service, final String action, final List<MessageExchangePattern> meps);
 
     public abstract String getPartyIdType(String partyIdentifier);
 

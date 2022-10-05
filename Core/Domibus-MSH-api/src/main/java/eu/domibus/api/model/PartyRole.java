@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,7 +17,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "TB_D_ROLE")
 @NamedQuery(name = "PartyRole.findByValue", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")}, query = "select prop from PartyRole prop where prop.value=:VALUE")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PartyRole extends AbstractBaseEntity implements Serializable {

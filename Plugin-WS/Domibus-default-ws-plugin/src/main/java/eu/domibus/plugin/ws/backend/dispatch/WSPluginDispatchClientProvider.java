@@ -25,6 +25,8 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.*;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 
+import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN_NAME;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -44,7 +46,7 @@ public class WSPluginDispatchClientProvider {
     private final WSPluginPropertyManager wsPluginPropertyManager;
     private final LoggingFeature wsLoggingFeature;
 
-    public WSPluginDispatchClientProvider(@Qualifier("taskExecutor") Executor executor,
+    public WSPluginDispatchClientProvider(@Qualifier(DOMIBUS_TASK_EXECUTOR_BEAN_NAME) Executor executor,
                                           TLSReaderExtService tlsReaderDelegate,
                                           ProxyCxfUtilExtService proxyUtilExtService,
                                           WSPluginPropertyManager wsPluginPropertyManager,

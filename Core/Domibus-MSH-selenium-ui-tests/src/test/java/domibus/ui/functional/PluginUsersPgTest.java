@@ -92,8 +92,8 @@ public class PluginUsersPgTest extends SeleniumTest {
 		new Dialog(driver).confirm();
 		page.clickVoidSpace();
 
-		Reporter.log(page.getAlertArea().getAlertMessage()); //.equalsIgnoreCase(DMessages.PLUGINUSER_SAVE_SUCCESS);
-		log.info(page.getAlertArea().getAlertMessage()); //.equalsIgnoreCase(DMessages.PLUGINUSER_SAVE_SUCCESS);
+		Reporter.log(page.getAlertArea().getAlertMessage());
+		log.info(page.getAlertArea().getAlertMessage());
 
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();

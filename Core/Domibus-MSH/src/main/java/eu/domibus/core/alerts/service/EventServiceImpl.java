@@ -46,25 +46,9 @@ public class EventServiceImpl implements EventService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EventServiceImpl.class);
 
-    static final String MESSAGE_EVENT_SELECTOR = "message";
-
-    static final String LOGIN_FAILURE = "loginFailure";
-
-    static final String ACCOUNT_DISABLED = "accountDisabled";
-
-    static final String ACCOUNT_ENABLED = "accountEnabled";
-
-    static final String CERTIFICATE_EXPIRED = "certificateExpired";
-
-    static final String CERTIFICATE_IMMINENT_EXPIRATION = "certificateImminentExpiration";
-
-    private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
-
     public static final int MAX_DESCRIPTION_LENGTH = 255;
 
-    public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
-
-    public static final String PARTITION_CHECK = "PARTITION_CHECK";
+    private static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
     @Autowired
     private EventDao eventDao;
@@ -96,18 +80,37 @@ public class EventServiceImpl implements EventService {
      * {@inheritDoc}
      */
     @Override
-    public void enqueueMessageEvent(
-            final String messageId,
-            final MessageStatus oldStatus,
-            final MessageStatus newStatus,
-            final MSHRole role) {
+    public void enqueueMessageEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
         Event event = new Event(EventType.MSG_STATUS_CHANGED);
         event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
         event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
         event.addStringKeyValue(MESSAGE_ID.name(), messageId);
         event.addStringKeyValue(ROLE.name(), role.name());
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, MESSAGE_EVENT_SELECTOR);
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
+
+        enqueueEvent(event);
+    }
+
+    @Override
+    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency) {
+        Event event = new Event(EventType.CONNECTION_MONITORING_FAILED);
+        event.setReportingTime(new Date());
+        event.addStringKeyValue(EVENT_IDENTIFIER, toParty);
+
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.MESSAGE_ID.name(), messageId);
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.ROLE.name(), role.name());
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.FROM_PARTY.name(), fromParty);
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.TO_PARTY.name(), toParty);
+        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.STATUS.name(), status.name());
+
+        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
+        if (!shouldCreateAlert(entity, frequency)) {
+            return;
+        }
+
+        entity.setLastAlertDate(LocalDate.now());
+        eventDao.update(entity);
+
+        enqueueEvent(event);
     }
 
     /**
@@ -116,12 +119,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueLoginFailureEvent(UserEntityBase.Type userType, final String userName, final Date loginTime, final boolean accountDisabled) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_LOGIN_FAILURE : EventType.PLUGIN_USER_LOGIN_FAILURE;
-        enqueueEvent(LOGIN_FAILURE, prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                loginTime,
-                Boolean.toString(accountDisabled),
-                AccountEventKey.ACCOUNT_DISABLED));
+        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), loginTime, Boolean.toString(accountDisabled), AccountEventKey.ACCOUNT_DISABLED));
     }
 
     /**
@@ -130,28 +128,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueAccountDisabledEvent(UserEntityBase.Type userType, final String userName, final Date accountDisabledTime) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_DISABLED : EventType.PLUGIN_USER_ACCOUNT_DISABLED;
-        enqueueEvent(ACCOUNT_DISABLED, prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                accountDisabledTime,
-                Boolean.toString(true),
-                AccountEventKey.ACCOUNT_DISABLED));
+        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), accountDisabledTime, Boolean.toString(true), AccountEventKey.ACCOUNT_DISABLED));
     }
 
     @Override
     public void enqueueAccountEnabledEvent(UserEntityBase.Type userType, String userName, Date accountEnabledTime) {
         EventType eventType = userType == UserEntityBase.Type.CONSOLE ? EventType.USER_ACCOUNT_ENABLED : EventType.PLUGIN_USER_ACCOUNT_ENABLED;
-        enqueueEvent(ACCOUNT_ENABLED, prepareAccountEvent(
-                eventType, userName,
-                userType.getName(),
-                accountEnabledTime,
-                Boolean.toString(true),
-                AccountEventKey.ACCOUNT_ENABLED));
-    }
-
-    private void enqueueEvent(String selector, Event event) {
-        jmsManager.convertAndSendToQueue(event, alertMessageQueue, selector);
-        LOG.debug(EVENT_ADDED_TO_THE_QUEUE, event);
+        enqueueEvent(prepareAccountEvent(eventType, userName, userType.getName(), accountEnabledTime, Boolean.toString(true), AccountEventKey.ACCOUNT_ENABLED));
     }
 
     /**
@@ -160,7 +143,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueImminentCertificateExpirationEvent(final String accessPoint, final String alias, final Date expirationDate) {
         EventType eventType = EventType.CERT_IMMINENT_EXPIRATION;
-        enqueueEvent(CERTIFICATE_IMMINENT_EXPIRATION, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
+        enqueueEvent(prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
     }
 
     /**
@@ -170,7 +153,7 @@ public class EventServiceImpl implements EventService {
     public void enqueuePartitionCheckEvent(String partitionName) {
         Event event = new Event(EventType.PARTITION_CHECK);
         event.addStringKeyValue(PartitionCheckEvent.PARTITION_NAME.name(), partitionName);
-        enqueueEvent(PARTITION_CHECK, event);
+        enqueueEvent(event);
     }
 
     /**
@@ -179,7 +162,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueCertificateExpiredEvent(final String accessPoint, final String alias, final Date expirationDate) {
         EventType eventType = EventType.CERT_EXPIRED;
-        enqueueEvent(CERTIFICATE_EXPIRED, prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
+        enqueueEvent(prepareCertificateEvent(accessPoint, alias, expirationDate, eventType));
     }
 
     /**
@@ -190,7 +173,7 @@ public class EventServiceImpl implements EventService {
         Event event = new Event(EventType.ARCHIVING_NOTIFICATION_FAILED);
         event.addStringKeyValue(ArchivingEventProperties.BATCH_ID.name(), batchId);
         event.addStringKeyValue(ArchivingEventProperties.BATCH_STATUS.name(), batchStatus.name());
-        enqueueEvent(EventType.ARCHIVING_NOTIFICATION_FAILED.name(), event);
+        enqueueEvent(event);
     }
 
     /**
@@ -255,35 +238,12 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private Event prepareCertificateEvent(String accessPoint, String alias, Date expirationDate, EventType eventType) {
-        Event event = new Event(eventType);
-        event.addStringKeyValue(CertificateEvent.ACCESS_POINT.name(), accessPoint);
-        event.addStringKeyValue(CertificateEvent.ALIAS.name(), alias);
-        event.addDateKeyValue(CertificateEvent.EXPIRATION_DATE.name(), expirationDate);
-        return event;
-    }
-
-    private Event prepareAccountEvent(
-            final EventType eventType,
-            final String userName,
-            final String userType,
-            final Date loginTime,
-            final String value,
-            final AccountEventKey key) {
-        Event event = new Event(eventType);
-        event.addAccountKeyValue(USER, userName);
-        event.addAccountKeyValue(USER_TYPE, userType);
-        event.addDateKeyValue(LOGIN_TIME.name(), loginTime);
-        event.addAccountKeyValue(key, value);
-        return event;
-    }
-
     @Override
-    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+    public void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency) {
         Event event = preparePasswordEvent(user, eventType, maxPasswordAgeInDays);
-        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
 
-        if (!shouldCreateAlert(entity, alertConfiguration)) {
+        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
+        if (!shouldCreateAlert(entity, frequency)) {
             return;
         }
 
@@ -297,7 +257,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, int frequency) {
-
         if (entity == null) {
             LOG.debug("Should create alert because the event was not previously persisted");
             return true;
@@ -320,6 +279,28 @@ public class EventServiceImpl implements EventService {
         return false;
     }
 
+    private void enqueueEvent(Event event) {
+        jmsManager.convertAndSendToQueue(event, alertMessageQueue, event.getType().getQueueSelector());
+        LOG.debug("Event:[{}] added to the queue", event);
+    }
+
+    private Event prepareCertificateEvent(String accessPoint, String alias, Date expirationDate, EventType eventType) {
+        Event event = new Event(eventType);
+        event.addStringKeyValue(CertificateEvent.ACCESS_POINT.name(), accessPoint);
+        event.addStringKeyValue(CertificateEvent.ALIAS.name(), alias);
+        event.addDateKeyValue(CertificateEvent.EXPIRATION_DATE.name(), expirationDate);
+        return event;
+    }
+
+    private Event prepareAccountEvent(final EventType eventType, final String userName, final String userType, final Date loginTime, final String value, final AccountEventKey key) {
+        Event event = new Event(eventType);
+        event.addAccountKeyValue(USER, userName);
+        event.addAccountKeyValue(USER_TYPE, userType);
+        event.addDateKeyValue(LOGIN_TIME.name(), loginTime);
+        event.addAccountKeyValue(key, value);
+        return event;
+    }
+
     private eu.domibus.core.alerts.model.persist.Event getPersistedEvent(Event event, String identifier) {
         String id = event.findStringProperty(identifier).orElse("");
         eu.domibus.core.alerts.model.persist.Event entity = eventDao.findWithTypeAndPropertyValue(event.getType(), identifier, id);
@@ -329,11 +310,6 @@ public class EventServiceImpl implements EventService {
         }
 
         return entity;
-    }
-
-    protected boolean shouldCreateAlert(eu.domibus.core.alerts.model.persist.Event entity, PasswordExpirationAlertModuleConfiguration alertConfiguration) {
-        int frequency = alertConfiguration.getEventFrequency();
-        return shouldCreateAlert(entity, frequency);
     }
 
     private Event preparePasswordEvent(UserEntityBase user, EventType eventType, Integer maxPasswordAgeInDays) {
@@ -363,7 +339,7 @@ public class EventServiceImpl implements EventService {
         Event event = new Event(EventType.ARCHIVING_MESSAGES_NON_FINAL);
         event.addStringKeyValue(OLD_STATUS.name(), status.name());
         event.addStringKeyValue(MESSAGE_ID.name(), messageId);
-        enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL.name(), event);
+        enqueueEvent(event);
     }
 
     /**
@@ -372,7 +348,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void enqueueEArchivingStartDateStopped() {
         Event event = new Event(EventType.ARCHIVING_START_DATE_STOPPED);
-        enqueueEvent(EventType.ARCHIVING_START_DATE_STOPPED.name(), event);
+        enqueueEvent(event);
     }
 
 }

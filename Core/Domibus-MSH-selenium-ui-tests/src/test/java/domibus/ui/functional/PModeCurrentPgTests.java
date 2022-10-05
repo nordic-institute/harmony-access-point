@@ -4,6 +4,7 @@ import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.openqa.selenium.JavascriptExecutor;
 import org.testng.Reporter;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -11,6 +12,7 @@ import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import utils.DFileUtils;
 import utils.Gen;
+import utils.PModeXMLUtils;
 
 public class PModeCurrentPgTests extends SeleniumTest {
 
@@ -49,6 +51,8 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
 		pmcPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 
+		String oldPmode = pmcPage.getTextArea().getText();
+
 		Reporter.log("Click on upload button");
 		log.info("Click on upload button");
 		pmcPage.getUploadBtn().click();
@@ -58,18 +62,13 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		Reporter.log("Upload pmode file");
 		log.info("Upload pmode file");
 		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/Edelivery-blue.xml");
-		String oldPmode = pmcPage.getTextArea().getText();
 
-		String pmodeMessage = Gen.rndStr(50);
-		modal.uploadPmodeFile(path, pmodeMessage);
-		Reporter.log("upload message is " + pmodeMessage);
-		log.info("upload message is " + pmodeMessage);
-
+		modal.uploadPmodeFile(path, Gen.rndStr(10));
 		soft.assertTrue(pmcPage.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS));
 
-		String newPmode = pmcPage.getTextArea().getText();
-
 		pmcPage.wait.forXMillis(1000);
+
+		String newPmode = pmcPage.getTextArea().getText();
 
 		Reporter.log("checking number of pomodes in archive");
 		log.info("checking number of pomodes in archive");
@@ -246,6 +245,312 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		Reporter.log("comparing pmodes");
 		log.info("comparing pmodes");
 		soft.assertTrue(!XMLUnit.compareXML(defaultPmode, d1Pmode).identical(), "The 2 pmodes are not identical");
+
+		soft.assertAll();
+	}
+
+
+	/*     EDELIVERY-9669 - PMC-24 - Downloaded PMode should contain domain name in filename */
+	@Test(description = "PMC-24", groups = {"multiTenancy", "singleTenancy"})
+	public void domainNameInDownloadedFileName() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+
+		log.info("getting current pmode");
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		DFileUtils.cleanDownloadFolder(data.downloadFolderPath());
+
+		page.getDownloadBtn().click();
+
+		String downloadedFileName = DFileUtils.getCompleteFileName(data.downloadFolderPath());
+		String domainName = page.getDomainFromTitle();
+		soft.assertTrue(downloadedFileName.contains(domainName), "Downloaded file name contains domain name");
+
+		soft.assertAll();
+	}
+
+	/*         EDELIVERY-6368 - PMC-8 - Verify save button is disabled when user deleted all text in pmode text area */
+	@Test(description = "PMC-8", groups = {"multiTenancy", "singleTenancy"})
+	public void saveBtnDisabledOnEmptyPMode() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("getting current pmode");
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		page.getTextArea().clear();
+		((JavascriptExecutor) driver).executeScript("document.querySelector('#pmodetextarea_id').dispatchEvent(new Event('input'))");
+
+		page.wait.forXMillis(500);
+
+		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled when pmode is empty");
+
+
+		soft.assertAll();
+	}
+
+
+	/*  PMC-19 - PMode duplicate detection enabled */
+	@Test(description = "PMC-19", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicateDetectionIsOn() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] nodeToCheck = {"mpc", "role", "partyIdType", "party", "mep", "binding", "property", "propertySet", "payload", "payloadProfile", "security", "errorHandling", "agreement", "service", "action", "receptionAwareness", "reliability", "legConfiguration", "process", "initiatorParty", "responderParty", "leg"};
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		for (String nodeName : nodeToCheck) {
+
+			page.refreshPage();
+
+			PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+
+			soft.assertTrue(xmlUtils.isDuplicateDetectionEnabled(), "Duplicate detection is on");
+			xmlUtils.duplicateNode(nodeName, false);
+
+			page.getTextArea().fill(xmlUtils.printDoc());
+
+			page.saveAndConfirm("This modification is invalid because of duplicate detection for node: " + nodeName);
+
+			soft.assertTrue(page.getAlertArea().isError(), "Page shows error message for duplicate node: " + nodeName);
+		}
+
+		soft.assertAll();
+	}
+
+	/*  PMC-20 - PMode duplicate detection CANNOT be disabled */
+	@Test(description = "PMC-20", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicateDetectionCannotBeDisabled() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] nodeToCheck = {"mpc", "role"};
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		for (String nodeName : nodeToCheck) {
+
+			page.refreshPage();
+
+			PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+
+			soft.assertTrue(xmlUtils.isDuplicateDetectionEnabled(), "Duplicate detection is on");
+			xmlUtils.duplicateNode(nodeName, false);
+			xmlUtils.setDuplicateDetection(false);
+
+			page.getTextArea().fill(xmlUtils.printDoc());
+
+			page.saveAndConfirm("This modification is invalid because of duplicate detection for node: " + nodeName);
+
+			soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
+		}
+
+		soft.assertAll();
+	}
+
+	/*     EDELIVERY-9666 - PMC-21 - PMode duplicate detection is not case sensitive */
+	@Test(description = "PMC-21", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicateDetectionNotCaseSensitive() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] nodeToCheck = {"mpc", "role"};
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		for (String nodeName : nodeToCheck) {
+
+			page.refreshPage();
+
+			PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+
+			soft.assertTrue(xmlUtils.isDuplicateDetectionEnabled(), "Duplicate detection is on");
+			xmlUtils.duplicateNode(nodeName, true);
+			xmlUtils.setDuplicateDetection(false);
+
+			page.getTextArea().fill(xmlUtils.printDoc());
+
+			page.saveAndConfirm("This modification is invalid because of duplicate detection for node: " + nodeName);
+
+			soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
+		}
+
+		soft.assertAll();
+	}
+
+
+	/*    EDELIVERY-9670 - PMC-25 - PMode should not pass validation with 2 parties with the same partId */
+	@Test(description = "PMC-25", groups = {"multiTenancy", "singleTenancy"})
+	public void duplicatePartyId() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+		xmlUtils.duplicatePartyIdNewName();
+
+		page.getTextArea().fill(xmlUtils.printDoc());
+		page.saveAndConfirm("This modification is invalid because of duplicate party id");
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
+
+		soft.assertAll();
+	}
+
+	/*   EDELIVERY-9668 - PMC-23 - PMode should pass validation even if it contains parties without partyIdType */
+	@Test(description = "PMC-23", groups = {"multiTenancy", "singleTenancy"})
+	public void noPartyIdType() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+		xmlUtils.removePartyIdType();
+
+		page.getTextArea().fill(xmlUtils.printDoc());
+		page.saveAndConfirm("This modification is valid");
+
+		soft.assertFalse(page.getAlertArea().isError(), "Page shows error message");
+
+		soft.assertAll();
+	}
+
+	/*  EDELIVERY-9667 - PMC-22 - PMode signature method should only contain valid values */
+	@Test(description = "PMC-22", groups = {"multiTenancy", "singleTenancy"})
+	public void validSignatureMethod() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+		xmlUtils.setAttributeValueForNode("security", "signatureMethod", "invalidValue");
+
+		page.getTextArea().fill(xmlUtils.printDoc());
+		page.saveAndConfirm("This modification is invalid due to erroneous signature method");
+
+		soft.assertTrue(page.getAlertArea().isError(), "Page shows error message");
+
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7296 - PMC-18 - PMode validations - empty entities don't pass validations */
+	@Test(description = "PMC-18", groups = {"multiTenancy", "singleTenancy"})
+	public void emptyEntities() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] nodeNames = {"legConfiguration"
+				, "service"
+				, "property"
+				, "party"
+				, "role"};
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		for (String nodeName : nodeNames) {
+
+			PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+
+			xmlUtils.makeEmptyNode(nodeName);
+
+			page.getTextArea().fill(xmlUtils.printDoc());
+			page.saveAndConfirm("This modification is invalid due to empy entity " + nodeName);
+
+			soft.assertTrue(page.getAlertArea().isError(), "Page shows error message for empty entity " + nodeName);
+
+			page.refreshPage();
+		}
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7192 - PMC-11 - PMode validations - referenced entities are defined */
+	@Test(description = "PMC-11", groups = {"multiTenancy", "singleTenancy"})
+	public void referencedEntitiesExist() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] nodeNames = {"party"
+				, "role"
+				, "mep"
+				, "binding"
+				, "service"
+				, "action"
+				, "mpc"
+				, "property"
+				, "payloadProfile"
+				, "security"
+				, "errorHandling"
+				, "legConfiguration"};
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		for (String nodeName : nodeNames) {
+
+			log.info("Checking node " + nodeName);
+
+			PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+
+			xmlUtils.setAttributeValueForNode(nodeName, "name", "invalidValue");
+
+			page.getTextArea().fill(xmlUtils.printDoc());
+
+			page.saveAndConfirm("This modification is invalid due to referenced name issue for entity " + nodeName);
+
+			soft.assertTrue(page.getAlertArea().isError(), "Page shows error due to referenced name issue for entity " + nodeName);
+			log.info(page.getAlertArea().getAlertMessage());
+			page.refreshPage();
+		}
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7295 - PMC-17 - PMode validations - validations are NOT case sensitive */
+	@Test(description = "PMC-17", groups = {"multiTenancy", "singleTenancy"})
+	public void switchCaseNames() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String[] nodeNames = {"party"
+				, "role"
+				, "mep"
+				, "binding"
+				, "service"
+				, "action"
+				, "mpc"
+				, "property"
+				, "payloadProfile"
+				, "security"
+				, "errorHandling"
+				, "legConfiguration"};
+
+		PModeCurrentPage page = new PModeCurrentPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		for (String nodeName : nodeNames) {
+
+			PModeXMLUtils xmlUtils = new PModeXMLUtils(page.getTextArea().getText());
+
+			xmlUtils.uppercaseAllAttributes(nodeName);
+
+			page.getTextArea().fill(xmlUtils.printDoc());
+			page.saveAndConfirm("This modification is valid for entity " + nodeName);
+
+			soft.assertFalse(page.getAlertArea().isError(), "Page shows success for entity " + nodeName);
+
+			if (page.getAlertArea().isError()) {
+				log.debug(page.getAlertArea().getAlertMessage());
+			}
+
+			page.refreshPage();
+		}
 
 		soft.assertAll();
 	}

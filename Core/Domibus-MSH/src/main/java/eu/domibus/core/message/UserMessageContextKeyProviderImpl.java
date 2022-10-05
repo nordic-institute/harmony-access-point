@@ -27,4 +27,22 @@ public class UserMessageContextKeyProviderImpl implements UserMessageContextKeyP
         }
         return (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get(key);
     }
+
+    @Override
+    public void setObjectOnTheCurrentMessage(String key, Object value) {
+        if(PhaseInterceptorChain.getCurrentMessage() == null) {
+            LOG.debug("Could not set key [{}] value [{}], current message does not exist.", key, value);
+            return;
+        }
+        PhaseInterceptorChain.getCurrentMessage().getExchange().put(key, value);
+    }
+
+    @Override
+    public Object getObjectFromTheCurrentMessage(String key) {
+        if(PhaseInterceptorChain.getCurrentMessage() == null) {
+            LOG.debug("Could not get value for key [{}], current message does not exist.", key);
+            return null;
+        }
+        return PhaseInterceptorChain.getCurrentMessage().getExchange().get(key);
+    }
 }

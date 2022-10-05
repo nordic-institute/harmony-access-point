@@ -13,6 +13,10 @@ import javax.jms.Queue;
  */
 public interface AsyncNotificationConfiguration {
 
+    String EVENT_CLASS = "eventClass";
+
+    String BODY = "body";
+
     /**
      * The connector which will receive async notifications via the configured JMS queue
      *

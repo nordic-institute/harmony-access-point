@@ -536,7 +536,6 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("login with username " + username);
 		login(username, data.defaultPass());
 
-//		soft.assertEquals(new DomibusPage(driver).getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
 		soft.assertTrue(new DomibusPage(driver).getSidebar().isUserState(), "User has only 2 options available in sidebar");
 
 // TODO: add other combinations of privileges (User to Admin, Super to Admin and viceversa, Super to user and reverse)
@@ -753,18 +752,6 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-40", groups = {"multiTenancy"})
 	public void superDelUpdateSelf() throws Exception {
 		SoftAssert soft = new SoftAssert();
-
-//		log.info("Delete all super user except Default one");
-//		JSONArray userArray = rest.users().getUsers(null);
-//		int userCount = userArray.length();
-//
-//		for (int i = 0; i < userCount; i++) {
-//			String userName = userArray.getJSONObject(i).getString("userName");
-//			String role = userArray.getJSONObject(i).getString("roles");
-//			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
-//				rest.users().deleteUser(userName, null);
-//			}
-//		}
 
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);

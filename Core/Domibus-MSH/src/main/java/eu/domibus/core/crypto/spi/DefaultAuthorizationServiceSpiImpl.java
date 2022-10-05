@@ -126,7 +126,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             return;
         }
 
-        if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY))) {
+        if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY))) {
             LOG.debug("Sender certificate verification is disabled in dynamic discovery mode");
             return;
         }

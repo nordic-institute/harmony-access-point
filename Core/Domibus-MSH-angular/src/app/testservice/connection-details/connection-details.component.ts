@@ -137,7 +137,7 @@ export class ConnectionDetailsComponent implements OnInit {
         this.messageInfoReceived.messageId = result.messageId;
       }
     } catch (err) {
-      this.alertService.exception(`Error retrieving Last Received Test Message for ${partyId}`, err);
+      this.alertService.exception(`Error retrieving the response signal for ${partyId}. `, err);
     } finally {
       this.isBusy = false;
     }

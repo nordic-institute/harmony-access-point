@@ -38,10 +38,7 @@ public class AlertsGrid extends DGrid {
 		}
 		info.put("Deleted", "false");
 
-		// bug already reported for extra column alert description
-//		info.put("Alert Description", "");
-//		info.put("Attempts", info.get("Sent Attempts"));
-//		info.remove("Sent Attempts");
+
 
 		return info;
 	}

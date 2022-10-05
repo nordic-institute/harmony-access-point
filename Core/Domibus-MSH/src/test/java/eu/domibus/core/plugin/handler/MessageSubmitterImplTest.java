@@ -96,6 +96,9 @@ public class MessageSubmitterImplTest {
     @Injectable
     protected MessageSubmitterHelper messageSubmitterHelper;
 
+    @Injectable
+    protected TestMessageValidator testMessageValidator;
+
     @Test
     public void testcreateNewParty() {
         String mpc = "mpc_qn";

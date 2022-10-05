@@ -240,7 +240,6 @@ public class SeleniumTest extends BaseTest {
 					log.info(String.format("Evaluating filter with description %s", currentNode.toString()));
 
 					WebElement element = (WebElement) field.get(filtersArea);
-//					DObject object = new DObject(filtersArea.getDriver(), element);
 					DObject object = new DObject(driver, element);
 
 					soft.assertEquals(object.isPresent(), true,

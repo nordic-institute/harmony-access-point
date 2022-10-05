@@ -121,7 +121,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
      */
     @SuppressWarnings("ValidExternallyBoundObject")
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
 
@@ -501,7 +500,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
             RetrieveMessageFault {
         UserMessage userMessage;
         try {
-            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
+            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null, markAsAcknowledged);
         } catch (final MessageNotFoundException mnfEx) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", mnfEx);

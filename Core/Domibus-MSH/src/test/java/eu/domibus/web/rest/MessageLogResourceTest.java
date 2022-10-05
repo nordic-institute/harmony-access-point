@@ -108,7 +108,7 @@ public class MessageLogResourceTest {
         String userMessageId = "userMessageId";
         new Expectations() {{
             testService.getLastTestReceivedWithErrors(partyId, userMessageId);
-            result = new TestServiceException("No Signal Message found. Error Details in error log");
+            result = new TestServiceException("Error Details in error log");
         }};
 
         messageLogResource.getLastTestReceived(

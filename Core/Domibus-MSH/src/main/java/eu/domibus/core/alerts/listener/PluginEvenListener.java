@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
@@ -43,7 +44,7 @@ public class PluginEvenListener {
     }
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
-            selector = "selector = 'PLUGIN_EVENT'")
+            selector = "selector = '" + EventType.QuerySelectors.PLUGIN_EVENT + "'")
     @Transactional
     public void onPluginEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);

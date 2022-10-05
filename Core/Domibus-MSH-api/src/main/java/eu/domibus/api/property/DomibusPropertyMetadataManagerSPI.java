@@ -50,7 +50,24 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_KEYSTORE_LOCATION = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_KEYSTORE_TYPE = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "type";
     String DOMIBUS_SECURITY_KEYSTORE_PASSWORD = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "password";//NOSONAR
-    String DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS = "domibus.security.key.private.alias";
+
+    String DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX = "domibus.security.key.private.";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "alias";
+
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.password";
+
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.password";
+
     String DOMIBUS_SECURITY_TRUSTSTORE_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_TRUSTSTORE_TYPE = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "type";
     String DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "password";//NOSONAR
@@ -88,13 +105,16 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation";
     String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.peppolclient.regexCertificateSubjectValidation";
     String DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION = "domibus.dynamicdiscovery.client.allowedCertificatePolicyOIDs";
-    String DOMIBUS_DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.partyid.responder.role";
-    String DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
+    String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.peppolclient.partyid.responder.role";
+    String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.oasisclient.partyid.responder.role";
+    String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.peppolclient.partyid.type";
+    String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.oasisclient.partyid.type";
     String DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4 = "domibus.dynamicdiscovery.transportprofileas4";
     String DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT = "domibus.listPendingMessages.maxCount";
     String DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE = "domibus.jms.connectionFactory.session.cache.size";
     String DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE = "domibus.jms.queue.maxBrowseSize";
     String DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION = "domibus.jms.internalQueue.expression";
+    String DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION = "domibus.jms.internal.address.expression";
     String DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE = "domibus.receiver.selfsending.validation.active";
     String DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.receiver.certificate.validation.onsending";
     String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";
@@ -167,8 +187,13 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
     String DOMIBUS_ALERT_RETRY_CRON = "domibus.alert.retry.cron";
     String DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON = "domibus.splitAndJoin.receive.expiration.cron";
+
     String DOMIBUS_MONITORING_CONNECTION_CRON = "domibus.monitoring.connection.cron";
+    String DOMIBUS_MONITORING_CONNECTION_SELF_CRON = "domibus.monitoring.connection.self.cron";
     String DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED = "domibus.monitoring.connection.party.enabled";
+    String DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES = "domibus.monitoring.connection.party.history.delete";
+    String DOMIBUS_DELETE_RECEIVED_TEST_MESSAGE_HISTORY_CRON = "domibus.monitoring.connection.messages.received.history.delete.cron";
+
     String DOMIBUS_SMART_RETRY_ENABLED = "domibus.smart.retry.enabled";
     String DOMIBUS_ALERT_ACTIVE = "domibus.alert.active";
     String DOMIBUS_ALERT_MAIL_SENDING_ACTIVE = "domibus.alert.mail.sending.active";
@@ -242,6 +267,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_ACTIVE = DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX + ".active";
     String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_LEVEL = DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX + ".level";
     String DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX + ".mail.subject";
+
+    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX = "domibus.alert.connection.monitoring";
+    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".parties";
+    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_FREQUENCY_DAYS = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".frequency_days";
+    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_LEVEL = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".level";
+    String DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_MAIL_SUBJECT = DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PREFIX + ".mail.subject";
 
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE = "domibus.pull.request.send.per.job.cycle";
     String DOMIBUS_PULL_REQUEST_FREQUENCY_RECOVERY_TIME = "domibus.pull.request.frequency.recovery.time";

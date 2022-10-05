@@ -36,5 +36,4 @@
         <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
     </changeSet>
 
-
 </databaseChangeLog>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_FS" resourceRoot="" soapui-version="5.7.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="${#Project#localUrl}/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+<con:soapui-project id="1c29d1fb-f8ae-4ddb-ac43-1469a15001ec" activeEnvironment="Default" name="TESTS_FS" resourceRoot="" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="ProjectSettings@hermesConfig">C:\ec</con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" id="9581111c-248c-4085-bf9f-dc452577042f" wsaVersion="NONE" name="BackendService_1_1SoapBinding" type="wsdl" bindingName="{http://org.ecodex.backend/1_1/}BackendService_1_1SoapBinding" soapVersion="1_2" anonymous="optional" definition="${#Project#localUrl}/services/backend?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/domibus/services/backend?wsdl"><con:part><con:url>http://localhost:8080/domibus/services/backend?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="BackendService_1_1" targetNamespace="http://org.ecodex.backend/1_1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://org.ecodex.backend/1_1/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns2="http://schemas.xmlsoap.org/soap/http" xmlns:ns1="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
   <wsdl:types>
     <xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:tns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
       <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
@@ -762,11 +762,26 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="markMessageAsDownloadedRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" nillable="true" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="markMessageAsDownloadedResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="messageID" nillable="true" type="tns:max255-non-empty-string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
       <xsd:element name="retrieveMessageRequest">
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="messageID" nillable="true" type="tns:max255-non-empty-string"/>
           </xsd:sequence>
+          <xsd:attribute default="true" name="markAsDownloaded" type="xsd:string"/>
         </xsd:complexType>
       </xsd:element>
       <xsd:element name="retrieveMessageResponse">
@@ -791,7 +806,32 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="listPushFailedMessagesRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element minOccurs="0" name="messageId" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="finalRecipient" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="originalSender" type="tns:max255-non-empty-string"/>
+            <xsd:element minOccurs="0" name="receivedFrom" type="xsd:dateTime"/>
+            <xsd:element minOccurs="0" name="receivedTo" type="xsd:dateTime"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="rePushFailedMessagesRequest">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
       <xsd:element name="listPendingMessagesResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="listPushFailedMessagesResponse">
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
@@ -843,7 +883,7 @@
       </xsd:complexType>
       <xsd:complexType name="errorResultImpl">
         <xsd:sequence>
-          <xsd:element minOccurs="0" name="errorCode" type="tns:errorCode"/>
+          <xsd:element minOccurs="0" name="domibusErrorCode" type="tns:domibusErrorCode"/>
           <xsd:element minOccurs="0" name="errorDetail" type="xsd:string"/>
           <xsd:element minOccurs="0" name="messageInErrorId" type="xsd:string"/>
           <xsd:element minOccurs="0" name="mshRole" type="tns:mshRole"/>
@@ -878,7 +918,7 @@
           <xsd:enumeration value="DOWNLOADED"/>
         </xsd:restriction>
       </xsd:simpleType>
-      <xsd:simpleType name="errorCode">
+      <xsd:simpleType name="domibusErrorCode">
         <xsd:restriction base="xsd:string">
           <xsd:enumeration value="EBMS_0001"/>
           <xsd:enumeration value="EBMS_0002"/>
@@ -923,6 +963,19 @@
           <xsd:enumeration value="EBMS_0055"/>
           <xsd:enumeration value="EBMS_0060"/>
           <xsd:enumeration value="EBMS_0065"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="errorCode">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="WS_PLUGIN:0001"/>
+          <xsd:enumeration value="WS_PLUGIN:0002"/>
+          <xsd:enumeration value="WS_PLUGIN:0003"/>
+          <xsd:enumeration value="WS_PLUGIN:0004"/>
+          <xsd:enumeration value="WS_PLUGIN:0005"/>
+          <xsd:enumeration value="WS_PLUGIN:0006"/>
+          <xsd:enumeration value="WS_PLUGIN:0007"/>
+          <xsd:enumeration value="WS_PLUGIN:0008"/>
+          <xsd:enumeration value="WS_PLUGIN:0009"/>
         </xsd:restriction>
       </xsd:simpleType>
       <xsd:simpleType name="mshRole">
@@ -974,6 +1027,13 @@
         </xsd:sequence>
         <xsd:attribute name="mustUnderstand" type="xsd:boolean" use="optional"/>
       </xsd:complexType>
+      <xsd:simpleType name="ProcessingType">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="PUSH"/>
+          <xsd:enumeration value="PULL"/>
+          <xsd:minLength value="0"/>
+        </xsd:restriction>
+      </xsd:simpleType>
       <xsd:complexType name="UserMessage">
         <xsd:all>
           <xsd:element minOccurs="0" name="MessageInfo" type="MessageInfo"/>
@@ -981,6 +1041,7 @@
           <xsd:element name="CollaborationInfo" type="CollaborationInfo"/>
           <xsd:element minOccurs="0" name="MessageProperties" type="tns:MessageProperties"/>
           <xsd:element minOccurs="0" name="PayloadInfo" type="tns:PayloadInfo"/>
+          <xsd:element default="PUSH" minOccurs="0" name="ProcessingType" type="ProcessingType"/>
         </xsd:all>
         <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
       </xsd:complexType>
@@ -1087,7 +1148,7 @@
    http://www.w3.org/TR/REC-xml for information about this namespace.
 
     This schema document describes the XML namespace, in a form
-    suitable for import by other schema documents.
+    suitable for import by other schema documents.  
 
     Note that local names in this namespace are intended to be defined
     only by the World Wide Web Consortium or its subgroups.  The
@@ -1101,20 +1162,27 @@
          appears; its value is inherited.  This name is reserved
          by virtue of its definition in the XML Base specification.
 
+    id   (as an attribute name): denotes an attribute whose value
+         should be interpreted as if declared to be of type ID.
+         The xml:id specification is not yet a W3C Recommendation,
+         but this attribute is included here to facilitate experimentation
+         with the mechanisms it proposes.  Note that it is _not_ included
+         in the specialAttrs attribute group.
+
     lang (as an attribute name): denotes an attribute whose value
          is a language code for the natural language of the content of
          any element; its value is inherited.  This name is reserved
          by virtue of its definition in the XML specification.
-
+  
     space (as an attribute name): denotes an attribute whose
          value is a keyword indicating what whitespace processing
          discipline is intended for the content of the element; its
          value is inherited.  This name is reserved by virtue of its
          definition in the XML specification.
 
-    Father (in any context at all): denotes Jon Bosak, the chair of
-         the original XML Working Group.  This name is reserved by
-         the following decision of the W3C XML Plenary and
+    Father (in any context at all): denotes Jon Bosak, the chair of 
+         the original XML Working Group.  This name is reserved by 
+         the following decision of the W3C XML Plenary and 
          XML Coordination groups:
 
              In appreciation for his vision, leadership and dedication
@@ -1125,15 +1193,15 @@
       <xs:annotation>
         <xs:documentation>This schema defines attributes and an attribute group
         suitable for use by
-        schemas wishing to allow xml:base, xml:lang or xml:space attributes
-        on elements they define.
+        schemas wishing to allow xml:base, xml:lang, xml:space or xml:id
+        attributes on elements they define.
 
         To enable this, such a schema must import this schema
         for the XML namespace, e.g. as follows:
         &lt;schema . . .>
          . . .
          &lt;import namespace="http://www.w3.org/XML/1998/namespace"
-                    schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
+                    schemaLocation="http://www.w3.org/2001/xml.xsd"/>
 
         Subsequently, qualified reference to any of the attributes
         or the group defined below will have the desired effect, e.g.
@@ -1141,31 +1209,47 @@
         &lt;type . . .>
          . . .
          &lt;attributeGroup ref="xml:specialAttrs"/>
-
+ 
          will define a type which will schema-validate an instance
          element with any of those attributes</xs:documentation>
       </xs:annotation>
       <xs:annotation>
         <xs:documentation>In keeping with the XML Schema WG's standard versioning
    policy, this schema document will persist at
-   http://www.w3.org/2001/03/xml.xsd.
+   http://www.w3.org/2005/08/xml.xsd.
    At the date of issue it can also be found at
    http://www.w3.org/2001/xml.xsd.
    The schema document at that URI may however change in the future,
    in order to remain compatible with the latest version of XML Schema
-   itself.  In other words, if the XML Schema namespace changes, the version
-   of this document at
+   itself, or with the XML namespace itself.  In other words, if the XML
+   Schema or XML namespaces change, the version of this document at
    http://www.w3.org/2001/xml.xsd will change
    accordingly; the version at
-   http://www.w3.org/2001/03/xml.xsd will not change.</xs:documentation>
+   http://www.w3.org/2005/08/xml.xsd will not change.</xs:documentation>
       </xs:annotation>
-      <xs:attribute name="lang" type="xs:language">
+      <xs:attribute name="lang">
         <xs:annotation>
-          <xs:documentation>In due course, we should install the relevant ISO 2- and 3-letter
-         codes as the enumerated possible values . . .</xs:documentation>
+          <xs:documentation>Attempting to install the relevant ISO 2- and 3-letter
+         codes as the enumerated possible values is probably never
+         going to be a realistic possibility.  See
+         RFC 3066 at http://www.ietf.org/rfc/rfc3066.txt and the IANA registry
+         at http://www.iana.org/assignments/lang-tag-apps.htm for
+         further information.
+
+         The union allows for the 'un-declaration' of xml:lang with
+         the empty string.</xs:documentation>
         </xs:annotation>
+        <xs:simpleType>
+          <xs:union memberTypes="xs:language">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value=""/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:union>
+        </xs:simpleType>
       </xs:attribute>
-      <xs:attribute default="preserve" name="space">
+      <xs:attribute name="space">
         <xs:simpleType>
           <xs:restriction base="xs:NCName">
             <xs:enumeration value="default"/>
@@ -1176,6 +1260,12 @@
       <xs:attribute name="base" type="xs:anyURI">
         <xs:annotation>
           <xs:documentation>See http://www.w3.org/TR/xmlbase/ for
+                     information about this attribute.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="id" type="xs:ID">
+        <xs:annotation>
+          <xs:documentation>See http://www.w3.org/TR/xml-id/ for
                      information about this attribute.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -1214,6 +1304,7 @@
     <wsdl:part element="tns:submitRequest" name="submitRequest"></wsdl:part>
     <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="rePushFailedMessagesResponse"></wsdl:message>
   <wsdl:message name="retrieveMessage">
     <wsdl:part element="tns:retrieveMessageRequest" name="retrieveMessageRequest"></wsdl:part>
   </wsdl:message>
@@ -1223,6 +1314,15 @@
   <wsdl:message name="listPendingMessages">
     <wsdl:part element="tns:listPendingMessagesRequest" name="listPendingMessagesRequest"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="MarkMessageAsDownloadedFault">
+    <wsdl:part element="tns:FaultDetail" name="MarkMessageAsDownloadedFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListPushFailedMessagesFault">
+    <wsdl:part element="tns:FaultDetail" name="ListPushFailedMessagesFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="listPushFailedMessagesResponse">
+    <wsdl:part element="tns:listPushFailedMessagesResponse" name="listPushFailedMessagesResponse"></wsdl:part>
+  </wsdl:message>
   <wsdl:message name="StatusFault">
     <wsdl:part element="tns:FaultDetail" name="StatusFault"></wsdl:part>
   </wsdl:message>
@@ -1230,14 +1330,29 @@
     <wsdl:part element="tns:retrieveMessageResponse" name="retrieveMessageResponse"></wsdl:part>
     <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="listPushFailedMessages">
+    <wsdl:part element="tns:listPushFailedMessagesRequest" name="listPushFailedMessagesRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListPendingMessagesFault">
+    <wsdl:part element="tns:FaultDetail" name="ListPendingMessagesFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RePushFailedMessagesFault">
+    <wsdl:part element="tns:FaultDetail" name="RePushFailedMessagesFault"></wsdl:part>
+  </wsdl:message>
   <wsdl:message name="submitMessageResponse">
     <wsdl:part element="tns:submitResponse" name="submitResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="markMessageAsDownloaded">
+    <wsdl:part element="tns:markMessageAsDownloadedRequest" name="markMessageAsDownloadedRequest"></wsdl:part>
   </wsdl:message>
   <wsdl:message name="getStatusResponse">
     <wsdl:part element="tns:getStatusResponse" name="getStatusResponse"></wsdl:part>
   </wsdl:message>
   <wsdl:message name="listPendingMessagesResponse">
     <wsdl:part element="tns:listPendingMessagesResponse" name="listPendingMessagesResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="rePushFailedMessages">
+    <wsdl:part element="tns:rePushFailedMessagesRequest" name="rePushFailedMessagesRequest"></wsdl:part>
   </wsdl:message>
   <wsdl:message name="getMessageErrorsResponse">
     <wsdl:part element="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:part>
@@ -1251,16 +1366,14 @@
   <wsdl:message name="getStatus">
     <wsdl:part element="tns:statusRequest" name="statusRequest"></wsdl:part>
   </wsdl:message>
+  <wsdl:message name="GetMessageErrorsFault">
+    <wsdl:part element="tns:FaultDetail" name="GetMessageErrorsFault"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="markMessageAsDownloadedResponse">
+    <wsdl:part element="tns:markMessageAsDownloadedResponse" name="markMessageAsDownloadedResponse"></wsdl:part>
+    <wsdl:part element="ns1:Messaging" name="ebMSHeaderInfo"></wsdl:part>
+  </wsdl:message>
   <wsdl:portType name="WebServicePluginInterface">
-    <wsdl:operation name="getMessageErrors">
-      <wsdl:input message="tns:getMessageErrors" name="getMessageErrors"></wsdl:input>
-      <wsdl:output message="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getStatus">
-      <wsdl:input message="tns:getStatus" name="getStatus"></wsdl:input>
-      <wsdl:output message="tns:getStatusResponse" name="getStatusResponse"></wsdl:output>
-      <wsdl:fault message="tns:StatusFault" name="StatusFault"></wsdl:fault>
-    </wsdl:operation>
     <wsdl:operation name="submitMessage">
       <wsdl:input message="tns:submitMessage" name="submitMessage"></wsdl:input>
       <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse"></wsdl:output>
@@ -1274,31 +1387,36 @@
     <wsdl:operation name="listPendingMessages">
       <wsdl:input message="tns:listPendingMessages" name="listPendingMessages"></wsdl:input>
       <wsdl:output message="tns:listPendingMessagesResponse" name="listPendingMessagesResponse"></wsdl:output>
+      <wsdl:fault message="tns:ListPendingMessagesFault" name="ListPendingMessagesFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="markMessageAsDownloaded" parameterOrder="markMessageAsDownloadedRequest markMessageAsDownloadedResponse ebMSHeaderInfo">
+      <wsdl:input message="tns:markMessageAsDownloaded" name="markMessageAsDownloaded"></wsdl:input>
+      <wsdl:output message="tns:markMessageAsDownloadedResponse" name="markMessageAsDownloadedResponse"></wsdl:output>
+      <wsdl:fault message="tns:MarkMessageAsDownloadedFault" name="MarkMessageAsDownloadedFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="rePushFailedMessages">
+      <wsdl:input message="tns:rePushFailedMessages" name="rePushFailedMessages"></wsdl:input>
+      <wsdl:output message="tns:rePushFailedMessagesResponse" name="rePushFailedMessagesResponse"></wsdl:output>
+      <wsdl:fault message="tns:RePushFailedMessagesFault" name="RePushFailedMessagesFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getMessageErrors">
+      <wsdl:input message="tns:getMessageErrors" name="getMessageErrors"></wsdl:input>
+      <wsdl:output message="tns:getMessageErrorsResponse" name="getMessageErrorsResponse"></wsdl:output>
+      <wsdl:fault message="tns:GetMessageErrorsFault" name="GetMessageErrorsFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStatus">
+      <wsdl:input message="tns:getStatus" name="getStatus"></wsdl:input>
+      <wsdl:output message="tns:getStatusResponse" name="getStatusResponse"></wsdl:output>
+      <wsdl:fault message="tns:StatusFault" name="StatusFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="listPushFailedMessages">
+      <wsdl:input message="tns:listPushFailedMessages" name="listPushFailedMessages"></wsdl:input>
+      <wsdl:output message="tns:listPushFailedMessagesResponse" name="listPushFailedMessagesResponse"></wsdl:output>
+      <wsdl:fault message="tns:ListPushFailedMessagesFault" name="ListPushFailedMessagesFault"></wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="WebServicePluginSoapBinding" type="tns:WebServicePluginInterface">
     <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-    <wsdl:operation name="getMessageErrors">
-      <soap12:operation soapAction="" style="document"/>
-      <wsdl:input name="getMessageErrors">
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output name="getMessageErrorsResponse">
-        <soap12:body use="literal"/>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="getStatus">
-      <soap12:operation soapAction="" style="document"/>
-      <wsdl:input name="getStatus">
-        <soap12:body use="literal"/>
-      </wsdl:input>
-      <wsdl:output name="getStatusResponse">
-        <soap12:body use="literal"/>
-      </wsdl:output>
-      <wsdl:fault name="StatusFault">
-        <soap12:fault name="StatusFault" use="literal"/>
-      </wsdl:fault>
-    </wsdl:operation>
     <wsdl:operation name="submitMessage">
       <soap12:operation soapAction="" style="document"/>
       <wsdl:input name="submitMessage">
@@ -1333,6 +1451,70 @@
       <wsdl:output name="listPendingMessagesResponse">
         <soap12:body use="literal"/>
       </wsdl:output>
+      <wsdl:fault name="ListPendingMessagesFault">
+        <soap12:fault name="ListPendingMessagesFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="markMessageAsDownloaded">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="markMessageAsDownloaded">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="markMessageAsDownloadedResponse">
+        <soap12:header message="tns:markMessageAsDownloadedResponse" part="ebMSHeaderInfo" use="literal"></soap12:header>
+        <soap12:body parts="markMessageAsDownloadedResponse" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="MarkMessageAsDownloadedFault">
+        <soap12:fault name="MarkMessageAsDownloadedFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="rePushFailedMessages">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="rePushFailedMessages">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="rePushFailedMessagesResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="RePushFailedMessagesFault">
+        <soap12:fault name="RePushFailedMessagesFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getMessageErrors">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="getMessageErrors">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getMessageErrorsResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="GetMessageErrorsFault">
+        <soap12:fault name="GetMessageErrorsFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getStatus">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="getStatus">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getStatusResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="StatusFault">
+        <soap12:fault name="StatusFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="listPushFailedMessages">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="listPushFailedMessages">
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="listPushFailedMessagesResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ListPushFailedMessagesFault">
+        <soap12:fault name="ListPushFailedMessagesFault" use="literal"/>
+      </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="WebServicePlugin">
@@ -1453,7 +1635,515 @@
          </payload>
       </eu:submitRequest>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/submitMessage"/></con:call></con:operation></con:interface><con:testSuite id="26f47105-33a8-4994-9eb3-c2073227b909" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="3588311a-372e-4dce-80ad-21700d5a5684">
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/submitMessage"/></con:call></con:operation><con:operation id="6163a7c4-4978-46b2-9f21-15b6ba342a27" isOneWay="false" action="" name="markMessageAsDownloaded" bindingOperationName="markMessageAsDownloaded" type="Request-Response" outputName="markMessageAsDownloadedResponse" inputName="markMessageAsDownloaded" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="21be63f0-233a-4344-95aa-02269ce99cec" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:markMessageAsDownloadedRequest>\r
+         <messageID>?</messageID>\r
+      </eu:markMessageAsDownloadedRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/markMessageAsDownloaded"/></con:call></con:operation><con:operation id="20202ed3-cfa9-4106-8e84-8cc9c164b13e" isOneWay="false" action="" name="rePushFailedMessages" bindingOperationName="rePushFailedMessages" type="Request-Response" outputName="rePushFailedMessagesResponse" inputName="rePushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="4e171764-4f5e-4b4d-b3fa-3eb4a4127f41" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:rePushFailedMessagesRequest>\r
+         <!--Zero or more repetitions:-->\r
+         <messageID>?</messageID>\r
+      </eu:rePushFailedMessagesRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/rePushFailedMessages"/></con:call></con:operation><con:operation id="b2f181e1-6ffb-4771-9ad0-e67513ba1ab7" isOneWay="false" action="" name="listPushFailedMessages" bindingOperationName="listPushFailedMessages" type="Request-Response" outputName="listPushFailedMessagesResponse" inputName="listPushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="2d7382f2-17b3-4338-9e5a-bf6b7716029b" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:listPushFailedMessagesRequest>\r
+         <!--Optional:-->\r
+         <messageId>?</messageId>\r
+         <!--Optional:-->\r
+         <finalRecipient>?</finalRecipient>\r
+         <!--Optional:-->\r
+         <originalSender>?</originalSender>\r
+         <!--Optional:-->\r
+         <receivedFrom>?</receivedFrom>\r
+         <!--Optional:-->\r
+         <receivedTo>?</receivedTo>\r
+      </eu:listPushFailedMessagesRequest>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/listPushFailedMessages"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="b8e85729-92e6-429f-ba5f-7ed6eb3f4c90" wsaVersion="NONE" name="BackendServiceSoapBinding" type="wsdl" bindingName="{eu.domibus}BackendServiceSoapBinding" soapVersion="1_2" anonymous="optional" definition="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl"><con:part><con:url>file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="backendService" targetNamespace="eu.domibus" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="eu.domibus">
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+      <import namespace="eu.domibus" schemaLocation="BackendService.xsd"/>
+    </schema>
+  </wsdl:types>
+  <wsdl:message name="submitMessage">
+    <wsdl:part element="tns:submitRequest" name="submitRequest"/>
+    <wsdl:part element="tns:Messaging" name="headerInfo"/>
+  </wsdl:message>
+  <wsdl:message name="submitMessageResponse"/>
+  <wsdl:message name="submitMessageFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="submitMessageFault"/>
+  </wsdl:message>
+  <wsdl:message name="sendSuccess">
+    <wsdl:part element="tns:sendSuccess" name="sendSuccess"/>
+  </wsdl:message>
+  <wsdl:message name="sendSuccessResponse"/>
+  <wsdl:message name="sendSuccessFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="sendSuccessFault"/>
+  </wsdl:message>
+  <wsdl:message name="sendFailure">
+    <wsdl:part element="tns:sendFailure" name="sendFailure"/>
+  </wsdl:message>
+  <wsdl:message name="sendFailureResponse"/>
+  <wsdl:message name="sendFailureFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="sendFailureFault"/>
+  </wsdl:message>
+  <wsdl:message name="receiveSuccess">
+    <wsdl:part element="tns:receiveSuccess" name="receiveSuccess"/>
+  </wsdl:message>
+  <wsdl:message name="receiveSuccessResponse"/>
+  <wsdl:message name="receiveSuccessFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="receiveSuccessFault"/>
+  </wsdl:message>
+  <wsdl:message name="receiveFailure">
+    <wsdl:part element="tns:receiveFailure" name="receiveFailure"/>
+  </wsdl:message>
+  <wsdl:message name="receiveFailureResponse"/>
+  <wsdl:message name="receiveFailureFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="receiveFailureFault"/>
+  </wsdl:message>
+  <wsdl:message name="delete">
+    <wsdl:part element="tns:delete" name="delete"/>
+  </wsdl:message>
+  <wsdl:message name="deleteResponse"/>
+  <wsdl:message name="deleteFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="deleteFault"/>
+  </wsdl:message>
+  <wsdl:message name="deleteBatch">
+    <wsdl:part element="tns:deleteBatch" name="deleteBatch"/>
+  </wsdl:message>
+  <wsdl:message name="deleteBatchResponse"/>
+  <wsdl:message name="deleteBatchFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="deleteBatchFault"/>
+  </wsdl:message>
+  <wsdl:message name="messageStatusChange">
+    <wsdl:part element="tns:messageStatusChange" name="messageStatusChange"/>
+  </wsdl:message>
+  <wsdl:message name="messageStatusChangeResponse"/>
+  <wsdl:message name="messageStatusChangeFault">
+    <wsdl:part element="tns:BackendFaultDetail" name="messageStatusChangeFault"/>
+  </wsdl:message>
+  <wsdl:portType name="BackendInterface">
+    <wsdl:operation name="submitMessage">
+      <wsdl:input message="tns:submitMessage" name="submitRequest"></wsdl:input>
+      <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse"></wsdl:output>
+      <wsdl:fault message="tns:submitMessageFault" name="submitMessageFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendSuccess">
+      <wsdl:input message="tns:sendSuccess" name="sendSuccess"></wsdl:input>
+      <wsdl:output message="tns:sendSuccessResponse" name="sendSuccessResponse"></wsdl:output>
+      <wsdl:fault message="tns:sendSuccessFault" name="sendSuccessFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendFailure">
+      <wsdl:input message="tns:sendFailure" name="sendFailure"></wsdl:input>
+      <wsdl:output message="tns:sendFailureResponse" name="sendFailureResponse"></wsdl:output>
+      <wsdl:fault message="tns:sendFailureFault" name="sendFailureFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveSuccess">
+      <wsdl:input message="tns:receiveSuccess" name="receiveSuccess"></wsdl:input>
+      <wsdl:output message="tns:receiveSuccessResponse" name="receiveSuccessResponse"></wsdl:output>
+      <wsdl:fault message="tns:receiveSuccessFault" name="receiveSuccessFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveFailure">
+      <wsdl:input message="tns:receiveFailure" name="receiveFailure"></wsdl:input>
+      <wsdl:output message="tns:receiveFailureResponse" name="receiveFailureResponse"></wsdl:output>
+      <wsdl:fault message="tns:receiveFailureFault" name="receiveFailureFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="delete">
+      <wsdl:input message="tns:delete" name="delete"></wsdl:input>
+      <wsdl:output message="tns:deleteResponse" name="deleteResponse"></wsdl:output>
+      <wsdl:fault message="tns:deleteFault" name="deleteFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="deleteBatch">
+      <wsdl:input message="tns:deleteBatch" name="deleteBatch"></wsdl:input>
+      <wsdl:output message="tns:deleteBatchResponse" name="deleteBatchResponse"></wsdl:output>
+      <wsdl:fault message="tns:deleteBatchFault" name="deleteBatchFault"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="messageStatusChange">
+      <wsdl:input message="tns:messageStatusChange" name="messageStatusChange"></wsdl:input>
+      <wsdl:output message="tns:messageStatusChangeResponse" name="messageStatusChangeResponse"></wsdl:output>
+      <wsdl:fault message="tns:messageStatusChangeFault" name="messageStatusChangeFault"></wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BackendServiceSoapBinding" type="tns:BackendInterface">
+    <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="submitMessage">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="submitMessage">
+        <soap12:header message="tns:submitMessage" part="headerInfo" use="literal"/>
+        <soap12:body parts="submitRequest" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="submitMessageResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="submitMessageFault">
+        <soap12:fault name="submitMessageFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendSuccess">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="sendSuccess">
+        <soap12:body parts="sendSuccess" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sendSuccessResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="sendSuccessFault">
+        <soap12:fault name="sendSuccessFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="sendFailure">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="sendFailure">
+        <soap12:body parts="sendFailure" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sendFailureResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="sendFailureFault">
+        <soap12:fault name="sendFailureFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveSuccess">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="receiveSuccess">
+        <soap12:body parts="receiveSuccess" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="receiveSuccessResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="receiveSuccessFault">
+        <soap12:fault name="receiveSuccessFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="receiveFailure">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="receiveFailure">
+        <soap12:body parts="receiveFailure" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="receiveFailureResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="receiveFailureFault">
+        <soap12:fault name="receiveFailureFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="delete">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="delete">
+        <soap12:body parts="delete" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="deleteFault">
+        <soap12:fault name="deleteFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="deleteBatch">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="deleteBatch">
+        <soap12:body parts="deleteBatch" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="deleteBatchResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="deleteBatchFault">
+        <soap12:fault name="deleteBatchFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="messageStatusChange">
+      <soap12:operation soapAction="" style="document"/>
+      <wsdl:input name="messageStatusChange">
+        <soap12:body parts="messageStatusChange" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="messageStatusChangeResponse">
+        <soap12:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="messageStatusChangeFault">
+        <soap12:fault name="messageStatusChangeFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="BackendService">
+    <wsdl:port binding="tns:BackendServiceSoapBinding" name="BACKEND_PORT">
+      <soap12:address location="http://localhost:8080/backend"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>file:\C:\work\digit\tools\domibus\5.1RC2\domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin\conf\domibus\plugins\backend\BackendService.xsd</con:url><con:content><![CDATA[<xsd:schema targetNamespace="eu.domibus" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:tns="eu.domibus">
+  <xsd:simpleType name="max255-non-empty-string">
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="255"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="max1024-non-empty-string">
+    <xsd:restriction base="xsd:string">
+      <xsd:minLength value="1"/>
+      <xsd:maxLength value="1024"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:simpleType name="messageStatus">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="READY_TO_SEND"/>
+      <xsd:enumeration value="READY_TO_PULL"/>
+      <xsd:enumeration value="BEING_PULLED"/>
+      <xsd:enumeration value="SEND_ENQUEUED"/>
+      <xsd:enumeration value="SEND_IN_PROGRESS"/>
+      <xsd:enumeration value="WAITING_FOR_RECEIPT"/>
+      <xsd:enumeration value="ACKNOWLEDGED"/>
+      <xsd:enumeration value="ACKNOWLEDGED_WITH_WARNING"/>
+      <xsd:enumeration value="SEND_ATTEMPT_FAILED"/>
+      <xsd:enumeration value="SEND_FAILURE"/>
+      <xsd:enumeration value="NOT_FOUND"/>
+      <xsd:enumeration value="WAITING_FOR_RETRY"/>
+      <xsd:enumeration value="RECEIVED"/>
+      <xsd:enumeration value="RECEIVED_WITH_WARNINGS"/>
+      <xsd:enumeration value="DELETED"/>
+      <xsd:enumeration value="DOWNLOADED"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="LargePayloadType">
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:base64Binary" xmime:expectedContentTypes="application/octet-stream"/>
+    </xsd:sequence>
+    <xsd:attribute name="payloadId" type="xsd:token"/>
+    <xsd:attribute name="contentType" type="xsd:string"/>
+    <xsd:attribute name="mimeType" type="xsd:string"/>
+    <xsd:attribute name="payloadName" type="xsd:string"/>
+  </xsd:complexType>
+  <xsd:element name="submitRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element minOccurs="0" name="bodyload" type="tns:LargePayloadType"/>
+        <xsd:element maxOccurs="unbounded" minOccurs="0" name="payload" type="tns:LargePayloadType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="Messaging" type="tns:Messaging"/>
+  <xsd:complexType name="Messaging">
+    <xsd:sequence>
+      <xsd:element name="UserMessage" type="tns:UserMessage" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="UserMessage">
+    <xsd:all>
+      <xsd:element name="MessageInfo" type="tns:MessageInfo" minOccurs="0"/>
+      <xsd:element name="PartyInfo" type="tns:PartyInfo"/>
+      <xsd:element name="CollaborationInfo" type="tns:CollaborationInfo"/>
+      <xsd:element name="MessageProperties" type="tns:MessageProperties" minOccurs="0"/>
+      <xsd:element name="PayloadInfo" type="tns:PayloadInfo" minOccurs="0"/>
+      <xsd:element name="ProcessingType" type="tns:ProcessingType" minOccurs="0" default="PUSH"/>
+    </xsd:all>
+    <xsd:attribute name="mpc" type="xsd:anyURI" use="optional"/>
+  </xsd:complexType>
+  <xsd:simpleType name="ProcessingType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="PUSH"/>
+      <xsd:enumeration value="PULL"/>
+      <xsd:minLength value="0"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="MessageInfo">
+    <xsd:all>
+      <xsd:element name="Timestamp" type="xsd:dateTime" minOccurs="0"/>
+      <xsd:element name="MessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+      <xsd:element name="RefToMessageId" type="tns:max255-non-empty-string" minOccurs="0"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="PartyInfo">
+    <xsd:all>
+      <xsd:element name="From" type="tns:From"/>
+      <xsd:element name="To" type="tns:To" minOccurs="0"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="PartyId">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max255-non-empty-string">
+        <xsd:attribute name="type" type="tns:max255-non-empty-string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="From">
+    <xsd:all>
+      <xsd:element name="PartyId" type="tns:PartyId"/>
+      <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="To">
+    <xsd:all>
+      <xsd:element name="PartyId" type="tns:PartyId"/>
+      <xsd:element name="Role" type="tns:max255-non-empty-string"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="CollaborationInfo">
+    <xsd:all>
+      <xsd:element name="AgreementRef" type="tns:AgreementRef" minOccurs="0"/>
+      <xsd:element name="Service" type="tns:Service"/>
+      <xsd:element name="Action" type="xsd:token"/>
+      <xsd:element name="ConversationId" type="xsd:token" minOccurs="0"/>
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="Service">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max255-non-empty-string">
+        <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="AgreementRef">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max255-non-empty-string">
+        <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+        <xsd:attribute name="pmode" type="tns:max255-non-empty-string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PayloadInfo">
+    <xsd:sequence>
+      <xsd:element name="PartInfo" type="tns:PartInfo" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="PartInfo">
+    <xsd:all>
+      <xsd:element name="PartProperties" type="tns:PartProperties" minOccurs="0"/>
+    </xsd:all>
+    <xsd:attribute name="href" type="xsd:token"/>
+  </xsd:complexType>
+  <xsd:complexType name="Property">
+    <xsd:simpleContent>
+      <xsd:extension base="tns:max1024-non-empty-string">
+        <xsd:attribute name="name" type="tns:max255-non-empty-string" use="required"/>
+        <xsd:attribute name="type" type="tns:max255-non-empty-string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PartProperties">
+    <xsd:sequence>
+      <xsd:element name="Property" type="tns:Property" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="MessageProperties">
+    <xsd:sequence>
+      <xsd:element name="Property" type="tns:Property" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="BackendFaultDetail">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="code" type="xsd:string"/>
+        <xsd:element name="message" nillable="true" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="sendSuccess">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="sendFailure">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="receiveSuccess">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="receiveFailure">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="delete">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="deleteBatch">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageIds" nillable="true" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="messageStatusChange">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+        <xsd:element name="messageStatus" type="tns:messageStatus"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/backend</con:endpoint></con:endpoints><con:operation id="7a41018e-e4a5-4507-aa77-24fa96f06e96" isOneWay="false" action="" name="delete" bindingOperationName="delete" type="Request-Response" outputName="deleteResponse" inputName="delete" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="79214900-8dde-4c91-89f9-306e369d2bdd" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:delete>\r
+         <messageID>?</messageID>\r
+      </eu:delete>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/delete"/></con:call></con:operation><con:operation id="3b5efb69-580f-4457-82c8-8cab99d57ee2" isOneWay="false" action="" name="deleteBatch" bindingOperationName="deleteBatch" type="Request-Response" outputName="deleteBatchResponse" inputName="deleteBatch" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="91e944b8-dea7-47dc-8710-da6fe416b420" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:deleteBatch>\r
+         <!--Zero or more repetitions:-->\r
+         <messageIds>?</messageIds>\r
+      </eu:deleteBatch>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/deleteBatch"/></con:call></con:operation><con:operation id="74690526-0c9a-4f00-9836-294649572353" isOneWay="false" action="" name="messageStatusChange" bindingOperationName="messageStatusChange" type="Request-Response" outputName="messageStatusChangeResponse" inputName="messageStatusChange" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="54c4ffc6-1074-4cf9-869d-07129578dd54" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:messageStatusChange>\r
+         <messageID>?</messageID>\r
+         <messageStatus>?</messageStatus>\r
+      </eu:messageStatusChange>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/messageStatusChange"/></con:call></con:operation><con:operation id="4d1d5e50-4a2d-41f8-b627-b9f1151c2404" isOneWay="false" action="" name="receiveFailure" bindingOperationName="receiveFailure" type="Request-Response" outputName="receiveFailureResponse" inputName="receiveFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="bf7f6ce9-d9c1-4ee4-b068-7ad6744bf9e4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:receiveFailure>\r
+         <messageID>?</messageID>\r
+      </eu:receiveFailure>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveFailure"/></con:call></con:operation><con:operation id="58471080-e76f-45d0-adcc-b136fb165ca3" isOneWay="false" action="" name="receiveSuccess" bindingOperationName="receiveSuccess" type="Request-Response" outputName="receiveSuccessResponse" inputName="receiveSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="9bdf5d40-f72c-48fa-bf0b-95190a224930" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:receiveSuccess>\r
+         <messageID>?</messageID>\r
+      </eu:receiveSuccess>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveSuccess"/></con:call></con:operation><con:operation id="36ffbd7b-ce18-40d5-b5e1-c0d66fec8a08" isOneWay="false" action="" name="sendFailure" bindingOperationName="sendFailure" type="Request-Response" outputName="sendFailureResponse" inputName="sendFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="16609ef8-6c40-4105-99db-63ade86f029d" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:sendFailure>\r
+         <messageID>?</messageID>\r
+      </eu:sendFailure>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendFailure"/></con:call></con:operation><con:operation id="f318e689-9e17-4986-96ee-4eaf31e9cfdf" isOneWay="false" action="" name="sendSuccess" bindingOperationName="sendSuccess" type="Request-Response" outputName="sendSuccessResponse" inputName="sendSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="31d91487-854a-4df9-8cfc-0e1956bc6f42" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+   <soap:Header/>\r
+   <soap:Body>\r
+      <eu:sendSuccess>\r
+         <messageID>?</messageID>\r
+      </eu:sendSuccess>\r
+   </soap:Body>\r
+</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendSuccess"/></con:call></con:operation></con:interface><con:testSuite id="26f47105-33a8-4994-9eb3-c2073227b909" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="3588311a-372e-4dce-80ad-21700d5a5684">
             <con:settings/>
 
 
@@ -4002,8 +4692,8 @@ LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner
 def parametersMap=[ACTION:"actghost"];
 
 
-FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",parametersMap);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="e8078309-cd46-4d20-9059-51a3de88db7c"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Error Status" id="0adcd370-ef13-4422-95ab-d3fca5fc21e9"><con:settings/><con:config><script>FSPluginUtils.checkFSpayloadPresentFAILED("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="c743a0f5-36be-4f4c-82eb-6ab07aa99f51"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check C2 log file" id="f9bfd4dd-a6d7-4cac-8f2b-f0f86d812540"><con:settings/><con:config><script>def logValueList =  ["No matching action found"];
-Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>22</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>88689</con:value></con:property></con:properties></con:testCase><con:testCase id="354c06bb-8ed3-43c4-b2b0-9cb7c3e0fb34" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS022-Push-Submit Message-Exceptional flow-Data-Action-Empty" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="2181c98f-ada0-4e2c-9e9b-3654fd1a9b24"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="00559e1b-94a5-417b-bc53-9548357f485f"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line C2" id="6c091fd6-e6fe-4751-8e30-33d11f6b94b8"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="799c6946-bdc0-4fdf-8971-433b28231d3a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="551c214a-8b8c-4819-92d8-2090f7d18fc7"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",parametersMap);</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="e8078309-cd46-4d20-9059-51a3de88db7c"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Error Status" id="0adcd370-ef13-4422-95ab-d3fca5fc21e9"><con:settings/><con:config><script>FSPluginUtils.checkFSpayloadPresentFAILED("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="c743a0f5-36be-4f4c-82eb-6ab07aa99f51"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check C2 log file" id="f9bfd4dd-a6d7-4cac-8f2b-f0f86d812540"><con:settings/><con:config><script>def logValueList =  ["No matching action found"]
+Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner)</script></con:config></con:testStep><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>22</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>88689</con:value></con:property></con:properties></con:testCase><con:testCase id="354c06bb-8ed3-43c4-b2b0-9cb7c3e0fb34" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS022-Push-Submit Message-Exceptional flow-Data-Action-Empty" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="2181c98f-ada0-4e2c-9e9b-3654fd1a9b24"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="00559e1b-94a5-417b-bc53-9548357f485f"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line C2" id="6c091fd6-e6fe-4751-8e30-33d11f6b94b8"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="799c6946-bdc0-4fdf-8971-433b28231d3a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="551c214a-8b8c-4819-92d8-2090f7d18fc7"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
 def parametersMap=[ACTION:""];
 
 
@@ -4888,7 +5578,11 @@ Domibus.changePropertyAtRuntime("C2", "fsplugin.messages.payload.id", "cid:messa
 
 
 </script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Reset log levels'].run(testRunner, context);
-testRunner.testCase.testSteps['Reset cid property'].run(testRunner, context);</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>10</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>10</con:value></con:property></con:properties></con:testCase><con:properties><con:property><con:name>domainsNamesList</con:name><con:value>{"C30":"default","C20":"default","C32":"domibus_c3dom2","C24":"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc","C23":"a","C22":"domibus_c2dom2","C21":"domibus_c2dom1","C31":"domibus_c3dom1"}</con:value></con:property></con:properties></con:testSuite><con:testSuite id="931e7192-aec4-4d0e-8a2a-9184fdbf5d1b" name="SplitandJoin-Auto-Not-for-Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="4a7557bc-2d3a-4e8b-98ec-68f73b72aa44" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Set log level to debug" id="af549cc7-808a-4727-89de-34d9547bd42f"><con:settings/><con:config><script>//----Set Log level to debug-----------
+testRunner.testCase.testSteps['Reset cid property'].run(testRunner, context);</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>10</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>10</con:value></con:property></con:properties></con:testCase><con:properties><con:property><con:name>domainsNamesList</con:name><con:value>{"C30":"default","C20":"default","C32":"domibus_c3dom2","C24":"length_equal_50_aaaabbbbbbbbbbbbbbbbbbbbcccccccccc","C23":"a","C22":"domibus_c2dom2","C21":"domibus_c2dom1","C31":"domibus_c3dom1"}</con:value></con:property></con:properties></con:testSuite><con:testSuite id="931e7192-aec4-4d0e-8a2a-9184fdbf5d1b" name="SplitandJoin-Auto-Not-for-Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="4a7557bc-2d3a-4e8b-98ec-68f73b72aa44" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean all DB" id="b654e498-bf9f-4a8d-aa2d-d7125d16af60" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.cleanDatabaseAll()
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set log level to debug" id="af549cc7-808a-4727-89de-34d9547bd42f"><con:settings/><con:config><script>//----Set Log level to debug-----------
 log.info "Set logger level to DEBUG for required classes"
 
  //Domibus.setLogLevel("C3",context,log,"eu.domibus.core.message.splitandjoin","DEBUG")</script></con:config></con:testStep><con:testStep type="groovy" name="Set message filters" id="a7faa644-080e-430f-a1d4-00556749e490"><con:settings/><con:config><script>//----Set Message filters ---------
@@ -4905,24 +5599,16 @@ PModeUtils.uploadPmode("sender","special","/splitandjoin/blue/domibus-pmode-blue
 joinedPath = Paths.get(context.expand('${#Project#specialPModesPath}'),"/splitandjoin/red/domibus-pmode-red.xml").toUri()
 PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
 PModeUtils.uploadPmode("receiver","special","/splitandjoin/red/domibus-pmode-red.xml" + suffix, context, log)
-</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="e7ad7c73-e5dd-4faf-a970-1fa000a1f840" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ001-Push-Basic Flow-Smal file - only one fragment" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="354efe0f-4a6b-46be-9df5-49fd354dfc02"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="7ea61f3d-07d2-4c56-bb0b-46518c5aad57"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="07439267-664a-4ef6-a331-9bf47ebb31df"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
-def parametersMap=[]
-def test = new Domibus(log,null,context)
-def twoFiles = false
-def testFileSuffix = "_split"
-def inputFileName = "Test_file_split.xml"
-def subFolder = ""
+</script></con:config></con:testStep><con:properties/></con:testCase><con:testCase id="e7ad7c73-e5dd-4faf-a970-1fa000a1f840" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ001-Push-Basic Flow-Smal file - payload is smaller than fragment size - only one fragment" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="354efe0f-4a6b-46be-9df5-49fd354dfc02"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="7ea61f3d-07d2-4c56-bb0b-46518c5aad57"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="07439267-664a-4ef6-a331-9bf47ebb31df"><con:settings/><con:config><script>def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
 
+def test = new Domibus(log,null,context)
 test.storeLatestMessagesId(testRunner)
 
 FSPluginUtils.createRandomFSFile(log, context,100*1024, inputFileName)
-//FSPluginUtils.createRandomEmptyFSFile(log, context,1*1024*1024,inputFileName)
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
 
-FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"splitStandard","default",parametersMap, twoFiles, testFileSuffix, subFolder, inputFileName)
-messageId=test.waitAndFindLatestMessageIdInDb(testRunner)
-testRunner.testCase.setPropertyValue("lastMessageId", messageId)
-
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
 test.finalize()
 
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="aba8b7f5-5a12-4c2f-a530-842df39b9750"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="272852fe-c277-4efa-b67e-ceb88a352e6e"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
@@ -4960,28 +5646,28 @@ test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Defa
          <messageID>${#TestCase#lastMessageId}_1</messageID>
       </eu:statusRequest>
    </soap:Body>
-</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="groovy" name="Check Files Exist in OUT folder" id="eeb6a6c8-9650-4b94-95f2-1fd3c3052515"><con:settings/><con:config><script>def side="c3";
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+
+def payloadName=["metadata.xml",outFileName];
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 //test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
 
 test.finalize()
-//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>400</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>370</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>f7b8e09d-3018-11ed-9729-0a0027000006@domibus.eu</con:value></con:property></con:properties></con:testCase><con:testCase id="f778839f-6923-4220-947e-c0451b5c0533" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ002-Push-Basic Flow-Smal file - two fragments" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="20d5e0fc-bbd4-49ba-8789-1191d63a5ed0"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="a89388d6-599d-470b-95ce-157dd19f2efc"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>548</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>521</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>6fe66f7b-3218-11ed-94c7-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ001.xml</con:value></con:property><con:property><con:name>outFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:testCase id="f778839f-6923-4220-947e-c0451b5c0533" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ002-Push-Basic Flow-Smal file - two fragments" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="20d5e0fc-bbd4-49ba-8789-1191d63a5ed0"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="a89388d6-599d-470b-95ce-157dd19f2efc"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
 test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="c0a701c2-dc39-4896-920f-cad1025808a6"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
-def parametersMap=[]
 def test = new Domibus(log,null,context)
-def twoFiles = false
-def testFileSuffix = "_split"
-def inputFileName = "Test_file_split.xml"
-def subFolder = ""
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
 
 test.storeLatestMessagesId(testRunner)
 
-FSPluginUtils.createRandomFSFile(log, context,1536*1024, inputFileName)
-//FSPluginUtils.createRandomEmptyFSFile(log, context,1*1024*1024,inputFileName)
+FSPluginUtils.createRandomFSFile(log, context,1536*1024, inputFileName) //1,5 MB with fragment set to 1MB to create exactly 2 fragments
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
 
-FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"splitStandard","default",parametersMap, twoFiles, testFileSuffix, subFolder, inputFileName)
-messageId=test.waitAndFindLatestMessageIdInDb(testRunner)
-testRunner.testCase.setPropertyValue("lastMessageId", messageId)
-
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
 test.finalize()
 
 </script></con:config></con:testStep><con:testStep type="delay" name="D1" id="340a5083-6867-44c7-b1fd-d34ef19fb84a"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="bb388979-0f0c-4ed9-8bd7-21a05559aa64"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
@@ -5034,8 +5720,481 @@ test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Defa
          <messageID>${#TestCase#lastMessageId}_2</messageID>
       </eu:statusRequest>
    </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="groovy" name="Check Files Exist in OUT folder" id="55908488-9118-4193-8cbc-b2006829f8c7"><con:settings/><con:config><script>def side="c3";
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+
+def payloadName=["metadata.xml",outFileName];
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>545</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>519</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>3a43f779-3218-11ed-94c7-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ002.xml</con:value></con:property><con:property><con:name>outFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:testCase id="bf4bbba3-c867-418e-a1a0-1c693b3223d6" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ003-Push-Basic Flow-Smal file - split to many parts" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="ec682617-87f7-4a12-a4ca-a715769df0f7"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="5b9461bb-958e-4ec2-8120-b554f19a1162"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="99cbe7f1-cc50-43cc-9e76-411d3910a1fe"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,(numberOfFragments-1)*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1kB to ensure number of fragments to be exactly equal numberOfFragments 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="144e111c-07c9-49b6-8dc6-63cd4451fd54"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="fdd98321-831e-4af4-8572-b1872486121e"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="request" id="22c74bcd-d8dc-4da6-86ed-ca93cfd4ca86" name="getStatus of orignal message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of orignal message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="8b44cdb8-2a49-4b6d-bf7d-1077106047ff" name="getStatus of first fragment message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of first fragment message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_1</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="eba4bf7e-4a93-440f-80d2-715bce808e19" name="getStatus of last fragment message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of last fragment message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_${#TestCase#numberOfFragments}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>ACKNOWLEDGED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="9a58ad10-5de9-44dc-9b66-9525a8dfab35" name="getStatus of orignal message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of orignal message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>DOWNLOADED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="ff902c20-e39b-40f4-9798-c08de32d802e" name="getStatus of first fragment message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of first fragment message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_1</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="fd7badc6-bb77-4e29-a41b-20dc49d735ae" name="getStatus of last fragment message on receiver side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of last fragment message on receiver side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#remoteUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_${#TestCase#numberOfFragments}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
 </soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>RECEIVED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 //test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
 
 test.finalize()
-//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>402</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>371</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>3f3b74ff-3019-11ed-9729-0a0027000006@domibus.eu</con:value></con:property></con:properties></con:testCase><con:testCase id="296b6105-77de-46bc-b78b-29e32e8b29c9" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ003-Push-Basic Flow-Smal file - split to many parts" searchProperties="true" disabled="true"><con:settings/><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>c:/ec/501/blue/domibus/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>c:/ec/501/red/domibus/</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>c:/ec/4211/green/domibus/</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}/reports/Domibus_3_3_2_test_results.xlsx</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresDefault</con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>tempFilesDir</con:name><con:value>${projectDir}/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}/resources/fileSmall.pdf </con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}/resources/videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>adminC1Default</con:name><con:value>adminC1Default</con:value></con:property><con:property><con:name>adminC4Default</con:name><con:value>adminC4Default</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_501_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}, "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_501_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}}</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>superAdminUsername</con:name><con:value>super</con:value></con:property><con:property><con:name>superAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>defaultAdminUsername</con:name><con:value>admin</con:value></con:property><con:property><con:name>defaultAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>true</con:value></con:property><con:property><con:name>multitenancyModeThird</con:name><con:value>0</con:value></con:property><con:property><con:name>unsecureLoginAllowedC2</con:name><con:value>true</con:value></con:property><con:property><con:name>unsecureLoginAllowedC3</con:name><con:value>true</con:value></con:property><con:property><con:name>logsPathBlue</con:name><con:value>${#Project#pathBlue}logs/</con:value></con:property><con:property><con:name>logsPathRed</con:name><con:value>${#Project#pathRed}logs/</con:value></con:property><con:property><con:name>logsPathGreen</con:name><con:value>${#Project#pathGreen}logs/</con:value></con:property><con:property><con:name>databaseBlue</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverBlue</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlBlue</con:name><con:value>jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>blueDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>blueDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>databaseRed</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverRed</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlRed</con:name><con:value>jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>redDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>redDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>payloadsPath</con:name><con:value>C:/ec/soapui/resources</con:value></con:property><con:property><con:name>adminC1Dom1Default</con:name><con:value>userC1C2Dom1</con:value></con:property><con:property><con:name>adminC1Dom2Default</con:name><con:value>userC1C2Dom2</con:value></con:property><con:property><con:name>adminC4Dom1Default</con:name><con:value>userC4C3Dom1</con:value></con:property><con:property><con:name>adminC4Dom2Default</con:name><con:value>userC4C3Dom2</con:value></con:property><con:property><con:name>userC1DomDefault</con:name><con:value>userC1DomDefault</con:value></con:property><con:property><con:name>userC1Dom1</con:name><con:value>userC1Dom1</con:value></con:property><con:property><con:name>userC1Dom2</con:name><con:value>userC1Dom2</con:value></con:property><con:property><con:name>userC1Dom2SelfC4</con:name><con:value>userC1Dom2SelfC4</con:value></con:property><con:property><con:name>userC1Dom3</con:name><con:value>userC1Dom3</con:value></con:property><con:property><con:name>userC1Dom4</con:name><con:value>userC1Dom4</con:value></con:property><con:property><con:name>userC4DomDefault</con:name><con:value>userC4DomDefault</con:value></con:property><con:property><con:name>userC4Dom1</con:name><con:value>userC4Dom1</con:value></con:property><con:property><con:name>userC4Dom2</con:name><con:value>userC4Dom2</con:value></con:property><con:property><con:name>usersPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>c1OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</con:value></con:property><con:property><con:name>c4OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</con:value></con:property><con:property><con:name>fsFilesPathBlue</con:name><con:value>c:/ec/501/blue/domibus/fs_plugin</con:value></con:property><con:property><con:name>fsFilesPathRed</con:name><con:value>c:/ec/501/red/domibus/fs_plugin</con:value></con:property><con:property><con:name>fsFilesPathGreen</con:name><con:value>C:/domibus/1-mainBranch/greenReceiver/fs_plugin_data</con:value></con:property><con:property><con:name>fsMetadataStandard</con:name><con:value><![CDATA[<UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithMimeType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <Property name="MimeType">text/xml</Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithPayloadName</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <ns:Property name="PayloadName">PayloadName.xml</ns:Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithProcessingType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties>    <PayloadInfo>       <PartInfo href="cid:messagefrompp">          <PartProperties>             <Property name="MimeType">text/xml</Property>          </PartProperties>       </PartInfo>    </PayloadInfo>    <!--Optional: PUSH per default-->    <ProcessingType>PUSH</ProcessingType> </UserMessage>]]></con:value></con:property><con:property><con:name>splitMetadataStandard</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <Service type="tc1">bdx:noprocess</Service>         <Action>TC1Leg1</Action>     </CollaborationInfo>     <MessageProperties>         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties> </UserMessage>]]></con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>495</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>480</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>b4af8f43-31fb-11ed-94c7-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>21</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ003.xml</con:value></con:property></con:properties></con:testCase><con:testCase id="f401582c-06ef-4c59-afa9-4189f53229cb" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ004-Push-Basic Flow-Same filename" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="61b5542a-bce8-4a75-800a-0a4c8ef6c760"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers - first file" id="96f0984e-fcb7-4aba-a1cb-25e632fcf795"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message - first file" id="e66aed28-4ac7-4599-acbd-ec4c0a9eef5d"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,1536*1024, inputFileName) //1,5 MB with fragment set to 1MB to create exactly 2 fragments
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="39a23450-a39d-4c43-bd99-7a96ea8217d9"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged - first file" id="19b3bb05-f4b4-47eb-8aaf-f5a885b8d5cd"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def numberOfFragments=2 
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Check Files Exist in OUT folder - first file" id="b2804efb-44a9-4301-9949-1abe6fc901a6"><con:settings/><con:config><script>def side="c3";
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+
+def payloadName=["metadata.xml",outFileName];
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers - second file" id="cec35c61-c096-43ed-82e9-63286cc53712"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message - second file" id="37105156-cea2-4dda-ba1d-2afc6daefda2"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = "Test_file_split_DomSJ004.xml"
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,1536*1024, inputFileName) //1,5 MB with fragment set to 1MB to create exactly 2 fragments
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="e8e2f343-1f9b-4a2d-a1ca-fbd4aa8b59f1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged - second file" id="50356511-c4fb-44ea-b5c2-6ecdeaeb0143"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def numberOfFragments=2 
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Check Files Exist in OUT folder - second file" id="932af31f-9187-4bdb-9446-8364f1ae35c4"><con:settings/><con:config><script>def side="c3";
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+
+def payloadName=["metadata.xml",outFileName];
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>542</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>517</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>22696637-3218-11ed-94c7-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ004.xml</con:value></con:property><con:property><con:name>outFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:testCase id="9c1ec5b6-a882-4f8d-8567-93f277f743e8" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ005-Push-Basic Flow-Special characters in file name" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="aa429ef4-6da2-4ed3-abc5-8e33bf2b300a"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="7d3036cd-6a6a-4a51-833b-be98061543cd"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="976b68fd-994b-4efe-833f-4d00f4504c08"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = "Test_file_split_DomSJ005_gęśla_jaźń_ü.xml"
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,1536*1024, inputFileName) //1,5 MB with fragment set to 1MB to create exactly 2 fragments
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="9a60aa01-b2de-4a6f-8d8f-b7fc63c822f9"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="4d5fdec2-08a6-4159-9536-82fa40219ffd"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def numberOfFragments=2 
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Check Files Exist in OUT folder" id="01446696-5baa-49f1-81cc-27db8c288874"><con:settings/><con:config><script>def side="c3";
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+
+def payloadName=["metadata.xml",outFileName];
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>550</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>522</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>b76e5b0d-3218-11ed-94c7-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ005_gęśla_jaźń_ü.xml</con:value></con:property><con:property><con:name>outFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:testCase id="59965177-194b-4e77-a742-a9a3f0ed78ba" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ006-Push-Basic Flow-Check payload is compressed before split" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="09617a99-6e56-4396-a9cc-e34136b6a342"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="599d2c33-6177-43e1-9199-14ebb212900f"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message without compression enabled" id="28fe7b0e-ba9f-4db7-a622-53c29c95f4f0"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+def parametersMap = [SRV_TYPE:"tc2", ACTION:"TC2Leg1"] // this one is not using compression 
+
+FSPluginUtils.createRandomEmptyFSFile(log, context,(numberOfFragments-1)*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1kB 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName, parametersMap)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="2f0bb8d6-7e04-4ea0-a73c-2286c297e67f"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers - very well compressed file" id="04117ed4-6d99-4a5b-b98f-6cd97ccc06ef"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message with compression enabled - very well compressed file" id="aaf1ec35-0aff-4f80-a3fe-7944c0d79a62"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+//using leg compression enabled
+
+FSPluginUtils.createRandomEmptyFSFile(log, context,(numberOfFragments-1)*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1kB but file would compress very good
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged - very well compressed file" id="42367e94-dfc8-4aed-93e2-19c7f90924de"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def numberOfFragments = 1 // after compression
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId)
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>595</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>560</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>8348098b-321d-11ed-94c7-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>11</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ006.xml</con:value></con:property></con:properties></con:testCase><con:testCase id="bd915b12-f3f7-41af-b6f8-37f5e69b6ba6" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ007-Push-Basic Flow-Split for large fragments like 500MB" searchProperties="true" disabled="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="a26e87ad-bb3e-4998-8128-ee602f34a309"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="f7203794-28fc-44af-8356-3db69d13426b"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="cc23a256-fd86-430f-8aa9-3a5e3ae0e9ae"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+def parametersMap = [SRV_TYPE:"tc3", ACTION:"TC3Leg1"] // this one is not using compression 
+
+FSPluginUtils.createRandomFSFile(log, context,(numberOfFragments-1)*500*1024*1024+1024*1024, inputFileName) //file size (numberOfFragments -1) * 500 MB + 1MB 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName, parametersMap)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner, "C2", 240_000)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="ef972d5f-c35e-453b-9d20-59cb595c5e87"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId,"360")
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Check Files Exist in OUT folder" id="3d154833-e600-4fc5-936f-9c3eabd64bb0"><con:settings/><con:config><script>def side="c3";
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#inputFileName}') //inputFileName - because it is manually created
+
+def payloadName=["metadata.xml",outFileName];
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>8</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>6</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>950f02aa-3229-11ed-81dc-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>5</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ007.xml</con:value></con:property><con:property><con:name>outputFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:testCase id="e0ec430a-c098-4f6c-b03d-ee6bbefaa76e" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ008-Push-Manual-Send 128GB file" searchProperties="true" disabled="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="38e4ed98-e14c-4eab-89bd-86918cebd8bd"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="f502a3c8-a48c-418c-844c-ace7e7e310ef"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="1878d40a-10c1-437b-a86b-b9b8004dec97"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+def parametersMap = [SRV_TYPE:"tc3", ACTION:"TC3Leg1"] // this one is not using compression 
+
+//FSPluginUtils.createRandomFSFile(log, context,(numberOfFragments-1)*500*1024*1024+1024*1024, inputFileName) //file size (numberOfFragments -1) * 500 MB + 1MB 
+Domibus.showPopUpForManualConfigurationChange("""\
+VEry biig file (128GB+1MB) ${inputFileName} in /resources/PModesandKeystoresSpecialTests/fsPlugin/standard/ fodler for testing requrided 
+""", log, testRunner)
+
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName, parametersMap)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner, "C2", 1_000_000)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="cab2f307-daf2-4a83-968c-3e38e4200ede"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId,"4000")
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Check Files Exist in OUT folder" id="9aaa50e8-0de5-4ed0-8180-e4ccc4a54433"><con:settings/><con:config><script>def side="c3";
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+
+def payloadName=["metadata.xml",outFileName];
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>8</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>6</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>950f02aa-3229-11ed-81dc-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>256</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ008.xml</con:value></con:property><con:property><con:name>outputFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:testCase id="57b6b650-0b69-42d7-a8b5-07d23c1cd33e" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ009-Push-Negative Flow-No receipt" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="6ad17d15-31c2-46c4-bcab-563b818cc924"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="2184dd06-4982-472c-95f5-33228e32712f"><con:settings/><con:config><script>import java.nio.file.Paths
+def newFileSuffix =  "_SoapuiStringReplace.xml"
+def currentValue=['&lt;party.+name.*=.*"red_gw"[\\s\\S]*?>']
+def newValue=['&lt;party name="red_gw" endpoint="http://localhost:8181/domibus/services/msh" allowChunking="false">']
+def joinedPath = Paths.get(context.expand('${#Project#specialPModesPath}'),"/splitandjoin/blue/domibus-pmode-blue.xml").toUri()
+
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, newFileSuffix)
+PModeUtils.updatePmodeParameter(log, context, testRunner,currentValue,newValue,joinedPath, newFileSuffix)
+PModeUtils.uploadPmode("C2","special","/splitandjoin/blue/domibus-pmode-blue.xml" + newFileSuffix, context, log)
+</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="6c2661c5-940e-4a42-862d-160a0d865e3c"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="80932c59-01aa-4962-9bf8-26f3bb14f083"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"WAITING_FOR_RETRY","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="e4652c1f-14f9-472d-bb58-7b73e6a9897f"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,(numberOfFragments-1)*1*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1kB 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="e713a8aa-1fff-4e0a-acfb-11933daec6f3"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.waitForStatus("SEND_ENQUEUED",null, messageId,"360")
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments).toString() //fragments in WAITING_FOR_RETRY state
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+0).toString() // nothing received
+
+test.waitMessagesExchangedNumber(count1,count2,"WAITING_FOR_RETRY","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="0cbb52ff-851b-4952-8455-b3bc60a3d853"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check Files doesn't exist in IN folder of C3" id="41850b14-b96f-45e2-994d-a4286057a315"><con:settings/><con:config><script>def side="c3"
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4"
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+def checkTrue = false
+
+def payloadName=["metadata.xml",outFileName]
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner,checkTrue)</script></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default blue Pmode" id="4d1207ba-1351-47a6-9fe5-7e809ef423a7" disabled="true"><con:settings/><con:config><script>// Upload PModes: default Pmode for C2
+import java.nio.file.Paths
+def suffix =  "_SoapuiStringReplace.xml"
+def joinedPath = Paths.get(context.expand('${#Project#specialPModesPath}'),"/splitandjoin/blue/domibus-pmode-blue.xml").toUri()
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("C2","special","/splitandjoin/blue/domibus-pmode-blue.xml" + suffix, context, log)
+</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Revert - upload default blue Pmode'].run(testRunner, context)
+
+def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>6</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>14</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>d952f6c2-3232-11ed-81dc-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>3</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ009.xml</con:value></con:property><con:property><con:name>outputFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:testCase id="5361b50d-2777-4d02-b353-a04afbd180f8" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ010-Push-Negative Flow-Leg not matched-not existing Action" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="39930f63-3005-4aed-9785-cee3a6a3ecf3"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="33e653bf-0078-47fb-bce8-2f9d086ed338"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="20ee4d1e-d4e1-4302-9b42-857f1fa10bf7"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line C2" id="f3027421-befd-4b75-9c4c-f343322d5f0f"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="38051f29-df12-4fad-8993-a0e0238d1986"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+def parametersMap = [ACTION:"NotExistingLegAction"] // not existing action 
+
+FSPluginUtils.createRandomFSFile(log, context,(numberOfFragments-1)*1*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1MB 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName, parametersMap)
+
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="1ce60aed-19e5-4c26-9389-1e2e0f146488"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="Copy of Check Error Status" id="861cd533-85e4-40af-933c-593acf53ef2c"><con:settings/><con:config><script>def payloadNumber = 1 
+FSPluginUtils.checkFSpayloadPresentFAILED("c2", context, log, testRunner, payloadNumber)</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="67dfc104-1def-470e-9b45-9d1cbad1af92"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+0).toString() 
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+0).toString()
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Check C2 log file" id="5088e139-5820-4712-9fa6-44853584b83e"><con:settings/><con:config><script>def logValueList =  ["No matching action found"]
+Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner)</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>18</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>14</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>d952f6c2-3232-11ed-81dc-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>2</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ010.xml</con:value></con:property><con:property><con:name>outputFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>6951</con:value></con:property></con:properties></con:testCase><con:testCase id="81eb1153-2af3-400a-9d1c-8821bd37876a" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ011-Push-Basic Flow-Self sending - bug - stil not supported" searchProperties="true" disabled="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="4358d84f-cac2-4372-a8c1-2e7602c46309"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="eb36e017-faed-4ef4-ba47-65dea2197819"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received","C2","C2");</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message without compression enabled" id="b12a8cbc-0cb9-4723-b052-1574933e76ac"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+def parametersMap = [RECEIVER:"domibus-blue"] // this one is not using compression 
+
+FSPluginUtils.createRandomEmptyFSFile(log, context,(numberOfFragments-1)*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1kB 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName, parametersMap)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="89bb7adf-dff5-40ed-9533-9f6924de9851"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED", messageId, null, null, "C2", "C2")
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+numberOfFragments+1).toString() //orginal msg + number of fragments that file was split
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+numberOfFragments).toString() // only original message state change to Downloaded not Received
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C2Default",1,1)</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>18</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>dc509ae0-323c-11ed-81dc-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>2</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ011.xml</con:value></con:property></con:properties></con:testCase><con:testCase id="2393d4b3-cda0-4af8-964d-d18e842234ab" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ012-Push-Negative Flow-Corrupted metadata.xml file" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="00cb0751-c10d-461c-bac5-962c405ecc97"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="5c8f8563-60cb-467a-a167-0fe00463e4b9"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set initial messages numbers" id="b90e6b46-93d0-4994-a264-8eb5a1d75fb6"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.countCurrentMessagesNumber(testRunner,"acknowledged","received");</script></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line C2" id="e2806c54-8ffd-4b9e-a66b-fae216facdbd"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="7e6e2dfd-0b8e-4878-ad8e-e2d3d9f2f0b3"><con:settings/><con:config><script><![CDATA[// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+def parametersMap = [ACTION:"</Action></Action><<<<<<<>>>"] // any change that cause metadata.xml file to be corrupted 
+
+FSPluginUtils.createRandomFSFile(log, context,(numberOfFragments-1)*1*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1MB 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName, parametersMap)
+
+test.finalize()
+
+]]></script></con:config></con:testStep><con:testStep type="delay" name="D1" id="7371337e-5644-4306-8899-548aac5968a9"><con:settings/><con:config><delay>20000</delay></con:config></con:testStep><con:testStep type="groovy" name="Copy of Check Error Status" id="b80999cb-217d-40c9-81e5-82bd77864f68"><con:settings/><con:config><script>def payloadNumber = 1 
+FSPluginUtils.checkFSpayloadPresentFAILED("c2", context, log, testRunner, payloadNumber)</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="71ec85bf-dc56-4073-a696-a83cf16b2abc"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+
+def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+0).toString() 
+def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+0).toString()
+
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","received","C2Default","C3Default",1,1)</script></con:config></con:testStep><con:testStep type="groovy" name="Check C2 log file" id="b37cab4e-599b-4e6d-9bae-c40b129030d1"><con:settings/><con:config><script>def logValueList =  ["Invalid metadata file: javax.xml.bind.UnmarshalException"]
+Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner)</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>23</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>18</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>b4656e6e-3242-11ed-81dc-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>2</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ012.xml</con:value></con:property><con:property><con:name>outputFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>12367</con:value></con:property></con:properties></con:testCase><con:testCase id="49a9ea3e-2233-4e56-94a2-355692c5aa2b" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomSJ013-Push-Negative Flow-Not matching Pmode on receiver side" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Clean FS plugin folders" id="2a6c1c91-ed34-4630-b0a6-8c91c5455c2f"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="ee030f8e-d053-4d7b-b8a6-0e610bdb6660"><con:settings/><con:config><script>import java.nio.file.Paths
+def newFileSuffix =  "_SoapuiStringReplace.xml"
+def currentValue=['action name="tc1Action" value="TC1Leg1"']
+def newValue=['action name="tc1Action" value="BAD_TC1Leg1"']
+def joinedPath = Paths.get(context.expand('${#Project#specialPModesPath}'),"/splitandjoin/red/domibus-pmode-red.xml").toUri()
+
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, newFileSuffix)
+PModeUtils.updatePmodeParameter(log, context, testRunner,currentValue,newValue,joinedPath, newFileSuffix)
+PModeUtils.uploadPmode("receiver","special","/splitandjoin/red/domibus-pmode-red.xml" + newFileSuffix, context, log)
+</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="4b68294a-dac1-428c-a03a-dd04c82d9589"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="24e44040-5883-4906-bea2-dc1c5816a75a"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+def test = new Domibus(log,null,context)
+def inputFileName = testRunner.testCase.getPropertyValue("inputFileName")
+def numberOfFragments = testRunner.testCase.getPropertyValue("numberOfFragments").toInteger()
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.createRandomFSFile(log, context,(numberOfFragments-1)*1*1024*1024+1024, inputFileName) //file size (numberOfFragments -1) * 1 MB + 1kB 
+FSPluginUtils.submitSplitAndJoinMessage("C2", context, log, testRunner, inputFileName)
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+test.finalize()
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Message Exchanged" id="9f738cb0-ca02-4317-968c-da9fb7630b68"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+test.waitForStatus("SEND_ENQUEUED",null, messageId,"30")
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check Files doesn't exist in IN folder of C3" id="c3743a6d-ccf6-44fc-b7d4-73e574f0c4c8"><con:settings/><con:config><script>def side="c3"
+def finalRecipient="urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4"
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def outFileName = context.expand('${#TestCase#outFileName}')
+def checkTrue = false
+
+def payloadName=["metadata.xml",outFileName]
+
+FSPluginUtils.checkFSpayloadPresentIN(side,finalRecipient,messageId,payloadName,"default",context,log,testRunner,checkTrue)</script></con:config></con:testStep><con:testStep type="request" id="8ca3d7ac-0949-49a9-b314-66188ee40e19" name="getStatus of orignal message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of orignal message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>SEND_ENQUEUED</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="ffab27d5-e8f8-4349-81b6-5ca36f4248d0" name="getStatus of fragment message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of fragment message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_1</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>WAITING_FOR_RETRY</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="request" id="104fa160-dde3-4cc2-a389-6d892929ffb1" name="getStatus of second fragment message on sender side"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>WebServicePluginSoapBinding</con:interface><con:operation>getStatus</con:operation><con:request name="getStatus of second fragment message on sender side" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="" id="5916d0fe-a309-446d-a469-455665f21424"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#localUrl}/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">
+   <soap:Header/>
+   <soap:Body>
+      <eu:statusRequest>
+         <messageID>${#TestCase#lastMessageId}_2</messageID>
+      </eu:statusRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:assertion type="SOAP Response" id="fe2d8d67-ae9c-4b30-9e1a-f917d2541843" name="SOAP Response"/><con:assertion type="SOAP Fault Assertion" id="e916d346-f202-4893-bac7-b5a3800b2312" name="Not SOAP Fault"/><con:assertion type="Valid HTTP Status Codes" id="881eed42-0bfa-4240-82dc-5f8c3394d328" name="Valid HTTP Status Codes"><con:configuration><codes>200</codes></con:configuration></con:assertion><con:assertion type="Simple Contains" id="3f4fab27-b157-4d49-8e26-2031fc68b626" name="Contains"><con:configuration><token>WAITING_FOR_RETRY</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default red Pmode" id="1844d2b4-a892-4639-a4d0-f491c9a48498" disabled="true"><con:settings/><con:config><script>// Upload PModes: default Pmode for C3
+import java.nio.file.Paths
+def suffix =  "_SoapuiStringReplace.xml"
+def joinedPath = Paths.get(context.expand('${#Project#specialPModesPath}'),"/splitandjoin/red/domibus-pmode-red.xml").toUri()
+PModeUtils.updatePmodeEndpoints(log, context, testRunner, joinedPath, suffix)
+PModeUtils.uploadPmode("C3","special","/splitandjoin/red/domibus-pmode-red.xml" + suffix, context, log)
+</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Revert - upload default red Pmode'].run(testRunner, context)
+
+def test = new Domibus(log,null,context)
+//test.cleanDBMessageIDStartsWith(context.expand('${#TestCase#lastMessageId}'))
+
+test.finalize()
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>6</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>18</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>b4656e6e-3242-11ed-81dc-0a0027000006@domibus.eu</con:value></con:property><con:property><con:name>numberOfFragments</con:name><con:value>2</con:value></con:property><con:property><con:name>inputFileName</con:name><con:value>Test_file_split_DomSJ013.xml</con:value></con:property><con:property><con:name>outputFileName</con:name><con:value>Test_file_${#TestCase#inputFileName}</con:value></con:property></con:properties></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>false</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>c:/ec/501/blue/domibus/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>c:/ec/501/red/domibus/</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>c:/ec/4211/green/domibus/</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}/reports/Domibus_3_3_2_test_results.xlsx</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresDefault</con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}/resources/PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>tempFilesDir</con:name><con:value>${projectDir}/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}/resources/fileSmall.pdf </con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}/resources/videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>adminC1Default</con:name><con:value>adminC1Default</con:value></con:property><con:property><con:name>adminC4Default</con:name><con:value>adminC4Default</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_501_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}, "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.cj.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_501_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}}</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>superAdminUsername</con:name><con:value>super</con:value></con:property><con:property><con:name>superAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>defaultAdminUsername</con:name><con:value>admin</con:value></con:property><con:property><con:name>defaultAdminPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>true</con:value></con:property><con:property><con:name>multitenancyModeThird</con:name><con:value>0</con:value></con:property><con:property><con:name>unsecureLoginAllowedC2</con:name><con:value>true</con:value></con:property><con:property><con:name>unsecureLoginAllowedC3</con:name><con:value>true</con:value></con:property><con:property><con:name>logsPathBlue</con:name><con:value>${#Project#pathBlue}logs/</con:value></con:property><con:property><con:name>logsPathRed</con:name><con:value>${#Project#pathRed}logs/</con:value></con:property><con:property><con:name>logsPathGreen</con:name><con:value>${#Project#pathGreen}logs/</con:value></con:property><con:property><con:name>databaseBlue</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverBlue</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlBlue</con:name><con:value>jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>blueDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>blueDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>databaseRed</con:name><con:value>mysql</con:value></con:property><con:property><con:name>driverRed</con:name><con:value>com.mysql.cj.jdbc.Driver</con:value></con:property><con:property><con:name>jdbcUrlRed</con:name><con:value>jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</con:value></con:property><con:property><con:name>redDbUser</con:name><con:value>root</con:value></con:property><con:property><con:name>redDbPassword</con:name><con:value>root</con:value></con:property><con:property><con:name>payloadsPath</con:name><con:value>C:/ec/soapui/resources</con:value></con:property><con:property><con:name>adminC1Dom1Default</con:name><con:value>userC1C2Dom1</con:value></con:property><con:property><con:name>adminC1Dom2Default</con:name><con:value>userC1C2Dom2</con:value></con:property><con:property><con:name>adminC4Dom1Default</con:name><con:value>userC4C3Dom1</con:value></con:property><con:property><con:name>adminC4Dom2Default</con:name><con:value>userC4C3Dom2</con:value></con:property><con:property><con:name>userC1DomDefault</con:name><con:value>userC1DomDefault</con:value></con:property><con:property><con:name>userC1Dom1</con:name><con:value>userC1Dom1</con:value></con:property><con:property><con:name>userC1Dom2</con:name><con:value>userC1Dom2</con:value></con:property><con:property><con:name>userC1Dom2SelfC4</con:name><con:value>userC1Dom2SelfC4</con:value></con:property><con:property><con:name>userC1Dom3</con:name><con:value>userC1Dom3</con:value></con:property><con:property><con:name>userC1Dom4</con:name><con:value>userC1Dom4</con:value></con:property><con:property><con:name>userC4DomDefault</con:name><con:value>userC4DomDefault</con:value></con:property><con:property><con:name>userC4Dom1</con:name><con:value>userC4Dom1</con:value></con:property><con:property><con:name>userC4Dom2</con:name><con:value>userC4Dom2</con:value></con:property><con:property><con:name>usersPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>c1OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</con:value></con:property><con:property><con:name>c4OriginalUser</con:name><con:value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</con:value></con:property><con:property><con:name>fsFilesPathBlue</con:name><con:value>c:/ec/501/blue/domibus/fs_plugin</con:value></con:property><con:property><con:name>fsFilesPathRed</con:name><con:value>c:/ec/501/red/domibus/fs_plugin</con:value></con:property><con:property><con:name>fsFilesPathGreen</con:name><con:value>C:/domibus/1-mainBranch/greenReceiver/fs_plugin_data</con:value></con:property><con:property><con:name>fsMetadataStandard</con:name><con:value><![CDATA[<UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithMimeType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <Property name="MimeType">text/xml</Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithPayloadName</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <!--Optional:-->         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <!--You may enter the following 4 items in any order-->         <!--Optional:-->         <AgreementRef type="DUM">DummyAgr</AgreementRef>         <Service type="tc20">bdx:noprocess</Service>         <Action>TC20Leg1</Action>             </CollaborationInfo>     <MessageProperties>         <!--1 or more repetitions:-->         <!--originalSender and finalRecipient are mandatory-->         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties>     <PayloadInfo>         <PartInfo href="cid:messagefrompp">             <PartProperties>                 <ns:Property name="PayloadName">PayloadName.xml</ns:Property>             </PartProperties>         </PartInfo>     </PayloadInfo> </UserMessage>]]></con:value></con:property><con:property><con:name>fsMetadataWithProcessingType</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage mpc="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">    <PartyInfo>       <From>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>       </From>       <!--Optional:-->       <To>          <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>          <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>       </To>    </PartyInfo>    <CollaborationInfo>       <!--You may enter the following 4 items in any order-->       <!--Optional:-->       <AgreementRef type="DUM">DummyAgr</AgreementRef>       <Service type="tc20">bdx:noprocess</Service>       <Action>TC20Leg1</Action>    </CollaborationInfo>    <MessageProperties>       <!--1 or more repetitions:-->       <!--originalSender and finalRecipient are mandatory-->       <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>       <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>    </MessageProperties>    <PayloadInfo>       <PartInfo href="cid:messagefrompp">          <PartProperties>             <Property name="MimeType">text/xml</Property>          </PartProperties>       </PartInfo>    </PayloadInfo>    <!--Optional: PUSH per default-->    <ProcessingType>PUSH</ProcessingType> </UserMessage>]]></con:value></con:property><con:property><con:name>splitMetadataStandard</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8" ?> <UserMessage xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">     <PartyInfo>         <From>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-blue</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>         </From>         <To>             <PartyId type="urn:oasis:names:tc:ebcore:partyid-type:unregistered">domibus-red</PartyId>             <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>         </To>     </PartyInfo>     <CollaborationInfo>         <Service type="tc1">bdx:noprocess</Service>         <Action>TC1Leg1</Action>     </CollaborationInfo>     <MessageProperties>         <Property name="originalSender">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</Property>         <Property name="finalRecipient">urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</Property>     </MessageProperties> </UserMessage>]]></con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>

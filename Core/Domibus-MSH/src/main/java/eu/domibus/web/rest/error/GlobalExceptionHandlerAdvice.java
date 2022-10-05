@@ -7,6 +7,7 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.TestErrorsInfoRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.HibernateException;
@@ -71,8 +72,8 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler({TestServiceException.class})
-    public ResponseEntity<ErrorRO> handleTestServiceException(TestServiceException ex) {
-        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<TestErrorsInfoRO> handleTestServiceException(TestServiceException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.EXPECTATION_FAILED);
     }
 
     @ExceptionHandler({RuntimeException.class})

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -40,7 +41,6 @@ import static org.junit.Assert.assertNotNull;
 public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
-    private static final String DYNAMICDISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
     private static final String TEST_KEYSTORE = "testkeystore.jks";
 
     //The (sub)domain of the SML, e.g. acc.edelivery.tech.ec.europa.eu
@@ -130,10 +130,10 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Test
     public void testLookupInformationMock(@Capturing LookupClient smpClient) throws Exception {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
+            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = TransportProfile.AS4.getIdentifier();
@@ -141,7 +141,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
             smpClient.getServiceMetadata((ParticipantIdentifier) any, (DocumentTypeIdentifier) any);
             result = sm;
 
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
             result = transportProfileAS4;
 
             endpointInfo.getAddress();
@@ -160,10 +160,10 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Test
     public void testLookupInformationMockOtherTransportProfile(final @Capturing LookupClient smpClient) throws Exception {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
+            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = "AS4_other_transport_profile";
@@ -171,7 +171,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
             smpClient.getServiceMetadata((ParticipantIdentifier) any, (DocumentTypeIdentifier) any);
             result = sm;
 
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
             result = transportProfileAS4;
 
             endpointInfo.getAddress();
@@ -191,8 +191,8 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     public void getPartyIdTypeTestForNull() {
         final String URN_TYPE_VALUE = "urn:fdc:peppol.eu:2017:identifiers:ap";
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
-            result = null;
+            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE);
+            result = URN_TYPE_VALUE;
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServicePEPPOL.getPartyIdType();
@@ -202,8 +202,8 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Test
     public void getPartyIdTypeTestForEmpty() {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
-            result = "";
+            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE);
+            result = null;
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServicePEPPOL.getPartyIdType();
@@ -214,10 +214,10 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Test(expected = ConfigurationException.class)
     public void testLookupInformationNotFound(final @Capturing LookupClient smpClient) throws Exception {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = TEST_SML_ZONE;
 
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_MODE);
+            domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE);
             result = Mode.TEST;
 
             transportProfileAS4 = TransportProfile.AS4.getIdentifier();
@@ -294,7 +294,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Test(expected = ConfigurationException.class)
     public void testSmlZoneEmpty() throws EbMS3Exception {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = "";
             times = 1;
         }};
@@ -304,7 +304,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     @Test(expected = ConfigurationException.class)
     public void testSmlZoneNull() throws EbMS3Exception {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
+            domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = null;
             times = 1;
         }};

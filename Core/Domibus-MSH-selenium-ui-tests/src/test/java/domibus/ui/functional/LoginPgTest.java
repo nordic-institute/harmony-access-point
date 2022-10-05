@@ -86,7 +86,6 @@ public class LoginPgTest extends SeleniumTest {
 		soft.assertTrue(page.getAlertArea().isError(), "Error message is displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_INVALID_CREDENTIALS, "Displayed message is correct");
 
-//rest.deleteUser(username, null);
 		Reporter.log("Deleted user: " + username);
 		log.info("Deleted user: " + username);
 
@@ -535,8 +534,3 @@ public class LoginPgTest extends SeleniumTest {
 
 }
 
-
-//	You have been logged out because of inactivity or missing access permissions.
-
-
-//   domibus.passwordPolicy.expiration

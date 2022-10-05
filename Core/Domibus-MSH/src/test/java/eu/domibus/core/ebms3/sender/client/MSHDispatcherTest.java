@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
@@ -106,6 +107,9 @@ public class MSHDispatcherTest {
     @Injectable
     DomainContextProvider domainContextProvider;
 
+    @Injectable
+    SecurityUtilImpl securityUtil;
+
     @Tested
     MSHDispatcher mshDispatcher;
 
@@ -128,7 +132,7 @@ public class MSHDispatcherTest {
                                                                @Injectable final Policy policy,
                                                                @Injectable final Dispatch<SOAPMessage> dispatch) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception, IOException, ParserConfigurationException, SAXException {
         final String endPoint = "http://localhost";
-        final String algorithm = "algorithm";
+        final String algorithm = "RSA";
         final String pModeKey = "myPmodeKey";
         final boolean cacheable = true;
         final Domain domain = new Domain("default", "Default");
@@ -140,7 +144,7 @@ public class MSHDispatcherTest {
             mshDispatcher.isDispatchClientCacheActivated();
             result = cacheable;
 
-            legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+            securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
             result = algorithm;
 
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
@@ -174,7 +178,7 @@ public class MSHDispatcherTest {
                                                      @Injectable final Policy policy,
                                                      @Injectable final Dispatch<SOAPMessage> dispatch) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception, IOException, ParserConfigurationException, SAXException {
         final String endPoint = "http://localhost";
-        final String algorithm = "algorithm";
+        final String algorithm = "RSA";
         final String pModeKey = "myPmodeKey";
         final boolean cacheable = false;
         final Domain domain = new Domain("default", "Default");
@@ -186,7 +190,7 @@ public class MSHDispatcherTest {
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
             result = dispatch;
 
-            legConfiguration.getSecurity().getSignatureMethod().getAlgorithm();
+            securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile());
             result = algorithm;
 
             dispatch.invoke(requestSoapMessage);

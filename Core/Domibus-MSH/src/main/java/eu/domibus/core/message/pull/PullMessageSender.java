@@ -103,6 +103,9 @@ public class PullMessageSender {
     @Autowired
     private PullRequestDao pullRequestDao;
 
+    @Autowired
+    protected UserMessagePayloadService userMessagePayloadService;
+
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     //@TODO unit test this method.
     @Timer(clazz = PullMessageSender.class, value = "outgoing_pull_request")
@@ -158,7 +161,7 @@ public class PullMessageSender {
             userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
             messageId = userMessage.getMessageId();
 
-            partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging, null);
+            partInfos = userMessagePayloadService.handlePayloads(response, ebms3Messaging, null);
             handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;

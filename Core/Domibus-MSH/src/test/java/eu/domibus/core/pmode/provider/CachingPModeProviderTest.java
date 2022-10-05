@@ -16,12 +16,12 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
-import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.*;
 import eu.domibus.core.pmode.validation.PModeValidationService;
@@ -129,6 +129,9 @@ public class CachingPModeProviderTest {
 
     @Injectable
     private MpcService mpcService;
+
+    @Injectable
+    private DomibusCacheService domibusCacheService;
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         LOG.debug("Inside sample PMode configuration");
@@ -382,6 +385,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testFindPartyIdByServiceAndAction() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
+        String initiatingPartyId = "domibus-blue";
         List<String> expectedList = new ArrayList<>();
         expectedList.add("domibus-red");
         expectedList.add("domibus-blue");
@@ -393,7 +397,8 @@ public class CachingPModeProviderTest {
         }};
 
         // When
-        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
+
+        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         // Then
         assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
@@ -403,6 +408,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testFindPushToPartyIdByServiceAndAction() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
+        String initiatingPartyId = "domibus-blue";
         List<String> expectedList = new ArrayList<>();
         expectedList.add("domibus-red");
         expectedList.add("domibus-blue");
@@ -416,7 +422,7 @@ public class CachingPModeProviderTest {
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
 
         // When
-        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
+        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 
         // Then
         assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
@@ -1196,6 +1202,7 @@ public class CachingPModeProviderTest {
         Action action = cachingPModeProvider.getAction(pModeKey);
         assertNotNull(action);
     }
+
     @Test
     public void testGetAction_notFound() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -1263,6 +1270,7 @@ public class CachingPModeProviderTest {
         LegConfiguration legConfiguration = cachingPModeProvider.getLegConfiguration(pModeKey);
         assertNotNull(legConfiguration);
     }
+
     @Test
     public void testGetLegConfiguration_failed() throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
@@ -1358,7 +1366,7 @@ public class CachingPModeProviderTest {
             result = partyId2;
         }};
 
-        List<String> result = cachingPModeProvider.handleProcessParties(process);
+        List<String> result = cachingPModeProvider.getDistinctPartiesId(process, Process::getResponderParties);
 
         assertEquals(2, result.size());
         Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));
@@ -1516,7 +1524,7 @@ public class CachingPModeProviderTest {
         partyId1.setValue("domibus-red");
         toPartyId.add(partyId1);
 
-        Exception expectedException =  EbMS3ExceptionBuilder.getInstance()
+        Exception expectedException = EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                 .message("No matching party found for type [] and value []")
                 .build();
@@ -1752,6 +1760,7 @@ public class CachingPModeProviderTest {
         LegConfigurationPerMpc allLegConfigurations = cachingPModeProvider.getAllLegConfigurations();
         assertEquals(1, allLegConfigurations.entrySet().size());
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 }

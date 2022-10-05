@@ -16,7 +16,6 @@ import java.util.List;
 
 public class BaseTest {
 
-	//	public static WebDriver driver;
 	public WebDriver driver;
 	public static TestRunData data = new TestRunData();
 	public static DomibusRestClient rest = new DomibusRestClient();
@@ -25,7 +24,6 @@ public class BaseTest {
 	public ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 
-	//	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	protected final MyLogger log = new MyLogger();
 
 	public void generateTestData() throws Exception {

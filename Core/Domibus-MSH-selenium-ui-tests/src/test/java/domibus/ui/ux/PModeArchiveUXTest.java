@@ -14,7 +14,7 @@ import org.testng.asserts.SoftAssert;
 import pages.pmode.archive.PMAModal;
 import pages.pmode.archive.PModeArchivePage;
 import pages.pmode.current.PModeCurrentPage;
-import rest.RestServicePaths;
+import utils.DFileUtils;
 import utils.TestUtils;
 
 import java.nio.file.Files;
@@ -237,7 +237,7 @@ public class PModeArchiveUXTest extends SeleniumTest {
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
 
-		String fileName = rest.csv().downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
+		String fileName = page.pressSaveCsvAndSaveFile();
 		Reporter.log("downloaded file with name " + fileName);
 		log.info("downloaded file with name " + fileName);
 
@@ -327,6 +327,51 @@ public class PModeArchiveUXTest extends SeleniumTest {
 
 		grid.checkModifyVisibleColumns(soft);
 
+
+		soft.assertAll();
+	}
+
+	/*     EDELIVERY-7188 - PMA-9 - User changes the number of visible rows */
+	@Test(description = "PMA-9", groups = {"multiTenancy", "singleTenancy"})
+	public void checkNoOfRows() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("navigating to Pmode Archive page");
+		PModeArchivePage page = new PModeArchivePage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		grid.checkChangeNumberOfRows(soft);
+
+
+		soft.assertAll();
+	} /*
+
+       /* EDELIVERY-9671 - PMA-13 - Downloaded PMode has domain name in the filename */
+
+	@Test(description = "PMA-13", groups = {"multiTenancy", "singleTenancy"})
+	public void domainInDownloadedFileName() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("navigating to Pmode Archive page");
+		PModeArchivePage page = new PModeArchivePage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		DFileUtils.cleanDownloadFolder(data.downloadFolderPath());
+
+		grid.selectRow(0);
+		page.getDownloadBtn().click();
+
+		String fileName = DFileUtils.getCompleteFileName(data.downloadFolderPath());
+
+		String domainName = page.getDomainFromTitle();
+
+		soft.assertTrue(fileName.contains(domainName), "Downloaded file name contains domain name");
 
 		soft.assertAll();
 	}
