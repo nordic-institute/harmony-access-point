@@ -51,7 +51,9 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     super.ngOnInit();
 
     this.sender = await this.connectionsMonitorService.getSenderParty();
-    this.setCurrentSenderPartyId(this.sender.identifiers[0].partyId);
+    let partyIds = this.sender.identifiers;
+    partyIds.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
+    this.setCurrentSenderPartyId(partyIds[0].partyId);
 
     this.loadServerData();
   }

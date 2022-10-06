@@ -110,7 +110,7 @@ export class ConnectionDetailsComponent implements OnInit {
     this.isBusy = true;
     try {
       let searchParams = new HttpParams();
-      searchParams = searchParams.append('senderPartyId', partyId);
+      searchParams = searchParams.append('senderPartyId', senderPartyId);
       searchParams = searchParams.append('partyId', partyId);
 
       let result = await this.http.get<any>(ConnectionDetailsComponent.MESSAGE_LOG_LAST_TEST_SENT_URL, {params: searchParams}).toPromise();

@@ -2,7 +2,7 @@
   <page-header id="connectionmonitorheader_id">Connection Monitoring</page-header>
 
   <div  style="width: 300px; margin-bottom: 30px;">
-    <mat-select *ngIf="sender" [ngModel]="currentSenderPartyId" (selectionChange)="onCurrentSenderPartyId($event)" id="senderPartyIds">
+    <mat-select *ngIf="sender && sender.identifiers.length>1" [ngModel]="currentSenderPartyId" (selectionChange)="onCurrentSenderPartyId($event)" id="senderPartyIds">
       <mat-option *ngFor="let id of sender.identifiers" [value]="id.partyId">
         {{id.partyId}}
       </mat-option>
