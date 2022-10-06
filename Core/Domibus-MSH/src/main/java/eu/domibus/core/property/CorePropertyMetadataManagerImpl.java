@@ -389,6 +389,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),

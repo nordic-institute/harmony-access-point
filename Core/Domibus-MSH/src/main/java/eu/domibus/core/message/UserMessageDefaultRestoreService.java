@@ -3,10 +3,12 @@ package eu.domibus.core.message;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -24,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT;
 /**
  * This service class is responsible for the restore of failed messages.
  *
@@ -56,7 +60,10 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private AuditService auditService;
 
-    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService, PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao, AuditService auditService) {
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+    public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService,
+                                            PModeService pModeService,PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
@@ -67,6 +74,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         this.userMessageService = userMessageService;
         this.userMessageDao = userMessageDao;
         this.auditService = auditService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
 
@@ -171,20 +179,29 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public List<String> batchRestoreFailedMessagesDuringPeriod(List<String> messageIds, Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser) {
+        int maxResendCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
+        int ResendBatchLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
+        final List<String> restoredMessages = new ArrayList<>();
+
         if (CollectionUtils.isEmpty(messageIds)) {
             restoreFailedMessagesDuringPeriod(failedStartDate, failedEndDate, finalRecipient, originalUser);
         }
-        final List<String> restoredMessages = new ArrayList<>();
-        for (String messageId : messageIds) {
-            LOG.debug("Message Id's selected to detele as batch [{}]", messageId);
-            try {
-                restoreFailedMessage(messageId);
-                restoredMessages.add(messageId);
-            } catch (Exception e) {
-                LOG.error("Failed to restore message [" + messageId + "]", e);
+        if (maxResendCount < messageIds.size()) {
+            LOG.warn("Couldn't resend the messages. The resend message counts exceeds maximum resend count limit: " + maxResendCount);
+            throw new MessagingException("The resend message counts exceeds maximum resend count limit: " + maxResendCount, null);
+        } else {
+            if (ResendBatchLimit < messageIds.size()) {
+                for (String messageId : messageIds) {
+                    LOG.debug("Message Id's selected to detele as batch [{}]", messageId);
+                    try {
+                        restoreFailedMessage(messageId);
+                        restoredMessages.add(messageId);
+                    } catch (Exception e) {
+                        LOG.error("Failed to restore message [" + messageId + "]", e);
+                    }
+                }
             }
         }
-
         LOG.debug("Restored messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", restoredMessages, failedStartDate, failedEndDate, finalRecipient);
 
         return restoredMessages;
