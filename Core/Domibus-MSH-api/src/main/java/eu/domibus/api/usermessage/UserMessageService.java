@@ -209,4 +209,6 @@ public interface UserMessageService {
     String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole);
 
     eu.domibus.api.model.UserMessage getByMessageId(String messageId);
+
+    void clearPayloadData(List<Long> entityIds);
 }

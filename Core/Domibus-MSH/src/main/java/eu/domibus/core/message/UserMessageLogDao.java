@@ -621,6 +621,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
         namedQuery.setParameter("ENTITY_IDS", entityIds);
         namedQuery.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
+        MessageStatusEntity deletedStatus = messageStatusDao.findMessageStatus(MessageStatus.DELETED);
+        namedQuery.setParameter("DELETED_STATUS", deletedStatus);
         int i = namedQuery.executeUpdate();
         if (LOG.isTraceEnabled()) {
             LOG.trace("UserMessageLogs [{}] updated to deleted(0:no, 1: yes) with current_time: [{}]", entityIds, i);

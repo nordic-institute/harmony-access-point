@@ -186,7 +186,8 @@ import java.util.Date;
                         "WHERE uml.entityId IN( :ENTITY_IDS )                       "),
         @NamedQuery(name = "UserMessageLog.updateDeleted", query =
                 "UPDATE UserMessageLog uml                                          " +
-                        "SET uml.deleted = :CURRENT_TIMESTAMP                      " +
+                        "SET uml.deleted = :CURRENT_TIMESTAMP,                      " +
+                        "   uml.messageStatus = :DELETED_STATUS                    " +
                         "WHERE uml.entityId IN( :ENTITY_IDS )                       ")
 })
 public class UserMessageLog extends AbstractNoGeneratedPkEntity implements Reprogrammable {

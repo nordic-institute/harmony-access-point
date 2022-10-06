@@ -136,12 +136,12 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                     mpc, expiredDownloadedMessagesLimit, eArchiveIsActive);
             if (CollectionUtils.isEmpty(downloadedMessages)) {
                 LOG.debug("There are no expired downloaded messages with expired metadata.");
-                return;
+            } else {
+                final int deleted = downloadedMessages.size();
+                LOG.debug("Found [{}] downloaded messages to delete", deleted);
+                deleteMessages(downloadedMessages, mpc);
+                LOG.debug("Deleted [{}] downloaded messages", deleted);
             }
-            final int deleted = downloadedMessages.size();
-            LOG.debug("Found [{}] downloaded messages to delete", deleted);
-            deleteMessages(downloadedMessages, mpc);
-            LOG.debug("Deleted [{}] downloaded messages", deleted);
         }
 
         Date payloadRetentionLimit = DateUtils.addMinutes(now, messageRetentionDownloaded  * -1);
@@ -150,16 +150,15 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 mpc, expiredDownloadedMessagesLimit, eArchiveIsActive);
         if (CollectionUtils.isEmpty(downloadedMessages)) {
             LOG.debug("There are no expired downloaded messages with not-expired metadata.");
-            return;
+        } else {
+            final int deleted = downloadedMessages.size();
+            LOG.debug("Found [{}] downloaded message payloads to delete", deleted);
+            List<Long> entityIds = downloadedMessages.stream()
+                    .map(UserMessageLogDto::getEntityId)
+                    .collect(Collectors.toList());
+            userMessageDefaultService.clearPayloadData (entityIds);
+            LOG.debug("Deleted [{}] downloaded message payloads", deleted);
         }
-        final int deleted = downloadedMessages.size();
-        LOG.debug("Found [{}] downloaded message payloads to delete", deleted);
-        List<Long> entityIds = downloadedMessages.stream()
-                .map(UserMessageLogDto::getEntityId)
-                .collect(Collectors.toList());
-        entityIds.forEach(partInfoService::clearPayloadData);
-        userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
-        LOG.debug("Deleted [{}] downloaded message payloads", deleted);
     }
 
     protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit, boolean eArchiveIsActive) {
