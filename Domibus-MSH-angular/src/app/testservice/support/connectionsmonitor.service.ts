@@ -35,18 +35,30 @@ export class ConnectionsMonitorService {
     }
 
     let monitors = await this.getMonitorsForParties(currentSenderPartyId, parties);
-    return allParties.map(party => {
-      let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-      let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
-      let partyId = allIdentifiers[0].partyId;
-      cmEntry.partyId = partyId;
-      cmEntry.partyName = party.name + '(' + partyId + ')';
-      // cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
-
-      let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
-      Object.assign(cmEntry, monitors[monitorKey]);
-      return cmEntry;
+    const result: ConnectionMonitorEntry[] = [];
+    allParties.forEach(party => {
+      party.identifiers
+        .sort((id1, id2) => id1.partyId.localeCompare(id2.partyId))
+        .forEach(partyId => {
+          let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
+          let partyId1 = partyId.partyId;
+          cmEntry.partyId = partyId1;
+          cmEntry.partyName = party.name + '(' + partyId1 + ')';
+          Object.assign(cmEntry, monitors[partyId1]);
+          result.push(cmEntry);
+        })
     });
+    return result;
+    // return allParties.map(party => {
+    //   let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
+    //   let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
+    //   let partyId = allIdentifiers[0].partyId;
+    //   cmEntry.partyId = partyId;
+    //   cmEntry.partyName = party.name + '(' + partyId + ')';
+    //   let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
+    //   Object.assign(cmEntry, monitors[monitorKey]);
+    //   return cmEntry;
+    // });
   }
 
   async getMonitor(senderPartyId: string, partyId: string): Promise<ConnectionMonitorEntry> {

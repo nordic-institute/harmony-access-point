@@ -94,7 +94,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         result.setLastSent(lastSent);
 
         if (lastSent != null) {
-            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived( partyId, null);
+            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(senderPartyId, partyId, null);
             result.setLastReceived(lastReceived);
         }
 

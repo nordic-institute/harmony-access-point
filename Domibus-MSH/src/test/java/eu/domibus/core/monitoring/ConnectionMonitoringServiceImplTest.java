@@ -161,13 +161,13 @@ public class ConnectionMonitoringServiceImplTest {
             testService.getLastTestSent(senderPartyId, partyId1);
             result = lastSent1;
 
-            testService.getLastTestReceived(partyId1, null);
+            testService.getLastTestReceived(senderPartyId, partyId1, null);
             result = lastReceived1;
 
             testService.getLastTestSent(senderPartyId, partyId2);
             result =lastSent2;
 
-            testService.getLastTestReceived(partyId2, null);
+            testService.getLastTestReceived(senderPartyId, partyId2, null);
             result = lastReceived2;
 
             partyService.findPushToPartyNamesForTest();

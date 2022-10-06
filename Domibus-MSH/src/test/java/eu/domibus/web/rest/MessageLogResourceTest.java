@@ -85,7 +85,7 @@ public class MessageLogResourceTest {
         String partyId = "partyId";
         String userMessageId = "userMessageId";
         new Expectations() {{
-            testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+            testService.getLastTestReceivedWithErrors("", partyId, userMessageId);
             result = testServiceMessageInfoResult;
         }};
 
@@ -107,7 +107,7 @@ public class MessageLogResourceTest {
         String partyId = "partyId";
         String userMessageId = "userMessageId";
         new Expectations() {{
-            testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+            testService.getLastTestReceivedWithErrors("", partyId, userMessageId);
             result = new TestServiceException("No Signal Message found. Error Details in error log");
         }};
 

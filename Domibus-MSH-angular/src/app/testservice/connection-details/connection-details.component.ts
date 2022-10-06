@@ -80,7 +80,7 @@ export class ConnectionDetailsComponent implements OnInit {
     try {
       await this.getLastSentRequest(this.senderPartyId, this.partyId);
       if (this.messageInfoSent.messageId) {
-        await this.getLastReceivedRequest(this.partyId, this.messageInfoSent.messageId);
+        await this.getLastReceivedRequest(this.senderPartyId, this.partyId, this.messageInfoSent.messageId);
       }
     } catch (e) {
       this.alertService.exception('Exception while calling update operation.', e);
@@ -128,10 +128,11 @@ export class ConnectionDetailsComponent implements OnInit {
     }
   }
 
-  async getLastReceivedRequest(partyId: string, userMessageId: string) {
+  async getLastReceivedRequest(senderPartyId: string, partyId: string, userMessageId: string) {
     this.isBusy = true;
     try {
       let searchParams = new HttpParams();
+      searchParams = searchParams.append('senderPartyId', senderPartyId);
       searchParams = searchParams.append('partyId', partyId);
       searchParams = searchParams.append('userMessageId', userMessageId);
       let result = await this.http.get<any>(ConnectionDetailsComponent.MESSAGE_LOG_LAST_TEST_RECEIVED_URL, {params: searchParams}).toPromise();

@@ -166,11 +166,12 @@ public class TestService {
      * including errors if an acceptable signal message cannot be found.
      *
      * @param partyId, userMessageId
+     * @param senderPartyId
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
-        TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
+    public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String senderPartyId, String partyId, String userMessageId) throws TestServiceException {
+        TestServiceMessageInfoRO result = getLastTestReceived(senderPartyId, partyId, userMessageId);
         if (result == null) {
             String errorDetails = getErrorsDetails(userMessageId);
             throw new TestServiceException("No Signal Message found. " + errorDetails);
@@ -183,9 +184,10 @@ public class TestService {
      * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
      *
      * @param partyId, userMessageId
+     * @param senderPartyId
      * @return TestServiceMessageInfoRO
      */
-    public TestServiceMessageInfoRO getLastTestReceived(String partyId, String userMessageId) {
+    public TestServiceMessageInfoRO getLastTestReceived(String senderPartyId, String partyId, String userMessageId) {
         LOG.debug("Getting last received signal for a test message from partyId [{}]", partyId);
 
         SignalMessage signalMessage;

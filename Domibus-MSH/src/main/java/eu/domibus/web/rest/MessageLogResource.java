@@ -177,7 +177,7 @@ public class MessageLogResource extends BaseResource {
      */
     @GetMapping(value = "test/incoming/latest")
     public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) throws TestServiceException {
-        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceivedWithErrors(request.getPartyId(), request.getUserMessageId());
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceivedWithErrors(request.getSenderPartyId(), request.getPartyId(), request.getUserMessageId());
         return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
