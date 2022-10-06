@@ -45,8 +45,8 @@
                         <xs:field xpath="@qualifiedName"/>
                     </xs:unique>
                 </xs:element>
-                <xs:element name="businessProcesses">
-                    <xs:complexType>
+                <xs:element name="businessProcesses" >
+                    <xs:complexType mixed="true">
                         <xs:sequence>
                             <xs:element name="roles">
                                 <xs:complexType>
@@ -277,13 +277,13 @@
                                                 <xs:attribute name="policy"
                                                               type="max255-non-empty-string"
                                                               use="required"/>
+                                                <xs:attribute name="signatureMethod"/>
                                                 <xs:attribute
-                                                        name="signatureMethod"
-                                                        use="required">
+                                                        name="profile">
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
-                                                                <xs:enumeration value="RSA_SHA1" />
-                                                                <xs:enumeration value="RSA_SHA256" />
+                                                                <xs:enumeration value="RSA" />
+                                                                <xs:enumeration value="ECC" />
                                                             </xs:restriction>
                                                         </xs:simpleType>
                                                 </xs:attribute>

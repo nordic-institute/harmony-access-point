@@ -40,6 +40,10 @@ public class UserMessageLogDto {
         this.backend = backend;
     }
 
+    public UserMessageLogDto(Long entityId, String messageId, String backend) {
+        this(entityId, messageId, null, backend);
+    }
+
     public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
         this.entityId = (Long) getObjectNullSafe(tuple, aliasToIndexMap, ENTITY_ID);
         this.messageId = (String) getObjectNullSafe(tuple, aliasToIndexMap, MESSAGE_ID);

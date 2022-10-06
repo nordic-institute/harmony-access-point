@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -12,7 +13,7 @@ import java.util.Objects;
 @NamedQueries({
         @NamedQuery(name = "TimezoneOffset.findByTimezoneIdAndOffsetSeconds",
                 hints = {
-                        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+                        @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
                         @QueryHint(name = "org.hibernate.cacheable", value = "true")},
                 query = "select t from TimezoneOffset t where t.nextAttemptTimezoneId = :TIMEZONE_ID and t.nextAttemptOffsetSeconds = :OFFSET_SECONDS")
 })

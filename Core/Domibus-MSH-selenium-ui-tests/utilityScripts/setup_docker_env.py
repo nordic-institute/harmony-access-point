@@ -40,6 +40,7 @@ if "ports" in obj:
 
 obj["ports"] = ["9088:8080"]
 obj["container_name"] = "docker_local_wildfly"
+obj["environment"].append("domibus.ui.session.timeout=300")
 output = dump(data)
 
 # create docker folder and pour yaml content in it

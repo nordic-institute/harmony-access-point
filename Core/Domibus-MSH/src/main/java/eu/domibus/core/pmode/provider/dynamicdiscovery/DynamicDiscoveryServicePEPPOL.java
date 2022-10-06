@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.security.KeyStore;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 import static org.apache.commons.lang3.StringUtils.trim;
 
@@ -44,10 +45,6 @@ import static org.apache.commons.lang3.StringUtils.trim;
 public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryService implements DynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
-
-    private static final String DEFAULT_RESPONDER_ROLE = "urn:fdc:peppol.eu:2017:roles:ap:as4";
-
-    private static final String DEFAULT_PARTY_TYPE = "urn:fdc:peppol.eu:2017:identifiers:ap";
 
     public static final String SCHEME_DELIMITER = "::";
 
@@ -102,30 +99,30 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
         return trim(domibusPropertyProvider.getProperty(propertyName));
     }
 
-    protected String getDefaultDiscoveryPartyIdType() {
-        return DEFAULT_PARTY_TYPE;
+    protected String getPartyIdTypePropertyName() {
+        return DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE;
     }
 
-    protected String getDefaultResponderRole() {
-        return DEFAULT_RESPONDER_ROLE;
+    protected String getPartyIdResponderRolePropertyName() {
+        return DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_RESPONDER_ROLE;
     }
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain, final String participantId, final String participantIdScheme, final String documentId, final String processId, final String processIdScheme) {
 
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
-        final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
+        final String smlInfo = domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
         if (StringUtils.isBlank(smlInfo)) {
-            throw new ConfigurationException("SML Zone missing. Configure property [" + SMLZONE_KEY + "] in domibus configuration!");
+            throw new ConfigurationException("SML Zone missing. Configure property [" + DOMIBUS_SMLZONE + "] in domibus configuration!");
         }
-        String mode = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_MODE);
+        String mode = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE);
         if (StringUtils.isBlank(mode)) {
             mode = Mode.TEST;
         }
 
-        final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_PEPPOL_REGEX);
+        final String certRegex = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         if (StringUtils.isBlank(certRegex)) {
-            LOG.warn("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_PEPPOL_REGEX);
+            LOG.warn("The value for property [{}] is empty.", DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION);
         }
 
         List<String> allowedCertificatePolicyIDs = getAllowedSMPCertificatePolicyOIDs();
@@ -150,7 +147,7 @@ public class DynamicDiscoveryServicePEPPOL extends AbstractDynamicDiscoveryServi
             final ServiceMetadata sm = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
 
 
-            String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
+            String transportProfileAS4 = domibusPropertyProvider.getProperty(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4);
             LOG.debug("Get the Endpoint from ServiceMetadata with transport profile [{}]", transportProfileAS4);
             final Endpoint endpoint = getEndpoint(sm.getServiceInformation().getProcesses(),  processIdentifier, TransportProfile.of(transportProfileAS4));
 

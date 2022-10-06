@@ -1,6 +1,11 @@
 -- *****************************************************************************************************
 -- Domibus 4.2 to 5.0 data time migration to UTC procedures
 --
+-- Note: please follow the steps below to ensure the procedure run successfully
+--  1. Identify your current named time zone such as 'Europe/Brussels', 'US/Eastern', 'MET' or 'UTC' (e.g. issue SELECT @@GLOBAL.time_zone, @@SESSION.time_zone;)
+--  2. Populate the MySQL time zone tables if not already done: https://dev.mysql.com/doc/refman/8.0/en/time-zone-support.html#time-zone-installation
+--  3. Invoke the UTC conversion procedure below passing the named time zone identified at step 1 above
+--
 -- Parameters to be provided:
 --  TIMEZONE: the timezone ID in which the date time values have been previously saved (e.g. 'Europe/Brussels')
 -- *****************************************************************************************************

@@ -97,9 +97,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         }
         return queueMbean.getQueueSize();
     }
-
-
-
+    
     protected Map<String, ObjectName> getQueueMap() {
         return domibusJMSActiveMQConnectionManager.getQueueMap();
     }

@@ -1,16 +1,14 @@
 package eu.domibus.core.plugin.validation;
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import eu.domibus.plugin.validation.SubmissionValidatorList;
 import org.apache.commons.lang3.StringUtils;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +26,11 @@ public class SubmissionValidatorListProviderImpl implements SubmissionValidatorL
     @Override
     public SubmissionValidatorList getSubmissionValidatorList(String backendName) {
         List<String> matchedBeans = getMatches(backendName);
-        if(matchedBeans == null || matchedBeans.isEmpty()) {
+        if (matchedBeans == null || matchedBeans.isEmpty()) {
             LOG.debug("No submission validator bean configured for backend [" + backendName + "]");
             return null;
         }
-        if(matchedBeans.size() > 1) {
+        if (matchedBeans.size() > 1) {
             throw new SubmissionValidationException("There are multiple beans of type " + SubmissionValidatorList.class + " configured for backend [" + backendName + "]. Only one is allowed.");
         }
 
@@ -46,7 +44,7 @@ public class SubmissionValidatorListProviderImpl implements SubmissionValidatorL
         String[] beanDefinitionNames = applicationContext.getBeanNamesForType(SubmissionValidatorList.class);
         String backendNameLowerCase = StringUtils.lowerCase(backendName);
         for (String beanDefinitionName : beanDefinitionNames) {
-            if(StringUtils.lowerCase(beanDefinitionName).contains(backendNameLowerCase)) {
+            if (StringUtils.lowerCase(beanDefinitionName).contains(backendNameLowerCase)) {
                 LOG.debug("Matched submission validator bean [" + beanDefinitionName + "] for backend [" + backendName + "]");
                 result.add(beanDefinitionName);
             }

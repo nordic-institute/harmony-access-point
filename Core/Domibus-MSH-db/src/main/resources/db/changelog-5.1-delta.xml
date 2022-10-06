@@ -166,4 +166,10 @@
             <column name="RETENTION_SENT_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
         </addColumn>
     </changeSet>
+
+    <changeSet author="Lucian Furca" id="EDELIVERY-9686">
+        <addColumn tableName="TB_PM_SECURITY">
+            <column name="PROFILE" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

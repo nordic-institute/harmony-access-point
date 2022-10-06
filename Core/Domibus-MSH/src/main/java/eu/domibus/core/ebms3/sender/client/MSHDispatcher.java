@@ -12,6 +12,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
@@ -54,6 +55,9 @@ public class MSHDispatcher {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Autowired
+    protected SecurityUtilImpl securityUtil;
+
     @Timer(clazz = MSHDispatcher.class,value = "dispatch")
     @Counter(clazz = MSHDispatcher.class,value = "dispatch")
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
@@ -62,7 +66,7 @@ public class MSHDispatcher {
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
         final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.
-                getClient(domain.getCode(), endpoint, legConfiguration.getSecurity().getSignatureMethod().getAlgorithm(), policy, pModeKey, cacheable).get();
+                getClient(domain.getCode(), endpoint, securityUtil.getSecurityAlgorithm(legConfiguration.getSecurity().getProfile()), policy, pModeKey, cacheable).get();
 
         final SOAPMessage result;
         try {

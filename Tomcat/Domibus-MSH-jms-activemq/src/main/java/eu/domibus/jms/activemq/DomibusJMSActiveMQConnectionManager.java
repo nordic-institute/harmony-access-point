@@ -27,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_M
  * Connection manager that handles reconnections in case of a Master-Slave ActiveMQ cluster.
  *
  * @author Sebastian-Ion TINCU
- * @since 5.1
+ * @since 5.0.1
  */
 @Service
 public class DomibusJMSActiveMQConnectionManager {
@@ -78,10 +78,7 @@ public class DomibusJMSActiveMQConnectionManager {
                     String brokerName = brokerNames.get(index);
 
                     LOG.trace("Creating an ActiveMQ broker using the service URL [{}] and the broker name [{}]", serviceUrl, brokerName);
-
-                    MBeanServerConnection mBeanServerConnection = mBeanServerConnections.getObject(serviceUrl);
-                    BrokerViewMBean brokerViewMBean = mBeanProxyFactoryBeans.getObject(mBeanServerConnection, brokerName);
-                    brokerCluster.add(domibusJMSActiveMQBrokers.getObject(brokerName + "@" + serviceUrl, mBeanServerConnection, brokerViewMBean));
+                    brokerCluster.add(domibusJMSActiveMQBrokers.getObject(brokerName, serviceUrl, mBeanServerConnections, mBeanProxyFactoryBeans));
                 });
     }
 
@@ -104,15 +101,22 @@ public class DomibusJMSActiveMQConnectionManager {
         }
 
         Optional<DomibusJMSActiveMQBroker> domibusActiveMQBroker = brokerCluster.stream()
-                    // the isSingleBroker() call below is used to prevent a JMX call on the master broker
-                    // when there is only one broker instance configured in the cluster
-                    .filter(currentBroker -> isSingleBroker() || isMasterSafely(currentBroker))
-                    .findFirst();
+                .filter(DomibusJMSActiveMQBroker::isOnline)
+                .filter(this::isMasterSafely)
+                .findFirst();
 
         return domibusActiveMQBroker.orElseThrow(() -> {
             LOG.debug("No master ActiveMQ broker available at this time");
+
+            refreshBrokerCluster();
+
             return new DomibusJMSException(DomibusCoreErrorCode.DOM_001, "No master ActiveMQ broker available");
         });
+    }
+
+    private void refreshBrokerCluster() {
+        LOG.debug("Refreshing broker cluster");
+        brokerCluster.forEach(DomibusJMSActiveMQBroker::refresh);
     }
 
     private boolean isMasterSafely(DomibusJMSActiveMQBroker currentBroker) {
@@ -121,14 +125,8 @@ public class DomibusJMSActiveMQConnectionManager {
             master = currentBroker.isMaster();
         } catch(Throwable e) { // NOSONAR: org.springframework.jmx.access.MBeanClientInterceptor.doInvoke(MethodInvocation) throws Throwable
             LOG.warn("Treating the current broker [{}] as slave because it is not reachable" , currentBroker.getBrokerDetails(), e);
+            currentBroker.setOffline();
         }
         return master;
-    }
-
-    /*
-     * Returns {@code true} if there is only one ActiveMQ broker instance configured in the cluster; otherwise, {@code false}.
-     */
-    private boolean isSingleBroker() {
-        return brokerCluster.size() == 1;
     }
 }

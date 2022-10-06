@@ -42,6 +42,11 @@ public class UserMessageDefaultFactoryTest {
     @Injectable
     protected ActionDictionaryService actionDictionaryService;
 
+    @Injectable
+    MpcDictionaryService mpcDictionaryService;
+
+
+
     @Test
     public void createUserMessageFragmentTest(@Injectable UserMessage sourceMessage,
                                               @Injectable MessageInfo messageInfo,

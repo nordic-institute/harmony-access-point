@@ -31,21 +31,16 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findBackendForMessage", query = "select userMessageLog.backend from UserMessageLog userMessageLog where userMessageLog.userMessage.messageId=:MESSAGE_ID and userMessageLog.mshRole.role=:MSH_ROLE"),
         @NamedQuery(name = "UserMessageLog.findEntries", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan",
-                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
-                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
-                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
-                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,      " +
-                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,      " +
-                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
-                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
-                        "FROM UserMessageLog uml                                                                     " +
-                        "JOIN uml.userMessage um                                                                     " +
-                        "left join um.messageProperties p                                                            " +
-                        "WHERE uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.DELETED          " +
-                        "AND uml.deleted IS NOT NULL                                                                 " +
-                        "AND um.mpc.value = :MPC                                                                     " +
-                        "AND uml.deleted < :DATE                                                                     " +
-                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false) "),
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)"+
+                        "FROM UserMessageLog uml                                                                        " +
+                        "INNER JOIN uml.userMessage um  " +
+                        "INNER JOIN uml.messageStatus mstat "+
+                        "INNER JOIN um.mpc mpc "+
+                        "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DELETED )        " +
+                        "and mpc.value = :MPC                                                                        " +
+                        "and uml.deleted IS NOT NULL                                                                    " +
+                        "and uml.deleted < :DATE                                                                      " +
+                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findMessagesToDeleteNotInFinalStatusDuringPeriod",
                 query = "SELECT DISTINCT new eu.domibus.api.model.UserMessageLogDto(um.entityId, um.messageId, um.mshRole.role)                                                                 " +
                         "FROM UserMessageLog uml                                                                      " +
@@ -77,72 +72,50 @@ import java.util.Date;
                         "AND (:END_DATE is null or uml.userMessage.entityId < :END_DATE)                             "),
 
         @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
-                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,          " +
-                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,          " +
-                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
-                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,          " +
-                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,          " +
-                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,          " +
-                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                       " +
-                        "from UserMessageLog uml                                                                         " +
-                        "JOIN uml.userMessage um                                                                         " +
-                        "left join um.messageProperties p                                                                " +
-                        "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED            " +
-                        "or uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED_WITH_WARNINGS) " +
-                        "and uml.deleted is null                                                                         " +
-                        "and um.mpc.value = :MPC                                                                         " +
-                        "and uml.received < :DATE                                                                        " +
-                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)  "),
-        @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
-                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,         " +
-                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,         " +
-                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
-                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,         " +
-                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,         " +
-                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,         " +
-                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                      " +
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)"+
                         "FROM UserMessageLog uml                                                                        " +
-                        "JOIN uml.userMessage um                                                                        " +
-                        "left join um.messageProperties p                                                               " +
-                        "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED)        " +
-                        "and um.mpc.value = :MPC                                                                        " +
+                        "INNER JOIN uml.userMessage um  " +
+                        "INNER JOIN uml.messageStatus mstat "+
+                        "INNER JOIN um.mpc mpc "+
+                        "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED_WITH_WARNINGS)        " +
+                        "and mpc.value = :MPC                                                                        " +
+                        "and uml.deleted is null                                                                 " +
+                        "and uml.received < :DATE                                                                     "+
+                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
+        @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)"+
+                        "FROM UserMessageLog uml                                                                        " +
+                        "INNER JOIN uml.userMessage um  " +
+                        "INNER JOIN uml.messageStatus mstat "+
+                        "INNER JOIN um.mpc mpc "+
+                        "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED)        " +
+                        "and mpc.value = :MPC                                                                        " +
                         "and uml.downloaded is not null                                                                 " +
-                        "and uml.downloaded < :DATE                                                                     " +
-                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false) "),
+                        "and uml.downloaded < :DATE                                                                     "+
+                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
-                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "            ,      " +
-                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "           ,      " +
-                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
-                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "         ,      " +
-                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,      " +
-                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,      " +
-                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
-                        "FROM UserMessageLog uml                                                                     " +
-                        "JOIN uml.userMessage um                                                                     " +
-                        "left join um.messageProperties p                                                            " +
-                        "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED    " +
-                        "or uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)       " +
-                        "and uml.deleted is null                                                                     " +
-                        "and um.mpc.value = :MPC                                                                     " +
-                        "and uml.modificationTime is not null                                                        " +
-                        "and uml.modificationTime < :DATE                                                            " +
-                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false) "),
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)"+
+                        "FROM UserMessageLog uml                                                                        " +
+                        "INNER JOIN uml.userMessage um  " +
+                        "INNER JOIN uml.messageStatus mstat "+
+                        "INNER JOIN um.mpc mpc "+
+                        "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
+                        "and mpc.value = :MPC                                                                           " +
+                        "and uml.deleted is null                                                                        " +
+                        "and uml.modificationTime is not null                                                                 " +
+                        "and uml.modificationTime < :DATE                                                                     "+
+                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findSentUserMessagesOlderThan",
-                query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "             ,     " +
-                        "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "            ,     " +
-                        "       um.mshRole.role             as " + UserMessageLogDto.MESSAGE_ROLE + "         ,      " +
-                        "       um.testMessage              as " + UserMessageLogDto.TEST_MESSAGE + "          ,     " +
-                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "       ,     " +
-                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "            ,     " +
-                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                   " +
-                        "FROM UserMessageLog uml                                                                     " +
-                        "JOIN uml.userMessage um                                                                     " +
-                        "left join um.messageProperties p                                                            " +
-                        "where (uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) " +
-                        "and um.mpc.value = :MPC                                                                     " +
-                        "and uml.modificationTime is not null                                                        " +
-                        "and uml.modificationTime < :DATE                                                            " +
-                        "and  ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)   "),
+                query = "SELECT new eu.domibus.api.model.UserMessageLogDto(um.entityId,um.messageId,uml.backend)"+
+                        "FROM UserMessageLog uml                                                                        " +
+                        "INNER JOIN uml.userMessage um  " +
+                        "INNER JOIN uml.messageStatus mstat "+
+                        "INNER JOIN um.mpc mpc "+
+                        "where (mstat.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or mstat.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE)        " +
+                        "and mpc.value = :MPC                                                                        " +
+                        "and uml.modificationTime is not null                                                                 " +
+                        "and uml.modificationTime < :DATE                                                                     "+
+                        "and ((:EARCHIVE_IS_ACTIVE = true and uml.archived is not null) or :EARCHIVE_IS_ACTIVE = false)"),
         @NamedQuery(name = "UserMessageLog.findAllMessages",
                 query = "SELECT um.entityId                 as " + UserMessageLogDto.ENTITY_ID + "             ,     " +
                         "       um.messageId                as " + UserMessageLogDto.MESSAGE_ID + "            ,     " +
@@ -165,6 +138,7 @@ import java.util.Date;
                         "  and uml.messageStatus.messageStatus in :STATUSES                                          " +
                         "  and uml.deleted IS NULL                                                                   " +
                         "  and uml.exported IS NULL                                                                  " +
+                        "  and uml.userMessage.testMessage IS FALSE                                                  " +
                         "order by uml.entityId asc                                                                   "),
         @NamedQuery(name = "UserMessageLog.countMessagesForArchiving",
                 query = "select new java.lang.Long(count(uml.entityId)) " +
@@ -172,6 +146,7 @@ import java.util.Date;
                         "where uml.entityId > :LAST_ENTITY_ID " +
                         "  and uml.entityId < :MAX_ENTITY_ID " +
                         "  and uml.messageStatus.messageStatus in :STATUSES " +
+                        "  and uml.userMessage.testMessage IS FALSE " +
                         "  and uml.deleted IS NULL " +
                         "  and uml.exported IS NULL "),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query =

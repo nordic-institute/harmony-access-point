@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorService;
@@ -45,7 +46,7 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
 
         domainService.getDomains().forEach(domain -> {
             domainContextProvider.setCurrentDomain(domain);
-            if (plugins.stream().allMatch(plugin -> !plugin.isEnabled(domain.getCode()))) {
+            if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domain.getCode()))) {
                 EnableAware plugin = plugins.get(0);
                 LOG.warn("Cannot let all plugins to be disabled on domain [{}]. Enabling [{}].", domain, plugin.getName());
                 try {
@@ -63,7 +64,7 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
     public void validateConfiguration(String domainCode) {
         List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
 
-        if (plugins.stream().allMatch(plugin1 -> !plugin1.isEnabled(domainCode))) {
+        if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
             throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
         }
     }
@@ -94,6 +95,28 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
         LOG.info("Cannot disable backend connector with the name [{}] since it is the only one enabled on domain [{}]; returning false; ",
                 backendName, domainCode);
         return false;
+    }
+
+    @Override
+    public boolean isBackendConnectorEnabled(String backendName) {
+        BackendConnector<?, ?> plugin = backendConnectorProvider.getBackendConnector(backendName);
+        if (plugin == null) {
+            LOG.warn("Could not find backend connector with the name [{}]; returning false; ", backendName);
+            return false;
+        }
+        if (!(plugin instanceof EnableAware)) {
+            LOG.info("Backend connector with the name [{}] is not domain aware; returning true; ", backendName);
+            return true;
+        }
+
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        if (currentDomain == null) {
+            LOG.info("Could not get the current domain. returning true for backend  [{}]. ", backendName);
+            return true;
+        }
+
+        EnableAware enableAware = (EnableAware) plugin;
+        return enableAware.isEnabled(currentDomain.getCode());
     }
 
 

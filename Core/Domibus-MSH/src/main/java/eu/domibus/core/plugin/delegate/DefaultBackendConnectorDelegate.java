@@ -37,9 +37,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
 
     @Override
     public void messageStatusChanged(BackendConnector backendConnector, MessageStatusChangeEvent event) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Notifying connector [{}] about status change event [{}]", backendConnector.getName(), event);
-        }
+        LOG.debug("Notifying connector [{}] about status change event [{}]", backendConnector.getName(), event);
         backendConnector.messageStatusChanged(event);
     }
 
@@ -47,6 +45,12 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
     public void messageReceiveFailed(BackendConnector backendConnector, MessageReceiveFailureEvent event) {
         LOG.info("Calling messageReceiveFailed method");
         backendConnector.messageReceiveFailed(event);
+    }
+
+    @Override
+    public void messageResponseSent(BackendConnector backendConnector, MessageResponseSentEvent event) {
+        LOG.trace("Calling messageResponseSent method");
+        backendConnector.messageResponseSent(event);
     }
 
     @Override
@@ -85,6 +89,18 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
             return;
         }
         backendConnector.messageDeletedBatchEvent(event);
+    }
+
+    @Override
+    public void payloadSubmitted(BackendConnector backendConnector, PayloadSubmittedEvent event) {
+        LOG.trace("Calling payloadSubmittedEvent method");
+        backendConnector.payloadSubmittedEvent(event);
+    }
+
+    @Override
+    public void payloadProcessed(BackendConnector backendConnector, PayloadProcessedEvent event) {
+        LOG.trace("Calling payloadProcessed method");
+        backendConnector.payloadProcessedEvent(event);
     }
 
 }

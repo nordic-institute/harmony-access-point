@@ -157,6 +157,14 @@
     "ARCHIVING_START_DATE_STOPPED": [],
     "PARTITION_CHECK": [
       "PARTITION_NAME"
+    ],
+    "CONNECTION_MONITORING_FAILED": [
+      "MESSAGE_ID",
+      "ROLE",
+      "STATUS",
+      "FROM_PARTY",
+      "TO_PARTY",
+      "DESCRIPTION"
     ]
   },
   "grid": {

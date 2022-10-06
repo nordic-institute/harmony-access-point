@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.Agreement;
@@ -75,6 +76,9 @@ public class TestServiceTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    PartyService partyService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -202,6 +206,11 @@ public class TestServiceTest {
         givenReceiver("receiver");
         givenReceiverPartyId("receiverPartyId");
 
+        new Expectations(testService) {{
+            testService.validateSender("sender");
+            testService.validateReceiver(anyString);
+        }};
+
         whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery();
 
         thenTheReceiverPartyIsCorrectlyDefinedInsideTheReceivingPartiesCollection();
@@ -213,6 +222,10 @@ public class TestServiceTest {
         givenReceiver("receiver");
         givenReceiverType("receiverType");
         givenFinalRecipientMessagePropertyContainsInitialValue("urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4");
+
+        new Expectations(testService) {{
+            testService.validateSender("sender");
+        }};
 
         whenSubmittingTheTestMessageWithDynamicDiscovery();
 
@@ -226,6 +239,11 @@ public class TestServiceTest {
         givenReceiverPartyId("receiverPartyId");
         givenTheMessageIdentifier("messageId");
 
+        new Expectations(testService) {{
+            testService.validateSender("sender");
+            testService.validateReceiver(anyString);
+        }};
+
         whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery();
 
         thenTheMessageIdentifierIsCorrectlyReturned();
@@ -237,6 +255,10 @@ public class TestServiceTest {
         givenReceiver("receiver");
         givenReceiverType("receiverType");
         givenTheMessageIdentifier("messageId");
+
+        new Expectations(testService) {{
+            testService.validateSender("sender");
+        }};
 
         whenSubmittingTheTestMessageWithDynamicDiscovery();
 

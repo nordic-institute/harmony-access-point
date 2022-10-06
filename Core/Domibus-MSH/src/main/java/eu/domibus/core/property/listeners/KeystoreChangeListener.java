@@ -11,8 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEYSTORE_LOCATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -46,7 +45,7 @@ public class KeystoreChangeListener implements DomibusPropertyChangeListener {
     @Override
     public boolean handlesProperty(String propertyName) {
         return StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEYSTORE_LOCATION)
-                || StringUtils.equalsIgnoreCase(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
+                || StringUtils.startsWith(propertyName, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
     }
 
     @Override

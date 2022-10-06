@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
 
+import static eu.domibus.common.TaskExecutorConstants.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -38,21 +40,21 @@ public class WildFlyTaskExecutorConfiguration {
         return domibusExecutorServiceFactory;
     }
 
-    @Bean("taskExecutor")
+    @Bean(DOMIBUS_TASK_EXECUTOR_BEAN_NAME)
     public DomibusWildFlyTaskExecutor taskExecutor(@Qualifier("domibusExecutorService") ManagedExecutorService managedExecutorService) {
         DomibusWildFlyTaskExecutor domibusWildFlyTaskExecutor = new DomibusWildFlyTaskExecutor();
         domibusWildFlyTaskExecutor.setExecutorService(managedExecutorService);
         return domibusWildFlyTaskExecutor;
     }
 
-    @Bean("mshTaskExecutor")
+    @Bean(DOMIBUS_MSH_TASK_EXECUTOR_BEAN_NAME)
     public DomibusWildFlyTaskExecutor mshTaskExecutor(@Qualifier("mshExecutorService") ManagedExecutorService managedExecutorService) {
         DomibusWildFlyTaskExecutor domibusWildFlyTaskExecutor = new DomibusWildFlyTaskExecutor();
         domibusWildFlyTaskExecutor.setExecutorService(managedExecutorService);
         return domibusWildFlyTaskExecutor;
     }
 
-    @Bean("quartzTaskExecutor")
+    @Bean(DOMIBUS_LONG_RUNNING_TASK_EXECUTOR_BEAN_NAME)
     public DomibusWildFlyTaskExecutor quartzTaskExecutor(@Qualifier("quartzExecutorService") ManagedExecutorService managedExecutorService) {
         DomibusWildFlyTaskExecutor domibusWildFlyTaskExecutor = new DomibusWildFlyTaskExecutor();
         domibusWildFlyTaskExecutor.setExecutorService(managedExecutorService);

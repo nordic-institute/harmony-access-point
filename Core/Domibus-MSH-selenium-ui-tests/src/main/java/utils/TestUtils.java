@@ -299,19 +299,22 @@ public class TestUtils {
     }
 
     public static Date dateFromUIDateStr(String dateStr) throws ParseException {
-        int beginIndex = dateStr.indexOf("UTC+") + 4;
-        String tzStub = dateStr.substring(beginIndex);
+        if (dateStr.contains("UTC+")) {
+            int beginIndex = dateStr.indexOf("UTC+") + 4;
+            String tzStub = dateStr.substring(beginIndex);
 
-        if (tzStub.length() < 4) {
-            if (!tzStub.startsWith("0")) {
-                tzStub = "0" + tzStub;
+            if (tzStub.length() < 4) {
+                if (!tzStub.startsWith("0")) {
+                    tzStub = "0" + tzStub;
+                }
+                while (tzStub.length() < 4) {
+                    tzStub = tzStub + "0";
+                }
             }
-            while (tzStub.length() < 4) {
-                tzStub = tzStub + "0";
-            }
+            dateStr = dateStr.substring(0, beginIndex) + tzStub;
         }
-        dateStr = dateStr.substring(0, beginIndex) + tzStub;
-        Date date = DateUtils.parseDate(dateStr, "dd-MM-yyyy hh:mm:ss'UTC'Z");
+
+        Date date = DateUtils.parseDate(dateStr, "dd-MM-yyyy hh:mm:ss'UTC'Z", "dd-MM-yyyy hh:mm:ss'UTC'");
         return date;
     }
 

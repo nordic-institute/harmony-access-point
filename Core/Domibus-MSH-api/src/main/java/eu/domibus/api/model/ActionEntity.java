@@ -1,5 +1,6 @@
 package eu.domibus.api.model;
 
+import eu.domibus.api.cache.CacheConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_ACTION")
 @NamedQuery(name = "Action.findByValue", hints = {
-        @QueryHint(name = "org.hibernate.cacheRegion", value = "dictionary-queries"),
+        @QueryHint(name = "org.hibernate.cacheRegion", value = CacheConstants.DICTIONARY_QUERIES),
         @QueryHint(name = "org.hibernate.cacheable", value = "true")},
         query = "select serv from ActionEntity serv where serv.value=:VALUE")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

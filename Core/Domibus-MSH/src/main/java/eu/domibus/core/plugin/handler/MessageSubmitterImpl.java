@@ -1,11 +1,14 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
@@ -22,7 +25,6 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.dictionary.MpcDictionaryService;
-import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinConfigurationService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -94,8 +96,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     private final MessageExchangeService messageExchangeService;
 
-    private final PullMessageService pullMessageService;
-
     protected final MessageFragmentDao messageFragmentDao;
 
     protected final MpcDictionaryService mpcDictionaryService;
@@ -108,13 +108,18 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final MessageSubmitterHelper messageSubmitterHelper;
 
+    protected final TestMessageValidator testMessageValidator;
+
+    protected final BackendConnectorService backendConnectorService;
+
     public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
                                 PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
                                 PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
-                                MessageExchangeService messageExchangeService, PullMessageService pullMessageService, MessageFragmentDao messageFragmentDao,
+                                MessageExchangeService messageExchangeService, MessageFragmentDao messageFragmentDao,
                                 MpcDictionaryService mpcDictionaryService, UserMessageValidatorSpiService userMessageValidatorSpiService,
-                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper) {
+                                UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper,
+                                TestMessageValidator testMessageValidator, BackendConnectorService backendConnectorService) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
         this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
@@ -128,19 +133,24 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         this.messageIdGenerator = messageIdGenerator;
         this.backendMessageValidator = backendMessageValidator;
         this.messageExchangeService = messageExchangeService;
-        this.pullMessageService = pullMessageService;
         this.messageFragmentDao = messageFragmentDao;
         this.mpcDictionaryService = mpcDictionaryService;
         this.userMessageValidatorSpiService = userMessageValidatorSpiService;
         this.userMessageSecurityService = userMessageSecurityService;
         this.partInfoService = partInfoService;
         this.messageSubmitterHelper = messageSubmitterHelper;
+        this.testMessageValidator = testMessageValidator;
+        this.backendConnectorService = backendConnectorService;
     }
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Timer(clazz = MessageSubmitterImpl.class, value = "submit")
     @Counter(clazz = MessageSubmitterImpl.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
+        if (!backendConnectorService.isBackendConnectorEnabled(backendName)) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Backend connector %s is not enabled; Cancelling submit", backendName));
+        }
+
         if (StringUtils.isNotEmpty(submission.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, submission.getMessageId());
             LOG.debug("Add message ID to LOG MDC [{}]", submission.getMessageId());
@@ -221,7 +231,15 @@ public class MessageSubmitterImpl implements MessageSubmitter {
                         .build();
             }
 
-            saveMessage(backendName, messageId, userMessage, partInfos, messageStatus, pModeKey, legConfiguration);
+            final Boolean testMessage = testMessageValidator.checkTestMessage(userMessage.getServiceValue(), userMessage.getActionValue());
+            userMessage.setTestMessage(testMessage);
+
+            if (splitAndJoin) {
+                saveSplitAndJoinMessage(backendName, messageId, userMessage, partInfos, messageStatus, pModeKey, legConfiguration);
+            } else {
+                saveMessage(backendName, messageId, userMessage, partInfos, messageStatus, pModeKey, legConfiguration);
+            }
+
             LOG.info("Message with id: [{}] submitted", messageId);
             return messageId;
         } catch (EbMS3Exception ebms3Ex) {
@@ -309,10 +327,42 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
     }
 
+    private void saveSplitAndJoinMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
+        try {
+            //we save first the UserMessage and the payloads; the payloads are saved on disk asynchronously in a different thread
+            //we update the PartInfo size and encryption fields after the payloads are saved on disk
+            messageSubmitterHelper.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
+            messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
+        } catch (CompressionException exc) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0303)
+                    .message(exc.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(exc)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        } catch (InvalidPayloadSizeException e) {
+            if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
+                //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
+                //to internal storage folder so we will not delete them
+                partInfoService.clearFileSystemPayloads(partInfos);
+            }
+            LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
+                    .message(e.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(e)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        }
+    }
+
     private void saveMessage(String backendName, String messageId, UserMessage userMessage, List<PartInfo> partInfos, MessageStatus messageStatus, String pModeKey, LegConfiguration legConfiguration) throws EbMS3Exception {
         try {
+            //we save first the payloads so that the payload size and the encryption fields are set before saving
             messagingService.storeMessagePayloads(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
-
             messageSubmitterHelper.persistSentMessage(userMessage, messageStatus, partInfos, pModeKey, legConfiguration, backendName);
         } catch (CompressionException exc) {
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);

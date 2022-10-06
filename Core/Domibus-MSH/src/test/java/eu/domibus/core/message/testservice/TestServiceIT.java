@@ -1,6 +1,7 @@
 package eu.domibus.core.message.testservice;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.error.ErrorLogService;
@@ -56,6 +57,9 @@ public class TestServiceIT {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    PartyService partyService;
 
     @Test
     public void createSubmission() throws IOException {

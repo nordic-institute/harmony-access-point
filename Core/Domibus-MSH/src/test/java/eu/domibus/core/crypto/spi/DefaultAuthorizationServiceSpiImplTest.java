@@ -323,7 +323,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = true;
 
-            domibusPropertyProvider.getBooleanProperty(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY);
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
             result = true;
         }};
 

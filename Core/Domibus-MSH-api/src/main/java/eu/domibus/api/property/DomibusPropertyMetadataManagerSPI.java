@@ -50,7 +50,24 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_KEYSTORE_LOCATION = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_KEYSTORE_TYPE = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "type";
     String DOMIBUS_SECURITY_KEYSTORE_PASSWORD = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "password";//NOSONAR
-    String DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS = "domibus.security.key.private.alias";
+
+    String DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX = "domibus.security.key.private.";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "alias";
+
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.password";
+
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.alias";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.password";
+
     String DOMIBUS_SECURITY_TRUSTSTORE_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_TRUSTSTORE_TYPE = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "type";
     String DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "password";//NOSONAR
@@ -88,13 +105,16 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation";
     String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.peppolclient.regexCertificateSubjectValidation";
     String DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION = "domibus.dynamicdiscovery.client.allowedCertificatePolicyOIDs";
-    String DOMIBUS_DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.partyid.responder.role";
-    String DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
+    String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.peppolclient.partyid.responder.role";
+    String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.oasisclient.partyid.responder.role";
+    String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.peppolclient.partyid.type";
+    String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_PARTYID_TYPE = "domibus.dynamicdiscovery.oasisclient.partyid.type";
     String DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4 = "domibus.dynamicdiscovery.transportprofileas4";
     String DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT = "domibus.listPendingMessages.maxCount";
     String DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE = "domibus.jms.connectionFactory.session.cache.size";
     String DOMIBUS_JMS_QUEUE_MAX_BROWSE_SIZE = "domibus.jms.queue.maxBrowseSize";
     String DOMIBUS_JMS_INTERNAL_QUEUE_EXPRESSION = "domibus.jms.internalQueue.expression";
+    String DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION = "domibus.jms.internal.address.expression";
     String DOMIBUS_RECEIVER_SELF_SENDING_VALIDATION_ACTIVE = "domibus.receiver.selfsending.validation.active";
     String DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.receiver.certificate.validation.onsending";
     String DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING = "domibus.sender.certificate.validation.onsending";

@@ -283,4 +283,8 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       this.alertService.exception('', ex);
     }
   }
+
+  anyTestable() {
+    return this.rows.some(el => el.testable);
+  }
 }
