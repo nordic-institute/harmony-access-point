@@ -445,8 +445,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (StringUtils.isNotBlank(aliasValue) && StringUtils.isBlank(passwordValue)) {
             LOG.error("One of the keystore property values is null for domain [{}]: private key alias=[{}], private key password",
                     domain, aliasValue);
-            throw new ConfigurationException("Error while trying to load the private key properties for domain " + domain);
+            throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
         } else if (StringUtils.isNotBlank(aliasValue)) {
+            if (aliasesAndPasswordsMap.containsKey(aliasValue)) {
+                throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
+            }
             aliasesAndPasswordsMap.put(aliasValue, passwordValue);
         }
     }
@@ -477,7 +480,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.error("Both legacy single keystore alias and security profiles are defined for domain [{}]. Please define only legacy single keystore alias" +
                     "or security profiles.", domain);
 
-            throw new ConfigurationException("Both legacy single keystore alias and security profiles are defined for domain [{}] " + domain);
+            throw new ConfigurationException("Both legacy single keystore alias and security profiles are defined for domain: " + domain);
         }
 
         Set<String> aliases = aliasesAndPasswordsMap.keySet();
@@ -499,7 +502,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (StringUtils.isAnyEmpty(keystoreType, keystorePassword)) {
             LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword",
                     domain, keystoreType);
-            throw new ConfigurationException("Error while trying to load the keystore properties for domain " + domain);
+            throw new ConfigurationException("Error while trying to load the keystore properties for domain: " + domain);
         }
 
         aliasesAndMerlinInstancesMap.forEach(
@@ -516,7 +519,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
         if (StringUtils.isEmpty(alias)) {
             LOG.error("The keystore alias [{}] for domain [{}] is null", alias, domain);
-            throw new ConfigurationException("Error while trying to load the keystore alias " + alias + " for domain " + domain);
+            throw new ConfigurationException("Error while trying to load the keystore alias: " + alias + " for domain: " + domain);
         }
 
         Properties properties = new Properties();
@@ -582,7 +585,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (StringUtils.isAnyEmpty(trustStoreType, trustStorePassword)) {
             LOG.error("One of the truststore property values is null for domain [{}]: trustStoreType=[{}], trustStorePassword",
                     domain, trustStoreType);
-            throw new ConfigurationException("Error while trying to load the truststore properties for domain " + domain);
+            throw new ConfigurationException("Error while trying to load the truststore properties for domain: " + domain);
         }
 
         Properties result = new Properties();
