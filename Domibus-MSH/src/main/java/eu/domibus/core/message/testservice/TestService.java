@@ -202,7 +202,7 @@ public class TestService {
         } else {
             // if userMessageId is not provided, find the most recent signal message received for a test message
             ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-            signalMessage = signalMessageDao.findLastTestMessage(partyId, actionEntity);
+            signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, partyId, actionEntity);
             if (signalMessage == null) {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;

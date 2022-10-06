@@ -122,7 +122,7 @@ public class UserMessageDaoTestIT extends AbstractIT {
         assertNotNull(userMessage);
         assertEquals("msg-test-1", userMessage.getMessageId());
 
-        SignalMessage signalMessage = signalMessageDao.findLastTestMessage(testParty, actionEntity);
+        SignalMessage signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, testParty, actionEntity);
         assertNotNull(signalMessage);
         assertEquals("msg-test-1", signalMessage.getRefToMessageId());
         assertEquals("msg-test-1", signalMessage.getUserMessage().getMessageId());
