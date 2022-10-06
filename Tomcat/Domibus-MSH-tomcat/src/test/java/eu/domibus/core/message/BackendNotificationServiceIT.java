@@ -2,9 +2,12 @@ package eu.domibus.core.message;
 
 import eu.domibus.ITTestsService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.common.*;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
@@ -57,8 +60,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static eu.domibus.messaging.MessageConstants.*;
+import static org.junit.Assert.*;
 
 @Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
@@ -299,11 +302,21 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         deleteAllMessages();
 
-        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().size(), 1);
-        assertEquals(backendConnector.getMessageDeletedBatchEvent().getMessageDeletedEvents().get(0).getMessageId(), messageId);
+        MessageEvent messageEvent = backendConnector.getMessageDeletedBatchEvent();
+        assertTrue(messageEvent instanceof MessageDeletedBatchEvent);
+        MessageDeletedBatchEvent messageDeletedBatchEvent = (MessageDeletedBatchEvent) messageEvent;
+        assertEquals(messageDeletedBatchEvent.getMessageDeletedEvents().size(), 1);
+        MessageDeletedEvent singleMessageDeletedEvent = messageDeletedBatchEvent.getMessageDeletedEvents().get(0);
+        assertEquals(singleMessageDeletedEvent.getMessageId(), messageId);
+        assertNotNull(singleMessageDeletedEvent.getMessageEntityId());
+
+        assertNotNull(singleMessageDeletedEvent.getProps().get(ORIGINAL_SENDER));
+        assertNotNull(singleMessageDeletedEvent.getProps().get(FINAL_RECIPIENT));
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
         Assert.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
+
+
     }
 
     @Test
@@ -324,8 +337,15 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.SEND_ENQUEUED);
 
-        assertEquals(backendConnector.getPayloadSubmittedEvent().getMessageId(), messageId);
-        assertEquals(backendConnector.getPayloadProcessedEvent().getMessageId(), messageId);
+        PayloadSubmittedEvent payloadSubmittedEvent = backendConnector.getPayloadSubmittedEvent();
+        PayloadProcessedEvent payloadProcessedEvent = backendConnector.getPayloadProcessedEvent();
+        assertEquals(payloadSubmittedEvent.getMessageId(), messageId);
+        assertNotNull(payloadSubmittedEvent.getMessageEntityId());
+        assertEquals(payloadProcessedEvent.getMessageId(), messageId);
+        assertNotNull(payloadProcessedEvent.getMessageEntityId());
+
+        assertPropertiesPresentInEvent(payloadSubmittedEvent);
+        assertPropertiesPresentInEvent(payloadProcessedEvent);
 
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
@@ -363,9 +383,76 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         messageSenderErrorHandler.handleError(new Exception());
 
-        assertEquals(backendConnector.getMessageSendFailedEvent().getMessageId(), messageId);
+        MessageEvent messageSendFailedEvent = backendConnector.getMessageSendFailedEvent();
+        assertEquals(messageSendFailedEvent.getMessageId(), messageId);
+        assertNotNull(messageSendFailedEvent.getMessageEntityId());
+        assertTrue(messageSendFailedEvent instanceof MessageSendFailedEvent);
+
+        assertPropertiesPresentInEvent(messageSendFailedEvent);
 
         deleteAllMessages();
+    }
+
+
+    @Test
+    @Transactional
+    public void testEventProps_NotifyMessageReceived() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+
+        MessageEvent messageReceivedEvent = backendConnector.getDeliverMessageEvent();
+        assertTrue(messageReceivedEvent instanceof DeliverMessageEvent);
+        assertEquals(messageReceivedEvent.getMessageId(), messageId);
+        assertNotNull(messageReceivedEvent.getMessageEntityId());
+        assertEquals(messageReceivedEvent.getProps().get(MSH_ROLE), eu.domibus.common.MSHRole.RECEIVING.name());
+
+        assertPropertiesPresentInEvent(messageReceivedEvent);
+    }
+
+    @Test
+    @Transactional
+    public void testEventProps_NotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+        BackendFilter backendFilter = Mockito.mock(BackendFilter.class);
+        Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
+        filename = "InvalidBodyloadCidSOAPMessage.xml";
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        try {
+            mshWebserviceTest.invoke(soapMessage);
+        } catch (WebServiceException wse) {
+            //do nothing here, make the assertions below
+        }
+
+        MessageEvent messageReceivedFailure = backendConnector.getMessageReceiveFailureEvent();
+        assertTrue(messageReceivedFailure instanceof MessageReceiveFailureEvent);
+        assertEquals(messageReceivedFailure.getMessageId(), messageId);
+        assertNotNull(messageReceivedFailure.getMessageEntityId());
+        assertEquals(messageReceivedFailure.getProps().get(MSH_ROLE), eu.domibus.common.MSHRole.RECEIVING.name());
+
+        assertPropertiesPresentInEvent(messageReceivedFailure);
+    }
+
+
+
+    private void assertPropertiesPresentInEvent(MessageEvent messageEvent) {
+        Map<String,String> properties = messageEvent.getProps();
+
+        assertNotNull(properties.get(CONVERSATION_ID));
+        assertNotNull(properties.get(FROM_PARTY_ID));
+        assertNotNull(properties.get(TO_PARTY_ID));
+        assertNotNull(properties.get(ORIGINAL_SENDER));
+        assertNotNull(properties.get(FINAL_RECIPIENT));
+        assertNotNull(properties.get(SERVICE));
+        assertNotNull(properties.get(SERVICE_TYPE));
+
+        assertNotNull(properties.get(ACTION));
     }
 
 }
