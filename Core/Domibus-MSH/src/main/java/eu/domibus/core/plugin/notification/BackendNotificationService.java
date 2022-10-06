@@ -123,7 +123,7 @@ public class BackendNotificationService {
         LOG.debug("Notify message receive failure");
         BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
 
-        if (!shouldNotify(userMessage, matchingBackendFilter.getBackendName())) {
+        if (!shouldNotify(userMessage, matchingBackendFilter)) {
             return;
         }
 
@@ -160,7 +160,7 @@ public class BackendNotificationService {
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
-        if (!shouldNotify(userMessage, matchingBackendFilter.getBackendName())) {
+        if (!shouldNotify(userMessage, matchingBackendFilter)) {
             return;
         }
 
@@ -180,7 +180,7 @@ public class BackendNotificationService {
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     public void notifyMessageResponseSent(BackendFilter matchingBackendFilter, UserMessage userMessage) {
-        if (!shouldNotify(userMessage, matchingBackendFilter.getBackendName())) {
+        if (!shouldNotify(userMessage, matchingBackendFilter)) {
             return;
         }
 
@@ -383,6 +383,9 @@ public class BackendNotificationService {
         notify(messageStatusChangeEvent, backend, notificationType);
     }
 
+    protected boolean shouldNotify(UserMessage userMessage, BackendFilter backendFilter) {
+        return backendFilter != null && shouldNotify(userMessage, backendFilter.getBackendName());
+    }
 
     protected boolean shouldNotify(UserMessage userMessage, String backendName) {
         if (isPluginNotificationDisabled()) {
