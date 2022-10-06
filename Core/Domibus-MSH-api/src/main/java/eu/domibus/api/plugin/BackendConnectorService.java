@@ -1,7 +1,7 @@
 package eu.domibus.api.plugin;
 
 /**
- * Service used for operations related with plugins
+ * Service used for operations related to plugins
  *
  * @author Ion Perpegel
  * @since 5.0
@@ -30,4 +30,5 @@ public interface BackendConnectorService {
      */
     boolean canDisableBackendConnector(String backendName, final String domainCode);
 
+    boolean isBackendConnectorEnabled(String backendName);
 }

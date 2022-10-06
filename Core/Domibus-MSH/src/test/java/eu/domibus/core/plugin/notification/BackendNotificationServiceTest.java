@@ -9,6 +9,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
@@ -133,6 +134,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     TestMessageValidator testMessageValidator;
+
+    @Injectable
+    protected BackendConnectorService backendConnectorService;
 
     @Test
     public void testValidateAndNotify_propertyNull(@Mocked final DeliverMessageEvent messageEvent) {
@@ -341,6 +345,7 @@ public class BackendNotificationServiceTest {
 
 
     @Test
+    @Ignore
     public void notifyOfMessageStatusChange_isPluginNotificationDisabled(
             @Mocked final UserMessageLog messageLog, @Mocked final UserMessage userMessage) {
         final String messageId = "1";
@@ -349,15 +354,17 @@ public class BackendNotificationServiceTest {
         MessageStatus status = MessageStatus.ACKNOWLEDGED;
         final MessageStatus previousStatus = MessageStatus.SEND_ENQUEUED;
         new Expectations(backendNotificationService) {{
+            messageLog.getBackend();
+            result = BACKEND_NAME;
+
+            backendNotificationService.shouldNotify(userMessage, anyString);
+            result = true;
+
             messagingConfigurationManager.getConfiguration();
             result = messageCommunicationConfiguration;
             times = 1;
 
             messageCommunicationConfiguration.shouldMonitorMessageStatus(status);
-            result = true;
-            times = 1;
-
-            backendNotificationService.isPluginNotificationDisabled();
             result = true;
             times = 1;
 
@@ -367,7 +374,7 @@ public class BackendNotificationServiceTest {
             userMessage.getMessageId();
             result = messageId;
 
-            messageLog.getMshRole().getRole();
+            userMessage.getMshRole().getRole();
             result = role;
         }};
 
@@ -502,6 +509,9 @@ public class BackendNotificationServiceTest {
         MessageStatus status = MessageStatus.ACKNOWLEDGED;
         final MessageStatus previousStatus = MessageStatus.ACKNOWLEDGED;
         new Expectations(backendNotificationService) {{
+            messageLog.getBackend();
+            result = BACKEND_NAME;
+
             messagingConfigurationManager.getConfiguration();
             result = messageCommunicationConfiguration;
             times = 1;
@@ -510,18 +520,14 @@ public class BackendNotificationServiceTest {
             result = true;
             times = 1;
 
-            backendNotificationService.isPluginNotificationDisabled();
-            result = false;
-            times = 1;
+            backendNotificationService.shouldNotify(userMessage, anyString);
+            result = true;
 
             messageLog.getMessageStatus();
             result = previousStatus;
 
             userMessage.getMessageId();
             result = messageId;
-
-            messageLog.getMshRole().getRole();
-            result = role;
 
             userMessage.getMshRole().getRole();
             result = role;
@@ -846,11 +852,17 @@ public class BackendNotificationServiceTest {
     @Test
     public void testNotifyMessageReceivedFailure_PluginNotificationDisabled(@Mocked UserMessage userMessage,
                                                                             @Mocked ErrorResult errorResult,
-                                                                            @Mocked List<PartInfo> partInfoList) {
+                                                                            @Mocked BackendFilter matchingBackendFilter) {
 
         new Expectations(backendNotificationService) {{
-            backendNotificationService.isPluginNotificationDisabled();
-            result = true;
+            routingService.getMatchingBackendFilter(userMessage);
+            result = matchingBackendFilter;
+
+            matchingBackendFilter.getBackendName();
+            result = BACKEND_NAME;
+
+            backendNotificationService.shouldNotify(userMessage, anyString);
+            result = false;
         }};
 
         backendNotificationService.notifyMessageReceivedFailure(userMessage, errorResult);
@@ -875,9 +887,11 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyOfSendSuccess(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
         new Expectations(backendNotificationService) {{
-            backendNotificationService.isPluginNotificationDisabled();
-            result = true;
-            times = 1;
+            userMessageLog.getBackend();
+            result = BACKEND_NAME;
+
+            backendNotificationService.shouldNotify(userMessage, anyString);
+            result = false;
         }};
         backendNotificationService.notifyOfSendSuccess(userMessage, userMessageLog);
         new FullVerifications() {
@@ -899,6 +913,9 @@ public class BackendNotificationServiceTest {
             userMessageLog.getBackend();
             result = BACKEND_NAME;
             times = 1;
+
+            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            result = true;
 
             userMessageLogDao.setAsNotified(userMessageLog);
             times = 1;
@@ -924,6 +941,9 @@ public class BackendNotificationServiceTest {
             result = BACKEND_NAME;
             times = 1;
 
+            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            result = true;
+
             backendNotificationService.notify((MessageSendSuccessEvent)any, BACKEND_NAME, MESSAGE_FRAGMENT_SEND_SUCCESS);
             times = 1;
 
@@ -942,8 +962,11 @@ public class BackendNotificationServiceTest {
             @Mocked final UserMessage userMessage) {
 
         new Expectations(backendNotificationService) {{
-            backendNotificationService.isPluginNotificationDisabled();
-            result = true;
+            matchingBackendFilter.getBackendName();
+            result = BACKEND_NAME;
+
+            backendNotificationService.shouldNotify(userMessage, anyString);
+            result = false;
             times = 1;
         }};
 
@@ -956,20 +979,14 @@ public class BackendNotificationServiceTest {
     @Test
     public void notifyMessageReceived_fragment(
             @Mocked final BackendFilter matchingBackendFilter,
-            @Mocked final UserMessage userMessage,
-            @Mocked final DeliverMessageEvent messageEvent) {
+            @Mocked final UserMessage userMessage) {
 
         new Expectations(backendNotificationService) {{
-            backendNotificationService.isPluginNotificationDisabled();
+            matchingBackendFilter.getBackendName();
+            result = BACKEND_NAME;
+
+            backendNotificationService.shouldNotify(userMessage, anyString);
             result = false;
-            times = 1;
-
-            userMessage.isMessageFragment();
-            result = true;
-            times = 1;
-
-//            backendNotificationService.notifyOfIncoming(messageEvent, matchingBackendFilter, MESSAGE_FRAGMENT_RECEIVED);
-//            times = 1;
         }};
 
         backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
@@ -985,14 +1002,12 @@ public class BackendNotificationServiceTest {
             @Mocked final DeliverMessageEvent messageEvent) {
 
         new Expectations(backendNotificationService) {{
-            backendNotificationService.isPluginNotificationDisabled();
-            result = false;
-            times = 1;
+            backendNotificationService.shouldNotify(userMessage, anyString);
+            result = true;
 
             userMessage.isMessageFragment();
             result = false;
             times = 1;
-
         }};
 
         backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage);
@@ -1115,9 +1130,12 @@ public class BackendNotificationServiceTest {
             @Mocked UserMessage userMessage,
             @Mocked PartInfo partInfo) {
 
-        new Expectations() {{
-            testMessageValidator.checkTestMessage(userMessage);
-            result = true;
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
+            userMessage.isTestMessage();
+            result = false;
         }};
 
         backendNotificationService.notifyPayloadProcessed(userMessage, ORIGINAL_FILENAME, partInfo, BACKEND_NAME);
@@ -1205,6 +1223,8 @@ public class BackendNotificationServiceTest {
         new Expectations(backendNotificationService) {{
             backendNotificationService.isPluginNotificationDisabled();
             result = true;
+            userMessageLog.getBackend();
+            result = "FSPlugin";
         }};
         backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
         new FullVerifications() {
@@ -1222,9 +1242,11 @@ public class BackendNotificationServiceTest {
             userMessageLog.getBackend();
             result = BACKEND_NAME;
 
-            userMessage.isMessageFragment();
+            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
             result = true;
 
+            userMessage.isMessageFragment();
+            result = true;
         }};
 
         backendNotificationService.notifyOfSendFailure(userMessage, userMessageLog);
@@ -1243,6 +1265,9 @@ public class BackendNotificationServiceTest {
 
             userMessageLog.getBackend();
             result = BACKEND_NAME;
+
+            backendConnectorService.isBackendConnectorEnabled( BACKEND_NAME);
+            result = true;
 
             userMessage.isMessageFragment();
             result = false;
@@ -1323,9 +1348,12 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyMessageDeleted_test(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
-        new Expectations() {{
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
             userMessage.isTestMessage();
-            result = true;
+            result = false;
         }};
 
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
@@ -1336,7 +1364,10 @@ public class BackendNotificationServiceTest {
 
     @Test
     public void notifyMessageDeleted_noBackend(@Mocked UserMessageLog userMessageLog, @Mocked UserMessage userMessage) {
-        new Expectations() {{
+        new Expectations(backendNotificationService) {{
+            backendNotificationService.isPluginNotificationDisabled();
+            result = false;
+
             userMessage.isTestMessage();
             result = false;
 
