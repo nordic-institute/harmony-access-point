@@ -388,6 +388,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testFindPartyIdByServiceAndAction() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
+        String initiatingPartyId = "domibus-blue";
         List<String> expectedList = new ArrayList<>();
         expectedList.add("domibus-red");
         expectedList.add("domibus-blue");
@@ -399,7 +400,8 @@ public class CachingPModeProviderTest {
         }};
 
         // When
-        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
+
+        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
 
         // Then
         assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
@@ -409,6 +411,7 @@ public class CachingPModeProviderTest {
     @Test
     public void testFindPushToPartyIdByServiceAndAction() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
+        String initiatingPartyId = "domibus-blue";
         List<String> expectedList = new ArrayList<>();
         expectedList.add("domibus-red");
         expectedList.add("domibus-blue");
@@ -422,7 +425,7 @@ public class CachingPModeProviderTest {
         meps.add(MessageExchangePattern.ONE_WAY_PUSH);
 
         // When
-        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
+        List<String> partyIdByServiceAndAction = cachingPModeProvider.findPartiesByInitiatorServiceAndAction(initiatingPartyId, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
 
         // Then
         assertEquals(expectedList.size(), partyIdByServiceAndAction.size());
@@ -1364,7 +1367,7 @@ public class CachingPModeProviderTest {
             result = partyId2;
         }};
 
-        List<String> result = cachingPModeProvider.handleProcessParties(process);
+        List<String> result = cachingPModeProvider.getDistinctPartiesId(process, Process::getResponderParties);
 
         assertEquals(2, result.size());
         Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));

@@ -36,11 +36,10 @@ public class ConnectionMonitoringChangeListenerTest {
     protected PModeProvider pModeProvider;
 
     @Injectable
-    PartyService partyService;
-
+    protected PartyService partyService;
 
     @Tested
-    protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener(pModeProvider, partyService);
+    protected ConnectionMonitoringChangeListener listener;
 
     @Before
     public void setupTest() throws IOException {
@@ -59,7 +58,7 @@ public class ConnectionMonitoringChangeListenerTest {
         new Expectations() {{
             pModeProvider.findAllParties();
             result = knownParties;
-            pModeProvider.findPartyIdByServiceAndAction(anyString, anyString, null);
+            partyService.findPushToPartyNamesForTest();
             result = testablePartyIds;
         }};
     }

@@ -1261,31 +1261,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    public void findPushToPartyNamesByServiceAndActionTest(@Mocked MessageExchangePattern messageExchangePattern) {
-
-        // Given
-        final String service = "service1";
-        final String action = "action1";
-        List<MessageExchangePattern> meps = new ArrayList<>();
-        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
-        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
-        new Expectations(partyService) {{
-            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
-            result = (List<String>) any;
-        }};
-
-        // When
-        partyService.findPushToPartyNamesForTest();
-        // Then
-        new Verifications() {{
-            pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
-            times = 1;
-        }};
-    }
-
-    @Test
     public void printPartyProcessesTest(@Injectable Party party,
                                         @Mocked Process process) {
         List<Process> processes = new ArrayList<>();
