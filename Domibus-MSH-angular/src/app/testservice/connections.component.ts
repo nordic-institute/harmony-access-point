@@ -140,7 +140,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   async refreshMonitor(row: ConnectionMonitorEntry) {
-    let refreshedRow = await this.connectionsMonitorService.getMonitor(row.partyId);
+    let refreshedRow = await this.connectionsMonitorService.getMonitor(this.currentSenderPartyId, row.partyId);
     Object.assign(row, refreshedRow);
 
     if (row.status == 'PENDING') {
@@ -149,7 +149,12 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   openDetails(row: ConnectionMonitorEntry) {
-    this.dialog.open(ConnectionDetailsComponent, {data: {partyId: row.partyId}}).afterClosed().subscribe(result => {
+    this.dialog.open(ConnectionDetailsComponent, {
+      data: {
+        senderPartyId: this.currentSenderPartyId,
+        partyId: row.partyId
+      }
+    }).afterClosed().subscribe(result => {
       this.refreshMonitor(row);
     });
   }
@@ -159,11 +164,13 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     this.setCurrentSenderPartyId($event.value);
   }
 
-  private setCurrentSenderPartyId(value: any) {
+  private async setCurrentSenderPartyId(value: any) {
     this.currentSenderPartyId = value;
-    this.rows.forEach(entry => {
-      entry.senderPartyId = this.sender.name + '(' + this.currentSenderPartyId + ')';
-    });
+    await this.getDataAndSetResults();
+
+    // this.rows.forEach(entry => {
+    //   entry.senderPartyId = this.sender.name + '(' + this.currentSenderPartyId + ')';
+    // });
     // will read the monitor enabled properties for this party id
   }
 }

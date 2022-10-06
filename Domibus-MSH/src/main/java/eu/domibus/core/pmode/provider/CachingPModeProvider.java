@@ -1051,11 +1051,11 @@ public class CachingPModeProvider extends PModeProvider {
     protected List<String> getDistinctPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
         List<String> result = new ArrayList<>();
         for (Party party : getProcessPartiesByRoleFn.apply(process)) {
-//            result.addAll(party.getIdentifiers().stream().map(el -> party.getName() + "." + el.getPartyId()).collect(Collectors.toList()));
-            String partyId = getFirstPartyId(party);
-            if (partyId != null) {
-                result.add(partyId);
-            }
+            result.addAll(party.getIdentifiers().stream().map(Identifier::getPartyId).collect(Collectors.toList()));
+//            String partyId = getFirstPartyId(party);
+//            if (partyId != null) {
+//                result.add(partyId);
+//            }
         }
         return result;
     }

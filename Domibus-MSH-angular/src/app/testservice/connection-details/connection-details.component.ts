@@ -31,10 +31,12 @@ export class ConnectionDetailsComponent implements OnInit {
   messageInfoSent: MessageLogEntry;
   messageInfoReceived: MessageLogEntry;
   isBusy = false;
+  private senderPartyId: any;
 
   constructor(private connectionsMonitorService: ConnectionsMonitorService, private http: HttpClient, private alertService: AlertService,
               public dialogRef: MatDialogRef<ConnectionDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.partyId = data.partyId;
+    this.senderPartyId = data.senderPartyId;
   }
 
   async ngOnInit() {
@@ -76,7 +78,7 @@ export class ConnectionDetailsComponent implements OnInit {
     this.isBusy = true;
     this.alertService.clearAlert();
     try {
-      await this.getLastSentRequest(this.partyId);
+      await this.getLastSentRequest(this.senderPartyId, this.partyId);
       if (this.messageInfoSent.messageId) {
         await this.getLastReceivedRequest(this.partyId, this.messageInfoSent.messageId);
       }
@@ -104,10 +106,11 @@ export class ConnectionDetailsComponent implements OnInit {
     }
   }
 
-  async getLastSentRequest(partyId: string) {
+  async getLastSentRequest(senderPartyId: string, partyId: string) {
     this.isBusy = true;
     try {
       let searchParams = new HttpParams();
+      searchParams = searchParams.append('senderPartyId', partyId);
       searchParams = searchParams.append('partyId', partyId);
 
       let result = await this.http.get<any>(ConnectionDetailsComponent.MESSAGE_LOG_LAST_TEST_SENT_URL, {params: searchParams}).toPromise();

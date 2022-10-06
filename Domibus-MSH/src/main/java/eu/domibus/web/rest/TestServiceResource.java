@@ -67,8 +67,8 @@ public class TestServiceResource {
     }
 
     @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
-    public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String[] partyIds) {
-        Map<String, ConnectionMonitorRO> connectionStatus = connectionMonitoringService.getConnectionStatus(partyIds);
+    public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String senderPartyId, String[] partyIds) {
+        Map<String, ConnectionMonitorRO> connectionStatus = connectionMonitoringService.getConnectionStatus(senderPartyId, partyIds);
         return connectionStatus;
     }
 }

@@ -117,7 +117,8 @@ public class UserMessageDaoTestIT extends AbstractIT {
         String testParty = testMessage.getUserMessage().getPartyInfo().getToParty(); // "domibus-red"
         ActionEntity actionEntity = actionDao.findOrCreateAction(Ebms3Constants.TEST_ACTION);
 
-        UserMessage userMessage = userMessageDao.findLastTestMessage(testParty, actionEntity);
+        String senderPartyId = "domibus-blue";
+        UserMessage userMessage = userMessageDao.findLastTestMessage(senderPartyId, testParty, actionEntity);
         assertNotNull(userMessage);
         assertEquals("msg-test-1", userMessage.getMessageId());
 

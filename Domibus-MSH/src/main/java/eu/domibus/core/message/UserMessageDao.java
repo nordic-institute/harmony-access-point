@@ -147,8 +147,9 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return result;
     }
     
-    public UserMessage findLastTestMessage(String partyId, ActionEntity actionEntity) {
+    public UserMessage findLastTestMessage(String senderPartyId, String partyId, ActionEntity actionEntity) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageDesc", UserMessage.class);
+        query.setParameter("SENDER_PARTY_ID", senderPartyId);
         query.setParameter("PARTY_ID", partyId);
         query.setParameter("ACTION_ID", actionEntity.getEntityId());
         query.setMaxResults(1);

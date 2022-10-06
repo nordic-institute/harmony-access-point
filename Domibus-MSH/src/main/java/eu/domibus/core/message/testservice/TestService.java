@@ -124,8 +124,8 @@ public class TestService {
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    public TestServiceMessageInfoRO getLastTestSentWithErrors(String partyId) throws TestServiceException {
-        TestServiceMessageInfoRO result = getLastTestSent(partyId);
+    public TestServiceMessageInfoRO getLastTestSentWithErrors(String senderPartyId, String partyId) throws TestServiceException {
+        TestServiceMessageInfoRO result = getLastTestSent(senderPartyId, partyId);
         if (result == null) {
             throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message found for party [" + partyId + "]");
         }
@@ -141,15 +141,17 @@ public class TestService {
     /**
      * This method retrieves the last test Sent User Message for the given party Id
      *
+     *
+     * @param senderPartyId
      * @param partyId
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    public TestServiceMessageInfoRO getLastTestSent(String partyId) {
+    public TestServiceMessageInfoRO getLastTestSent(String senderPartyId, String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
         ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        UserMessage userMessage = userMessageDao.findLastTestMessage(partyId, actionEntity);
+        UserMessage userMessage = userMessageDao.findLastTestMessage(senderPartyId, partyId, actionEntity);
         if (userMessage == null) {
             LOG.debug("Could not find last user message for party [{}]", partyId);
             return null;
@@ -211,7 +213,7 @@ public class TestService {
     protected void validateReceiver(String receiverParty) {
         List<String> toParties = partyService.findPushToPartyNamesForTest();
         if (!toParties.contains(receiverParty)) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiverParty party [" + receiverParty + "] is not a responder in any test process.");
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiver party [" + receiverParty + "] is not a responder in any test process.");
         }
     }
 
@@ -262,7 +264,7 @@ public class TestService {
     protected void validateSender(String senderParty) {
         List<String> fromParties = partyService.findPushFromPartyNamesForTest();
         if (!fromParties.contains(senderParty)) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the senderParty party [" + senderParty + "] is not an initiator in any test process.");
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the sender party [" + senderParty + "] is not an initiator in any test process.");
         }
     }
 

@@ -1,6 +1,5 @@
 package eu.domibus.core.monitoring;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -78,24 +77,24 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds) {
+    public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, String[] partyIds) {
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
 //            partyId = partyId.substring(partyId.indexOf(".") + 1);
-            ConnectionMonitorRO status = this.getConnectionStatus(partyId);
+            ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
             result.put(partyId, status);
         }
         return result;
     }
 
-    protected ConnectionMonitorRO getConnectionStatus(String partyId) {
+    protected ConnectionMonitorRO getConnectionStatus(String senderPartyId, String partyId) {
         ConnectionMonitorRO result = new ConnectionMonitorRO();
 
-        TestServiceMessageInfoRO lastSent = testService.getLastTestSent(partyId);
+        TestServiceMessageInfoRO lastSent = testService.getLastTestSent(senderPartyId, partyId);
         result.setLastSent(lastSent);
 
         if (lastSent != null) {
-            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
+            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived( partyId, null);
             result.setLastReceived(lastReceived);
         }
 

@@ -49,7 +49,7 @@ public class MessageLogResourceTest {
         // Given
         String partyId = "test";
         new Expectations() {{
-            testService.getLastTestSentWithErrors(partyId);
+            testService.getLastTestSentWithErrors("",partyId);
             result = testServiceMessageInfoResult;
         }};
 
@@ -68,7 +68,7 @@ public class MessageLogResourceTest {
         // Given
         String partyId = "partyId";
         new Expectations() {{
-            testService.getLastTestSentWithErrors(partyId);
+            testService.getLastTestSentWithErrors("",partyId);
             result = new TestServiceException("No User Message found. Error Details in error log");
         }};
 

@@ -4,7 +4,6 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.testservice.TestService;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
@@ -158,13 +157,14 @@ public class ConnectionMonitoringServiceImplTest {
         }};
 
         new Expectations() {{
-            testService.getLastTestSent(partyId1);
+            String senderPartyId="senderPartyId";
+            testService.getLastTestSent(senderPartyId, partyId1);
             result = lastSent1;
 
             testService.getLastTestReceived(partyId1, null);
             result = lastReceived1;
 
-            testService.getLastTestSent(partyId2);
+            testService.getLastTestSent(senderPartyId, partyId2);
             result =lastSent2;
 
             testService.getLastTestReceived(partyId2, null);
@@ -178,7 +178,7 @@ public class ConnectionMonitoringServiceImplTest {
         }};
 
         // When
-        Map<String, ConnectionMonitorRO> result = connectionMonitoringService.getConnectionStatus(partyIds);
+        Map<String, ConnectionMonitorRO> result = connectionMonitoringService.getConnectionStatus("senderPartyId", partyIds);
 
         // Then
         Assert.assertEquals(result.size(), 2);

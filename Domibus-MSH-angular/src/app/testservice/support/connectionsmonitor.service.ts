@@ -34,7 +34,7 @@ export class ConnectionsMonitorService {
       return [];
     }
 
-    let monitors = await this.getMonitorsForParties(parties);
+    let monitors = await this.getMonitorsForParties(currentSenderPartyId, parties);
     return allParties.map(party => {
       let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
       let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
@@ -49,15 +49,16 @@ export class ConnectionsMonitorService {
     });
   }
 
-  async getMonitor(partyId: string): Promise<ConnectionMonitorEntry> {
-    let monitors = await this.getMonitorsForParties([partyId]);
+  async getMonitor(senderPartyId: string, partyId: string): Promise<ConnectionMonitorEntry> {
+    let monitors = await this.getMonitorsForParties(senderPartyId, [partyId]);
     console.log('monitors ', monitors);
     return monitors[partyId];
   }
 
-  private getMonitorsForParties(partyIds: string[]): Promise<Map<string, ConnectionMonitorEntry>> {
+  private getMonitorsForParties(senderPartyId: string, partyIds: string[]): Promise<Map<string, ConnectionMonitorEntry>> {
     let url = ConnectionsMonitorService.CONNECTION_MONITOR_URL;
     let searchParams = new HttpParams();
+    searchParams = searchParams.append('senderPartyId', senderPartyId)
     partyIds.forEach(partyId => searchParams = searchParams.append('partyIds', partyId));
     return this.http.get<Map<string, ConnectionMonitorEntry>>(url, {params: searchParams}).toPromise();
   }
