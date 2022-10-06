@@ -58,7 +58,7 @@ public class TestEbms3ServiceResourceTest {
         }};
 
         // When
-        String senderParty = testServiceResource.getSenderParty().get(0);
+        String senderParty = testServiceResource.getSenderParty().getName();
 
         // Then
         Assert.assertEquals("test", senderParty);

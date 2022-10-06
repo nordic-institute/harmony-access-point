@@ -21,7 +21,7 @@ export class ConnectionsMonitorService {
   constructor(private http: HttpClient, private alertService: AlertService, private propertiesService: PropertiesService) {
   }
 
-  async getMonitors(): Promise<ConnectionMonitorEntry[]> {
+  async getMonitors(currentSenderPartyId: any): Promise<ConnectionMonitorEntry[]> {
     let allParties = await this.http.get<PartyResponseRo[]>(ConnectionsMonitorService.ALL_PARTIES_URL).toPromise();
     if (!allParties || !allParties.length) {
       this.alertService.error('The Pmode is not properly configured.');
@@ -38,8 +38,10 @@ export class ConnectionsMonitorService {
     return allParties.map(party => {
       let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
       let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
-      cmEntry.partyId = allIdentifiers[0].partyId;
-      cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
+      let partyId = allIdentifiers[0].partyId;
+      cmEntry.partyId = partyId;
+      cmEntry.partyName = party.name + '(' + partyId + ')';
+      // cmEntry.partyName = allIdentifiers.map(id => id.partyId).join('/');
 
       let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
       Object.assign(cmEntry, monitors[monitorKey]);
@@ -60,22 +62,22 @@ export class ConnectionsMonitorService {
     return this.http.get<Map<string, ConnectionMonitorEntry>>(url, {params: searchParams}).toPromise();
   }
 
-  getSenderParty() {
-    return this.http.get<string>(ConnectionsMonitorService.TEST_SERVICE_SENDER_URL).toPromise();
+  getSenderParty(): Promise<PartyResponseRo> {
+    return this.http.get<PartyResponseRo>(ConnectionsMonitorService.TEST_SERVICE_SENDER_URL).toPromise();
   }
 
-  async sendTestMessage(receiverPartyId: string, sender?: string) {
+  async sendTestMessage(receiverPartyId: string, senderPartyId: String) {
     console.log('sending test message to ', receiverPartyId);
 
-    if (!sender) {
-      try {
-        sender = await this.getSenderParty();
-      } catch (ex) {
-        this.alertService.exception('Error getting the sender party:', ex);
-        return;
-      }
-    }
-    const payload = {sender: sender, receiver: receiverPartyId};
+    // if (!sender) {
+    //   try {
+    //     sender = await this.getSenderParty();
+    //   } catch (ex) {
+    //     this.alertService.exception('Error getting the sender party:', ex);
+    //     return;
+    //   }
+    // }
+    const payload = {sender: senderPartyId, receiver: receiverPartyId};
     return await this.http.post<string>(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
   }
 

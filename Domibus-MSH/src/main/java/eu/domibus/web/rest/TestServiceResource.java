@@ -1,9 +1,10 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.party.PartyService;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
-import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -39,9 +40,12 @@ public class TestServiceResource {
     @Autowired
     protected ConnectionMonitoringService connectionMonitoringService;
 
+    @Autowired
+    PartyCoreMapper partyCoreMapper;
+
     @RequestMapping(value = "sender", method = RequestMethod.GET)
-    public List<String> getSenderParty() {
-        return partyService.getAllGatewayPartyIdentifiers();
+    public PartyResponseRo getSenderParty() {
+        return partyCoreMapper.partyToPartyResponseRo(partyService.getGatewayParty());
     }
 
     @RequestMapping(value = "parties", method = RequestMethod.GET)

@@ -84,4 +84,6 @@ public interface PartyService {
     List<String> findPushFromPartyNamesForTest();
 
     List<String> getAllGatewayPartyIdentifiers();
+
+    Party getGatewayParty();
 }

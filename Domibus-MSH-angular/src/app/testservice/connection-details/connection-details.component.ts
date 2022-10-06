@@ -4,6 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {MessageLogEntry} from 'app/messagelog/support/messagelogentry';
 import {AlertService} from 'app/common/alert/alert.service';
 import {ConnectionsMonitorService} from '../support/connectionsmonitor.service';
+import {PartyResponseRo} from '../../party/support/party';
 
 /**
  * @author Tiago MIGUEL
@@ -25,7 +26,7 @@ export class ConnectionDetailsComponent implements OnInit {
   static readonly MESSAGE_LOG_LAST_TEST_RECEIVED_URL: string = 'rest/messagelog/test/incoming/latest';
 
   @Input() partyId: string;
-  sender: string;
+  sender: PartyResponseRo;
 
   messageInfoSent: MessageLogEntry;
   messageInfoReceived: MessageLogEntry;
@@ -38,7 +39,7 @@ export class ConnectionDetailsComponent implements OnInit {
 
   async ngOnInit() {
     this.isBusy = true;
-    this.sender = '';
+    this.sender = null;
     try {
       this.clearInfo();
       await this.getSenderParty();
@@ -59,7 +60,9 @@ export class ConnectionDetailsComponent implements OnInit {
     this.isBusy = true;
     this.clearInfo();
     try {
-      this.messageInfoSent.messageId = await this.connectionsMonitorService.sendTestMessage(this.partyId, this.sender);
+      // this will be sent as a param from the main page
+      let senderPartyId = this.sender.identifiers[0].partyId;
+      this.messageInfoSent.messageId = await this.connectionsMonitorService.sendTestMessage(this.partyId, senderPartyId);
       setTimeout(() => {
         this.update();
       }, 1000);
@@ -94,7 +97,7 @@ export class ConnectionDetailsComponent implements OnInit {
     try {
       this.sender = await this.connectionsMonitorService.getSenderParty();
     } catch (error) {
-      this.sender = '';
+      this.sender = null;
       this.alertService.exception('The test service is not properly configured.', error);
     } finally {
       this.isBusy = false;
