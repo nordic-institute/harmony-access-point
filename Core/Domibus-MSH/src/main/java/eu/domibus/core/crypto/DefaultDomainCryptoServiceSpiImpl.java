@@ -104,7 +104,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public X509Certificate[] getX509Certificates(CryptoType cryptoType, String alias) throws WSSecurityException {
-        return aliasesAndMerlinInstancesMap.get(alias).getX509Certificates(cryptoType);
+        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
+            return aliasesAndMerlinInstancesMap.get(alias).getX509Certificates(cryptoType);
+        }
+        return null;
     }
 
     @Override
@@ -120,7 +123,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public String getX509Identifier(X509Certificate cert, String alias) throws WSSecurityException {
-        return aliasesAndMerlinInstancesMap.get(alias).getX509Identifier(cert);
+        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
+            return aliasesAndMerlinInstancesMap.get(alias).getX509Identifier(cert);
+        }
+        return null;
     }
 
     @Override
@@ -136,7 +142,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler, String alias) throws WSSecurityException {
-        return aliasesAndMerlinInstancesMap.get(alias).getPrivateKey(certificate, callbackHandler);
+        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
+            return aliasesAndMerlinInstancesMap.get(alias).getPrivateKey(certificate, callbackHandler);
+        }
+        return null;
     }
 
     @Override
@@ -152,7 +161,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler, String alias) throws WSSecurityException {
-        return aliasesAndMerlinInstancesMap.get(alias).getPrivateKey(publicKey, callbackHandler);
+        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
+            return aliasesAndMerlinInstancesMap.get(alias).getPrivateKey(publicKey, callbackHandler);
+        }
+        return null;
     }
 
     @Override
@@ -169,12 +181,19 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(String identifier, String password) throws WSSecurityException {
-        return aliasesAndMerlinInstancesMap.get(identifier).getPrivateKey(identifier, password);
+        if (aliasesAndMerlinInstancesMap.get(identifier) != null) {
+            return aliasesAndMerlinInstancesMap.get(identifier).getPrivateKey(identifier, password);
+        }
+        return null;
     }
 
     @Override
     public void verifyTrust(PublicKey publicKey, String alias) throws WSSecurityException {
-        aliasesAndMerlinInstancesMap.get(alias).verifyTrust(publicKey);
+        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
+            aliasesAndMerlinInstancesMap.get(alias).verifyTrust(publicKey);
+        } else {
+            LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
+        }
     }
 
     @Override
@@ -192,7 +211,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints, String alias) throws WSSecurityException {
-        aliasesAndMerlinInstancesMap.get(alias).verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
+        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
+            aliasesAndMerlinInstancesMap.get(alias).verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
+        } else {
+            LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
+        }
     }
 
     @Override
@@ -210,7 +233,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public String getDefaultX509Identifier(String alias) throws WSSecurityException {
-        return aliasesAndMerlinInstancesMap.get(alias).getDefaultX509Identifier();
+        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
+            return aliasesAndMerlinInstancesMap.get(alias).getDefaultX509Identifier();
+        }
+        return null;
     }
 
     @Override
@@ -447,6 +473,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
 
         //with Security Profiles
+
         //RSA Profile
         readPrivateKeyAliasAndPasswordProperties(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD);
         readPrivateKeyAliasAndPasswordProperties(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD);
