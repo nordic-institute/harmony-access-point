@@ -98,4 +98,8 @@ public interface PartyService {
      * @param certificateContent
      */
     void updateParty(Party party, String certificateContent) throws PModeException;
+
+    List<String> findPushToPartyNamesForTest();
+
+    List<String> findPushFromPartyNamesForTest();
 }

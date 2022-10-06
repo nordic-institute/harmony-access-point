@@ -7,6 +7,7 @@ import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -76,22 +77,30 @@ public class TestService {
     @Autowired
     private ActionDictionaryService actionDictionaryService;
 
-    public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
-        LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
+    @Autowired
+    private PartyService partyService;
 
-        Submission messageData = createSubmission(sender);
+    public String submitTest(String senderParty, String receiverParty) throws IOException, MessagingProcessingException {
+        LOG.info("Submitting test message from [{}] to [{}]", senderParty, receiverParty);
+
+        validateSender(senderParty);
+        validateReceiver(receiverParty);
+
+        Submission messageData = createSubmission(senderParty);
 
         // Set Receiver
         messageData.getToParties().clear();
-        messageData.addToParty(receiver, pModeProvider.getPartyIdType(receiver));
+        messageData.addToParty(receiverParty, pModeProvider.getPartyIdType(receiverParty));
 
         return databaseMessageHandler.submit(messageData, BACKEND_NAME);
     }
 
-    public String submitTestDynamicDiscovery(String sender, String receiver, String receiverType) throws MessagingProcessingException, IOException {
-        LOG.info("Submitting test message with dynamic discovery from [{}] to [{}] with type [{}]", sender, receiver, receiverType);
+    public String submitTestDynamicDiscovery(String senderParty, String receiverParty, String receiverType) throws MessagingProcessingException, IOException {
+        LOG.info("Submitting test message with dynamic discovery from [{}] to [{}] with type [{}]", senderParty, receiverParty, receiverType);
 
-        Submission messageData = createSubmission(sender);
+        validateSender(senderParty);
+
+        Submission messageData = createSubmission(senderParty);
 
         // Clears Receivers
         messageData.getToParties().clear();
@@ -99,56 +108,12 @@ public class TestService {
         // Set Final Recipient Value and Type
         for (Submission.TypedProperty property : messageData.getMessageProperties()) {
             if (property.getKey().equals(MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT)) {
-                property.setValue(receiver);
+                property.setValue(receiverParty);
                 property.setType(receiverType);
             }
         }
 
         return databaseMessageHandler.submit(messageData, BACKEND_NAME);
-    }
-
-    protected Submission createSubmission(String sender) throws IOException {
-        Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
-        String jsonStr = new String(IOUtils.toByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
-        ObjectMapper mapper = new ObjectMapper();
-        Submission submission = mapper.readValue(jsonStr, Submission.class);
-
-        DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
-        Submission.TypedProperty objTypedProperty = new Submission.TypedProperty("MimeType", "text/xml");
-        Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();
-        listTypedProperty.add(objTypedProperty);
-        Submission.Payload objPayload1 = new Submission.Payload("cid:message", payLoadDataHandler, listTypedProperty, false, null, null);
-        submission.addPayload(objPayload1);
-
-        // Set Sender
-        submission.getFromParties().clear();
-        submission.addFromParty(sender, pModeProvider.getPartyIdType(sender));
-
-        // Set ServiceType
-        submission.setServiceType(pModeProvider.getServiceType(Ebms3Constants.TEST_SERVICE));
-
-        // Set From Role
-        submission.setFromRole(pModeProvider.getRole("INITIATOR", Ebms3Constants.TEST_SERVICE));
-
-        // Set To Role
-        submission.setToRole(pModeProvider.getRole("RESPONDER", Ebms3Constants.TEST_SERVICE));
-
-        // Set Agreement Ref
-        Agreement agreementRef = pModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
-        if (agreementRef != null) {
-            submission.setAgreementRef(agreementRef.getValue());
-            submission.setAgreementRefType(agreementRef.getType());
-        }
-
-        // Set Conversation Id
-        // As the eb:ConversationId element is required it must always have a value.
-        // If no value is included in the 301 submission of the business document to the Access Point,
-        // the Access Point MUST set the value of 302 eb:ConversationId to “1” as specified in section 4.3 of [ebMS3CORE].
-        submission.setConversationId("1");
-
-        submission.setProcessingType(ProcessingType.PUSH);
-
-        return submission;
     }
 
     /**
@@ -241,6 +206,64 @@ public class TestService {
         }
 
         return getTestServiceMessageInfoRO(partyId, signalMessage);
+    }
+
+    protected void validateReceiver(String receiverParty) {
+        List<String> toParties = partyService.findPushToPartyNamesForTest();
+        if (!toParties.contains(receiverParty)) {
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiverParty party [" + receiverParty + "] is not a responder in any test process.");
+        }
+    }
+
+    protected Submission createSubmission(String sender) throws IOException {
+        Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
+        String jsonStr = new String(IOUtils.toByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
+        ObjectMapper mapper = new ObjectMapper();
+        Submission submission = mapper.readValue(jsonStr, Submission.class);
+
+        DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
+        Submission.TypedProperty objTypedProperty = new Submission.TypedProperty("MimeType", "text/xml");
+        Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();
+        listTypedProperty.add(objTypedProperty);
+        Submission.Payload objPayload1 = new Submission.Payload("cid:message", payLoadDataHandler, listTypedProperty, false, null, null);
+        submission.addPayload(objPayload1);
+
+        // Set Sender
+        submission.getFromParties().clear();
+        submission.addFromParty(sender, pModeProvider.getPartyIdType(sender));
+
+        // Set ServiceType
+        submission.setServiceType(pModeProvider.getServiceType(Ebms3Constants.TEST_SERVICE));
+
+        // Set From Role
+        submission.setFromRole(pModeProvider.getRole("INITIATOR", Ebms3Constants.TEST_SERVICE));
+
+        // Set To Role
+        submission.setToRole(pModeProvider.getRole("RESPONDER", Ebms3Constants.TEST_SERVICE));
+
+        // Set Agreement Ref
+        Agreement agreementRef = pModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
+        if (agreementRef != null) {
+            submission.setAgreementRef(agreementRef.getValue());
+            submission.setAgreementRefType(agreementRef.getType());
+        }
+
+        // Set Conversation Id
+        // As the eb:ConversationId element is required it must always have a value.
+        // If no value is included in the 301 submission of the business document to the Access Point,
+        // the Access Point MUST set the value of 302 eb:ConversationId to “1” as specified in section 4.3 of [ebMS3CORE].
+        submission.setConversationId("1");
+
+        submission.setProcessingType(ProcessingType.PUSH);
+
+        return submission;
+    }
+
+    protected void validateSender(String senderParty) {
+        List<String> fromParties = partyService.findPushFromPartyNamesForTest();
+        if (!fromParties.contains(senderParty)) {
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the senderParty party [" + senderParty + "] is not an initiator in any test process.");
+        }
     }
 
     protected String getErrorsDetails(String userMessageId) {
