@@ -101,7 +101,7 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
     public boolean isBackendConnectorEnabled(String backendName) {
         BackendConnector<?, ?> plugin = backendConnectorProvider.getBackendConnector(backendName);
         if (plugin == null) {
-            LOG.info("Could not find backend connector with the name [{}]; returning false; ", backendName);
+            LOG.warn("Could not find backend connector with the name [{}]; returning false; ", backendName);
             return false;
         }
         if (!(plugin instanceof EnableAware)) {
