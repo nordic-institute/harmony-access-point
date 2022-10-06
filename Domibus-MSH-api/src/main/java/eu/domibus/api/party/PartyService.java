@@ -33,26 +33,6 @@ public interface PartyService {
                            int pageSize);
 
     /**
-     * Returns the list of Party Names for a specific Service and Action
-     *
-     * @param service Service name
-     * @param action  Action name
-     * @return List of Party names
-     */
-    List<String> findPartyNamesByServiceAndAction(final String service, final String action);
-
-    /**
-     * Returns the list of Party Names for a specific Service and Action configured as responders in process including
-     * a push binding
-     *
-     * @param service Service name
-     * @param action  Action name
-     * @return List of Party names
-     */
-    List<String> findPushToPartyNamesByServiceAndAction(final String service, final String action);
-
-
-    /**
      * Returns the Party Identifier Name for the gateway party
      *
      * @return Party Identifier Name
@@ -102,4 +82,6 @@ public interface PartyService {
     List<String> findPushToPartyNamesForTest();
 
     List<String> findPushFromPartyNamesForTest();
+
+    List<String> getAllGatewayPartyIdentifiers();
 }

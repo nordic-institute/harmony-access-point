@@ -1,6 +1,7 @@
 package eu.domibus.core.property.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -34,8 +35,12 @@ public class ConnectionMonitoringChangeListenerTest {
     @Injectable
     protected PModeProvider pModeProvider;
 
+    @Injectable
+    PartyService partyService;
+
+
     @Tested
-    protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener(pModeProvider);
+    protected ConnectionMonitoringChangeListener listener = new ConnectionMonitoringChangeListener(pModeProvider, partyService);
 
     @Before
     public void setupTest() throws IOException {

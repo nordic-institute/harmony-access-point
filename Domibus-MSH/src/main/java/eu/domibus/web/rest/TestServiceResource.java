@@ -40,13 +40,14 @@ public class TestServiceResource {
     protected ConnectionMonitoringService connectionMonitoringService;
 
     @RequestMapping(value = "sender", method = RequestMethod.GET)
-    public String getSenderParty() {
-        return partyService.getGatewayPartyIdentifier();
+    public List<String> getSenderParty() {
+        return partyService.getAllGatewayPartyIdentifiers();
     }
 
     @RequestMapping(value = "parties", method = RequestMethod.GET)
     public List<String> getTestParties() {
-        return partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> pushToPartyNamesByServiceAndAction = partyService.findPushToPartyNamesForTest();
+        return pushToPartyNamesByServiceAndAction;
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -63,6 +64,7 @@ public class TestServiceResource {
 
     @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
     public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String[] partyIds) {
-        return connectionMonitoringService.getConnectionStatus(partyIds);
+        Map<String, ConnectionMonitorRO> connectionStatus = connectionMonitoringService.getConnectionStatus(partyIds);
+        return connectionStatus;
     }
 }

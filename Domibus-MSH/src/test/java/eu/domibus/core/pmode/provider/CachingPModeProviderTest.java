@@ -23,7 +23,6 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.*;
 import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.logging.DomibusLogger;
@@ -1359,9 +1358,9 @@ public class CachingPModeProviderTest {
         new Expectations(cachingPModeProvider) {{
             process.getResponderParties();
             result = parties;
-            cachingPModeProvider.getOnePartyId(party1);
+            cachingPModeProvider.getFirstPartyId(party1);
             result = partyId1;
-            cachingPModeProvider.getOnePartyId(party2);
+            cachingPModeProvider.getFirstPartyId(party2);
             result = partyId2;
         }};
 
@@ -1386,7 +1385,7 @@ public class CachingPModeProviderTest {
             result = ids;
         }};
 
-        String result = cachingPModeProvider.getOnePartyId(party);
+        String result = cachingPModeProvider.getFirstPartyId(party);
 
         assertEquals("id1", result);
     }

@@ -1,9 +1,9 @@
 package eu.domibus.core.monitoring;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -51,7 +51,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public void sendTestMessages() {
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (CollectionUtils.isEmpty(testableParties)) {
             LOG.debug("There are no available parties to test");
             return;
@@ -81,6 +81,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds) {
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
+//            partyId = partyId.substring(partyId.indexOf(".") + 1);
             ConnectionMonitorRO status = this.getConnectionStatus(partyId);
             result.put(partyId, status);
         }
@@ -98,7 +99,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setLastReceived(lastReceived);
         }
 
-        List<String> testableParties = partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> testableParties = partyService.findPushToPartyNamesForTest();
         if (testableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
             result.setTestable(true);
         }

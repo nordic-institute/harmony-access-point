@@ -33,10 +33,8 @@ export class ConnectionsMonitorService {
       this.alertService.error('The test service is not properly configured.');
       return [];
     }
-    console.log('parties ', parties)
-    let monitors = await this.getMonitorsForParties(parties);
-    console.log('monitors ', monitors);
 
+    let monitors = await this.getMonitorsForParties(parties);
     return allParties.map(party => {
       let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
       let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
@@ -107,6 +105,7 @@ export class ConnectionsMonitorService {
 }
 
 export class ConnectionMonitorEntry {
+  senderPartyId?: string;
   partyId: string;
   partyName?: string;
   testable: boolean;

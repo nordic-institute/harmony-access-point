@@ -103,27 +103,6 @@ public class PartyServiceImpl implements PartyService {
      * {@inheritDoc}
      */
     @Override
-    public List<String> findPartyNamesByServiceAndAction(String service, String action) {
-        return pModeProvider.findPartyIdByServiceAndAction(service, action, null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> findPushToPartyNamesByServiceAndAction(String service, String action) {
-        List<MessageExchangePattern> meps = new ArrayList<>();
-        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
-        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
-        return pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getGatewayPartyIdentifier() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
@@ -132,6 +111,11 @@ public class PartyServiceImpl implements PartyService {
             result = gatewayParty.getIdentifiers().iterator().next().getPartyId();
         }
         return result;
+    }
+
+    @Override
+    public List<String> getAllGatewayPartyIdentifiers() {
+        return pModeProvider.getGatewayParty().getIdentifiers().stream().map(Identifier::getPartyId).collect(toList());
     }
 
     /**

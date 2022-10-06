@@ -59,8 +59,13 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
     this.columnPicker.allColumns = [
       {
-        name: 'Party',
-        prop: 'partyName',
+        name: 'Sender Party',
+        prop: 'senderPartyId',
+        width: 10
+      },
+      {
+        name: 'Responder Party',
+        prop: 'partyId',
         width: 10
       },
       {

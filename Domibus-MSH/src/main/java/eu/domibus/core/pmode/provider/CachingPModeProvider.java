@@ -5,7 +5,6 @@ import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.ServiceEntity;
-import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -1052,25 +1051,13 @@ public class CachingPModeProvider extends PModeProvider {
     protected List<String> getDistinctPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
         List<String> result = new ArrayList<>();
         for (Party party : getProcessPartiesByRoleFn.apply(process)) {
-            String partyId = getOnePartyId(party);
+//            result.addAll(party.getIdentifiers().stream().map(el -> party.getName() + "." + el.getPartyId()).collect(Collectors.toList()));
+            String partyId = getFirstPartyId(party);
             if (partyId != null) {
                 result.add(partyId);
             }
         }
         return result;
-    }
-
-    @Override
-    public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
-        List<String> result = new ArrayList<>();
-        List<Process> processes = filterProcessesByMep(meps);
-        for (Process process : processes) {
-            for (LegConfiguration legConfiguration : process.getLegs()) {
-                LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                result.addAll(handleLegConfiguration(legConfiguration, process, service, action));
-            }
-        }
-        return result.stream().distinct().collect(Collectors.toList());
     }
 
     protected List<Process> filterProcessesByMep(final List<MessageExchangePattern> meps) {
@@ -1100,26 +1087,7 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
-    private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
-        if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
-                && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
-            return handleProcessParties(process);
-        }
-        return new ArrayList<>();
-    }
-
-    protected List<String> handleProcessParties(Process process) {
-        List<String> result = new ArrayList<>();
-        for (Party party : process.getResponderParties()) {
-            String partyId = getOnePartyId(party);
-            if (partyId != null) {
-                result.add(partyId);
-            }
-        }
-        return result;
-    }
-
-    protected String getOnePartyId(Party party) {
+    protected String getFirstPartyId(Party party) {
         // add only one id for the party, not all aliases
         Comparator<Identifier> comp = Comparator.comparing(Identifier::getPartyId);
         List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());

@@ -340,23 +340,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    public void testFindPartyNamesByServiceAndAction() throws EbMS3Exception {
-        // Given
-        List<String> parties = new ArrayList<>();
-        parties.add("test");
-        new Expectations() {{
-            pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
-            result = parties;
-        }};
-
-        // When
-        List<String> partyNamesByServiceAndAction = partyService.findPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-
-        // Then
-        Assert.assertEquals(parties, partyNamesByServiceAndAction);
-    }
-
-    @Test
     public void testGetGatewayPartyIdentifier() {
         // Given
         String expectedGatewayPartyId = "testGatewayPartyId";
@@ -1294,7 +1277,7 @@ public class PartyServiceImplTest {
         }};
 
         // When
-        partyService.findPushToPartyNamesByServiceAndAction(service, action);
+        partyService.findPushToPartyNamesForTest();
         // Then
         new Verifications() {{
             pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
