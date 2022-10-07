@@ -13,12 +13,10 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.compression.CompressionException;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -59,9 +57,6 @@ public class MessagingServiceImpl implements MessagingService {
     protected PayloadPersistenceProvider payloadPersistenceProvider;
 
     @Autowired
-    protected PayloadFileStorageProvider storageProvider;
-
-    @Autowired
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
@@ -69,9 +64,6 @@ public class MessagingServiceImpl implements MessagingService {
 
     @Autowired
     protected UserMessageService userMessageService;
-
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
     protected UserMessagePayloadService userMessagePayloadService;
@@ -94,7 +86,7 @@ public class MessagingServiceImpl implements MessagingService {
             final Domain currentDomain = domainContextProvider.getCurrentDomain();
 
             if (partInfoService.scheduleSourceMessagePayloads(partInfoList)) {
-               partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
+                partInfoService.validatePayloadSizeBeforeSchedulingSave(legConfiguration, partInfoList);
 
                 //stores the payloads asynchronously
                 domainTaskExecutor.submitLongRunningTask(

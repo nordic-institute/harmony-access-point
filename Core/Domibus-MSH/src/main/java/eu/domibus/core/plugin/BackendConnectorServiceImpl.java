@@ -6,11 +6,13 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -99,6 +101,10 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
 
     @Override
     public boolean isBackendConnectorEnabled(String backendName) {
+        if (StringUtils.equals(backendName, TestService.BACKEND_NAME)) {
+            LOG.debug("Test Backend connector; returning true; ");
+            return true;
+        }
         BackendConnector<?, ?> plugin = backendConnectorProvider.getBackendConnector(backendName);
         if (plugin == null) {
             LOG.warn("Could not find backend connector with the name [{}]; returning false; ", backendName);
