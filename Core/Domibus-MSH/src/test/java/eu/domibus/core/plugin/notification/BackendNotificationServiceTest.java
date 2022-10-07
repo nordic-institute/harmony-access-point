@@ -63,9 +63,6 @@ public class BackendNotificationServiceTest {
     public static final String MIME = "mime";
     public static final String HREF = "Href";
 
-    @Tested
-    BackendNotificationService backendNotificationService = new BackendNotificationService();
-
     @Injectable
     ObjectMapper domibusJsonMapper;
 
@@ -137,6 +134,9 @@ public class BackendNotificationServiceTest {
 
     @Injectable
     protected BackendConnectorService backendConnectorService;
+
+    @Tested
+    BackendNotificationService backendNotificationService;
 
     @Test
     public void testValidateAndNotify_propertyNull(@Mocked final DeliverMessageEvent messageEvent) {
