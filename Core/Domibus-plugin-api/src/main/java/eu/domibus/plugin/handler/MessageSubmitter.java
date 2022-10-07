@@ -16,6 +16,7 @@ public interface MessageSubmitter {
      *
      * @param messageData the message to be processed
      * @param submitterName the name of the submitter
+     * @return the messageId of the submitted message
      * @throws MessagingProcessingException if the message was rejected by the Domibus MSH
      */
     String submit(Submission messageData, String submitterName) throws MessagingProcessingException;
