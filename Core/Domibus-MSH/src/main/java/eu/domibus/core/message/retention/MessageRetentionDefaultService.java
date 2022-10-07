@@ -226,7 +226,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                     .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
                     .property(MESSAGE_ID, messageLogDto.getMessageId())
 
-                    .property(MSH_ROLE, Optional.ofNullable(messageLogDto.getMshRole()).map(MSHRole::name).orElse("null")) // role might not be set!!!!
+                    .property(MSH_ROLE, Optional.ofNullable(messageLogDto.getMshRole()).map(MSHRole::name).orElse(null)) // role might not be set!!!!
                     .property(FINAL_RECIPIENT, messageLogDto.getProperties().get(FINAL_RECIPIENT))
                     .property(ORIGINAL_SENDER, messageLogDto.getProperties().get(ORIGINAL_SENDER))
                     .build();

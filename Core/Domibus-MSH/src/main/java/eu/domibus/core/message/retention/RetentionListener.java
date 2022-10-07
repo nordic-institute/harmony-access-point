@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.util.Optional;
 
 /**
  * Listeners that deletes messages by their identifiers.
