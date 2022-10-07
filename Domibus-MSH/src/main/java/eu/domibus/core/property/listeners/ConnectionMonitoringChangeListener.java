@@ -49,18 +49,20 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
         List<Party> knownParties = pModeProvider.findAllParties();
         List<String> testablePartyIds = partyService.findPushToPartyNamesForTest();
 
-        newPartyIds.forEach(partyId -> {
-            LOG.trace("Checking that [{}] is a known party", partyId);
-            if (knownParties.stream().noneMatch(party ->
-                    party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
-                throw new DomibusPropertyException("Could not change the list of monitoring parties: "
-                        + partyId + " is not configured in Pmode");
-            }
-            LOG.trace("Checking that [{}] is a known testable party", partyId);
-            if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
-                throw new DomibusPropertyException("Could not change the list of monitoring parties: "
-                        + partyId + " is not configured to receive test messages in Pmode");
-            }
+        newPartyIds.forEach(partyIdPair -> {
+            Arrays.stream(partyIdPair.split(">")).forEach(partyId->{
+                LOG.trace("Checking that [{}] is a known party", partyId);
+                if (knownParties.stream().noneMatch(party ->
+                        party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
+                    throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                            + partyId + " is not configured in Pmode");
+                }
+                LOG.trace("Checking that [{}] is a known testable party", partyId);
+                if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
+                    throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                            + partyId + " is not configured to receive test messages in Pmode");
+                }
+            });
         });
     }
 

@@ -108,7 +108,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
         cellTemplate: this.rowActions,
         name: 'Actions',
         prop: 'actions',
-        width: 60,
+        width: 30,
         canAutoResize: true,
         sortable: false
       }
@@ -126,7 +126,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newMonitorState = `${(newMonitoredValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setMonitorState(row.partyId, newMonitoredValue);
+      await this.connectionsMonitorService.setMonitorState(this.currentSenderPartyId, row.partyId, newMonitoredValue);
       row.monitored = newMonitoredValue;
       this.alertService.success(`Monitoring ${newMonitorState} for <b>${row.partyId}</b>`);
     } catch (err) {

@@ -374,7 +374,7 @@ public class DomibusPropertyMetadata {
         CLASS("^[a-zA-Z0-9_\\.]*$"),
         JNDI("^[a-zA-Z0-9_!\\.\\/\\:]*$"),
         HYPHENED_NAME("^[a-zA-Z0-9_\\-]*$"),
-        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_\\.\\-\\,]*$"),
+        COMMA_SEPARATED_LIST("^[ a-zA-Z0-9_>\\.\\-\\,]*$"),
         FREE_TEXT("^[\\x20-\\x7D]*$"),
 
         // no type validation for String except for the default black-list validation

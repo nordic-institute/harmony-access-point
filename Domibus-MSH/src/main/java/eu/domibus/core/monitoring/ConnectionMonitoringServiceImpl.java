@@ -5,7 +5,6 @@ import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -56,22 +54,19 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             return;
         }
 
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        if (StringUtils.isEmpty(selfParty)) {
-            LOG.info("The self party is not configured -> could not send test messages");
-            return;
-        }
-
         List<String> enabledParties = getMonitorEnabledParties();
-        List<String> monitoredParties = testableParties.stream()
-                .filter(partyId -> enabledParties.stream().anyMatch(partyId::equalsIgnoreCase))
+        List<String> monitoredParties = enabledParties.stream()
+                .filter(enabledParty -> testableParties.stream().anyMatch(testableParty -> testableParty.equalsIgnoreCase(enabledParty.split(">")[1])))
                 .collect(Collectors.toList());
-        for (String party : monitoredParties) {
+        for (String partyPair : monitoredParties) {
+            String[] pairVals = partyPair.split(">");
+            String senderParty = pairVals[0];
+            String receiverParty = pairVals[1];
             try {
-                String testMessageId = testService.submitTest(selfParty, party);
-                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", selfParty, party, testMessageId);
-            } catch (IOException | MessagingProcessingException e) {
-                LOG.warn("Could not send test message from [{}] to [{}]", selfParty, party);
+                String testMessageId = testService.submitTest(senderParty, receiverParty);
+                LOG.debug("Test message submitted from [{}] to [{}]: [{}]", senderParty, receiverParty, testMessageId);
+            } catch (Exception ex) {
+                LOG.warn("Could not send test message from [{}] to [{}]", senderParty, receiverParty, ex);
             }
         }
     }
@@ -80,7 +75,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, String[] partyIds) {
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
-//            partyId = partyId.substring(partyId.indexOf(".") + 1);
             ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
             result.put(partyId, status);
         }
@@ -103,8 +97,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setTestable(true);
         }
 
+        String partyPair = senderPartyId + ">" + partyId;
         List<String> enabledParties = getMonitorEnabledParties();
-        if (result.isTestable() && enabledParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+        if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 

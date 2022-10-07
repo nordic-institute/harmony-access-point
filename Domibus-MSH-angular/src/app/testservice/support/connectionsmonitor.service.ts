@@ -49,16 +49,6 @@ export class ConnectionsMonitorService {
         })
     });
     return result;
-    // return allParties.map(party => {
-    //   let cmEntry: ConnectionMonitorEntry = new ConnectionMonitorEntry();
-    //   let allIdentifiers = party.identifiers.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
-    //   let partyId = allIdentifiers[0].partyId;
-    //   cmEntry.partyId = partyId;
-    //   cmEntry.partyName = party.name + '(' + partyId + ')';
-    //   let monitorKey = Object.keys(monitors).find(k => allIdentifiers.find(id => id.partyId == k));
-    //   Object.assign(cmEntry, monitors[monitorKey]);
-    //   return cmEntry;
-    // });
   }
 
   async getMonitor(senderPartyId: string, partyId: string): Promise<ConnectionMonitorEntry> {
@@ -80,21 +70,11 @@ export class ConnectionsMonitorService {
   }
 
   async sendTestMessage(receiverPartyId: string, senderPartyId: String) {
-    console.log('sending test message to ', receiverPartyId);
-
-    // if (!sender) {
-    //   try {
-    //     sender = await this.getSenderParty();
-    //   } catch (ex) {
-    //     this.alertService.exception('Error getting the sender party:', ex);
-    //     return;
-    //   }
-    // }
     const payload = {sender: senderPartyId, receiver: receiverPartyId};
     return await this.http.post<string>(ConnectionsMonitorService.TEST_SERVICE_URL, payload).toPromise();
   }
 
-  async setMonitorState(partyId: string, enabled: boolean) {
+  async setMonitorState(senderPartyId: string, partyId: string, enabled: boolean) {
     let testableParties = await this.http.get<string[]>(ConnectionsMonitorService.TEST_SERVICE_PARTIES_URL).toPromise();
     if (!testableParties || !testableParties.length) {
       throw new Error('The test service is not properly configured.');
@@ -108,10 +88,10 @@ export class ConnectionsMonitorService {
 
     let enabledParties: string[] = prop.value.split(',').map(p => p.trim()).filter(p => p.toLowerCase() != partyId.toLowerCase());
     // remove old parties that are no longer testable:
-    enabledParties = enabledParties.filter(p => testableParties.find(tp => tp.toLowerCase() == p.toLowerCase()));
+    enabledParties = enabledParties.filter(ep => ep.split('>').every(p => testableParties.includes(p)));
 
     if (enabled) {
-      enabledParties.push(partyId);
+      enabledParties.push(senderPartyId + '>' + partyId);
     }
     prop.value = enabledParties.join(',');
     await this.propertiesService.updateProperty(prop);
