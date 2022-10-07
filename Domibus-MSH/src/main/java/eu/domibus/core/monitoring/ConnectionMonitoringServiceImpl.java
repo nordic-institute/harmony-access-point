@@ -127,9 +127,14 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
     }
 
-    private void ensureMewFormatForEnabledProperty() {
+    protected void ensureMewFormatForEnabledProperty() {
         String selfPartyId = partyService.getGatewayPartyIdentifier();
         List<String> monitoredParties = getMonitorEnabledParties();
+        String newValue = transformToNewFormat(monitoredParties, selfPartyId);
+        domibusPropertyProvider.setProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, newValue);
+    }
+
+    protected String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {
         for (int i = 0; i < monitoredParties.size(); i++) {
             String monitoredPartyPair = monitoredParties.get(i);
             String[] pairVals = monitoredPartyPair.split(PARTY_SEPARATOR);
@@ -138,7 +143,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             }
         }
         String newValue = monitoredParties.stream().collect(Collectors.joining(","));
-        domibusPropertyProvider.setProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, newValue);
+        return newValue;
     }
 
 }

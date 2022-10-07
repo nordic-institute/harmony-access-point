@@ -17,9 +17,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.AssertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
@@ -131,11 +133,11 @@ public class ConnectionMonitoringServiceImplTest {
     @Test
     public void testGetConnectionStatus() {
         // Given
-        String senderPartyId="senderPartyId";
+        String senderPartyId = "senderPartyId";
         String partyId1 = "partyId1";
         String partyId2 = "partyId2";
         String enabledPair = "senderPartyId>partyId1";
-        String[] partyIds = {partyId1, partyId2};
+        List<String> partyIds = Arrays.asList(partyId1, partyId2);
 
         TestServiceMessageInfoRO lastSent1 = new TestServiceMessageInfoRO() {{
             setMessageStatus(MessageStatus.ACKNOWLEDGED);
@@ -160,7 +162,7 @@ public class ConnectionMonitoringServiceImplTest {
             result = lastReceived1;
 
             testService.getLastTestSent(senderPartyId, partyId2);
-            result =lastSent2;
+            result = lastSent2;
 
             testService.getLastTestReceived(senderPartyId, partyId2, null);
             result = lastReceived2;
@@ -186,5 +188,16 @@ public class ConnectionMonitoringServiceImplTest {
         Assert.assertEquals(result.get(partyId2).isMonitored(), false);
         Assert.assertEquals(result.get(partyId2).getStatus(), ConnectionMonitorRO.ConnectionStatus.BROKEN);
 
+    }
+
+    @Test
+    public void transformToNewFormatTest() {
+        String selfParty = "self";
+        String partyId1 = "partyId1";
+        String partyId2 = "partyId2";
+        String enabledPair = "self>partyId1,self>partyId2";
+
+        String res = connectionMonitoringService.transformToNewFormat(Arrays.asList(partyId1, partyId2), selfParty);
+        Assert.assertEquals(enabledPair, res);
     }
 }
