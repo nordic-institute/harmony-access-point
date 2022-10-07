@@ -104,8 +104,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public X509Certificate[] getX509Certificates(CryptoType cryptoType, String alias) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
-            return aliasesAndMerlinInstancesMap.get(alias).getX509Certificates(cryptoType);
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(alias);
+        if (merlin != null) {
+            return merlin.getX509Certificates(cryptoType);
         }
         return null;
     }
@@ -115,6 +116,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
         } else if (aliasesAndMerlinInstancesMap.values().stream().findFirst().isPresent()) {
+            LOG.info("Legacy single keystore alias is is used for domain [{}]", domain);
             return aliasesAndMerlinInstancesMap.values().stream().findFirst().get().getX509Certificates(cryptoType);
         }
         return null;
@@ -122,8 +124,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public String getX509Identifier(X509Certificate cert, String alias) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
-            return aliasesAndMerlinInstancesMap.get(alias).getX509Identifier(cert);
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(alias);
+        if (merlin != null) {
+            return merlin.getX509Identifier(cert);
         }
         return null;
     }
@@ -140,8 +143,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler, String alias) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
-            return aliasesAndMerlinInstancesMap.get(alias).getPrivateKey(certificate, callbackHandler);
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(alias);
+        if (merlin != null) {
+            return merlin.getPrivateKey(certificate, callbackHandler);
         }
         return null;
     }
@@ -158,11 +162,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler, String alias) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
-            return aliasesAndMerlinInstancesMap.get(alias).getPrivateKey(publicKey, callbackHandler);
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(alias);
+        if (merlin != null) {
+            return merlin.getPrivateKey(publicKey, callbackHandler);
         }
         return null;
     }
+
 
     @Override
     public PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler) throws WSSecurityException {
@@ -176,16 +182,18 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(String identifier, String password) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(identifier) != null) {
-            return aliasesAndMerlinInstancesMap.get(identifier).getPrivateKey(identifier, password);
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(identifier);
+        if (merlin != null) {
+            return merlin.getPrivateKey(identifier, password);
         }
         return null;
     }
 
     @Override
     public void verifyTrust(PublicKey publicKey, String alias) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
-            aliasesAndMerlinInstancesMap.get(alias).verifyTrust(publicKey);
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(alias);
+        if (merlin != null) {
+            merlin.verifyTrust(publicKey);
         } else {
             LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
         }
@@ -204,8 +212,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints, String alias) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
-            aliasesAndMerlinInstancesMap.get(alias).verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(alias);
+        if (merlin != null) {
+            merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
         } else {
             LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
         }
@@ -224,8 +233,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public String getDefaultX509Identifier(String alias) throws WSSecurityException {
-        if (aliasesAndMerlinInstancesMap.get(alias) != null) {
-            return aliasesAndMerlinInstancesMap.get(alias).getDefaultX509Identifier();
+        final Merlin merlin = aliasesAndMerlinInstancesMap.get(alias);
+        if (merlin != null) {
+            return merlin.getDefaultX509Identifier();
         }
         return null;
     }
@@ -242,18 +252,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public KeyStore getKeyStore() {
-        if (aliasesAndMerlinInstancesMap.values().stream().findFirst().isPresent()) {
-            return aliasesAndMerlinInstancesMap.values().stream().findFirst().get().getKeyStore();
-        }
-        return null;
+        return aliasesAndMerlinInstancesMap.values().stream().map(Merlin::getKeyStore).findFirst().orElse(null);
     }
 
     @Override
     public KeyStore getTrustStore() {
-        if (aliasesAndMerlinInstancesMap.values().stream().findFirst().isPresent()) {
-            return aliasesAndMerlinInstancesMap.values().stream().findFirst().get().getTrustStore();
-        }
-        return null;
+        return aliasesAndMerlinInstancesMap.values().stream().map(Merlin::getTrustStore).findFirst().orElse(null);
     }
 
     @Override
@@ -415,14 +419,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void loadTrustStoreProperties() {
-        aliasesAndMerlinInstancesMap.forEach(
-            (k, v) -> {
-                try {
-                    v.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
-                } catch (WSSecurityException | IOException e) {
-                    throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore: " + e.getMessage(), e);
-                }
-            });
+        aliasesAndMerlinInstancesMap.forEach((k, v) -> loadTrustStorePropertiesForMerlin(v));
+    }
+
+    private void loadTrustStorePropertiesForMerlin(Merlin merlin) {
+        try {
+            merlin.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
+            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore: " + e.getMessage(), e);
+        }
     }
 
     protected void initKeyStore() {
@@ -478,7 +483,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
         if (isLegacySingleAliasKeystoreDefined && aliasesAndPasswordsMap.size() > 1) {
             LOG.error("Both legacy single keystore alias and security profiles are defined for domain [{}]. Please define only legacy single keystore alias" +
-                    "or security profiles.", domain);
+                    " or security profiles.", domain);
 
             throw new ConfigurationException("Both legacy single keystore alias and security profiles are defined for domain: " + domain);
         }
@@ -505,17 +510,18 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             throw new ConfigurationException("Error while trying to load the keystore properties for domain: " + domain);
         }
 
-        aliasesAndMerlinInstancesMap.forEach(
-                (k, v) -> {
-                    try {
-                        v.loadProperties(getKeystoreProperties(k, keystoreType, keystorePassword), Merlin.class.getClassLoader(), null);
-                    } catch (WSSecurityException | IOException e) {
-                        throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
-                    }
-                });
+        aliasesAndMerlinInstancesMap.forEach((k, v) -> loadKeyStorePropertiesForMerlin(keystoreType, keystorePassword, k, v));
     }
 
-    protected Properties getKeystoreProperties(String alias, String keystoreType, String keystorePassword) {
+    private void loadKeyStorePropertiesForMerlin(String keystoreType, String keystorePassword, String k, Merlin v) {
+        try {
+            v.loadProperties(getKeyStoreProperties(k, keystoreType, keystorePassword), Merlin.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
+            throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
+        }
+    }
+
+    protected Properties getKeyStoreProperties(String alias, String keystoreType, String keystorePassword) {
 
         if (StringUtils.isEmpty(alias)) {
             LOG.error("The keystore alias [{}] for domain [{}] is null", alias, domain);
