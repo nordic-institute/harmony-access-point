@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -58,7 +59,13 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
         String messageId = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_MESSAGE_ID);
         boolean compression = Boolean.valueOf(getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION));
         String domainCode = getHeaderValue(headers, DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
-        domainContextProvider.setCurrentDomain(domainCode);
+        try {
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
+        } catch (DomibusDomainException ex) {
+            LOG.error("Invalid domain: [{}]", domainCode, ex);
+            throw new Fault(ex);
+        }
+
 
         String contentType = (String) message.get(Message.CONTENT_TYPE);
 
