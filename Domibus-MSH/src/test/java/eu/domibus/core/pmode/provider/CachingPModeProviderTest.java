@@ -1351,48 +1351,6 @@ public class CachingPModeProviderTest {
         Assert.assertFalse(cachingPModeProvider.isDeleteMessageMetadataByMpcURI(DEFAULT_MPC_URI));
     }
 
-//    @Test
-//    public void handleProcessParties(@Mocked Process process, @Mocked Party party1, @Mocked Party party2) {
-//        Set<Party> parties = new HashSet<>();
-//        parties.add(party1);
-//        parties.add(party2);
-//        String partyId1 = "partyId1", partyId2 = "partyId2";
-//
-//        new Expectations(cachingPModeProvider) {{
-//            process.getResponderParties();
-//            result = parties;
-//            cachingPModeProvider.getFirstPartyId(party1);
-//            result = partyId1;
-//            cachingPModeProvider.getFirstPartyId(party2);
-//            result = partyId2;
-//        }};
-//
-//        List<String> result = cachingPModeProvider.getDistinctPartiesId(process, Process::getResponderParties);
-//
-//        assertEquals(2, result.size());
-//        Assert.assertTrue(result.containsAll(Arrays.asList(partyId1, partyId2)));
-//    }
-
-//    @Test
-//    public void getOnePartyId(@Mocked Party party) {
-//        List<Identifier> ids = new ArrayList<>();
-//        Identifier id1 = new Identifier();
-//        id1.setPartyId("id1");
-//        ids.add(id1);
-//        Identifier id2 = new Identifier();
-//        id2.setPartyId("id2");
-//        ids.add(id2);
-//
-//        new Expectations() {{
-//            party.getIdentifiers();
-//            result = ids;
-//        }};
-//
-//        String result = cachingPModeProvider.getFirstPartyId(party);
-//
-//        assertEquals("id1", result);
-//    }
-
     @Test
     public void findUserMessageExchangeContextPush(@Injectable UserMessage userMessage, @Injectable ServiceEntity serviceEntity) throws EbMS3Exception {
         String legName = "NoSecNoEnc";

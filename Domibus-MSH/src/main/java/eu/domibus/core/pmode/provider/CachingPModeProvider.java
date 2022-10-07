@@ -1039,8 +1039,8 @@ public class CachingPModeProvider extends PModeProvider {
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
-                        && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
+                if (legConfiguration.getService()!= null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                        && legConfiguration.getAction() != null && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
                     result.addAll(getProcessPartiesId(process, getCorrespondingPartiesFn));
                 }
             }
