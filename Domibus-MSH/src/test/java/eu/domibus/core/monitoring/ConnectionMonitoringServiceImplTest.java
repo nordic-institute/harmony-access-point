@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -67,8 +68,8 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty);
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = "";
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = new ArrayList<>();
 
         }};
 
@@ -89,8 +90,8 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = "";
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = new ArrayList<>();
 
         }};
 
@@ -105,14 +106,15 @@ public class ConnectionMonitoringServiceImplTest {
     @Test
     public void sendTestMessages() throws IOException, MessagingProcessingException {
         String selfParty = "self";
+        String enabledPair = "self>partyId2";
         String partyId2 = "partyId2";
 
         new Expectations() {{
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = partyId2;
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = Arrays.asList(enabledPair);
 
             testService.submitTest(selfParty, partyId2);
             result = "testMessageId";
@@ -129,8 +131,10 @@ public class ConnectionMonitoringServiceImplTest {
     @Test
     public void testGetConnectionStatus() {
         // Given
+        String senderPartyId="senderPartyId";
         String partyId1 = "partyId1";
         String partyId2 = "partyId2";
+        String enabledPair = "senderPartyId>partyId1";
         String[] partyIds = {partyId1, partyId2};
 
         TestServiceMessageInfoRO lastSent1 = new TestServiceMessageInfoRO() {{
@@ -148,7 +152,7 @@ public class ConnectionMonitoringServiceImplTest {
         }};
 
         new Expectations() {{
-            String senderPartyId="senderPartyId";
+
             testService.getLastTestSent(senderPartyId, partyId1);
             result = lastSent1;
 
@@ -164,8 +168,8 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(partyId1, partyId2);
 
-            domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = partyId1;
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+            result = Arrays.asList(enabledPair);
         }};
 
         // When

@@ -94,6 +94,9 @@ public class PartyServiceImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    PartyCoreMapper partyCoreMapper;
+
     @Before
     public void setUp() {
         new NonStrictExpectations() {{

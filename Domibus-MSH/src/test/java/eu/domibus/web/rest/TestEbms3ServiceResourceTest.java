@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.party.PartyService;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -48,18 +49,8 @@ public class TestEbms3ServiceResourceTest {
     @Injectable
     ConnectionMonitoringService connectionMonitoringService;
 
-    @Test
-    public void testGetSenderParty() {
-        // Given
-        new Expectations() {{
-        }};
-
-        // When
-        String senderParty = testServiceResource.getSenderParty().getName();
-
-        // Then
-        Assert.assertEquals("test", senderParty);
-    }
+    @Injectable
+    PartyCoreMapper partyCoreMapper;
 
     @Test
     public void testGetTestParties() {
