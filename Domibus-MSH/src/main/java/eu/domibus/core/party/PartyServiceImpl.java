@@ -107,7 +107,8 @@ public class PartyServiceImpl implements PartyService {
         return partyCoreMapper.configurationPartyToParty(pModeProvider.getGatewayParty());
     }
 
-    protected String getGatewayPartyIdentifier() {
+    @Override
+    public  String getGatewayPartyIdentifier() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
         // return the first identifier

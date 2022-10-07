@@ -42,6 +42,13 @@ public interface PartyService {
     List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
 
     /**
+     * Returns the first gateway party identifier
+     *
+     * @return Party Identifier
+     */
+    String getGatewayPartyIdentifier();
+
+    /**
      * Retrieve all the processes configured in the pmode.
      *
      * @return a lit of processes.

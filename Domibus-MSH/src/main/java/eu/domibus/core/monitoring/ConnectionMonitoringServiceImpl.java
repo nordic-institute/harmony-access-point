@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
+    public static final String PARTY_SEPARATOR = ">";
 
     @Autowired
     private PartyService partyService;
@@ -56,10 +56,10 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
         List<String> enabledParties = getMonitorEnabledParties();
         List<String> monitoredParties = enabledParties.stream()
-                .filter(enabledParty -> testableParties.stream().anyMatch(testableParty -> testableParty.equalsIgnoreCase(enabledParty.split(">")[1])))
+                .filter(enabledParty -> testableParties.stream().anyMatch(testableParty -> testableParty.equalsIgnoreCase(enabledParty.split(PARTY_SEPARATOR)[1])))
                 .collect(Collectors.toList());
         for (String partyPair : monitoredParties) {
-            String[] pairVals = partyPair.split(">");
+            String[] pairVals = partyPair.split(PARTY_SEPARATOR);
             String senderParty = pairVals[0];
             String receiverParty = pairVals[1];
             try {
@@ -73,6 +73,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, String[] partyIds) {
+        ensureMewFormatForEnabledProperty();
+
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
             ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
@@ -97,8 +99,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setTestable(true);
         }
 
-        String partyPair = senderPartyId + ">" + partyId;
         List<String> enabledParties = getMonitorEnabledParties();
+        String partyPair = senderPartyId + PARTY_SEPARATOR + partyId;
         if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
@@ -123,6 +125,20 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     private List<String> getMonitorEnabledParties() {
         return domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+    }
+
+    private void ensureMewFormatForEnabledProperty() {
+        String selfPartyId = partyService.getGatewayPartyIdentifier();
+        List<String> monitoredParties = getMonitorEnabledParties();
+        for (int i = 0; i < monitoredParties.size(); i++) {
+            String monitoredPartyPair = monitoredParties.get(i);
+            String[] pairVals = monitoredPartyPair.split(PARTY_SEPARATOR);
+            if (pairVals.length == 1) {
+                monitoredParties.set(i, selfPartyId + PARTY_SEPARATOR + pairVals[0]);
+            }
+        }
+        String newValue = monitoredParties.stream().collect(Collectors.joining(","));
+        domibusPropertyProvider.setProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, newValue);
     }
 
 }
