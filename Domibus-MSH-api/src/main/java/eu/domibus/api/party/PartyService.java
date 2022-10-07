@@ -33,33 +33,6 @@ public interface PartyService {
                            int pageSize);
 
     /**
-     * Returns the list of Party Names for a specific Service and Action
-     *
-     * @param service Service name
-     * @param action  Action name
-     * @return List of Party names
-     */
-    List<String> findPartyNamesByServiceAndAction(final String service, final String action);
-
-    /**
-     * Returns the list of Party Names for a specific Service and Action configured as responders in process including
-     * a push binding
-     *
-     * @param service Service name
-     * @param action  Action name
-     * @return List of Party names
-     */
-    List<String> findPushToPartyNamesByServiceAndAction(final String service, final String action);
-
-
-    /**
-     * Returns the Party Identifier Name for the gateway party
-     *
-     * @return Party Identifier Name
-     */
-    String getGatewayPartyIdentifier();
-
-    /**
      * Updates the current pMode with the provided parties
      * @param partyList the list of parties to update as a snapshot
      * @param certificates the certificates as strings to be saved along the parties
@@ -67,6 +40,13 @@ public interface PartyService {
      * @throws PModeValidationException If there are validation errors, an exception is thrown
      */
     List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
+
+    /**
+     * Returns the first gateway party identifier
+     *
+     * @return Party Identifier
+     */
+    String getGatewayPartyIdentifier();
 
     /**
      * Retrieve all the processes configured in the pmode.
@@ -98,4 +78,15 @@ public interface PartyService {
      * @param certificateContent
      */
     void updateParty(Party party, String certificateContent) throws PModeException;
+
+    List<String> findPushToPartyNamesForTest();
+
+    List<String> findPushFromPartyNamesForTest();
+
+    /**
+     * Returns the gateway party
+     *
+     * @return Party Identifier Name
+     */
+    Party getGatewayParty();
 }

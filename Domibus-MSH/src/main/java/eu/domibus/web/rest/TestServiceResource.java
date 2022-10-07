@@ -1,9 +1,10 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.party.PartyService;
+import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.monitoring.ConnectionMonitoringService;
-import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,14 +41,18 @@ public class TestServiceResource {
     @Autowired
     protected ConnectionMonitoringService connectionMonitoringService;
 
+    @Autowired
+    PartyCoreMapper partyCoreMapper;
+
     @RequestMapping(value = "sender", method = RequestMethod.GET)
-    public String getSenderParty() {
-        return partyService.getGatewayPartyIdentifier();
+    public PartyResponseRo getSenderParty() {
+        return partyCoreMapper.partyToPartyResponseRo(partyService.getGatewayParty());
     }
 
     @RequestMapping(value = "parties", method = RequestMethod.GET)
     public List<String> getTestParties() {
-        return partyService.findPushToPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
+        List<String> pushToPartyNamesByServiceAndAction = partyService.findPushToPartyNamesForTest();
+        return pushToPartyNamesByServiceAndAction;
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -62,7 +68,8 @@ public class TestServiceResource {
     }
 
     @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
-    public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String[] partyIds) {
-        return connectionMonitoringService.getConnectionStatus(partyIds);
+    public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String senderPartyId, String[] partyIds) {
+        Map<String, ConnectionMonitorRO> connectionStatus = connectionMonitoringService.getConnectionStatus(senderPartyId, Arrays.asList(partyIds));
+        return connectionStatus;
     }
 }

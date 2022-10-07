@@ -2,6 +2,7 @@ package eu.domibus.core.party;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
@@ -77,6 +78,9 @@ public class PartyServiceImpl implements PartyService {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    PartyCoreMapper partyCoreMapper;
+
     /**
      * {@inheritDoc}
      */
@@ -98,32 +102,13 @@ public class PartyServiceImpl implements PartyService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public List<String> findPartyNamesByServiceAndAction(String service, String action) {
-        return pModeProvider.findPartyIdByServiceAndAction(service, action, null);
+    public Party getGatewayParty() {
+        return partyCoreMapper.configurationPartyToParty(pModeProvider.getGatewayParty());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public List<String> findPushToPartyNamesByServiceAndAction(String service, String action) {
-        List<MessageExchangePattern> meps = new ArrayList<>();
-        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
-        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
-        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
-        return pModeProvider.findPartyIdByServiceAndAction(service, action, meps);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getGatewayPartyIdentifier() {
+    public  String getGatewayPartyIdentifier() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
         // return the first identifier
@@ -183,6 +168,15 @@ public class PartyServiceImpl implements PartyService {
         }
 
         return parties;
+    }
+
+    private List<MessageExchangePattern> getPushMeps() {
+        List<MessageExchangePattern> meps = new ArrayList<>();
+        meps.add(MessageExchangePattern.ONE_WAY_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PUSH);
+        meps.add(MessageExchangePattern.TWO_WAY_PUSH_PULL);
+        meps.add(MessageExchangePattern.TWO_WAY_PULL_PUSH);
+        return meps;
     }
 
     protected void printPartyProcesses(Party party) {
@@ -744,6 +738,20 @@ public class PartyServiceImpl implements PartyService {
 
         //remove certificate
         removePartyCertificate(Collections.singletonList(partyToBeDeleted.getName()));
+    }
+
+    @Override
+    public List<String> findPushToPartyNamesForTest() {
+        String selfParty = getGatewayPartyIdentifier();
+        List<MessageExchangePattern> meps = getPushMeps();
+        return pModeProvider.findPartiesByInitiatorServiceAndAction(selfParty, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
+    }
+
+    @Override
+    public List<String> findPushFromPartyNamesForTest() {
+        String selfParty = getGatewayPartyIdentifier();
+        List<MessageExchangePattern> meps = getPushMeps();
+        return pModeProvider.findPartiesByResponderServiceAndAction(selfParty, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
     }
 
     /**

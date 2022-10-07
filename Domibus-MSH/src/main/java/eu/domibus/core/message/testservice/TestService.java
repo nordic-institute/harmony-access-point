@@ -7,6 +7,7 @@ import eu.domibus.api.model.ActionEntity;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.party.PartyService;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -76,22 +77,30 @@ public class TestService {
     @Autowired
     private ActionDictionaryService actionDictionaryService;
 
-    public String submitTest(String sender, String receiver) throws IOException, MessagingProcessingException {
-        LOG.info("Submitting test message from [{}] to [{}]", sender, receiver);
+    @Autowired
+    private PartyService partyService;
 
-        Submission messageData = createSubmission(sender);
+    public String submitTest(String senderParty, String receiverParty) throws IOException, MessagingProcessingException {
+        LOG.info("Submitting test message from [{}] to [{}]", senderParty, receiverParty);
+
+        validateSender(senderParty);
+        validateReceiver(receiverParty);
+
+        Submission messageData = createSubmission(senderParty);
 
         // Set Receiver
         messageData.getToParties().clear();
-        messageData.addToParty(receiver, pModeProvider.getPartyIdType(receiver));
+        messageData.addToParty(receiverParty, pModeProvider.getPartyIdType(receiverParty));
 
         return databaseMessageHandler.submit(messageData, BACKEND_NAME);
     }
 
-    public String submitTestDynamicDiscovery(String sender, String receiver, String receiverType) throws MessagingProcessingException, IOException {
-        LOG.info("Submitting test message with dynamic discovery from [{}] to [{}] with type [{}]", sender, receiver, receiverType);
+    public String submitTestDynamicDiscovery(String senderParty, String receiverParty, String receiverType) throws MessagingProcessingException, IOException {
+        LOG.info("Submitting test message with dynamic discovery from [{}] to [{}] with type [{}]", senderParty, receiverParty, receiverType);
 
-        Submission messageData = createSubmission(sender);
+        validateSender(senderParty);
+
+        Submission messageData = createSubmission(senderParty);
 
         // Clears Receivers
         messageData.getToParties().clear();
@@ -99,12 +108,115 @@ public class TestService {
         // Set Final Recipient Value and Type
         for (Submission.TypedProperty property : messageData.getMessageProperties()) {
             if (property.getKey().equals(MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT)) {
-                property.setValue(receiver);
+                property.setValue(receiverParty);
                 property.setType(receiverType);
             }
         }
 
         return databaseMessageHandler.submit(messageData, BACKEND_NAME);
+    }
+
+    /**
+     * This method is to get the last test Sent User Message for the given party Id,
+     * including errors if not found
+     *
+     * @param partyId
+     * @return TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
+    public TestServiceMessageInfoRO getLastTestSentWithErrors(String senderPartyId, String partyId) throws TestServiceException {
+        TestServiceMessageInfoRO result = getLastTestSent(senderPartyId, partyId);
+        if (result == null) {
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message found for party [" + partyId + "]");
+        }
+
+        if (result.getTimeReceived() == null) {
+            String errorDetails = getErrorsDetails(result.getMessageId());
+            throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
+        }
+
+        return result;
+    }
+
+    /**
+     * This method retrieves the last test Sent User Message for the given party Id
+     *
+     *
+     * @param senderPartyId
+     * @param partyId
+     * @return TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
+    public TestServiceMessageInfoRO getLastTestSent(String senderPartyId, String partyId) {
+        LOG.debug("Getting last sent test message for partyId [{}]", partyId);
+
+        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+        UserMessage userMessage = userMessageDao.findLastTestMessage(senderPartyId, partyId, actionEntity);
+        if (userMessage == null) {
+            LOG.debug("Could not find last user message for party [{}]", partyId);
+            return null;
+        }
+
+        UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessage.getEntityId());
+        return getTestServiceMessageInfoRO(partyId, userMessage.getMessageId(), userMessageLog);
+    }
+
+    /**
+     * This method is to get the last Received Signal Message for a test message for the given party Id and User MessageId,
+     * including errors if an acceptable signal message cannot be found.
+     *
+     * @param partyId, userMessageId
+     * @param senderPartyId
+     * @return TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
+    public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String senderPartyId, String partyId, String userMessageId) throws TestServiceException {
+        TestServiceMessageInfoRO result = getLastTestReceived(senderPartyId, partyId, userMessageId);
+        if (result == null) {
+            String errorDetails = getErrorsDetails(userMessageId);
+            throw new TestServiceException("No Signal Message found. " + errorDetails);
+        }
+
+        return result;
+    }
+
+    /**
+     * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
+     *
+     * @param partyId, userMessageId
+     * @param senderPartyId
+     * @return TestServiceMessageInfoRO
+     */
+    public TestServiceMessageInfoRO getLastTestReceived(String senderPartyId, String partyId, String userMessageId) {
+        LOG.debug("Getting last received signal for a test message from partyId [{}]", partyId);
+
+        SignalMessage signalMessage;
+
+        if (StringUtils.isNotBlank(userMessageId)) {
+            // if userMessageId is provided, try to find its signal message
+            signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
+            if (signalMessage == null) {
+                LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
+                return null;
+            }
+        } else {
+            // if userMessageId is not provided, find the most recent signal message received for a test message
+            ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
+            signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, partyId, actionEntity);
+            if (signalMessage == null) {
+                LOG.debug("Could not find any signal message from party [{}]", partyId);
+                return null;
+            }
+        }
+
+        return getTestServiceMessageInfoRO(partyId, signalMessage);
+    }
+
+    protected void validateReceiver(String receiverParty) {
+        List<String> toParties = partyService.findPushToPartyNamesForTest();
+        if (!toParties.contains(receiverParty)) {
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the receiver party [" + receiverParty + "] is not a responder in any test process.");
+        }
     }
 
     protected Submission createSubmission(String sender) throws IOException {
@@ -151,96 +263,11 @@ public class TestService {
         return submission;
     }
 
-    /**
-     * This method is to get the last test Sent User Message for the given party Id,
-     * including errors if not found
-     *
-     * @param partyId
-     * @return TestServiceMessageInfoRO
-     * @throws TestServiceException
-     */
-    public TestServiceMessageInfoRO getLastTestSentWithErrors(String partyId) throws TestServiceException {
-        TestServiceMessageInfoRO result = getLastTestSent(partyId);
-        if (result == null) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message found for party [" + partyId + "]");
+    protected void validateSender(String senderParty) {
+        List<String> fromParties = partyService.findPushFromPartyNamesForTest();
+        if (!fromParties.contains(senderParty)) {
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_003, "Cannot send a test message because the sender party [" + senderParty + "] is not an initiator in any test process.");
         }
-
-        if (result.getTimeReceived() == null) {
-            String errorDetails = getErrorsDetails(result.getMessageId());
-            throw new TestServiceException("No User Message found. Error details are: " + errorDetails);
-        }
-
-        return result;
-    }
-
-    /**
-     * This method retrieves the last test Sent User Message for the given party Id
-     *
-     * @param partyId
-     * @return TestServiceMessageInfoRO
-     * @throws TestServiceException
-     */
-    public TestServiceMessageInfoRO getLastTestSent(String partyId) {
-        LOG.debug("Getting last sent test message for partyId [{}]", partyId);
-
-        ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-        UserMessage userMessage = userMessageDao.findLastTestMessage(partyId, actionEntity);
-        if (userMessage == null) {
-            LOG.debug("Could not find last user message for party [{}]", partyId);
-            return null;
-        }
-
-        UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(userMessage.getEntityId());
-        return getTestServiceMessageInfoRO(partyId, userMessage.getMessageId(), userMessageLog);
-    }
-
-    /**
-     * This method is to get the last Received Signal Message for a test message for the given party Id and User MessageId,
-     * including errors if an acceptable signal message cannot be found.
-     *
-     * @param partyId, userMessageId
-     * @return TestServiceMessageInfoRO
-     * @throws TestServiceException
-     */
-    public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
-        TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
-        if (result == null) {
-            String errorDetails = getErrorsDetails(userMessageId);
-            throw new TestServiceException("No Signal Message found. " + errorDetails);
-        }
-
-        return result;
-    }
-
-    /**
-     * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
-     *
-     * @param partyId, userMessageId
-     * @return TestServiceMessageInfoRO
-     */
-    public TestServiceMessageInfoRO getLastTestReceived(String partyId, String userMessageId) {
-        LOG.debug("Getting last received signal for a test message from partyId [{}]", partyId);
-
-        SignalMessage signalMessage;
-
-        if (StringUtils.isNotBlank(userMessageId)) {
-            // if userMessageId is provided, try to find its signal message
-            signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
-            if (signalMessage == null) {
-                LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
-                return null;
-            }
-        } else {
-            // if userMessageId is not provided, find the most recent signal message received for a test message
-            ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
-            signalMessage = signalMessageDao.findLastTestMessage(partyId, actionEntity);
-            if (signalMessage == null) {
-                LOG.debug("Could not find any signal message from party [{}]", partyId);
-                return null;
-            }
-        }
-
-        return getTestServiceMessageInfoRO(partyId, signalMessage);
     }
 
     protected String getErrorsDetails(String userMessageId) {

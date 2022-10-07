@@ -539,8 +539,6 @@ public abstract class PModeProvider {
 
     public abstract List<Party> findAllParties();
 
-    public abstract List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps);
-
     public abstract String getPartyIdType(String partyIdentifier);
 
     public abstract String getServiceType(String serviceValue);
@@ -550,4 +548,8 @@ public abstract class PModeProvider {
     public abstract Agreement getAgreementRef(String serviceValue);
 
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
+
+    public abstract List<String> findPartiesByInitiatorServiceAndAction(String selfParty, String testService, String testAction, List<MessageExchangePattern> meps);
+
+    public abstract List<String> findPartiesByResponderServiceAndAction(String selfParty, String testService, String testAction, List<MessageExchangePattern> meps);
 }
