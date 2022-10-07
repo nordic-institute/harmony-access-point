@@ -323,6 +323,14 @@ class Domibus{
         closeAllDbConnections()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    // Clean all the test messages from all defined for domains databases
+    def cleanDatabaseTestMessagesAll() {
+        debugLog("  ====  Calling \"cleanDatabaseTestMessagesAll\".", log)
+        openAllDbConnections()
+        cleanDatabaseTMForDomains(allDomainsProperties.keySet())
+        closeAllDbConnections()
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
     // Clean certificate from table
     def cleanCertificateEntries(String domainName, String certAlias) {
         debugLog("  ====  Calling \"cleanCertificateEntries\".", log)
@@ -380,9 +388,40 @@ class Domibus{
 
         log.info "  cleanDatabaseAll  [][]  Cleaning Done"
     }
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Clean all the test messages from the DB for provided list of domain defined by domain IDs
+    def cleanDatabaseTMForDomains(domainIdList) {
+        debugLog("  ====  Calling \"cleanDatabaseTMForDomains\" ${domainIdList}.", log)
+		
+		def select_ID_PK = "SELECT ID_PK FROM tb_user_message where TEST_MESSAGE=1" //extracted as common part of queries below
+		
+        def sqlQueriesList = [
+			"delete from TB_USER_MESSAGE_RAW where ID_PK IN (" + select_ID_PK + ")", 
+			"delete from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",		
+			"delete from TB_PART_PROPERTIES where PART_INFO_ID_FK IN (SELECT ID_PK FROM TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))", 			
+			"delete from TB_PART_INFO where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")", 
+			"delete from TB_RECEIPT where ID_PK IN (" + select_ID_PK + ")", 			
+			"delete from TB_SIGNAL_MESSAGE_RAW where ID_PK IN (" + select_ID_PK + ")", 
+			"delete from TB_SIGNAL_MESSAGE_LOG where ID_PK IN (" + select_ID_PK + ")", 
+			"delete from TB_SIGNAL_MESSAGE where ID_PK IN (" + select_ID_PK + ")", 		
+			"delete from TB_USER_MESSAGE_LOG where ID_PK IN (" + select_ID_PK + ")",
+			"delete from TB_MESSAGE_PROPERTIES where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")", 
+			"delete from TB_MESSAGE_ACKNW_PROP where MESSAGE_ACK_ID_FK IN (SELECT ID_PK FROM TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + "))", 
+			"delete from TB_MESSAGE_ACKNW where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")", 
+			"delete from TB_ERROR_LOG where USER_MESSAGE_ID_FK IN (" + select_ID_PK + ")",
+			"delete from TB_USER_MESSAGE where TEST_MESSAGE=1"
+        ] as String[]
 
 
 
+        domainIdList.each { domainName ->
+            def domain = retrieveDomainId(domainName)
+            debugLog("  cleanDatabaseForDomains  [][]  Clean DB for domain ID: ${domain}", log)
+            executeListOfSqlQueries(sqlQueriesList, domain)
+        }
+
+        log.info "  cleanDatabaseTMForDomains  [][]  Cleaning Done"
+    }
 //---------------------------------------------------------------------------------------------------------------------------------
     // Clean single message identified by messageID starting with provided value from ALL defined DBs
     def cleanDBMessageIDStartsWith(String messageID) {
@@ -806,22 +845,54 @@ class Domibus{
         def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
 
 
-        while ( (MAX_WAIT_TIME > 0) && (total == 0) ) {
-            // Extract message ID PK
-            if(msgPK==null){
-                sqlConn.eachRow("Select * from TB_USER_MESSAGE where REPLACE(LOWER(MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
-                    msgPK = it.ID_PK
-                }
-            }
-            sqlSender.eachRow("Select count(*) lignes from TB_SEND_ATTEMPT where USER_MESSAGE_ID_FK = ${msgPK}") {
-                total = it.lignes
-            }
+        while ( (MAX_WAIT_TIME > 0) && (total == 0) ) {			
+			sqlSender.eachRow("select * from TB_USER_MESSAGE m inner join TB_USER_MESSAGE_LOG d on m.ID_PK = d.ID_PK where REPLACE(LOWER(m.MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+				total = it.SEND_ATTEMPTS
+			}			
             log.info "  checkSendAttempt  [][]  W: " + MAX_WAIT_TIME
             sleep(STEP_WAIT_TIME)
             MAX_WAIT_TIME = MAX_WAIT_TIME - STEP_WAIT_TIME
         }
         assert(total > 0),locateTest(context) + "Error: Message " + messageID + " is not present in the table TB_SEND_ATTEMPT."
         closeAllDbConnections()
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method gets the value of SEND_ATTEMPTS of a message
+     * @param side/targetSchema
+     * @param messageID
+     * @return SEND_ATTEMPTS value
+     */
+    def getSendAttemptsValue(String targetSchema = "BLUE", String messageID){
+        debugLog("  ====  Calling \"getSendAttemptsValue\".", log)
+        int retValue = 0
+        openAllDbConnections()
+
+        def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
+        sqlSender.eachRow("select * from TB_USER_MESSAGE m inner join TB_USER_MESSAGE_LOG d on m.ID_PK = d.ID_PK where REPLACE(LOWER(m.MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+            retValue = it.SEND_ATTEMPTS
+        }
+        closeAllDbConnections()
+		debugLog("  ====  END \"getSendAttemptsValue\".", log)
+		return retValue
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method checks if SEND_ATTEMPTS is equal to an expected value
+     * @param side/targetSchema
+     * @param messageID
+     * @param expectedValue
+     */
+    def checkSendAttemptsValue(String targetSchema = "BLUE", String messageID, int expectedValue){
+        debugLog("  ====  Calling \"getSendAttemptsValue\".", log)
+		int retValue=getSendAttemptsValue(targetSchema, messageID)
+		assert(retValue==expectedValue),"  checkSendAttemptsValue  [][]  Error: SEND_ATTEMPTS = $retValue instead of 3."
+
+		log.info " ======================"
+		log.info " == SEND_ATTEMPTS="+retValue
+		log.info " ======================"
+
+		debugLog("  ====  END \"checkSendAttemptsValue\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     // retrieve message entity ID
@@ -3931,7 +4002,7 @@ class Domibus{
      * @param maxWaitingTime
      * @return
      */
-    def waitFindAndUpdateLatestMessageIdIn(testRunner, domainId = blueDomainID, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
+    def waitFindAndUpdateLatestMessageIdIn(testRunner, domainId = blueDomainID, onlySourceMessages=false, maxWaitingTime = MSG_STATUS_MAX_WAIT_TIME) {
         debugLog("  ====  Calling \"waitFindAndUpdateLatestMessageIdIn\".", log)
         def STEP_WAIT_TIME = MSG_STATUS_STEP_WAIT_TIME
         def MAX_WAIT_TIME = maxWaitingTime
@@ -3944,9 +4015,11 @@ class Domibus{
         def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
         openDbConnections([domainId])
 
-        def sqlQuery = """SELECT MESSAGE_ID
-                    FROM TB_USER_MESSAGE 
-                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+        def REQUEST_FILTER=""
+		if(onlySourceMessages)
+			REQUEST_FILTER="AND SOURCE_MESSAGE=1"
+			
+		def sqlQuery = "SELECT MESSAGE_ID FROM TB_USER_MESSAGE WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE TEST_MESSAGE=0 " + REQUEST_FILTER + ")"
 
         while ( (lastStoredMessageId == newestMessageIdFetchFromDB) && MAX_WAIT_TIME > 0)  {
             messageIdExist = sqlHandler.rows(sqlQuery)
@@ -3969,6 +4042,7 @@ class Domibus{
         assert(lastStoredMessageId != newestMessageIdFetchFromDB), locateTest(context) + "Error: waitFindAndUpdateLatestMessageIdIn: Message Id didn't change even after " + maxWaitingTime/1000 + " seconds."
         testRunner.testCase.setPropertyValue( "lastMessageId", newestMessageIdFetchFromDB )
 
+		log.info "  waitFindAndUpdateLatestMessageIdIn  [][]  Returning message ID $newestMessageIdFetchFromDB"
         debugLog("  ====  Ending \"waitFindAndUpdateLatestMessageIdIn\".", log)
         return newestMessageIdFetchFromDB
     }
@@ -3980,16 +4054,18 @@ class Domibus{
      * @param domainId
      * @return
      */
-    def storeLatestMessagesId(testRunner, domainId = blueDomainID) {
+    def storeLatestMessagesId(testRunner, domainId = blueDomainID, onlySourceMessages=false) {
         debugLog("  ====  Calling \"storeLatestMessagesId\".", log)
         def outputMessageId
         def sqlHandler = retrieveSqlConnectionRefFromDomainId(domainId)
         openDbConnections([domainId])
+		
+        def REQUEST_FILTER=""
+		if(onlySourceMessages)
+			REQUEST_FILTER="AND SOURCE_MESSAGE=1"		
 
         // Query DB
-        def sqlQuery = """SELECT MESSAGE_ID 
-                    FROM TB_USER_MESSAGE 
-                    WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE SOURCE_MESSAGE=1)"""
+		def sqlQuery = "SELECT MESSAGE_ID FROM TB_USER_MESSAGE WHERE ID_PK = (SELECT MAX(ID_PK) FROM TB_USER_MESSAGE WHERE TEST_MESSAGE=0 " + REQUEST_FILTER + ")"
 
         List messageIdExist = sqlHandler.rows(sqlQuery)
 
