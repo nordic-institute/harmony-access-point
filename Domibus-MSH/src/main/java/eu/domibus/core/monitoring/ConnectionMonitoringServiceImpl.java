@@ -72,7 +72,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, String[] partyIds) {
+    public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds) {
         ensureMewFormatForEnabledProperty();
 
         Map<String, ConnectionMonitorRO> result = new HashMap<>();

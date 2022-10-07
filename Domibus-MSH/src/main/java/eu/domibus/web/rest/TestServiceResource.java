@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public class TestServiceResource {
 
     @RequestMapping(value = "connectionmonitor", method = RequestMethod.GET)
     public Map<String, ConnectionMonitorRO> getConnectionMonitorStatus(String senderPartyId, String[] partyIds) {
-        Map<String, ConnectionMonitorRO> connectionStatus = connectionMonitoringService.getConnectionStatus(senderPartyId, partyIds);
+        Map<String, ConnectionMonitorRO> connectionStatus = connectionMonitoringService.getConnectionStatus(senderPartyId, Arrays.asList(partyIds));
         return connectionStatus;
     }
 }
