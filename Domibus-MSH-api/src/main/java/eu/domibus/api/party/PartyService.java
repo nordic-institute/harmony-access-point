@@ -33,13 +33,6 @@ public interface PartyService {
                            int pageSize);
 
     /**
-     * Returns the Party Identifier Name for the gateway party
-     *
-     * @return Party Identifier Name
-     */
-    String getGatewayPartyIdentifier();
-
-    /**
      * Updates the current pMode with the provided parties
      * @param partyList the list of parties to update as a snapshot
      * @param certificates the certificates as strings to be saved along the parties
@@ -83,7 +76,10 @@ public interface PartyService {
 
     List<String> findPushFromPartyNamesForTest();
 
-    List<String> getAllGatewayPartyIdentifiers();
-
+    /**
+     * Returns the gateway party
+     *
+     * @return Party Identifier Name
+     */
     Party getGatewayParty();
 }

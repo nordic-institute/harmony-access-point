@@ -78,6 +78,9 @@ public class PartyServiceImpl implements PartyService {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    PartyCoreMapper partyCoreMapper;
+
     /**
      * {@inheritDoc}
      */
@@ -99,11 +102,12 @@ public class PartyServiceImpl implements PartyService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public String getGatewayPartyIdentifier() {
+    public Party getGatewayParty() {
+        return partyCoreMapper.configurationPartyToParty(pModeProvider.getGatewayParty());
+    }
+
+    protected String getGatewayPartyIdentifier() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
         // return the first identifier
@@ -111,19 +115,6 @@ public class PartyServiceImpl implements PartyService {
             result = gatewayParty.getIdentifiers().iterator().next().getPartyId();
         }
         return result;
-    }
-
-    @Override
-    public List<String> getAllGatewayPartyIdentifiers() {
-        return pModeProvider.getGatewayParty().getIdentifiers().stream().map(Identifier::getPartyId).collect(toList());
-    }
-
-    @Autowired
-    PartyCoreMapper partyCoreMapper;
-
-    @Override
-    public Party getGatewayParty() {
-        return partyCoreMapper.configurationPartyToParty(pModeProvider.getGatewayParty());
     }
 
     /**

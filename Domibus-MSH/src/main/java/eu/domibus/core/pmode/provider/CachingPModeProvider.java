@@ -1041,21 +1041,22 @@ public class CachingPModeProvider extends PModeProvider {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
                 if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
                         && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
-                    result.addAll(getDistinctPartiesId(process, getCorrespondingPartiesFn));
+                    result.addAll(getProcessPartiesId(process, getCorrespondingPartiesFn));
                 }
             }
         }
         return result.stream().distinct().collect(Collectors.toList());
     }
 
-    protected List<String> getDistinctPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
+    protected List<String> getProcessPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
         List<String> result = new ArrayList<>();
+        Comparator<Identifier> comp = Comparator.comparing(Identifier::getPartyId);
         for (Party party : getProcessPartiesByRoleFn.apply(process)) {
-            result.addAll(party.getIdentifiers().stream().map(Identifier::getPartyId).collect(Collectors.toList()));
-//            String partyId = getFirstPartyId(party);
-//            if (partyId != null) {
-//                result.add(partyId);
-//            }
+            List<String> partyIds = party.getIdentifiers().stream()
+                    .sorted(comp)
+                    .map(Identifier::getPartyId)
+                    .collect(Collectors.toList());
+            result.addAll(partyIds);
         }
         return result;
     }
@@ -1085,19 +1086,6 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         return false;
-    }
-
-    protected String getFirstPartyId(Party party) {
-        // add only one id for the party, not all aliases
-        Comparator<Identifier> comp = Comparator.comparing(Identifier::getPartyId);
-        List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(partyIds)) {
-            LOG.warn("No party identifiers for party [{}]", party.getName());
-            return null;
-        }
-        String partyId = partyIds.get(0).getPartyId();
-        LOG.trace("Getting party [{}] from process.", partyId);
-        return partyId;
     }
 
     @Override

@@ -52,8 +52,6 @@ public class TestEbms3ServiceResourceTest {
     public void testGetSenderParty() {
         // Given
         new Expectations() {{
-            partyService.getGatewayPartyIdentifier();
-            result = "test";
         }};
 
         // When

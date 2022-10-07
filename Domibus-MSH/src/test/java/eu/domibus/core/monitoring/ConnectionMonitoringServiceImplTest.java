@@ -67,9 +67,6 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty);
 
-            partyService.getGatewayPartyIdentifier();
-            result = selfParty;
-
             domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
             result = "";
 
@@ -92,9 +89,6 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
 
-            partyService.getGatewayPartyIdentifier();
-            result = selfParty;
-
             domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
             result = "";
 
@@ -116,9 +110,6 @@ public class ConnectionMonitoringServiceImplTest {
         new Expectations() {{
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
-
-            partyService.getGatewayPartyIdentifier();
-            result = selfParty;
 
             domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
             result = partyId2;
