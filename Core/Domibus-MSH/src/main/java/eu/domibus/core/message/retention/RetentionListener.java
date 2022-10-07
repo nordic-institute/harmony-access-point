@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.util.Optional;
 
 /**
  * Listeners that deletes messages by their identifiers.
@@ -58,7 +59,7 @@ public class RetentionListener implements MessageListener {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
                 String mshRole = message.getStringProperty(MessageConstants.MSH_ROLE);
                 LOG.debug("Delete one message [{}] [{}]", messageId, mshRole);
-                userMessageDefaultService.deleteMessage(messageId, MSHRole.valueOf(mshRole));
+                userMessageDefaultService.deleteMessage(messageId, Optional.ofNullable(mshRole).map(MSHRole::valueOf).orElse(null));
                 return;
             }
 
