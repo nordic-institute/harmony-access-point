@@ -153,7 +153,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             List<Long> entityIds = messagesToClean.stream()
                     .map(UserMessageLogDto::getEntityId)
                     .collect(Collectors.toList());
-            userMessageDefaultService.clearPayloadData (entityIds);
+            userMessageDefaultService.clearPayloadData(entityIds);
             LOG.debug("Deleted [{}] downloaded message payloads", deleted);
         }
     }

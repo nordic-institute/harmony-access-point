@@ -40,15 +40,15 @@ public class Mpc extends AbstractBaseEntity {
     protected int retentionSent = -1;
 
     @XmlAttribute(name = "retention_downloaded_metadata_offset")
-    @Column(name = "RETENTION_DOWNLOADED_METADATA_OFFSET")
+    @Column(name = "RETENTION_DOWNLOADED_MD_OFFSET")
     protected int retentionDownloadedMetadataOffset;
 
     @XmlAttribute(name = "retention_undownloaded_metadata_offset")
-    @Column(name = "RETENTION_UNDOWNLOADED_METADATA_OFFSET")
+    @Column(name = "RETENTION_UNDWN_MD_OFFSET")
     protected int retentionUndownloadedMetadataOffset;
 
     @XmlAttribute(name = "retention_sent_metadata_offset")
-    @Column(name = "RETENTION_SENT_METADATA_OFFSET")
+    @Column(name = "RETENTION_SENT_MD_OFFSET")
     protected int retentionSentMetadataOffset;
 
     @XmlAttribute(name = "delete_message_metadata")

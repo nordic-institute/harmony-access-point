@@ -161,9 +161,9 @@
 
     <changeSet author="Gabriel Maier" id="EDELIVERY-10093_metadata_retention">
         <addColumn tableName="TB_PM_MPC">
-            <column name="RETENTION_DOWNLOADED_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
-            <column name="RETENTION_UNDOWNLOADED_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
-            <column name="RETENTION_SENT_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+            <column name="RETENTION_DOWNLOADED_MD_OFFSET" type="INT" defaultValueNumeric="0"/>
+            <column name="RETENTION_UNDWN_MD_OFFSET" type="INT" defaultValueNumeric="0"/>
+            <column name="RETENTION_SENT_MD_OFFSET" type="INT" defaultValueNumeric="0"/>
         </addColumn>
     </changeSet>
 
