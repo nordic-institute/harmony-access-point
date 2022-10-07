@@ -56,7 +56,7 @@ public class TestService {
 
     private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = "finalRecipient";
 
-    private static final String BACKEND_NAME = "TestService";
+    public static final String TEST_SERVICE_BACKEND_NAME = "TestService";
 
     private final PModeProvider pModeProvider;
 
@@ -102,7 +102,7 @@ public class TestService {
         messageData.getToParties().clear();
         messageData.addToParty(receiverParty, pModeProvider.getPartyIdType(receiverParty));
 
-        String result = messageSubmitter.submit(messageData, BACKEND_NAME);
+        String result = messageSubmitter.submit(messageData, TEST_SERVICE_BACKEND_NAME);
 
         deleteSentHistoryIfApplicable(receiverParty);
 
@@ -127,7 +127,7 @@ public class TestService {
             }
         }
 
-        return messageSubmitter.submit(messageData, BACKEND_NAME);
+        return messageSubmitter.submit(messageData, TEST_SERVICE_BACKEND_NAME);
     }
 
     /**

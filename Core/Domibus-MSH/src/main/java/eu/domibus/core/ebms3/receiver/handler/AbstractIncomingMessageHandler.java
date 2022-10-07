@@ -9,7 +9,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -41,9 +40,6 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     protected BackendNotificationService backendNotificationService;
 
     @Autowired
-    protected TestMessageValidator testMessageValidator;
-
-    @Autowired
     UserMessageErrorCreator userMessageErrorCreator;
 
     @Autowired
@@ -59,8 +55,8 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
     protected Ebms3Converter ebms3Converter;
 
     @Override
-    @Timer(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
-    @Counter(clazz = AbstractIncomingMessageHandler.class,value = "processMessage")
+    @Timer(clazz = AbstractIncomingMessageHandler.class, value = "processMessage")
+    @Counter(clazz = AbstractIncomingMessageHandler.class, value = "processMessage")
     public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         SOAPMessage responseMessage = null;
         String pmodeKey = null;
@@ -72,7 +68,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
             assert false;
         }
         final UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
-        Boolean testMessage = testMessageValidator.checkTestMessage(userMessage);
+        Boolean testMessage = userMessage.isTestMessage();
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {

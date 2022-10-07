@@ -11,10 +11,14 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static eu.domibus.core.message.testservice.TestService.TEST_SERVICE_BACKEND_NAME;
+import static eu.domibus.core.plugin.routing.BackendFilterEntity_.BACKEND_NAME;
 
 /**
  * @author Cosmin Baciu
@@ -99,6 +103,10 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
 
     @Override
     public boolean isBackendConnectorEnabled(String backendName) {
+        if (StringUtils.equals(backendName, TEST_SERVICE_BACKEND_NAME)) {
+            LOG.debug("Test Backend connector; returning true; ");
+            return true;
+        }
         BackendConnector<?, ?> plugin = backendConnectorProvider.getBackendConnector(backendName);
         if (plugin == null) {
             LOG.warn("Could not find backend connector with the name [{}]; returning false; ", backendName);
