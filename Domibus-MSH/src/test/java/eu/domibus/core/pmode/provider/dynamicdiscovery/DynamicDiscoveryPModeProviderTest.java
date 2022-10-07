@@ -29,6 +29,7 @@ import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
+import eu.domibus.core.pmode.provider.FinalRecipientService;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -47,6 +48,7 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.bind.JAXBContext;
 import java.io.File;
@@ -134,6 +136,8 @@ public class DynamicDiscoveryPModeProviderTest {
     PartyRoleDictionaryService partyRoleDictionaryService;
     @Mock
     private DomibusPropertyProviderImpl domibusPropertyProvider;
+    @Mock
+    FinalRecipientService finalRecipientService;
 
     @Before
     public void initMocks() {
