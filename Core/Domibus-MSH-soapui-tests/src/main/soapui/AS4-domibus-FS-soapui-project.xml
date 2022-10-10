@@ -4830,7 +4830,662 @@ def count1=((context.expand('${#TestCase#propertyCountC2}').toInteger())+gap).to
 def count2=((context.expand('${#TestCase#propertyCountC3}').toInteger())+gap).toString();
 
 def test = new Domibus(log,null,context)
-test.waitMessagesExchangedNumber(count1,count2,"acknowledged","downloaded","C2Default","C3Default",2,1);</script></con:config></con:testStep><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>51</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property></con:properties></con:testCase><con:properties/><con:setupScript>// Disable role validation
+test.waitMessagesExchangedNumber(count1,count2,"acknowledged","downloaded","C2Default","C3Default",2,1);</script></con:config></con:testStep><con:properties><con:property><con:name>propertyCountC2</con:name><con:value>51</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property></con:properties></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS029-SmartRetry-Default-Mecanism" searchProperties="true" id="9fef59bc-fdf5-461c-8e06-aca835fa60ac">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="e2263fd5-376d-481f-9004-b482ba68091d"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C3-Remove-tc20Action" id="ee291fe6-3287-46dd-bf07-8bd50c1994be"><con:settings/><con:config><script>def side="c3"
+def nodename1="action"; def searchKey1="name"; def searchvalue1="tc20Action"; def attTochange1="value"; def newValue1="TC20Leg1random"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Update-Retry-2times-1min" id="d5e13271-6a4e-4511-a003-b84fd59247be"><con:settings/><con:config><script>def side="c2"
+def nodename1="receptionAwareness"; def searchKey1="name"; def searchvalue1="receptionAwareness"; def attTochange1="retry"; def newValue1="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Property-C2-domibus.msh.retry.cron" id="d043f984-9f04-41b2-869f-a30cac7fad07"><con:settings/><con:config><script>def custPropName="domibus.msh.retry.cron";
+// Get Domibus property value
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+// Set test case custom property
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="92846f90-28f7-4af0-9c07-c45e9046f7e9"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="760f7d72-13f0-436a-becf-eed0498a683c"><con:settings/><con:config><script>
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="83ba3c3b-afb1-4bca-941c-257ad095f07b"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="7fa3f2de-e205-4044-b08d-08379ad82443"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="3e58cdc9-fd8a-4a04-a2e8-69249f529266"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="37d68322-ef90-4eb9-ab5e-0cc0abdcee37"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="1d7a7003-b6bc-45c4-b6ab-b517bc5d6c9f"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="648e0b57-146e-4291-9c86-db18f889b2a1"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="59cd7d54-2c0c-40d3-b8cd-d720f1de175d"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="f26c171f-c6a3-47ef-9eea-01ad06d2ca4a"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="2c6b97c7-e93f-497f-8126-7b0d71c29e48"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="6fe89582-4703-4f2a-b14d-73eacde9d825" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="8858ad5b-6c13-49f1-973b-6af6560fd9aa" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+// Reset property value
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>c3_default_pmode</con:name><con:value/></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>2183</con:value></con:property><con:property><con:name>propertyCountC2</con:name><con:value>0</con:value></con:property><con:property><con:name>propertyCountC3</con:name><con:value>0</con:value></con:property><con:property><con:name>lastMessageId</con:name><con:value>e494d665-45c0-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS030-SmartRetry Disabled-Monitoring Enabled-C3 Unreachable" searchProperties="true" id="a53d445f-8294-48fb-98ff-b884f5617529">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="6599fea6-01fa-4d56-be25-b41c41625b4c"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="3f42c8ab-7504-499c-add7-e41f1113febd"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="d0727836-87f8-4f26-b423-d6ec02f40d15"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Disable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="1718fd3b-cbe2-4b72-b049-8c03c08d6057"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="126e4e70-bf15-4228-a71b-4086da4c827a"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="02ce6ce1-b697-40a1-960e-a71c3a6e4046"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="b7bf9f6e-cf55-4787-a435-1a87152bd97a"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="4c4e8936-cbe8-44b5-b186-520ee1ee5144"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="721771c3-7293-4267-b540-9e2a5d34c155"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="abda8bd8-4ed2-4109-85a3-acaa485a9401"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="36c97407-9725-4725-bde6-7e2a4a2b4971"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="2a0f5201-3203-4c25-9517-bc8da60775c0"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="3d7b5fc9-365b-4dfa-bb11-f39a6ed6ed4d"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="bd6806ff-56d7-48ad-b79e-4f1f600b51d5"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="9887f716-a090-450b-8cf1-2085e991b248" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="f6af74a4-fcb0-4c3f-bdc1-dfdbf1fa21fe" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Groovy Script" id="2b7e22a1-50fe-4032-a963-0bf8e1e71cfb" disabled="true"><con:settings/><con:config><script>
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+test.finalize()</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>11951</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>5ca9507f-45c4-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS031-SmartRetry Enabled-Monitoring Disabled-C3 Unreachable-No History" searchProperties="true" id="cca45117-07f4-4395-872a-7048bee5346f">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="a029b7ae-6e6b-4549-90b2-8e1160f72511"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="17bbd31c-fa2a-419a-ac91-9da59bbefed3"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="e7141931-6c94-42c8-8bdd-0835513fcdd3"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Disable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Delete Monitoring History" id="09d5ea3e-50e5-41a1-b34b-3fac18ac6d5d"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.cleanDatabaseTestMessagesAll()
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="4b67355f-3f22-49e2-89b7-7dcde7917136"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="7d438e2a-8085-41a6-a909-bc760c147949"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="37805593-6c70-4db7-ad8d-3afcd090ba7c"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="a1d5ebec-d509-4406-950f-05190eae42fc"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="6857608f-d4ca-4d8b-bb31-00b6e81fe662"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="88fb8ef2-8316-473c-838f-6cef9ff950dd"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="aed895a2-a0a7-48ef-86f1-f00aaffea511"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="d8729f40-ed51-4253-8141-01ffb3a6f2c5"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="18522216-6cb5-4558-833a-0d3d130edf3b"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="8081222e-e4a2-4ef7-9633-b9cc4fc36e90"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="36f0604f-0d29-468d-a9c1-0fa917a80635"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="7a57e131-6126-407e-b266-3a1678240153" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="33de7e59-f699-4eb6-932a-4f0bde6fcd8f" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>14857</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>0fc9fbf9-45c6-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS032-SmartRetry Enabled-Monitoring Enabled-C3 Unreachable" searchProperties="true" id="a73b6194-9e6b-468d-bc97-697d06d4c42c">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="cb7d63a6-8d64-4bf8-b554-c2e688d3ba52"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="418da793-8b8a-48e5-a763-5391f98afde4"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="6e57438a-f777-41d3-95aa-21c73510b5e4"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="ca548249-d4ad-4ab5-a037-541438b5598b"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="dd01f49e-e2c9-4ba8-8563-8bd2007e2a62"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="1bbdd9ab-659d-4361-8440-9f144e691a3b"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="ea29640e-13b9-4aee-88dd-c624a6acaa52"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="ed7629f9-f694-44a2-97f9-0f83c0d913d1"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="4a892f44-e386-4638-8dcd-0b8e90342cb7"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="874211d7-a658-41aa-a94c-9a5b990da0f0"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="0a65ad58-20d3-40ce-92cd-7a4f9277068d"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="cb77401c-86a0-42df-88f1-6afc6c53b725"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="75b0b250-341c-4087-96d8-e2a6c0bd6af1"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="174fa03f-a229-4400-bae7-0a03019a7917"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="ef9e97cb-9521-4df4-8131-4304d152370f" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="17da56da-ca47-405c-aef2-b5428d875eaf" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>17795</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>810430bc-45c6-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomFS033-SmartRetry Enabled-Monitoring Enabled-C3 Reachable" searchProperties="true" id="48983f1d-ad42-46ca-a15b-9d942d959c9b">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Clean FS plugin folders" id="8a76852f-f007-476d-adf7-b874b829485b"><con:settings/><con:config><script>FSPluginUtils.cleanFSPluginFolders("c2",context,log,testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Remove tc20Action" id="495465eb-7b3b-4c31-92ec-a0d66a32872d"><con:settings/><con:config><script>def side="c2"
+def nodename1="receptionAwareness"; def searchKey1="name"; def searchvalue1="receptionAwareness"; def attTochange1="retry"; def newValue1="2;2;CONSTANT"
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)
+
+side="c3"
+nodename1="action"; searchKey1="name"; searchvalue1="tc20Action"; attTochange1="value"; newValue1="TC20Leg1random"
+parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="fa9c8dbf-54fe-40fe-a480-0367c4af5d22"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="36b64493-5e13-41d8-9cef-6ae8fe8df17d"><con:settings/><con:config><script>// parametersMap keys must be: [SENDER:"...",RECEIVER:"...",AGR_TYPE:"...",AGR:"...",SRV_TYPE:"...",SRV:"...",ACTION:"...",CID:"...",PAY_NAME:"...",MIME:"...",OR_SENDER:"...",FIN_RECEIVER:"..."]
+
+def test = new Domibus(log,null,context)
+
+test.storeLatestMessagesId(testRunner)
+
+FSPluginUtils.submitFSmessage("C2",context,log,testRunner,"standard","default",[],false);
+
+test.waitFindAndUpdateLatestMessageIdIn(testRunner)
+
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="1e8baf4d-fde4-4648-a5ab-9680dae8aca8"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="915cbfcc-60f3-4b58-af78-a19ab32bfb0d"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="af43a834-8b7c-4ee5-9408-90c233a9460a"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="1d8b12d6-fcc9-4342-bef6-4783465ce2b4"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="81262fca-4a90-4d3d-b6bc-ae080b94c5f6"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="75570cef-1a25-431f-8a98-e1971b37fad7"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="5336216d-9aa1-4bb7-9218-bcc0ac4e0046"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="96453242-22bc-47dd-a6b9-55f2a2281e6b"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+
+def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*$messageId"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="054036fa-dbf6-4d7c-a316-311f529c9efe"><con:settings/><con:config><script>def messageId = testRunner.testCase.getPropertyValue("lastMessageId")
+
+def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","",messageId)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="d22adccf-fe92-429d-8507-9b797d41bc81"><con:settings/><con:config><script>def side="c2"
+def messageId=testRunner.testCase.getPropertyValue("lastMessageId")
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="9402c04d-026f-40ed-a92e-39ef2666840a" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="39796de7-6883-48c3-90c4-9ce912541ba8" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(testRunner.testCase.getPropertyValue("lastMessageId"))
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/30 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value/></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0 0 0/2 ? * * *</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>22639</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>c3_default_pmode</con:name><con:value/></con:property><con:property><con:name>lastMessageId</con:name><con:value>dab7560e-45c7-11ed-94b2-2cf05db4a367@domibus.eu</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:setupScript>// Disable role validation
 Domibus.changePropertyAtRuntime("C2", "domibus.partyinfo.roles.validation.enabled", "true", context, log);
 Domibus.changePropertyAtRuntime("C3", "domibus.partyinfo.roles.validation.enabled", "true", context, log);
 sleep(5000);</con:setupScript></con:testSuite><con:testSuite id="6a6973ad-148d-4ac5-bfee-b920f180e0b3" name="Multitenancy-FS-Automated"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase id="44d870fb-f288-4b4e-8b37-f090e0ce2b04" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Configuration" searchProperties="true" disabled="true"><con:settings/><con:testStep type="groovy" name="Set custom properties-Multitenancy4D-Multitenancy2D-Main Branch" id="648cd58c-7443-4182-b33d-f9fe90a8e550"><con:settings/><con:config><script><![CDATA[// blue: tomcat (localhost)

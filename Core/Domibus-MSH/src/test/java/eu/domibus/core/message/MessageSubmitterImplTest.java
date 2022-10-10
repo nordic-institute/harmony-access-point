@@ -8,6 +8,7 @@ import eu.domibus.api.message.validation.UserMessageValidatorSpiService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.payload.PartInfoService;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
@@ -206,9 +207,15 @@ public class MessageSubmitterImplTest {
     @Injectable
     protected TestMessageValidator testMessageValidator;
 
+    @Injectable
+    BackendConnectorService backendConnectorService;
+
     @Test
     public void testSubmitPullMessagePModeNOk(@Injectable final Submission messageData) throws Exception {
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             messageData.getProcessingType();
             result = ProcessingType.PULL;
             UserMessage userMessage = createUserMessage();
@@ -247,6 +254,9 @@ public class MessageSubmitterImplTest {
         String refToMessageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
 
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             submission.getMessageId();
             result = "messageId";
 
@@ -282,6 +292,8 @@ public class MessageSubmitterImplTest {
     @Test
     public void testSubmitMessageStoreNOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
 
             messageData.getProcessingType();
             result = ProcessingType.PUSH;
@@ -347,6 +359,8 @@ public class MessageSubmitterImplTest {
                                               @Injectable final Party to) throws Exception {
         UserMessage userMessage = createUserMessage();
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
 
             submission.getProcessingType();
             result = ProcessingType.PUSH;
@@ -418,6 +432,9 @@ public class MessageSubmitterImplTest {
 
         String originalUser = "mycorner";
         new Expectations(messageSubmitterImpl) {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = originalUser;
 
@@ -488,6 +505,9 @@ public class MessageSubmitterImplTest {
                                              @Injectable MessageStatusEntity messageStatus) throws Exception {
         final UserMessage userMessage = new UserMessage();
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
@@ -536,6 +556,9 @@ public class MessageSubmitterImplTest {
                                               @Injectable final Party to) throws Exception {
         UserMessage userMessage = createUserMessage();
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             submission.getMessageId();
             result = "messageId";
 
@@ -615,6 +638,9 @@ public class MessageSubmitterImplTest {
     @Test
     public void testSubmitDuplicateMessage(@Injectable final Submission submission, @Injectable UserMessage userMessage) throws Exception {
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             backendMessageValidator.validateSubmissionSending(submission);
             result = new DuplicateMessageException("Message with id [" + MESS_ID + "] already exists. Message identifiers must be unique");
         }};
@@ -637,6 +663,9 @@ public class MessageSubmitterImplTest {
         UserMessage userMessage = createUserMessage();
 
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             submission.getMessageId();
             result = "messageId";
 
@@ -692,6 +721,8 @@ public class MessageSubmitterImplTest {
     public void testSubmitPullMessageGreen2RedOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo,
                                                  @Injectable MessageStatusEntity messageStatus) throws Exception {
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
 
             authUtils.getOriginalUserWithUnsecureLoginAllowed();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
@@ -755,6 +786,9 @@ public class MessageSubmitterImplTest {
         String messageId = "abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656abc012f4c-5a31-4759-ad9c-1d12331420656@domibus.eu";
 
         new Expectations() {{
+            backendConnectorService.isBackendConnectorEnabled(BACKEND);
+            result = true;
+
             submission.getMessageId();
             result = messageId;
 

@@ -26,7 +26,6 @@ class PModeUtils {
      * @param authUser
      * @param authPwd
      */
-    //---------------------------------------------------------------------------------------------------------------------------------
     static def uploadPmode(String side, String baseFilePath, String extFilePath, context, log, String domainValue = "Default", String outcome = "successfully", String message = null, String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"uploadPmode\".", log)
         log.info "  uploadPmode  [][]  Start upload PMode for Domibus \"" + side + "\"."
@@ -103,6 +102,7 @@ class PModeUtils {
     }
     //---------------------------------------------------------------------------------------------------------------------------------
     // Methods handling Pmode properties overwriting
+	// TODO remove this function completely
     /**
      * This method is used for creating a new file from existing one
      * @param log
@@ -120,6 +120,7 @@ class PModeUtils {
             log.warn "processFile method returned file with same content! filePath = ${file.path}, newFileSuffix = ${newFileSuffix}."
     }
 
+	// TODO remove this function completely
     /**
      * This method is used for updating configuration file
      * @param log
@@ -141,6 +142,8 @@ class PModeUtils {
 
         log.info "  changeDomibusProperties  [][]  Configuration file [${filePath}] amended"
     }
+	
+	// TODO remove this function completely
     /**
      * This method upaates pmode enpoints(sender/receiver)
      * @param log
@@ -164,6 +167,7 @@ class PModeUtils {
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
+	// TODO remove this function completely
     /**
      * This method updates the specified parameter from pmode file
      * @param log
@@ -194,7 +198,7 @@ class PModeUtils {
     }
 
     //---------------------------------------------------------------------------------------------------------------------------------
-
+	// TODO remove this function completely
     /**
      * In case of step failure or skip, the original pmode file is uploaded
      * @param log
@@ -293,6 +297,7 @@ class PModeUtils {
         return commandResult[0]
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+	// TODO remove this function completely
     /**
      * This method updated the specified parameter using REST calls
      * @param side
@@ -307,7 +312,7 @@ class PModeUtils {
      * @param authPwd
      * @return
      */
-    def static updatePmodeParameterRest(String side,context,log,testRunner,String domainValue = "default",target = "endpoint",targetID = "blue_gw",targetRep = "",String authUser = null, authPwd = null){
+/*    def static updatePmodeParameterRest(String side,context,log,testRunner,String domainValue = "default",target = "endpoint",targetID = "blue_gw",targetRep = "",String authUser = null, authPwd = null){
         LogUtils.debugLog("  ====  Calling \"updatePmodeParameter\".", log)
 
         def authenticationUser = authUser
@@ -339,7 +344,35 @@ class PModeUtils {
                     }
                 }
                 break
-
+            case "action":
+                pmodeFile.depthFirst().each {
+                    if (it.name().equals("action")){
+                        if(it.@name.text().equals(targetID)){
+                            swapText = it.@value.text()
+                        }
+                    }
+                }
+                break
+            case "service":
+                pmodeFile.depthFirst().each {
+                    if (it.name().equals("service")){
+                        if(it.@name.text().equals(targetID)){
+							// TODO Upgrade to be able to change both value and type
+                            swapText = it.@type.text()
+                        }
+                    }
+                }
+                break
+            case "receptionawareness":
+                pmodeFile.depthFirst().each {
+                    if (it.name().equals("receptionAwareness")){
+                        if(it.@name.text().equals(targetID)){
+							// TODO Upgrade to be able to change both value and type
+                            swapText = it.@retry.text()
+                        }
+                    }
+                }
+                break
                 // Put other cases here ...
 
             default:
@@ -386,7 +419,192 @@ class PModeUtils {
 
         LogUtils.debugLog("  ====  \"updatePmodeParameter\" DONE.", log)
 
-    }
+    }*/
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method calls the rest command to upload the specified input pmode file
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param pmodeFile
+     * @param domainValue
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
+    def static uploadPmodeCommandRest(String side,context,log,testRunner,pmodeFile,String domainValue = "default",String authUser = null, authPwd = null){
+        LogUtils.debugLog("  ====  Calling \"uploadPmodeCommandRest\".", log)
+		
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
+        (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+		def pmDescription = "SoapUI sample test description for PMode upload."
+		
+        try{
+            def commandString = ["curl", Domibus.urlToDomibus(side, log, context) + "/rest/pmode",
+                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+                                 "-H","X-XSRF-TOKEN: " + Domibus.returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+                                 "-F", "description=" + pmDescription,
+                                 "-F", "file=@" + pmodeFile,
+                                 "-v"]
+            def commandResult = Domibus.runCommandInShell(commandString, log)
+            assert(commandResult[0].contains("successfully")),"Error:uploadPmodeCommandRest: Error while trying to upload the PMode: response doesn't contain the expected string \"successfully\"."
+        }finally {
+            Domibus.resetAuthTokens(log)
+            pmodeFile.delete()
+        }
+		LogUtils.debugLog("  ====  \"uploadPmodeCommandRest\" DONE.", log)
+	}
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method updates the specified parameters in parametersMap in the pmode
+     * @param side
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param domainValue
+     * @param parametersMap = []
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
+    def static updatePmodeParametersRest(String side,context,log,testRunner,parametersMap=[],String domainValue = "default",String authUser = null, authPwd = null){
+        LogUtils.debugLog("  ====  Calling \"updatePmodeParametersRest\".", log)
+		LogUtils.debugLog("  updatePmodeParametersRest  [][]  Parameters details:"+parametersMap.toString(), log)
+
+        def pmodeFile = null
+        def pmDescription = "SoapUI sample test description for PMode upload."
+        def swapText = []; def swapTextMap=[]; def swapCounter=0
+		def nodeMap=[]
+		def inputMap=[]
+		def locatorID=null; def locatorValue=null
+		def targetedPar=null
+		def repValue=null
+        def formattedPath=null
+		def tempValue=null; def containsData=false
+		
+        def authenticationUser = authUser
+        def authenticationPwd = authPwd
+        (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+
+        String pmodeText = getCurrentPmodeText(side,context,log,testRunner,domainValue,authenticationUser,authenticationPwd)
+		LogUtils.debugLog("  updatePmodeParametersRest  [][]  Current Pmode successfully retrieved.", log)
+		// Save the default pmode test on testcase custom property for lazy reset
+		tempValue=testRunner.testCase.getPropertyValue(side+"_default_pmode")	
+		containsData=tempValue?.trim()
+		if(!containsData){
+			testRunner.testCase.setPropertyValue( side+"_default_pmode", pmodeText)
+		}else{
+			LogUtils.debugLog("  updatePmodeParametersRest  [][]  Default already saved: no need to do it again ...", log)
+		}
+        
+
+        // Read Pmode file
+        try{
+            pmodeFile = new XmlSlurper().parseText(pmodeText)
+        }catch(Exception ex) {
+            assert (0),"Error:updatePmodeParameter: Error parsing the pmode as xml file. " + ex
+        }
+
+		// Parse xml file and look for values to swap
+		parametersMap.each { target,inputs ->
+			// Fetch value to change
+			nodeMap=inputs.split("--")
+			nodeMap.each {npval ->
+				inputMap=npval.split("#")
+				assert(inputMap.size()==4),"Error:updatePmodeParametersRest: Wrong parameters fomat provided $inputs"
+				locatorID=inputMap[0];locatorValue=inputMap[1];targetedPar=inputMap[2];repValue=inputMap[3];
+				LogUtils.debugLog("  updatePmodeParametersRest  [][]  --target=$target--locatorID=$locatorID--locatorValue=$locatorValue--targetedPar=$targetedPar--repValue=$repValue--", log)
+				pmodeFile.depthFirst().each {
+					if (it.name().equals(target)){
+						if(it.@"${locatorID}".text().equals(locatorValue)){
+							swapText[swapCounter]=it.@"${targetedPar}".text()+"#"+repValue
+							swapCounter=swapCounter+1
+						}
+					}
+				}
+				inputMap=[]
+				locatorID=null;locatorValue=null;targetedPar=null;repValue=null;
+			}
+			nodeMap=[]
+		}
+				
+		// Apply changes on pmode text
+		swapText.each{swval ->
+			swapTextMap=swval.split("#")
+			assert(swapTextMap.size()==2),"Error:updatePmodeParametersRest: Wrong parameters fomat provided $swval"
+			log.info "replacing "+swapTextMap[0]+ " with "+swapTextMap[1]
+			pmodeText=pmodeText.replaceAll(swapTextMap[0],swapTextMap[1])
+		}
+		
+		if(swapText.size()>0){
+			// Re-upload new Pmode file
+			File tempfile = null
+			try {
+				// creates temporary file
+				tempfile = File.createTempFile("tmp", ".xml")
+				tempfile.write(pmodeText)
+				// deletes file when the virtual machine terminate
+				tempfile.deleteOnExit()
+			} catch(Exception ex) {
+				// if any error occurs
+				assert (0),"Error while creating temp file ... " + ex
+				//log.info "Error while creating temp file ... " + ex
+			}
+			uploadPmodeCommandRest(side,context,log,testRunner,tempfile, domainValue, authUser, authPwd)
+		}else{
+			LogUtils.debugLog("  updatePmodeParametersRest  [][]  No changes applied to pmode: skip the upload.", log)
+		}
+
+        LogUtils.debugLog("  ====  \"updatePmodeParametersRest\" DONE.", log)
+
+    }				
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method uploads default pmodes saved previously in testcase custom properties 
+     * @param context
+     * @param log
+     * @param testRunner
+     * @param domainValue
+     * @param authUser
+     * @param authPwd
+     * @return
+     */
+    def static resetPmodeDefaultRest(context,log,testRunner,String domainValue = "default",String authUser = null, authPwd = null){
+        LogUtils.debugLog("  ====  Calling \"resetPmodeDefaultRest\".", log)
+		
+		def sides =["c2","c3"]
+		def pmodeText=null
+		File tempfile = null
+		def containsData=false
+		
+		sides.each{ sval ->
+			pmodeText=testRunner.testCase.getPropertyValue(sval+"_default_pmode")	
+			containsData=pmodeText?.trim()
+			if(containsData){
+				LogUtils.debugLog("  resetPmodeDefaultRest  [][]  Resetting default pmode value for side "+sval, log)
+				try {
+					// creates temporary file
+					tempfile = File.createTempFile("tmp", ".xml")
+					tempfile.write(pmodeText)
+					// deletes file when the virtual machine terminate
+					tempfile.deleteOnExit()
+				} catch(Exception ex) {
+					// if any error occurs
+					assert (0),"Error while creating temp file ... " + ex
+					//log.info "Error while creating temp file ... " + ex
+				}
+				uploadPmodeCommandRest(sval,context,log,testRunner,tempfile, domainValue, authUser, authPwd)
+				testRunner.testCase.setPropertyValue( sval+"_default_pmode", "")
+				tempfile=null
+				pmodeText=null
+				containsData=false
+			}
+		}
+		LogUtils.debugLog("  ====  \"resetPmodeDefaultRest\" DONE.", log)
+	}
+
 //---------------------------------------------------------------------------------------------------------------------------------
     /**
      * This method updates pmode using REST calls
@@ -427,29 +645,8 @@ class PModeUtils {
             // if any error occurs
             assert (0),"Error while creating temp file ... " + ex
         }
-        formattedPath=tempfile.getAbsolutePath()
-        if (System.properties['os.name'].toLowerCase().contains('windows'))
-            formattedPath = formattedPath.replace("\\", "\\\\")
-        else
-            formattedPath = formattedPath.replace("\\", "/")
 
-        LogUtils.debugLog("  updatePmodeStringRest  [][]  formattedPath: "+formattedPath, log)
-
-        (authenticationUser, authenticationPwd) = Domibus.retrieveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-
-        try{
-            def commandString = ["curl", Domibus.urlToDomibus(side, log, context) + "/rest/pmode",
-                                 "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                                 "-H","X-XSRF-TOKEN: " + Domibus.returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-                                 "-F", "description=" + pmDescription,
-                                 "-F", "file=@" + tempfile,
-                                 "-v"]
-            def commandResult = Domibus.runCommandInShell(commandString, log)
-            assert(commandResult[0].contains("successfully")),"Error:uploadPmode: Error while trying to upload the PMode: response doesn't contain the expected string \"successfully\"."
-        }finally {
-            Domibus.resetAuthTokens(log)
-            tempfile.delete()
-        }
+		uploadPmodeCommandRest(side,context,log,testRunner,tempfile, domainValue, authUser, authPwd)
 
         LogUtils.debugLog("  ====  \"updatePmodeStringRest\" DONE.", log)
 

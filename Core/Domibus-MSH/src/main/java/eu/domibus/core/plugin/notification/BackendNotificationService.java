@@ -5,13 +5,13 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
@@ -19,9 +19,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
-import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -34,7 +32,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -61,67 +58,71 @@ public class BackendNotificationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationService.class);
 
-    @Autowired
-    protected JMSManager jmsManager;
+    protected final JMSManager jmsManager;
 
-    @Autowired
-    protected RoutingService routingService;
+    protected final RoutingService routingService;
 
-    @Autowired
-    protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
+    protected final AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
+    protected final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
     @Qualifier(UNKNOWN_RECEIVER_QUEUE)
-    protected Queue unknownReceiverQueue;
+    protected final Queue unknownReceiverQueue;
 
-    @Autowired
-    protected UserMessageDao userMessageDao;
+    protected final UserMessageDao userMessageDao;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected EventService eventService;
+    protected final EventService eventService;
 
-    @Autowired
-    protected MessagingConfigurationManager messagingConfigurationManager;
+    protected final MessagingConfigurationManager messagingConfigurationManager;
 
-    @Autowired
-    private UserMessageServiceHelper userMessageServiceHelper;
+    private final UserMessageServiceHelper userMessageServiceHelper;
 
-    @Autowired
-    protected TestMessageValidator testMessageValidator;
+    protected final PluginEventNotifierProvider pluginEventNotifierProvider;
 
-    @Autowired
-    protected PluginEventNotifierProvider pluginEventNotifierProvider;
+    protected final BackendConnectorProvider backendConnectorProvider;
 
-    @Autowired
-    protected SubmissionValidatorService submissionValidatorService;
+    protected final BackendConnectorHelper backendConnectorHelper;
 
-    @Autowired
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected final BackendConnectorService backendConnectorService;
 
-    @Autowired
-    protected BackendConnectorDelegate backendConnectorDelegate;
-
-    @Autowired
-    protected BackendConnectorHelper backendConnectorHelper;
-
-    @Autowired
     @Qualifier(JSON_MAPPER_BEAN)
-    protected ObjectMapper objectMapper;
+    protected final ObjectMapper objectMapper;
+
+    public BackendNotificationService(JMSManager jmsManager, RoutingService routingService, AsyncNotificationConfigurationService asyncNotificationConfigurationService,
+                                      UserMessageLogDao userMessageLogDao, Queue unknownReceiverQueue, UserMessageDao userMessageDao,
+                                      DomibusPropertyProvider domibusPropertyProvider, EventService eventService, MessagingConfigurationManager messagingConfigurationManager,
+                                      UserMessageServiceHelper userMessageServiceHelper, PluginEventNotifierProvider pluginEventNotifierProvider,
+                                      BackendConnectorProvider backendConnectorProvider, BackendConnectorHelper backendConnectorHelper,
+                                      BackendConnectorService backendConnectorService, ObjectMapper objectMapper) {
+        this.jmsManager = jmsManager;
+        this.routingService = routingService;
+        this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
+        this.userMessageLogDao = userMessageLogDao;
+        this.unknownReceiverQueue = unknownReceiverQueue;
+        this.userMessageDao = userMessageDao;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.eventService = eventService;
+        this.messagingConfigurationManager = messagingConfigurationManager;
+        this.userMessageServiceHelper = userMessageServiceHelper;
+        this.pluginEventNotifierProvider = pluginEventNotifierProvider;
+        this.backendConnectorProvider = backendConnectorProvider;
+        this.backendConnectorHelper = backendConnectorHelper;
+        this.backendConnectorService = backendConnectorService;
+        this.objectMapper = objectMapper;
+    }
+
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
         LOG.debug("Notify message receive failure");
+        BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
 
-        if (isPluginNotificationDisabled()) {
-            LOG.debug("Plugin notification is disabled.");
+        if (!shouldNotify(userMessage, matchingBackendFilter)) {
             return;
         }
+
         final Map<String, String> errorProperties = new HashMap<>();
         if (errorResult.getErrorCode() != null) {
             errorProperties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCode().getErrorCodeName());
@@ -140,7 +141,7 @@ public class BackendNotificationService {
         addMessagePropertiesToEvent(event, userMessage, errorProperties);
 
         ServiceEntity service = userMessage.getService();
-        if (service!=null) {
+        if (service != null) {
             event.setService(service.getValue());
             event.setServiceType(service.getType());
         }
@@ -149,17 +150,16 @@ public class BackendNotificationService {
         event.setErrorResult(errorResult);
         event.setEndpoint(errorProperties.get(MessageConstants.ENDPOINT));
 
-        notifyOfIncoming(event, routingService.getMatchingBackendFilter(userMessage), notificationType);
+        notifyOfIncoming(event, matchingBackendFilter, notificationType);
     }
-
 
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
-        if (isPluginNotificationDisabled()) {
-            LOG.info("Plugin notification is disabled.");
+        if (!shouldNotify(userMessage, matchingBackendFilter)) {
             return;
         }
+
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED;
         if (userMessage.isMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
@@ -176,10 +176,10 @@ public class BackendNotificationService {
     @Timer(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     @Counter(clazz = BackendNotificationService.class, value = "notifyMessageResponseSent")
     public void notifyMessageResponseSent(BackendFilter matchingBackendFilter, UserMessage userMessage) {
-        if (isPluginNotificationDisabled()) {
-            LOG.info("Plugin notification is disabled.");
+        if (!shouldNotify(userMessage, matchingBackendFilter)) {
             return;
         }
+
         if (userMessage.isMessageFragment()) {
             LOG.debug("No MessageResponseSent event for message fragments.");
             return;
@@ -229,6 +229,183 @@ public class BackendNotificationService {
         });
     }
 
+    public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
+        String backend = userMessageLog.getBackend();
+
+        if (!shouldNotify(userMessage, backend)) {
+            return;
+        }
+
+        if (StringUtils.isEmpty(backend)) {
+            LOG.warn("Could not find backend for message with id [{}]", userMessage);
+            return;
+        }
+
+        Map<String, String> properties = userMessageServiceHelper.getProperties(userMessage);
+        fillEventProperties(userMessage, properties);
+        MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
+                userMessage.getMessageId(),
+                userMessage.getEntityId(),
+                properties);
+
+        notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED);
+    }
+
+    public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
+        if (!shouldNotify(userMessage, backendName)) {
+            return;
+        }
+
+        PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
+        payloadSubmittedEvent.setCid(partInfo.getHref());
+        payloadSubmittedEvent.setFileName(originalFilename);
+        payloadSubmittedEvent.setMessageEntityId(userMessage.getEntityId());
+        payloadSubmittedEvent.setMessageId(userMessage.getMessageId());
+        payloadSubmittedEvent.setMime(partInfo.getMime());
+        addMessagePropertiesToEvent(payloadSubmittedEvent, userMessage, null);
+
+        notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED);
+    }
+
+    public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
+        if (!shouldNotify(userMessage, backendName)) {
+            return;
+        }
+
+        PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
+        payloadProcessedEvent.setCid(partInfo.getHref());
+        payloadProcessedEvent.setFileName(originalFilename);
+        payloadProcessedEvent.setMessageEntityId(userMessage.getEntityId());
+        payloadProcessedEvent.setMessageId(userMessage.getMessageId());
+        payloadProcessedEvent.setMime(partInfo.getMime());
+        addMessagePropertiesToEvent(payloadProcessedEvent, userMessage, null);
+
+        notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED);
+    }
+
+    @Transactional
+    public void notifyOfSendFailure(final UserMessage userMessage, UserMessageLog userMessageLog) {
+        final String backendName = userMessageLog.getBackend();
+        if (!shouldNotify(userMessage, backendName)) {
+            return;
+        }
+
+        NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
+        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
+            notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
+        }
+
+        Map<String, String> properties = new HashMap<>();
+        fillEventProperties(userMessage, properties);
+
+        MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(userMessage.getEntityId(), userMessage.getMessageId());
+        addMessagePropertiesToEvent(messageSendFailedEvent, userMessage, null);
+
+        notify(messageSendFailedEvent, backendName, notificationType);
+        userMessageLogDao.setAsNotified(userMessageLog);
+    }
+
+    @Timer(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
+    @Transactional
+    public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
+        String backend = userMessageLog.getBackend();
+        if (!shouldNotify(userMessage, backend)) {
+            return;
+        }
+
+        NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
+        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
+            notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
+        }
+
+        MessageSendSuccessEvent messageSendSuccessEvent = new MessageSendSuccessEvent();
+        messageSendSuccessEvent.setMessageEntityId(userMessage.getEntityId());
+        messageSendSuccessEvent.setMessageId(userMessage.getMessageId());
+        addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage, null);
+
+        notify(messageSendSuccessEvent, backend, notificationType);
+        userMessageLogDao.setAsNotified(userMessageLog);
+    }
+
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    @Transactional
+    public void notifyOfMessageStatusChange(UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
+        UserMessage userMessage = userMessageDao.findByEntityId(messageLog.getEntityId());
+        notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
+    }
+
+    @Timer(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
+    @Transactional
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
+    public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
+        String backend = messageLog.getBackend();
+        if (!shouldNotify(userMessage, backend)) {
+            return;
+        }
+
+        final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
+        if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
+            eventService.enqueueMessageEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
+        }
+
+        handleMDC(userMessage);
+        if (messageLog.getMessageStatus() == newStatus) {
+            LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);
+            return;
+        }
+
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, messageLog.getMessageStatus(), newStatus);
+
+        final Map<String, String> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
+        NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
+        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
+            notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
+        }
+
+        MessageStatusChangeEvent messageStatusChangeEvent = new MessageStatusChangeEvent(messageProperties);
+        messageStatusChangeEvent.setMessageId(userMessage.getMessageId());
+        messageStatusChangeEvent.setMessageEntityId(userMessage.getEntityId());
+
+        final String fromStatus = messageProperties.get(MessageConstants.STATUS_FROM);
+        if (StringUtils.isNotEmpty(fromStatus)) {
+            messageStatusChangeEvent.setFromStatus(eu.domibus.common.MessageStatus.valueOf(fromStatus));
+        }
+        messageStatusChangeEvent.setToStatus(eu.domibus.common.MessageStatus.valueOf(messageProperties.get(MessageConstants.STATUS_TO)));
+        messageStatusChangeEvent.setChangeTimestamp(new Timestamp(NumberUtils.toLong(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP))));
+        addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
+
+        notify(messageStatusChangeEvent, backend, notificationType);
+    }
+
+    protected boolean shouldNotify(UserMessage userMessage, BackendFilter backendFilter) {
+        return backendFilter != null && shouldNotify(userMessage, backendFilter.getBackendName());
+    }
+
+    protected boolean shouldNotify(UserMessage userMessage, String backendName) {
+        if (isPluginNotificationDisabled()) {
+            LOG.debug("Plugin notification is disabled.");
+            return false;
+        }
+
+        if (userMessage == null) {
+            LOG.warn("User message is null");
+            return false;
+        }
+        if (userMessage.isTestMessage()) {
+            LOG.debug("Message [{}] is of type test so no notification", userMessage);
+            return false;
+        }
+
+        if (!backendConnectorService.isBackendConnectorEnabled(backendName)) {
+            LOG.info("Backend connector [{}] is disabled so exiting notification", backendName);
+            return false;
+        }
+
+        return true;
+    }
+
     protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
         MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
         messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
@@ -259,83 +436,27 @@ public class BackendNotificationService {
         return messageDeletedEvent;
     }
 
-    public void notifyMessageDeleted(UserMessage userMessage, UserMessageLog userMessageLog) {
-        if (userMessageLog == null) {
-            LOG.warn("Could not find message with id [{}]", userMessage);
-            return;
-        }
-        if (userMessage.isTestMessage()) {
-            LOG.debug("Message [{}] is of type test: no notification for message deleted", userMessage);
-            return;
-        }
-        String backend = userMessageLog.getBackend();
-        if (StringUtils.isEmpty(backend)) {
-            LOG.warn("Could not find backend for message with id [{}]", userMessage);
-            return;
-        }
-
-        Map<String, String> properties = userMessageServiceHelper.getProperties(userMessage);
-        fillEventProperties(userMessage, properties);
-        MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
-                userMessage.getMessageId(),
-                userMessage.getEntityId(),
-                properties);
-
-        notify(messageDeletedEvent, backend, NotificationType.MESSAGE_DELETED);
-    }
-
-
-    public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
-            LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
-            return;
-        }
-        PayloadSubmittedEvent payloadSubmittedEvent = new PayloadSubmittedEvent();
-        payloadSubmittedEvent.setCid(partInfo.getHref());
-        payloadSubmittedEvent.setFileName(originalFilename);
-        payloadSubmittedEvent.setMessageEntityId(userMessage.getEntityId());
-        payloadSubmittedEvent.setMessageId(userMessage.getMessageId());
-        payloadSubmittedEvent.setMime(partInfo.getMime());
-        addMessagePropertiesToEvent(payloadSubmittedEvent, userMessage, null);
-
-        notify(payloadSubmittedEvent, backendName, NotificationType.PAYLOAD_SUBMITTED);
-    }
-
-
-    public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (BooleanUtils.isTrue(testMessageValidator.checkTestMessage(userMessage))) {
-            LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
-            return;
-        }
-
-        PayloadProcessedEvent payloadProcessedEvent = new PayloadProcessedEvent();
-        payloadProcessedEvent.setCid(partInfo.getHref());
-        payloadProcessedEvent.setFileName(originalFilename);
-        payloadProcessedEvent.setMessageEntityId(userMessage.getEntityId());
-        payloadProcessedEvent.setMessageId(userMessage.getMessageId());
-        payloadProcessedEvent.setMime(partInfo.getMime());
-        addMessagePropertiesToEvent(payloadProcessedEvent, userMessage, null);
-
-        notify(payloadProcessedEvent, backendName, NotificationType.PAYLOAD_PROCESSED);
-    }
-
     protected void notifyOfIncoming(MessageEvent messageEvent, final BackendFilter matchingBackendFilter, final NotificationType notificationType) {
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", messageEvent.getMessageId(), unknownReceiverQueue);
-            MSHRole role = null;
-            String mshRole = messageEvent.getProps().get(MSH_ROLE);
-            if (mshRole == null) {
-                LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
-            } else {
-                role = MSHRole.valueOf(mshRole);
-            }
-
+            MSHRole role = getMshRole(messageEvent);
             jmsManager.sendMessageToQueue(new NotifyMessageCreator(role,
                     notificationType, messageEvent.getProps(), objectMapper).createMessage(messageEvent), unknownReceiverQueue);
             return;
         }
 
         notify(messageEvent, matchingBackendFilter.getBackendName(), notificationType);
+    }
+
+    private MSHRole getMshRole(MessageEvent messageEvent) {
+        MSHRole role = null;
+        String mshRole = messageEvent.getProps().get(MSH_ROLE);
+        if (mshRole == null) {
+            LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
+        } else {
+            role = MSHRole.valueOf(mshRole);
+        }
+        return role;
     }
 
     public void fillEventProperties(final UserMessage userMessage, Map<String, String> target) {
@@ -379,7 +500,6 @@ public class BackendNotificationService {
         }
     }
 
-
     protected void notify(MessageEvent messageEvent, String backendName, NotificationType notificationType) {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, messageEvent.getMessageId(), notificationType);
 
@@ -399,7 +519,7 @@ public class BackendNotificationService {
             return;
         }
 
-        Map<String,String> properties = messageEvent.getProps();
+        Map<String, String> properties = messageEvent.getProps();
         if (properties != null && notificationType != NotificationType.MESSAGE_DELETE_BATCH) {
             String finalRecipient = properties.get(FINAL_RECIPIENT);
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}] and finalRecipient [{}]", backendName, messageId, notificationType, finalRecipient);
@@ -409,13 +529,7 @@ public class BackendNotificationService {
 
         AsyncNotificationConfiguration asyncNotificationConfiguration = asyncNotificationConfigurationService.getAsyncPluginConfiguration(backendName);
         if (shouldNotifyAsync(asyncNotificationConfiguration)) {
-            MSHRole role = null;
-            String mshRole = messageEvent.getProps().get(MSH_ROLE);
-            if (mshRole == null) {
-                LOG.info("MSH role is null for message with messageId [{}]", messageEvent.getMessageId());
-            } else {
-                role = MSHRole.valueOf(mshRole);
-            }
+            MSHRole role = getMshRole(messageEvent);
             notifyAsync(messageEvent, asyncNotificationConfiguration, role, notificationType, properties);
             return;
         }
@@ -445,99 +559,6 @@ public class BackendNotificationService {
         }
 
         pluginEventNotifier.notifyPlugin(messageEvent, backendConnector);
-    }
-
-    @Transactional
-    public void notifyOfSendFailure(final UserMessage userMessage, UserMessageLog userMessageLog) {
-        if (isPluginNotificationDisabled()) {
-            return;
-        }
-        final String backendName = userMessageLog.getBackend();
-        NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
-        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
-            notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
-        }
-
-        Map<String, String> properties = new HashMap<>();
-        fillEventProperties(userMessage, properties);
-
-        MessageSendFailedEvent messageSendFailedEvent = new MessageSendFailedEvent(userMessage.getEntityId(), userMessage.getMessageId());
-        addMessagePropertiesToEvent(messageSendFailedEvent, userMessage, null);
-
-        notify(messageSendFailedEvent, backendName, notificationType);
-        userMessageLogDao.setAsNotified(userMessageLog);
-    }
-
-    @Timer(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
-    @Counter(clazz = BackendNotificationService.class, value = "notifyOfSendSuccess")
-    @Transactional
-    public void notifyOfSendSuccess(final UserMessage userMessage, final UserMessageLog userMessageLog) {
-        if (isPluginNotificationDisabled()) {
-            return;
-        }
-        NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
-        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
-            notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
-        }
-
-        MessageSendSuccessEvent messageSendSuccessEvent = new MessageSendSuccessEvent();
-        messageSendSuccessEvent.setMessageEntityId(userMessage.getEntityId());
-        messageSendSuccessEvent.setMessageId(userMessage.getMessageId());
-        addMessagePropertiesToEvent(messageSendSuccessEvent, userMessage, null);
-
-        notify(messageSendSuccessEvent, userMessageLog.getBackend(), notificationType);
-        userMessageLogDao.setAsNotified(userMessageLog);
-    }
-
-
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
-    @Transactional
-    public void notifyOfMessageStatusChange(UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        UserMessage userMessage = userMessageDao.findByEntityId(messageLog.getEntityId());
-        notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
-    }
-
-    @Timer(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
-    @Counter(clazz = BackendNotificationService.class, value = "notifyOfMessageStatusChange")
-    @Transactional
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
-    public void notifyOfMessageStatusChange(UserMessage userMessage, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
-        if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
-            eventService.enqueueMessageEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, messageLog.getMshRole().getRole());
-        }
-
-        if (isPluginNotificationDisabled()) {
-            return;
-        }
-
-        handleMDC(userMessage);
-        if (messageLog.getMessageStatus() == newStatus) {
-            LOG.debug("Notification not sent: message status has not changed [{}]", newStatus);
-            return;
-        }
-
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, messageLog.getMessageStatus(), newStatus);
-
-        final Map<String, String> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
-        NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
-        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
-            notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
-        }
-
-        MessageStatusChangeEvent messageStatusChangeEvent = new MessageStatusChangeEvent(messageProperties);
-        messageStatusChangeEvent.setMessageId(userMessage.getMessageId());
-        messageStatusChangeEvent.setMessageEntityId(userMessage.getEntityId());
-
-        final String fromStatus = messageProperties.get(MessageConstants.STATUS_FROM);
-        if (StringUtils.isNotEmpty(fromStatus)) {
-            messageStatusChangeEvent.setFromStatus(eu.domibus.common.MessageStatus.valueOf(fromStatus));
-        }
-        messageStatusChangeEvent.setToStatus(eu.domibus.common.MessageStatus.valueOf(messageProperties.get(MessageConstants.STATUS_TO)));
-        messageStatusChangeEvent.setChangeTimestamp(new Timestamp(NumberUtils.toLong(messageProperties.get(MessageConstants.CHANGE_TIMESTAMP))));
-        addMessagePropertiesToEvent(messageStatusChangeEvent, userMessage, null);
-
-        notify(messageStatusChangeEvent, messageLog.getBackend(), notificationType);
     }
 
     private void handleMDC(UserMessage userMessage) {
