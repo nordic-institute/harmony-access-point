@@ -226,18 +226,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public int getRetentionDownloadedMetadataOffsetByMpcURI(String mpcURI) {
-        return getCurrentPModeProvider().getRetentionDownloadedMetadataOffsetByMpcURI(mpcURI);
-    }
-
-    @Override
-    public int getRetentionUndownloadedMetadataOffsetByMpcURI(String mpcURI) {
-        return getCurrentPModeProvider().getRetentionUndownloadedMetadataOffsetByMpcURI(mpcURI);
-    }
-
-    @Override
-    public int getRetentionSentMetadataOffsetByMpcURI(String mpcURI) {
-        return getCurrentPModeProvider().getRetentionSentMetadataOffsetByMpcURI(mpcURI);
+    public int getMetadataRetentionOffsetByMpcURI(String mpcURI) {
+        return getCurrentPModeProvider().getMetadataRetentionOffsetByMpcURI(mpcURI);
     }
 
     @Override

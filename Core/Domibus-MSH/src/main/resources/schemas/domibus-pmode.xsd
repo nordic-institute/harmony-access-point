@@ -16,11 +16,7 @@
                                                   use="required"/>
                                     <xs:attribute name="retention_undownloaded" type="xs:int"
                                                   use="required"/>
-                                    <xs:attribute name="retention_downloaded_metadata_offset" type="xs:int"
-                                                  use="optional" default="0"/>
-                                    <xs:attribute name="retention_undownloaded_metadata_offset" type="xs:int"
-                                                  use="optional" default="0"/>
-                                    <xs:attribute name="retention_sent_metadata_offset" type="xs:int"
+                                    <xs:attribute name="retention_metadata_offset" type="xs:int"
                                                   use="optional" default="0"/>
                                     <xs:attribute name="default" type="xs:boolean" use="required"/>
                                     <xs:attribute name="enabled" type="xs:boolean" use="required"/>

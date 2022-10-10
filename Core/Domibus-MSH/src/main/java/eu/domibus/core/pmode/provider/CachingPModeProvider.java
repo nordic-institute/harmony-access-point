@@ -834,38 +834,14 @@ public class CachingPModeProvider extends PModeProvider {
         return -1;
     }
 
-    public int getRetentionDownloadedMetadataOffsetByMpcURI(String mpcURI){
+    public int getMetadataRetentionOffsetByMpcURI(String mpcURI){
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
             if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getRetentionDownloadedMetadataOffset();
+                return mpc1.getMetadataRetentionOffset();
             }
         }
 
         LOG.error("No MPC with name: [{}] found. Assuming message metadata retention offset of -1 for downloaded messages.", mpcURI);
-
-        return -1;
-    }
-
-    public int getRetentionUndownloadedMetadataOffsetByMpcURI(String mpcURI){
-        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getRetentionUndownloadedMetadataOffset();
-            }
-        }
-
-        LOG.error("No MPC with name: [{}] found. Assuming message metadata retention offset of -1 for undownloaded messages.", mpcURI);
-
-        return -1;
-    }
-
-    public int getRetentionSentMetadataOffsetByMpcURI(String mpcURI){
-        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getRetentionSentMetadataOffset();
-            }
-        }
-
-        LOG.error("No MPC with name: [{}] found. Assuming message metadata retention offset of -1 for sent messages.", mpcURI);
 
         return -1;
     }

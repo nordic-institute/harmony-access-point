@@ -39,17 +39,9 @@ public class Mpc extends AbstractBaseEntity {
     @Column(name = "RETENTION_SENT")
     protected int retentionSent = -1;
 
-    @XmlAttribute(name = "retention_downloaded_metadata_offset")
-    @Column(name = "RETENTION_DOWNLOADED_MD_OFFSET")
-    protected int retentionDownloadedMetadataOffset;
-
-    @XmlAttribute(name = "retention_undownloaded_metadata_offset")
-    @Column(name = "RETENTION_UNDWN_MD_OFFSET")
-    protected int retentionUndownloadedMetadataOffset;
-
-    @XmlAttribute(name = "retention_sent_metadata_offset")
-    @Column(name = "RETENTION_SENT_MD_OFFSET")
-    protected int retentionSentMetadataOffset;
+    @XmlAttribute(name = "retention_metadata_offset")
+    @Column(name = "RETENTION_METADATA_OFFSET")
+    protected int metadataRetentionOffset;
 
     @XmlAttribute(name = "delete_message_metadata")
     @Column(name = "DELETE_MESSAGE_METADATA")
@@ -152,43 +144,15 @@ public class Mpc extends AbstractBaseEntity {
     /**
      * @return the number of minutes to keep the metadata of downloaded messages after the payload is deleted
      */
-    public int getRetentionDownloadedMetadataOffset() {
-        return retentionDownloadedMetadataOffset;
+    public int getMetadataRetentionOffset() {
+        return metadataRetentionOffset;
     }
 
     /**
      * Sets the number of minutes to keep the metadata of downloaded messages after the payload is deleted
      */
-    public void setRetentionDownloadedMetadataOffset(int retentionDownloadedMetadataOffset) {
-        this.retentionDownloadedMetadataOffset = retentionDownloadedMetadataOffset;
-    }
-
-    /**
-     * @return the number of minutes to keep the metadata of not-downloaded messages after the payload is deleted
-     */
-    public int getRetentionUndownloadedMetadataOffset() {
-        return retentionUndownloadedMetadataOffset;
-    }
-
-    /**
-     * Sets the number of minutes to keep the metadata of not-downloaded messages after the payload is deleted
-     */
-    public void setRetentionUndownloadedMetadataOffset(int retentionUndownloadedMetadataOffset) {
-        this.retentionUndownloadedMetadataOffset = retentionUndownloadedMetadataOffset;
-    }
-
-    /**
-     * @return the number of minutes to keep the metadata of sent messages after the payload is deleted
-     */
-    public int getRetentionSentMetadataOffset() {
-        return retentionSentMetadataOffset;
-    }
-
-    /**
-     * Sets the number of minutes to keep the metadata of sent messages after the payload is deleted
-     */
-    public void setRetentionSentMetadataOffset(int retentionSentMetadataOffset) {
-        this.retentionSentMetadataOffset = retentionSentMetadataOffset;
+    public void setMetadataRetentionOffset(int retentionDownloadedMetadataOffset) {
+        this.metadataRetentionOffset = retentionDownloadedMetadataOffset;
     }
 
     /**

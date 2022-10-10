@@ -673,11 +673,16 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional
     @Override
     public void clearPayloadData(List<Long> entityIds) {
-        if(entityIds==null){
+        if(CollectionUtils.isEmpty(entityIds)){
             return;
         }
-        entityIds.forEach(partInfoService::clearPayloadData);
-        userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
+        try {
+            entityIds.forEach(partInfoService::clearPayloadData);
+            userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
+        } catch (RuntimeException e){
+            LOG.warn("Cleaning payload failed with exception", e);
+            throw e;
+        }
     }
 
     @Override
