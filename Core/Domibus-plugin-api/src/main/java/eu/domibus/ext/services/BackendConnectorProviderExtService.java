@@ -23,7 +23,7 @@ public interface BackendConnectorProviderExtService {
      */
     boolean canDisableBackendConnector(String backendName, final String domainCode);
 
-    void backendConnectorEnabled(String backendName);
+    void backendConnectorEnabled(String backendName, String domainCode);
 
-    void backendConnectorDisabled(String backendName);
+    void backendConnectorDisabled(String backendName, String domainCode);
 }

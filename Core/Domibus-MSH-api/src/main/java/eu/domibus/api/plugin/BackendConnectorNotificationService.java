@@ -8,8 +8,8 @@ package eu.domibus.api.plugin;
  */
 public interface BackendConnectorNotificationService {
 
-    void backendConnectorEnabled(String backendName);
+    void backendConnectorEnabled(String backendName, String domainCode);
 
-    void backendConnectorDisabled(String backendName);
+    void backendConnectorDisabled(String backendName, String domainCode);
 
 }

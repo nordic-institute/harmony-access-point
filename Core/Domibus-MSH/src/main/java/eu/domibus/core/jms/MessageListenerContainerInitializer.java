@@ -27,6 +27,7 @@ import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONCURENCY;
@@ -107,10 +108,14 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     public void createMessageListenersForPlugin(String backendName, Domain domain) {
         DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
 
-        final Map.Entry<String, PluginMessageListenerContainer> entry = applicationContext.getBeansOfType(PluginMessageListenerContainer.class).entrySet()
-                .stream().filter(el -> el.getValue().getPluginName().equals(backendName)).findFirst().orElse(null);
+        final Optional<Map.Entry<String, PluginMessageListenerContainer>> entry = applicationContext.getBeansOfType(PluginMessageListenerContainer.class).entrySet()
+                .stream().filter(el -> el.getValue().getPluginName().equals(backendName)).findFirst();
 
-        createForPlugin(domain, domainDTO, entry);
+        if (!entry.isPresent()) {
+            LOG.info("Could not find plugin message listener container for [{}] on domain [{}]; exiting", backendName, domain);
+            return;
+        }
+        createForPlugin(domain, domainDTO, entry.get());
     }
 
     public void destroyMessageListenersForPlugin(String backendName, Domain domain) {

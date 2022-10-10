@@ -35,12 +35,12 @@ public class BackendConnectorProviderExtServiceDelegate implements BackendConnec
     }
 
     @Override
-    public void backendConnectorEnabled(String backendName) {
-        backendConnectorNotificationService.backendConnectorEnabled(backendName);
+    public void backendConnectorEnabled(String backendName, String domainCode) {
+        backendConnectorNotificationService.backendConnectorEnabled(backendName, domainCode);
     }
 
     @Override
-    public void backendConnectorDisabled(String backendName) {
-        backendConnectorNotificationService.backendConnectorDisabled(backendName);
+    public void backendConnectorDisabled(String backendName, String domainCode) {
+        backendConnectorNotificationService.backendConnectorDisabled(backendName, domainCode);
     }
 }

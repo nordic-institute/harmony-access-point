@@ -55,8 +55,10 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
         LOG.info("Setting fs-plugin to: [{}] for domain: [{}]...", enable ? "enabled" : "disabled", domainCode);
         if (enable) {
             domibusSchedulerExt.resumeJobs(domainCode, FSPLUGIN_JOB_NAMES);
+            backendConnectorProviderExtService.backendConnectorEnabled(PLUGIN_NAME, domainCode);
         } else {
             domibusSchedulerExt.pauseJobs(domainCode, FSPLUGIN_JOB_NAMES);
+            backendConnectorProviderExtService.backendConnectorDisabled(PLUGIN_NAME, domainCode);
         }
     }
 
