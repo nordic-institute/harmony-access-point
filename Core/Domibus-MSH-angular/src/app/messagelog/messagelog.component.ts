@@ -410,6 +410,20 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
+  resendSelected(failedMessages: FailedMessagesCriteriaRO[]) {
+    console.log('Resending selected failed messages...', );
+
+    let url = MessageLogComponent.RESEND_SELECTED_URL;
+
+    this.http.put(url, failedMessages, {}).subscribe(res => {
+      this.alertService.success('The operation resend message completed successfully');
+      setTimeout(() => {
+        this.messageResent.emit();
+      }, 500);
+    }, err => {
+      this.alertService.exception('The message ' + this.alertService.escapeHtml('messageId') + ' could not be resent.', err);
+    });
+  }
   isResendButtonEnabledAction(row): boolean {
     return this.isRowResendButtonEnabled(row);
   }

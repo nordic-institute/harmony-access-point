@@ -73,16 +73,17 @@ public class MessageResource {
     }
 
     @RequestMapping(path = "/failed/restore/selected", method = RequestMethod.PUT)
-    public List<String> restoreSelectedFailedMessages(@RequestBody FailedMessagesCriteriaRO failedMessagesCriteriaRO) {
+    public List<String> restoreSelectedFailedMessages(@RequestBody List<String> messageIds) {
 
         LOG.info("In restoreSelectedFailedMessages...");
-        Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getFromDate());
-        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
         String originalUserFromSecurityContext = getUser();
+     /*   Long fromDateHour = dateExtService.getIdPkDateHour(entityIds.get(0).getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
+
         if (fromDateHour >= toDateHour) {
             throw getDatesValidationError();
-        }
-        return restoreService.batchRestoreFailedMessagesDuringPeriod(failedMessagesCriteriaRO.getMessageIds(), fromDateHour, toDateHour, null, originalUserFromSecurityContext);
+        }*/
+        return restoreService.batchRestoreFailedMessagesDuringPeriod(messageIds, null, null, null, originalUserFromSecurityContext);
     }
 
 
