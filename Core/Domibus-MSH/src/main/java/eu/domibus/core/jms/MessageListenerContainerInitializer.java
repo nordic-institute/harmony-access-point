@@ -79,6 +79,11 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         createInstancesFor(domains);
     }
 
+    @PreDestroy
+    public void destroy() {
+        stop(instances);
+    }
+
     @Override
     public void onDomainAdded(final Domain domain) {
         createInstancesFor(domain);
@@ -86,7 +91,38 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
     @Override
     public void onDomainRemoved(Domain domain) {
-        stopAndRemoveInstancesFor(domain);
+        List<DomainMessageListenerContainer> items = getInstancesByDomain(domain);
+        stopAndRemoveInstancesFor(items);
+    }
+
+    public void createSendMessageListenerContainer(Domain domain) {
+        LOG.info("Creating the SendMessageListenerContainer for domain [{}] ", domain);
+
+        DomainMessageListenerContainerImpl instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain, null, DOMIBUS_DISPATCHER_CONCURENCY);
+        instance.start();
+        instances.add(instance);
+        LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
+    }
+
+    public void createMessageListenersForPlugin(String backendName, Domain domain) {
+        DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
+
+        final Map.Entry<String, PluginMessageListenerContainer> entry = applicationContext.getBeansOfType(PluginMessageListenerContainer.class).entrySet()
+                .stream().filter(el -> el.getValue().getPluginName().equals(backendName)).findFirst().orElse(null);
+
+        createForPlugin(domain, domainDTO, entry);
+    }
+
+    public void destroyMessageListenersForPlugin(String backendName, Domain domain) {
+        List<DomainMessageListenerContainer> items = getInstancesByBackendAndDomain(backendName, domain);
+        stopAndRemoveInstancesFor(items);
+    }
+
+    public void setConcurrency(Domain domain, String beanName, String concurrency) {
+        DomainMessageListenerContainer instance = getInstanceByNameAndDomain(domain, beanName);
+        if (instance != null) {
+            instance.setConcurrency(concurrency);
+        }
     }
 
     private void createInstancesFor(List<Domain> domains) {
@@ -106,11 +142,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         createMessageListenersForPlugins(domain);
     }
 
-    @PreDestroy
-    public void destroy() {
-        stop(instances);
-    }
-
     /**
      * It will collect and instantiate all {@link PluginMessageListenerContainer} defined in plugins
      *
@@ -122,21 +153,24 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         final Map<String, PluginMessageListenerContainer> beansOfType = applicationContext.getBeansOfType(PluginMessageListenerContainer.class);
 
         for (Map.Entry<String, PluginMessageListenerContainer> entry : beansOfType.entrySet()) {
-            final String name = entry.getKey();
-            final PluginMessageListenerContainer containerFactory = entry.getValue();
-
-            MessageListenerContainer instance = containerFactory.createMessageListenerContainer(domainDTO);
-            // if null, domain is disabled
-            if (instance == null) {
-                LOG.info("Message listener container [{}] for domain [{}] returned null so exiting.", name, domain);
-                return;
-            }
-
-            DomainMessageListenerContainer adapter = new PluginDomainMessageListenerContainerAdapter(instance, domain, name);
-            instance.start();
-            instances.add(adapter);
-            LOG.info("{} initialized for domain [{}]", name, domain);
+            createForPlugin(domain, domainDTO, entry);
         }
+    }
+
+    private void createForPlugin(Domain domain, DomainDTO domainDTO, Map.Entry<String, PluginMessageListenerContainer> entry) {
+        final String name = entry.getKey();
+        final PluginMessageListenerContainer containerFactory = entry.getValue();
+
+        MessageListenerContainer instance = containerFactory.createMessageListenerContainer(domainDTO);
+        if (instance == null) {
+            LOG.info("Message listener container [{}] for domain [{}] returned null so exiting.", name, domain);
+            return;
+        }
+
+        DomainMessageListenerContainer adapter = new PluginDomainMessageListenerContainerAdapter(instance, domain, name, containerFactory.getPluginName());
+        instance.start();
+        instances.add(adapter);
+        LOG.info("{} initialized for domain [{}]", name, domain);
     }
 
     protected void createSendMessageListenerContainers(Domain domain) {
@@ -186,15 +220,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         LOG.debug("Determined selector [{}]", selector);
 
         return selector.toString();
-    }
-
-    public void createSendMessageListenerContainer(Domain domain) {
-        LOG.info("Creating the SendMessageListenerContainer for domain [{}] ", domain);
-
-        DomainMessageListenerContainerImpl instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain, null, DOMIBUS_DISPATCHER_CONCURENCY);
-        instance.start();
-        instances.add(instance);
-        LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
     }
 
     protected void createMessageListenersWithPriority(Domain domain, String messageListenerName, String selector, String concurrencyPropertyName) {
@@ -256,13 +281,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         LOG.info("EArchiveListenerContainer initialized for domain [{}]", domain);
     }
 
-    public void setConcurrency(Domain domain, String beanName, String concurrency) {
-        DomainMessageListenerContainer instance = getInstanceByNameAndDomain(domain, beanName);
-        if (instance != null) {
-            instance.setConcurrency(concurrency);
-        }
-    }
-
     private DomainMessageListenerContainer getInstanceByNameAndDomain(Domain domain, String beanName) {
         return instances.stream()
                 .filter(instance -> domain.equals(instance.getDomain()))
@@ -273,6 +291,14 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     private List<DomainMessageListenerContainer> getInstancesByDomain(Domain domain) {
         return instances.stream()
                 .filter(instance -> domain.equals(instance.getDomain()))
+                .collect(Collectors.toList());
+    }
+
+    private List<DomainMessageListenerContainer> getInstancesByBackendAndDomain(String backendName, Domain domain) {
+        return instances.stream()
+                .filter(instance -> instance instanceof PluginDomainMessageListenerContainerAdapter
+                        && backendName.equals(((PluginDomainMessageListenerContainerAdapter) instance).getPluginName())
+                        && domain.equals(instance.getDomain()))
                 .collect(Collectors.toList());
     }
 
@@ -292,8 +318,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         });
     }
 
-    private void stopAndRemoveInstancesFor(Domain domain) {
-        List<DomainMessageListenerContainer> items = getInstancesByDomain(domain);
+    private void stopAndRemoveInstancesFor(List<DomainMessageListenerContainer> items) {
         stop(items);
         items.forEach(item -> {
             instances.remove(item);
@@ -317,5 +342,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
             LOG.error("Error while stopping MessageListenerContainer", e);
         }
     }
+
 
 }

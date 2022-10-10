@@ -21,16 +21,22 @@ public class PluginDomainMessageListenerContainerAdapter implements DomainMessag
     private final MessageListenerContainer messageListenerContainer;
     private final Domain domain;
     private final String name;
+    private final String pluginName;
 
-    public PluginDomainMessageListenerContainerAdapter(MessageListenerContainer messageListenerContainer, Domain domain, String name) {
+    public PluginDomainMessageListenerContainerAdapter(MessageListenerContainer messageListenerContainer, Domain domain, String name, String pluginName) {
         this.domain = domain;
         this.messageListenerContainer = messageListenerContainer;
         this.name = name;
+        this.pluginName = pluginName;
     }
 
     @Override
     public MessageListenerContainer get() {
         return messageListenerContainer;
+    }
+
+    public String getPluginName() {
+        return pluginName;
     }
 
     public String getName() {

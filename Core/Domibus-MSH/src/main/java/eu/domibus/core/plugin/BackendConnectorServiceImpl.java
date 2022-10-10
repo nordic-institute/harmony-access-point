@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,14 +14,15 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Cosmin Baciu
- * @since 4.2
+ * @author Ion Perpegel
+ * @since 5.0
  */
 @Service
 public class BackendConnectorServiceImpl implements BackendConnectorService {
@@ -52,6 +54,7 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
                 EnableAware plugin = plugins.get(0);
                 LOG.warn("Cannot let all plugins to be disabled on domain [{}]. Enabling [{}].", domain, plugin.getName());
                 try {
+                    // nu e suficient acum pt ca pe alta interfata se incarca proprietatile lar cozile si joburile in alta parte
                     plugin.setEnabled(domain.getCode(), true);
                 } catch (DomibusPropertyException ex) {
                     LOG.error("Could not enable plugin [{}] on domain [{}]", plugin.getName(), domain, ex);
@@ -124,6 +127,5 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
         EnableAware enableAware = (EnableAware) plugin;
         return enableAware.isEnabled(currentDomain.getCode());
     }
-
 
 }

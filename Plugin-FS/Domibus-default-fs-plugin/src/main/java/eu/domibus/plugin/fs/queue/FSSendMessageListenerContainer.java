@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
+
 /**
  * FSPlugin Out {@code MessageListenerContainer} which implements {@code PluginMessageListenerContainer}
  *
@@ -31,6 +33,11 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
 
     @Autowired
     protected FSPluginProperties fsPluginProperties;
+
+    @Override
+    public String getPluginName() {
+        return PLUGIN_NAME;
+    }
 
     @Override
     public DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain) {

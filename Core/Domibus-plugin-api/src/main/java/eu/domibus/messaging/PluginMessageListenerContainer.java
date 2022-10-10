@@ -13,6 +13,8 @@ import org.springframework.jms.listener.MessageListenerContainer;
  */
 public interface PluginMessageListenerContainer {
 
+    String getPluginName();
+
     MessageListenerContainer createMessageListenerContainer(DomainDTO domain);
 
     void updateMessageListenerContainerConcurrency(DomainDTO domain, String concurrency);
