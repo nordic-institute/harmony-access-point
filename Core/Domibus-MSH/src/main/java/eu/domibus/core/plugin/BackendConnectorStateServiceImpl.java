@@ -2,7 +2,7 @@ package eu.domibus.core.plugin;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.plugin.BackendConnectorNotificationService;
+import eu.domibus.api.plugin.BackendConnectorStateService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,16 +13,16 @@ import org.springframework.stereotype.Service;
  * @since 5.0
  */
 @Service
-public class BackendConnectorNotificationServiceImpl implements BackendConnectorNotificationService {
+public class BackendConnectorStateServiceImpl implements BackendConnectorStateService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorNotificationServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorStateServiceImpl.class);
 
     protected final DomainService domainService;
     protected final DomainContextProvider domainContextProvider;
     protected final MessageListenerContainerInitializer messageListenerContainerInitializer;
 
-    public BackendConnectorNotificationServiceImpl(DomainService domainService, DomainContextProvider domainContextProvider,
-                                                   MessageListenerContainerInitializer messageListenerContainerInitializer) {
+    public BackendConnectorStateServiceImpl(DomainService domainService, DomainContextProvider domainContextProvider,
+                                            MessageListenerContainerInitializer messageListenerContainerInitializer) {
         this.domainService = domainService;
         this.domainContextProvider = domainContextProvider;
         this.messageListenerContainerInitializer = messageListenerContainerInitializer;

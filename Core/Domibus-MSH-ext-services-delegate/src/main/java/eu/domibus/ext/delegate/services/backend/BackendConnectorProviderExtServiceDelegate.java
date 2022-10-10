@@ -1,6 +1,6 @@
 package eu.domibus.ext.delegate.services.backend;
 
-import eu.domibus.api.plugin.BackendConnectorNotificationService;
+import eu.domibus.api.plugin.BackendConnectorStateService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import org.springframework.context.annotation.Lazy;
@@ -17,11 +17,11 @@ public class BackendConnectorProviderExtServiceDelegate implements BackendConnec
 
     private final BackendConnectorService backendConnectorService;
 
-    private final BackendConnectorNotificationService backendConnectorNotificationService;
+    private final BackendConnectorStateService backendConnectorStateService;
 
-    public BackendConnectorProviderExtServiceDelegate(@Lazy BackendConnectorService backendConnectorService, BackendConnectorNotificationService backendConnectorNotificationService) {
+    public BackendConnectorProviderExtServiceDelegate(@Lazy BackendConnectorService backendConnectorService, BackendConnectorStateService backendConnectorStateService) {
         this.backendConnectorService = backendConnectorService;
-        this.backendConnectorNotificationService = backendConnectorNotificationService;
+        this.backendConnectorStateService = backendConnectorStateService;
     }
 
     @Override
@@ -36,11 +36,11 @@ public class BackendConnectorProviderExtServiceDelegate implements BackendConnec
 
     @Override
     public void backendConnectorEnabled(String backendName, String domainCode) {
-        backendConnectorNotificationService.backendConnectorEnabled(backendName, domainCode);
+        backendConnectorStateService.backendConnectorEnabled(backendName, domainCode);
     }
 
     @Override
     public void backendConnectorDisabled(String backendName, String domainCode) {
-        backendConnectorNotificationService.backendConnectorDisabled(backendName, domainCode);
+        backendConnectorStateService.backendConnectorDisabled(backendName, domainCode);
     }
 }
