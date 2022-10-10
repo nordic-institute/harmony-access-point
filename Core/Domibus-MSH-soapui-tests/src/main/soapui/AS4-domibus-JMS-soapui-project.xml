@@ -5409,7 +5409,7 @@ messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
 messageMap.setStringProperty("payload_1_mimeType", "text/xml")
 messageMap.setStringProperty("payload_1_description", "message")
 
-def filePath=context.expand('${projectDir}')+"\\resources\\PModesandKeystoresSpecialTests\\fsPlugin\\standard\\Test_file.xml"
+def filePath=context.expand('${projectDir}')+"/resources/PModesandKeystoresSpecialTests/fsPlugin/standard/Test_file.xml"
 
 messageMap.setStringProperty("payload_1","file:///"+context.expand('${#Project#pdfAttachment}'));
 messageMap.setStringProperty("payload_1","file:///"+filePath);
