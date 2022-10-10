@@ -1508,14 +1508,14 @@
          <messageID>?</messageID>\r
       </eu:getErrorsRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getMessageErrors"/></con:call></con:operation><con:operation id="f6e1ecd9-6b9c-49bf-9b55-2594a803376f" isOneWay="false" action="" name="getStatus" bindingOperationName="getStatus" type="Request-Response" outputName="getStatusResponse" inputName="getStatus" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="4c70fe60-104c-4592-b3dc-623b235dbb90" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getMessageErrors"/></con:call></con:operation><con:operation id="f6e1ecd9-6b9c-49bf-9b55-2594a803376f" isOneWay="false" action="" name="getStatus" bindingOperationName="getStatus" type="Request-Response" outputName="getStatusResponse" inputName="getStatus" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="4c70fe60-104c-4592-b3dc-623b235dbb90" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:statusRequest>\r
          <messageID>?</messageID>\r
       </eu:statusRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/></con:call></con:operation><con:operation id="f1daae61-52cf-4c73-bef1-f329a8a1d738" isOneWay="false" action="" name="listPendingMessages" bindingOperationName="listPendingMessages" type="Request-Response" outputName="listPendingMessagesResponse" inputName="listPendingMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="036e7adc-c868-4f41-b675-61aeb4baaab2" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/getStatus"/></con:call></con:operation><con:operation id="f1daae61-52cf-4c73-bef1-f329a8a1d738" isOneWay="false" action="" name="listPendingMessages" bindingOperationName="listPendingMessages" type="Request-Response" outputName="listPendingMessagesResponse" inputName="listPendingMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="036e7adc-c868-4f41-b675-61aeb4baaab2" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:listPendingMessagesRequest>\r
@@ -1537,7 +1537,7 @@
          <receivedTo>?</receivedTo>\r
       </eu:listPendingMessagesRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/listPendingMessages"/></con:call></con:operation><con:operation id="b8456f24-813f-458a-88e4-8e2618f5b8d1" isOneWay="false" action="" name="listPushFailedMessages" bindingOperationName="listPushFailedMessages" type="Request-Response" outputName="listPushFailedMessagesResponse" inputName="listPushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="e797a24e-376b-431a-b057-b40e6b8f6b5a" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/listPendingMessages"/></con:call></con:operation><con:operation id="b8456f24-813f-458a-88e4-8e2618f5b8d1" isOneWay="false" action="" name="listPushFailedMessages" bindingOperationName="listPushFailedMessages" type="Request-Response" outputName="listPushFailedMessagesResponse" inputName="listPushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="e797a24e-376b-431a-b057-b40e6b8f6b5a" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:listPushFailedMessagesRequest>\r
@@ -1553,14 +1553,14 @@
          <receivedTo>?</receivedTo>\r
       </eu:listPushFailedMessagesRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/listPushFailedMessages"/></con:call></con:operation><con:operation id="87343fcb-7a8b-4e7a-bd58-d2b0b81ece55" isOneWay="false" action="" name="markMessageAsDownloaded" bindingOperationName="markMessageAsDownloaded" type="Request-Response" outputName="markMessageAsDownloadedResponse" inputName="markMessageAsDownloaded" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="8c11ecef-6a0d-406a-9709-69e39060b9ca" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/listPushFailedMessages"/></con:call></con:operation><con:operation id="87343fcb-7a8b-4e7a-bd58-d2b0b81ece55" isOneWay="false" action="" name="markMessageAsDownloaded" bindingOperationName="markMessageAsDownloaded" type="Request-Response" outputName="markMessageAsDownloadedResponse" inputName="markMessageAsDownloaded" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="8c11ecef-6a0d-406a-9709-69e39060b9ca" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:markMessageAsDownloadedRequest>\r
          <messageID>?</messageID>\r
       </eu:markMessageAsDownloadedRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/markMessageAsDownloaded"/></con:call></con:operation><con:operation id="81623c9c-5f8e-47f9-9290-ea269fbc2236" isOneWay="false" action="" name="rePushFailedMessages" bindingOperationName="rePushFailedMessages" type="Request-Response" outputName="rePushFailedMessagesResponse" inputName="rePushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="ec636a9a-d585-4d83-9e0e-dd9fa89a79a4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/markMessageAsDownloaded"/></con:call></con:operation><con:operation id="81623c9c-5f8e-47f9-9290-ea269fbc2236" isOneWay="false" action="" name="rePushFailedMessages" bindingOperationName="rePushFailedMessages" type="Request-Response" outputName="rePushFailedMessagesResponse" inputName="rePushFailedMessages" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="ec636a9a-d585-4d83-9e0e-dd9fa89a79a4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:rePushFailedMessagesRequest>\r
@@ -1568,14 +1568,14 @@
          <messageID>?</messageID>\r
       </eu:rePushFailedMessagesRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/rePushFailedMessages"/></con:call></con:operation><con:operation id="57ee4e19-8592-4282-946d-dcbcf9157c56" isOneWay="false" action="" name="retrieveMessage" bindingOperationName="retrieveMessage" type="Request-Response" outputName="retrieveMessageResponse" inputName="retrieveMessage" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="123dc288-f73b-4c3c-9d46-75d1f5347f02" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/rePushFailedMessages"/></con:call></con:operation><con:operation id="57ee4e19-8592-4282-946d-dcbcf9157c56" isOneWay="false" action="" name="retrieveMessage" bindingOperationName="retrieveMessage" type="Request-Response" outputName="retrieveMessageResponse" inputName="retrieveMessage" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="123dc288-f73b-4c3c-9d46-75d1f5347f02" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="http://eu.domibus.wsplugin/">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:retrieveMessageRequest markAsDownloaded="true">\r
          <messageID>?</messageID>\r
       </eu:retrieveMessageRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/retrieveMessage"/></con:call></con:operation><con:operation id="3047d6b6-b461-4f48-a0dd-48390fa83360" isOneWay="false" action="" name="submitMessage" bindingOperationName="submitMessage" type="Request-Response" outputName="submitMessageResponse" inputName="submitMessage" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="e3c411f9-f845-4ee7-81eb-18dde3ccf0f4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:eu="http://eu.domibus.wsplugin/">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/retrieveMessage"/></con:call></con:operation><con:operation id="3047d6b6-b461-4f48-a0dd-48390fa83360" isOneWay="false" action="" name="submitMessage" bindingOperationName="submitMessage" type="Request-Response" outputName="submitMessageResponse" inputName="submitMessage" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="e3c411f9-f845-4ee7-81eb-18dde3ccf0f4" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/domibus/services/wsplugin</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:eu="http://eu.domibus.wsplugin/">\r
    <soap:Header>\r
       <ns:Messaging mustUnderstand="?">\r
          <!--Optional:-->\r
@@ -1647,7 +1647,7 @@
          </payload>\r
       </eu:submitRequest>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/submitMessage"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="9e3f50dc-a102-4731-98d4-f04757de4d3a" wsaVersion="NONE" name="BackendServiceSoapBinding" type="wsdl" bindingName="{eu.domibus}BackendServiceSoapBinding" soapVersion="1_2" anonymous="optional" definition="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl"><con:part><con:url>file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="backendService" targetNamespace="eu.domibus" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="eu.domibus">
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://eu.domibus.wsplugin/WebServicePluginInterface/submitMessage"/></con:call></con:operation></con:interface><con:interface xsi:type="con:WsdlInterface" id="9e3f50dc-a102-4731-98d4-f04757de4d3a" wsaVersion="NONE" name="BackendServiceSoapBinding" type="wsdl" bindingName="{eu.domibus}BackendServiceSoapBinding" soapVersion="1_2" anonymous="optional" definition="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl"><con:part><con:url>file:/C:/work/digit/tools/domibus/5.1RC2/domibus-msh-distribution-5.1-20221004.095246-108-default-ws-plugin/conf/domibus/plugins/backend/BackendService.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="backendService" targetNamespace="eu.domibus" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="eu.domibus">
   <wsdl:types>
     <schema xmlns="http://www.w3.org/2001/XMLSchema">
       <import namespace="eu.domibus" schemaLocation="BackendService.xsd"/>
@@ -2080,7 +2080,7 @@
          <messageID>?</messageID>\r
       </eu:delete>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/delete"/></con:call></con:operation><con:operation id="e44ffe5e-bcff-430d-b7d4-47393f28f497" isOneWay="false" action="" name="deleteBatch" bindingOperationName="deleteBatch" type="Request-Response" outputName="deleteBatchResponse" inputName="deleteBatch" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="3c5a865d-f15c-45b9-a017-c66701ca8f29" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/delete"/></con:call></con:operation><con:operation id="e44ffe5e-bcff-430d-b7d4-47393f28f497" isOneWay="false" action="" name="deleteBatch" bindingOperationName="deleteBatch" type="Request-Response" outputName="deleteBatchResponse" inputName="deleteBatch" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="3c5a865d-f15c-45b9-a017-c66701ca8f29" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:deleteBatch>\r
@@ -2088,7 +2088,7 @@
          <messageIds>?</messageIds>\r
       </eu:deleteBatch>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/deleteBatch"/></con:call></con:operation><con:operation id="bdd25a1a-561b-4a0a-8f2d-1a25251d0b35" isOneWay="false" action="" name="messageStatusChange" bindingOperationName="messageStatusChange" type="Request-Response" outputName="messageStatusChangeResponse" inputName="messageStatusChange" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="6a8f090b-7804-4960-84a2-a7e783c0b0de" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/deleteBatch"/></con:call></con:operation><con:operation id="bdd25a1a-561b-4a0a-8f2d-1a25251d0b35" isOneWay="false" action="" name="messageStatusChange" bindingOperationName="messageStatusChange" type="Request-Response" outputName="messageStatusChangeResponse" inputName="messageStatusChange" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="6a8f090b-7804-4960-84a2-a7e783c0b0de" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:messageStatusChange>\r
@@ -2096,35 +2096,35 @@
          <messageStatus>?</messageStatus>\r
       </eu:messageStatusChange>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/messageStatusChange"/></con:call></con:operation><con:operation id="c591aeaf-658e-4b0b-b79b-14d028729e09" isOneWay="false" action="" name="receiveFailure" bindingOperationName="receiveFailure" type="Request-Response" outputName="receiveFailureResponse" inputName="receiveFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="71dc8509-894c-41ce-b1a8-91d7d6ef39ab" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/messageStatusChange"/></con:call></con:operation><con:operation id="c591aeaf-658e-4b0b-b79b-14d028729e09" isOneWay="false" action="" name="receiveFailure" bindingOperationName="receiveFailure" type="Request-Response" outputName="receiveFailureResponse" inputName="receiveFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="71dc8509-894c-41ce-b1a8-91d7d6ef39ab" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:receiveFailure>\r
          <messageID>?</messageID>\r
       </eu:receiveFailure>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveFailure"/></con:call></con:operation><con:operation id="5ba388a8-0ccf-4d11-9c32-013618ffd884" isOneWay="false" action="" name="receiveSuccess" bindingOperationName="receiveSuccess" type="Request-Response" outputName="receiveSuccessResponse" inputName="receiveSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="a5ade44f-5b6a-474f-8688-f35a4f286caa" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveFailure"/></con:call></con:operation><con:operation id="5ba388a8-0ccf-4d11-9c32-013618ffd884" isOneWay="false" action="" name="receiveSuccess" bindingOperationName="receiveSuccess" type="Request-Response" outputName="receiveSuccessResponse" inputName="receiveSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="a5ade44f-5b6a-474f-8688-f35a4f286caa" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:receiveSuccess>\r
          <messageID>?</messageID>\r
       </eu:receiveSuccess>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveSuccess"/></con:call></con:operation><con:operation id="260002e1-a7be-4dc8-9abb-dedb584ac7e1" isOneWay="false" action="" name="sendFailure" bindingOperationName="sendFailure" type="Request-Response" outputName="sendFailureResponse" inputName="sendFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="8a65afae-b0dd-4998-b503-6140d0850326" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/receiveSuccess"/></con:call></con:operation><con:operation id="260002e1-a7be-4dc8-9abb-dedb584ac7e1" isOneWay="false" action="" name="sendFailure" bindingOperationName="sendFailure" type="Request-Response" outputName="sendFailureResponse" inputName="sendFailure" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="8a65afae-b0dd-4998-b503-6140d0850326" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:sendFailure>\r
          <messageID>?</messageID>\r
       </eu:sendFailure>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendFailure"/></con:call></con:operation><con:operation id="414eb7d3-5ac1-4e16-9678-c0170ae593ff" isOneWay="false" action="" name="sendSuccess" bindingOperationName="sendSuccess" type="Request-Response" outputName="sendSuccessResponse" inputName="sendSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="5c292e14-8308-4b40-b12d-80847149732d" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendFailure"/></con:call></con:operation><con:operation id="414eb7d3-5ac1-4e16-9678-c0170ae593ff" isOneWay="false" action="" name="sendSuccess" bindingOperationName="sendSuccess" type="Request-Response" outputName="sendSuccessResponse" inputName="sendSuccess" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="5c292e14-8308-4b40-b12d-80847149732d" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/backend</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:eu="eu.domibus">\r
    <soap:Header/>\r
    <soap:Body>\r
       <eu:sendSuccess>\r
          <messageID>?</messageID>\r
       </eu:sendSuccess>\r
    </soap:Body>\r
-</soap:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendSuccess"/></con:call></con:operation></con:interface><con:testSuite id="ecb51f9d-a4c1-4d02-b805-30c82dad3934" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="89b9e9c1-5002-4967-89cc-e64407286583">
+</soap:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:wsaConfig mustUnderstand="NONE" version="200508" action="eu.domibus/BackendInterface/sendSuccess"/></con:call></con:operation></con:interface><con:testSuite id="ecb51f9d-a4c1-4d02-b805-30c82dad3934" name="Administration" disabled="true"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Clean Database" searchProperties="true" id="89b9e9c1-5002-4967-89cc-e64407286583">
             <con:settings/>
 
 
@@ -6854,7 +6854,1186 @@ Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner)
 test.cleanDBMessageID("-DomJMS050-")
 test.finalize()
 Domibus.reportTestCaseCsv(testRunner, log)
-</con:tearDownScript><con:properties/><con:reportParameters/></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="a375a32c-de66-47a0-ba0d-765bc2b78b38" name="JMS-oneway Push-Manual test cases"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS055-Manual-EDELIVERY-1706-JMS Monitoring: empty messages are not displayed" searchProperties="true" id="e5031b02-252a-4bda-a8d3-6139270525fd">
+</con:tearDownScript><con:properties/><con:reportParameters/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS074-SmartRetry-Default-Mecanism" searchProperties="true" id="8a7f01a3-bcf3-44c9-83c9-81b5b22a358c">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Update-Pmode-C3-Remove-tc11Action" id="83cd5ef9-dfbb-4df3-a731-9fbb1d2ec95e"><con:settings/><con:config><script>def side="c3"
+def nodename1="action"; def searchKey1="name"; def searchvalue1="tc11Action"; def attTochange1="value"; def newValue1="TC11Leg1random"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Pmode-C2-Update-Retry-2times-1min" id="ce4b83ed-152f-43bc-bec4-cd67bd1f6357"><con:settings/><con:config><script>def side="c2"
+def nodename1="receptionAwareness"; def searchKey1="name"; def searchvalue1="receptionAwareness"; def attTochange1="retry"; def newValue1="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Property-C2-domibus.msh.retry.cron" id="ca397836-4fed-498c-98b6-b7cdefbcb41a"><con:settings/><con:config><script>def custPropName="domibus.msh.retry.cron";
+// Get Domibus property value
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+// Set test case custom property
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="117b3b2c-66c8-48d6-b087-a8b7bf11d90b"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc11")
+messageMap.setStringProperty("action", "TC11Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushShortRetention")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS074-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="3575ffca-92c3-4b68-88a9-ec1aea82e9e7"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","","-DomJMS074-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="c1176055-ee0b-4cb5-a2e7-6528d93e2064"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="056ea6c7-b763-4d53-84e4-9621a353ff9a"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="caa6f0d3-4253-44e5-90c5-2f57fc053022"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="9fe9fb02-f27b-43de-9f0c-00883158c545"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS074"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="37a5d528-6ba6-42f4-8728-e58d4b4554e2"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="a7394b58-40eb-4bd7-89af-b4a746417fe9"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="3a88c2d6-33a9-4b15-a26b-7be6556d17fe"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS074"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="7b4455c6-ab1d-46c1-bae1-ca34047b810c"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","","-DomJMS074-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="c5e6ff4c-3f1b-4e23-8c97-56f883a6c16f"><con:settings/><con:config><script>def side="c2"
+def messageId="-DomJMS074-"
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="579e4ad9-b98d-4d3c-b700-664433be393e" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="ae856d28-4b2c-4bb8-aed6-ce500f95c306" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+// Reset property value
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith('-DomJMS074-')
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+//Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>c3_default_pmode</con:name><con:value/></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/10 * * * * ?</con:value></con:property><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>12991</con:value></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS075-SmartRetry Disabled-Monitoring Enabled-C3 Unreachable" searchProperties="true" id="f48ba6d9-009c-4b5e-90b2-c9a88cf239ab">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="cfbcc08a-416f-45c0-886d-85126ae82487"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="2f2ceeea-01ac-491f-ae01-3d8199673b09"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Disable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="c14934a9-576d-4445-8f21-4fa18c958f6f"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc11")
+messageMap.setStringProperty("action", "TC11Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushShortRetention")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS075-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="dce17200-8345-41cf-9292-0c43cb574368"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","","-DomJMS075-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="b4bf68c4-f54a-446a-be71-c7a1b07cc44b"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="7a16a5f1-986d-4a13-9e6c-e45f15501df5"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="08dbd1e3-5f89-4d3f-82ce-e8cb2423a7b4"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="41c4c44b-b561-4c6a-8577-199f6d63209c"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS075"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="475e3485-db75-404a-ba4e-a20bc6133ae0"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="1e3c3270-802a-4743-b0fa-2621f8f7b3c7"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="bbeea58d-22e7-440b-96bd-c2054be10184"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS075"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="2d9f23a9-fe4c-46fa-b307-4acc844990a7"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","","-DomJMS075-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="3125689a-7b6d-4cbc-a156-c6e9d5bfcaa9"><con:settings/><con:config><script>def side="c2"
+def messageId="-DomJMS075-"
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="3537a1e6-6828-490b-843f-4da062b52bf4" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="3fa64733-e845-4fa1-ade9-3d0717d2326a" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith('-DomJMS075-')
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/10 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value>domibus-red</con:value></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0/20 * * * * ?</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>16329</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS076-SmartRetry Enabled-Monitoring Disabled-C3 Unreachable-No history" searchProperties="true" id="e0c45eba-122a-4837-90bd-979c8c982df8">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="0c296ea7-47fd-4c19-aa72-0655b926e648"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="f1c087c9-a372-4d11-aac0-4bd1168e4469"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Disable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Delete Monitoring History" id="5153e6a6-f9ad-49b2-885c-1a0c33d5fece"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.cleanDatabaseTestMessagesAll()
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="72a2ff5b-f78d-4c59-a7c7-cf3b6d24c68c"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc11")
+messageMap.setStringProperty("action", "TC11Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushShortRetention")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS076-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="0e59a4d4-8fa4-4896-87c4-07d741edd467"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","","-DomJMS076-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="38ab6942-6207-4072-aac8-5a4a1bd1dc19"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="1cd5c4e1-6ce2-4852-80f9-05520139aee8"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="b12e8228-79e5-4d0d-8a50-968281c2075b"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="fd5526f9-3ed2-489d-874c-cc8743afefe9"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS076"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="5c7c4ec1-a7b2-46b9-ad26-cbe966098424"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="3bc096de-c6bf-45ef-b6ae-b0f789dabdc1"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="e698d5c5-167a-4a62-96a6-412a3a3de614"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS076"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="d78e4a4b-72ad-48f1-9d49-17c895fd24c7"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","","-DomJMS076-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="c57707f4-9636-4f4f-a684-196a2a8b9cce"><con:settings/><con:config><script>def side="c2"
+def messageId="-DomJMS076-"
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="0d3447de-b3f7-491f-8d76-e25a278bc489" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="31c769f5-ae2a-4836-b6e8-905094613260" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith(context.expand('-DomJMS076-')
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_gw">
+	<mpcs>
+		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="600" retention_undownloaded="600"/>
+		<mpc name="mpcPushStandard" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+		<mpc name="mpcPushRetDownNull" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCWS" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="3600"/>
+		<mpc name="mpcPushShortRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushShortRetention" enabled="true" default="true" retention_downloaded="6" retention_undownloaded="10"/>
+		<mpc name="mpcPull" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPull" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
+		<mpc name="mpcPullRetDownNull" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullRetDownNull" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="600"/>
+		<mpc name="mpcPullSignOnly" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullSignOnly" enabled="true" default="true" retention_downloaded="600" retention_undownloaded="600"/>
+		<mpc name="mpcPullDoNothing" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullDoNothing" enabled="true" default="true" retention_downloaded="5" retention_undownloaded="600"/>
+		<mpc name="mpcPullSelfSend" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullSelfSend" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
+		<mpc name="mpcPullShortRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullShortRetention" enabled="true" default="true" retention_downloaded="1" retention_undownloaded="2"/>
+		<mpc name="mpcPullAgrNoPayProfile" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullAgrNoPayProfile" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+		<mpc name="mpcPullForPush" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPullForPush" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+	</mpcs>
+	<businessProcesses>
+		<roles>
+			<role name="defaultInitiatorRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+			<role name="defaultResponderRole" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+			<role name="defaultInitiatorRoleEmpty" value=" "/>
+			<role name="defaultResponderRoleEmpty" value=" "/>
+			<role name="peppolSenderRole" value="urn:fdc:peppol.eu:2017:roles:ap:sender"/>
+			<role name="peppolReceiverRole" value="urn:fdc:peppol.eu:2017:roles:ap:receiver"/>
+		</roles>
+		<parties>
+			<partyIdTypes>
+				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+			</partyIdTypes>
+			<party name="red_gw" endpoint="http://localhost:8888/domibus/services/msh" allowChunking="false">
+				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="blue_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
+				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="white_gw" endpoint="http://localhost:8080/domibus/services/msh" allowChunking="false">
+				<identifier partyId="domibus-white" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="black_gw" endpoint="http://localhost:8888/domibus/services/msh" allowChunking="false">
+				<identifier partyId="domibus-black" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="green_gw" endpoint="http://localhost:8280/domibus/services/msh" allowChunking="false">
+				<identifier partyId="domibus-green" partyIdType="partyTypeUrn"/>
+			</party>
+			<party name="yellow_gw" endpoint="http://localhost:8989/domibus/services/msh" allowChunking="false">
+				<identifier partyId="domibus-yellow" partyIdType="partyTypeUrn"/>
+			</party>
+		</parties>
+		<meps>
+			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
+			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
+			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+			<binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
+			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
+		</meps>
+		<properties>
+			<property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+			<property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
+			<property name="propWithoutTypeProperty" key="propWithoutType" datatype="string" required="false"/>
+			<property name="propWithTypeProperty" key="propWithType" datatype="string" required="false"/>
+			<propertySet name="ecodexPropertySet">
+				<propertyRef property="finalRecipientProperty"/>
+				<propertyRef property="originalSenderProperty"/>
+				<propertyRef property="propWithoutTypeProperty"/>
+				<propertyRef property="propWithTypeProperty"/>
+			</propertySet>
+			<propertySet name="twoCornersPropertySet">
+				<propertyRef property="propWithoutTypeProperty"/>
+				<propertyRef property="propWithTypeProperty"/>
+			</propertySet>
+		</properties>
+		<payloadProfiles>
+			<payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml" inBody="false"/>
+			<payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf" inBody="false"/>
+			<payload name="textbusinessContentAttachment" cid="cid:txtattachment" required="false" mimeType="text/plain" inBody="false"/>
+			<payload name="octetStreambusinessContentAttachment" cid="cid:osattachment" required="false" mimeType="application/octet-stream" inBody="false"/>
+			<payload name="businessContentPayloadInBody" cid="" required="true" mimeType="text/xml" inBody="true"/>
+			<payload name="businessContentPayloadInBodyTwo" cid="" required="true" mimeType="application/xml" inBody="true"/>
+			<payloadProfile name="MessageProfile" maxSize="2147483647">
+				<attachment name="businessContentPayload"/>
+				<attachment name="businessContentAttachment"/>
+				<attachment name="textbusinessContentAttachment"/>
+				<attachment name="octetStreambusinessContentAttachment"/>
+			</payloadProfile>
+			<payloadProfile name="MessageProfilePayloadInBody" maxSize="2147483647">
+				<attachment name="businessContentPayloadInBody"/>
+				<attachment name="businessContentAttachment"/>
+			</payloadProfile>
+			<payloadProfile name="MessageProfilePayloadInBodyTwo" maxSize="2147483647">
+				<attachment name="businessContentPayloadInBodyTwo"/>
+				<attachment name="businessContentAttachment"/>
+			</payloadProfile>
+			<payloadProfile name="MessageProfilePayloadOptionalAttachment" maxSize="2147483647">
+				<attachment name="businessContentAttachment"/>
+			</payloadProfile>
+		</payloadProfiles>
+		<securities>
+			<security name="eDeliveryAS4Policy" policy="eDeliveryAS4Policy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="noSigNoEnc" policy="doNothingPolicy.xml" signatureMethod="RSA_SHA256"/>
+			<security name="signOnly" policy="signOnly.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4Policy_BST" policy="eDeliveryAS4Policy_BST.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4Policy_IS" policy="eDeliveryAS4Policy_IS.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4PolicyEncryptBody" policy="eDeliveryAS4PolicyEncryptBody.xml" signatureMethod="RSA_SHA256"/>
+			<security name="eDeliveryAS4PolicyNoBodyEncrypt" policy="eDeliveryAS4PolicyNoBodyEncrypt.xml" signatureMethod="RSA_SHA256"/>
+			<!--<security name="eDeliveryAS4PolicyRSA" policy="eDeliveryAS4Policy.xml" profile="RSA"/>-->
+			<!--<security name="eDeliveryAS4PolicyECC" policy="eDeliveryAS4Policy.xml" profile="ECC"/>-->
+		</securities>
+		<errorHandlings>
+			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
+			<errorHandling name="secondErrorHandlingAllTrue" errorAsResponse="true" businessErrorNotifyProducer="true" businessErrorNotifyConsumer="true" deliveryFailureNotifyProducer="true"/>
+		</errorHandlings>
+		<agreements>
+			<agreement name="agreementEmpty" value="" type=""/>
+			<agreement name="agreementDummy" value="DummyAgr" type="DUM"/>
+			<agreement name="agreement1" value="A1" type=""/>
+			<agreement name="agreement2" value="A2" type=""/>
+			<agreement name="agreement3" value="A3" type=""/>
+			<agreement name="agreementForDomJMS020" value="agreementForDomJMS020Value" type=""/>
+			<agreement name="agreementForDomJMS023" value="agreementForDomJMS023Value" type="random"/>
+		</agreements>
+		<services>
+			<service name="testService1" value="bdx:noprocess" type="tc1"/>
+			<service name="testService2" value="bdx:noprocess" type="tc2"/>
+			<service name="testService3" value="bdx:noprocess" type="tc3"/>
+			<service name="testService4" value="bdx:noprocess" type="tc4"/>
+			<service name="testService7" value="bdx:noprocess" type="tc7"/>
+			<service name="testService07" value="bdx:noprocess" type="tc07"/>
+			<service name="testService8" value="bdx:noprocess" type="tc8"/>
+			<service name="testService10" value="bdx:noprocess" type="tc10"/>
+			<service name="testService11" value="bdx:noprocess" type="tc11"/>
+			<service name="testService13" value="bdx:noprocess" type="tc13"/>
+			<service name="testService15" value="bdx:noprocess" type="tc15"/>
+			<service name="testService16" value="bdx:noprocess" type="tc16"/>
+			<service name="testService17" value="bdx:noprocess" type="tc17"/>
+			<service name="testService18" value="bdx:noprocess" type="tc18"/>
+			<service name="testService19" value="bdx:noprocess" type="tc19"/>
+			<service name="testService20" value="bdx:noprocess" type="tc20"/>
+			<service name="testService21" value="bdx:noprocess" type="tc21"/>
+			<service name="testService22" value="bdx:noprocess" type="tc22"/>
+			<service name="testService23" value="bdx:noprocess" type="tc23"/>
+			<service name="testService24" value="bdx:noprocess" type="tc24"/>
+			<service name="testService25" value="bdx:noprocess" type="tc25"/>
+			<service name="testService26" value="bdx:noprocess" type="tc26"/>
+			<service name="connectivityservice" value="http://ec.europa.eu/e-delivery/services/connectivity-service" type="edelivery"/>
+			<service name="InboxBundleTransmissionService" value="InboxBundleTransmissionService" type="eDeliverySecond"/>
+			<service name="testService27" value="bdx:noprocess" type="tc27"/>
+			<service name="testService28" value="bdx:noprocess" type="tc28"/>
+			<service name="testService31" value="bdx:noprocess" type="tc31"/>
+			<service name="testService32" value="bdx:noprocess" type="tc32"/>
+			<service name="testService36" value="bdx:noprocess" type="tc36"/>
+			<service name="testService38" value="bdx:noprocess" type="tc38"/>
+			<service name="testService39" value="bdx:noprocess" type="tc39"/>
+			<service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
+			<service name="testServiceUntyped" value="bdx:noprocessuntyped"/>
+		</services>
+		<actions>
+			<action name="tc1Action" value="TC1Leg1"/>
+			<action name="tc2Action" value="TC2Leg1"/>
+			<action name="tc3Action" value="TC3Leg1"/>
+			<action name="tc4Action" value="TC4Leg1"/>
+			<action name="tc7Action" value="TC7Leg1"/>
+			<action name="tc07Action" value="TC07Leg1"/>
+			<action name="tc8Action" value="TC8Leg1"/>
+			<action name="tc10Action" value="TC10Leg1"/>
+			<action name="tc11Action" value="TC11Leg1"/>
+			<action name="tc13Action" value="TC13Leg1"/>
+			<action name="tc15Action" value="TC15Leg1"/>
+			<action name="tc16Action" value="TC16Leg1"/>
+			<action name="tc17Action" value="TC17Leg1"/>
+			<action name="tc18Action" value="TC18Leg1"/>
+			<action name="tc19Action" value="TC19Leg1"/>
+			<action name="tc20Action" value="TC20Leg1"/>
+			<action name="tc21Action" value="TC21Leg1"/>
+			<action name="tc22Action" value="TC22Leg1"/>
+			<action name="tc23Action" value="TC23Leg1"/>
+			<action name="tc24Action" value="TC24Leg1"/>
+			<action name="tc25Action" value="TC25Leg1"/>
+			<action name="tc26Action" value="TC26Leg1"/>
+			<action name="submitMessage" value="submitMessage"/>
+			<action name="ackInboxBundleNotification" value="AckInboxBundleNotification"/>
+			<action name="tc27Action" value="TC27Leg1"/>
+			<action name="tc28Action" value="TC28Leg1"/>
+			<action name="tc31Action" value="TC31Leg1"/>
+			<action name="tc33Action" value="TC33Leg1"/>
+			<action name="tc36Action" value="TC36Leg1"/>
+			<action name="tc38Action" value="TC38Leg1"/>
+			<action name="tc39Action" value="TC39Leg1"/>
+			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
+		</actions>
+		<as4>
+			<receptionAwareness name="receptionAwareness" retry="2;2;CONSTANT" duplicateDetection="true"/>
+			<receptionAwareness name="receptionOnlyOneAttempt" retry="0;0;CONSTANT" duplicateDetection="true"/>
+			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+			<reliability name="noReliability" nonRepudiation="false" replyPattern="response"/>
+		</as4>
+		<splittingConfigurations>
+			<splitting name="default" fragmentSize="20" compression="true" joinInterval="1440"/>
+		</splittingConfigurations>
+		<legConfigurations>
+			<legConfiguration name="pushTestcase1tc1Action" service="testService1" action="tc1Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase2tc1Action" service="testService2" action="tc2Action" defaultMpc="defaultMpc" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pushTestcase3tc1Action" service="testService3" action="tc3Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="signOnly" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase4tc1Action" service="testService4" action="tc4Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase7tc7Action" service="testService7" action="tc7Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase07tc07Action" service="testService07" action="tc07Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase8tc8Action" service="testService8" action="tc8Action" defaultMpc="mpcPushShortRetention" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase10tc10Action" service="testService10" action="tc10Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase11tc11Action" service="testService11" action="tc11Action" defaultMpc="mpcPushShortRetention" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushConnectivityTest" service="connectivityservice" action="submitMessage" defaultMpc="defaultMpc" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pullTestcase13tc13Action" service="testService13" action="tc13Action" defaultMpc="mpcPull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pullTestcase15tc15Action" service="testService15" action="tc15Action" defaultMpc="mpcPullRetDownNull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pullTestcase16tc16Action" service="testService16" action="tc16Action" defaultMpc="mpcPullSignOnly" reliability="AS4Reliability" security="signOnly" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pullTestcase17tc17Action" service="testService17" action="tc17Action" defaultMpc="mpcPullDoNothing" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pullTestcase18tc18Action" service="testService18" action="tc18Action" defaultMpc="mpcPullSelfSend" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase19tc19Action" service="testService19" action="tc19Action" defaultMpc="mpcPushStandard" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pushTestcase20tc20Action" service="testService20" action="tc20Action" defaultMpc="mpcPushStandard" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pushTestcase21tc21Action" service="testService21" action="tc21Action" defaultMpc="mpcPushStandard" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pullTestcase22tc22Action" service="testService22" action="tc22Action" defaultMpc="mpcPullAgrNoPayProfile" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="false"/>
+			<legConfiguration name="pushTestcase23tc23Action" service="testService23" action="tc23Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_IS" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase24tc24Action" service="testService24" action="tc24Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBody" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase25tc25Action" service="testService25" action="tc25Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyEncryptBody" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBodyTwo" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase26tc26Action" service="testService26" action="tc26Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4PolicyNoBodyEncrypt" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadInBody" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="backendToNodeAckBundleTxResponse" service="InboxBundleTransmissionService" action="ackInboxBundleNotification" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase27tc27Action" service="testService27" action="tc27Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfilePayloadOptionalAttachment" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="testServiceCase" service="testService" action="testAction" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pullTestcase28tc28Action" service="testService28" action="tc28Action" defaultMpc="mpcPullShortRetention" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase31tc31Action" service="testService31" action="tc31Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase33tc33Action" service="testService32" action="tc33Action" splitting="default" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase34tc34Action" service="testServiceUntyped" action="tc10Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase35tc35Action" service="testServiceUntyped" action="tc33Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="twoCornersPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase36tc36Action" service="testService36" action="tc36Action" defaultMpc="mpcPushRetDownNull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase38tc38Action" service="testService38" action="tc38Action" defaultMpc="mpcPushRetDownNull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionOnlyOneAttempt" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
+			<legConfiguration name="pullTestcase39tc39Action" service="testService39" action="tc39Action" defaultMpc="mpcPullForPush" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
+		</legConfigurations>
+		<process name="tc1Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+				<initiatorParty name="black_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="white_gw"/>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+				<responderParty name="yellow_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase1tc1Action"/>
+				<leg name="pushTestcase2tc1Action"/>
+				<leg name="pushTestcase3tc1Action"/>
+				<leg name="pushTestcase7tc7Action"/>
+				<leg name="pushTestcase07tc07Action"/>
+			</legs>
+		</process>
+		<process name="tc4Process" agreement="agreementDummy" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+				<initiatorParty name="black_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="white_gw"/>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase4tc1Action"/>
+			</legs>
+		</process>
+		<process name="tc8Process" agreement="agreementForDomJMS020" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase8tc8Action"/>
+			</legs>
+		</process>
+		<process name="tc10Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase10tc10Action"/>
+				<leg name="pushTestcase11tc11Action"/>
+				<leg name="pushTestcase19tc19Action"/>
+				<leg name="pushTestcase23tc23Action"/>
+				<leg name="pushTestcase24tc24Action"/>
+				<leg name="pushTestcase25tc25Action"/>
+				<leg name="pushTestcase26tc26Action"/>
+				<leg name="pushTestcase31tc31Action"/>
+				<leg name="pushTestcase33tc33Action"/>
+				<leg name="pushTestcase34tc34Action"/>
+				<leg name="pushTestcase35tc35Action"/>
+				<leg name="pushTestcase36tc36Action"/>
+				<leg name="pushTestcase38tc38Action"/>
+				<leg name="testServiceCase"/>
+				<leg name="pushConnectivityTest"/>
+				<leg name="backendToNodeAckBundleTxResponse"/>
+			</legs>
+		</process>
+		<process name="tc13Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase13tc13Action"/>
+			</legs>
+		</process>
+		<process name="tc15Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase15tc15Action"/>
+			</legs>
+		</process>
+		<process name="tc16Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase16tc16Action"/>
+			</legs>
+		</process>
+		<process name="tc17Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase17tc17Action"/>
+			</legs>
+		</process>
+		<process name="tc18Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase18tc18Action"/>
+			</legs>
+		</process>
+		<process name="tc20Process" agreement="agreementDummy" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+				<initiatorParty name="black_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+				<responderParty name="white_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase20tc20Action"/>
+			</legs>
+		</process>
+		<process name="tc21Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+				<initiatorParty name="white_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+				<responderParty name="white_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase21tc21Action"/>
+			</legs>
+		</process>
+		<process name="tc22Process" agreement="agreementDummy" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase22tc22Action"/>
+			</legs>
+		</process>
+		<process name="tc27Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="peppolSenderRole" responderRole="peppolReceiverRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase27tc27Action"/>
+			</legs>
+		</process>
+		<process name="tc28Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase28tc28Action"/>
+			</legs>
+		</process>
+		<process name="tc39Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pullTestcase39tc39Action"/>
+			</legs>
+		</process>
+	</businessProcesses>
+</db:configuration>
+
+]]></con:value></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/10 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value>domibus-red</con:value></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0/20 * * * * ?</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>24448</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS077-SmartRetry Enabled-Monitoring Enabled-C3 Unreachable" searchProperties="true" id="e2d79d33-612a-4317-961c-030e2c8292a2">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Endpoint C3" id="bb649315-8fde-4ca5-b9f0-2542b3dbe341"><con:settings/><con:config><script>def side="c2"
+def nodename1="party"; def searchKey1="name"; def searchvalue1="red_gw"; def attTochange1="endpoint"; def newValue1="http://localhost:8888/domibus/services/msh"
+def nodename2="receptionAwareness"; def searchKey2="name"; def searchvalue2="receptionAwareness"; def attTochange2="retry"; def newValue2="2;2;CONSTANT"
+
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1",(nodename2):"$searchKey2#$searchvalue2#$attTochange2#$newValue2"]
+
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="a985900b-7d20-4847-b672-2afc9999d317"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="0b30d048-e609-4256-b9e5-7bdbfce5a63d"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc11")
+messageMap.setStringProperty("action", "TC11Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushShortRetention")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS077-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="dbc45b7e-2cc1-4f46-a50d-3bc1167f42c1"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","","-DomJMS077-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="0702e4e0-a28b-4cc0-a389-15800a0915ad"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="b41f86f1-ccb3-4176-9343-5ccf8be22a34"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="edb3e556-f32c-46ab-9f8e-82d1f4405758"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="a2a34df1-8c43-42c6-8312-a2363191cc3f"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS077"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="35261ffe-4827-478a-9cac-2cec0817e927"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="fb5d66d4-5a4e-43be-b87e-00d1889f222f"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="75077266-d54d-4f49-a806-fb3a633c8663"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS077"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="09588a51-6ba2-4911-a142-772de5f109ab"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","","-DomJMS077-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="d11fe1ba-bde9-4d11-b5b4-37f81f04484d"><con:settings/><con:config><script>def side="c2"
+def messageId="-DomJMS077-"
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="4008e6d1-9e90-41dc-8691-ef67d627ab4f" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="93a02fed-7007-43cf-989a-65560c8f245a" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith('-DomJMS077-')
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/10 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value>domibus-red</con:value></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0/20 * * * * ?</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>20136</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS078-SmartRetry Enabled-Monitoring Enabled-C3 Reachable" searchProperties="true" id="31830e1e-56eb-4d8b-b9a1-b1822409252a">
+            <con:settings/>
+
+
+
+
+
+
+
+
+
+
+
+
+            <con:testStep type="groovy" name="Update-Pmode-C2-Retry Interval-Remove tc11Action" id="47e542e4-2c2f-4d0e-93c8-61df31426a0f"><con:settings/><con:config><script>def side="c2"
+def nodename1="receptionAwareness"; def searchKey1="name"; def searchvalue1="receptionAwareness"; def attTochange1="retry"; def newValue1="2;2;CONSTANT"
+def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)
+
+side="c3"
+nodename1="action"; searchKey1="name"; searchvalue1="tc11Action"; attTochange1="value"; newValue1="TC11Leg1random"
+parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
+PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="fd10e327-be9a-4741-9cba-1f494c489668"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
+def custPropName="domibus.msh.retry.cron";
+def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
+sleep(2000);
+
+// Enable Monitoring C3 domibus-red
+custPropName="domibus.monitoring.connection.party.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);
+
+// Update cron job to monitor connection to every 10 seconds
+custPropName="domibus.monitoring.connection.cron";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
+sleep(2000);
+
+
+// Enable smart retry C3 domibus-red
+custPropName="domibus.smart.retry.enabled";
+propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
+sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="9d977595-8df1-42bf-8233-d87d465b13c5"><con:settings/><con:config><script>import javax.jms.*
+import eu.domibus.test.jms.DomibusJMSPlugin
+
+def MapMessage messageMap = null
+def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+
+messageMap.setStringProperty("messageType", "submitMessage")
+messageMap.setStringProperty("service", "bdx:noprocess")
+messageMap.setStringProperty("serviceType", "tc11")
+messageMap.setStringProperty("action", "TC11Leg1")
+messageMap.setStringProperty("fromPartyId", "domibus-blue")
+messageMap.setStringProperty("fromPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("toPartyId", "domibus-red")
+messageMap.setStringProperty("toPartyType", "urn:oasis:names:tc:ebcore:partyid-type:unregistered")
+messageMap.setStringProperty("fromRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator")
+messageMap.setStringProperty("toRole", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder")
+messageMap.setStringProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1")
+messageMap.setStringProperty("finalRecipient", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4")
+messageMap.setStringProperty("mpc", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushShortRetention")
+messageMap.setStringProperty("protocol", "AS4")
+
+domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
+
+messageMap.setStringProperty("messageId", "-DomJMS078-")
+
+messageMap.setStringProperty("totalNumberOfPayloads", "1")
+messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
+messageMap.setStringProperty("payload_1_mimeType", "text/xml")
+messageMap.setStringProperty("payload_1_description", "message")
+String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
+byte[] payload = pay1.getBytes()
+messageMap.setBytes("payload_1", payload)
+domUtils.sendMessageAndClean(messageMap)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Message Status" id="b727b2b8-0633-4727-9aae-774b4a31ce54"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("WAITING_FOR_RETRY","","-DomJMS078-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="c828d587-ab76-4d17-a79d-c9b5fd086d49"><con:settings/><con:config><delay>5000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 1" id="00aa990b-fc85-4eb7-91fb-5a42ff2fe811"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 1" id="0ecc618e-e7c4-43cf-8a4f-5c20cc57ba89"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 1 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 1" id="e3a4a7ba-3f16-43df-8d49-854aaa30c187"><con:settings/><con:config><script>log.info "==== Checking the logs for the first re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS078"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Starting line in Logfile 2" id="9eca35a7-05bc-4bbf-9896-3e61158271b3"><con:settings/><con:config><script>LogUtils.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)
+
+
+</script></con:config></con:testStep><con:testStep type="groovy" name="Wait for retry event 2" id="7d199542-e65d-4c24-b710-e21842d3ace4"><con:settings/><con:config><script>def waitPropValue=context.expand('${#TestCase#waitPropValue}')
+
+log.info "==== Waiting for the retry timeout 2 to expire"
+sleep((waitPropValue as Integer)*1000);
+log.info "==== Done"
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check sending message Log 2" id="2d540407-1af8-4a4b-bb7b-ffb6669ecdc3"><con:settings/><con:config><script>log.info "==== Checking the logs for the second re-send attempt"
+def logValueList =  ["EbMS3 exception occurred when sending message with ID.*DomJMS078"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,true);
+
+logValueList =  ["NullPointerException"];
+LogUtils.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner,false);
+</script></con:config></con:testStep><con:testStep type="groovy" name="Check message status-Failure" id="b3322399-a596-4d18-9a42-8d509ee7fcd8"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("SEND_FAILURE","","-DomJMS078-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check send attempts-Value" id="ba775fc9-d539-48e3-8101-75d659bde61a"><con:settings/><con:config><script>def side="c2"
+def messageId="-DomJMS078-"
+def expectedValue=3
+
+def test = new Domibus(log,null,context);
+test.checkSendAttemptsValue(side,messageId,expectedValue)
+test.finalize();
+
+
+log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="05279334-cb9b-47d0-8983-b918430ff5cd" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="2addf8d7-c619-4fb7-9c04-3254cbe85b43" disabled="true"><con:settings/><con:config><script>// C2
+def custPropName="domibus.msh.retry.cron";
+def defPropValue="0/30 * * * * ?";
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.party.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.monitoring.connection.cron";
+defPropValue="0 0 0/2 ? * * *";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);
+
+
+custPropName="domibus.smart.retry.enabled";
+defPropValue=" ";
+propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
+sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
+test.cleanDBMessageIDStartsWith('-DomJMS078-')
+test.finalize();
+testRunner.testCase.testSteps['Reset Pmode Defaults'].run(testRunner, context);
+testRunner.testCase.testSteps['Reset C2 properties'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>waitPropValue</con:name><con:value>65</con:value></con:property><con:property><con:name>c2_default_pmode</con:name><con:value/></con:property><con:property><con:name>domibus.msh.retry.cron</con:name><con:value>0/10 * * * * ?</con:value></con:property><con:property><con:name>domibus.monitoring.connection.party.enabled</con:name><con:value>domibus-red</con:value></con:property><con:property><con:name>domibus.monitoring.connection.cron</con:name><con:value>0/20 * * * * ?</con:value></con:property><con:property><con:name>skipNumberOfLines</con:name><con:value>23173</con:value></con:property><con:property><con:name>domibus.smart.retry.enabled</con:name><con:value/></con:property><con:property><con:name>c3_default_pmode</con:name><con:value/></con:property></con:properties>
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="a375a32c-de66-47a0-ba0d-765bc2b78b38" name="JMS-oneway Push-Manual test cases"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS055-Manual-EDELIVERY-1706-JMS Monitoring: empty messages are not displayed" searchProperties="true" id="e5031b02-252a-4bda-a8d3-6139270525fd">
             <con:settings/>
 
 
@@ -9687,4 +10866,4 @@ Domibus.removePluginUser("C2",context,log,"domibus_C2Dom2","userC1C2Dom2")
 Domibus.removePluginUser("C3",context,log,"Default","userC4");</script></con:config></con:testStep><con:testStep type="groovy" name="Delete Message" id="55fc2258-e04a-46a1-b547-9728d6442e3f" disabled="true"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith(context.expand('-DomX60-'))
 test.finalize()
-</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>C:/ec/blue/domibus/</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>C:/ec/red/domibus/</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}\\reports\\Domibus_SoapUI_report.csv</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>true</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>C:/domibus/greenReceiver/domibus/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}\\resources\\fileSmall.pdf </con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresDefault</con:value></con:property><con:property><con:name>testEnvUrl</con:name><con:value>http://104.40.147.186:7005/domibus</con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}\\resources\\videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"},  "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}, "C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom1?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}, "C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom2?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}}bc:oracle:thin:@localhost:1522/ORCL","dbUser":"domibus_red","dbPassword":"domibus_red"}}</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>pluginAdminC2Default</con:name><con:value>pa_c2dom1</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>false</con:value></con:property><con:property><con:name>pluginAdminC3Default</con:name><con:value>pa_c3dom1</con:value></con:property><con:property><con:name>allJMSDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","jmsClientType":"tomcat","jmsUrl":"tcp://localhost:61616","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":"jms/RemoteConnectionFactory"},"C3Default":{"site":"C3","jmsClientType":"tomcat","jmsUrl":"tcp://localhost:61716","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":"jms/RemoteConnectionFactory"}}</con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>
+</script></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:requirements/><con:properties><con:property><con:name>localUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeSender</con:name><con:value>${#Project#pathBlue}bin/</con:value></con:property><con:property><con:name>pathBlue</con:name><con:value>C:/ec/blue/domibus/</con:value></con:property><con:property><con:name>remoteUrl</con:name><con:value>http://localhost:8180/domibus</con:value></con:property><con:property><con:name>pathExeReceiver</con:name><con:value>${#Project#pathRed}bin/</con:value></con:property><con:property><con:name>pathRed</con:name><con:value>C:/ec/red/domibus/</con:value></con:property><con:property><con:name>greenUrl</con:name><con:value>http://localhost:8280/domibus</con:value></con:property><con:property><con:name>pathExeGreen</con:name><con:value>${#Project#pathGreen}/bin/</con:value></con:property><con:property><con:name>thirdGateway</con:name><con:value>false</con:value></con:property><con:property><con:name>reportFilePath</con:name><con:value>${projectDir}\\reports\\Domibus_SoapUI_report.csv</con:value></con:property><con:property><con:name>updateReport</con:name><con:value>true</con:value></con:property><con:property><con:name>pathGreen</con:name><con:value>C:/domibus/greenReceiver/domibus/</con:value></con:property><con:property><con:name>pdfAttachment</con:name><con:value>${projectDir}\\resources\\fileSmall.pdf </con:value></con:property><con:property><con:name>specialPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresSpecialTests</con:value></con:property><con:property><con:name>defaultPModesPath</con:name><con:value>${projectDir}\\resources\\PModesandKeystoresDefault</con:value></con:property><con:property><con:name>testEnvUrl</con:name><con:value>http://104.40.147.186:7005/domibus</con:value></con:property><con:property><con:name>moreThan100mbAttachment</con:name><con:value>${projectDir}\\resources\\videoplayback_mp4.pdf</con:value></con:property><con:property><con:name>subPathToDomibusProperties</con:name><con:value>conf/domibus/domibus.properties</con:value></con:property><con:property><con:name>allDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_blue?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"},  "C3Default":{"site":"C3","domainName":"default","domNo":0,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_red?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}, "C2Dom1":{"site":"C2","domainName":"domibus_C2Dom1","domNo":1,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom1?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}, "C2Dom2":{"site":"C2","domainName":"domibus_C2Dom2","domNo":2,"dbType":"mysql","dbDriver":"com.mysql.jdbc.Driver","dbJdbcUrl":"jdbc:mysql://localhost:3306/domibus_c2dom2?useLegacyDatetimeCode=false&amp;serverTimezone=UTC","dbUser":"root","dbPassword":"root"}}bc:oracle:thin:@localhost:1522/ORCL","dbUser":"domibus_red","dbPassword":"domibus_red"}}</con:value></con:property><con:property><con:name>multitenancyModeC2</con:name><con:value>0</con:value></con:property><con:property><con:name>multitenancyModeC3</con:name><con:value>0</con:value></con:property><con:property><con:name>defaultBlueDomainID</con:name><con:value>C2Default</con:value></con:property><con:property><con:name>defaultRedDomainId</con:name><con:value>C3Default</con:value></con:property><con:property><con:name>defaultGreenDomainID</con:name><con:value>thirdDefault</con:value></con:property><con:property><con:name>adminDefaultPassword</con:name><con:value>DomibusEdel-12345</con:value></con:property><con:property><con:name>pluginAdminC2Default</con:name><con:value>pa_c2dom1</con:value></con:property><con:property><con:name>unsecureLoginAllowed</con:name><con:value>false</con:value></con:property><con:property><con:name>pluginAdminC3Default</con:name><con:value>pa_c3dom1</con:value></con:property><con:property><con:name>allJMSDomainsProperties</con:name><con:value>{"C2Default":{"site":"C2","jmsClientType":"tomcat","jmsUrl":"tcp://localhost:61616","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":"jms/RemoteConnectionFactory"},"C3Default":{"site":"C3","jmsClientType":"tomcat","jmsUrl":"tcp://localhost:61716","jmsServerUsername":"domibus","jmsServerPassword":"changeit","jmsPluginUsername":"","jmsPluginPassword":"","jmsQueue":"domibus.backend.jms.inQueue","jmsConnectionFactoryJNDI":"jms/RemoteConnectionFactory"}}</con:value></con:property><con:property><con:name>logsPathBlue</con:name><con:value>${#Project#pathBlue}logs/</con:value></con:property><con:property><con:name>logsPathRed</con:name><con:value>${#Project#pathRed}logs/</con:value></con:property></con:properties><con:wssContainer/><con:databaseConnectionContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:reporting><con:reportTemplates/><con:xmlTemplates/><con:parameters/></con:reporting><con:sensitiveInformation/></con:soapui-project>

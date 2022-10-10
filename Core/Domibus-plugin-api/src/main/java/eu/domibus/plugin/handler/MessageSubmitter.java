@@ -1,7 +1,6 @@
 
 package eu.domibus.plugin.handler;
 
-
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 

@@ -56,7 +56,7 @@ public class TestService {
 
     private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = "finalRecipient";
 
-    private static final String BACKEND_NAME = "TestService";
+    public static final String BACKEND_NAME = "TestService";
 
     private final PModeProvider pModeProvider;
 
