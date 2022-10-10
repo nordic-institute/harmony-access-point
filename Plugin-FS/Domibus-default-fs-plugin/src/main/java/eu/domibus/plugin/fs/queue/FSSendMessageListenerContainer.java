@@ -41,10 +41,10 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
 
     @Override
     public DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain) {
-        if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-            return null;
-        }
+//        if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
+//            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
+//            return null;
+//        }
 
         LOG.debug("Creating the FSSendMessageListenerContainer  for domain [{}]", domain);
         DefaultMessageListenerContainer instance = (DefaultMessageListenerContainer) applicationContext.getBean("fsPluginOutContainer", domain);

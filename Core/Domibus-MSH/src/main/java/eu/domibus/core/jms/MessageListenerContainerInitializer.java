@@ -12,10 +12,13 @@ import eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration;
 import eu.domibus.core.jms.multitenancy.PluginDomainMessageListenerContainerAdapter;
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
 import eu.domibus.core.message.UserMessagePriorityService;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.PluginMessageListenerContainer;
+import eu.domibus.plugin.BackendConnector;
+import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
@@ -61,10 +64,13 @@ public class MessageListenerContainerInitializer implements DomainsAware {
 
     protected final UserMessagePriorityService userMessagePriorityService;
 
+    protected final BackendConnectorProvider backendConnectorProvider;
+
     public MessageListenerContainerInitializer(ApplicationContext applicationContext,
                                                DomainMessageListenerContainerFactory messageListenerContainerFactory,
                                                DomibusPropertyProvider domibusPropertyProvider, DomainService domainService,
-                                               DomibusCoreMapper coreMapper, UserMessagePriorityService userMessagePriorityService) {
+                                               DomibusCoreMapper coreMapper, UserMessagePriorityService userMessagePriorityService,
+                                               BackendConnectorProvider backendConnectorProvider) {
 
         this.applicationContext = applicationContext;
         this.messageListenerContainerFactory = messageListenerContainerFactory;
@@ -72,6 +78,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         this.domainService = domainService;
         this.coreMapper = coreMapper;
         this.userMessagePriorityService = userMessagePriorityService;
+        this.backendConnectorProvider = backendConnectorProvider;
     }
 
     @PostConstruct
@@ -115,7 +122,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
             LOG.info("Could not find plugin message listener container for [{}] on domain [{}]; exiting", backendName, domain);
             return;
         }
-        createForPlugin(domain, domainDTO, entry.get());
+        createMessageListenerContainerFor(domain, domainDTO, entry.get());
     }
 
     public void destroyMessageListenersForPlugin(String backendName, Domain domain) {
@@ -158,11 +165,11 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         final Map<String, PluginMessageListenerContainer> beansOfType = applicationContext.getBeansOfType(PluginMessageListenerContainer.class);
 
         for (Map.Entry<String, PluginMessageListenerContainer> entry : beansOfType.entrySet()) {
-            createForPlugin(domain, domainDTO, entry);
+            createMessageListenerContainerFor(domain, domainDTO, entry);
         }
     }
 
-    private void createForPlugin(Domain domain, DomainDTO domainDTO, Map.Entry<String, PluginMessageListenerContainer> entry) {
+    private void createMessageListenerContainerFor(Domain domain, DomainDTO domainDTO, Map.Entry<String, PluginMessageListenerContainer> entry) {
         final String name = entry.getKey();
         final PluginMessageListenerContainer containerFactory = entry.getValue();
 
@@ -172,7 +179,15 @@ public class MessageListenerContainerInitializer implements DomainsAware {
             return;
         }
 
-        DomainMessageListenerContainer adapter = new PluginDomainMessageListenerContainerAdapter(instance, domain, name, containerFactory.getPluginName());
+        String pluginName = containerFactory.getPluginName();
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(pluginName);
+        if (backendConnector instanceof EnableAware) {
+            if (!((EnableAware) backendConnector).isEnabled(domain.getCode())) {
+                LOG.info("Message listener container for plugin [{}] for domain [{}] is not enabled so exiting.", pluginName, domain);
+                return;
+            }
+        }
+        DomainMessageListenerContainer adapter = new PluginDomainMessageListenerContainerAdapter(instance, domain, name, pluginName);
         instance.start();
         instances.add(adapter);
         LOG.info("{} initialized for domain [{}]", name, domain);
