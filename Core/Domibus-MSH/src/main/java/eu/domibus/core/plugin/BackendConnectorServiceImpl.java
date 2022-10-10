@@ -6,15 +6,14 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.testservice.TestService;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -104,6 +103,16 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
 
     @Override
     public boolean isBackendConnectorEnabled(String backendName) {
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        return isBackendConnectorEnabled(backendName, currentDomain.getCode());
+    }
+
+    @Override
+    public boolean isBackendConnectorEnabled(String backendName, String domainCode) {
+        if (domainCode == null) {
+            throw new DomibusDomainException("Domain parameter is null");
+        }
+
         if (StringUtils.equals(backendName, TestService.BACKEND_NAME)) {
             LOG.debug("Test Backend connector; returning true; ");
             return true;
@@ -118,14 +127,8 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
             return true;
         }
 
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomain == null) {
-            LOG.info("Could not get the current domain. returning true for backend  [{}]. ", backendName);
-            return true;
-        }
-
         EnableAware enableAware = (EnableAware) plugin;
-        return enableAware.isEnabled(currentDomain.getCode());
+        return enableAware.isEnabled(domainCode);
     }
 
 }
