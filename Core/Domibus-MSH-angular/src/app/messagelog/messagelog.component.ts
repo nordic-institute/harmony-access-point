@@ -30,6 +30,7 @@ import {SecurityService} from '../security/security.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {MessageLogEntry} from './support/messagelogentry';
 
+
 @Component({
   moduleId: module.id,
   templateUrl: 'messagelog.component.html',
@@ -78,6 +79,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   additionalPages: number;
   totalRowsMessage: string;
   estimatedCount: boolean;
+  allRows: FailedMessagesCriteriaRO[];
 
   messageIntervals = [
     {value: 30, text: 'Last 30 minutes'},
@@ -149,6 +151,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (this.isCurrentUserAdmin()) {
       this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
     }
+    this.allRows = [];
 
     super.filter = {testMessage: false};
     this.messageInterval = await this.getMessageLogInitialInterval();
@@ -367,15 +370,13 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendBatchDialog() {
+  resendAllDialog() {
     this.dialogsService.openResendDialog().then(resend => {
-      if (resend && this.selected[0]) {
-        this.resendBatch(this.selected[0].messageId);
+        this.resendAll(this.allRows);
         super.selected = [];
         this.messageResent.subscribe(() => {
           this.page();
         });
-      }
     });
   }
 
@@ -394,12 +395,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendBatch(failedMessages: FailedMessagesCriteriaRO) {
-    console.log('Resending message with id ', );
+  resendAll(failedMessages: FailedMessagesCriteriaRO[]) {
+    console.log('Resending all failed messages...', );
 
     let url = MessageLogComponent.RESEND_ALL_URL;
 
-    this.http.put(url, {}, {}).subscribe(res => {
+    this.http.put(url, failedMessages, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();
@@ -573,7 +574,7 @@ interface DateInterval {
 }
 
 export class FailedMessagesCriteriaRO {
-  messageIds: string[];
+  entityId: number[];
   toDate: string;
   fromDate: string;
 }

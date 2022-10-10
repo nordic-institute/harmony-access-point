@@ -87,16 +87,16 @@ public class MessageResource {
 
 
     @RequestMapping(path = "/failed/restore/all", method = RequestMethod.PUT)
-    public List<String> restoreAllFailedMessages(@RequestBody FailedMessagesCriteriaRO failedMessagesCriteriaRO) {
+    public List<String> restoreAllFailedMessages(@RequestBody List<FailedMessagesCriteriaRO> failedMessagesCriteriaRO) {
 
         LOG.info("In restoreAllFailedMessages..");
-        Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getFromDate());
-        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
+        Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getToDate());
         String originalUserFromSecurityContext = getUser();
         if (fromDateHour >= toDateHour) {
             throw getDatesValidationError();
         }
-        return restoreService.batchRestoreFailedMessagesDuringPeriod(failedMessagesCriteriaRO.getMessageIds(), fromDateHour, toDateHour, null, originalUserFromSecurityContext);
+        return restoreService.batchRestoreFailedMessagesDuringPeriod(failedMessagesCriteriaRO.get(0).getMessageIds(), fromDateHour, toDateHour, null, originalUserFromSecurityContext);
     }
 
     @RequestMapping(value = "/download")
