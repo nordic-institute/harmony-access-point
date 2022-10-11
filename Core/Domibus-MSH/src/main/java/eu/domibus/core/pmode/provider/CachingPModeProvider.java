@@ -810,10 +810,9 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public int getRetentionUndownloadedByMpcURI(final String mpcURI) {
-        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getRetentionUndownloaded();
-            }
+        Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
+        if (mpc.isPresent()){
+            return mpc.get().getRetentionUndownloaded();
         }
 
         LOG.error("No MPC with name: [{}] found. Assuming message retention of -1 for undownloaded messages.", mpcURI);
@@ -823,10 +822,9 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public int getRetentionSentByMpcURI(final String mpcURI) {
-        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getRetentionSent();
-            }
+        Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
+        if (mpc.isPresent()){
+            return mpc.get().getRetentionSent();
         }
 
         LOG.error("No MPC with name: [{}] found. Assuming message retention of -1 for sent messages.", mpcURI);
@@ -835,15 +833,24 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     public int getMetadataRetentionOffsetByMpcURI(String mpcURI){
-        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getMetadataRetentionOffset();
-            }
+        Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
+        if (mpc.isPresent()){
+            return mpc.get().getMetadataRetentionOffset();
         }
 
         LOG.error("No MPC with name: [{}] found. Assuming message metadata retention offset of -1 for downloaded messages.", mpcURI);
 
         return -1;
+    }
+
+    private Optional<Mpc> findMpcByQualifiedName(String mpcURI) {
+        Set<Mpc> mpcSet = getConfiguration().getMpcs();
+        if(CollectionUtils.isNotEmpty(mpcSet)){
+            return mpcSet.stream()
+                    .filter(mpc -> equalsIgnoreCase(mpc.getQualifiedName(), mpcURI))
+                    .findFirst();
+        }
+        return Optional.empty();
     }
 
     @Override
