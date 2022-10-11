@@ -348,11 +348,11 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     }
 
     private void pauseJobsForDisabledPlugins(Domain domain) {
-        List<EnableAware> list = backendConnectorProvider.getEnableAwares();
-        list.forEach(el -> {
-            boolean enabled = el.isEnabled(domain.getCode());
+        List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
+        plugins.forEach(plugin -> {
+            boolean enabled = plugin.isEnabled(domain.getCode());
             if (!enabled) {
-                List<String> jobNames = el.getJobNames();
+                List<String> jobNames = plugin.getJobNames();
                 jobNames.forEach(jobName -> markJobForPausingByDomain(domain, jobName));
             }
         });

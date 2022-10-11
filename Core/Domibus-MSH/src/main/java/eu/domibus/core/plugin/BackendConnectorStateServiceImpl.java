@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.EnableAware;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -45,7 +46,12 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
 
         EnableAware plugin = (EnableAware) backendConnectorProvider.getBackendConnector(backendName);
-        String[] jobNamesToResume = plugin.getJobNames().toArray(new String[]{});
+        List<String> jobNames = plugin.getJobNames();
+        if (CollectionUtils.isEmpty(jobNames)) {
+            LOG.info("No job names returned; nothing to pause.");
+            return;
+        }
+        String[] jobNamesToResume = jobNames.toArray(new String[]{});
         domibusScheduler.resumeJobs(domain, jobNamesToResume);
     }
 
@@ -57,14 +63,19 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
             throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
         }
-        
+
         LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);
 
         Domain domain = domainService.getDomain(domainCode);
         messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
 
         EnableAware plugin = (EnableAware) backendConnectorProvider.getBackendConnector(backendName);
-        String[] jobNamesToResume = plugin.getJobNames().toArray(new String[]{});
+        List<String> jobNames = plugin.getJobNames();
+        if (CollectionUtils.isEmpty(jobNames)) {
+            LOG.info("No job names returned; nothing to pause.");
+            return;
+        }
+        String[] jobNamesToResume = jobNames.toArray(new String[]{});
         domibusScheduler.pauseJobs(domain, jobNamesToResume);
     }
 }
