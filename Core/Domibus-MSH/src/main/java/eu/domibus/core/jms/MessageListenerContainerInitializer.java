@@ -109,8 +109,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
     }
 
     public void createMessageListenersForPlugin(String backendName, Domain domain) {
-        if (instances.stream().anyMatch(instance -> instance.getDomain().equals(domain) && instance instanceof PluginDomainMessageListenerContainerAdapter
-                && ((PluginDomainMessageListenerContainerAdapter) instance).getPluginName().equals(backendName))) {
+        if (messageListenerContainerAlreadyExists(backendName, domain)) {
             LOG.info("Message listener container for plugin [{}] and domain [{}] already exists; exiting.", backendName, domain);
             return;
         }
@@ -123,6 +122,11 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         }
 
         createMessageListenerContainerFor(domain, entry.get());
+    }
+
+    private boolean messageListenerContainerAlreadyExists(String backendName, Domain domain) {
+        return instances.stream().anyMatch(instance -> instance.getDomain().equals(domain) && instance instanceof PluginDomainMessageListenerContainerAdapter
+                && ((PluginDomainMessageListenerContainerAdapter) instance).getPluginName().equals(backendName));
     }
 
     public void destroyMessageListenersForPlugin(String backendName, Domain domain) {
