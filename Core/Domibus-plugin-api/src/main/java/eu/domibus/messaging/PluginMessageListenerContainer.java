@@ -13,7 +13,9 @@ import org.springframework.jms.listener.MessageListenerContainer;
  */
 public interface PluginMessageListenerContainer {
 
-    String getPluginName();
+    default String getPluginName() {
+        return null;
+    }
 
     MessageListenerContainer createMessageListenerContainer(DomainDTO domain);
 
