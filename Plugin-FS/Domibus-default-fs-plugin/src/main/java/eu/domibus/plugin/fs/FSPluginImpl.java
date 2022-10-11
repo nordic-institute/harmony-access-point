@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.logging.DomibusLogger;
@@ -38,6 +39,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static eu.domibus.common.MessageStatus.*;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
@@ -535,7 +537,9 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
-    public List<String> getJobNames() {
-        return Arrays.asList(FSPLUGIN_JOB_NAMES);
+    public List<CronJobInfoDTO> getJobsInfo() {
+        return Arrays.stream(FSPLUGIN_JOB_NAMES)
+                .map(CronJobInfoDTO::new)
+                .collect(Collectors.toList());
     }
 }

@@ -1,6 +1,7 @@
 package eu.domibus.plugin;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.ext.services.MessagePullerExtService;
 import eu.domibus.ext.services.MessageRetrieverExtService;
@@ -286,7 +287,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public List<String> getJobNames() {
+    public List<CronJobInfoDTO> getJobsInfo() {
         return new ArrayList<>();
     }
 }

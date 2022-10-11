@@ -14,6 +14,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
+import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.EnableAware;
@@ -352,8 +353,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         plugins.forEach(plugin -> {
             boolean enabled = plugin.isEnabled(domain.getCode());
             if (!enabled) {
-                List<String> jobNames = plugin.getJobNames();
-                jobNames.forEach(jobName -> markJobForPausingByDomain(domain, jobName));
+                List<CronJobInfoDTO> jobsInfo = plugin.getJobsInfo();
+                jobsInfo.forEach(jobInfo -> markJobForPausingByDomain(domain, jobInfo.getName()));
             }
         });
     }

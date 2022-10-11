@@ -6,6 +6,7 @@ import eu.domibus.api.plugin.BackendConnectorStateService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
+import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.EnableAware;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -46,12 +48,10 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
 
         EnableAware plugin = (EnableAware) backendConnectorProvider.getBackendConnector(backendName);
-        List<String> jobNames = plugin.getJobNames();
-        if (CollectionUtils.isEmpty(jobNames)) {
-            LOG.info("No job names returned; nothing to pause.");
+        String[] jobNamesToResume = getNamesToResume(plugin);
+        if (jobNamesToResume == null) {
             return;
         }
-        String[] jobNamesToResume = jobNames.toArray(new String[]{});
         domibusScheduler.resumeJobs(domain, jobNamesToResume);
     }
 
@@ -70,12 +70,22 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
 
         EnableAware plugin = (EnableAware) backendConnectorProvider.getBackendConnector(backendName);
-        List<String> jobNames = plugin.getJobNames();
-        if (CollectionUtils.isEmpty(jobNames)) {
-            LOG.info("No job names returned; nothing to pause.");
+        String[] jobNamesToResume = getNamesToResume(plugin);
+        if (jobNamesToResume == null) {
             return;
         }
-        String[] jobNamesToResume = jobNames.toArray(new String[]{});
         domibusScheduler.pauseJobs(domain, jobNamesToResume);
+    }
+
+    private String[] getNamesToResume(EnableAware plugin) {
+        List<CronJobInfoDTO> jobsInfo = plugin.getJobsInfo();
+        if (CollectionUtils.isEmpty(jobsInfo)) {
+            LOG.info("No job names returned; nothing to pause.");
+            return null;
+        }
+        String[] jobNamesToResume = jobsInfo.stream().map(CronJobInfoDTO::getName)
+                .collect(Collectors.toList())
+                .toArray(new String[]{});
+        return jobNamesToResume;
     }
 }

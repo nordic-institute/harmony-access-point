@@ -1,5 +1,7 @@
 package eu.domibus.plugin;
 
+import eu.domibus.ext.domain.CronJobInfoDTO;
+
 import java.util.List;
 
 /**
@@ -34,5 +36,5 @@ public interface EnableAware {
      * Not very beautiful; a better solution is searched
      * @return
      */
-    List<String> getJobNames();
+    List<CronJobInfoDTO> getJobsInfo();
 }
