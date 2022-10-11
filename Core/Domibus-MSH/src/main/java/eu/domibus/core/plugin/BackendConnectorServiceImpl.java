@@ -68,7 +68,6 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
         domainService.validateDomain(domainCode);
 
         List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
-
         if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
             throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
         }

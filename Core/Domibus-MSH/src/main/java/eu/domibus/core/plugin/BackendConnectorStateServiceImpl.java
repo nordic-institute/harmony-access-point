@@ -4,11 +4,14 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.plugin.BackendConnectorStateService;
 import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.EnableAware;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -50,6 +53,11 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     public void backendConnectorDisabled(String backendName, String domainCode) {
         domainService.validateDomain(domainCode);
 
+        List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
+        if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
+            throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
+        }
+        
         LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);
 
         Domain domain = domainService.getDomain(domainCode);
