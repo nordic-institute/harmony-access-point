@@ -83,7 +83,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     public void init() {
         LOG.debug("Initializing the certificate provider for domain [{}]", domain);
-        createAliasesMaps();
+        createSecurityProfileAliasConfigurations();
         initTrustStore();
         initKeyStore();
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
@@ -509,7 +509,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
     }
 
-    protected void createAliasesMaps() {
+    protected void createSecurityProfileAliasConfigurations() {
 
         securityProfileAliasConfigurations.clear();
 
@@ -537,7 +537,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void loadKeystoreProperties() {
-        createAliasesMaps();
+        createSecurityProfileAliasConfigurations();
 
         final String keystoreType = getKeystoreType();
         final String keystorePassword = getKeystorePassword();
