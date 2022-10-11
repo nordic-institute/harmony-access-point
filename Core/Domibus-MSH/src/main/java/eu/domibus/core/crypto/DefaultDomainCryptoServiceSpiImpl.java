@@ -112,7 +112,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public X509Certificate[] getX509Certificates(CryptoType cryptoType) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined()) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
-            return null;
+            throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
+                    " so this method should not be called");
         }
         final Merlin merlin = getMerlinForSingleLegacyAlias();
         if (merlin != null) {
@@ -135,7 +136,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public String getX509Identifier(X509Certificate cert) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined()) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
-            return null;
+            throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
+                    " so this method should not be called");
         }
         final Merlin merlin = getMerlinForSingleLegacyAlias();
         if (merlin != null) {
@@ -157,7 +159,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined()) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
-            return null;
+            throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
+                    " so this method should not be called");
         }
         final Merlin merlin = getMerlinForSingleLegacyAlias();
         if (merlin != null) {
@@ -180,7 +183,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined()) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
-            return null;
+            throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
+                    " so this method should not be called");
         }
         final Merlin merlin = getMerlinForSingleLegacyAlias();
         if (merlin != null) {
@@ -212,6 +216,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void verifyTrust(PublicKey publicKey) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined()) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
+                    " so this method should not be called");
         } else {
             final Merlin merlin = getMerlinForSingleLegacyAlias();
             if (merlin != null) {
@@ -236,6 +242,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined()) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
+                    " so this method should not be called");
         } else {
             final Merlin merlin = getMerlinForSingleLegacyAlias();
             if (merlin != null) {
@@ -259,7 +267,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public String getDefaultX509Identifier() throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined()) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
-            return null;
+            throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
+                    " so this method should not be called");
         }
         final Merlin merlin = getMerlinForSingleLegacyAlias();
         if (merlin != null) {
@@ -502,6 +511,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         } else if (StringUtils.isNotBlank(aliasValue)) {
             profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
             if (securityProfileAliasConfigurations.stream().anyMatch(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))) {
+                LOG.error("Keystore alias already defined for domain [{}]", domain);
                 throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
             }
 
