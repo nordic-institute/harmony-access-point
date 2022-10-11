@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
@@ -27,13 +28,10 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
     public static final String[] FSPLUGIN_JOB_NAMES = TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.values().toArray(new String[]{}); //NOSONAR
 
     final protected DomibusSchedulerExtService domibusSchedulerExt;
-    final protected FSPluginProperties fsPluginProperties;
     final protected BackendConnectorProviderExtService backendConnectorProviderExtService;
 
-    public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, FSPluginProperties fsPluginProperties,
-                                 BackendConnectorProviderExtService backendConnectorProviderExtService) {
+    public EnabledChangeListener(DomibusSchedulerExtService domibusSchedulerExt, BackendConnectorProviderExtService backendConnectorProviderExtService) {
         this.domibusSchedulerExt = domibusSchedulerExt;
-        this.fsPluginProperties = fsPluginProperties;
         this.backendConnectorProviderExtService = backendConnectorProviderExtService;
     }
 
@@ -44,7 +42,7 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        boolean enable = fsPluginProperties.getDomainEnabled(domainCode);
+        boolean enable = BooleanUtils.toBoolean(propertyValue);
         if (!enable) {
             if (!backendConnectorProviderExtService.canDisableBackendConnector(PLUGIN_NAME, domainCode)) {
                 throw new DomibusPropertyExtException(String.format("Cannot change the property [%s] of fs-plugin to [%s] because there would be no enabled plugin on domain [%s]"
