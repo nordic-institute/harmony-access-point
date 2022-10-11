@@ -41,6 +41,7 @@ import java.util.*;
 
 import static eu.domibus.common.MessageStatus.*;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
+import static eu.domibus.plugin.fs.property.listeners.EnabledChangeListener.FSPLUGIN_JOB_NAMES;
 
 /**
  * File system backend integration plugin.
@@ -531,5 +532,10 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Override
     public void setEnabled(final String domainCode, final boolean enabled) {
         fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, BooleanUtils.toStringTrueFalse(enabled));
+    }
+
+    @Override
+    public List<String> getJobNames() {
+        return Arrays.asList(FSPLUGIN_JOB_NAMES);
     }
 }

@@ -13,8 +13,10 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.EnableAware;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -167,6 +169,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         }
     }
 
+    @Autowired
+    BackendConnectorProvider backendConnectorProvider;
+
     /**
      * entry point method
      *
@@ -185,10 +190,22 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         scheduler.start();
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
+        checkEnabled(domain);
 
         pauseJobsForCurrentDomain();
 
         domainContextProvider.clearCurrentDomain();
+    }
+
+    private void checkEnabled(Domain domain) {
+        List<EnableAware> list = backendConnectorProvider.getEnableAwares();
+        list.forEach(el -> {
+            boolean enabled = el.isEnabled(domain.getCode());
+            if (!enabled) {
+                List<String> jobNames = el.getJobNames();
+                jobNames.forEach(jobName -> markJobForPausingByDomain(domain, jobName));
+            }
+        });
     }
 
     private void removeScheduler(Domain domain) {

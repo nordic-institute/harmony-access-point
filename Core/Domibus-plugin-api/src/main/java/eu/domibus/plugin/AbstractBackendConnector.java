@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -282,5 +283,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void setEnabled(final String domainCode, final boolean enabled) {
+    }
+
+    @Override
+    public List<String> getJobNames() {
+        return new ArrayList<>();
     }
 }

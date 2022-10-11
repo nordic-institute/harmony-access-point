@@ -1,5 +1,7 @@
 package eu.domibus.plugin;
 
+import java.util.List;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -12,4 +14,6 @@ public interface EnableAware {
     boolean isEnabled(final String domainCode);
 
     void setEnabled(final String domainCode, final boolean enabled);
+
+    List<String> getJobNames();
 }

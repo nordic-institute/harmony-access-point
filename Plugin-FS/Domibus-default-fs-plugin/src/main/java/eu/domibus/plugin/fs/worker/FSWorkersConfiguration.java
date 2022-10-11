@@ -160,12 +160,12 @@ public class FSWorkersConfiguration {
             LOG.debug("we cannot create {}, domain is null", jobName);
             return false; // this job only works for a domain
         }
-        if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-            LOG.debug("Domain [{}] is disabled, job [{}] will be created but paused", domain, jobName);
-
-            domibusSchedulerExtService.markJobForPausing(domain.getCode(), jobName);
-            LOG.debug("Quartz job [{}] marked for pausing", jobName);
-        }
+//        if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
+//            LOG.debug("Domain [{}] is disabled, job [{}] will be created but paused", domain, jobName);
+//
+//            domibusSchedulerExtService.markJobForPausing(domain.getCode(), jobName);
+//            LOG.debug("Quartz job [{}] marked for pausing", jobName);
+//        }
         return true;
     }
 }
