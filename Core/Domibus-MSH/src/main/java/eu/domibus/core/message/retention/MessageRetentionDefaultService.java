@@ -133,6 +133,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 mpc, deleteMessagesLimit, eArchiveIsActive);
         if(pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
             deleteMessageMetadataAndPayload(mpc, messagesToClean);
+            return;
         }
         deleteMessagePayload(messagesToClean);
     }
@@ -152,6 +153,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 mpc, deleteMessagesLimit, eArchiveIsActive);
         if(pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
             deleteMessageMetadataAndPayload(mpc, messagesToClean);
+            return;
         }
         deleteMessagePayload(messagesToClean);
     }
