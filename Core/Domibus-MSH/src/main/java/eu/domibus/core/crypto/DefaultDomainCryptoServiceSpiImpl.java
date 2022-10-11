@@ -208,11 +208,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public void verifyTrust(PublicKey publicKey, String alias) throws WSSecurityException {
         final Merlin merlin = getMerlinForAlias(alias);
-        if (merlin != null) {
-            merlin.verifyTrust(publicKey);
-        } else {
+        if (merlin == null) {
             LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
+            return;
         }
+        merlin.verifyTrust(publicKey);
     }
 
     @Override
@@ -223,22 +223,23 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                     " so this method should not be called");
         } else {
             final Merlin merlin = getMerlinForSingleLegacyAlias();
-            if (merlin != null) {
-                merlin.verifyTrust(publicKey);
-            } else {
+            if (merlin == null) {
                 LOG.error("CryptoBase implementation is not present");
+                return;
             }
+            merlin.verifyTrust(publicKey);
         }
     }
 
     @Override
-    public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints, String alias) throws WSSecurityException {
+    public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints, String alias)
+            throws WSSecurityException {
         final Merlin merlin = getMerlinForAlias(alias);
-        if (merlin != null) {
-            merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
-        } else {
+        if (merlin == null) {
             LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
+            return;
         }
+        merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
     }
 
     @Override
@@ -249,11 +250,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                     " so this method should not be called");
         } else {
             final Merlin merlin = getMerlinForSingleLegacyAlias();
-            if (merlin != null) {
-                merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
-            } else {
+            if (merlin == null) {
                 LOG.error("CryptoBase implementation is not present");
+                return;
             }
+            merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
         }
     }
 
@@ -502,8 +503,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private void addSecurityProfileAliasConfiguration(String aliasProperty, String passwordProperty, SecurityProfile securityProfile) {
-        SecurityProfileAliasConfiguration profileAliasConfiguration;
-
         final String aliasValue = domibusPropertyProvider.getProperty(domain, aliasProperty);
         final String passwordValue = domibusPropertyProvider.getProperty(domain, passwordProperty);
 
@@ -511,15 +510,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.error("One of the keystore property values is null for domain [{}]: private key alias=[{}], private key password",
                     domain, aliasValue);
             throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
-        } else if (StringUtils.isNotBlank(aliasValue)) {
-            profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
-            if (securityProfileAliasConfigurations.stream().anyMatch(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))) {
-                LOG.error("Keystore alias already defined for domain [{}]", domain);
-                throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
-            }
-
-            securityProfileAliasConfigurations.add(profileAliasConfiguration);
         }
+        SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
+        if (securityProfileAliasConfigurations.stream().anyMatch(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))) {
+            LOG.error("Keystore alias already defined for domain [{}]", domain);
+            throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
+        }
+
+        securityProfileAliasConfigurations.add(profileAliasConfiguration);
     }
 
     protected void createSecurityProfileAliasConfigurations() {
@@ -567,9 +565,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                         securityProfileConfiguration.getMerlin()));
     }
 
-    private void loadKeyStorePropertiesForMerlin(String keystoreType, String keystorePassword, String k, Merlin v) {
+    private void loadKeyStorePropertiesForMerlin(String keystoreType, String keystorePassword, String alias, Merlin merlin) {
         try {
-            v.loadProperties(getKeyStoreProperties(k, keystoreType, keystorePassword), Merlin.class.getClassLoader(), null);
+            merlin.loadProperties(getKeyStoreProperties(alias, keystoreType, keystorePassword), Merlin.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
             throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
         }
