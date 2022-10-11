@@ -12,8 +12,6 @@ public class DomibusServiceExtException extends RuntimeException {
 
     private DomibusErrorCode errorCode;
 
-
-
     /**
      * Constructs a new instance with a specific error code and message.
      *
