@@ -66,7 +66,6 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
             throw new Fault(ex);
         }
 
-
         String contentType = (String) message.get(Message.CONTENT_TYPE);
 
 

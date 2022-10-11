@@ -21,6 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.domibus.plugin.ws.webservice.*;
+
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Holder;
 import java.io.IOException;
@@ -87,8 +89,8 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         try {
             webServicePluginInterface.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
         } catch (RetrieveMessageFault dmf) {
-            String message = "Downloading message failed";
-            assertEquals(message, dmf.getMessage());
+            Assert.assertTrue(dmf.getMessage().contains(WebServiceImpl.MESSAGE_NOT_FOUND_ID));
+            System.out.println("lululu");
             throw dmf;
         }
 

@@ -34,6 +34,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     private static final String GROUP_ID = "GROUP_ID";
     public static final String PARTY_ID = "PARTY_ID";
+    public static final String SENDER_PARTY_ID = "SENDER_PARTY_ID";
     public static final String ACTION_ID = "ACTION_ID";
 
     @Autowired
@@ -184,10 +185,11 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         return result;
     }
 
-    public UserMessage findLastTestMessageToParty(String partyId) {
+    public UserMessage findLastTestMessageToParty(String senderPartyId, String partyId) {
         ActionEntity actionEntity = actionDictionaryService.findOrCreateAction(Ebms3Constants.TEST_ACTION);
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findTestMessageToPartyDesc", UserMessage.class);
         query.setParameter(PARTY_ID, partyId);
+        query.setParameter(SENDER_PARTY_ID, senderPartyId);
         query.setParameter(ACTION_ID, actionEntity.getEntityId());
         query.setMaxResults(1);
         return DataAccessUtils.singleResult(query.getResultList());

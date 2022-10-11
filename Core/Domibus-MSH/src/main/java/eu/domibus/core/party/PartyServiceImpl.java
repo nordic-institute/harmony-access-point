@@ -78,6 +78,9 @@ public class PartyServiceImpl implements PartyService {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    PartyCoreMapper partyCoreMapper;
+
     /**
      * {@inheritDoc}
      */
@@ -99,22 +102,11 @@ public class PartyServiceImpl implements PartyService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public List<String> findPushToPartyNamesForTest() {
-        String selfParty = getGatewayPartyIdentifier();
-        List<MessageExchangePattern> meps = getPushMeps();
-        return pModeProvider.findPartiesByInitiatorServiceAndAction(selfParty, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
+    public Party getGatewayParty() {
+        return partyCoreMapper.configurationPartyToParty(pModeProvider.getGatewayParty());
     }
 
-    @Override
-    public List<String> findPushFromPartyNamesForTest() {
-        String selfParty = getGatewayPartyIdentifier();
-        List<MessageExchangePattern> meps = getPushMeps();
-        return pModeProvider.findPartiesByResponderServiceAndAction(selfParty, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
-    }
 
     /**
      * {@inheritDoc}
@@ -750,6 +742,20 @@ public class PartyServiceImpl implements PartyService {
 
         //remove certificate
         removePartyCertificate(Collections.singletonList(partyToBeDeleted.getName()));
+    }
+
+    @Override
+    public List<String> findPushToPartyNamesForTest() {
+        String selfParty = getGatewayPartyIdentifier();
+        List<MessageExchangePattern> meps = getPushMeps();
+        return pModeProvider.findPartiesByInitiatorServiceAndAction(selfParty, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
+    }
+
+    @Override
+    public List<String> findPushFromPartyNamesForTest() {
+        String selfParty = getGatewayPartyIdentifier();
+        List<MessageExchangePattern> meps = getPushMeps();
+        return pModeProvider.findPartiesByResponderServiceAndAction(selfParty, Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, meps);
     }
 
     /**

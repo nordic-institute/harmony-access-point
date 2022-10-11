@@ -42,11 +42,11 @@ public interface PartyService {
     List<String> findPushFromPartyNamesForTest();
 
     /**
-     * Returns the Party Identifier Name for the gateway party
+     * Returns the gateway party
      *
      * @return Party Identifier Name
      */
-    String getGatewayPartyIdentifier();
+    Party getGatewayParty();
 
     /**
      * Updates the current pMode with the provided parties
@@ -56,6 +56,13 @@ public interface PartyService {
      * @throws PModeValidationException If there are validation errors, an exception is thrown
      */
     List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
+
+    /**
+     * Returns the first gateway party identifier
+     *
+     * @return Party Identifier
+     */
+    String getGatewayPartyIdentifier();
 
     /**
      * Retrieve all the processes configured in the pmode.

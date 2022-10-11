@@ -1,4 +1,4 @@
-package eu.domibus.pmode;
+package eu.domibus.core.pmode;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeConstants;

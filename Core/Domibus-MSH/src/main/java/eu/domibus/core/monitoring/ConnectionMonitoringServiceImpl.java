@@ -30,6 +30,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringService {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringServiceImpl.class);
+    public static final String PARTY_SEPARATOR = ">";
 
     private final PartyService partyService;
 
@@ -45,14 +46,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public boolean isMonitoringEnabled() {
-        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-        if (CollectionUtils.isEmpty(monitoredParties)) {
-            LOG.debug("Connection monitoring is not enabled");
-            return false;
-        }
-        String selfParty = partyService.getGatewayPartyIdentifier();
-        boolean monitoringEnabled = monitoredParties.stream()
-                .anyMatch(party -> !StringUtils.equals(party, selfParty));
+        boolean monitoringEnabled = StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED));
         LOG.debug("Connection monitoring enabled: [{}]", monitoringEnabled);
         return monitoringEnabled;
     }
@@ -169,26 +163,25 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds) {
-
-        handleAllValueForCommaSeparatedProperties();
+    public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds) {
+        ensureMewFormatForEnabledProperty();
 
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
-            ConnectionMonitorRO status = this.getConnectionStatus(partyId);
+            ConnectionMonitorRO status = this.getConnectionStatus(senderPartyId, partyId);
             result.put(partyId, status);
         }
         return result;
     }
 
-    protected ConnectionMonitorRO getConnectionStatus(String partyId) {
+    protected ConnectionMonitorRO getConnectionStatus(String senderPartyId, String partyId) {
         ConnectionMonitorRO result = new ConnectionMonitorRO();
 
-        TestServiceMessageInfoRO lastSent = testService.getLastTestSent(partyId);
+        TestServiceMessageInfoRO lastSent = testService.getLastTestSent(senderPartyId, partyId);
         result.setLastSent(lastSent);
 
         if (lastSent != null) {
-            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(partyId, null);
+            TestServiceMessageInfoRO lastReceived = testService.getLastTestReceived(senderPartyId, partyId, null);
             result.setLastReceived(lastReceived);
         }
 
@@ -198,7 +191,8 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         }
 
         List<String> enabledParties = getMonitorEnabledParties();
-        if (result.isTestable() && enabledParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+        String partyPair = senderPartyId + PARTY_SEPARATOR + partyId;
+        if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 
@@ -255,5 +249,23 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         if (StringUtils.equalsIgnoreCase("ALL", domibusPropertyProvider.getProperty(propName))) {
             domibusPropertyProvider.setProperty(propName, propValue);
         }
+    }
+    protected void ensureMewFormatForEnabledProperty() {
+        String selfPartyId = partyService.getGatewayPartyIdentifier();
+        List<String> monitoredParties = getMonitorEnabledParties();
+        String newValue = transformToNewFormat(monitoredParties, selfPartyId);
+        domibusPropertyProvider.setProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, newValue);
+    }
+
+    protected String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {
+        for (int i = 0; i < monitoredParties.size(); i++) {
+            String monitoredPartyPair = monitoredParties.get(i);
+            String[] pairVals = monitoredPartyPair.split(PARTY_SEPARATOR);
+            if (pairVals.length == 1) {
+                monitoredParties.set(i, selfPartyId + PARTY_SEPARATOR + pairVals[0]);
+            }
+        }
+        String newValue = monitoredParties.stream().collect(Collectors.joining(","));
+        return newValue;
     }
 }
