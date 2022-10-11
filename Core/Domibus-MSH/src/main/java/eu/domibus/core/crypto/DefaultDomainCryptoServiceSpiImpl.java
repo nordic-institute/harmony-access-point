@@ -489,9 +489,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         LOG.debug("Finished initializing the keyStore certificate provider for domain [{}]", domain);
     }
 
-    private void addSecurityProfileAliasConfiguration(String aliasProperty,
-                                                                                   String passwordProperty,
-                                                                                   SecurityProfile securityProfile) {
+    private void addSecurityProfileAliasConfiguration(String aliasProperty, String passwordProperty, SecurityProfile securityProfile) {
         SecurityProfileAliasConfiguration profileAliasConfiguration;
 
         final String aliasValue = domibusPropertyProvider.getProperty(domain, aliasProperty);
