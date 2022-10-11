@@ -320,7 +320,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
             throw new DomibusSchedulerException(ex);
         }
     }
-    
+
     protected void initQuartzSchedulers() {
         // General Schedulers
         try {

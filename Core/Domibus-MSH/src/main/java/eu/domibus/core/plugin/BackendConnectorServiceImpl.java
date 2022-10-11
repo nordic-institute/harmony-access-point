@@ -53,7 +53,6 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
                 EnableAware plugin = plugins.get(0);
                 LOG.warn("Cannot let all plugins to be disabled on domain [{}]. Enabling [{}].", domain, plugin.getName());
                 try {
-                    // nu e suficient acum pt ca pe alta interfata se incarca proprietatile lar cozile si joburile in alta parte
                     plugin.setEnabled(domain.getCode(), true);
                 } catch (DomibusPropertyException ex) {
                     LOG.error("Could not enable plugin [{}] on domain [{}]", plugin.getName(), domain, ex);
@@ -66,6 +65,8 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
 
     @Override
     public void validateConfiguration(String domainCode) {
+        domainService.validateDomain(domainCode);
+
         List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
 
         if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
