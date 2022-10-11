@@ -90,7 +90,6 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
             webServicePluginInterface.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
         } catch (RetrieveMessageFault dmf) {
             Assert.assertTrue(dmf.getMessage().contains(WebServiceImpl.MESSAGE_NOT_FOUND_ID));
-            System.out.println("lululu");
             throw dmf;
         }
 
