@@ -2,6 +2,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.ext.domain.CronJobInfoDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ public interface EnableAware {
 
     /**
      * If the plugin is enabled
+     *
      * @param domainCode On which domain
      * @return The enabled state
      */
@@ -26,15 +28,19 @@ public interface EnableAware {
     /**
      * Telling the plugin to become enabled/disabled
      * The plugin will do some internal stuff and then notify the domibus to crete/delete the resources managed by domibus
+     *
      * @param domainCode On which domain
-     * @param enabled the requested state
+     * @param enabled    the requested state
      */
     void setEnabled(final String domainCode, final boolean enabled);
 
     /**
      * The names of the cron jobs that the plugin uses so that domibus can pause/resume then on a plugin bases;
      * Not very beautiful; a better solution is searched
+     *
      * @return
      */
-    List<CronJobInfoDTO> getJobsInfo();
+    default List<CronJobInfoDTO> getJobsInfo() {
+        return new ArrayList<>();
+    }
 }
