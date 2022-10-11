@@ -43,15 +43,15 @@ public class SecurityUtilImpl {
     }
 
     public boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {
+        if (store1 == null && store2 == null) {
+            LOG.debug("Identical keystores: both are null");
+            return true;
+        }
+        if (store1 == null || store2 == null) {
+            LOG.debug("Different keystores: [{}] vs [{}]", store1, store2);
+            return false;
+        }
         try {
-            if (store1 == null && store2 == null) {
-                LOG.debug("Identical keystores: both are null");
-                return true;
-            }
-            if (store1 == null || store2 == null) {
-                LOG.debug("Different keystores: [{}] vs [{}]", store1, store2);
-                return false;
-            }
             if (store1.size() != store2.size()) {
                 LOG.debug("Different keystores: [{}] vs [{}] entries", store1.size(), store2.size());
                 return false;
