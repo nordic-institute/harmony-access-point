@@ -23,7 +23,21 @@ public interface BackendConnectorProviderExtService {
      */
     boolean canDisableBackendConnector(String backendName, final String domainCode);
 
+    /**
+     * The specified plugin notifies domibus that he wants to be enabled on the specified domain;
+     * This is necessary because domibus manages message queues and cron trigger jobs for a plugin
+     * Validation is performed before
+     * @param backendName
+     * @param domainCode
+     */
     void backendConnectorEnabled(String backendName, String domainCode);
 
+    /**
+     * The specified plugin notifies domibus that he wants to be disabled on the specified domain;
+     * This is necessary because domibus manages message queues and cron trigger jobs for a plugin
+     * Validation is performed before
+     * @param backendName
+     * @param domainCode
+     */
     void backendConnectorDisabled(String backendName, String domainCode);
 }

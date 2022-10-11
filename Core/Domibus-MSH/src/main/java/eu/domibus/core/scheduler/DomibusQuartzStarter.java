@@ -166,7 +166,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         scheduler.start();
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
-        checkEnabled(domain);
+
+        pauseJobsForDisabledPlugins(domain);
 
         pauseJobsForCurrentDomain();
 
@@ -346,7 +347,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         removeMarkedForDeletionJobs();
     }
 
-    private void checkEnabled(Domain domain) {
+    private void pauseJobsForDisabledPlugins(Domain domain) {
         List<EnableAware> list = backendConnectorProvider.getEnableAwares();
         list.forEach(el -> {
             boolean enabled = el.isEnabled(domain.getCode());
