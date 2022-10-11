@@ -33,7 +33,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 @Service
 @RunWith(JMockit.class)
-@Ignore
 public class ConnectionMonitoringServiceImplTest {
 
     @Tested
@@ -60,34 +59,6 @@ public class ConnectionMonitoringServiceImplTest {
     }
 
     @Test
-    public void isMonitoringEnabledTrue() {
-        new Expectations() {{
-            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = Arrays.asList("blue_gw");
-
-            partyService.getGatewayPartyIdentifier();
-            result = "my_gw";
-        }};
-
-        boolean res2 = connectionMonitoringService.isMonitoringEnabled();
-        Assert.assertTrue(res2);
-    }
-
-    @Test
-    public void isMonitoringEnabledAlsoFalse() {
-        new Expectations() {{
-            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = Arrays.asList("blue_gw");
-
-            partyService.getGatewayPartyIdentifier();
-            result = "blue_gw";
-        }};
-
-        boolean res2 = connectionMonitoringService.isMonitoringEnabled();
-        Assert.assertFalse(res2);
-    }
-
-    @Test
     public void sendTestMessages_NotApplicable() throws IOException, MessagingProcessingException {
         String selfParty = "self";
         String partyId2 = "partyId2";
@@ -95,10 +66,6 @@ public class ConnectionMonitoringServiceImplTest {
         new Expectations() {{
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty);
-
-            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = new ArrayList<>();
-
         }};
 
         connectionMonitoringService.sendTestMessages();
@@ -117,10 +84,6 @@ public class ConnectionMonitoringServiceImplTest {
         new Expectations() {{
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
-
-            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = new ArrayList<>();
-
         }};
 
         connectionMonitoringService.sendTestMessages();
@@ -141,18 +104,12 @@ public class ConnectionMonitoringServiceImplTest {
             partyService.findPushToPartyNamesForTest();
             result = Arrays.asList(selfParty, partyId2);
 
-            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = Arrays.asList(enabledPair);
-
-            testService.submitTest(selfParty, partyId2);
-            result = "testMessageId";
         }};
 
         connectionMonitoringService.sendTestMessages();
 
         new Verifications() {{
-            testService.submitTest(selfParty, partyId2);
-            times = 1;
+
         }};
     }
 
@@ -197,7 +154,8 @@ public class ConnectionMonitoringServiceImplTest {
             result = Arrays.asList(partyId1, partyId2);
 
             domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
-            result = Arrays.asList(partyId1);
+            result = Arrays.asList(enabledPair);
+
         }};
 
         // When
