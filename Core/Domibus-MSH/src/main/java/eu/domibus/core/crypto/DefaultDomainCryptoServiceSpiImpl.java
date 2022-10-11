@@ -7,13 +7,13 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.TruststoreInfo;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -68,17 +68,20 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations = new ArrayList<>();
 
+    protected final SecurityUtilImpl securityUtil;
 
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
                                              DomibusCoreMapper coreMapper,
-                                             DomainTaskExecutor domainTaskExecutor) {
+                                             DomainTaskExecutor domainTaskExecutor,
+                                             SecurityUtilImpl securityUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
+        this.securityUtil = securityUtil;
     }
 
     public void init() {
@@ -328,7 +331,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         securityProfileAliasConfigurations.forEach(
                 securityProfileConfiguration -> securityProfileConfiguration.getMerlin().setTrustStore(current));
 
-        if (areKeystoresIdentical(old, current)) {
+        if (securityUtil.areKeystoresIdentical(old, current)) {
             LOG.debug("New truststore and previous truststore are identical");
         } else {
             signalService.signalTrustStoreUpdate(domain);
@@ -344,7 +347,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         securityProfileAliasConfigurations.forEach(
                 securityProfileConfiguration -> securityProfileConfiguration.getMerlin().setKeyStore(current));
 
-        if (areKeystoresIdentical(old, current)) {
+        if (securityUtil.areKeystoresIdentical(old, current)) {
             LOG.debug("New keystore and previous keystore are identical");
         } else {
             signalService.signalKeyStoreUpdate(domain);
@@ -591,38 +594,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         LOG.debug("Keystore properties for domain [{}] and alias [{}]are [{}]", domain, alias, logProperties);
 
         return properties;
-    }
-
-    protected boolean areKeystoresIdentical(KeyStore store1, KeyStore store2) {
-        try {
-            if (store1 == null && store2 == null) {
-                LOG.debug("Identical keystores: both are null");
-                return true;
-            }
-            if (store1 == null || store2 == null) {
-                LOG.debug("Different keystores: [{}] vs [{}]", store1, store2);
-                return false;
-            }
-            if (store1.size() != store2.size()) {
-                LOG.debug("Different keystores: [{}] vs [{}] entries", store1.size(), store2.size());
-                return false;
-            }
-            final Enumeration<String> aliases = store1.aliases();
-            while (aliases.hasMoreElements()) {
-                final String alias = aliases.nextElement();
-                if (!store2.containsAlias(alias)) {
-                    LOG.debug("Different keystores: [{}] alias is not found in both", alias);
-                    return false;
-                }
-                if (!store1.getCertificate(alias).equals(store2.getCertificate(alias))) {
-                    LOG.debug("Different keystores: [{}] certificate is different", alias);
-                    return false;
-                }
-            }
-            return true;
-        } catch (KeyStoreException e) {
-            throw new DomibusCertificateException("Invalid keystore", e);
-        }
     }
 
     private String getKeystoreType() {
