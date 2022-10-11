@@ -29,11 +29,8 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
 
     protected final ApplicationContext applicationContext;
 
-    protected final FSPluginProperties fsPluginProperties;
-
-    public FSSendMessageListenerContainer(ApplicationContext applicationContext, FSPluginProperties fsPluginProperties) {
+    public FSSendMessageListenerContainer(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-        this.fsPluginProperties = fsPluginProperties;
     }
 
     @Override
@@ -43,11 +40,6 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
 
     @Override
     public DefaultMessageListenerContainer createMessageListenerContainer(DomainDTO domain) {
-//        if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-//            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-//            return null;
-//        }
-
         LOG.debug("Creating the FSSendMessageListenerContainer  for domain [{}]", domain);
         DefaultMessageListenerContainer instance = (DefaultMessageListenerContainer) applicationContext.getBean("fsPluginOutContainer", domain);
         instances.put(domain, instance);
