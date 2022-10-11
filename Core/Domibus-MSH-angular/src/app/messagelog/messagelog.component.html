@@ -185,7 +185,7 @@
     </button>
 
     <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
-            (click)="resendAllDialog()"
+            (click)="resendSelectedDialog()"
             id="resendselectedbutton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
       <span>Resend Selected</span>

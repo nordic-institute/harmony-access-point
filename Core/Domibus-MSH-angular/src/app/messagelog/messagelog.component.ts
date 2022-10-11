@@ -80,6 +80,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   totalRowsMessage: string;
   estimatedCount: boolean;
   allRows: FailedMessagesCriteriaRO[];
+  entityIds: String[];
 
   messageIntervals = [
     {value: 30, text: 'Last 30 minutes'},
@@ -371,12 +372,22 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   resendAllDialog() {
-    this.dialogsService.openResendDialog().then(resend => {
-        this.resendAll(this.allRows);
+    this.dialogsService.openResendAllDialog().then(resend => {
+        this.resendAll();
         super.selected = [];
         this.messageResent.subscribe(() => {
           this.page();
         });
+    });
+  }
+
+  resendSelectedDialog() {
+    this.dialogsService.openResendSelectedDialog().then(resend => {
+      this.resendSelected(this.messageIds);
+      super.selected = [];
+      this.messageResent.subscribe(() => {
+        this.page();
+      });
     });
   }
 
@@ -395,27 +406,27 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendAll(failedMessages: FailedMessagesCriteriaRO[]) {
+  resendAll() {
     console.log('Resending all failed messages...', );
 
     let url = MessageLogComponent.RESEND_ALL_URL;
 
-    this.http.put(url, failedMessages, {}).subscribe(res => {
+    this.http.put(url, {}, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.exception('The message ' + this.alertService.escapeHtml('messageId') + ' could not be resent.', err);
+      this.alertService.exception('The messages could not be resent.', err);
     });
   }
 
-  resendSelected(failedMessages: FailedMessagesCriteriaRO[]) {
+  resendSelected(messageIds: string[]) {
     console.log('Resending selected failed messages...', );
 
     let url = MessageLogComponent.RESEND_SELECTED_URL;
 
-    this.http.put(url, failedMessages, {}).subscribe(res => {
+    this.http.put(url, messageIds, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();
@@ -432,6 +443,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return this.isOneRowSelected() && !this.selected[0].deleted
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
+
+/*  isResendAllButtonEnabled() {
+    return  !this.selected[0].deleted
+      &&  (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
+      && !this.isSplitAndJoinMessage(row);
+  }*/
 
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted

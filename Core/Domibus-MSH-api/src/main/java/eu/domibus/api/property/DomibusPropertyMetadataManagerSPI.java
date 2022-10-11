@@ -366,7 +366,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
     String DOMIBUS_HTTP_SECURITY_STRICT_TRANSPORT_SECURITY = "domibus.httpSecurity.httpStrictTransportSecurity.maxAge";
     String DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE = "domibus.message.download.maxSize";
-    String DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT = "domibus.message.resend.maxCount";
+    String DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT = "domibus.message.resendAll.maxCount";
     String DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT = "domibus.message.resendAll.batch.countLimit";
     String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";

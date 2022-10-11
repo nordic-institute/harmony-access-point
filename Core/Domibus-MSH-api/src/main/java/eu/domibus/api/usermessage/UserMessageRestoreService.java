@@ -28,13 +28,14 @@ public interface UserMessageRestoreService {
     List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser);
 
     /**
-     * @param failedStartDate date and time (in ID PK format) from which to restore failed messages
-     * @param failedEndDate date and time (in ID PK format) until which to restore failed messages
+     * messageIds list of message Ids to delete
      * @param finalRecipient final recipient of failed message
      * @param originalUser original user of failed message
      * @return the failed messages in the given period and with the given final recipient and original user
      * that were successfully restored
      */
-    List<String> batchRestoreFailedMessagesDuringPeriod(List<String> messageIds, Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser);
+    List<String> restoreSelectedFailedMessages(List<String> messageIds, String finalRecipient, String originalUser);
+
+    List<String> restoreAllFailedMessages(String finalRecipient, String originalUser);
 
 }

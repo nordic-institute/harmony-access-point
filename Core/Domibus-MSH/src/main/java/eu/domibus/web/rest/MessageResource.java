@@ -9,7 +9,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
@@ -83,21 +82,21 @@ public class MessageResource {
         if (fromDateHour >= toDateHour) {
             throw getDatesValidationError();
         }*/
-        return restoreService.batchRestoreFailedMessagesDuringPeriod(messageIds, null, null, null, originalUserFromSecurityContext);
+        return restoreService.restoreSelectedFailedMessages(messageIds, null, originalUserFromSecurityContext);
     }
 
 
     @RequestMapping(path = "/failed/restore/all", method = RequestMethod.PUT)
-    public List<String> restoreAllFailedMessages(@RequestBody List<FailedMessagesCriteriaRO> failedMessagesCriteriaRO) {
+    public List<String> restoreAllFailedMessages() {
 
         LOG.info("In restoreAllFailedMessages..");
-        Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getFromDate());
-        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getToDate());
+       /* Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getFromDate());
+        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getToDate());*/
         String originalUserFromSecurityContext = getUser();
-        if (fromDateHour >= toDateHour) {
+        /*if (fromDateHour >= toDateHour) {
             throw getDatesValidationError();
-        }
-        return restoreService.batchRestoreFailedMessagesDuringPeriod(failedMessagesCriteriaRO.get(0).getMessageIds(), fromDateHour, toDateHour, null, originalUserFromSecurityContext);
+        }*/
+        return restoreService.restoreAllFailedMessages(null, originalUserFromSecurityContext);
     }
 
     @RequestMapping(value = "/download")
