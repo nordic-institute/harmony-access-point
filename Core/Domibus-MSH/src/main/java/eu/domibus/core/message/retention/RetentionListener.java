@@ -62,9 +62,10 @@ public class RetentionListener implements MessageListener {
             MessageDeleteType deleteType = MessageDeleteType.valueOf(message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE));
             if (MessageDeleteType.SINGLE == deleteType) {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
-                String mshRole = message.getStringProperty(MessageConstants.MSH_ROLE);
+                String roleName = message.getStringProperty(MessageConstants.MSH_ROLE);
+                MSHRole mshRole = roleName!=null && !roleName.equals("null") ? MSHRole.valueOf(roleName) : null;
                 LOG.debug("Delete one message [{}] [{}]", messageId, mshRole);
-                userMessageDefaultService.deleteMessage(messageId, MSHRole.valueOf(mshRole));
+                userMessageDefaultService.deleteMessage(messageId, mshRole);
                 return;
             }
 
