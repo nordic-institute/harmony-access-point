@@ -507,8 +507,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         final String passwordValue = domibusPropertyProvider.getProperty(domain, passwordProperty);
 
         if (StringUtils.isNotBlank(aliasValue) && StringUtils.isBlank(passwordValue)) {
-            LOG.error("One of the keystore property values is null for domain [{}]: private key alias=[{}], private key password",
-                    domain, aliasValue);
+            LOG.error("The private key password corresponding to the alias=[{}] was not set for domain [{}]: ", aliasValue, domain);
             throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
         }
         SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
@@ -516,8 +515,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.error("Keystore alias already defined for domain [{}]", domain);
             throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
         }
-
-        securityProfileAliasConfigurations.add(profileAliasConfiguration);
+        if (StringUtils.isNotBlank(aliasValue)) {
+            securityProfileAliasConfigurations.add(profileAliasConfiguration);
+        }
     }
 
     protected void createSecurityProfileAliasConfigurations() {
