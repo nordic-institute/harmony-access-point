@@ -257,8 +257,11 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     private void ensureCorrectFormatForProperty(String propertyName) {
         String selfPartyId = partyService.getGatewayPartyIdentifier();
         List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
+        String propValue = domibusPropertyProvider.getProperty(propertyName);
         String newValue = transformToNewFormat(monitoredParties, selfPartyId);
-        domibusPropertyProvider.setProperty(propertyName, newValue);
+        if(!StringUtils.equals(propValue, newValue)) {
+            domibusPropertyProvider.setProperty(propertyName, newValue);
+        }
     }
 
     protected String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {

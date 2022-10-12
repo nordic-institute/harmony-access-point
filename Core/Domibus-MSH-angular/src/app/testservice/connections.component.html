@@ -1,10 +1,10 @@
 <div class="domibus-page">
   <page-header id="connectionmonitorheader_id">Connection Monitoring</page-header>
 
-  <div style="margin-bottom: 30px;margin-left: 10px;">
+  <div *ngIf="sender && sender.identifiers.length>1" style="margin-bottom: 30px;margin-left: 10px;">
     <span>Party ids for sender party</span>
     <div style="margin-left: 20px; width: 300px; display: inline-block;">
-      <mat-select *ngIf="sender && sender.identifiers.length>1" [ngModel]="currentSenderPartyId" (selectionChange)="onCurrentSenderPartyId($event)" id="senderPartyIds">
+      <mat-select [ngModel]="currentSenderPartyId" (selectionChange)="onCurrentSenderPartyId($event)" id="senderPartyIds">
         <mat-option *ngFor="let id of sender.identifiers" [value]="id.partyId">
           {{id.partyId}}
         </mat-option>
