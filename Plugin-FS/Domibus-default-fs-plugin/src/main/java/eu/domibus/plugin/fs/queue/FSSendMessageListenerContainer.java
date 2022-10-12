@@ -29,11 +29,8 @@ public class FSSendMessageListenerContainer implements PluginMessageListenerCont
 
     protected final ApplicationContext applicationContext;
 
-    protected final FSPluginProperties fsPluginProperties;
-
-    public FSSendMessageListenerContainer(ApplicationContext applicationContext, FSPluginProperties fsPluginProperties) {
+    public FSSendMessageListenerContainer(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-        this.fsPluginProperties = fsPluginProperties;
     }
 
     @Override
