@@ -510,12 +510,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.error("The private key password corresponding to the alias=[{}] was not set for domain [{}]: ", aliasValue, domain);
             throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
         }
-        SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
         if (securityProfileAliasConfigurations.stream().anyMatch(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))) {
             LOG.error("Keystore alias already defined for domain [{}]", domain);
             throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
         }
         if (StringUtils.isNotBlank(aliasValue)) {
+            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile);
             securityProfileAliasConfigurations.add(profileAliasConfiguration);
         }
     }
