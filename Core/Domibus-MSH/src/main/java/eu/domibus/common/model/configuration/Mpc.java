@@ -142,14 +142,14 @@ public class Mpc extends AbstractBaseEntity {
     }
 
     /**
-     * @return the number of minutes to keep the metadata of downloaded messages after the payload is deleted
+     * @return the number of minutes to keep the metadata after the payload is deleted
      */
     public int getMetadataRetentionOffset() {
         return metadataRetentionOffset;
     }
 
     /**
-     * Sets the number of minutes to keep the metadata of downloaded messages after the payload is deleted
+     * Sets the number of minutes to keep the metadata after the payload is deleted
      */
     public void setMetadataRetentionOffset(int retentionDownloadedMetadataOffset) {
         this.metadataRetentionOffset = retentionDownloadedMetadataOffset;
