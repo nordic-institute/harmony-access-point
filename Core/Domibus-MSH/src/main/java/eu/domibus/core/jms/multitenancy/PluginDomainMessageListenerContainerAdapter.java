@@ -35,10 +35,18 @@ public class PluginDomainMessageListenerContainerAdapter implements DomainMessag
         return messageListenerContainer;
     }
 
+    /**
+     * The name of the plugin it belongs to
+     * @return
+     */
     public String getPluginName() {
         return pluginName;
     }
 
+    /**
+     * The name of the bean we adapt
+     * @return
+     */
     public String getName() {
         return name;
     }
