@@ -164,7 +164,9 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
 
     @Override
     public Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds) {
-        ensureMewFormatForEnabledProperty();
+        ensureCorrectFormatForProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED);
+        ensureCorrectFormatForProperty(DOMIBUS_ALERT_CONNECTION_MONITORING_FAILED_PARTIES);
+        ensureCorrectFormatForProperty(DOMIBUS_MONITORING_CONNECTION_DELETE_HISTORY_FOR_PARTIES);
 
         Map<String, ConnectionMonitorRO> result = new HashMap<>();
         for (String partyId : partyIds) {
@@ -190,19 +192,20 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             result.setTestable(true);
         }
 
-        List<String> enabledParties = getMonitorEnabledParties();
         String partyPair = senderPartyId + PARTY_SEPARATOR + partyId;
+
+        List<String> enabledParties = getMonitorEnabledParties();
         if (result.isTestable() && enabledParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setMonitored(true);
         }
 
         List<String> alertableParties = getAlertableParties();
-        if (result.isTestable() && alertableParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+        if (result.isTestable() && alertableParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setAlertable(true);
         }
 
         List<String> deleteHistoryForParties = getDeleteHistoryForParties();
-        if (result.isTestable() && deleteHistoryForParties.stream().anyMatch(partyId::equalsIgnoreCase)) {
+        if (result.isTestable() && deleteHistoryForParties.stream().anyMatch(partyPair::equalsIgnoreCase)) {
             result.setDeleteHistory(true);
         }
 
@@ -250,11 +253,12 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
             domibusPropertyProvider.setProperty(propName, propValue);
         }
     }
-    protected void ensureMewFormatForEnabledProperty() {
+
+    private void ensureCorrectFormatForProperty(String propertyName) {
         String selfPartyId = partyService.getGatewayPartyIdentifier();
-        List<String> monitoredParties = getMonitorEnabledParties();
+        List<String> monitoredParties = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
         String newValue = transformToNewFormat(monitoredParties, selfPartyId);
-        domibusPropertyProvider.setProperty(DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, newValue);
+        domibusPropertyProvider.setProperty(propertyName, newValue);
     }
 
     protected String transformToNewFormat(List<String> monitoredParties, String selfPartyId) {
@@ -265,7 +269,6 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
                 monitoredParties.set(i, selfPartyId + PARTY_SEPARATOR + pairVals[0]);
             }
         }
-        String newValue = monitoredParties.stream().collect(Collectors.joining(","));
-        return newValue;
+        return monitoredParties.stream().collect(Collectors.joining(","));
     }
 }
