@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.1
  */
 @Service
 public class BackendConnectorStateServiceImpl implements BackendConnectorStateService {
@@ -72,6 +72,7 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
 
         String[] jobNamesToResume = getJobNames(backendName);
         if (jobNamesToResume == null) {
+            LOG.info("Could not find any job names for the plugin called [{}]; exiting.", backendName);
             return;
         }
         domibusScheduler.pauseJobs(domain, jobNamesToResume);
@@ -90,6 +91,7 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
     private String[] getJobNames(String backendName) {
         EnableAware plugin = getEnableAware(backendName);
         if (plugin == null) {
+            LOG.info("Could not find a plugin called [{}]; exiting.", backendName);
             return null;
         }
 

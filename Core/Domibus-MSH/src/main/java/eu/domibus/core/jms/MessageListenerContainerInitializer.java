@@ -99,15 +99,6 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         stopAndRemoveInstancesFor(items);
     }
 
-    public void createSendMessageListenerContainer(Domain domain) {
-        LOG.info("Creating the SendMessageListenerContainer for domain [{}] ", domain);
-
-        DomainMessageListenerContainerImpl instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain, null, DOMIBUS_DISPATCHER_CONCURENCY);
-        instance.start();
-        instances.add(instance);
-        LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
-    }
-
     public void createMessageListenersForPlugin(String backendName, Domain domain) {
         if (messageListenerContainerAlreadyExists(backendName, domain)) {
             LOG.info("Message listener container for plugin [{}] and domain [{}] already exists; exiting.", backendName, domain);
@@ -124,14 +115,23 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         createMessageListenerContainerFor(domain, entry.get());
     }
 
-    private boolean messageListenerContainerAlreadyExists(String backendName, Domain domain) {
-        return instances.stream().anyMatch(instance -> instance.getDomain().equals(domain) && instance instanceof PluginDomainMessageListenerContainerAdapter
-                && ((PluginDomainMessageListenerContainerAdapter) instance).getPluginName().equals(backendName));
-    }
-
     public void destroyMessageListenersForPlugin(String backendName, Domain domain) {
         List<DomainMessageListenerContainer> items = getInstancesByBackendAndDomain(backendName, domain);
         stopAndRemoveInstancesFor(items);
+    }
+
+    protected void createSendMessageListenerContainer(Domain domain) {
+        LOG.info("Creating the SendMessageListenerContainer for domain [{}] ", domain);
+
+        DomainMessageListenerContainerImpl instance = messageListenerContainerFactory.createSendMessageListenerContainer(domain, null, DOMIBUS_DISPATCHER_CONCURENCY);
+        instance.start();
+        instances.add(instance);
+        LOG.info("MessageListenerContainer initialized for domain [{}]", domain);
+    }
+
+    private boolean messageListenerContainerAlreadyExists(String backendName, Domain domain) {
+        return instances.stream().anyMatch(instance -> instance.getDomain().equals(domain) && instance instanceof PluginDomainMessageListenerContainerAdapter
+                && ((PluginDomainMessageListenerContainerAdapter) instance).getPluginName().equals(backendName));
     }
 
     public void setConcurrency(Domain domain, String beanName, String concurrency) {

@@ -4,7 +4,7 @@ package eu.domibus.api.plugin;
  * Service called from BackendConnectorProviderExtService by plugins to notify domibus that the enabled state has changed
  *
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.1
  */
 public interface BackendConnectorStateService {
 

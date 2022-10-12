@@ -353,6 +353,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         plugins.forEach(plugin -> {
             boolean enabled = plugin.isEnabled(domain.getCode());
             if (!enabled) {
+                LOG.info("Plugin [{}] is disabled so his cron jobs will be paused.", plugin.getName());
                 List<CronJobInfoDTO> jobsInfo = plugin.getJobsInfo();
                 jobsInfo.forEach(jobInfo -> markJobForPausingByDomain(domain, jobInfo.getName()));
             }
