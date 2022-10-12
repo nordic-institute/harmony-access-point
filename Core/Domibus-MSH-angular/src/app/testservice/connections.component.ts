@@ -168,7 +168,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setMonitorState(this.currentSenderPartyId, row.partyId, newMonitoredValue);
+      await this.connectionsMonitorService.setMonitorState(this.currentSenderPartyId, row.partyId, newValue);
       row.monitored = newValue;
       this.refreshAllMonitored();
       this.alertService.success(`Monitoring ${newValueText} for <b>${row.partyId}</b>`);
@@ -184,8 +184,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-    //TODO add senderPartyId
-      await this.connectionsMonitorService.setAlertableState(row.partyId, newValue);
+      await this.connectionsMonitorService.setAlertableState(this.currentSenderPartyId, row.partyId, newValue);
       row.alertable = newValue;
       this.refreshAllAlertable();
       this.alertService.success(`Alert generation ${newValueText} for <b>${row.partyId}</b>`);
@@ -201,8 +200,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-    // TODO use senderPartyId
-      await this.connectionsMonitorService.setDeleteHistoryState(row.partyId, newValue);
+      await this.connectionsMonitorService.setDeleteHistoryState(this.currentSenderPartyId, row.partyId, newValue);
       row.deleteHistory = newValue;
       this.refreshAllDeleteOld();
       this.alertService.success(`Delete old ${newValueText} for <b>${row.partyId}</b>`);
@@ -230,11 +228,11 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   openDetails(row: ConnectionMonitorEntry) {
     this.dialog.open(ConnectionDetailsComponent, {
-          data: {
-            senderPartyId: this.currentSenderPartyId,
-            partyId: row.partyId
-          }
-        }).afterClosed().subscribe(result => {
+      data: {
+        senderPartyId: this.currentSenderPartyId,
+        partyId: row.partyId
+      }
+    }).afterClosed().subscribe(result => {
       this.refreshMonitor(row);
     });
   }

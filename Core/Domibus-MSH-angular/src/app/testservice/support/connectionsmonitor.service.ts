@@ -80,15 +80,15 @@ export class ConnectionsMonitorService {
 
   async setMonitorState(senderPartyId: string, partyId: string, enabled: boolean) {
     let propName = 'domibus.monitoring.connection.party.enabled';
-    await this.setState(enabled, partyId, propName);
+    await this.setState(senderPartyId, enabled, partyId, propName);
   }
 
-  async setAlertableState(partyId: string, enabled: boolean) {
+  async setAlertableState(senderPartyId: string, partyId: string, enabled: boolean) {
     let propName = 'domibus.alert.connection.monitoring.parties';
-    await this.setState(enabled, partyId, propName);
+    await this.setState(senderPartyId, enabled, partyId, propName);
   }
 
-  private async setState(enabled: boolean, partyId: string, propName: string) {
+  private async setState(senderPartyId: string, enabled: boolean, partyId: string, propName: string) {
     let testableParties = await this.http.get<string[]>(ConnectionsMonitorService.TEST_SERVICE_PARTIES_URL).toPromise();
     if (!testableParties || !testableParties.length) {
       throw new Error('The test service is not properly configured.');
@@ -130,9 +130,9 @@ export class ConnectionsMonitorService {
     await this.propertiesService.updateProperty(prop);
   }
 
-  async setDeleteHistoryState(partyId: string, enabled: boolean) {
+  async setDeleteHistoryState(senderPartyId: string, partyId: string, enabled: boolean) {
     let propName = 'domibus.monitoring.connection.party.history.delete';
-    await this.setState(enabled, partyId, propName);
+    await this.setState(senderPartyId, enabled, partyId, propName);
   }
 
   async setDeleteHistoryStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
