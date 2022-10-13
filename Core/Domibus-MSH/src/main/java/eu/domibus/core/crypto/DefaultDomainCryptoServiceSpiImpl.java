@@ -493,6 +493,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         LOG.debug("Initializing the keystore certificate provider for domain [{}]", domain);
 
         domainTaskExecutor.submit(() -> {
+            loadKeystoreProperties();
 
             KeyStore keyStore = certificateService.getTrustStore(DOMIBUS_KEYSTORE_NAME);
             securityProfileAliasConfigurations.forEach(
@@ -548,8 +549,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected void loadKeystoreProperties() {
-        createSecurityProfileAliasConfigurations();
-
         final String keystoreType = getKeystoreType();
         final String keystorePassword = getKeystorePassword();
         if (StringUtils.isAnyEmpty(keystoreType, keystorePassword)) {
