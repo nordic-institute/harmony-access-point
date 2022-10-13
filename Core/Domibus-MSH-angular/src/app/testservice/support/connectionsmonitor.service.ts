@@ -103,27 +103,30 @@ export class ConnectionsMonitorService {
     // remove old parties that are no longer testable:
     enabledParties = enabledParties.filter(ep => ep.split('>').every(p => testableParties.includes(p)));
 
+    let value = senderPartyId + '>' + partyId;
     if (enabled) {
-      enabledParties.push(senderPartyId + '>' + partyId);
+      enabledParties.push(value);
+    } else {
+      enabledParties = enabledParties.filter(el => el != value);
     }
     prop.value = enabledParties.join(',');
     await this.propertiesService.updateProperty(prop);
   }
 
-  async setMonitorStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+  async setMonitorStateForAll(senderPartyId: string, list: ConnectionMonitorEntry[], enabled: boolean) {
     let propName = 'domibus.monitoring.connection.party.enabled';
-    await this.setStateForAll(propName, enabled, list);
+    await this.setStateForAll(propName, enabled, list, senderPartyId);
   }
 
-  async setAlertableStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+  async setAlertableStateForAll(senderPartyId: string, list: ConnectionMonitorEntry[], enabled: boolean) {
     let propName = 'domibus.alert.connection.monitoring.parties';
-    await this.setStateForAll(propName, enabled, list);
+    await this.setStateForAll(propName, enabled, list, senderPartyId);
   }
 
-  private async setStateForAll(propName: string, enabled: boolean, list: ConnectionMonitorEntry[]) {
+  private async setStateForAll(propName: string, enabled: boolean, list: ConnectionMonitorEntry[], senderPartyId: string) {
     let prop: PropertyModel = await this.propertiesService.getProperty(propName);
     if (enabled) {
-      prop.value = list.map(el => el.partyId).join(',');
+      prop.value = list.map(el => senderPartyId + '>' + el.partyId).join(',');
     } else {
       prop.value = '';
     }
@@ -135,9 +138,9 @@ export class ConnectionsMonitorService {
     await this.setState(senderPartyId, enabled, partyId, propName);
   }
 
-  async setDeleteHistoryStateForAll(list: ConnectionMonitorEntry[], enabled: boolean) {
+  async setDeleteHistoryStateForAll(senderPartyId: string, list: ConnectionMonitorEntry[], enabled: boolean) {
     let propName = 'domibus.monitoring.connection.party.history.delete';
-    await this.setStateForAll(propName, enabled, list);
+    await this.setStateForAll(propName, enabled, list, senderPartyId);
   }
 }
 

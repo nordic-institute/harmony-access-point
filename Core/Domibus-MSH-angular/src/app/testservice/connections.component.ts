@@ -263,7 +263,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       row.monitored = newState;
     });
     try {
-      await this.connectionsMonitorService.setMonitorStateForAll(active, newState);
+      await this.connectionsMonitorService.setMonitorStateForAll(this.currentSenderPartyId, active, newState);
       this.alertService.success(`Monitoring ${newStateText} for all parties`);
     } catch (err) {
       active.forEach(row => row.monitored = row['originalMonitored']);
@@ -281,7 +281,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       row.alertable = newState;
     });
     try {
-      await this.connectionsMonitorService.setAlertableStateForAll(active, newState);
+      await this.connectionsMonitorService.setAlertableStateForAll(this.currentSenderPartyId, active, newState);
       this.alertService.success(`Alert generation ${newStateText} for all parties`);
     } catch (err) {
       active.forEach(row => row.alertable = row['originalAlertable']);
@@ -299,7 +299,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       row.deleteHistory = newState;
     });
     try {
-      await this.connectionsMonitorService.setDeleteHistoryStateForAll(active, newState);
+      await this.connectionsMonitorService.setDeleteHistoryStateForAll(this.currentSenderPartyId, active, newState);
       this.alertService.success(`Delete old ${newStateText} for all parties`);
     } catch (err) {
       active.forEach(row => row.deleteHistory = row['originalDeleteOld']);
