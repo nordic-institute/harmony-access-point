@@ -70,18 +70,21 @@ public class EArchiveBatchDispatcherService {
         Long newLastEntityIdProcessed = lastEntityIdProcessed;
         long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived(eArchiveRequestType);
         int batchMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
+        int batchPayloadMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE_PAYLOAD);
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
         LOG.trace("Start eArchive batch lastEntityIdProcessed [{}], " +
                         "maxEntityIdToArchived [{}], " +
                         "batchMaxSize [{}], " +
+                        "batchPayloadMaxSize [{}], " +
                         "maxNumberOfBatchesCreated [{}]",
                 lastEntityIdProcessed,
                 maxEntityIdToArchived,
                 batchMaxSize,
+                batchPayloadMaxSize,
                 maxNumberOfBatchesCreated);
 
         for (int i = 0; i < maxNumberOfBatchesCreated; i++) {
-            EArchiveBatchEntity batchAndEnqueue = createBatchAndEnqueue(newLastEntityIdProcessed, batchMaxSize, maxEntityIdToArchived, domain, eArchiveRequestType);
+            EArchiveBatchEntity batchAndEnqueue = createBatchAndEnqueue(newLastEntityIdProcessed, batchMaxSize, batchPayloadMaxSize, maxEntityIdToArchived, domain, eArchiveRequestType);
             if (batchAndEnqueue == null) {
                 break;
             }
@@ -111,8 +114,9 @@ public class EArchiveBatchDispatcherService {
     /**
      * Create a new batch and enqueue it
      */
-    private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchMaxSize, long maxEntityIdToArchived, Domain domain, EArchiveRequestType requestType) {
-        List<EArchiveBatchUserMessage> messagesForArchivingAsc = eArchivingJobService.findMessagesForArchivingAsc(lastEntityIdProcessed, maxEntityIdToArchived, batchMaxSize);
+    private EArchiveBatchEntity createBatchAndEnqueue(final Long lastEntityIdProcessed, int batchMaxSize, int batchPayloadMaxSize, long maxEntityIdToArchived, Domain domain, EArchiveRequestType requestType) {
+        List<EArchiveBatchUserMessage> messagesForArchivingAsc = eArchivingJobService.findMessagesForArchivingAsc(lastEntityIdProcessed, maxEntityIdToArchived, batchMaxSize, batchPayloadMaxSize);
+
         if (CollectionUtils.isEmpty(messagesForArchivingAsc)) {
             LOG.debug("No message to archive");
             return null;
