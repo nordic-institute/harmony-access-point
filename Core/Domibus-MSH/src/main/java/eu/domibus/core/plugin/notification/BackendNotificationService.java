@@ -12,7 +12,6 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
@@ -20,9 +19,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
-import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -35,7 +32,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -62,61 +58,61 @@ public class BackendNotificationService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendNotificationService.class);
 
-    @Autowired
-    protected JMSManager jmsManager;
+    protected final JMSManager jmsManager;
 
-    @Autowired
-    protected RoutingService routingService;
+    protected final RoutingService routingService;
 
-    @Autowired
-    protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
+    protected final AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
+    protected final UserMessageLogDao userMessageLogDao;
 
-    @Autowired
     @Qualifier(UNKNOWN_RECEIVER_QUEUE)
-    protected Queue unknownReceiverQueue;
+    protected final Queue unknownReceiverQueue;
 
-    @Autowired
-    protected UserMessageDao userMessageDao;
+    protected final UserMessageDao userMessageDao;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected EventService eventService;
+    protected final EventService eventService;
 
-    @Autowired
-    protected MessagingConfigurationManager messagingConfigurationManager;
+    protected final MessagingConfigurationManager messagingConfigurationManager;
 
-    @Autowired
-    private UserMessageServiceHelper userMessageServiceHelper;
+    private final UserMessageServiceHelper userMessageServiceHelper;
 
-    @Autowired
-    protected TestMessageValidator testMessageValidator;
+    protected final PluginEventNotifierProvider pluginEventNotifierProvider;
 
-    @Autowired
-    protected PluginEventNotifierProvider pluginEventNotifierProvider;
+    protected final BackendConnectorProvider backendConnectorProvider;
 
-    @Autowired
-    protected SubmissionValidatorService submissionValidatorService;
+    protected final BackendConnectorHelper backendConnectorHelper;
 
-    @Autowired
-    protected BackendConnectorProvider backendConnectorProvider;
+    protected final BackendConnectorService backendConnectorService;
 
-    @Autowired
-    protected BackendConnectorDelegate backendConnectorDelegate;
-
-    @Autowired
-    protected BackendConnectorHelper backendConnectorHelper;
-
-    @Autowired
-    protected BackendConnectorService backendConnectorService;
-
-    @Autowired
     @Qualifier(JSON_MAPPER_BEAN)
-    protected ObjectMapper objectMapper;
+    protected final ObjectMapper objectMapper;
+
+    public BackendNotificationService(JMSManager jmsManager, RoutingService routingService, AsyncNotificationConfigurationService asyncNotificationConfigurationService,
+                                      UserMessageLogDao userMessageLogDao, Queue unknownReceiverQueue, UserMessageDao userMessageDao,
+                                      DomibusPropertyProvider domibusPropertyProvider, EventService eventService, MessagingConfigurationManager messagingConfigurationManager,
+                                      UserMessageServiceHelper userMessageServiceHelper, PluginEventNotifierProvider pluginEventNotifierProvider,
+                                      BackendConnectorProvider backendConnectorProvider, BackendConnectorHelper backendConnectorHelper,
+                                      BackendConnectorService backendConnectorService, ObjectMapper objectMapper) {
+        this.jmsManager = jmsManager;
+        this.routingService = routingService;
+        this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
+        this.userMessageLogDao = userMessageLogDao;
+        this.unknownReceiverQueue = unknownReceiverQueue;
+        this.userMessageDao = userMessageDao;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.eventService = eventService;
+        this.messagingConfigurationManager = messagingConfigurationManager;
+        this.userMessageServiceHelper = userMessageServiceHelper;
+        this.pluginEventNotifierProvider = pluginEventNotifierProvider;
+        this.backendConnectorProvider = backendConnectorProvider;
+        this.backendConnectorHelper = backendConnectorHelper;
+        this.backendConnectorService = backendConnectorService;
+        this.objectMapper = objectMapper;
+    }
+
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {

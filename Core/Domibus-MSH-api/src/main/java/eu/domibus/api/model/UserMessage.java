@@ -23,7 +23,8 @@ import java.util.Set;
                 query = "select userMessage from UserMessage userMessage where userMessage.messageId IN :MESSAGEIDS"),
         @NamedQuery(name = "UserMessage.findTestMessageToPartyDesc",
                 query = "select um from UserMessage um " +
-                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
+                        "where um.testMessage=true and um.sourceMessage=false and um.action.entityId=:ACTION_ID " +
+                        "and um.partyInfo.from.fromPartyId.value=:SENDER_PARTY_ID and um.partyInfo.to.toPartyId.value=:PARTY_ID " +
                         "order by um.entityId desc"),
         @NamedQuery(name = "UserMessage.findSentTestMessageWithStatusDesc",
                 query = "select uml.userMessage from UserMessageLog uml " +

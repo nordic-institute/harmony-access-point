@@ -153,7 +153,7 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
         domibusUserDetails.setDomain(domainCode);
 
         domainContextProvider.clearCurrentDomain();
-        domainContextProvider.setCurrentDomain(domainCode);
+        domainContextProvider.setCurrentDomainWithValidation(domainCode);
 
         LOG.debug("createUserDetails - end");
         return domibusUserDetails;

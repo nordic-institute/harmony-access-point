@@ -48,8 +48,9 @@ public class MessageLogResourceTest {
     public void testGetLastTestSent(@Injectable TestServiceMessageInfoRO testServiceMessageInfoResult) throws TestServiceException {
         // Given
         String partyId = "test";
+        String senderPartyId = "senderPartyId";
         new Expectations() {{
-            testService.getLastTestSentWithErrors(partyId);
+            testService.getLastTestSentWithErrors(senderPartyId, partyId);
             result = testServiceMessageInfoResult;
         }};
 
@@ -57,6 +58,7 @@ public class MessageLogResourceTest {
         ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
                 new LatestOutgoingMessageRequestRO() {{
                     setPartyId(partyId);
+                    setSenderPartyId(senderPartyId);
                 }});
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
@@ -67,8 +69,9 @@ public class MessageLogResourceTest {
     public void testGetLastTestSent_NotFound() throws TestServiceException {
         // Given
         String partyId = "partyId";
+        String senderPartyId = "senderPartyId";
         new Expectations() {{
-            testService.getLastTestSentWithErrors(partyId);
+            testService.getLastTestSentWithErrors(senderPartyId, partyId);
             result = new TestServiceException("No User Message found. Error Details in error log");
         }};
 
@@ -76,6 +79,7 @@ public class MessageLogResourceTest {
         messageLogResource.getLastTestSent(
                 new LatestOutgoingMessageRequestRO() {{
                     setPartyId(partyId);
+                    setSenderPartyId(senderPartyId);
                 }});
     }
 
@@ -84,8 +88,9 @@ public class MessageLogResourceTest {
         // Given
         String partyId = "partyId";
         String userMessageId = "userMessageId";
+        String senderPartyId = "senderPartyId";
         new Expectations() {{
-            testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+            testService.getLastTestReceivedWithErrors(senderPartyId, partyId, userMessageId);
             result = testServiceMessageInfoResult;
         }};
 
@@ -93,6 +98,7 @@ public class MessageLogResourceTest {
         ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(
                 new LatestIncomingMessageRequestRO() {{
                     setPartyId(partyId);
+                    setSenderPartyId(senderPartyId);
                     setUserMessageId(userMessageId);
                 }});
         // Then
@@ -105,15 +111,17 @@ public class MessageLogResourceTest {
     public void testGetLastTestReceived_NotFound() throws TestServiceException {
         // Given
         String partyId = "partyId";
+        String senderPartyId = "senderPartyId";
         String userMessageId = "userMessageId";
         new Expectations() {{
-            testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+            testService.getLastTestReceivedWithErrors(senderPartyId, partyId, userMessageId);
             result = new TestServiceException("Error Details in error log");
         }};
 
         messageLogResource.getLastTestReceived(
                 new LatestIncomingMessageRequestRO() {{
                     setPartyId(partyId);
+                    setSenderPartyId(senderPartyId);
                     setUserMessageId(userMessageId);
                 }});
     }

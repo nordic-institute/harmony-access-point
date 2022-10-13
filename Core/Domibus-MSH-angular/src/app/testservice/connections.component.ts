@@ -18,6 +18,8 @@ import {ConnectionDetailsComponent} from './connection-details/connection-detail
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {PartyResponseRo} from '../party/support/party';
+import {MatSelectChange} from '@angular/material/select';
 
 /**
  * @author Ion Perpegel
@@ -46,14 +48,21 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   allMonitored: boolean;
   allAllertable: boolean;
   allDeleteHistory: boolean;
+  currentSenderPartyId: any;
+  sender: PartyResponseRo;
 
   constructor(private applicationService: ApplicationContextService, private connectionsMonitorService: ConnectionsMonitorService,
               private alertService: AlertService, private dialog: MatDialog, private changeDetector: ChangeDetectorRef, private http: HttpClient) {
     super();
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     super.ngOnInit();
+
+    this.sender = await this.connectionsMonitorService.getSenderParty();
+    let partyIds = this.sender.identifiers;
+    partyIds.sort((id1, id2) => id1.partyId.localeCompare(id2.partyId));
+    this.setCurrentSenderPartyId(partyIds[0].partyId);
 
     this.loadServerData();
   }
@@ -67,7 +76,10 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   private async getDataAndSetResults() {
-    let rows = await this.connectionsMonitorService.getMonitors();
+    let rows: ConnectionMonitorEntry[] = await this.connectionsMonitorService.getMonitors(this.currentSenderPartyId);
+    rows.forEach(entry => {
+      entry.senderPartyId = this.sender.name + '(' + this.currentSenderPartyId + ')';
+    });
     super.rows = rows;
     super.count = this.rows.length;
 
@@ -91,7 +103,12 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   private initColumns() {
     this.columnPicker.allColumns = [
       {
-        name: 'Party',
+        name: 'Sender Party',
+        prop: 'senderPartyId',
+        width: 10
+      },
+      {
+        name: 'Responder Party',
         prop: 'partyName',
         width: 10
       },
@@ -134,7 +151,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
         cellTemplate: this.rowActions,
         name: 'Actions',
         prop: 'actions',
-        width: 60,
+        width: 30,
         canAutoResize: true,
         sortable: false
       }
@@ -151,7 +168,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setMonitorState(row.partyId, newValue);
+      await this.connectionsMonitorService.setMonitorState(this.currentSenderPartyId, row.partyId, newValue);
       row.monitored = newValue;
       this.refreshAllMonitored();
       this.alertService.success(`Monitoring ${newValueText} for <b>${row.partyId}</b>`);
@@ -167,7 +184,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setAlertableState(row.partyId, newValue);
+      await this.connectionsMonitorService.setAlertableState(this.currentSenderPartyId, row.partyId, newValue);
       row.alertable = newValue;
       this.refreshAllAlertable();
       this.alertService.success(`Alert generation ${newValueText} for <b>${row.partyId}</b>`);
@@ -183,7 +200,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setDeleteHistoryState(row.partyId, newValue);
+      await this.connectionsMonitorService.setDeleteHistoryState(this.currentSenderPartyId, row.partyId, newValue);
       row.deleteHistory = newValue;
       this.refreshAllDeleteOld();
       this.alertService.success(`Delete old ${newValueText} for <b>${row.partyId}</b>`);
@@ -196,12 +213,12 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   async sendTestMessage(row: ConnectionMonitorEntry) {
     row.status = 'PENDING';
-    let messageId = await this.connectionsMonitorService.sendTestMessage(row.partyId);
+    let messageId = await this.connectionsMonitorService.sendTestMessage(row.partyId, this.currentSenderPartyId);
     await this.refreshMonitor(row);
   }
 
   async refreshMonitor(row: ConnectionMonitorEntry) {
-    let refreshedRow = await this.connectionsMonitorService.getMonitor(row.partyId);
+    let refreshedRow = await this.connectionsMonitorService.getMonitor(this.currentSenderPartyId, row.partyId);
     Object.assign(row, refreshedRow);
 
     if (row.status == 'PENDING') {
@@ -210,9 +227,30 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   }
 
   openDetails(row: ConnectionMonitorEntry) {
-    this.dialog.open(ConnectionDetailsComponent, {data: {partyId: row.partyId}}).afterClosed().subscribe(result => {
+    this.dialog.open(ConnectionDetailsComponent, {
+      data: {
+        senderPartyId: this.currentSenderPartyId,
+        partyId: row.partyId
+      }
+    }).afterClosed().subscribe(result => {
       this.refreshMonitor(row);
     });
+  }
+
+
+  onCurrentSenderPartyId($event: MatSelectChange) {
+    console.log($event)
+    this.setCurrentSenderPartyId($event.value);
+  }
+
+  private async setCurrentSenderPartyId(value: any) {
+    this.currentSenderPartyId = value;
+    await this.getDataAndSetResults();
+
+    // this.rows.forEach(entry => {
+    //   entry.senderPartyId = this.sender.name + '(' + this.currentSenderPartyId + ')';
+    // });
+    // will read the monitor enabled properties for this party id
   }
 
   async toggleMonitorAll() {
@@ -225,7 +263,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       row.monitored = newState;
     });
     try {
-      await this.connectionsMonitorService.setMonitorStateForAll(active, newState);
+      await this.connectionsMonitorService.setMonitorStateForAll(this.currentSenderPartyId, active, newState);
       this.alertService.success(`Monitoring ${newStateText} for all parties`);
     } catch (err) {
       active.forEach(row => row.monitored = row['originalMonitored']);
@@ -243,7 +281,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       row.alertable = newState;
     });
     try {
-      await this.connectionsMonitorService.setAlertableStateForAll(active, newState);
+      await this.connectionsMonitorService.setAlertableStateForAll(this.currentSenderPartyId, active, newState);
       this.alertService.success(`Alert generation ${newStateText} for all parties`);
     } catch (err) {
       active.forEach(row => row.alertable = row['originalAlertable']);
@@ -261,7 +299,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
       row.deleteHistory = newState;
     });
     try {
-      await this.connectionsMonitorService.setDeleteHistoryStateForAll(active, newState);
+      await this.connectionsMonitorService.setDeleteHistoryStateForAll(this.currentSenderPartyId, active, newState);
       this.alertService.success(`Delete old ${newStateText} for all parties`);
     } catch (err) {
       active.forEach(row => row.deleteHistory = row['originalDeleteOld']);

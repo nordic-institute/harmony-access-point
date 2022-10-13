@@ -8,6 +8,7 @@ import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -63,7 +64,12 @@ public class SplitAndJoinListener implements MessageListener {
                 return;
             }
 
-            domainContextProvider.setCurrentDomain(domainCode);
+            try {
+                domainContextProvider.setCurrentDomainWithValidation(domainCode);
+            } catch (DomibusDomainException ex) {
+                LOG.error("Invalid domain: [{}]", domainCode, ex);
+                return;
+            }
 
             String messageType = message.getStringProperty(UserMessageService.MSG_TYPE);
             LOG.debug("Processing splitAndJoin message [{}]", messageType);

@@ -55,6 +55,9 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     private PullProcessValidator pullProcessValidator;
 
+    @Autowired
+    FinalRecipientService finalRecipientService;
+
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
 
@@ -65,8 +68,6 @@ public class CachingPModeProvider extends PModeProvider {
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
 
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
-
-    protected Map<String, String> finalRecipientAccessPointUrls = new HashMap<>();
 
     private Object configurationLock = new Object();
 
@@ -698,21 +699,21 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        final String finalRecipientAPUrl = finalRecipientAccessPointUrls.get(finalRecipient);
+        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
         if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-            LOG.debug("Determined endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
+            LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
             return finalRecipientAPUrl;
         }
 
         final String receiverPartyEndpoint = receiverParty.getEndpoint();
-        LOG.debug("Determined endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
+        LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
         return receiverPartyEndpoint;
     }
 
+    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientEndpointUrl) {
+        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientEndpointUrl, finalRecipient);
 
-    public synchronized void setReceiverPartyEndpoint(String finalRecipient, String finalRecipientAPUrl) {
-        LOG.debug("Setting the endpoint URL to [{}] for final recipient [{}]", finalRecipientAPUrl, finalRecipient);
-        finalRecipientAccessPointUrls.put(finalRecipient, finalRecipientAPUrl);
+        finalRecipientService.saveFinalRecipientEndpoint(finalRecipient, finalRecipientEndpointUrl);
     }
 
     @Override
@@ -910,7 +911,7 @@ public class CachingPModeProvider extends PModeProvider {
 
             this.pullProcessByMpcCache.clear();
             this.pullProcessesByInitiatorCache.clear();
-            this.finalRecipientAccessPointUrls.clear();
+            finalRecipientService.clearFinalRecipientAccessPointUrls();
             this.init(); //reloads the config
         }
     }
@@ -1035,14 +1036,28 @@ public class CachingPModeProvider extends PModeProvider {
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
-                        && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
-                    result.addAll(getDistinctPartiesId(process, getCorrespondingPartiesFn));
+                if (legConfiguration.getService()!= null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                        && legConfiguration.getAction() != null && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
+                    result.addAll(getProcessPartiesId(process, getCorrespondingPartiesFn));
                 }
             }
         }
         return result.stream().distinct().collect(Collectors.toList());
     }
+
+    protected List<String> getProcessPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
+        List<String> result = new ArrayList<>();
+        Comparator<Identifier> comp = Comparator.comparing(Identifier::getPartyId);
+        for (Party party : getProcessPartiesByRoleFn.apply(process)) {
+            List<String> partyIds = party.getIdentifiers().stream()
+                    .sorted(comp)
+                    .map(Identifier::getPartyId)
+                    .collect(Collectors.toList());
+            result.addAll(partyIds);
+        }
+        return result;
+    }
+
 
     protected List<Process> filterProcessesByMep(final List<MessageExchangePattern> meps) {
         List<Process> processes = this.getConfiguration().getBusinessProcesses().getProcesses();
@@ -1069,30 +1084,6 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         return false;
-    }
-
-    protected List<String> getDistinctPartiesId(Process process, Function<Process, Set<Party>> getProcessPartiesByRoleFn) {
-        List<String> result = new ArrayList<>();
-        for (Party party : getProcessPartiesByRoleFn.apply(process)) {
-            String partyId = getOnePartyId(party);
-            if (partyId != null) {
-                result.add(partyId);
-            }
-        }
-        return result;
-    }
-
-    protected String getOnePartyId(Party party) {
-        // add only one id for the party, not all aliases
-        Comparator<Identifier> comp = Comparator.comparing(Identifier::getPartyId);
-        List<Identifier> partyIds = party.getIdentifiers().stream().sorted(comp).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(partyIds)) {
-            LOG.warn("No party identifiers for party [{}]", party.getName());
-            return null;
-        }
-        String partyId = partyIds.get(0).getPartyId();
-        LOG.trace("Getting party [{}] from process.", partyId);
-        return partyId;
     }
 
     @Override

@@ -2,7 +2,6 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
@@ -25,12 +24,8 @@ public class FSWorkersConfiguration {
 
     protected final DomainContextExtService domainContextExtService;
 
-    protected final DomibusSchedulerExtService domibusSchedulerExtService;
-
-    public FSWorkersConfiguration(DomainContextExtService domainContextExtService,
-                                  DomibusSchedulerExtService domibusSchedulerExtService) {
+    public FSWorkersConfiguration(DomainContextExtService domainContextExtService) {
         this.domainContextExtService = domainContextExtService;
-        this.domibusSchedulerExtService = domibusSchedulerExtService;
     }
 
     @Bean
@@ -46,8 +41,7 @@ public class FSWorkersConfiguration {
     public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
         LOG.debug("fsPluginSendMessagesWorkerTrigger entering");
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginSendMessagesWorkerJob")) {
-            LOG.debug("checkTriggerCreation returned null for domain [{}] so the fsPluginSendMessagesWorkerTrigger returns null", domain);
+        if (!shouldCreateTrigger(domain, "fsPluginSendMessagesWorkerJob")) {
             return null;
         }
 
@@ -70,8 +64,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeSentWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeSentWorkerJob")) {
-            LOG.debug("checkTriggerCreation returned null for domain [{}] so the fsPluginPurgeSentWorkerTrigger returns null", domain);
+        if (!shouldCreateTrigger(domain, "fsPluginPurgeSentWorkerJob")) {
             return null;
         }
 
@@ -94,8 +87,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeFailedWorkerJob")) {
-            LOG.debug("checkTriggerCreation returned null for domain [{}] so the fsPluginPurgeFailedWorkerTrigger returns null", domain);
+        if (!shouldCreateTrigger(domain, "fsPluginPurgeFailedWorkerJob")) {
             return null;
         }
 
@@ -118,8 +110,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeReceivedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeReceivedWorkerJob")) {
-            LOG.debug("checkTriggerCreation returned null for domain [{}] so the fsPluginPurgeReceivedWorkerTrigger returns null", domain);
+        if (!shouldCreateTrigger(domain, "fsPluginPurgeReceivedWorkerJob")) {
             return null;
         }
 
@@ -142,8 +133,7 @@ public class FSWorkersConfiguration {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeLocksWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (!checkTriggerCreation(fsPluginProperties, domain, "fsPluginPurgeLocksWorkerJob")) {
-            LOG.debug("checkTriggerCreation returned null for domain [{}] so the fsPluginPurgeLocksWorkerTrigger returns null", domain);
+        if (!shouldCreateTrigger(domain, "fsPluginPurgeLocksWorkerJob")) {
             return null;
         }
 
@@ -154,17 +144,10 @@ public class FSWorkersConfiguration {
         return obj;
     }
 
-
-    protected boolean checkTriggerCreation(FSPluginProperties fsPluginProperties, DomainDTO domain, String jobName) {
+    protected boolean shouldCreateTrigger(DomainDTO domain, String jobName) {
         if (domain == null) {
-            LOG.debug("we cannot create {}, domain is null", jobName);
-            return false; // this job only works for a domain
-        }
-        if (!fsPluginProperties.getDomainEnabled(domain.getCode())) {
-            LOG.debug("Domain [{}] is disabled, job [{}] will be created but paused", domain, jobName);
-
-            domibusSchedulerExtService.markJobForPausing(domain.getCode(), jobName);
-            LOG.debug("Quartz job [{}] marked for pausing", jobName);
+            LOG.debug("Cannot create job named {} because the domain is null.", jobName);
+            return false;
         }
         return true;
     }

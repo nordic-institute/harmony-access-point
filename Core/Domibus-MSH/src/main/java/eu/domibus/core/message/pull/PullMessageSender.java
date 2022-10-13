@@ -23,6 +23,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequestDao;
@@ -119,9 +120,14 @@ public class PullMessageSender {
         String domainCode;
         try {
             domainCode = map.getStringProperty(MessageConstants.DOMAIN);
-            domainContextProvider.setCurrentDomain(domainCode);
         } catch (JMSException e) {
             LOG.error("Could not get domain from pull request jms message:", e);
+            return;
+        }
+        try {
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
+        } catch (DomibusDomainException ex) {
+            LOG.error("Invalid domain: [{}]", domainCode, ex);
             return;
         }
         LOG.debug("Initiate pull request");

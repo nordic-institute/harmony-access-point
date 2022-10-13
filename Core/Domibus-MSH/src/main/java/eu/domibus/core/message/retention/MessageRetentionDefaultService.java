@@ -3,6 +3,7 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.UserMessageLogDto;
@@ -25,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -227,7 +225,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             JmsMessage message = JMSMessageBuilder.create()
                     .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
                     .property(MESSAGE_ID, messageLogDto.getMessageId())
-                    .property(MSH_ROLE, messageLogDto.getMshRole().name()) // role might not be set!!!!
+
+                    .property(MSH_ROLE, Optional.ofNullable(messageLogDto.getMshRole()).map(MSHRole::name).orElse(null)) // role might not be set!!!!
                     .property(FINAL_RECIPIENT, messageLogDto.getProperties().get(FINAL_RECIPIENT))
                     .property(ORIGINAL_SENDER, messageLogDto.getProperties().get(ORIGINAL_SENDER))
                     .build();
