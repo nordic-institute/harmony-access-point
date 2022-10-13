@@ -35,11 +35,11 @@ public class PluginAsyncNotificationListener implements MessageListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginAsyncNotificationListener.class);
 
-    protected AuthUtils authUtils;
-    protected DomainContextProvider domainContextProvider;
-    protected AsyncNotificationConfiguration asyncNotificationConfiguration;
-    protected PluginEventNotifierProvider pluginEventNotifierProvider;
-    protected ObjectMapper objectMapper;
+    protected final AuthUtils authUtils;
+    protected final DomainContextProvider domainContextProvider;
+    protected final AsyncNotificationConfiguration asyncNotificationConfiguration;
+    protected final PluginEventNotifierProvider pluginEventNotifierProvider;
+    protected final ObjectMapper objectMapper;
 
     public PluginAsyncNotificationListener(DomainContextProvider domainContextProvider,
                                            AsyncNotificationConfiguration asyncNotificationConfiguration,
@@ -54,8 +54,8 @@ public class PluginAsyncNotificationListener implements MessageListener {
 
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     @Transactional
-    @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
-    @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
+    @Timer(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
+    @Counter(clazz = PluginAsyncNotificationListener.class,value = "onMessage")
     public void onMessage(final Message message) {
         authUtils.runWithSecurityContext(()-> doOnMessage(message),
                 "notif", "notif", AuthRole.ROLE_ADMIN);
@@ -73,7 +73,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
 
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             LOG.debug("Processing message ID [{}] for domain [{}]", messageId, domainCode);
-            domainContextProvider.setCurrentDomain(domainCode);
+            domainContextProvider.setCurrentDomainWithValidation(domainCode);
 
             final NotificationType notificationType = NotificationType.valueOf(message.getStringProperty(MessageConstants.NOTIFICATION_TYPE));
 

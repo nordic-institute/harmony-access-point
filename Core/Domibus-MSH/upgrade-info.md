@@ -1,6 +1,6 @@
 # Domibus upgrade information
 
-  ## Domibus 5.1 (from 5.0.1)
+  ## Domibus 5.1 (from 5.0.2)
 
   ### DB migration script
                 - Run the appropriate DB migration script:
@@ -23,6 +23,9 @@
                                  or, for multitenancy:
                                      mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
                                      mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
+## Domibus 5.0.2 (from 5.0.1):
+                - Replace the Domibus war
+                - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
 
 ## Domibus 5.0.1 (from 5.0):
                 - Replace the Domibus war

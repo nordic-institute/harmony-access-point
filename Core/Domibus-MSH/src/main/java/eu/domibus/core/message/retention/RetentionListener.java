@@ -8,6 +8,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -51,7 +52,12 @@ public class RetentionListener implements MessageListener {
         try {
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             LOG.debug("Processing JMS message for domain [{}]", domainCode);
-            domainContextProvider.setCurrentDomain(domainCode);
+            try {
+                domainContextProvider.setCurrentDomainWithValidation(domainCode);
+            } catch (DomibusDomainException ex) {
+                LOG.error("Invalid domain: [{}]", domainCode, ex);
+                return;
+            }
 
             MessageDeleteType deleteType = MessageDeleteType.valueOf(message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE));
             if (MessageDeleteType.SINGLE == deleteType) {

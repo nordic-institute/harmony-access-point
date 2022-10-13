@@ -20,6 +20,7 @@ import eu.domibus.core.message.ReceiptDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -90,7 +91,12 @@ public class PullReceiptListener implements MessageListener {
                 LOG.error("Domain is empty: could not send message");
                 return;
             }
-            domainContextProvider.setCurrentDomain(domainCode);
+            try {
+                domainContextProvider.setCurrentDomainWithValidation(domainCode);
+            } catch (DomibusDomainException ex) {
+                LOG.error("Invalid domain: [{}]", domainCode, ex);
+                return;
+            }
             final String refToMessageId = message.getStringProperty(UserMessageService.PULL_RECEIPT_REF_TO_MESSAGE_ID);
             final String pModeKey = message.getStringProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
             LOG.info("Sending pull receipt for pulled UserMessage [{}], domain [{}].", refToMessageId, domainCode);

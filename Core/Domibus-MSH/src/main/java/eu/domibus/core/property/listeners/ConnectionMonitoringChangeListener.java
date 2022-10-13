@@ -1,6 +1,5 @@
 package eu.domibus.core.property.listeners;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyException;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED;
 
-
+import static eu.domibus.core.monitoring.ConnectionMonitoringServiceImpl.PARTY_SEPARATOR;
 /**
  * @author Ion Perpegel
  * @since 4.2
@@ -50,18 +49,20 @@ public class ConnectionMonitoringChangeListener implements DomibusPropertyChange
         List<Party> knownParties = pModeProvider.findAllParties();
         List<String> testablePartyIds = partyService.findPushToPartyNamesForTest();
 
-        newPartyIds.forEach(partyId -> {
-            LOG.trace("Checking that [{}] is a known party", partyId);
-            if (knownParties.stream().noneMatch(party ->
-                    party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
-                throw new DomibusPropertyException("Could not change the list of monitoring parties: "
-                        + partyId + " is not configured in Pmode");
-            }
-            LOG.trace("Checking that [{}] is a known testable party", partyId);
-            if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
-                throw new DomibusPropertyException("Could not change the list of monitoring parties: "
-                        + partyId + " is not configured to receive test messages in Pmode");
-            }
+        newPartyIds.forEach(partyIdPair -> {
+            Arrays.stream(partyIdPair.split(PARTY_SEPARATOR)).forEach(partyId->{
+                LOG.trace("Checking that [{}] is a known party", partyId);
+                if (knownParties.stream().noneMatch(party ->
+                        party.getIdentifiers().stream().anyMatch(identifier -> partyId.equalsIgnoreCase(identifier.getPartyId())))) {
+                    throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                            + partyId + " is not configured in pMode");
+                }
+                LOG.trace("Checking that [{}] is a known testable party", partyId);
+                if (testablePartyIds.stream().noneMatch(testablePartyId -> StringUtils.equalsIgnoreCase(testablePartyId, partyId))) {
+                    throw new DomibusPropertyException("Could not change the list of monitoring parties: "
+                            + partyId + " is not configured to receive test messages in pMode");
+                }
+            });
         });
     }
 

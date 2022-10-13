@@ -13,6 +13,7 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.ActionDictionaryService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -76,9 +77,11 @@ public class TestService {
 
     private final PartyService partyService;
 
+    private ActionDictionaryService actionDictionaryService;
+
     public TestService(PModeProvider pModeProvider, MessageSubmitter messageSubmitter, UserMessageLogDao userMessageLogDao, UserMessageDao userMessageDao,
                        SignalMessageDao signalMessageDao, ErrorLogService errorLogService,
-                       UserMessageService userMessageService, DomibusPropertyProvider domibusPropertyProvider, PartyService partyService) {
+                       UserMessageService userMessageService, DomibusPropertyProvider domibusPropertyProvider, PartyService partyService, ActionDictionaryService actionDictionaryService) {
         this.pModeProvider = pModeProvider;
         this.messageSubmitter = messageSubmitter;
         this.userMessageLogDao = userMessageLogDao;
@@ -88,6 +91,7 @@ public class TestService {
         this.userMessageService = userMessageService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.partyService = partyService;
+        this.actionDictionaryService = actionDictionaryService;
     }
 
     public String submitTest(String senderParty, String receiverParty) throws IOException, MessagingProcessingException {
@@ -138,10 +142,10 @@ public class TestService {
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    public TestServiceMessageInfoRO getLastTestSentWithErrors(String partyId) throws TestServiceException {
-        TestServiceMessageInfoRO result = getLastTestSent(partyId);
+    public TestServiceMessageInfoRO getLastTestSentWithErrors(String senderPartyId, String partyId) throws TestServiceException {
+        TestServiceMessageInfoRO result = getLastTestSent(senderPartyId, partyId);
         if (result == null) {
-            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No sent user message found for party [" + partyId + "]");
+            throw new TestServiceException(DomibusCoreErrorCode.DOM_001, "No User message found for party [" + partyId + "]");
         }
 
         if (result.getTimeReceived() == null) {
@@ -156,14 +160,16 @@ public class TestService {
     /**
      * This method retrieves the last test Sent User Message for the given party Id
      *
+     *
+     * @param senderPartyId
      * @param partyId
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    public TestServiceMessageInfoRO getLastTestSent(String partyId) {
+    public TestServiceMessageInfoRO getLastTestSent(String senderPartyId, String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
-        UserMessage userMessage = userMessageDao.findLastTestMessageToParty(partyId);
+        UserMessage userMessage = userMessageDao.findLastTestMessageToParty(senderPartyId, partyId);
         if (userMessage == null) {
             LOG.debug("Could not find last user message for party [{}]", partyId);
             return null;
@@ -178,15 +184,15 @@ public class TestService {
      * including errors if an acceptable signal message cannot be found.
      *
      * @param partyId, userMessageId
+     * @param senderPartyId
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String partyId, String userMessageId) throws TestServiceException {
-        TestServiceMessageInfoRO result = getLastTestReceived(partyId, userMessageId);
+    public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String senderPartyId, String partyId, String userMessageId) throws TestServiceException {
+        TestServiceMessageInfoRO result = getLastTestReceived(senderPartyId, partyId, userMessageId);
         if (result == null) {
             TestErrorsInfoRO errorDetails = getErrorsDetails(userMessageId);
-            errorDetails.setMessage("No user message response found.");
-            throw new TestServiceException(errorDetails);
+            throw new TestServiceException("No Signal Message found. " + errorDetails);
         }
 
         return result;
@@ -196,9 +202,10 @@ public class TestService {
      * This method retrieves the last Received Signal Message for a test message for the given party Id and User MessageId
      *
      * @param partyId, userMessageId
+     * @param senderPartyId
      * @return TestServiceMessageInfoRO
      */
-    public TestServiceMessageInfoRO getLastTestReceived(String partyId, String userMessageId) {
+    public TestServiceMessageInfoRO getLastTestReceived(String senderPartyId, String partyId, String userMessageId) {
         LOG.debug("Getting last received signal for a test message from partyId [{}]", partyId);
 
         SignalMessage signalMessage;
@@ -211,8 +218,7 @@ public class TestService {
                 return null;
             }
         } else {
-            // if userMessageId is not provided, find the most recent signal message received for a test message
-            signalMessage = signalMessageDao.findLastTestMessage(partyId);
+            signalMessage = signalMessageDao.findLastTestMessage(senderPartyId, partyId);
             if (signalMessage == null) {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;
