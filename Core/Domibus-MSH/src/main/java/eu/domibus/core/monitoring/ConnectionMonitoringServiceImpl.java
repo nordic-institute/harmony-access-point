@@ -50,7 +50,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
         handleAllValueForCommaSeparatedProperties();
 
         if (!isMonitoringEnabled()) {
-            LOG.info("Connection monitoring for others is not enabled; exiting;");
+            LOG.debug("Connection monitoring for others is not enabled; exiting;");
             return;
         }
 
