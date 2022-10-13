@@ -1,12 +1,12 @@
 package eu.domibus.core.earchive.job;
 
+import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchStart;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
@@ -70,7 +70,7 @@ public class EArchiveBatchDispatcherService {
         Long newLastEntityIdProcessed = lastEntityIdProcessed;
         long maxEntityIdToArchived = eArchivingJobService.getMaxEntityIdToArchived(eArchiveRequestType);
         int batchMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE);
-        int batchPayloadMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE_PAYLOAD);
+        int batchPayloadMaxSize = getProperty(DOMIBUS_EARCHIVE_BATCH_SIZE_PAYLOAD) * 1024 * 1024;
         int maxNumberOfBatchesCreated = getProperty(DOMIBUS_EARCHIVE_BATCH_MAX);
         LOG.trace("Start eArchive batch lastEntityIdProcessed [{}], " +
                         "maxEntityIdToArchived [{}], " +
@@ -127,7 +127,7 @@ public class EArchiveBatchDispatcherService {
     }
 
     public EArchiveBatchEntity createBatchAndEnqueue(long lastEntityIdTreated, Domain domain, EArchiveRequestType requestType, List<EArchiveBatchUserMessage> messagesForArchivingAsc) {
-        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatchWithMessages(lastEntityIdTreated,  messagesForArchivingAsc, requestType);
+        EArchiveBatchEntity eArchiveBatch = eArchivingJobService.createEArchiveBatchWithMessages(lastEntityIdTreated, messagesForArchivingAsc, requestType);
 
         enqueueEArchive(eArchiveBatch, domain, EArchiveBatchStatus.EXPORTED.name());
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_CREATE, requestType, eArchiveBatch.getBatchId());
