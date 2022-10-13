@@ -631,7 +631,9 @@
             <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
                 <constraints nullable="false"/>
             </column>
-            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -1876,6 +1878,7 @@
             <column name="DELETE_MESSAGE_METADATA"
                     remarks="Specifies whether the message metadata should be deleted or not." type="BOOLEAN"
                     defaultValueBoolean="false"/>
+            <column name="RETENTION_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
             <column name="MAX_BATCH_DELETE"
                     remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
                     type="INT" defaultValueNumeric="-1"/>

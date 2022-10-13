@@ -50,6 +50,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -500,6 +501,8 @@ public abstract class PModeProvider {
     public abstract int getRetentionSentByMpcURI(final String mpcURI);
 
     public abstract boolean isDeleteMessageMetadataByMpcURI(final String mpcURI);
+
+    public abstract int getMetadataRetentionOffsetByMpcURI(String mpc);
 
     public abstract int getRetentionMaxBatchByMpcURI(final String mpcURI, final int defaultValue);
 

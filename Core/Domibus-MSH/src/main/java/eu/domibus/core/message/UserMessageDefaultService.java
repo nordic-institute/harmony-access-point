@@ -559,11 +559,6 @@ public class UserMessageDefaultService implements UserMessageService {
                 .map(UserMessageLogDto::getEntityId)
                 .collect(Collectors.toList());
 
-        List<String> userMessageIds = userMessageLogs
-                .stream()
-                .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList());
-
         deleteMessagesWithIDs(ids);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
@@ -673,6 +668,21 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessageNotFoundException(messageId);
         }
         return userMessage;
+    }
+
+    @Transactional
+    @Override
+    public void clearPayloadData(List<Long> entityIds) {
+        if(CollectionUtils.isEmpty(entityIds)){
+            return;
+        }
+        try {
+            entityIds.forEach(partInfoService::clearPayloadData);
+            userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
+        } catch (RuntimeException e){
+            LOG.warn("Cleaning payload failed with exception", e);
+            throw e;
+        }
     }
 
     @Override
