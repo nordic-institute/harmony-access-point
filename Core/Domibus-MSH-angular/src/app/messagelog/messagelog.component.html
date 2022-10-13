@@ -184,12 +184,14 @@
       <span>Resend All</span>
     </button>
 
+  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendSelectedButtonEnabled()"
-            (click)="resendSelectedDialog()"
-            id="resendselectedbutton_id" button-click-behaviour>
+            (click)="resendSelectedDialog(row)"
+            id="resendSelectedButton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
       <span>Resend Selected</span>
     </button>
+   </ng-template>
   </div>
 
 </div>

@@ -5,10 +5,12 @@ import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
@@ -18,6 +20,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
+import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by musatmi on 10/05/2017.
@@ -38,6 +43,7 @@ import java.util.List;
 public class MessageResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageResource.class);
+    private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
 
     @Autowired
     UserMessageService userMessageService;
@@ -56,6 +62,12 @@ public class MessageResource {
 
     @Autowired
     DateExtService dateExtService;
+
+    @Autowired
+    MessageLogResource messageLogResource;
+
+    @Autowired
+    MessagesLogService messagesLogService;
 
     @ExceptionHandler({MessagingException.class})
     public ResponseEntity<ErrorRO> handleMessagingException(MessagingException ex) {
@@ -85,14 +97,29 @@ public class MessageResource {
     @RequestMapping(path = "/failed/restore/all", method = RequestMethod.PUT)
     public List<String> restoreAllFailedMessages(MessageLogFilterRequestRO request) {
 
-        LOG.info("In restoreAllFailedMessages..ReceivedFrom:", request.getReceivedFrom());
-       /* Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getFromDate());
-        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getToDate());*/
+        LOG.debug("Getting all messages to restore");
+
+        //creating the filters
+        HashMap<String, Object> filters = messageLogResource.createFilterMap(request);
+
+        messageLogResource.setDefaultFilters(request, filters);
+        filters.put(PROPERTY_MESSAGE_STATUS, MessageStatus.SEND_FAILURE);
+
+        MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
+                request.getPageSize(), request.getOrderBy(), request.getAsc(), filters);
+
+     //   LOG.debug("result size:", result.getMessageLogEntries().size());
+
+        List<String> messageIds = result.getMessageLogEntries().stream()
+                .map(a -> a.getMessageId())
+                .collect(Collectors.toList());
+
+    // LOG.debug("messageIds :", messageIds.size());
+
         String originalUserFromSecurityContext = getUser();
-        /*if (fromDateHour >= toDateHour) {
-            throw getDatesValidationError();
-        }*/
-        return restoreService.restoreAllFailedMessages(null, originalUserFromSecurityContext);
+
+
+        return restoreService.restoreSelectedFailedMessages(messageIds, null, originalUserFromSecurityContext);
     }
 
     @RequestMapping(value = "/download")

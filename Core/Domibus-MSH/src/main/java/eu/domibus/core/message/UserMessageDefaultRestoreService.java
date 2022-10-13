@@ -179,15 +179,17 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     @Transactional
     @Override
     public List<String> restoreSelectedFailedMessages(List<String> messageIds, String finalRecipient, String originalUser) {
+
         int maxResendCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
         int ResendBatchLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
+
         final List<String> restoredMessages = new ArrayList<>();
 
         if (maxResendCount < messageIds.size()) {
             LOG.warn("Couldn't resend the messages. The resend message counts exceeds maximum resend count limit: " + maxResendCount);
             throw new MessagingException("The resend message counts exceeds maximum resend count limit: " + maxResendCount, null);
         } else {
-            if (ResendBatchLimit < messageIds.size()) {
+            if (ResendBatchLimit <= messageIds.size()) {
                 for (String messageId : messageIds) {
                     LOG.debug("Message Id's selected to delete as batch [{}]", messageId);
                     try {

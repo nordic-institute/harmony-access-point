@@ -14,7 +14,6 @@ import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -113,7 +112,7 @@ public class MessageLogResource extends BaseResource {
         return result;
     }
 
-    private void setDefaultFilters(MessageLogFilterRequestRO request, HashMap<String, Object> filters) {
+    protected void setDefaultFilters(MessageLogFilterRequestRO request, HashMap<String, Object> filters) {
         //we just set default values for received column
         // in order to improve pagination on large amount of data
         Date from = dateUtil.fromString(request.getReceivedFrom());
@@ -193,7 +192,7 @@ public class MessageLogResource extends BaseResource {
         return excludedProperties;
     }
 
-    private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
+    protected HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = new HashMap<>();
         filters.put(PROPERTY_MESSAGE_ID, request.getMessageId());
         filters.put(PROPERTY_CONVERSATION_ID, request.getConversationId());
