@@ -7,6 +7,7 @@ import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.testservice.TestService;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
@@ -19,8 +20,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Cosmin Baciu
- * @since 4.2
+ * @author Ion Perpegel
+ * @since 5.0
  */
 @Service
 public class BackendConnectorServiceImpl implements BackendConnectorService {
@@ -64,8 +65,9 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
 
     @Override
     public void validateConfiguration(String domainCode) {
-        List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
+        domainService.validateDomain(domainCode);
 
+        List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
         if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
             throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
         }
@@ -101,6 +103,16 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
 
     @Override
     public boolean isBackendConnectorEnabled(String backendName) {
+        Domain currentDomain = domainContextProvider.getCurrentDomain();
+        return isBackendConnectorEnabled(backendName, currentDomain.getCode());
+    }
+
+    @Override
+    public boolean isBackendConnectorEnabled(String backendName, String domainCode) {
+        if (domainCode == null) {
+            throw new DomibusDomainException("Domain parameter is null");
+        }
+
         if (StringUtils.equals(backendName, TestService.BACKEND_NAME)) {
             LOG.debug("Test Backend connector; returning true; ");
             return true;
@@ -115,15 +127,8 @@ public class BackendConnectorServiceImpl implements BackendConnectorService {
             return true;
         }
 
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        if (currentDomain == null) {
-            LOG.info("Could not get the current domain. returning true for backend  [{}]. ", backendName);
-            return true;
-        }
-
         EnableAware enableAware = (EnableAware) plugin;
-        return enableAware.isEnabled(currentDomain.getCode());
+        return enableAware.isEnabled(domainCode);
     }
-
 
 }
