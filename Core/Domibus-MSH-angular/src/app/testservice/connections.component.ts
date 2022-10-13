@@ -78,7 +78,8 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   private async getDataAndSetResults() {
     let rows: ConnectionMonitorEntry[] = await this.connectionsMonitorService.getMonitors(this.currentSenderPartyId);
     rows.forEach(entry => {
-      entry.senderPartyId = this.sender.name + '(' + this.currentSenderPartyId + ')';
+      entry.senderPartyName = this.sender.name + '(' + this.currentSenderPartyId + ')';
+      entry.senderPartyId = this.currentSenderPartyId;
     });
     super.rows = rows;
     super.count = this.rows.length;
@@ -104,7 +105,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     this.columnPicker.allColumns = [
       {
         name: 'Sender Party',
-        prop: 'senderPartyId',
+        prop: 'senderPartyName',
         width: 10
       },
       {
@@ -168,7 +169,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setMonitorState(this.currentSenderPartyId, row.partyId, newValue);
+      await this.connectionsMonitorService.setMonitorState(row.senderPartyId, row.partyId, newValue);
       row.monitored = newValue;
       this.refreshAllMonitored();
       this.alertService.success(`Monitoring ${newValueText} for <b>${row.partyId}</b>`);
@@ -184,7 +185,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setAlertableState(this.currentSenderPartyId, row.partyId, newValue);
+      await this.connectionsMonitorService.setAlertableState(row.senderPartyId, row.partyId, newValue);
       row.alertable = newValue;
       this.refreshAllAlertable();
       this.alertService.success(`Alert generation ${newValueText} for <b>${row.partyId}</b>`);
@@ -200,7 +201,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     let newValueText = `${(newValue ? 'enabled' : 'disabled')}`;
 
     try {
-      await this.connectionsMonitorService.setDeleteHistoryState(this.currentSenderPartyId, row.partyId, newValue);
+      await this.connectionsMonitorService.setDeleteHistoryState(row.senderPartyId, row.partyId, newValue);
       row.deleteHistory = newValue;
       this.refreshAllDeleteOld();
       this.alertService.success(`Delete old ${newValueText} for <b>${row.partyId}</b>`);
@@ -213,12 +214,12 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
 
   async sendTestMessage(row: ConnectionMonitorEntry) {
     row.status = 'PENDING';
-    let messageId = await this.connectionsMonitorService.sendTestMessage(row.partyId, this.currentSenderPartyId);
+    let messageId = await this.connectionsMonitorService.sendTestMessage(row.partyId, row.senderPartyId);
     await this.refreshMonitor(row);
   }
 
   async refreshMonitor(row: ConnectionMonitorEntry) {
-    let refreshedRow = await this.connectionsMonitorService.getMonitor(this.currentSenderPartyId, row.partyId);
+    let refreshedRow = await this.connectionsMonitorService.getMonitor(row.senderPartyId, row.partyId);
     Object.assign(row, refreshedRow);
 
     if (row.status == 'PENDING') {
@@ -229,7 +230,7 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   openDetails(row: ConnectionMonitorEntry) {
     this.dialog.open(ConnectionDetailsComponent, {
       data: {
-        senderPartyId: this.currentSenderPartyId,
+        senderPartyId: row.senderPartyId,
         partyId: row.partyId
       }
     }).afterClosed().subscribe(result => {
@@ -246,11 +247,6 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
   private async setCurrentSenderPartyId(value: any) {
     this.currentSenderPartyId = value;
     await this.getDataAndSetResults();
-
-    // this.rows.forEach(entry => {
-    //   entry.senderPartyId = this.sender.name + '(' + this.currentSenderPartyId + ')';
-    // });
-    // will read the monitor enabled properties for this party id
   }
 
   async toggleMonitorAll() {

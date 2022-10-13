@@ -13,14 +13,11 @@ import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.AssertTrue;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +65,7 @@ public class ConnectionMonitoringServiceImplTest {
             result = Arrays.asList(selfParty);
         }};
 
-        connectionMonitoringService.sendTestMessages();
+        connectionMonitoringService.sendTestMessagesIfApplicable();
 
         new Verifications() {{
             testService.submitTest(selfParty, partyId2);
@@ -86,7 +83,7 @@ public class ConnectionMonitoringServiceImplTest {
             result = Arrays.asList(selfParty, partyId2);
         }};
 
-        connectionMonitoringService.sendTestMessages();
+        connectionMonitoringService.sendTestMessagesIfApplicable();
 
         new Verifications() {{
             testService.submitTest(selfParty, partyId2);
@@ -106,7 +103,7 @@ public class ConnectionMonitoringServiceImplTest {
 
         }};
 
-        connectionMonitoringService.sendTestMessages();
+        connectionMonitoringService.sendTestMessagesIfApplicable();
 
         new Verifications() {{
 
@@ -184,4 +181,5 @@ public class ConnectionMonitoringServiceImplTest {
         String res = connectionMonitoringService.transformToNewFormat(Arrays.asList(partyId1, partyId2), selfParty);
         Assert.assertEquals(enabledPair, res);
     }
+
 }

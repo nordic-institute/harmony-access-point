@@ -23,12 +23,8 @@ public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
-        if (!connectionMonitoringService.isMonitoringEnabled()) {
-            return;
-        }
-
         LOG.debug("ConnectionMonitoringJob started on [{}] domain", domain);
-        connectionMonitoringService.sendTestMessages();
+        connectionMonitoringService.sendTestMessagesIfApplicable();
         LOG.debug("ConnectionMonitoringJob ended on [{}] domain", domain);
     }
 }

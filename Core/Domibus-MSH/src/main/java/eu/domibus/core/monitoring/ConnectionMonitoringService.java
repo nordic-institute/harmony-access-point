@@ -15,17 +15,7 @@ public interface ConnectionMonitoringService {
     /**
      * Sends test messages to all monitored parties.
      */
-    void sendTestMessages();
-
-    /**
-     * Checks whether the monitoring is enabled for at least a party except self.
-     */
-    boolean isMonitoringEnabled();
-
-    /**
-     * Checks whether the self monitoring is enabled.
-     */
-    boolean isSelfMonitoringEnabled();
+    void sendTestMessagesIfApplicable();
 
     /**
      * Retrieves the last known connection status for the given parties.
@@ -36,7 +26,7 @@ public interface ConnectionMonitoringService {
      */
     Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds);
 
-    void sendTestMessageToMyself();
+    void sendTestMessageToMyselfIfApplicable();
 
     boolean isDeleteHistoryEnabled();
 
