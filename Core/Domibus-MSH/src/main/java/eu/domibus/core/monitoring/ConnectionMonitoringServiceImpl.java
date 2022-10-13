@@ -46,7 +46,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public void sendTestMessagesIfApplicable() {
+    public void sendTestMessages() {
         handleAllValueForCommaSeparatedProperties();
 
         if (!isMonitoringEnabled()) {
@@ -58,7 +58,7 @@ public class ConnectionMonitoringServiceImpl implements ConnectionMonitoringServ
     }
 
     @Override
-    public void sendTestMessageToMyselfIfApplicable() {
+    public void sendTestMessageToMyself() {
         handleAllValueForCommaSeparatedProperties();
 
         if (!isSelfMonitoringEnabled()) {

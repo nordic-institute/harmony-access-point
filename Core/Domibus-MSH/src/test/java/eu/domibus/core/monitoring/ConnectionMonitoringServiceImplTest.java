@@ -65,7 +65,7 @@ public class ConnectionMonitoringServiceImplTest {
             result = Arrays.asList(selfParty);
         }};
 
-        connectionMonitoringService.sendTestMessagesIfApplicable();
+        connectionMonitoringService.sendTestMessages();
 
         new Verifications() {{
             testService.submitTest(selfParty, partyId2);
@@ -83,7 +83,7 @@ public class ConnectionMonitoringServiceImplTest {
             result = Arrays.asList(selfParty, partyId2);
         }};
 
-        connectionMonitoringService.sendTestMessagesIfApplicable();
+        connectionMonitoringService.sendTestMessages();
 
         new Verifications() {{
             testService.submitTest(selfParty, partyId2);
@@ -103,7 +103,7 @@ public class ConnectionMonitoringServiceImplTest {
 
         }};
 
-        connectionMonitoringService.sendTestMessagesIfApplicable();
+        connectionMonitoringService.sendTestMessages();
 
         new Verifications() {{
 

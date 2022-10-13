@@ -24,7 +24,7 @@ public class ConnectionMonitoringSelfJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         LOG.debug("ConnectionMonitoringSelfJob started on [{}] domain", domain);
-        connectionMonitoringService.sendTestMessageToMyselfIfApplicable();
+        connectionMonitoringService.sendTestMessageToMyself();
         LOG.debug("ConnectionMonitoringSelfJob ended on [{}] domain", domain);
     }
 }

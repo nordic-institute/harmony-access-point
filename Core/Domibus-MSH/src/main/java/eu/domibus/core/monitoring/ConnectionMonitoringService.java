@@ -15,7 +15,7 @@ public interface ConnectionMonitoringService {
     /**
      * Sends test messages to all monitored parties.
      */
-    void sendTestMessagesIfApplicable();
+    void sendTestMessages();
 
     /**
      * Retrieves the last known connection status for the given parties.
@@ -26,7 +26,7 @@ public interface ConnectionMonitoringService {
      */
     Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds);
 
-    void sendTestMessageToMyselfIfApplicable();
+    void sendTestMessageToMyself();
 
     boolean isDeleteHistoryEnabled();
 
