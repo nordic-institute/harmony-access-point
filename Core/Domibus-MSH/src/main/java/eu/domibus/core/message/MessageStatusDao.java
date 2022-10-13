@@ -29,7 +29,6 @@ public class MessageStatusDao extends BasicDao<MessageStatusEntity> {
         MessageStatusEntity entity = new MessageStatusEntity();
         entity.setMessageStatus(messageStatus);
         create(entity);
-        em.flush();
         return entity;
     }
 

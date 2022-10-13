@@ -14,7 +14,6 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +53,6 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         Mockito.when(routingService.getMatchingBackendFilter(Mockito.any(UserMessage.class))).thenReturn(backendFilter);
     }
 
-    @Before
-    public void initTest(){
-        deleteAllMessages();
-    }
 
     @Test
     public void deleteExpiredNotDownloaded_deletesAll_ifIsDeleteMessageMetadataAndZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
@@ -123,7 +118,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
     @Test
     public void deleteExpiredDownloaded_deletesAll_ifIsDeleteMessageMetadataAndZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
         //given
-        uploadPmodeWithCustomMpc(true, MAX_VALUE, MAX_VALUE, 2, MAX_VALUE);
+        uploadPmodeWithCustomMpc(true, 0, MAX_VALUE, 2, MAX_VALUE);
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         String messageId = receiveMessageToDelete();
         setMessageStatus(messageId, MessageStatus.DOWNLOADED);
@@ -227,7 +222,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     private void uploadPmodeWithCustomMpc(boolean isDeleteMessageMetadata, int metadataOffset, int undownloaded, int downloaded, int sent) throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
-        toReplace.put("<mpc [^>]*>",
+        toReplace.put("MPC_PLACEHOLDER",
                 "<mpc name=\"defaultMpc\"" +
                         " qualifiedName=\"" + MPC_URI + "\"" +
                         " enabled=\"true\"" +
@@ -238,7 +233,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
                         " delete_message_metadata=\"" + isDeleteMessageMetadata + "\"" +
                         " retention_metadata_offset=\"" + metadataOffset + "\"" +
                         "/>");
-        uploadPmode(SERVICE_PORT, toReplace);
+        uploadPmode(SERVICE_PORT, "dataset/pmode/PMode_custom_mpc.xml", toReplace);
     }
 
 }
