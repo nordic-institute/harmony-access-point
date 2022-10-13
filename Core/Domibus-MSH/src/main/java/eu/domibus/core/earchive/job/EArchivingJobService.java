@@ -234,7 +234,7 @@ public class EArchivingJobService {
     public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize, int batchPayloadMaxSize) {
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, batchMaxSize);
         if (batchPayloadMaxSize == 0) {
-            LOG.debug("BatchPayloadMaxSize is 0 so no restrictions on payload size.");
+            LOG.trace("BatchPayloadMaxSize is 0 so no restrictions on payload size.");
             return messagesForArchiving;
         }
         List<EArchiveBatchUserMessage> results = new ArrayList<>();
@@ -243,6 +243,7 @@ public class EArchivingJobService {
             final long totalLength = partInfoService.findPartInfoTotalLength(message.getEntityId());
             totalPayloadSize += totalLength;
             if (totalPayloadSize >= batchPayloadMaxSize) {
+                LOG.debug("Reached the limit of [{}]; exiting", batchPayloadMaxSize);
                 break;
             }
             results.add(message);
