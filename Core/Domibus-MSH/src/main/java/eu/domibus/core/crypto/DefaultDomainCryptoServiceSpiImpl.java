@@ -110,13 +110,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getX509Certificates(cryptoType);
         }
-        return null;
+        LOG.error("Could not get certificates for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get certificates for domain: " + domain);
     }
 
     @Override
     public X509Certificate[] getX509Certificates(CryptoType cryptoType) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined) {
-            LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            LOG.error("Legacy single keystore alias is not defined for domain [{}] so this method should not be called", domain);
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
         }
@@ -125,7 +126,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.info("Legacy single keystore alias is used for domain [{}]", domain);
             return merlin.getX509Certificates(cryptoType);
         }
-        return null;
+        LOG.error("Could not get certificates for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get certificates for domain: " + domain);
     }
 
     @Override
@@ -134,13 +136,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getX509Identifier(cert);
         }
-        return null;
+        LOG.error("Could not get identifier(alias) for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get identifier(alias) of the certificate for domain: " + domain);
     }
 
     @Override
     public String getX509Identifier(X509Certificate cert) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined) {
-            LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            LOG.error("Legacy single keystore alias is not defined for domain [{}] so this method should not be called", domain);
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
         }
@@ -148,7 +151,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getX509Identifier(cert);
         }
-        return null;
+        LOG.error("Could not get identifier(alias) for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get identifier(alias) of the certificate for domain: " + domain);
     }
 
     @Override
@@ -157,13 +161,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getPrivateKey(certificate, callbackHandler);
         }
-        return null;
+        LOG.error("Could not get private key for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get private key for domain: " + domain);
     }
 
     @Override
     public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined) {
-            LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            LOG.error("Legacy single keystore alias is not defined for domain [{}] so this method should not be called", domain);
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
         }
@@ -171,7 +176,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getPrivateKey(certificate, callbackHandler);
         }
-        return null;
+        LOG.error("Could not get private key for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get private key for domain: " + domain);
     }
 
     @Override
@@ -180,14 +186,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getPrivateKey(publicKey, callbackHandler);
         }
-        return null;
+        LOG.error("Could not get private key for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get private key for domain: " + domain);
     }
-
 
     @Override
     public PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined) {
-            LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            LOG.error("Legacy single keystore alias is not defined for domain [{}] so this method should not be called", domain);
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
         }
@@ -195,7 +201,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getPrivateKey(publicKey, callbackHandler);
         }
-        return null;
+        LOG.error("Could not get private key for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get private key for domain: " + domain);
     }
 
     @Override
@@ -204,15 +211,16 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getPrivateKey(identifier, password);
         }
-        return null;
+        LOG.error("Could not get private key for identifier(alias) [{}] on domain [{}]", identifier, domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get private key for domain: " + domain);
     }
 
     @Override
     public void verifyTrust(PublicKey publicKey, String alias) throws WSSecurityException {
         final Merlin merlin = getMerlinForAlias(alias);
         if (merlin == null) {
-            LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
-            return;
+            LOG.error("Could not verify trust for domain [{}]", domain);
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not verify trust for domain: " + domain);
         }
         merlin.verifyTrust(publicKey);
     }
@@ -220,14 +228,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public void verifyTrust(PublicKey publicKey) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined) {
-            LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            LOG.error("Legacy single keystore alias is not defined for domain [{}] so this method should not be called", domain);
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
         }
         final Merlin merlin = getMerlinForSingleLegacyAlias();
         if (merlin == null) {
-            LOG.error("CryptoBase implementation is not present");
-            return;
+            LOG.error("Could not verify trust for domain [{}]", domain);
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not verify trust for domain: " + domain);
         }
         merlin.verifyTrust(publicKey);
     }
@@ -237,8 +245,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             throws WSSecurityException {
         final Merlin merlin = getMerlinForAlias(alias);
         if (merlin == null) {
-            LOG.error("Alias [{}] not found when verifying trust for domain [{}]", alias, domain);
-            return;
+            LOG.error("Could not verify trust for domain [{}]", domain);
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not verify trust for domain: " + domain);
         }
         merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
     }
@@ -246,14 +254,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined) {
-            LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            LOG.error("Legacy single keystore alias is not defined for domain [{}] so this method should not be called", domain);
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
         }
         final Merlin merlin = getMerlinForSingleLegacyAlias();
         if (merlin == null) {
-            LOG.error("CryptoBase implementation is not present");
-            return;
+            LOG.error("Could not verify trust for domain [{}]", domain);
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not verify trust for domain: " + domain);
         }
         merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
     }
@@ -264,13 +272,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getDefaultX509Identifier();
         }
-        return null;
+        LOG.error("Could not get default identifier for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get default identifier for domain: " + domain);
     }
 
     @Override
     public String getDefaultX509Identifier() throws WSSecurityException {
         if (!isLegacySingleAliasKeystoreDefined) {
-            LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
+            LOG.error("Legacy single keystore alias is not defined for domain [{}] so this method should not be called", domain);
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
         }
@@ -278,7 +287,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         if (merlin != null) {
             return merlin.getDefaultX509Identifier();
         }
-        return null;
+        LOG.error("Could not get default identifier for domain [{}]", domain);
+        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not get default identifier for domain: " + domain);
     }
 
     private Merlin getMerlinForAlias(String alias) {
@@ -369,6 +379,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             certificateService.replaceStore(storeFileName, storeContent, storePassword, DOMIBUS_TRUSTSTORE_NAME);
         } catch (CryptoException ex) {
+            LOG.error("Error while replacing the truststore with content of the file named [{}]", storeFileName);
             throw new CryptoSpiException("Error while replacing the truststore with content of the file named " + storeFileName, ex);
         }
         refreshTrustStore();
@@ -379,6 +390,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             certificateService.replaceStore(storeLocation, storePassword, DOMIBUS_TRUSTSTORE_NAME);
         } catch (CryptoException ex) {
+            LOG.error("Error while replacing the truststore from [{}]", storeLocation);
             throw new CryptoSpiException("Error while replacing the truststore from " + storeLocation, ex);
         }
         refreshTrustStore();
@@ -389,6 +401,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             certificateService.replaceStore(storeFileName, storeContent, storePassword, DOMIBUS_KEYSTORE_NAME);
         } catch (CryptoException ex) {
+            LOG.error("Error while replacing the keystore with content of the file named [{}]", storeFileName);
             throw new CryptoSpiException("Error while replacing the keystore with content of the file named " + storeFileName, ex);
         }
         refreshKeyStore();
@@ -399,6 +412,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             certificateService.replaceStore(storeFileLocation, storePassword, DOMIBUS_KEYSTORE_NAME);
         } catch (CryptoException ex) {
+            LOG.error("Error while replacing the keystore from [{}]", storeFileLocation);
             throw new CryptoSpiException("Error while replacing the keystore from " + storeFileLocation, ex);
         }
         refreshKeyStore();
@@ -480,6 +494,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             merlin.loadProperties(getTrustStoreProperties(), Merlin.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
+            LOG.error("Error occurred when loading the properties of the TrustStore");
             throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of TrustStore: " + e.getMessage(), e);
         }
     }
@@ -507,7 +522,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             throw new ConfigurationException("Error while trying to load the private key properties for domain: " + domain);
         }
         if (securityProfileAliasConfigurations.stream().anyMatch(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))) {
-            LOG.error("Keystore alias already defined for domain [{}]", domain);
+            LOG.error("Keystore alias [{}] already defined for domain [{}]", aliasValue, domain);
             throw new ConfigurationException("Keystore alias already defined for domain: " + domain);
         }
         if (StringUtils.isNotBlank(aliasValue)) {
@@ -566,6 +581,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             merlin.loadProperties(getKeyStoreProperties(alias, keystoreType, keystorePassword), Merlin.class.getClassLoader(), null);
         } catch (WSSecurityException | IOException e) {
+            LOG.error("Error occurred when loading the properties of the keystore");
             throw new CryptoException(DomibusCoreErrorCode.DOM_001, "Error occurred when loading the properties of keystore: " + e.getMessage(), e);
         }
     }
@@ -574,7 +590,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
         if (StringUtils.isEmpty(alias)) {
             LOG.error("The keystore alias [{}] for domain [{}] is null", alias, domain);
-            throw new ConfigurationException("Error while trying to load the keystore alias: " + alias + " for domain: " + domain);
+            throw new ConfigurationException("Error while trying to load the keystore alias for domain: " + domain);
         }
 
         Properties properties = new Properties();
