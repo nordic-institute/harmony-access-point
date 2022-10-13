@@ -784,10 +784,9 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public int getRetentionDownloadedByMpcURI(final String mpcURI) {
-        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getRetentionDownloaded();
-            }
+        Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
+        if (mpc.isPresent()){
+            return mpc.get().getRetentionDownloaded();
         }
 
         LOG.error("No MPC with name: [{}] found. Assuming message retention of 0 for downloaded messages.", mpcURI);
