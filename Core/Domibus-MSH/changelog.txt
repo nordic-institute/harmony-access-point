@@ -1,6 +1,7 @@
 Domibus 5.0.2
 - Fixed issue related to wrong final recipient used when using dynamic discovery in a cluster environment
 Domibus 5.1
+- Added property domibus.earchive.batch.size.payload to specify a total payload size limit of all archived messages in a batch
 - Added properties for the party ID type and responder role that are specific to Oasis and Peppol
 - Update the property types for activeMQ.JMXURL and activeMQ.brokerName to a comma-separated list to allow users to define multiple ActiveMQ broker entries for networks of brokers or brokers in a Master-Slave setup
 - Split DatabaseMessageHandler bean in 3 beans (MessageSubmitter, MessageRetriever, MessagePuller), each implementing just one interface
