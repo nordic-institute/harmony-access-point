@@ -80,7 +80,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   totalRowsMessage: string;
   estimatedCount: boolean;
   allRows: FailedMessagesCriteriaRO[];
-  entityIds: String[];
+  //messageIds: String[];
 
   messageIntervals = [
     {value: 30, text: 'Last 30 minutes'},
@@ -371,9 +371,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendAllDialog() {
+  resendAllDialog(result: MessageLogResult) {
     this.dialogsService.openResendAllDialog().then(resend => {
-        this.resendAll();
+        this.resendAll(result);
         super.selected = [];
         this.messageResent.subscribe(() => {
           this.page();
@@ -391,6 +391,24 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
+
+/*  private getMessageIds(rows: any[]) {
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const row = rows[i];
+      const rowIndex = this.rows.indexOf(row);
+      this.rows.splice(rowIndex, 1);
+      this.messageIds.push(row.id);
+      super.count = this.count - 1;
+    }
+    super.rows = [...this.rows];
+
+    setTimeout(() => {
+      super.selected = [];
+      super.isChanged = true;
+    }, 100);
+  }*/
+
+
   resend(messageId: string) {
     console.log('Resending message with id ', messageId);
 
@@ -406,12 +424,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendAll() {
-    console.log('Resending all failed messages...', );
+  resendAll(result : MessageLogResult) {
+    console.log('Resending all failed messages...result.filter.receivedFrom:',result.filter.receivedFrom );
 
     let url = MessageLogComponent.RESEND_ALL_URL;
 
-    this.http.put(url, {}, {}).subscribe(res => {
+    this.http.put(url, result, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();
@@ -571,8 +589,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
     return true;
   }
-
-  public scrollLeft() {
+ public scrollLeft() {
     const dataTableBodyDom = this.elementRef.nativeElement.querySelector('.datatable-body');
     dataTableBodyDom.scrollLeft = 0;
   }

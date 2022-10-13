@@ -17,6 +17,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,20 +77,15 @@ public class MessageResource {
 
         LOG.info("In restoreSelectedFailedMessages...");
         String originalUserFromSecurityContext = getUser();
-     /*   Long fromDateHour = dateExtService.getIdPkDateHour(entityIds.get(0).getFromDate());
-        Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.getToDate());
 
-        if (fromDateHour >= toDateHour) {
-            throw getDatesValidationError();
-        }*/
         return restoreService.restoreSelectedFailedMessages(messageIds, null, originalUserFromSecurityContext);
     }
 
 
     @RequestMapping(path = "/failed/restore/all", method = RequestMethod.PUT)
-    public List<String> restoreAllFailedMessages() {
+    public List<String> restoreAllFailedMessages(MessageLogFilterRequestRO request) {
 
-        LOG.info("In restoreAllFailedMessages..");
+        LOG.info("In restoreAllFailedMessages..ReceivedFrom:", request.getReceivedFrom());
        /* Long fromDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getFromDate());
         Long toDateHour = dateExtService.getIdPkDateHour(failedMessagesCriteriaRO.get(0).getToDate());*/
         String originalUserFromSecurityContext = getUser();
