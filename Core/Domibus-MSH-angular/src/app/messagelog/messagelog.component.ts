@@ -371,16 +371,15 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendAllDialog() {
-    this.dialogsService.openResendAllDialog().then(resend => {
-      if (!resend) {
-        return;
-      }
-      this.resendAll();
-      super.selected = [];
-      this.messageResent.subscribe(() => {
-        this.page();
-      });
+  async resendAllDialog() {
+    const resend = await this.dialogsService.openResendAllDialog();
+    if (!resend) {
+      return;
+    }
+    this.resendAll();
+    super.selected = [];
+    this.messageResent.subscribe(() => {
+      this.page();
     });
   }
 
