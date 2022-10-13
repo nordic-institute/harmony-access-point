@@ -112,7 +112,7 @@ public class MessageListenerContainerInitializer implements DomainsAware {
             return;
         }
 
-        createMessageListenerContainerFor(domain, entry.get());
+        createMessageListenerContainerFor(domain, entry.get().getKey(), entry.get().getValue());
     }
 
     public void destroyMessageListenersForPlugin(String backendName, Domain domain) {
@@ -167,14 +167,11 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         final Map<String, PluginMessageListenerContainer> beansOfType = applicationContext.getBeansOfType(PluginMessageListenerContainer.class);
 
         for (Map.Entry<String, PluginMessageListenerContainer> entry : beansOfType.entrySet()) {
-            createMessageListenerContainerFor(domain, entry);
+            createMessageListenerContainerFor(domain, entry.getKey(), entry.getValue());
         }
     }
 
-    private void createMessageListenerContainerFor(Domain domain, Map.Entry<String, PluginMessageListenerContainer> entry) {
-        final String name = entry.getKey();
-        final PluginMessageListenerContainer containerFactory = entry.getValue();
-
+    private void createMessageListenerContainerFor(Domain domain, String beanName, PluginMessageListenerContainer containerFactory) {
         String pluginName = containerFactory.getPluginName();
         if (!backendConnectorService.isBackendConnectorEnabled(pluginName, domain.getCode())) {
             LOG.info("Message listener container for plugin [{}] and domain [{}] is not enabled so exiting.", pluginName, domain);
@@ -184,14 +181,14 @@ public class MessageListenerContainerInitializer implements DomainsAware {
         DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
         MessageListenerContainer instance = containerFactory.createMessageListenerContainer(domainDTO);
         if (instance == null) {
-            LOG.info("Message listener container [{}] for domain [{}] returned null so exiting.", name, domain);
+            LOG.info("Message listener container [{}] for domain [{}] returned null so exiting.", beanName, domain);
             return;
         }
 
-        DomainMessageListenerContainer adapter = new PluginDomainMessageListenerContainerAdapter(instance, domain, name, pluginName);
+        DomainMessageListenerContainer adapter = new PluginDomainMessageListenerContainerAdapter(instance, domain, beanName, pluginName);
         instance.start();
         instances.add(adapter);
-        LOG.info("{} initialized for domain [{}]", name, domain);
+        LOG.info("{} initialized for domain [{}]", beanName, domain);
     }
 
     protected void createSendMessageListenerContainers(Domain domain) {
