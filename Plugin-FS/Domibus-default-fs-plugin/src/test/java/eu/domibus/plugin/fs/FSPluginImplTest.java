@@ -98,6 +98,9 @@ public class FSPluginImplTest {
     @Injectable
     protected FSFileNameHelper fsFileNameHelper;
 
+    @Injectable
+    BackendConnectorProviderExtService backendConnectorProviderExtService;
+
     @Tested
     FSPluginImpl backendFS;
 
