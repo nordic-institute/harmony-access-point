@@ -249,14 +249,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
-        } else {
-            final Merlin merlin = getMerlinForSingleLegacyAlias();
-            if (merlin == null) {
-                LOG.error("CryptoBase implementation is not present");
-                return;
-            }
-            merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
         }
+        final Merlin merlin = getMerlinForSingleLegacyAlias();
+        if (merlin == null) {
+            LOG.error("CryptoBase implementation is not present");
+            return;
+        }
+        merlin.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
     }
 
     @Override
