@@ -68,18 +68,21 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is called from code when entering a page
    */
   public filterData(): Promise<any> {
-    if (!this.initialFilter) {
-      this.initialFilter = this.clone(this.filter);
-    }
-
-    this.onBeforeFilter();
-    this.setActiveFilter();
+    this.setFilterParameters();
 
     if (instanceOfPageableList(this)) {
       this.offset = 0;
     }
 
     return this.loadServerData();
+  }
+
+  private setFilterParameters() {
+    if (!this.initialFilter) {
+      this.initialFilter = this.clone(this.filter);
+    }
+    this.onBeforeFilter();
+    this.setActiveFilter();
   }
 
   public onResetAdvancedSearchParams() {
@@ -123,6 +126,11 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     });
 
     return filterParams;
+  }
+
+  getFilterHttpParams(): HttpParams {
+    this.setFilterParameters();
+    return this.createAndSetParameters();
   }
 
   /**

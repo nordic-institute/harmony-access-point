@@ -427,9 +427,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   resendAll() {
-    this.onBeforeFilter();
-    this.setActiveFilter();
-    const params = this.createAndSetParameters();
+    const params = this.getFilterHttpParams()
     let url = MessageLogComponent.RESEND_ALL_URL;
     this.http.put(url, {params: params}, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
