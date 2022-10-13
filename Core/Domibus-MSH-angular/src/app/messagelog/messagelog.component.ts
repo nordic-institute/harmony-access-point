@@ -371,13 +371,16 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendAllDialog(result: MessageLogResult) {
+  resendAllDialog() {
     this.dialogsService.openResendAllDialog().then(resend => {
-        this.resendAll(result);
-        super.selected = [];
-        this.messageResent.subscribe(() => {
-          this.page();
-        });
+      if (!resend) {
+        return;
+      }
+      this.resendAll();
+      super.selected = [];
+      this.messageResent.subscribe(() => {
+        this.page();
+      });
     });
   }
 
@@ -392,21 +395,21 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
 
-/*  private getMessageIds(rows: any[]) {
-    for (let i = rows.length - 1; i >= 0; i--) {
-      const row = rows[i];
-      const rowIndex = this.rows.indexOf(row);
-      this.rows.splice(rowIndex, 1);
-      this.messageIds.push(row.id);
-      super.count = this.count - 1;
-    }
-    super.rows = [...this.rows];
+  /*  private getMessageIds(rows: any[]) {
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const row = rows[i];
+        const rowIndex = this.rows.indexOf(row);
+        this.rows.splice(rowIndex, 1);
+        this.messageIds.push(row.id);
+        super.count = this.count - 1;
+      }
+      super.rows = [...this.rows];
 
-    setTimeout(() => {
-      super.selected = [];
-      super.isChanged = true;
-    }, 100);
-  }*/
+      setTimeout(() => {
+        super.selected = [];
+        super.isChanged = true;
+      }, 100);
+    }*/
 
 
   resend(messageId: string) {
@@ -424,12 +427,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendAll(result : MessageLogResult) {
-    console.log('Resending all failed messages...result.filter.receivedFrom:',result.filter.receivedFrom );
-
+  resendAll() {
+    const params = this.createAndSetParameters();
     let url = MessageLogComponent.RESEND_ALL_URL;
-
-    this.http.put(url, result, {}).subscribe(res => {
+    this.http.put(url, params, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();
@@ -440,7 +441,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   resendSelected(messageIds: string[]) {
-    console.log('Resending selected failed messages...', );
+    console.log('Resending selected failed messages...',);
 
     let url = MessageLogComponent.RESEND_SELECTED_URL;
 
@@ -453,20 +454,25 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.alertService.exception('The message ' + this.alertService.escapeHtml('messageId') + ' could not be resent.', err);
     });
   }
+
   isResendButtonEnabledAction(row): boolean {
     return this.isRowResendButtonEnabled(row);
   }
 
-  isResendButtonEnabled() {
+  isResendAllButtonEnabled() {
+    return this.rows.length > 0;
+  }
+
+  isResendSelectedButtonEnabled() {
     return this.isOneRowSelected() && !this.selected[0].deleted
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
-/*  isResendAllButtonEnabled() {
-    return  !this.selected[0].deleted
-      &&  (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
-      && !this.isSplitAndJoinMessage(row);
-  }*/
+  /*  isResendAllButtonEnabled() {
+      return  !this.selected[0].deleted
+        &&  (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
+        && !this.isSplitAndJoinMessage(row);
+    }*/
 
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
@@ -589,7 +595,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
     return true;
   }
- public scrollLeft() {
+
+  public scrollLeft() {
     const dataTableBodyDom = this.elementRef.nativeElement.querySelector('.datatable-body');
     dataTableBodyDom.scrollLeft = 0;
   }
@@ -614,6 +621,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   protected onAfterResetFilters() {
   }
+
+
 }
 
 interface DateInterval {

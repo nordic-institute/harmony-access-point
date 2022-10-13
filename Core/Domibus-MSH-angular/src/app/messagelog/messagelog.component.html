@@ -171,20 +171,20 @@
       <mat-icon>file_download</mat-icon>
       <span>Download</span>
     </button>
-    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendSelectedButtonEnabled()"
             (click)="resendDialog()"
             id="resendbutton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
       <span>Resend</span>
     </button>
-    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendAllButtonEnabled()"
             (click)="resendAllDialog()"
             id="resendallbutton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
       <span>Resend All</span>
     </button>
 
-    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendSelectedButtonEnabled()"
             (click)="resendSelectedDialog()"
             id="resendselectedbutton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
