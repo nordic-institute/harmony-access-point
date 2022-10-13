@@ -70,6 +70,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
+    protected Boolean isLegacySingleAliasKeystoreDefined = false;
+
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
@@ -113,7 +115,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public X509Certificate[] getX509Certificates(CryptoType cryptoType) throws WSSecurityException {
-        if (!isLegacySingleAliasKeystoreDefined()) {
+        if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
@@ -137,7 +139,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public String getX509Identifier(X509Certificate cert) throws WSSecurityException {
-        if (!isLegacySingleAliasKeystoreDefined()) {
+        if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
@@ -160,7 +162,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler) throws WSSecurityException {
-        if (!isLegacySingleAliasKeystoreDefined()) {
+        if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
@@ -184,7 +186,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler) throws WSSecurityException {
-        if (!isLegacySingleAliasKeystoreDefined()) {
+        if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
@@ -217,18 +219,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public void verifyTrust(PublicKey publicKey) throws WSSecurityException {
-        if (!isLegacySingleAliasKeystoreDefined()) {
+        if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
-        } else {
-            final Merlin merlin = getMerlinForSingleLegacyAlias();
-            if (merlin == null) {
-                LOG.error("CryptoBase implementation is not present");
-                return;
-            }
-            merlin.verifyTrust(publicKey);
         }
+        final Merlin merlin = getMerlinForSingleLegacyAlias();
+        if (merlin == null) {
+            LOG.error("CryptoBase implementation is not present");
+            return;
+        }
+        merlin.verifyTrust(publicKey);
     }
 
     @Override
@@ -244,7 +245,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
-        if (!isLegacySingleAliasKeystoreDefined()) {
+        if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
@@ -269,7 +270,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public String getDefaultX509Identifier() throws WSSecurityException {
-        if (!isLegacySingleAliasKeystoreDefined()) {
+        if (!isLegacySingleAliasKeystoreDefined) {
             LOG.error("Legacy single keystore alias is not defined for domain [{}]", domain);
             throw new ConfigurationException("Legacy single keystore alias is not defined for domain: " + domain +
                     " so this method should not be called");
@@ -292,11 +293,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return securityProfileAliasConfigurations.stream()
                 .map(SecurityProfileAliasConfiguration::getMerlin)
                 .findFirst().orElse(null);
-    }
-
-    protected Boolean isLegacySingleAliasKeystoreDefined() {
-        return securityProfileAliasConfigurations.stream().anyMatch(
-                profileConfiguration -> profileConfiguration.getSecurityProfile().getProfile().equals(SecurityProfile.NO_PROFILE.getProfile()));
     }
 
     @Override
@@ -526,7 +522,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         securityProfileAliasConfigurations.clear();
 
         //without Security Profiles
-        addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, SecurityProfile.NO_PROFILE);
+        if (domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null) {
+            addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, null);
+            isLegacySingleAliasKeystoreDefined = true;
+        }
 
         //RSA Profile
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD, SecurityProfile.RSA);
@@ -538,7 +537,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, SecurityProfile.ECC);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, SecurityProfile.ECC);
 
-        if (isLegacySingleAliasKeystoreDefined() && securityProfileAliasConfigurations.size() > 1) {
+        if (isLegacySingleAliasKeystoreDefined && securityProfileAliasConfigurations.size() > 1) {
             LOG.error("Both legacy single keystore alias and security profiles are defined for domain [{}]. Please define only legacy single keystore alias" +
                     " or security profiles.", domain);
 
