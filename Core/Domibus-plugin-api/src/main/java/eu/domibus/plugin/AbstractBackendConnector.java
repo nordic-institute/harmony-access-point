@@ -1,6 +1,7 @@
 package eu.domibus.plugin;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.ext.services.MessagePullerExtService;
 import eu.domibus.ext.services.MessageRetrieverExtService;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -282,5 +284,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void setEnabled(final String domainCode, final boolean enabled) {
+    }
+
+    @Override
+    public List<CronJobInfoDTO> getJobsInfo() {
+        return new ArrayList<>();
     }
 }
