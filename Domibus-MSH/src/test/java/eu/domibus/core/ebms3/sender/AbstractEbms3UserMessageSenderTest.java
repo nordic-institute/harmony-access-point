@@ -168,6 +168,9 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
+            sendingSoapEnvelopeSpiDelegate.beforeSending(soapMessage);
+            result = soapMessage;
+
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
@@ -366,6 +369,9 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
+            sendingSoapEnvelopeSpiDelegate.beforeSending(soapMessage);
+            result = soapMessage;
+
             userMessageServiceHelper.getFinalRecipient(userMessage);
             result = finalRecipient;
 
@@ -477,6 +483,9 @@ public class AbstractEbms3UserMessageSenderTest {
             result = senderName;
 
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
+            result = soapMessage;
+
+            sendingSoapEnvelopeSpiDelegate.beforeSending(soapMessage);
             result = soapMessage;
 
             userMessageServiceHelper.getFinalRecipient(userMessage);
