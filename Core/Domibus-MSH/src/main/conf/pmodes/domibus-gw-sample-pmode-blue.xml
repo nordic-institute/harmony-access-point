@@ -9,6 +9,7 @@
 			 retention_downloaded="0"
 			 retention_undownloaded="14400"
 			 retention_sent="14400"
+			 retention_metadata_offset="0"
 		     delete_message_metadata="false"
 		     max_batch_delete="1000"/>
 	</mpcs>
