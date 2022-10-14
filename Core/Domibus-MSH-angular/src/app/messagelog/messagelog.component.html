@@ -171,7 +171,7 @@
       <mat-icon>file_download</mat-icon>
       <span>Download</span>
     </button>
-    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendSelectedButtonEnabled()"
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
             (click)="resendDialog()"
             id="resendbutton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
@@ -183,15 +183,12 @@
       <mat-icon>send</mat-icon>
       <span>Resend All</span>
     </button>
-
-  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
     <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendSelectedButtonEnabled()"
-            (click)="resendSelectedDialog(row)"
+            (click)="resendSelectedDialog()"
             id="resendSelectedButton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
       <span>Resend Selected</span>
     </button>
-   </ng-template>
   </div>
 
 </div>

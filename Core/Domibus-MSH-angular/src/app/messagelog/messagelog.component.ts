@@ -79,8 +79,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
   additionalPages: number;
   totalRowsMessage: string;
   estimatedCount: boolean;
-  allRows: FailedMessagesCriteriaRO[];
-  //messageIds: String[];
 
   messageIntervals = [
     {value: 30, text: 'Last 30 minutes'},
@@ -152,7 +150,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (this.isCurrentUserAdmin()) {
       this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
     }
-    this.allRows = [];
 
     super.filter = {testMessage: false};
     this.messageInterval = await this.getMessageLogInitialInterval();
@@ -383,33 +380,17 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendSelectedDialog() {
-    this.dialogsService.openResendSelectedDialog().then(resend => {
-      this.resendSelected(this.messageIds);
-      super.selected = [];
-      this.messageResent.subscribe(() => {
-        this.page();
-      });
+  async resendSelectedDialog() {
+    const resendSelected = await this.dialogsService.openResendSelectedDialog();
+    if (!resendSelected) {
+      return;
+    }
+    this.resendSelected(this.selected);
+    super.selected = [];
+    this.messageResent.subscribe(() => {
+      this.page();
     });
   }
-
-
-  /*  private getMessageIds(rows: any[]) {
-      for (let i = rows.length - 1; i >= 0; i--) {
-        const row = rows[i];
-        const rowIndex = this.rows.indexOf(row);
-        this.rows.splice(rowIndex, 1);
-        this.messageIds.push(row.id);
-        super.count = this.count - 1;
-      }
-      super.rows = [...this.rows];
-
-      setTimeout(() => {
-        super.selected = [];
-        super.isChanged = true;
-      }, 100);
-    }*/
-
 
   resend(messageId: string) {
     console.log('Resending message with id ', messageId);
@@ -428,6 +409,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   resendAll() {
     const params = this.getFilterHttpParams()
+
+    console.log('ResendAll.', params);
     let url = MessageLogComponent.RESEND_ALL_URL;
     this.http.put(url, {params: params}, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
@@ -439,12 +422,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  resendSelected(messageIds: string[]) {
-    console.log('Resending selected failed messages...',);
+  resendSelected(messageLogEntries: MessageLogEntry[]) {
 
     let url = MessageLogComponent.RESEND_SELECTED_URL;
 
-    this.http.put(url, messageIds, {}).subscribe(res => {
+    this.http.put(url, messageLogEntries, {}).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();
@@ -452,6 +434,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }, err => {
       this.alertService.exception('The message ' + this.alertService.escapeHtml('messageId') + ' could not be resent.', err);
     });
+  }
+
+  isResendButtonEnabled() {
+    return this.isOneRowSelected() && !this.selected[0].deleted
+      && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
   isResendButtonEnabledAction(row): boolean {
@@ -463,15 +450,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   isResendSelectedButtonEnabled() {
-    return this.isOneRowSelected() && !this.selected[0].deleted
+    return this.isMoreRowSelected() && !this.selected[0].deleted
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
-
-  /*  isResendAllButtonEnabled() {
-      return  !this.selected[0].deleted
-        &&  (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
-        && !this.isSplitAndJoinMessage(row);
-    }*/
 
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
@@ -500,6 +481,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isOneRowSelected() {
     return this.selected && this.selected.length == 1;
+  }
+
+  private isMoreRowSelected() {
+    return this.selected && this.selected.length > 1;
   }
 
   private async downloadMessage(row) {
@@ -620,17 +605,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   protected onAfterResetFilters() {
   }
-
-
 }
 
 interface DateInterval {
   value: number
   text: string
-}
-
-export class FailedMessagesCriteriaRO {
-  entityId: number[];
-  toDate: string;
-  fromDate: string;
 }
