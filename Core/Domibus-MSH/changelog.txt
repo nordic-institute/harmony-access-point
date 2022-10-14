@@ -8,6 +8,7 @@ Domibus 5.1
 - Smart retry introduced for failed messages retrials (now taking advantage of the monitoring and attempting retry only after remote party is reachable)
 - Progressive retry feature introduced (in addition to constant). Retry attempts can now be scheduled with gradually increasing intervals
 - Files can be sent to WS Plugin as references to the filesystem
+- Added Security Profiles in order to support different security certificates for signing and encryption
 Domibus 5.0.1
 - Added a new plugin notification called MessageResponseSent, fired right before the response to the c2 is sent, which means that the raw envelope of the signal is accessible.
 - Filter out TEST messages from earchived messages
