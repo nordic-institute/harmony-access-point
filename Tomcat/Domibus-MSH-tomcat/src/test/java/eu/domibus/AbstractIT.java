@@ -10,6 +10,7 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
@@ -108,6 +109,9 @@ public abstract class AbstractIT {
 
     private static boolean springContextInitialized = false;
 
+    @Autowired
+    private StaticDictionaryService staticDictionaryService;
+
     @BeforeClass
     public static void init() throws IOException {
         if (springContextInitialized) {
@@ -140,6 +144,7 @@ public abstract class AbstractIT {
     public void setDomain() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         waitUntilDatabaseIsInitialized();
+        staticDictionaryService.createStaticDictionaryEntries();
     }
 
 
@@ -148,7 +153,11 @@ public abstract class AbstractIT {
     }
 
     protected void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
-        final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
+        uploadPmode(redHttpPort, "dataset/pmode/PModeTemplate.xml", toReplace);
+    }
+
+    protected void uploadPmode(Integer redHttpPort, String pModeFilepath, Map<String, String> toReplace) throws IOException, XmlProcessingException {
+        final InputStream inputStream = new ClassPathResource(pModeFilepath).getInputStream();
 
         String pmodeText = IOUtils.toString(inputStream, UTF_8);
         if (toReplace != null) {

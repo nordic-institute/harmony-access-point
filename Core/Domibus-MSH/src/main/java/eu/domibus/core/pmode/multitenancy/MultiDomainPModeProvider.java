@@ -226,6 +226,11 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getMetadataRetentionOffsetByMpcURI(String mpcURI) {
+        return getCurrentPModeProvider().getMetadataRetentionOffsetByMpcURI(mpcURI);
+    }
+
+    @Override
     public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
         return getCurrentPModeProvider().isDeleteMessageMetadataByMpcURI(mpcURI);
     }

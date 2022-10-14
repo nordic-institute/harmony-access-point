@@ -145,6 +145,7 @@ export class ConnectionsMonitorService {
 }
 
 export class ConnectionMonitorEntry {
+  senderPartyName?: string;
   senderPartyId?: string;
   partyId: string;
   partyName?: string;
