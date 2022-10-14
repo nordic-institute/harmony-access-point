@@ -5765,7 +5765,7 @@ Domibus.reportTestCaseCsv(testRunner, log)
 // Get Domibus package log level
 def propValue=Domibus.getLogLevel("C2",context,log,custPropName);
 // Set test case custom property
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 
 
 
@@ -5817,7 +5817,7 @@ def logValueList =  ["Content-Type: multipart/related"];
 Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner, false);</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Current log level" id="bdc5fe27-d908-42fd-a50a-3144c8511ea8" disabled="true"><con:settings/><con:config><script>def custPropName="org.apache.cxf";
 
 // C2
-def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 // Reset log level value
 Domibus.setLogLevel("C2",context,log,custPropName,propValue);
 sleep(2000);
@@ -6344,27 +6344,27 @@ Domibus.reportTestCaseCsv(testRunner, log);
 // jmsplugin.putAttachmentInQueue
 def custPropName="jmsplugin.putAttachmentInQueue";
 def propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 
 // jmsplugin.attachment.reference.type
 custPropName="jmsplugin.attachment.reference.type";
 propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 
 // domibus.attachment.storage.location
 custPropName="domibus.attachment.storage.location";
 propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 
 // jmsplugin.attachment.reference.context
 custPropName="jmsplugin.attachment.reference.context";
 propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 
 // jmsplugin.attachment.reference.url
 custPropName="jmsplugin.attachment.reference.url";
 propValue=Domibus.getPropertyAtRuntime("C3",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 
 // Wait
 sleep(3000)</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="0f9e975b-2360-4bc4-a321-267ca8a0d949"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Update props-Attach in Q-referencetype File-Storage DB-C3" id="a4238b98-a85a-4eb2-8892-ba06031eaf5b"><con:settings/><con:config><script>Domibus.changePropertyAtRuntime("C3", "jmsplugin.putAttachmentInQueue", "true", context, log);
@@ -6771,19 +6771,19 @@ ExtRestUtils.testDownloadPayloadEntityIDRequest(log,context,side, status, entity
 // jmsplugin.putAttachmentInQueue
 def custPropName="jmsplugin.putAttachmentInQueue";
 def defPropValue="true";
-def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 
 // jmsplugin.attachment.reference.type
 custPropName="jmsplugin.attachment.reference.type";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 
 // jmsplugin.attachment.reference.type
 custPropName="domibus.attachment.storage.location";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C3",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 
 sleep(3000);
@@ -6882,7 +6882,7 @@ PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)<
 // Get Domibus property value
 def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
 // Set test case custom property
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
 sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="117b3b2c-66c8-48d6-b087-a8b7bf11d90b"><con:settings/><con:config><script>import javax.jms.*
@@ -6959,7 +6959,7 @@ test.finalize();
 log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="579e4ad9-b98d-4d3c-b700-664433be393e" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="ae856d28-4b2c-4bb8-aed6-ce500f95c306" disabled="true"><con:settings/><con:config><script>// C2
 def custPropName="domibus.msh.retry.cron";
 def defPropValue="0/30 * * * * ?";
-def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 // Reset property value
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
@@ -6992,21 +6992,21 @@ def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValu
 PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="2f2ceeea-01ac-491f-ae01-3d8199673b09"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
 def custPropName="domibus.msh.retry.cron";
 def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
 sleep(2000);
 
 // Enable Monitoring C3 domibus-red
 custPropName="domibus.monitoring.connection.party.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
 sleep(2000);
 
 // Update cron job to monitor connection to every 10 seconds
 custPropName="domibus.monitoring.connection.cron";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
 sleep(2000);
 
@@ -7014,7 +7014,7 @@ sleep(2000);
 // Disable smart retry C3 domibus-red
 custPropName="domibus.smart.retry.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
 sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="c14934a9-576d-4445-8f21-4fa18c958f6f"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
@@ -7093,28 +7093,28 @@ test.finalize();
 log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="3537a1e6-6828-490b-843f-4da062b52bf4" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="3fa64733-e845-4fa1-ade9-3d0717d2326a" disabled="true"><con:settings/><con:config><script>// C2
 def custPropName="domibus.msh.retry.cron";
 def defPropValue="0/30 * * * * ?";
-def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.party.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.cron";
 defPropValue="0 0 0/2 ? * * *";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.smart.retry.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith('-DomJMS075-')
@@ -7146,21 +7146,21 @@ def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValu
 PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="f1c087c9-a372-4d11-aac0-4bd1168e4469"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
 def custPropName="domibus.msh.retry.cron";
 def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
 sleep(2000);
 
 // Disable Monitoring C3 domibus-red
 custPropName="domibus.monitoring.connection.party.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, " ", context, log);
 sleep(2000);
 
 // Update cron job to monitor connection to every 10 seconds
 custPropName="domibus.monitoring.connection.cron";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
 sleep(2000);
 
@@ -7168,7 +7168,7 @@ sleep(2000);
 // Enable smart retry C3 domibus-red
 custPropName="domibus.smart.retry.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
 sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Delete Monitoring History" id="5153e6a6-f9ad-49b2-885c-1a0c33d5fece"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
 test.cleanDatabaseTestMessagesAll()
@@ -7249,28 +7249,28 @@ test.finalize();
 log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="0d3447de-b3f7-491f-8d76-e25a278bc489" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="31c769f5-ae2a-4836-b6e8-905094613260" disabled="true"><con:settings/><con:config><script>// C2
 def custPropName="domibus.msh.retry.cron";
 def defPropValue="0/30 * * * * ?";
-def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.party.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.cron";
 defPropValue="0 0 0/2 ? * * *";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.smart.retry.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith(context.expand('-DomJMS076-')
@@ -7746,21 +7746,21 @@ def parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValu
 PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="a985900b-7d20-4847-b672-2afc9999d317"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
 def custPropName="domibus.msh.retry.cron";
 def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
 sleep(2000);
 
 // Enable Monitoring C3 domibus-red
 custPropName="domibus.monitoring.connection.party.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
 sleep(2000);
 
 // Update cron job to monitor connection to every 10 seconds
 custPropName="domibus.monitoring.connection.cron";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
 sleep(2000);
 
@@ -7768,7 +7768,7 @@ sleep(2000);
 // Enable smart retry C3 domibus-red
 custPropName="domibus.smart.retry.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
 sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="0b30d048-e609-4256-b9e5-7bdbfce5a63d"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
@@ -7847,28 +7847,28 @@ test.finalize();
 log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="4008e6d1-9e90-41dc-8691-ef67d627ab4f" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="93a02fed-7007-43cf-989a-65560c8f245a" disabled="true"><con:settings/><con:config><script>// C2
 def custPropName="domibus.msh.retry.cron";
 def defPropValue="0/30 * * * * ?";
-def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.party.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.cron";
 defPropValue="0 0 0/2 ? * * *";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.smart.retry.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith('-DomJMS077-')
@@ -7902,21 +7902,21 @@ parametersMap=[(nodename1):"$searchKey1#$searchvalue1#$attTochange1#$newValue1"]
 PModeUtils.updatePmodeParametersRest(side,context,log,testRunner,parametersMap)</script></con:config></con:testStep><con:testStep type="groovy" name="Update-Properties-C2" id="fd10e327-be9a-4741-9cba-1f494c489668"><con:settings/><con:config><script>// Update retry cron to every 10 seconds
 def custPropName="domibus.msh.retry.cron";
 def propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/10 * * * * ?", context, log);
 sleep(2000);
 
 // Enable Monitoring C3 domibus-red
 custPropName="domibus.monitoring.connection.party.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
 sleep(2000);
 
 // Update cron job to monitor connection to every 10 seconds
 custPropName="domibus.monitoring.connection.cron";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "0/20 * * * * ?", context, log);
 sleep(2000);
 
@@ -7924,7 +7924,7 @@ sleep(2000);
 // Enable smart retry C3 domibus-red
 custPropName="domibus.smart.retry.enabled";
 propValue=Domibus.getPropertyAtRuntime("C2",custPropName,context,log);
-Domibus.setTestCaseCustProp(custPropName,propValue,log,context,testRunner);
+Domibus.setTestCaseCustProp(custPropName,propValue,log,testRunner);
 Domibus.changePropertyAtRuntime("C2", custPropName, "domibus-red", context, log);
 sleep(2000);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="9d977595-8df1-42bf-8233-d87d465b13c5"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
@@ -8003,28 +8003,28 @@ test.finalize();
 log.info "DONE"</script></con:config></con:testStep><con:testStep type="groovy" name="Reset Pmode Defaults" id="05279334-cb9b-47d0-8983-b918430ff5cd" disabled="true"><con:settings/><con:config><script>PModeUtils.resetPmodeDefaultRest(context,log,testRunner,)</script></con:config></con:testStep><con:testStep type="groovy" name="Reset C2 properties" id="2addf8d7-c619-4fb7-9c04-3254cbe85b43" disabled="true"><con:settings/><con:config><script>// C2
 def custPropName="domibus.msh.retry.cron";
 def defPropValue="0/30 * * * * ?";
-def propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+def propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.party.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.monitoring.connection.cron";
 defPropValue="0 0 0/2 ? * * *";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);
 
 
 custPropName="domibus.smart.retry.enabled";
 defPropValue=" ";
-propValue=Domibus.getTestCaseCustProp(custPropName,log,context,testRunner);
+propValue=Domibus.getTestCaseCustProp(custPropName,log,testRunner);
 Domibus.changePropertyAtRuntime("C2",custPropName,Domibus.ifEmptyReturnDef(propValue,defPropValue),context,log);
 sleep(2000);</script></con:config></con:testStep><con:setupScript>Domibus.checkIfAnySmokeTestsFailed(testRunner, testCase, log)</con:setupScript><con:tearDownScript>def test = new Domibus(log,null,context);
 test.cleanDBMessageIDStartsWith('-DomJMS078-')

@@ -2412,6 +2412,21 @@ class Domibus{
         return returnPath.toString()
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    static def convertFilePath(String fullPath, log) {
+        debugLog("  ====  Calling \"convertFilePath\".", log)
+
+        def returnPath = fullPath.replace("\\\\", "\\")
+
+        debugLog("  +++++++++++ Run on: " + System.properties['os.name'], log)
+        if (System.properties['os.name'].toLowerCase().contains('windows'))
+            returnPath = returnPath.replace("\\", "\\\\")
+        else
+            returnPath = returnPath.replace("\\", "/")
+
+        debugLog("Output convertFilePath: " + returnPath.toString(), log)
+        return returnPath.toString()
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
     // Run curl command
     static def runCommandInShell(inputCommand, log) {
         debugLog("  ====  Calling \"runCommandInShell\".", log)
@@ -2930,14 +2945,14 @@ class Domibus{
         debugLog("  ====  Finished \"testPropertyAtRuntime\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static void  setTestCaseCustProp(custPropName,custPropValue,log,context,testRunner){
+    static void  setTestCaseCustProp(custPropName,custPropValue,log,testRunner){
         debugLog("  ====  Calling \"setTestCaseCustProp\".", log)
         testRunner.testCase.setPropertyValue(custPropName,custPropValue)
         log.info "Test case level custom property \"$custPropName\" set to \"$custPropValue\"."
         debugLog("  ====  End \"setTestCaseCustProp\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def getTestCaseCustProp(custPropName,log, context, testRunner){
+    static def getTestCaseCustProp(custPropName,log, testRunner){
         debugLog("  ====  Calling \"getTestCaseCustProp\".", log)
         def retPropVal = testRunner.testCase.getPropertyValue(custPropName)
         assert(retPropVal!= null),"Error:getTestCaseCustProp: Couldn't fetch property \"$custPropName\" value"
@@ -2946,7 +2961,23 @@ class Domibus{
         return retPropVal
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def getProjectCustProp(custPropName,context,log, testRunner){
+    static void  setTestSuiteCustProp(custPropName,custPropValue,log,testRunner){
+        debugLog("  ====  Calling \"setTestSuiteCustProp\".", log)
+        testRunner.testCase.testSuite.setPropertyValue(custPropName,custPropValue)
+        log.info "Test suite level custom property \"$custPropName\" set to \"$custPropValue\"."
+        debugLog("  ====  End \"setTestSuiteCustProp\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getTestSuiteCustProp(custPropName,log,testRunner){
+        debugLog("  ====  Calling \"getTestSuiteCustProp\".", log)
+        def retPropVal = testRunner.testCase.testSuite.getPropertyValue(custPropName)
+        assert(retPropVal!= null),"Error:getTestSuiteCustProp: Couldn't fetch property \"$custPropName\" value"
+        log.info "Test suite level custom property fetched \"$custPropName\"= \"$retPropVal\"."
+        debugLog("  ====  End \"getTestSuiteCustProp\".", log)
+        return retPropVal
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getProjectCustProp(custPropName,log, testRunner){
         debugLog("  ====  Calling \"getProjectCustProp\".", log)
         def retPropVal = testRunner.testCase.testSuite.project.getPropertyValue(custPropName)
         assert(retPropVal!= null),"Error:getProjectCustProp: Couldn't fetch property \"$custPropName\" value"
