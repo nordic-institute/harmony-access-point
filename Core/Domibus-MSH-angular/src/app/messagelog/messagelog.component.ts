@@ -408,11 +408,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   resendAll() {
-    const params = this.getFilterHttpParams()
-
-    console.log('ResendAll.', params);
+    const filters = this.getFiltersAsObject();
     let url = MessageLogComponent.RESEND_ALL_URL;
-    this.http.put(url, {params: params}, {}).subscribe(res => {
+    this.http.put(url,  filters).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();
@@ -423,10 +421,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   resendSelected(messageLogEntries: MessageLogEntry[]) {
-
     let url = MessageLogComponent.RESEND_SELECTED_URL;
-
-    this.http.put(url, messageLogEntries, {}).subscribe(res => {
+    this.http.put(url, messageLogEntries).subscribe(res => {
       this.alertService.success('The operation resend message completed successfully');
       setTimeout(() => {
         this.messageResent.emit();

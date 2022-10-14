@@ -90,7 +90,7 @@ public class MessageResource {
         restoreService.resendFailedOrSendEnqueuedMessage(messageId);
     }
 
-    @RequestMapping(path = "/failed/restore/selected", method = RequestMethod.PUT)
+    @PutMapping("/failed/restore/selected")
     public List<String> restoreSelectedFailedMessages(@RequestBody List<MessageLogRO> messageLogEntries) {
 
         LOG.info("Restoring Selected Failed Messages...");
@@ -104,11 +104,9 @@ public class MessageResource {
     }
 
 
-    @RequestMapping(path = "/failed/restore/all", method = RequestMethod.PUT)
+    @PutMapping(value ="/failed/restore/all")
     public List<String> restoreAllFailedMessages(@RequestBody MessageLogFilterRequestRO request) {
-
         LOG.debug("Getting all messages to restore");
-
         //creating the filters
         HashMap<String, Object> filters = messageLogResource.createFilterMap(request);
 

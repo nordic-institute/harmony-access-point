@@ -128,9 +128,14 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     return filterParams;
   }
 
-  getFilterHttpParams(): HttpParams {
+  getFiltersAsHttpParams(): HttpParams {
     this.setFilterParameters();
     return this.createAndSetParameters();
+  }
+
+  getFiltersAsObject(): Object {
+    this.setFilterParameters();
+    return this.activeFilter;
   }
 
   /**
