@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.SendingSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
@@ -47,6 +48,9 @@ public class AbstractEbms3UserMessageSenderTest {
 
     @Tested
     AbstractUserMessageSender abstractUserMessageSender;
+
+    @Injectable
+    protected SendingSoapEnvelopeSpiDelegate sendingSoapEnvelopeSpiDelegate;
 
     @Injectable
     protected PModeProvider pModeProvider;
