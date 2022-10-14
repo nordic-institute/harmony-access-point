@@ -641,5 +641,36 @@ public class PluginUsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
+	@Test(description = "NO-ID", groups = {"multiTenancy"})
+	public void duplicatePluginUserDetectionDeletedUser() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
+		String username = Gen.randomAlphaNumeric(9);
+
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		page.grid().scrollToAndSelect("User Name", username);
+		page.getDeleteBtn().click();
+
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		page.getDomainSelector().selectAnotherDomain();
+
+		page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+		page.getSaveBtn().click();
+		new Dialog(driver).confirm();
+
+		soft.assertFalse(page.getAlertArea().isError(), "There is no error message when creating a duplicate of a deleted plugin user");
+
+		soft.assertAll();
+	}
+
 
 }
