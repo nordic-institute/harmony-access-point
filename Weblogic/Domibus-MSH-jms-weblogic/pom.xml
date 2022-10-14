@@ -14,7 +14,6 @@
     <packaging>jar</packaging>
     <name>Domibus MSH JMS WebLogic</name>
 
-
     <build>
         <plugins>
             <plugin>
@@ -83,8 +82,14 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.weblogic</groupId>
-            <artifactId>weblogic.server.merged</artifactId>
-            <version>12.1.2-0-0</version>
+            <artifactId>com.oracle.weblogic.security.encryption</artifactId>
+            <version>${com.oracle.weblogic.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.weblogic</groupId>
+            <artifactId>com.oracle.weblogic.jms</artifactId>
+            <version>${com.oracle.weblogic.version}</version>
             <scope>provided</scope>
         </dependency>
         <!--It is used only for validating the selector correctness when filtering JMS messages-->
@@ -110,8 +115,8 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.weblogic</groupId>
-            <artifactId>com.oracle.css.weblogic.security.wls_7.0.0.0</artifactId>
-            <version>12.1.2-0-0</version>
+            <artifactId>com.oracle.weblogic.security</artifactId>
+            <version>${com.oracle.weblogic.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- End Test -->

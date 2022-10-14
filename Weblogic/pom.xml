@@ -15,6 +15,10 @@
     <packaging>pom</packaging>
     <name>Weblogic modules</name>
 
+    <properties>
+        <com.oracle.weblogic.version>12.2.1.4.0</com.oracle.weblogic.version>
+    </properties>
+
     <modules>
         <module>Domibus-MSH-taskexecutor-weblogic</module>
         <module>Domibus-MSH-jms-weblogic</module>
