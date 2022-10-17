@@ -44,6 +44,9 @@ public class MessageLogResourceTest {
     @Injectable
     CsvServiceImpl csvServiceImpl;
 
+    @Injectable
+    RequestFilterUtils requestFilterUtils;
+
     @Test
     public void testGetLastTestSent(@Injectable TestServiceMessageInfoRO testServiceMessageInfoResult) throws TestServiceException {
         // Given
