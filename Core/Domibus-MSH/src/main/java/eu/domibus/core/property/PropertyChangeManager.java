@@ -8,6 +8,8 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.util.DomibusEncryptionException;
 import eu.domibus.core.util.backup.BackupService;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.domibus.api.property.Module.MSH;
 import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.PROPERTY_VALUE_DELIMITER;
 
 /**
@@ -115,23 +118,44 @@ public class PropertyChangeManager {
     private String getConfigurationFileName(Domain domain, String propertyName) {
         String configurationFileName = null;
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (domain != null) {
-            if (propMeta.isDomain()) {
-                configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
+        if (propMeta.getModule() == MSH) {
+            if (domain != null) {
+                if (propMeta.isDomain()) {
+                    configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
+                } else {
+                    // error
+                }
             } else {
-                // error
+                if (propMeta.isSuper()) {
+                    configurationFileName = domibusConfigurationService.getConfigurationFileNameForSuper();
+                } else if (propMeta.isGlobal()) {
+                    configurationFileName = domibusConfigurationService.getConfigurationFileName();
+                } else {
+                    // error
+                }
             }
         } else {
-            if (propMeta.isSuper()) {
-                configurationFileName =  domibusConfigurationService.getConfigurationFileNameForSuper();
+            DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+            if (domain != null) {
+                DomainDTO extDomain = new DomainDTO(domain.getCode(), domain.getName());
+                if (propMeta.isDomain()) {
+                    configurationFileName = manager.getConfigurationFileName(extDomain).get();
+                } else {
+                    // error
+                }
             } else {
-                // error
+                if (propMeta.isGlobal()) {
+                    configurationFileName = manager.getConfigurationFileName();
+                } else {
+                    // error
+                }
             }
         }
         return configurationFileName;
     }
 
-    protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
+    protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue,
+                                              boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
         LOG.debug("Property [{}] changed its value on domain [{}], broadcasting is [{}]", propMeta, domainCode, shouldBroadcast);
