@@ -8,6 +8,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.multitenancy.DomibusDomainException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -51,14 +52,20 @@ public class RetentionListener implements MessageListener {
         try {
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
             LOG.debug("Processing JMS message for domain [{}]", domainCode);
-            domainContextProvider.setCurrentDomain(domainCode);
+            try {
+                domainContextProvider.setCurrentDomainWithValidation(domainCode);
+            } catch (DomibusDomainException ex) {
+                LOG.error("Invalid domain: [{}]", domainCode, ex);
+                return;
+            }
 
             MessageDeleteType deleteType = MessageDeleteType.valueOf(message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE));
             if (MessageDeleteType.SINGLE == deleteType) {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
-                String mshRole = message.getStringProperty(MessageConstants.MSH_ROLE);
+                String roleName = message.getStringProperty(MessageConstants.MSH_ROLE);
+                MSHRole mshRole = roleName!=null && !roleName.equals("null") ? MSHRole.valueOf(roleName) : null;
                 LOG.debug("Delete one message [{}] [{}]", messageId, mshRole);
-                userMessageDefaultService.deleteMessage(messageId, MSHRole.valueOf(mshRole));
+                userMessageDefaultService.deleteMessage(messageId, mshRole);
                 return;
             }
 

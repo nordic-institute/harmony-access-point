@@ -475,7 +475,6 @@ class PModeUtils {
 
         def pmodeFile = null
         def pmDescription = "SoapUI sample test description for PMode upload."
-        def swapText = []; def swapTextMap=[]; def swapCounter=0
 		def nodeMap=[]
 		def inputMap=[]
 		def locatorID=null; def locatorValue=null
@@ -483,6 +482,7 @@ class PModeUtils {
 		def repValue=null
         def formattedPath=null
 		def tempValue=null; def containsData=false
+		def changeDone=false
 		
         def authenticationUser = authUser
         def authenticationPwd = authPwd
@@ -519,8 +519,9 @@ class PModeUtils {
 				pmodeFile.depthFirst().each {
 					if (it.name().equals(target)){
 						if(it.@"${locatorID}".text().equals(locatorValue)){
-							swapText[swapCounter]=it.@"${targetedPar}".text()+"#"+repValue
-							swapCounter=swapCounter+1
+							it.@"${targetedPar}"=repValue
+							if(changeDone==false)
+								changeDone=true
 						}
 					}
 				}
@@ -529,16 +530,11 @@ class PModeUtils {
 			}
 			nodeMap=[]
 		}
-				
-		// Apply changes on pmode text
-		swapText.each{swval ->
-			swapTextMap=swval.split("#")
-			assert(swapTextMap.size()==2),"Error:updatePmodeParametersRest: Wrong parameters fomat provided $swval"
-			log.info "replacing "+swapTextMap[0]+ " with "+swapTextMap[1]
-			pmodeText=pmodeText.replaceAll(swapTextMap[0],swapTextMap[1])
-		}
-		
-		if(swapText.size()>0){
+						
+		if(changeDone){
+			// Apply changes on pmode text
+			pmodeText=groovy.xml.XmlUtil.serialize(pmodeFile)
+			
 			// Re-upload new Pmode file
 			File tempfile = null
 			try {
@@ -559,7 +555,8 @@ class PModeUtils {
 
         LogUtils.debugLog("  ====  \"updatePmodeParametersRest\" DONE.", log)
 
-    }				
+    }	
+			
 //---------------------------------------------------------------------------------------------------------------------------------
     /**
      * This method uploads default pmodes saved previously in testcase custom properties 

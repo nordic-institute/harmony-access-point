@@ -18,22 +18,13 @@ public interface ConnectionMonitoringService {
     void sendTestMessages();
 
     /**
-     * Checks whether the monitoring is enabled for at least a party except self.
-     */
-    boolean isMonitoringEnabled();
-
-    /**
-     * Checks whether the self monitoring is enabled.
-     */
-    boolean isSelfMonitoringEnabled();
-
-    /**
      * Retrieves the last known connection status for the given parties.
      *
+     * @param senderPartyId
      * @param partyIds The party identifier array
      * @return Details about the connection status of the given parties.
      */
-    Map<String, ConnectionMonitorRO> getConnectionStatus(String[] partyIds);
+    Map<String, ConnectionMonitorRO> getConnectionStatus(String senderPartyId, List<String> partyIds);
 
     void sendTestMessageToMyself();
 

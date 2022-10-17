@@ -159,6 +159,13 @@
         <addNotNullConstraint tableName="TB_COMMAND" columnName="SERVER_NAME" columnDataType="VARCHAR(255)"/>
     </changeSet>
 
+    <changeSet author="Gabriel Maier" id="EDELIVERY-10093_metadata_retention">
+        <addColumn tableName="TB_PM_MPC">
+            <column name="RETENTION_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
+        </addColumn>
+        <addNotNullConstraint tableName="TB_USER_MESSAGE_LOG" columnName="MESSAGE_STATUS_ID_FK" columnDataType="BIGINT"/>
+    </changeSet>
+
     <changeSet author="Lucian Furca" id="EDELIVERY-9686">
         <addColumn tableName="TB_PM_SECURITY">
             <column name="PROFILE" type="VARCHAR(255)"/>

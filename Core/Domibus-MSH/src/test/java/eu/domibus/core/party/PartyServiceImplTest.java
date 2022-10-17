@@ -93,6 +93,9 @@ public class PartyServiceImplTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Injectable
+    PartyCoreMapper partyCoreMapper;
+
     @Before
     public void setUp() {
         new NonStrictExpectations() {{
@@ -337,23 +340,6 @@ public class PartyServiceImplTest {
         assertFalse(partyService.processPredicate("wrong").test(party));
         assertFalse(partyService.processPredicate("tc1ProcessIR").test(party));
     }
-
-//    @Test
-//    public void testFindPartyNamesByServiceAndAction() throws EbMS3Exception {
-//        // Given
-//        List<String> parties = new ArrayList<>();
-//        parties.add("test");
-//        new Expectations() {{
-//            pModeProvider.findPartyIdByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, null);
-//            result = parties;
-//        }};
-//
-//        // When
-//        List<String> partyNamesByServiceAndAction = partyService.findPartyNamesByServiceAndAction(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION);
-//
-//        // Then
-//        Assert.assertEquals(parties, partyNamesByServiceAndAction);
-//    }
 
     @Test
     public void testGetGatewayPartyIdentifier() {

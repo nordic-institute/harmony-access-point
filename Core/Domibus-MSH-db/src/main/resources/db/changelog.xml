@@ -631,7 +631,9 @@
             <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
                 <constraints nullable="false"/>
             </column>
-            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="MSH_ROLE_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
@@ -1226,6 +1228,28 @@
             </column>
         </createTable>
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
+    </changeSet>
+
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-10221">
+        <createTable tableName="TB_FINAL_RECIPIENT_URL">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_FINAL_RECIPIENT_URL"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ENDPOINT_URL" type="VARCHAR(1000)"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <createIndex indexName="TB_FINAL_RECIPIENT_URL_IDX" tableName="TB_FINAL_RECIPIENT_URL">
+            <column name="FINAL_RECIPIENT"/>
+        </createIndex>
     </changeSet>
 
     <!-- Start PMode Tables -->
@@ -1854,6 +1878,7 @@
             <column name="DELETE_MESSAGE_METADATA"
                     remarks="Specifies whether the message metadata should be deleted or not." type="BOOLEAN"
                     defaultValueBoolean="false"/>
+            <column name="RETENTION_METADATA_OFFSET" type="INT" defaultValueNumeric="0"/>
             <column name="MAX_BATCH_DELETE"
                     remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
                     type="INT" defaultValueNumeric="-1"/>

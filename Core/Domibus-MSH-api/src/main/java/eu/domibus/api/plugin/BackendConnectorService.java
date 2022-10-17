@@ -31,4 +31,6 @@ public interface BackendConnectorService {
     boolean canDisableBackendConnector(String backendName, final String domainCode);
 
     boolean isBackendConnectorEnabled(String backendName);
+
+    boolean isBackendConnectorEnabled(String backendName, String domainCode);
 }

@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainsAware;
+import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DbSchemaUtil;
@@ -48,6 +49,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     private final DbSchemaUtil dbSchemaUtil;
 
+    private final BackendConnectorService backendConnectorService;
+
     public DynamicDomainManagementServiceImpl(DomainService domainService,
                                               DomibusPropertyProvider domibusPropertyProvider,
                                               DomainDao domainDao,
@@ -56,7 +59,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
                                               List<DomainsAwareExt> externalDomainsAwareList,
                                               DomibusCoreMapper coreMapper,
                                               DomibusConfigurationService domibusConfigurationService,
-                                              DbSchemaUtil dbSchemaUtil) {
+                                              DbSchemaUtil dbSchemaUtil, BackendConnectorService backendConnectorService) {
 
         this.domainService = domainService;
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -67,6 +70,7 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         this.coreMapper = coreMapper;
         this.domibusConfigurationService = domibusConfigurationService;
         this.dbSchemaUtil = dbSchemaUtil;
+        this.backendConnectorService = backendConnectorService;
     }
 
     @Override
@@ -78,8 +82,6 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         Domain domain = new Domain(domainCode, domainCode);
 
         internalAddDomain(domain);
-
-        notifyExternalModulesOfAddition(domain);
 
         if(notifyClusterNodes) {
             notifyClusterNodesOfAddition(domainCode);
@@ -206,12 +208,18 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
         domainService.addDomain(domain);
 
+        // we need to notify plugins so early because they will load their properties, including Enabled,
+        // which will tell domibus to create or not the resources for these plugins( queues and cron jobs)
+        notifyExternalModulesOfAddition(domain);
+
         try {
             notifyInternalBeansOfAddition(domain);
         } catch (Exception ex) {
             domainService.removeDomain(domain.getCode());
             throw new DomibusDomainException(String.format("Error adding the domain [%s]. ", domain), ex);
         }
+
+        backendConnectorService.ensureValidConfiguration();
     }
 
     protected void notifyInternalBeansOfAddition(Domain domain) throws Exception {

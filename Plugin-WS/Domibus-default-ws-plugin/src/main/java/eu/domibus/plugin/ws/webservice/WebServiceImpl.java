@@ -71,7 +71,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
 
-    private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
+    public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
 
     private MessageAcknowledgeExtService messageAcknowledgeExtService;

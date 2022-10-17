@@ -11,6 +11,8 @@ public class LatestIncomingMessageRequestRO implements Serializable {
     private String partyId;
     private String userMessageId;
 
+    private String senderPartyId;
+
     public String getPartyId() {
         return partyId;
     }
@@ -25,5 +27,13 @@ public class LatestIncomingMessageRequestRO implements Serializable {
 
     public void setUserMessageId(String userMessageId) {
         this.userMessageId = userMessageId;
+    }
+
+    public String getSenderPartyId() {
+        return senderPartyId;
+    }
+
+    public void setSenderPartyId(String senderPartyId) {
+        this.senderPartyId = senderPartyId;
     }
 }

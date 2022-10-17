@@ -396,10 +396,6 @@ public class UserMessageDefaultServiceTest {
             result = 1L;
             uml2.getEntityId();
             result = 2L;
-            uml1.getMessageId();
-            result = "1L";
-            uml2.getMessageId();
-            result = "2L";
             em.unwrap(Session.class);
             result = session;
 

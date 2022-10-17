@@ -16,6 +16,8 @@
                                                   use="required"/>
                                     <xs:attribute name="retention_undownloaded" type="xs:int"
                                                   use="required"/>
+                                    <xs:attribute name="retention_metadata_offset" type="xs:int"
+                                                  use="optional" default="0"/>
                                     <xs:attribute name="default" type="xs:boolean" use="required"/>
                                     <xs:attribute name="enabled" type="xs:boolean" use="required"/>
                                     <xs:attribute name="qualifiedName" type="max255-non-empty-string"

@@ -22,19 +22,43 @@ import java.util.regex.Pattern;
  */
 public interface DomainCryptoServiceSpi {
     /* START - Methods required to be implemented by the org.apache.wss4j.common.crypto.CryptoBase */
+    default X509Certificate[] getX509Certificates(CryptoType cryptoType, String alias) throws WSSecurityException {
+        return new X509Certificate[0];
+    }
+
     X509Certificate[] getX509Certificates(CryptoType cryptoType) throws WSSecurityException;
+
+    default String getX509Identifier(X509Certificate cert, String alias) throws WSSecurityException {
+        return null;
+    }
 
     String getX509Identifier(X509Certificate cert) throws WSSecurityException;
 
+    default PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler, String alias) throws WSSecurityException {
+        return null;
+    }
+
     PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler) throws WSSecurityException;
+
+    default PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler, String alias) throws WSSecurityException {
+        return null;
+    }
 
     PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler) throws WSSecurityException;
 
     PrivateKey getPrivateKey(String identifier, String password) throws WSSecurityException;
 
+    default void verifyTrust(PublicKey publicKey, String alias) throws WSSecurityException {}
+
     void verifyTrust(PublicKey publicKey) throws WSSecurityException;
 
+    default void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints, String alias) throws WSSecurityException {}
+
     void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException;
+
+    default String getDefaultX509Identifier(String alias) throws WSSecurityException {
+        return null;
+    }
 
     String getDefaultX509Identifier() throws WSSecurityException;
     /* END - Methods required to be implemented by the org.apache.wss4j.common.crypto.CryptoBase */

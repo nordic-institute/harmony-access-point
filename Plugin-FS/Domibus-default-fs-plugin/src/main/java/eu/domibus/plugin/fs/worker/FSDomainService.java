@@ -27,9 +27,6 @@ public class FSDomainService {
     protected DomainExtService domainExtService;
 
     @Autowired
-    protected FSPluginProperties fsPluginProperties;
-
-    @Autowired
     protected DomainContextExtService domainContextExtService;
 
 
