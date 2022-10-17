@@ -8,7 +8,7 @@ import java.util.List;
  */
 public interface UserMessageRestoreService {
 
-    void restoreFailedMessage(String messageId);
+  /*  void restoreFailedMessage(String messageId);*/
 
     /**
      * Resend a message in the status SEND_FAILURE or SEND_ENQUEUED
@@ -28,21 +28,10 @@ public interface UserMessageRestoreService {
     List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser);
 
     /**
-     * @param messageIds     list of message Ids to restore
-     * @param finalRecipient final recipient of failed message
-     * @param originalUser   original user of failed message
-     * @return the failed messages with the given ids, final recipient and original user
-     * that were successfully restored
+     * @param messageIds          list of message Ids to restore
+     * @param resendAllOrSelected resend all Or selected messages
+     * @return the failed messages with the given ids that were successfully restored
      */
-    List<String> restoreSelectedFailedMessages(List<String> messageIds, String finalRecipient, String originalUser);
-
-    /**
-     * @param messageIds     list of message Ids to restore
-     * @param finalRecipient final recipient of failed message
-     * @param originalUser   original user of failed message
-     * @return the failed messages with the given ids, final recipient and original user
-     * that were successfully restored
-     */
-    List<String> restoreAllFailedMessages(List<String> messageIds, String finalRecipient, String originalUser);
+    List<String> restoreAllOrSelectedFailedMessages(List<String> messageIds, String resendAllOrSelected);
 
 }

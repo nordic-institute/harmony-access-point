@@ -1,7 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.MSHRole;
@@ -12,9 +10,7 @@ import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
-import eu.domibus.ext.services.DateExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -44,7 +40,8 @@ public class MessageResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageResource.class);
     private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
-
+    private static final String RESEND_SELECTED = "selected";
+    private static final String RESEND_All = "all";
 
     private UserMessageService userMessageService;
 
@@ -56,22 +53,18 @@ public class MessageResource {
 
     private AuthUtils authUtils;
 
-    private DateExtService dateExtService;
-
-    private MessageLogResource messageLogResource;
+    private RequestFilterUtils requestFilterUtils;
 
     private MessagesLogService messagesLogService;
 
     public MessageResource(UserMessageService userMessageService, ErrorHandlerService errorHandlerService, DomibusPropertyProvider domibusPropertyProvider,
-                           UserMessageRestoreService restoreService, AuthUtils authUtils, DateExtService dateExtService, MessageLogResource messageLogResource,
-                           MessagesLogService messagesLogService) {
+                           UserMessageRestoreService restoreService, AuthUtils authUtils, RequestFilterUtils requestFilterUtils, MessagesLogService messagesLogService) {
         this.userMessageService = userMessageService;
         this.errorHandlerService = errorHandlerService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.restoreService = restoreService;
         this.authUtils = authUtils;
-        this.dateExtService = dateExtService;
-        this.messageLogResource = messageLogResource;
+        this.requestFilterUtils = requestFilterUtils;
         this.messagesLogService = messagesLogService;
     }
 
@@ -92,25 +85,23 @@ public class MessageResource {
 
     @PutMapping("/failed/restore/selected")
     public List<String> restoreSelectedFailedMessages(@RequestBody List<MessageLogRO> messageLogEntries) {
-
         LOG.info("Restoring Selected Failed Messages...");
-        String originalUserFromSecurityContext = getUser();
-
         List<String> messageIds = messageLogEntries.stream()
                 .map(a -> a.getMessageId())
                 .collect(Collectors.toList());
 
-        return restoreService.restoreSelectedFailedMessages(messageIds, null, originalUserFromSecurityContext);
+        return restoreService.restoreAllOrSelectedFailedMessages(messageIds, RESEND_SELECTED);
     }
 
 
-    @PutMapping(value ="/failed/restore/all")
+    @PutMapping(value = "/failed/restore/all")
     public List<String> restoreAllFailedMessages(@RequestBody MessageLogFilterRequestRO request) {
         LOG.debug("Getting all messages to restore");
-        //creating the filters
-        HashMap<String, Object> filters = messageLogResource.createFilterMap(request);
 
-        messageLogResource.setDefaultFilters(request, filters);
+        //creating the filters
+        HashMap<String, Object> filters = requestFilterUtils.createFilterMap(request);
+
+        requestFilterUtils.setDefaultFilters(request, filters);
         filters.put(PROPERTY_MESSAGE_STATUS, MessageStatus.SEND_FAILURE);
 
         MessageLogResultRO result = messagesLogService.countAndFindPaged(request.getMessageType(), request.getPageSize() * request.getPage(),
@@ -121,10 +112,7 @@ public class MessageResource {
                 .map(a -> a.getMessageId())
                 .collect(Collectors.toList());
 
-        String originalUserFromSecurityContext = getUser();
-
-
-        return restoreService.restoreAllFailedMessages(messageIds, null, originalUserFromSecurityContext);
+        return restoreService.restoreAllOrSelectedFailedMessages(messageIds, RESEND_All);
     }
 
     @RequestMapping(value = "/download")
@@ -175,9 +163,5 @@ public class MessageResource {
             throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
         }
         return originalUserFromSecurityContext;
-    }
-
-    private DomibusDateTimeExtException getDatesValidationError() {
-        return new DomibusDateTimeExtException("starting date-hour and ending date-hour validation error", new DomibusDateTimeException(DomibusCoreErrorCode.DOM_007, "Starting date hour is after Ending date hour"));
     }
 }

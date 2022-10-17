@@ -3,9 +3,11 @@ package eu.domibus.core.message;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -17,11 +19,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Soumya
@@ -63,6 +68,12 @@ public class UserMessageDefaultRestoreServiceTest {
     @Injectable
     private AuditService auditService;
 
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private DomainTaskExecutor domainTaskExecutor;
+
     @Test
     public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
         final Long messageEntityId = 1L;
@@ -73,7 +84,7 @@ public class UserMessageDefaultRestoreServiceTest {
 
         }};
 
-        final Integer maxAttemptsConfiguration = restoreService.getMaxAttemptsConfiguration(messageEntityId);
+        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageEntityId);
         assertEquals(1, (int) maxAttemptsConfiguration);
 
     }
@@ -92,7 +103,7 @@ public class UserMessageDefaultRestoreServiceTest {
 
         }};
 
-        final Integer maxAttemptsConfiguration = restoreService.getMaxAttemptsConfiguration(messageEntityId);
+        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageEntityId);
         Assert.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
     }
 
@@ -102,7 +113,7 @@ public class UserMessageDefaultRestoreServiceTest {
         final Integer pModeMaxAttempts = 5;
 
         new Expectations(restoreService) {{
-            restoreService.getMaxAttemptsConfiguration(userMessageLog.getEntityId());
+            userMessageDefaultService.getMaxAttemptsConfiguration(userMessageLog.getEntityId());
             result = pModeMaxAttempts;
 
             userMessageLog.getSendAttemptsMax();
@@ -110,7 +121,7 @@ public class UserMessageDefaultRestoreServiceTest {
 
         }};
 
-        final Integer maxAttemptsConfiguration = restoreService.computeNewMaxAttempts(userMessageLog);
+        final Integer maxAttemptsConfiguration = userMessageDefaultService.computeNewMaxAttempts(userMessageLog);
         assertEquals(11, (int) maxAttemptsConfiguration);
     }
 
@@ -127,7 +138,7 @@ public class UserMessageDefaultRestoreServiceTest {
 
         }};
 
-        restoreService.restoreFailedMessage(messageId);
+        userMessageDefaultService.restoreFailedMessage(messageId);
     }
 
     @Test
@@ -145,7 +156,7 @@ public class UserMessageDefaultRestoreServiceTest {
             messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
             result = messageStatusEntity;
 
-            restoreService.computeNewMaxAttempts(userMessageLog);
+            userMessageDefaultService.computeNewMaxAttempts(userMessageLog);
             result = newMaxAttempts;
 
             userMessageLog.getMessageStatus();
@@ -155,7 +166,7 @@ public class UserMessageDefaultRestoreServiceTest {
             result = userMessage;
         }};
 
-        restoreService.restoreFailedMessage(messageId);
+        userMessageDefaultService.restoreFailedMessage(messageId);
 
         new FullVerifications(restoreService) {{
             backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
@@ -189,7 +200,7 @@ public class UserMessageDefaultRestoreServiceTest {
             messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
             result = messageStatusEntity;
 
-            restoreService.computeNewMaxAttempts(userMessageLog);
+            userMessageDefaultService.computeNewMaxAttempts(userMessageLog);
             result = newMaxAttempts;
 
             userMessageDao.findByEntityId(userMessageLog.getEntityId());
@@ -197,7 +208,7 @@ public class UserMessageDefaultRestoreServiceTest {
 
         }};
 
-        restoreService.restoreFailedMessage(messageId);
+        userMessageDefaultService.restoreFailedMessage(messageId);
 
         new Verifications() {{
             userMessageLog.setMessageStatus(messageStatusEntity);
@@ -268,6 +279,49 @@ public class UserMessageDefaultRestoreServiceTest {
 
             auditService.addMessageResentAudit(messageIdActual = withCapture());
             Assert.assertEquals(messageId, messageIdActual);
+        }};
+    }
+
+    @Test
+    public void restoreSelectedFailedMessages(@Injectable Runnable task) {
+        final String messageId = UUID.randomUUID().toString();
+        final List<String> messageIds = new ArrayList<>();
+        messageIds.add(messageId);
+        final List<String> restoredMessages = new ArrayList<>();
+        List<String> result;
+        new Expectations() {{
+            restoreService.restoreBatchMessages(restoredMessages, messageIds);
+        }};
+
+        result = restoreService.restoreAllOrSelectedFailedMessages(messageIds, "selected");
+
+        new FullVerifications(restoreService) {{
+            restoreService.restoreSelectedValidation(messageIds);
+            domainTaskExecutor.submit((Runnable) any);
+            Assert.assertEquals(messageIds.size(), result.size());
+        }};
+    }
+
+    @Test
+    public void restoreAllFailedMessages(@Injectable Runnable task) {
+        final String messageId = UUID.randomUUID().toString();
+        final List<String> messageIds = new ArrayList<>();
+        messageIds.add(messageId);
+        List<String> result;
+        new Expectations(restoreService) {{
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
+            result =10;
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
+            result = 5;
+           // restoreService.restoreBatchMessages(restoredMessages, messageIds);
+        }};
+
+        result = restoreService.restoreAllOrSelectedFailedMessages(messageIds, "all");
+
+        new FullVerifications(restoreService) {{
+            restoreService.restoreAllValidation((messageIds));
+            domainTaskExecutor.submit((Runnable) any);
+            Assert.assertEquals(result.size(), messageIds.size());
         }};
     }
 

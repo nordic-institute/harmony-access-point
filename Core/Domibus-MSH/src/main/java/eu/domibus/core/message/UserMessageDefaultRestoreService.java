@@ -1,17 +1,16 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
-import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -21,9 +20,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +38,8 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultRestoreService.class);
 
-    private static final int MAX_RESEND_MESSAGE_COUNT = 3;
+    private static final int MAX_RESEND_MESSAGE_COUNT = 100;
+    private static final String RESEND_SELECTED = "selected";
 
     private MessageExchangeService messageExchangeService;
 
@@ -65,8 +63,11 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private DomibusPropertyProvider domibusPropertyProvider;
 
+    private DomainTaskExecutor domainTaskExecutor;
+
     public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService,
-                                            PModeService pModeService,PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider) {
+                                            PModeService pModeService,PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider,
+                                            DomainTaskExecutor domainTaskExecutor) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
@@ -78,10 +79,11 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         this.userMessageDao = userMessageDao;
         this.auditService = auditService;
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domainTaskExecutor = domainTaskExecutor;
     }
 
 
-    @Transactional
+   /* @Transactional
     @Override
     public void restoreFailedMessage(String messageId) {
         LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
@@ -137,7 +139,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(userMessageLog.getEntityId());
         // always increase maxAttempts (even when not reached by sendAttempts)
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
-    }
+    }*/
 
     @Transactional
     @Override
@@ -149,7 +151,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         if (MessageStatus.SEND_ENQUEUED == userMessageLog.getMessageStatus()) {
             userMessageService.sendEnqueuedMessage(messageId);
         } else {
-            restoreFailedMessage(messageId);
+            userMessageService.restoreFailedMessage(messageId);
         }
 
         auditService.addMessageResentAudit(messageId);
@@ -167,7 +169,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
             try {
-                restoreFailedMessage(messageId);
+                userMessageService.restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
                 LOG.error("Failed to restore message [" + messageId + "]", e);
@@ -181,66 +183,60 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     @Transactional
     @Override
-    public List<String> restoreSelectedFailedMessages(List<String> messageIds, String finalRecipient, String originalUser) {
-
+    public List<String> restoreAllOrSelectedFailedMessages(final List<String> messageIds, String resendAllOrSelected) {
         if (CollectionUtils.isEmpty(messageIds)) {
             return null;
         }
-
         final List<String> restoredMessages = new ArrayList<>();
 
-        if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
-            LOG.warn("Couldn't resend the selected messages. The selected message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT);
-            throw new MessagingException("The resend message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT, null);
+        if (resendAllOrSelected.equals(RESEND_SELECTED)) {
+            restoreSelectedValidation(messageIds);
+            restoreBatchMessages(restoredMessages, messageIds);
         } else {
-            for (String messageId : messageIds) {
-                LOG.debug("Message Id's selected to restore [{}]", messageId);
-                try {
-                    restoreFailedMessage(messageId);
-                    restoredMessages.add(messageId);
-                } catch (Exception e) {
-                    LOG.error("Failed to restore message [" + messageId + "]", e);
-                }
-            }
-        }
-        LOG.debug("Restored messages [{}]  and final recipient [{}]", restoredMessages, finalRecipient);
+            restoreAllValidation(messageIds);
 
-        return restoredMessages;
-    }
+            final List<String> totalMessageIds = new ArrayList<>();
+            totalMessageIds.addAll(messageIds);
+            int resendBatchLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
 
-    @Transactional
-    @Override
-    public List<String> restoreAllFailedMessages(List<String> messageIds,String finalRecipient, String originalUser) {
-        if (CollectionUtils.isEmpty(messageIds)) {
-            return null;
-        }
-        int maxResendCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
-        int resendBatchLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
-
-        final List<String> restoredMessages = new ArrayList<>();
-        if (maxResendCount < messageIds.size()) {
-            LOG.warn("Couldn't resend the messages. The resend message counts exceeds maximum resend count limit: " + maxResendCount);
-            throw new MessagingException("The resend message counts exceeds maximum resend count limit: " + maxResendCount, null);
-        } else {
-            List<String> totalMessageIds = messageIds;
             for (int i = 0; i < messageIds.size(); i += resendBatchLimit) {
                 List<String> batchMessageIds = totalMessageIds.stream().limit(resendBatchLimit).collect(Collectors.toList());
-
-                for (String messageId : batchMessageIds) {
-                    LOG.debug("Message Id's selected to delete as batch [{}]", messageId);
-                    try {
-                        restoreFailedMessage(messageId);
-                        restoredMessages.add(messageId);
-                    } catch (Exception e) {
-                        LOG.error("Failed to restore message [" + messageId + "]", e);
-                    }
-                }
+                restoreBatchMessages(restoredMessages, batchMessageIds);
                 totalMessageIds.removeAll(batchMessageIds);
             }
         }
-        LOG.debug("Restored messages [{}] and final recipient [{}]", restoredMessages, finalRecipient);
+        LOG.debug("Restored messages [{}] and final recipient [{}]", restoredMessages);
 
         return restoredMessages;
     }
 
+    protected void restoreSelectedValidation(List<String> messageIds) {
+        if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
+            LOG.warn("Couldn't resend the selected messages. The selected message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT);
+            throw new MessagingException("The resend message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT, null);
+        }
+    }
+
+    @Transactional
+    public void restoreBatchMessages(List<String> restoredMessages, List<String> batchMessageIds) {
+        for (String messageId : batchMessageIds) {
+            LOG.debug("Message Id's selected to resend as batch [{}]", messageId);
+            try {
+                domainTaskExecutor.submit(() -> userMessageService.restoreFailedMessage(messageId));
+                restoredMessages.add(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [" + messageId + "]", e);
+                throw new MessagingException("Failed to restore message: " + messageId, null);
+            }
+        }
+    }
+
+    protected void restoreAllValidation(List<String> messageIds) {
+        int maxResendCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
+
+        if (maxResendCount < messageIds.size()) {
+            LOG.warn("Couldn't resend the messages. The resend message counts exceeds maximum resend count limit: " + maxResendCount);
+            throw new MessagingException("The resend message counts exceeds maximum resend count limit: " + maxResendCount, null);
+        }
+    }
 }

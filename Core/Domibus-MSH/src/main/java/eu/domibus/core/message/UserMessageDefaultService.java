@@ -11,7 +11,9 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeConstants;
+import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
+import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
@@ -20,6 +22,7 @@ import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.MessageCoreMapper;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -29,11 +32,13 @@ import eu.domibus.core.message.dictionary.MessagePropertyDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.SignalMessageRawEnvelopeDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.jms.spi.InternalJMSConstants;
 import eu.domibus.logging.DomibusLogger;
@@ -55,6 +60,7 @@ import javax.jms.Queue;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -180,6 +186,18 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     private FileServiceUtil fileServiceUtil;
 
+    @Autowired
+    private MessageExchangeService messageExchangeService;
+
+    @Autowired
+    private PModeProvider pModeProvider;
+
+    @Autowired
+    private PullMessageService pullMessageService;
+
+    @Autowired
+    private PModeService pModeService;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -283,7 +301,8 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Timer(clazz = UserMessageDefaultService.class, value = "scheduleSending")
     @Counter(clazz = UserMessageDefaultService.class, value = "scheduleSending")
-    protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
+    @Transactional
+    public void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessage.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
@@ -460,7 +479,8 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteMessage(messageId, mes.getMshRole().getRole());
     }
 
-    protected UserMessageLog getFailedMessage(String messageId) {
+    @Transactional
+    public UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING); // is it always???
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
@@ -606,6 +626,64 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteResult = userMessageDao.deleteMessages(ids);
         LOG.info("Deleted [{}] userMessages.", deleteResult);
 
+    }
+
+    @Transactional
+    @Override
+    public void restoreFailedMessage(String messageId) {
+        LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
+
+        final UserMessageLog userMessageLog = getFailedMessage(messageId);
+
+        if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
+        }
+
+        UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
+
+        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus.getMessageStatus(), new Timestamp(System.currentTimeMillis()));
+        userMessageLog.setMessageStatus(newMessageStatus);
+        final Date currentDate = new Date();
+        userMessageLog.setRestored(currentDate);
+        userMessageLog.setFailed(null);
+        userMessageLog.setNextAttempt(currentDate);
+
+        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog);
+        LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
+        userMessageLog.setSendAttemptsMax(newMaxAttempts);
+
+        userMessageLogDao.update(userMessageLog);
+
+        if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
+            scheduleSending(userMessage, userMessageLog);
+        } else {
+            try {
+                MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
+                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
+                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessage.getMessageId());
+                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
+            } catch (EbMS3Exception ebms3Ex) {
+                LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageId() + "]", ebms3Ex);
+            }
+        }
+    }
+
+    protected Integer getMaxAttemptsConfiguration(final Long messageEntityId) {
+        final LegConfiguration legConfiguration = pModeService.getLegConfiguration(messageEntityId);
+        Integer result = 1;
+        if (legConfiguration == null) {
+            LOG.warn("Could not get the leg configuration for message with entity id [{}]. Using the default maxAttempts configuration [{}]", messageEntityId, result);
+        } else {
+            result = pModeServiceHelper.getMaxAttempts(legConfiguration);
+        }
+        return result;
+    }
+
+    protected Integer computeNewMaxAttempts(final UserMessageLog userMessageLog) {
+        Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(userMessageLog.getEntityId());
+        // always increase maxAttempts (even when not reached by sendAttempts)
+        return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
     public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {

@@ -7,7 +7,6 @@ import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -22,7 +21,6 @@ public interface UserMessageService {
     String COMMAND_SET_MESSAGE_FRAGMENT_AS_FAILED = "SetMessageFragmentAsFailed";
     String COMMAND_SEND_SIGNAL_ERROR = "SendSignalError";
     String COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED = "SplitAndJoinReceiveFailed";
-
 
     String MSG_SOURCE_MESSAGE_FILE = "SourceMessageFile";
     String MSG_TYPE = "messageType";
@@ -70,6 +68,8 @@ public interface UserMessageService {
     void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException, MessagingException;
 
     List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
+
+    void restoreFailedMessage(String messageId);
 
     /**
      * Schedules the handling of the SplitAndJoin send failed event
