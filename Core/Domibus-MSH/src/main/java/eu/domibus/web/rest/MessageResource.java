@@ -9,8 +9,6 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagesLogService;
-import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -19,7 +17,6 @@ import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -157,11 +154,4 @@ public class MessageResource {
                 .body(new ByteArrayResource(zip));
     }
 
-    private String getUser() {
-        String originalUserFromSecurityContext = authUtils.getOriginalUser();
-        if (StringUtils.isBlank(originalUserFromSecurityContext) && !authUtils.isAdminMultiAware()) {
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "User is not admin");
-        }
-        return originalUserFromSecurityContext;
-    }
 }

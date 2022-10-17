@@ -30,7 +30,6 @@ import {SecurityService} from '../security/security.service';
 import {ComponentName} from '../common/component-name-decorator';
 import {MessageLogEntry} from './support/messagelogentry';
 
-
 @Component({
   moduleId: module.id,
   templateUrl: 'messagelog.component.html',
