@@ -8,7 +8,10 @@ import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.party.PartyDao;
 import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,6 +43,9 @@ public class MessageLogResourceNonParameterizedTest {
 
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    RequestFilterUtils requestFilterUtils;
 
     @Test
     public void getCsv_fourCornersModeEnabled(@Injectable MessageLogFilterRequestRO messageLogFilter) {

@@ -134,7 +134,7 @@ public class UserMessageDefaultRestoreServiceTest {
         result = restoreService.restoreAllOrSelectedFailedMessages(messageIds, "selected");
 
         new FullVerifications(restoreService) {{
-            restoreService.restoreSelectedValidation(messageIds);
+            restoreService.validationForRestoreSelected(messageIds);
             domainTaskExecutor.submit((Runnable) any);
             Assert.assertEquals(messageIds.size(), result.size());
         }};
@@ -151,13 +151,12 @@ public class UserMessageDefaultRestoreServiceTest {
             result = 10;
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
             result = 5;
-            // restoreService.restoreBatchMessages(restoredMessages, messageIds);
         }};
 
         result = restoreService.restoreAllOrSelectedFailedMessages(messageIds, "all");
 
         new FullVerifications(restoreService) {{
-            restoreService.restoreAllValidation((messageIds));
+            restoreService.validationForRestoreAll((messageIds));
             domainTaskExecutor.submit((Runnable) any);
             Assert.assertEquals(result.size(), messageIds.size());
         }};

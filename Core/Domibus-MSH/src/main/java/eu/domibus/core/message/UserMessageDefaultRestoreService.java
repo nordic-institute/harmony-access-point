@@ -134,10 +134,10 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         final List<String> restoredMessages = new ArrayList<>();
 
         if (resendAllOrSelected.equals(RESEND_SELECTED)) {
-            restoreSelectedValidation(messageIds);
+            validationForRestoreSelected(messageIds);
             restoreBatchMessages(restoredMessages, messageIds);
         } else {
-            restoreAllValidation(messageIds);
+            validationForRestoreAll(messageIds);
 
             final List<String> totalMessageIds = new ArrayList<>();
             totalMessageIds.addAll(messageIds);
@@ -154,7 +154,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         return restoredMessages;
     }
 
-    protected void restoreSelectedValidation(List<String> messageIds) {
+    protected void validationForRestoreSelected(List<String> messageIds) {
         if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
             LOG.warn("Couldn't resend the selected messages. The selected message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT);
             throw new MessagingException("The resend message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT, null);
@@ -175,7 +175,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         }
     }
 
-    protected void restoreAllValidation(List<String> messageIds) {
+    protected void validationForRestoreAll(List<String> messageIds) {
         int maxResendCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
 
         if (maxResendCount < messageIds.size()) {

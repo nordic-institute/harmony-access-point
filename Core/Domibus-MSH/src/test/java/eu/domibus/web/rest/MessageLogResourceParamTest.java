@@ -60,6 +60,9 @@ public class MessageLogResourceParamTest {
     @Injectable
     private DomibusConfigurationService domibusConfigurationService;
 
+    @Injectable
+    RequestFilterUtils requestFilterUtils;
+
     @Parameterized.Parameter(0)
     public MessageType messageType;
 
