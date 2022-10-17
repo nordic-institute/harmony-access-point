@@ -6,14 +6,13 @@ import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.util.DomibusEncryptionException;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
@@ -52,19 +51,29 @@ public class PropertyChangeManager {
 
     private final DomibusCacheService domibusCacheService;
 
+    private final DomibusConfigurationService domibusConfigurationService;
+
+    private final BackupService backupService;
+
+    private final DomibusCoreMapper coreMapper;
+
     public PropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
                                  PropertyRetrieveManager propertyRetrieveManager,
                                  PropertyProviderHelper propertyProviderHelper,
                                  ConfigurableEnvironment environment,
                                  // needs to be lazy because we do have a conceptual cyclic dependency:
                                  // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
-                                 @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier, DomibusCacheService domibusCacheService) {
+                                 @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier, DomibusCacheService domibusCacheService,
+                                 DomibusConfigurationService domibusConfigurationService, BackupService backupService, DomibusCoreMapper coreMapper) {
         this.propertyRetrieveManager = propertyRetrieveManager;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderHelper = propertyProviderHelper;
         this.environment = environment;
         this.propertyChangeNotifier = propertyChangeNotifier;
         this.domibusCacheService = domibusCacheService;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.backupService = backupService;
+        this.coreMapper = coreMapper;
     }
 
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
@@ -86,12 +95,6 @@ public class PropertyChangeManager {
         }
         return propertyRetrieveManager.getInternalProperty(domain, propertyName);
     }
-
-    @Autowired
-    DomibusConfigurationService domibusConfigurationService;
-
-    @Autowired
-    BackupService backupService;
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
@@ -128,29 +131,6 @@ public class PropertyChangeManager {
         return configurationFileName;
     }
 
-    private String getExternalModulePropertyFileName(Domain domain, String propertyName, String configurationFileName, DomibusPropertyMetadata propMeta) {
-        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-        if (propertyProviderHelper.isMultiTenantAware()) {
-            if (domain != null) {
-                DomainDTO extDomain = new DomainDTO(domain.getCode(), domain.getName());
-                if (propMeta.isDomain()) {
-                    configurationFileName = manager.getConfigurationFileName(extDomain).get();
-                } else {
-                    // error
-                }
-            } else {
-                if (propMeta.isGlobal()) {
-                    configurationFileName = manager.getConfigurationFileName();
-                } else {
-                    // error
-                }
-            }
-        } else {
-            configurationFileName = manager.getConfigurationFileName();
-        }
-        return configurationFileName;
-    }
-
     private String getDomibusPropertyFileName(Domain domain, String configurationFileName, DomibusPropertyMetadata propMeta) {
         if (propertyProviderHelper.isMultiTenantAware()) {
             if (domain != null) {
@@ -170,6 +150,29 @@ public class PropertyChangeManager {
             }
         } else {
             configurationFileName = domibusConfigurationService.getConfigurationFileName();
+        }
+        return configurationFileName;
+    }
+
+    private String getExternalModulePropertyFileName(Domain domain, String propertyName, String configurationFileName, DomibusPropertyMetadata propMeta) {
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        if (propertyProviderHelper.isMultiTenantAware()) {
+            if (domain != null) {
+                DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
+                if (propMeta.isDomain()) {
+                    configurationFileName = manager.getConfigurationFileName(extDomain).get();
+                } else {
+                    // error
+                }
+            } else {
+                if (propMeta.isGlobal()) {
+                    configurationFileName = manager.getConfigurationFileName();
+                } else {
+                    // error
+                }
+            }
+        } else {
+            configurationFileName = manager.getConfigurationFileName();
         }
         return configurationFileName;
     }
@@ -243,10 +246,9 @@ public class PropertyChangeManager {
         updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 
-    // asta se poate refolosi probabil
     protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue) {
         final List<String> replacedLines = getReplacedLines(configurationFile, propertyName, newPropertyValue);
-        String newLine = getNewLine(propertyName, newPropertyValue);
+        String newLine = getPropertyNameValueLine(propertyName, newPropertyValue);
         if (!replacedLines.contains(newLine)) {
             replacedLines.add(newLine);
         }
@@ -260,18 +262,16 @@ public class PropertyChangeManager {
         try {
             Files.write(configurationFile.toPath(), replacedLines);
         } catch (IOException e) {
-            throw new DomibusEncryptionException(String.format("Could not write encrypted values to file [%s] ", configurationFile), e);
+            throw new DomibusPropertyException(String.format("Could not write property [{}] to file [%s] ", propertyName, configurationFile), e);
         }
     }
 
-    private String getNewLine(String propertyName, String newPropertyValue) {
+    private String getPropertyNameValueLine(String propertyName, String newPropertyValue) {
         return propertyName + PROPERTY_VALUE_DELIMITER + newPropertyValue;
     }
 
-    // asta se poate refolosi probabil
     protected List<String> getReplacedLines(File configurationFile, String propertyName, String newPropertyValue) {
         try (final Stream<String> lines = Files.lines(configurationFile.toPath())) {
-//            if(lines.filter(line -> StringUtils.contains(line, propertyName)).findAny().isPresent()){}
             return lines
                     .map(line -> replaceLine(line, propertyName, newPropertyValue))
                     .collect(Collectors.toList());
@@ -281,16 +281,11 @@ public class PropertyChangeManager {
     }
 
     protected String replaceLine(String line, String propertyName, String newPropertyValue) {
-//        if (containsNone(line, PROPERTY_VALUE_DELIMITER)) {
-//            return line;
-//        }
-
         if (!arePropertiesMatching(line, propertyName)) {
             return line;
         }
 
-        String newLine = getNewLine(propertyName, newPropertyValue);
-        return newLine;
+        return getPropertyNameValueLine(propertyName, newPropertyValue);
     }
 
     protected boolean arePropertiesMatching(String filePropertyName, String propertyName) {
