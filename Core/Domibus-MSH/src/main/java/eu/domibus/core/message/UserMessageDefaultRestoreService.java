@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT;
+
 /**
  * This service class is responsible for the restore of failed messages.
  *
@@ -66,7 +67,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     private DomainTaskExecutor domainTaskExecutor;
 
     public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService, UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService,
-                                            PModeService pModeService,PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider,
+                                            PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService, UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider,
                                             DomainTaskExecutor domainTaskExecutor) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
