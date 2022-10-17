@@ -82,65 +82,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         this.domainTaskExecutor = domainTaskExecutor;
     }
 
-
-   /* @Transactional
-    @Override
-    public void restoreFailedMessage(String messageId) {
-        LOG.info("Restoring message [{}]-[{}]", messageId, MSHRole.SENDING);
-
-        final UserMessageLog userMessageLog = userMessageService.getFailedMessage(messageId);
-
-        if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
-        }
-
-        UserMessage userMessage = userMessageDao.findByEntityId(userMessageLog.getEntityId());
-
-        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus.getMessageStatus(), new Timestamp(System.currentTimeMillis()));
-        userMessageLog.setMessageStatus(newMessageStatus);
-        final Date currentDate = new Date();
-        userMessageLog.setRestored(currentDate);
-        userMessageLog.setFailed(null);
-        userMessageLog.setNextAttempt(currentDate);
-
-        Integer newMaxAttempts = computeNewMaxAttempts(userMessageLog);
-        LOG.debug("Increasing the max attempts for message [{}] from [{}] to [{}]", messageId, userMessageLog.getSendAttemptsMax(), newMaxAttempts);
-        userMessageLog.setSendAttemptsMax(newMaxAttempts);
-
-        userMessageLogDao.update(userMessageLog);
-
-        if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
-            userMessageService.scheduleSending(userMessage, userMessageLog);
-        } else {
-            try {
-                MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
-                String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
-                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessage.getMessageId());
-                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
-            } catch (EbMS3Exception ebms3Ex) {
-                LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageId() + "]", ebms3Ex);
-            }
-        }
-    }
-
-    protected Integer getMaxAttemptsConfiguration(final Long messageEntityId) {
-        final LegConfiguration legConfiguration = pModeService.getLegConfiguration(messageEntityId);
-        Integer result = 1;
-        if (legConfiguration == null) {
-            LOG.warn("Could not get the leg configuration for message with entity id [{}]. Using the default maxAttempts configuration [{}]", messageEntityId, result);
-        } else {
-            result = pModeServiceHelper.getMaxAttempts(legConfiguration);
-        }
-        return result;
-    }
-
-    protected Integer computeNewMaxAttempts(final UserMessageLog userMessageLog) {
-        Integer maxAttemptsConfiguration = getMaxAttemptsConfiguration(userMessageLog.getEntityId());
-        // always increase maxAttempts (even when not reached by sendAttempts)
-        return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
-    }*/
-
     @Transactional
     @Override
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
