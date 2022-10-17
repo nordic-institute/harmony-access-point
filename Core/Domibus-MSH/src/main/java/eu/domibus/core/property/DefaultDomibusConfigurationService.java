@@ -109,7 +109,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     public String getConfigurationFileName(Domain domain) {
         String propertyFileName;
 
-        if (isSingleTenantAware()) {
+        if (isSingleTenantAware() || domain == null) {
             propertyFileName = getConfigurationFileName();
         } else {
             propertyFileName = getDomainConfigurationFileName(domain);
@@ -119,7 +119,12 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return propertyFileName;
     }
 
-    public String getDomainConfigurationFileName(Domain domain) {
+    @Override
+    public String getConfigurationFileNameForSuper() {
+        return DomainService.DOMAINS_HOME + File.separator + "super-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
+    }
+
+    protected String getDomainConfigurationFileName(Domain domain) {
         return DomainService.DOMAINS_HOME + File.separator + domain.getCode() +
                 File.separator + domain.getCode() + '-' + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
     }
