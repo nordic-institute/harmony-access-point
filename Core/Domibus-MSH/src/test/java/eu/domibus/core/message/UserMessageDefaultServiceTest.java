@@ -10,6 +10,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
+import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
@@ -34,7 +35,6 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.web.rest.ro.MessageLogRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
@@ -45,14 +45,14 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static eu.domibus.core.message.UserMessageDefaultService.BATCH_SIZE;
 import static eu.domibus.core.message.UserMessageDefaultService.PAYLOAD_NAME;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu, Soumya
@@ -959,7 +959,7 @@ public class UserMessageDefaultServiceTest {
         String messageId = "messageId";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = existingMessage;
             existingMessage.getDeleted();
             result = null;
@@ -980,7 +980,7 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void test_checkCanDownloadWithDeletedMessage(@Injectable UserMessageLog deletedMessage) {
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = deletedMessage;
             deletedMessage.getDeleted();
             result = new Date();
@@ -997,7 +997,7 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void test_checkCanDownloadWithExistingMessage(@Injectable UserMessageLog existingMessage) {
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = existingMessage;
             existingMessage.getDeleted();
             result = null;
@@ -1009,7 +1009,7 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void test_checkCanDownloadWhenNoMessage() {
         new Expectations() {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = null;
         }};
 
@@ -1019,5 +1019,167 @@ public class UserMessageDefaultServiceTest {
         } catch (MessagingException ex) {
             Assert.assertEquals(ex.getMessage(), "[DOM_001]:No message found for message id: messageId");
         }
+    }
+
+    @Test
+    public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
+        final Long messageEntityId = 1L;
+
+        new Expectations(userMessageDefaultService) {{
+            pModeService.getLegConfiguration(messageEntityId);
+            result = null;
+
+        }};
+
+        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageEntityId);
+        assertEquals(1, (int) maxAttemptsConfiguration);
+
+    }
+
+    @Test
+    public void testMaxAttemptsConfiguration(@Injectable final LegConfiguration legConfiguration) {
+        final Long messageEntityId = 1L;
+        final Integer pModeMaxAttempts = 5;
+
+        new Expectations(userMessageDefaultService) {{
+            pModeService.getLegConfiguration(messageEntityId);
+            result = legConfiguration;
+
+            pModeServiceHelper.getMaxAttempts(legConfiguration);
+            result = pModeMaxAttempts;
+
+        }};
+
+        final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageEntityId);
+        Assert.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
+    }
+
+    @Test
+    public void testComputeMaxAttempts(@Injectable final UserMessageLog userMessageLog) {
+        final Long messageEntityId = 1L;
+        final Integer pModeMaxAttempts = 5;
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getMaxAttemptsConfiguration(userMessageLog.getEntityId());
+            result = pModeMaxAttempts;
+
+            userMessageLog.getSendAttemptsMax();
+            result = pModeMaxAttempts;
+
+        }};
+
+        final Integer maxAttemptsConfiguration = userMessageDefaultService.computeNewMaxAttempts(userMessageLog);
+        assertEquals(11, (int) maxAttemptsConfiguration);
+    }
+
+    @Test(expected = UserMessageException.class)
+    public void testRestoreMessageWhenMessageIsDeleted(@Injectable final UserMessageLog userMessageLog) {
+        final String messageId = "1";
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getFailedMessage(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.DELETED;
+
+        }};
+
+        userMessageDefaultService.restoreFailedMessage(messageId);
+    }
+
+    @Test
+    public void testRestorePushedMessage(@Injectable final UserMessageLog userMessageLog,
+                                         @Injectable final UserMessage userMessage) {
+        final String messageId = "1";
+        final Integer newMaxAttempts = 5;
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getFailedMessage(messageId);
+            result = userMessageLog;
+
+            messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
+            result = messageStatusEntity;
+
+            userMessageDefaultService.computeNewMaxAttempts(userMessageLog);
+            result = newMaxAttempts;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
+            result = userMessage;
+        }};
+
+        userMessageDefaultService.restoreFailedMessage(messageId);
+
+        new FullVerifications(userMessageDefaultService) {{
+            backendNotificationService.notifyOfMessageStatusChange(userMessage, withAny(new UserMessageLog()), MessageStatus.SEND_ENQUEUED, withAny(new Timestamp(System.currentTimeMillis())));
+
+            userMessageLog.setMessageStatus(messageStatusEntity);
+            userMessageLog.setRestored(withAny(new Date()));
+            userMessageLog.setFailed(null);
+            userMessageLog.setNextAttempt(withAny(new Date()));
+            userMessageLog.setSendAttemptsMax(newMaxAttempts);
+
+            userMessageLogDao.update(userMessageLog);
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+
+        }};
+    }
+
+    @Test
+    public void testRestorePUlledMessage(@Injectable final UserMessageLog userMessageLog,
+                                         @Injectable final UserMessage userMessage) {
+        final String messageId = "1";
+        final Integer newMaxAttempts = 5;
+
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(MessageStatus.READY_TO_PULL);
+
+        new Expectations(userMessageDefaultService) {{
+
+            userMessageDefaultService.getFailedMessage(messageId);
+            result = userMessageLog;
+
+            messageExchangeService.retrieveMessageRestoreStatus(messageId, userMessage.getMshRole().getRole());
+            result = messageStatusEntity;
+
+            userMessageDefaultService.computeNewMaxAttempts(userMessageLog);
+            result = newMaxAttempts;
+
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
+            result = userMessage;
+
+        }};
+
+        userMessageDefaultService.restoreFailedMessage(messageId);
+
+        new Verifications() {{
+            userMessageLog.setMessageStatus(messageStatusEntity);
+            times = 1;
+            userMessageLog.setRestored(withAny(new Date()));
+            times = 1;
+            userMessageLog.setFailed(null);
+            times = 1;
+            userMessageLog.setNextAttempt(withAny(new Date()));
+            times = 1;
+            userMessageLog.setSendAttemptsMax(newMaxAttempts);
+            times = 1;
+
+            userMessageLogDao.update(userMessageLog);
+            times = 1;
+
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+            times = 0;
+
+            userMessageDao.findByEntityId(userMessageLog.getEntityId());
+            times = 1;
+
+            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
+            times = 1;
+        }};
     }
 }
