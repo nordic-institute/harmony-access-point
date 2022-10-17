@@ -95,21 +95,23 @@ public class PropertyChangeManager {
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
-        String configurationFileName;
         //calculate property key
         if (propertyProviderHelper.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)
             propertyKey = computePropertyKeyInMultiTenancy(domain, propertyName);
-            configurationFileName = getConfigurationFileName(domain, propertyName);
         } else {
             // in single-tenancy mode - the property key is always the property name
             propertyKey = propertyName;
-            configurationFileName = domibusConfigurationService.getConfigurationFileName();
         }
 
         //set the value
         setValueInDomibusPropertySource(propertyKey, propertyValue);
 
+        saveInFile(domain, propertyName, propertyValue, propertyKey);
+    }
+
+    private void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
+        String configurationFileName = getConfigurationFileName(domain, propertyName);
         String configFileName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
         File configurationFile = new File(configFileName);
         replacePropertyInFile(configurationFile, propertyKey, propertyValue);
@@ -118,7 +120,39 @@ public class PropertyChangeManager {
     private String getConfigurationFileName(Domain domain, String propertyName) {
         String configurationFileName = null;
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (propMeta.getModule() == MSH) {
+        if (StringUtils.equals(propMeta.getModule(), MSH)) {
+            configurationFileName = getDomibusPropertyFileName(domain, configurationFileName, propMeta);
+        } else {
+            configurationFileName = getExternalModulePropertyFileName(domain, propertyName, configurationFileName, propMeta);
+        }
+        return configurationFileName;
+    }
+
+    private String getExternalModulePropertyFileName(Domain domain, String propertyName, String configurationFileName, DomibusPropertyMetadata propMeta) {
+        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        if (propertyProviderHelper.isMultiTenantAware()) {
+            if (domain != null) {
+                DomainDTO extDomain = new DomainDTO(domain.getCode(), domain.getName());
+                if (propMeta.isDomain()) {
+                    configurationFileName = manager.getConfigurationFileName(extDomain).get();
+                } else {
+                    // error
+                }
+            } else {
+                if (propMeta.isGlobal()) {
+                    configurationFileName = manager.getConfigurationFileName();
+                } else {
+                    // error
+                }
+            }
+        } else {
+            configurationFileName = manager.getConfigurationFileName();
+        }
+        return configurationFileName;
+    }
+
+    private String getDomibusPropertyFileName(Domain domain, String configurationFileName, DomibusPropertyMetadata propMeta) {
+        if (propertyProviderHelper.isMultiTenantAware()) {
             if (domain != null) {
                 if (propMeta.isDomain()) {
                     configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
@@ -135,21 +169,7 @@ public class PropertyChangeManager {
                 }
             }
         } else {
-            DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-            if (domain != null) {
-                DomainDTO extDomain = new DomainDTO(domain.getCode(), domain.getName());
-                if (propMeta.isDomain()) {
-                    configurationFileName = manager.getConfigurationFileName(extDomain).get();
-                } else {
-                    // error
-                }
-            } else {
-                if (propMeta.isGlobal()) {
-                    configurationFileName = manager.getConfigurationFileName();
-                } else {
-                    // error
-                }
-            }
+            configurationFileName = domibusConfigurationService.getConfigurationFileName();
         }
         return configurationFileName;
     }
