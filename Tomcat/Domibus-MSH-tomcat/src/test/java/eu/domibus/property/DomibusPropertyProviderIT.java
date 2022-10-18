@@ -3,18 +3,24 @@ package eu.domibus.property;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import eu.domibus.core.property.PropertyProviderDispatcher;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -41,12 +47,33 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     @Autowired
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
+    @Autowired
+    DomibusConfigurationService domibusConfigurationService;
+
     Domain defaultDomain = new Domain("default", "Default");
+    File propertyFile;
+    List<String> originalContent;
 
     @Before
     public void prepare() {
         cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).clear();
         domainContextProvider.setCurrentDomain(defaultDomain);
+
+        propertyFile = getPropertyFile();
+        try {
+            originalContent = Files.readAllLines(propertyFile.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @After
+    public void clean() {
+        try {
+            Files.write(propertyFile.toPath(), originalContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -210,6 +237,65 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         //Domibus property configuration set the encoding to UTF8-8 . So we get same string with utf8 characters.
         Assert.assertEquals(uft8MailSubject, utf8String);
         input.close();
+    }
+
+    @Test
+    public void testSetPropertyReplacesOK() throws IOException {
+        String propertyName = "domibus.UI.title.name";
+
+        testSetPropertyWithName(propertyName);
+    }
+
+    @Test
+    public void testSetPropertyReplacesCommentedOK() throws IOException {
+        String propertyName = "domibus.plugin.login.maximum.attempt";
+
+        testSetPropertyWithName(propertyName);
+    }
+
+    @Test
+    public void testSetPropertyAddsAtTheEndOK() throws IOException {
+        String propertyValue = "TeamA";
+        domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_UI_SUPPORT_TEAM_NAME, propertyValue);
+
+        File propertyFile = getPropertyFile();
+        List<String> lines = Files.readAllLines(propertyFile.toPath());
+        String lastLine = lines.get(lines.size() - 1);
+        Assert.assertEquals(lastLine, DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue);
+    }
+
+    private void testSetPropertyWithName(String propertyName) throws IOException {
+        File propertyFile = getPropertyFile();
+//        List<String> originalContent = Files.readAllLines(propertyFile.toPath());
+
+        String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
+
+        String persistedPropValue = findPropertyInFile(propertyName, propertyFile);
+        Assert.assertEquals(actualValue, persistedPropValue);
+
+        String newValue = actualValue + "MODIFIED";
+        domibusPropertyProvider.setProperty(defaultDomain, propertyName, newValue);
+
+        actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
+
+        persistedPropValue = findPropertyInFile(propertyName, propertyFile);
+        Assert.assertEquals(actualValue, persistedPropValue);
+
+        Assert.assertEquals(newValue, persistedPropValue);
+
+//        Files.write(propertyFile.toPath(), originalContent);
+    }
+
+    private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {
+        List<String> lines = Files.readAllLines(propertyFile.toPath());
+        String persistedProperty = lines.stream().filter(line -> line.contains(propertyName + "=")).findAny().orElse(null);
+        return StringUtils.substringAfter(persistedProperty, "=");
+    }
+
+    private File getPropertyFile() {
+        String configurationFileName = domibusConfigurationService.getConfigurationFileName();
+        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
+        return new File(fullName);
     }
 
     private String getCachedValue(Domain domain, String propertyName) {

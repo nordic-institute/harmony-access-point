@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 import static eu.domibus.api.property.Module.MSH;
+import static eu.domibus.api.property.Module.UNKNOWN;
 import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.PROPERTY_VALUE_DELIMITER;
 
 /**
@@ -186,9 +187,9 @@ public class PropertyChangeManager {
         replacePropertyInFile(new File(fullName), propertyKey, propertyValue);
     }
 
-    private String getConfigurationFileName(Domain domain, String propertyName) {
+    protected String getConfigurationFileName(Domain domain, String propertyName) {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (StringUtils.equals(propMeta.getModule(), MSH)) {
+        if (StringUtils.equalsAny(propMeta.getModule(), MSH, UNKNOWN)) {
             LOG.debug("Domibus property [{}] on domain [{}].", propertyName, domain);
             return getDomibusPropertyFileName(domain, propMeta);
         } else {
