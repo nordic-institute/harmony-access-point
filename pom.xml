@@ -27,18 +27,18 @@
         <hibernate.version>5.6.12.Final</hibernate.version> <!-- upgraded from 5.6.10.Final -->
         <activemq.version>5.16.5</activemq.version> <!-- latest -->
         <aspectj.version>1.9.9.1</aspectj.version> <!-- latest -->
-        <slf4j.version>2.0.3</slf4j.version> <!-- upgraded from 1.7.36 -->
-        <logback.version>1.2.11</logback.version>
-        <httpclient.version>4.5.13</httpclient.version>
-        <commons-configuration.version>1.10</commons-configuration.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
-        <commons-io.version>2.11.0</commons-io.version>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
-        <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.71</bouncycastle.version>
-        <quartz.version>2.3.2</quartz.version>
+        <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
+        <logback.version>1.2.11</logback.version> <!-- latest 1.2.* -->
+        <httpclient.version>4.5.13</httpclient.version> <!-- latest -->
+        <commons-configuration.version>1.10</commons-configuration.version> <!-- latest -->
+        <commons-lang3.version>3.12.0</commons-lang3.version> <!-- latest -->
+        <commons-io.version>2.11.0</commons-io.version> <!-- latest -->
+        <commons-fileupload.version>1.4</commons-fileupload.version> <!-- latest -->
+        <commons-collections4.version>4.4</commons-collections4.version> <!-- latest -->
+        <commons-beanutils.version>1.9.4</commons-beanutils.version> <!-- latest -->
+        <commons-codec.version>1.15</commons-codec.version> <!-- latest -->
+        <bouncycastle.version>1.72</bouncycastle.version><!-- upgraded from 1.71 -->
+        <quartz.version>2.3.2</quartz.version><!-- latest -->
         <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
         <jackson.version>2.13.4</jackson.version>
         <!-- see project-check-exclude.xml file -->
@@ -128,7 +128,7 @@
         <javax.jms-api.version>2.0.1</javax.jms-api.version>
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
-        <xmlsec.version>2.2.4</xmlsec.version>
+        <xmlsec.version>2.2.4</xmlsec.version> <!-- Gabriel working...-->
         <httpcore.version>4.4.15</httpcore.version>
         <ehcache.version>3.10.0</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
