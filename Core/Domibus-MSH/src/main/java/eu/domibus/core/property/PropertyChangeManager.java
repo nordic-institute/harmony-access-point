@@ -153,7 +153,7 @@ public class PropertyChangeManager {
             propertyKey = propertyProviderHelper.getPropertyKeyForSuper(propertyName);
         } else {
             if (!prop.isGlobal()) {
-                String error = String.format("Property %s is not applicable for global usage so it cannot be set.", propertyName);
+                String error = String.format("Property [%s] is not applicable for global usage so it cannot be set.", propertyName);
                 throw new DomibusPropertyException(error);
             }
         }
@@ -165,7 +165,7 @@ public class PropertyChangeManager {
         if (prop.isDomain()) {
             propertyKey = propertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
         } else {
-            String error = String.format("Property %s is not applicable for a specific domain so it cannot be set.", propertyName);
+            String error = String.format("Property [%s] is not applicable for a specific domain so it cannot be set.", propertyName);
             throw new DomibusPropertyException(error);
         }
         return propertyKey;
@@ -210,7 +210,7 @@ public class PropertyChangeManager {
                 LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
                 return configurationFileName;
             } else {
-                throw new DomibusPropertyException(String.format("Property %s is not applicable for domain usage so it cannot be set.", propMeta.getName()));
+                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
             }
         } else {
             if (propMeta.isSuper()) {
@@ -222,7 +222,7 @@ public class PropertyChangeManager {
                 LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
                 return configurationFileName;
             } else {
-                throw new DomibusPropertyException(String.format("Property %s is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
+                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
             }
         }
     }
@@ -238,11 +238,11 @@ public class PropertyChangeManager {
             if (propMeta.isDomain()) {
                 DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
                 String configurationFileName = manager.getConfigurationFileName(extDomain)
-                        .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module %s on domain [{}].", manager.getClass(), domain)));
+                        .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].", manager.getClass(), domain)));
                 LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
                 return configurationFileName;
             } else {
-                throw new DomibusPropertyException(String.format("Property %s is not applicable for domain usage so it cannot be set.", propMeta.getName()));
+                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
             }
         } else {
             if (propMeta.isGlobal()) {
@@ -250,7 +250,7 @@ public class PropertyChangeManager {
                 LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
                 return configurationFileName;
             } else {
-                throw new DomibusPropertyException(String.format("Property %s is not applicable for global usage so it cannot be set.", propMeta.getName()));
+                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global usage so it cannot be set.", propMeta.getName()));
             }
         }
     }
@@ -267,7 +267,7 @@ public class PropertyChangeManager {
         try {
             Files.write(configurationFile.toPath(), lines);
         } catch (IOException e) {
-            throw new DomibusPropertyException(String.format("Could not write property [{}] to file [%s] ", propertyName, configurationFile), e);
+            throw new DomibusPropertyException(String.format("Could not write property [%s] to file [%s] ", propertyName, configurationFile), e);
         }
     }
 
