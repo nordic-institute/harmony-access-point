@@ -182,20 +182,24 @@ public class PropertyChangeManager {
     }
 
     private void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
-        String configurationFileName = getConfigurationFileName(domain, propertyName);
-        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
-        replacePropertyInFile(new File(fullName), propertyKey, propertyValue);
+        File propertyFile = getConfigurationFile(domain, propertyName);
+        replacePropertyInFile(propertyFile, propertyKey, propertyValue);
     }
 
-    protected String getConfigurationFileName(Domain domain, String propertyName) {
+    private File getConfigurationFile(Domain domain, String propertyName) {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (StringUtils.equalsAny(propMeta.getModule(), MSH, UNKNOWN)) {
-            LOG.debug("Domibus property [{}] on domain [{}].", propertyName, domain);
-            return getDomibusPropertyFileName(domain, propMeta);
+            LOG.debug("Getting property file for MSH property [{}] on domain [{}].", propertyName, domain);
+            String domibusPropertyFileName = getDomibusPropertyFileName(domain, propMeta);
+            File propertyFile = getFile(domibusPropertyFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                throw new DomibusPropertyException(String.format("MSH property file for domain [%s] could not be found at the location [%s]", domain, domibusPropertyFileName));
+            }
+            return propertyFile;
         } else {
             DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-            LOG.debug("External module [{}] property [{}] on domain [{}].", manager.getClass(), propertyName, domain);
-            return getExternalModulePropertyFileName(domain, manager, propMeta);
+            LOG.debug("Getting property file of external module [{}] property [{}] on domain [{}].", manager.getClass(), propertyName, domain);
+            return getExternalModulePropertyFile(domain, manager, propMeta);
         }
     }
 
@@ -228,11 +232,15 @@ public class PropertyChangeManager {
         }
     }
 
-    private String getExternalModulePropertyFileName(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
+    private File getExternalModulePropertyFile(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
         if (!propertyProviderHelper.isMultiTenantAware()) {
             String configurationFileName = manager.getConfigurationFileName();
             LOG.debug("Properties file name in single-tenancy mode for property [{}] is [{}].", propMeta.getName(), configurationFileName);
-            return configurationFileName;
+            File propertyFile = getFile(configurationFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                throw new DomibusPropertyException(String.format("Properties file for module [%s] could not be found at the location [%s]", propMeta.getName(), configurationFileName));
+            }
+            return propertyFile;
         }
 
         if (domain != null) {
@@ -241,7 +249,17 @@ public class PropertyChangeManager {
                 String configurationFileName = manager.getConfigurationFileName(extDomain)
                         .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].", manager.getClass(), domain)));
                 LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
-                return configurationFileName;
+                File propertyFile = getFile(configurationFileName);
+                if (!Files.exists(propertyFile.toPath())) {
+                    LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.", propMeta.getName(), domain, configurationFileName);
+                    try {
+                        propertyFile = Files.createFile(propertyFile.toPath()).toFile();
+                    } catch (IOException e) {
+                        throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [[%s] at the location [[%s].",
+                                propMeta.getName(), domain, configurationFileName));
+                    }
+                }
+                return propertyFile;
             } else {
                 throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
             }
@@ -249,13 +267,22 @@ public class PropertyChangeManager {
             if (propMeta.isGlobal()) {
                 String configurationFileName = manager.getConfigurationFileName();
                 LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
-                return configurationFileName;
+                File propertyFile = getFile(configurationFileName);
+                if (!Files.exists(propertyFile.toPath())) {
+                    throw new DomibusPropertyException(String.format("Global properties file for module [%s] could not be found at the location [%s]", propMeta.getName(), configurationFileName));
+                }
+                return propertyFile;
             } else {
                 throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global usage so it cannot be set.", propMeta.getName()));
             }
         }
     }
 
+    private File getFile(String domibusPropertyFileName) {
+        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + domibusPropertyFileName;
+        return new File(fullName);
+    }
+    
     protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue) {
         final List<String> lines = replaceOrAddProperty(configurationFile, propertyName, newPropertyValue);
 
