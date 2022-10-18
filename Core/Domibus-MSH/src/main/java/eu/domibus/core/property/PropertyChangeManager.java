@@ -181,7 +181,7 @@ public class PropertyChangeManager {
         updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 
-    private void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
+    protected void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
         File propertyFile = getConfigurationFile(domain, propertyName);
         replacePropertyInFile(propertyFile, propertyKey, propertyValue);
     }

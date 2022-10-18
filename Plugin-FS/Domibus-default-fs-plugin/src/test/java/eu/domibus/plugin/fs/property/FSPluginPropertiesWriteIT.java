@@ -21,7 +21,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author Ion Perpegel
  * @since 5.1
  */
-public class FSPluginProperties2IT extends AbstractIT {
+public class FSPluginPropertiesWriteIT extends AbstractIT {
 
     private static final String NONEXISTENT_DOMAIN = "NONEXISTENT_DOMAIN";
 
@@ -50,9 +50,6 @@ public class FSPluginProperties2IT extends AbstractIT {
 
     @Configuration
     @PropertySource(value = "file:${domibus.config.location}/plugins/config/fs-plugin.properties")
-    // as this test file is added last to property sources and
-    // contrary to implemented properties mechanism which allow to override values from the default file
-    // fs-plugin-default.properties takes precedence here so we will test both files values
     static class ContextConfiguration {
     }
 
