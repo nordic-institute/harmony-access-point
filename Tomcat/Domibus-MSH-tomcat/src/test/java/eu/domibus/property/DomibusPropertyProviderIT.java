@@ -266,7 +266,6 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     private void testSetPropertyWithName(String propertyName) throws IOException {
         File propertyFile = getPropertyFile();
-//        List<String> originalContent = Files.readAllLines(propertyFile.toPath());
 
         String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
 
@@ -282,8 +281,6 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         Assert.assertEquals(actualValue, persistedPropValue);
 
         Assert.assertEquals(newValue, persistedPropValue);
-
-//        Files.write(propertyFile.toPath(), originalContent);
     }
 
     private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {

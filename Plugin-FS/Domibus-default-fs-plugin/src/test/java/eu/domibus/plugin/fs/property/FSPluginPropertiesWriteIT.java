@@ -1,21 +1,20 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
-import eu.domibus.core.property.PropertyProviderHelper;
-import eu.domibus.core.property.PropertyRetrieveManager;
-import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.test.AbstractIT;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.LOCATION;
-import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
  * @author Ion Perpegel
@@ -23,39 +22,19 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  */
 public class FSPluginPropertiesWriteIT extends AbstractIT {
 
-    private static final String NONEXISTENT_DOMAIN = "NONEXISTENT_DOMAIN";
-
-    private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data";
-
-    @Autowired
-    FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
-
     @Autowired
     FSPluginProperties fsPluginProperties;
-    @Autowired
-    PropertyProviderHelper propertyProviderHelper;
 
     @Autowired
-    DomainExtService domainExtService;
-    @Autowired
-    DomainService domainService;
-    @Autowired
-    PropertyRetrieveManager propertyRetrieveManager;
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
-    @Autowired
-    DomibusCacheService domibusCacheService;
-    @Autowired
-    DefaultDomibusConfigurationService defaultDomibusConfigurationService;
+    DefaultDomibusConfigurationService domibusConfigurationService;
 
     @Configuration
     @PropertySource(value = "file:${domibus.config.location}/plugins/config/fs-plugin.properties")
     static class ContextConfiguration {
     }
 
-
     @Test
-    public void testKnownPropertyValue_singleTenancy() {
+    public void testKnownPropertyValue_singleTenancy() throws IOException {
         final String domainDefault = "default";
         final String propertyName1 = LOCATION;
         final String propertyName2 = FSPluginPropertiesMetadataManagerImpl.SENT_ACTION;
@@ -63,6 +42,8 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         final String oldPropertyValue2 = "delete";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
+
+        File propertyFile = getPropertyFile();
 
         // test get value
         String value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
@@ -78,6 +59,11 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
         value2 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName2);
 
+        String persistedPropertyName1 = findPropertyInFile(propertyName1, propertyFile);
+        String persistedPropertyName2 = findPropertyInFile(propertyName2, propertyFile);
+
+        Assert.assertEquals(persistedPropertyName1, value1);
+        Assert.assertEquals(persistedPropertyName2, value2);
         Assert.assertEquals(newPropertyValue1, value1);
         Assert.assertEquals(newPropertyValue2, value2);
 
@@ -86,5 +72,15 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName2, oldPropertyValue2, true);
     }
 
+    private File getPropertyFile() {
+        String configurationFileName = fsPluginProperties.getConfigurationFileName();
+        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
+        return new File(fullName);
+    }
 
+    private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {
+        List<String> lines = Files.readAllLines(propertyFile.toPath());
+        String persistedProperty = lines.stream().filter(line -> line.contains(propertyName + "=")).findAny().orElse(null);
+        return StringUtils.substringAfter(persistedProperty, "=");
+    }
 }
