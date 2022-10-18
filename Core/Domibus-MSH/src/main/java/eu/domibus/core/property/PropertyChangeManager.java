@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static eu.domibus.api.property.Module.MSH;
 import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.PROPERTY_VALUE_DELIMITER;
@@ -113,70 +111,6 @@ public class PropertyChangeManager {
         saveInFile(domain, propertyName, propertyValue, propertyKey);
     }
 
-    private void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
-        String configurationFileName = getConfigurationFileName(domain, propertyName);
-        String configFileName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
-        File configurationFile = new File(configFileName);
-        replacePropertyInFile(configurationFile, propertyKey, propertyValue);
-    }
-
-    private String getConfigurationFileName(Domain domain, String propertyName) {
-        String configurationFileName = null;
-        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        if (StringUtils.equals(propMeta.getModule(), MSH)) {
-            configurationFileName = getDomibusPropertyFileName(domain, configurationFileName, propMeta);
-        } else {
-            configurationFileName = getExternalModulePropertyFileName(domain, propertyName, configurationFileName, propMeta);
-        }
-        return configurationFileName;
-    }
-
-    private String getDomibusPropertyFileName(Domain domain, String configurationFileName, DomibusPropertyMetadata propMeta) {
-        if (propertyProviderHelper.isMultiTenantAware()) {
-            if (domain != null) {
-                if (propMeta.isDomain()) {
-                    configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
-                } else {
-                    // error
-                }
-            } else {
-                if (propMeta.isSuper()) {
-                    configurationFileName = domibusConfigurationService.getConfigurationFileNameForSuper();
-                } else if (propMeta.isGlobal()) {
-                    configurationFileName = domibusConfigurationService.getConfigurationFileName();
-                } else {
-                    // error
-                }
-            }
-        } else {
-            configurationFileName = domibusConfigurationService.getConfigurationFileName();
-        }
-        return configurationFileName;
-    }
-
-    private String getExternalModulePropertyFileName(Domain domain, String propertyName, String configurationFileName, DomibusPropertyMetadata propMeta) {
-        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
-        if (propertyProviderHelper.isMultiTenantAware()) {
-            if (domain != null) {
-                DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
-                if (propMeta.isDomain()) {
-                    configurationFileName = manager.getConfigurationFileName(extDomain).get();
-                } else {
-                    // error
-                }
-            } else {
-                if (propMeta.isGlobal()) {
-                    configurationFileName = manager.getConfigurationFileName();
-                } else {
-                    // error
-                }
-            }
-        } else {
-            configurationFileName = manager.getConfigurationFileName();
-        }
-        return configurationFileName;
-    }
-
     protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue,
                                               boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
         String domainCode = domain != null ? domain.getCode() : null;
@@ -246,12 +180,66 @@ public class PropertyChangeManager {
         updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 
-    protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue) {
-        final List<String> replacedLines = getReplacedLines(configurationFile, propertyName, newPropertyValue);
-        String newLine = getPropertyNameValueLine(propertyName, newPropertyValue);
-        if (!replacedLines.contains(newLine)) {
-            replacedLines.add(newLine);
+    private void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
+        String configurationFileName = getConfigurationFileName(domain, propertyName);
+        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
+        replacePropertyInFile(new File(fullName), propertyKey, propertyValue);
+    }
+
+    private String getConfigurationFileName(Domain domain, String propertyName) {
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (StringUtils.equals(propMeta.getModule(), MSH)) {
+            return getDomibusPropertyFileName(domain, propMeta);
+        } else {
+            DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+            return getExternalModulePropertyFileName(domain, manager, propMeta);
         }
+    }
+
+    private String getDomibusPropertyFileName(Domain domain, DomibusPropertyMetadata propMeta) {
+        if (!propertyProviderHelper.isMultiTenantAware()) {
+            return domibusConfigurationService.getConfigurationFileName();
+        }
+        if (domain != null) {
+            if (propMeta.isDomain()) {
+                return domibusConfigurationService.getConfigurationFileName(domain);
+            } else {
+                throw new DomibusPropertyException(String.format("Property %s is not applicable for domain usage so it cannot be set.", propMeta.getName()));
+            }
+        } else {
+            if (propMeta.isSuper()) {
+                return domibusConfigurationService.getConfigurationFileNameForSuper();
+            } else if (propMeta.isGlobal()) {
+                return domibusConfigurationService.getConfigurationFileName();
+            } else {
+                throw new DomibusPropertyException(String.format("Property %s is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
+            }
+        }
+    }
+
+    private String getExternalModulePropertyFileName(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
+        if (!propertyProviderHelper.isMultiTenantAware()) {
+            return manager.getConfigurationFileName();
+        }
+
+        if (domain != null) {
+            if (propMeta.isDomain()) {
+                DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
+                return manager.getConfigurationFileName(extDomain).get();
+            } else {
+                throw new DomibusPropertyException(String.format("Property %s is not applicable for domain usage so it cannot be set.", propMeta.getName()));
+            }
+        } else {
+            if (propMeta.isGlobal()) {
+                return manager.getConfigurationFileName();
+            } else {
+                throw new DomibusPropertyException(String.format("Property %s is not applicable for global usage so it cannot be set.", propMeta.getName()));
+            }
+        }
+    }
+
+    protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue) {
+        final List<String> lines = replaceOrAddProperty(configurationFile, propertyName, newPropertyValue);
 
         try {
             backupService.backupFile(configurationFile);
@@ -260,36 +248,32 @@ public class PropertyChangeManager {
         }
 
         try {
-            Files.write(configurationFile.toPath(), replacedLines);
+            Files.write(configurationFile.toPath(), lines);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not write property [{}] to file [%s] ", propertyName, configurationFile), e);
         }
     }
 
-    private String getPropertyNameValueLine(String propertyName, String newPropertyValue) {
-        return propertyName + PROPERTY_VALUE_DELIMITER + newPropertyValue;
-    }
-
-    protected List<String> getReplacedLines(File configurationFile, String propertyName, String newPropertyValue) {
-        try (final Stream<String> lines = Files.lines(configurationFile.toPath())) {
-            return lines
-                    .map(line -> replaceLine(line, propertyName, newPropertyValue))
-                    .collect(Collectors.toList());
+    protected List<String> replaceOrAddProperty(File configurationFile, String propertyName, String newPropertyValue) {
+        String propertyNameValueLine = propertyName + PROPERTY_VALUE_DELIMITER + newPropertyValue;
+        try {
+            List<String> lines = Files.readAllLines(configurationFile.toPath());
+            // to make sure we do not replace a property that lists other props (like encryption.property)
+            String valueToSearch = propertyName + "=";
+            // go backwards so that, in case there are more than one line with the same property, replace the last one to take precedence
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if (StringUtils.contains(lines.get(i), valueToSearch)) {
+                    // found it, replace and exit
+                    lines.set(i, propertyNameValueLine);
+                    return lines;
+                }
+            }
+            // could not find, so just add at the end
+            lines.add(propertyNameValueLine);
+            return lines;
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not replace properties: could not read configuration file [%s]", configurationFile), e);
         }
-    }
-
-    protected String replaceLine(String line, String propertyName, String newPropertyValue) {
-        if (!arePropertiesMatching(line, propertyName)) {
-            return line;
-        }
-
-        return getPropertyNameValueLine(propertyName, newPropertyValue);
-    }
-
-    protected boolean arePropertiesMatching(String filePropertyName, String propertyName) {
-        return StringUtils.contains(filePropertyName, propertyName);
     }
 
 }
