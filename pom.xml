@@ -39,23 +39,23 @@
         <commons-codec.version>1.15</commons-codec.version> <!-- latest -->
         <bouncycastle.version>1.72</bouncycastle.version><!-- upgraded from 1.71 -->
         <quartz.version>2.3.2</quartz.version><!-- latest -->
-        <org.mapstruct.version>1.5.2.Final</org.mapstruct.version>
-        <jackson.version>2.13.4</jackson.version>
+        <org.mapstruct.version>1.5.3.Final</org.mapstruct.version><!-- upgraded from 1.5.2.Final -->
+        <jackson.version>2.13.4</jackson.version> <!-- latest -->
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.13.4</jackson-databind.version>
+        <jackson-databind.version>2.13.4</jackson-databind.version> <!-- latest -->
         <commons-test.version>4.3</commons-test.version>
-        <freemarker.version>2.3.31</freemarker.version>
-        <mail.version>1.6.2</mail.version>
-        <jaxb-api.version>2.3.1</jaxb-api.version>
-        <jaxb-impl.version>2.3.6</jaxb-impl.version>
-        <dom4j.version>2.1.3</dom4j.version>
-        <tika.version>2.4.1</tika.version>
-        <peppol.version>2.2.0</peppol.version>
+        <freemarker.version>2.3.31</freemarker.version> <!-- latest -->
+        <mail.version>1.6.2</mail.version> <!-- latest -->
+        <jaxb-api.version>2.3.1</jaxb-api.version> <!-- latest -->
+        <jaxb-impl.version>2.3.6</jaxb-impl.version> <!-- latest -->
+        <dom4j.version>2.1.3</dom4j.version> <!-- latest -->
+        <tika.version>2.5.0</tika.version><!-- upgraded from 2.4.1 -->
+        <peppol.version>2.4.0</peppol.version><!-- upgraded from 2.2.0 -->
         <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
-        <javax.validation.version>2.0.1.Final</javax.validation.version>
-        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
-        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
-        <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
+        <javax.validation.version>2.0.1.Final</javax.validation.version> <!-- latest -->
+        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version> <!-- latest -->
+        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version> <!-- latest -->
+        <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version> <!-- latest -->
         <mockito.version>1.10.19</mockito.version>
         <h2.version>2.1.214</h2.version>
         <liquibase.version>4.15.0</liquibase.version>
