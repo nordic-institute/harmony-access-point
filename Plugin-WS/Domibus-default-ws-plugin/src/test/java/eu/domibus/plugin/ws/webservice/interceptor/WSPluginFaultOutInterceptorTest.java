@@ -15,7 +15,6 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.OperationInfo;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.transaction.UnexpectedRollbackException;
@@ -178,7 +177,7 @@ public class WSPluginFaultOutInterceptorTest {
         new FullVerifications() {};
     }
 
-//    @Test (treat this in EDELIVERY-9783)
+    @Test //(treat this in EDELIVERY-9783)
     public void handleRetrieveMessageUnexpectedRollbackException(@Injectable SoapMessage message,
                                                                  @Injectable Exception exception,
                                                                  @Injectable UnexpectedRollbackException cause) {
@@ -198,7 +197,6 @@ public class WSPluginFaultOutInterceptorTest {
             result = null;
 
             exception.getSuppressed();
-            result = null;
 
             webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0001, "Error retrieving message");
             result = WebServiceImpl.WEBSERVICE_OF.createFaultDetail();
