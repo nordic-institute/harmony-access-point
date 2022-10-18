@@ -21,6 +21,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * @author idragusa
@@ -59,10 +60,10 @@ public class DomibusApacheFetcher extends AbstractFetcher {
     }
 
     @Override
-    public FetcherResponse fetch(URI uri) throws LookupException, FileNotFoundException {
-        LOG.debug("Fetch response from URI [{}]", uri);
+    public FetcherResponse fetch(List<URI> uris) throws LookupException, FileNotFoundException {
+        LOG.debug("Fetch response from URI [{}]", uris.get(0));
         try (CloseableHttpClient httpClient = createClient()) {
-            HttpGet httpGet = new HttpGet(uri);
+            HttpGet httpGet = new HttpGet(uris.get(0));
 
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 switch (response.getStatusLine().getStatusCode()) {
@@ -74,14 +75,14 @@ public class DomibusApacheFetcher extends AbstractFetcher {
                                         response.getFirstHeader("X-SMP-Namespace").getValue() : null
                         );
                     case 404:
-                        throw new FileNotFoundException(uri.toString());
+                        throw new FileNotFoundException(uris.get(0).toString());
                     default:
                         throw new LookupException(String.format(
-                                "Received code %s for lookup. URI: %s", response.getStatusLine().getStatusCode(), uri));
+                                "Received code %s for lookup. URI: %s", response.getStatusLine().getStatusCode(), uris.get(0)));
                 }
             }
         } catch (SocketTimeoutException | SocketException | UnknownHostException e) {
-            throw new LookupException(String.format("Unable to fetch '%s'", uri), e);
+            throw new LookupException(String.format("Unable to fetch '%s'", uris.get(0)), e);
         } catch (LookupException | FileNotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -99,4 +100,5 @@ public class DomibusApacheFetcher extends AbstractFetcher {
 
         return builder.build();
     }
+
 }
