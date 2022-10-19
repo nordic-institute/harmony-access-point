@@ -15,6 +15,7 @@ import org.springframework.beans.factory.ObjectProvider;
  * @since 4.2
  */
 @RunWith(JMockit.class)
+@Ignore
 public class CertificateVerifierServiceTest {
 
     @Injectable
