@@ -44,6 +44,24 @@
     <!--        <appender-ref ref="file" />-->
     <!--    </appender>-->
 
+    <appender name="error_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/domibus-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>logs/domibus-error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each file should be at most 30MB, keep 60 days worth of history, but at most 20GB -->
+            <maxFileSize>30MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${encoderPattern}</pattern>
+        </encoder>
+    </appender>
+
     <!-- Security file appender start: uncomment this-->
 <!--    <appender name="security_file" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
 <!--        <file>logs/security.log</file>-->
@@ -154,6 +172,7 @@
 
     <root level="WARN">
         <appender-ref ref="file"/>
+        <appender-ref ref="error_file"/>
         <!--        REPLACE appender-ref "file" with "DEFAULT-ASYNC-FILE" for async logging-->
         <!--        <appender-ref ref="DEFAULT-ASYNC-FILE" />-->
         <appender-ref ref="stdout"/>
