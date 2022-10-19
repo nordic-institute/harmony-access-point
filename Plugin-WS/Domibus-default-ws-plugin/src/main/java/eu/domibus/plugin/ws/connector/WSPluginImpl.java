@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -21,11 +22,14 @@ import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
 import org.apache.commons.lang3.BooleanUtils;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
+import static eu.domibus.plugin.ws.property.listeners.WSPluginDispatcherCronExpressionChangeListener.SEND_RETRY_JOB_NAME;
 
 /**
  * Backend connector for the WS Plugin
@@ -153,5 +157,12 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     public MessageRetrieverExtService getMessageRetriever() {
         return this.messageRetriever;
+    }
+
+    @Override
+    public List<CronJobInfoDTO> getJobsInfo() {
+        return Stream.of(SEND_RETRY_JOB_NAME)
+                .map(CronJobInfoDTO::new)
+                .collect(Collectors.toList());
     }
 }
