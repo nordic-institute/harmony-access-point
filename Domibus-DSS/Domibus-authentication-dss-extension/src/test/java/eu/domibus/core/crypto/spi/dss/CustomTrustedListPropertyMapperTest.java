@@ -7,7 +7,6 @@ import mockit.Expectations;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,7 +22,6 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-@Ignore
 public class CustomTrustedListPropertyMapperTest {
 
     @Test
