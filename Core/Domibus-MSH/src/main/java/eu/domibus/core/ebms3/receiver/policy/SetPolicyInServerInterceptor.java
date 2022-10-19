@@ -131,6 +131,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
             processPluginNotification(e, legConfiguration, ebms3Messaging);
             logIncomingMessaging(message);
+            message.getExchange().put(MessageConstants.EMBS3_MESSAGING_OBJECT, ebms3Messaging);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
