@@ -247,15 +247,17 @@ public class PropertyChangeManager {
             if (propMeta.isDomain()) {
                 DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
                 String configurationFileName = manager.getConfigurationFileName(extDomain)
-                        .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].", manager.getClass(), domain)));
+                        .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].",
+                                manager.getClass(), domain)));
                 LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
                 File propertyFile = getFile(configurationFileName);
                 if (!Files.exists(propertyFile.toPath())) {
-                    LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.", propMeta.getName(), domain, configurationFileName);
+                    LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.",
+                            propMeta.getName(), domain, configurationFileName);
                     try {
                         propertyFile = Files.createFile(propertyFile.toPath()).toFile();
                     } catch (IOException e) {
-                        throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [[%s] at the location [[%s].",
+                        throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",
                                 propMeta.getName(), domain, configurationFileName));
                     }
                 }
@@ -269,7 +271,8 @@ public class PropertyChangeManager {
                 LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
                 File propertyFile = getFile(configurationFileName);
                 if (!Files.exists(propertyFile.toPath())) {
-                    throw new DomibusPropertyException(String.format("Global properties file for module [%s] could not be found at the location [%s]", propMeta.getName(), configurationFileName));
+                    throw new DomibusPropertyException(String.format("Global properties file for module [%s] could not be found at the location [%s]",
+                            propMeta.getName(), configurationFileName));
                 }
                 return propertyFile;
             } else {
@@ -305,15 +308,18 @@ public class PropertyChangeManager {
             List<String> lines = Files.readAllLines(configurationFile.toPath());
             // to make sure we do not replace a property that lists other props (like encryption.property)
             String valueToSearch = propertyName + "=";
-            // go backwards so that, in case there are more than one line with the same property, replace the last one to take precedence
+            // go backwards so that, in case there are more than one line with the same property, replace the last one because it has precedence
             for (int i = lines.size() - 1; i >= 0; i--) {
-                if (StringUtils.contains(lines.get(i), valueToSearch)) {
+                if (StringUtils.contains(StringUtils.trim(lines.get(i)), valueToSearch)) {
                     // found it, replace and exit
+                    LOG.debug("Found property [{}] in file [{}]; replacing with value [{}].", propertyName, configurationFile.getName(), newPropertyValue);
                     lines.set(i, propertyNameValueLine);
                     return lines;
                 }
             }
             // could not find, so just add at the end
+            LOG.debug("Could not find property [{}] in file [{}] (probably it had a fall-back value set in the global file); adding value [{}] at the end of the file.",
+                    propertyName, configurationFile.getName(), newPropertyValue);
             lines.add(propertyNameValueLine);
             return lines;
         } catch (IOException e) {
