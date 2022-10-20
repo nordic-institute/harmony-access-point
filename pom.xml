@@ -17,61 +17,61 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.5.3</cxf.version>
         <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
-        <spring.version>5.3.23</spring.version> <!-- upgraded from 5.3.22 -->
-        <spring.security.version>5.7.4</spring.security.version> <!-- upgraded from 5.7.2 -->
-        <spring.session.core.version>2.7.0</spring.session.core.version> <!--latest-->
-        <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version> <!--latest-->
-        <springdoc.version>1.6.12</springdoc.version> <!-- upgraded from 1.6.9 -->
-        <io.swagger.core.v3.version>2.2.4</io.swagger.core.v3.version> <!-- upgraded from 2.2.2 -->
+        <spring.version>5.3.23</spring.version>
+        <spring.security.version>5.7.4</spring.security.version>
+        <spring.session.core.version>2.7.0</spring.session.core.version>
+        <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
+        <springdoc.version>1.6.12</springdoc.version>
+        <io.swagger.core.v3.version>2.2.4</io.swagger.core.v3.version>
         <swagger-ui.version>4.13.0</swagger-ui.version>
-        <hibernate.version>5.6.12.Final</hibernate.version> <!-- upgraded from 5.6.10.Final -->
-        <activemq.version>5.16.5</activemq.version> <!-- latest -->
-        <aspectj.version>1.9.9.1</aspectj.version> <!-- latest -->
+        <hibernate.version>5.6.12.Final</hibernate.version>
+        <activemq.version>5.16.5</activemq.version>
+        <aspectj.version>1.9.9.1</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
-        <logback.version>1.2.11</logback.version> <!-- latest 1.2.* -->
-        <httpclient.version>4.5.13</httpclient.version> <!-- latest -->
-        <commons-configuration.version>1.10</commons-configuration.version> <!-- latest -->
-        <commons-lang3.version>3.12.0</commons-lang3.version> <!-- latest -->
-        <commons-io.version>2.11.0</commons-io.version> <!-- latest -->
-        <commons-fileupload.version>1.4</commons-fileupload.version> <!-- latest -->
-        <commons-collections4.version>4.4</commons-collections4.version> <!-- latest -->
-        <commons-beanutils.version>1.9.4</commons-beanutils.version> <!-- latest -->
-        <commons-codec.version>1.15</commons-codec.version> <!-- latest -->
-        <bouncycastle.version>1.72</bouncycastle.version><!-- upgraded from 1.71 -->
-        <quartz.version>2.3.2</quartz.version><!-- latest -->
-        <org.mapstruct.version>1.5.3.Final</org.mapstruct.version><!-- upgraded from 1.5.2.Final -->
-        <jackson.version>2.13.4</jackson.version> <!-- latest -->
+        <logback.version>1.2.11</logback.version>
+        <httpclient.version>4.5.13</httpclient.version>
+        <commons-configuration.version>1.10</commons-configuration.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <bouncycastle.version>1.72</bouncycastle.version>
+        <quartz.version>2.3.2</quartz.version>
+        <org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
+        <jackson.version>2.13.4</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.13.4</jackson-databind.version> <!-- latest -->
+        <jackson-databind.version>2.13.4</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
-        <freemarker.version>2.3.31</freemarker.version> <!-- latest -->
-        <mail.version>1.6.2</mail.version> <!-- latest -->
-        <jaxb-api.version>2.3.1</jaxb-api.version> <!-- latest -->
-        <jaxb-impl.version>2.3.6</jaxb-impl.version> <!-- latest -->
-        <dom4j.version>2.1.3</dom4j.version> <!-- latest -->
-        <tika.version>2.5.0</tika.version><!-- upgraded from 2.4.1 -->
-        <peppol.version>2.4.0</peppol.version><!-- upgraded from 2.2.0 -->
+        <freemarker.version>2.3.31</freemarker.version>
+        <mail.version>1.6.2</mail.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <jaxb-impl.version>2.3.6</jaxb-impl.version>
+        <dom4j.version>2.1.3</dom4j.version>
+        <tika.version>2.5.0</tika.version>
+        <peppol.version>2.4.0</peppol.version>
         <dynamic.discovery.client.version>1.13</dynamic.discovery.client.version>
-        <javax.validation.version>2.0.1.Final</javax.validation.version> <!-- latest -->
-        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version> <!-- latest -->
-        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version> <!-- latest -->
-        <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version> <!-- latest -->
-        <mockito.version>1.10.19</mockito.version> <!-- latest stable -->
-        <h2.version>2.1.214</h2.version> <!-- Gabriel working? -->
-        <liquibase.version>4.17.0</liquibase.version><!-- upgraded from 4.15.0 -->
-        <mysql.connector.java.version>8.0.30</mysql.connector.java.version> <!-- latest -->
-        <wiremock.version>2.27.2</wiremock.version> <!-- latest -->
-        <handlebars.version>4.3.0</handlebars.version> <!-- latest -->
-        <dropwizard.metrics.version>4.2.12</dropwizard.metrics.version><!-- upgraded from 4.2.10 -->
-        <owasp.dependency.check.version>7.2.1</owasp.dependency.check.version><!-- upgraded from 7.1.1 -->
-        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version> <!-- latest -->
-        <hikaricp.version>5.0.1</hikaricp.version><!-- upgraded from 4.0.3 -->
+        <javax.validation.version>2.0.1.Final</javax.validation.version>
+        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
+        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
+        <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
+        <mockito.version>1.10.19</mockito.version>
+        <h2.version>2.1.214</h2.version>
+        <liquibase.version>4.17.0</liquibase.version>
+        <mysql.connector.java.version>8.0.30</mysql.connector.java.version>
+        <wiremock.version>2.27.2</wiremock.version>
+        <handlebars.version>4.3.0</handlebars.version>
+        <dropwizard.metrics.version>4.2.12</dropwizard.metrics.version>
+        <owasp.dependency.check.version>7.2.1</owasp.dependency.check.version>
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <hikaricp.version>5.0.1</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
         <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
-        <tomcat-embed.version>9.0.68</tomcat-embed.version><!-- upgraded from 9.0.65 -->
-        <json-smart.version>2.4.8</json-smart.version> <!-- latest -->
-        <xbean-spring.version>4.20</xbean-spring.version><!-- upgraded from 4.20 -->
+        <tomcat-embed.version>9.0.68</tomcat-embed.version>
+        <json-smart.version>2.4.8</json-smart.version>
+        <xbean-spring.version>4.20</xbean-spring.version> <!-- see ticket EDELIVERY-10294 -->
         <!-- normally we use the version brought by activemq-spring but 4.21 has an issue so this is an exception -->
         <!-- the issue is that it cannot inject a property: domibus-msh-test-common tests crashing with: Caused by: java.lang.IllegalArgumentException: ${activeMQ.persistent} -->
 
@@ -111,53 +111,53 @@
         <!--<sonar.web.javaAdditionalOpts>-Dhttp.proxyHost=158.169.9.13 -Dhttp.proxyPort=8012 -Dhttp.proxyUser=theuser -Dhttp.proxyPassword=thepassword -Dhttps.proxyHost=158.169.9.13 -Dhttps.proxyPort=8012 -Dhttps.proxyUser=theuser -Dhttps.proxyPassword=thepassword -Dhttps.nonProxyHosts=localhost -Dhttp.nonProxyHosts=localhost</sonar.web.javaAdditionalOpts>-->
         <!--IAM extension properties -->
         <!--Uumds properties-->
-        <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version> <!-- upgraded from 9.23 -->
-        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version> <!-- latest -->
-        <java-uuid-generator.version>4.0.1</java-uuid-generator.version> <!-- latest -->
-        <guava.version>31.1-jre</guava.version> <!-- upgraded from 29.0-jre --><!-- 30.0-jre version is causing issues on jandex - Wildfly class indexation library -->
-        <opencsv.version>5.7.0</opencsv.version><!-- upgraded from 5.6 -->
-        <javaee-api.version>8.0.1</javaee-api.version><!-- latest -->
-        <junit.version>4.13.2</junit.version><!-- latest -->
-        <awaitility.version>4.2.0</awaitility.version><!-- latest -->
-        <jmockit.version>1.22</jmockit.version> <!-- many issues when upgrading -->
-        <org.reflections.version>0.10.2</org.reflections.version> <!-- latest -->
-        <messaging.saaj.version>1.5.3</messaging.saaj.version> <!-- Gabriel working...-->
-        <jaxws-api.version>2.3.1</jaxws-api.version> <!-- latest -->
-        <javax.annotation.version>1.3.2</javax.annotation.version> <!-- latest -->
+        <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <java-uuid-generator.version>4.0.1</java-uuid-generator.version>
+        <guava.version>31.1-jre</guava.version>
+        <opencsv.version>5.7.0</opencsv.version>
+        <javaee-api.version>8.0.1</javaee-api.version>
+        <junit.version>4.13.2</junit.version>
+        <awaitility.version>4.2.0</awaitility.version>
+        <jmockit.version>1.22</jmockit.version>
+        <org.reflections.version>0.10.2</org.reflections.version>
+        <messaging.saaj.version>1.5.3</messaging.saaj.version>
+        <jaxws-api.version>2.3.1</jaxws-api.version>
+        <javax.annotation.version>1.3.2</javax.annotation.version>
 
-        <javax.jms-api.version>2.0.1</javax.jms-api.version> <!-- latest -->
-        <activation.version>1.1.1</activation.version> <!-- latest -->
-        <jsr181-api.version>1.0-MR1</jsr181-api.version> <!-- latest -->
-        <xmlsec.version>2.2.4</xmlsec.version> <!-- Gabriel working...-->
-        <httpcore.version>4.4.15</httpcore.version> <!-- latest -->
-        <ehcache.version>3.10.2</ehcache.version> <!-- upgraded from 3.10.0 -->
-        <cache-api.version>1.1.1</cache-api.version> <!-- latest -->
-        <commons-collections.version>3.2.2</commons-collections.version> <!-- latest -->
-        <commons-net.version>3.8.0</commons-net.version> <!-- latest -->
-        <jcifs.version>1.3.17</jcifs.version> <!-- latest -->
-        <commons-vfs2.version>2.9.0</commons-vfs2.version> <!-- latest -->
-        <commons-lang.version>2.6</commons-lang.version> <!-- latest -->
-        <jakarta.activation.version>2.1.0</jakarta.activation.version> <!-- latest -->
-        <jakarta.xml.bind-api.version>4.0.0</jakarta.xml.bind-api.version> <!-- upgraded from 3.0.1 -->
-        <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version> <!-- latest -->
-        <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version> <!-- latest -->
-        <neethi.version>3.2.0</neethi.version> <!-- latest -->
-        <geronimo-javamail_1.4_mail.version>1.8.4</geronimo-javamail_1.4_mail.version> <!-- latest stable -->
-        <javax.activation-api.version>1.2.0</javax.activation-api.version> <!-- latest -->
-        <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version> <!-- latest -->
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version> <!-- latest -->
-        <javax.persistence-api.version>2.2</javax.persistence-api.version> <!-- latest -->
-        <commons-text.version>1.10.0</commons-text.version> <!-- upgraded from 1.9 -->
-        <swagger-maven-plugin.version>2.2.4</swagger-maven-plugin.version> <!-- upgraded from 2.2.2 -->
-        <swagger-codegen-maven-plugin.version>3.0.35</swagger-codegen-maven-plugin.version> <!-- upgraded from 3.0.34 -->
-        <license-maven-plugin.version>2.0.0</license-maven-plugin.version> <!-- latest -->
+        <javax.jms-api.version>2.0.1</javax.jms-api.version>
+        <activation.version>1.1.1</activation.version>
+        <jsr181-api.version>1.0-MR1</jsr181-api.version>
+        <xmlsec.version>2.2.4</xmlsec.version>
+        <httpcore.version>4.4.15</httpcore.version>
+        <ehcache.version>3.10.2</ehcache.version>
+        <cache-api.version>1.1.1</cache-api.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <commons-net.version>3.8.0</commons-net.version>
+        <jcifs.version>1.3.17</jcifs.version>
+        <commons-vfs2.version>2.9.0</commons-vfs2.version>
+        <commons-lang.version>2.6</commons-lang.version>
+        <jakarta.activation.version>2.1.0</jakarta.activation.version>
+        <jakarta.xml.bind-api.version>4.0.0</jakarta.xml.bind-api.version>
+        <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
+        <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
+        <neethi.version>3.2.0</neethi.version>
+        <geronimo-javamail_1.4_mail.version>1.8.4</geronimo-javamail_1.4_mail.version>
+        <javax.activation-api.version>1.2.0</javax.activation-api.version>
+        <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <javax.persistence-api.version>2.2</javax.persistence-api.version>
+        <commons-text.version>1.10.0</commons-text.version>
+        <swagger-maven-plugin.version>2.2.4</swagger-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.35</swagger-codegen-maven-plugin.version>
+        <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         
         <commons-ip2.version>2.0.0-alpha2</commons-ip2.version>
-        <commons-compress.version>1.21</commons-compress.version> <!-- latest -->
-        <commons-configuration2.version>2.8.0</commons-configuration2.version> <!-- latest -->
-        <httpmime.version>4.5.13</httpmime.version> <!-- latest -->
-        <jdom2.version>2.0.6.1</jdom2.version> <!-- latest -->
-        <xml-apis.version>1.4.01</xml-apis.version> <!-- upgraded from 1.3.04 -->
+        <commons-compress.version>1.21</commons-compress.version>
+        <commons-configuration2.version>2.8.0</commons-configuration2.version>
+        <httpmime.version>4.5.13</httpmime.version>
+        <jdom2.version>2.0.6.1</jdom2.version>
+        <xml-apis.version>1.4.01</xml-apis.version>
 
         <!-- For increased readability, please leave these Java properties at the very end -->
         <jdk.version>8</jdk.version>
