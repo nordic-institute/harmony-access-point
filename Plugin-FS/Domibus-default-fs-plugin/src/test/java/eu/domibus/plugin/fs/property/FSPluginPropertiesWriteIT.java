@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
+import eu.domibus.core.property.PropertyChangeManager;
 import eu.domibus.test.AbstractIT;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
+import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELIMITER;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.LOCATION;
 
 /**
@@ -27,6 +29,9 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
 
     @Autowired
     DefaultDomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    PropertyChangeManager propertyChangeManager;
 
     @Configuration
     @PropertySource(value = "file:${domibus.config.location}/plugins/config/fs-plugin.properties")
@@ -80,7 +85,11 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
 
     private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {
         List<String> lines = Files.readAllLines(propertyFile.toPath());
-        String persistedProperty = lines.stream().filter(line -> line.contains(propertyName + "=")).findAny().orElse(null);
-        return StringUtils.substringAfter(persistedProperty, "=");
+        int lineNr = propertyChangeManager.findLineWithProperty(propertyName, lines);
+        if (lineNr >= 0) {
+            String persistedProperty = lines.get(lineNr);
+            return StringUtils.substringAfter(persistedProperty, PROPERTY_VALUE_DELIMITER);
+        }
+        return null;
     }
 }

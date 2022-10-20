@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
+import eu.domibus.core.property.PropertyChangeManager;
 import eu.domibus.core.property.PropertyProviderDispatcher;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELIMITER;
 import static eu.domibus.property.ExternalTestModulePropertyManager.*;
 
 /**
@@ -49,6 +51,9 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    PropertyChangeManager propertyChangeManager;
 
     Domain defaultDomain = new Domain("default", "Default");
     File propertyFile;
@@ -285,8 +290,12 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {
         List<String> lines = Files.readAllLines(propertyFile.toPath());
-        String persistedProperty = lines.stream().filter(line -> line.contains(propertyName + "=")).findAny().orElse(null);
-        return StringUtils.substringAfter(persistedProperty, "=");
+        int lineNr = propertyChangeManager.findLineWithProperty(propertyName, lines);
+        if (lineNr >= 0) {
+            String persistedProperty = lines.get(lineNr);
+            return StringUtils.substringAfter(persistedProperty, PROPERTY_VALUE_DELIMITER);
+        }
+        return null;
     }
 
     private File getPropertyFile() {

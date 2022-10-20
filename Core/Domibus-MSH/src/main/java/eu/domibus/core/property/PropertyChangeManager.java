@@ -329,24 +329,34 @@ public class PropertyChangeManager {
         try {
             List<String> lines = Files.readAllLines(configurationFile.toPath());
             // to make sure we do not replace a property that lists other props (like encryption.property)
-            String valueToSearch = LINE_COMMENT_PREFIX + "?" + propertyName + "\\s*" + PROPERTY_VALUE_DELIMITER + ".*";
-            // go backwards so that, in case there are more than one line with the same property, replace the last one because it has precedence
-            for (int i = lines.size() - 1; i >= 0; i--) {
-                if (regexUtil.matches(valueToSearch, StringUtils.trim(lines.get(i)))) {
-                    // found it, replace and exit
-                    LOG.debug("Found property [{}] in file [{}]; replacing with value [{}].", propertyName, configurationFile.getName(), newPropertyValue);
-                    lines.set(i, propertyNameValueLine);
-                    return lines;
-                }
+            int i = findLineWithProperty(propertyName, lines);
+            if (i >= 0) {
+                LOG.debug("Replacing property [{}] in file [{}] with value [{}].", propertyName, configurationFile.getName(), newPropertyValue);
+                lines.set(i, propertyNameValueLine);
+            } else {
+                // could not find, so just add at the end
+                LOG.debug("Could not find property [{}] in file [{}] (probably it had a fall-back value set in the global file); adding value [{}] at the end of the file.",
+                        propertyName, configurationFile.getName(), newPropertyValue);
+                lines.add(propertyNameValueLine);
             }
-            // could not find, so just add at the end
-            LOG.debug("Could not find property [{}] in file [{}] (probably it had a fall-back value set in the global file); adding value [{}] at the end of the file.",
-                    propertyName, configurationFile.getName(), newPropertyValue);
-            lines.add(propertyNameValueLine);
             return lines;
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not replace properties: could not read configuration file [%s]", configurationFile), e);
         }
+    }
+
+    public int findLineWithProperty(String propertyName, List<String> lines) {
+        String valueToSearch = LINE_COMMENT_PREFIX + "?" + propertyName + "\\s*" + PROPERTY_VALUE_DELIMITER + ".*";
+        // go backwards so that, in case there are more than one line with the same property, replace the last one because it has precedence
+        for (int i = lines.size() - 1; i >= 0; i--) {
+            String line = lines.get(i);
+            if (regexUtil.matches(valueToSearch, StringUtils.trim(line))) {
+                // found it, exit
+                LOG.debug("Found property [{}] in file.", propertyName);
+                return i;
+            }
+        }
+        return -1;
     }
 
 }
