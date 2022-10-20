@@ -34,6 +34,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static eu.domibus.core.property.PropertyChangeManager.LINE_COMMENT_PREFIX;
+import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELIMITER;
 import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -48,9 +50,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     public static final String ENC_START = "ENC(";
     public static final String ENC_END = ")";
-
-    public static final String LINE_COMMENT_PREFIX = "#";
-    public static final String PROPERTY_VALUE_DELIMITER = "=";
 
     @Autowired
     protected DomainService domainService;

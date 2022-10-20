@@ -216,25 +216,33 @@ public class PropertyChangeManager {
             return configurationFileName;
         }
         if (domain != null) {
-            if (propMeta.isDomain()) {
-                String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
-                LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
-                return configurationFileName;
-            } else {
-                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
-            }
+            return getDomainDomibusPropertyFile(domain, propMeta);
         } else {
-            if (propMeta.isSuper()) {
-                String configurationFileNameForSuper = domibusConfigurationService.getConfigurationFileNameForSuper();
-                LOG.debug("Properties file name in multi-tenancy mode for super property [{}] is [{}].", propMeta.getName(), configurationFileNameForSuper);
-                return configurationFileNameForSuper;
-            } else if (propMeta.isGlobal()) {
-                String configurationFileName = domibusConfigurationService.getConfigurationFileName();
-                LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
-                return configurationFileName;
-            } else {
-                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
-            }
+            return getGlobalOrSuperDomibusPropertyFileName(propMeta);
+        }
+    }
+
+    private String getGlobalOrSuperDomibusPropertyFileName(DomibusPropertyMetadata propMeta) {
+        if (propMeta.isSuper()) {
+            String configurationFileNameForSuper = domibusConfigurationService.getConfigurationFileNameForSuper();
+            LOG.debug("Properties file name in multi-tenancy mode for super property [{}] is [{}].", propMeta.getName(), configurationFileNameForSuper);
+            return configurationFileNameForSuper;
+        } else if (propMeta.isGlobal()) {
+            String configurationFileName = domibusConfigurationService.getConfigurationFileName();
+            LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
+            return configurationFileName;
+        } else {
+            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
+        }
+    }
+
+    private String getDomainDomibusPropertyFile(Domain domain, DomibusPropertyMetadata propMeta) {
+        if (propMeta.isDomain()) {
+            String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
+            LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
+            return configurationFileName;
+        } else {
+            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
         }
     }
 
@@ -250,40 +258,48 @@ public class PropertyChangeManager {
         }
 
         if (domain != null) {
-            if (propMeta.isDomain()) {
-                DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
-                String configurationFileName = manager.getConfigurationFileName(extDomain)
-                        .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].",
-                                manager.getClass(), domain)));
-                LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
-                File propertyFile = getFile(configurationFileName);
-                if (!Files.exists(propertyFile.toPath())) {
-                    LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.",
-                            propMeta.getName(), domain, configurationFileName);
-                    try {
-                        propertyFile = Files.createFile(propertyFile.toPath()).toFile();
-                    } catch (IOException e) {
-                        throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",
-                                propMeta.getName(), domain, configurationFileName));
-                    }
-                }
-                return propertyFile;
-            } else {
-                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
-            }
+            return getDomainExternalModulePropertyFile(domain, manager, propMeta);
         } else {
-            if (propMeta.isGlobal()) {
-                String configurationFileName = manager.getConfigurationFileName();
-                LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
-                File propertyFile = getFile(configurationFileName);
-                if (!Files.exists(propertyFile.toPath())) {
-                    throw new DomibusPropertyException(String.format("Global properties file for module [%s] could not be found at the location [%s]",
-                            propMeta.getName(), configurationFileName));
-                }
-                return propertyFile;
-            } else {
-                throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global usage so it cannot be set.", propMeta.getName()));
+            return getGlobalExternalModulePropertyFile(manager, propMeta);
+        }
+    }
+
+    private File getGlobalExternalModulePropertyFile(DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
+        if (propMeta.isGlobal()) {
+            String configurationFileName = manager.getConfigurationFileName();
+            LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
+            File propertyFile = getFile(configurationFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                throw new DomibusPropertyException(String.format("Global properties file for module [%s] could not be found at the location [%s]",
+                        propMeta.getName(), configurationFileName));
             }
+            return propertyFile;
+        } else {
+            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global usage so it cannot be set.", propMeta.getName()));
+        }
+    }
+
+    private File getDomainExternalModulePropertyFile(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
+        if (propMeta.isDomain()) {
+            DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
+            String configurationFileName = manager.getConfigurationFileName(extDomain)
+                    .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].",
+                            manager.getClass(), domain)));
+            LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
+            File propertyFile = getFile(configurationFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.",
+                        propMeta.getName(), domain, configurationFileName);
+                try {
+                    propertyFile = Files.createFile(propertyFile.toPath()).toFile();
+                } catch (IOException e) {
+                    throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",
+                            propMeta.getName(), domain, configurationFileName));
+                }
+            }
+            return propertyFile;
+        } else {
+            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
         }
     }
 
