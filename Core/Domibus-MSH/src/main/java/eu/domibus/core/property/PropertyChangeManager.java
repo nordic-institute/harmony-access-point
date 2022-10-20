@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.util.RegexUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
@@ -25,7 +26,6 @@ import java.util.List;
 
 import static eu.domibus.api.property.Module.MSH;
 import static eu.domibus.api.property.Module.UNKNOWN;
-import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.PROPERTY_VALUE_DELIMITER;
 
 /**
  * Responsible for changing the values of domibus properties
@@ -35,6 +35,9 @@ import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.
  */
 @Service
 public class PropertyChangeManager {
+
+    public static final String LINE_COMMENT_PREFIX = "#";
+    public static final String PROPERTY_VALUE_DELIMITER = "=";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyChangeManager.class);
 
@@ -56,6 +59,8 @@ public class PropertyChangeManager {
 
     private final DomibusCoreMapper coreMapper;
 
+    private final RegexUtil regexUtil;
+
     public PropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
                                  PropertyRetrieveManager propertyRetrieveManager,
                                  PropertyProviderHelper propertyProviderHelper,
@@ -63,7 +68,7 @@ public class PropertyChangeManager {
                                  // needs to be lazy because we do have a conceptual cyclic dependency:
                                  // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
                                  @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier, DomibusCacheService domibusCacheService,
-                                 DomibusConfigurationService domibusConfigurationService, BackupService backupService, DomibusCoreMapper coreMapper) {
+                                 DomibusConfigurationService domibusConfigurationService, BackupService backupService, DomibusCoreMapper coreMapper, RegexUtil regexUtil) {
         this.propertyRetrieveManager = propertyRetrieveManager;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderHelper = propertyProviderHelper;
@@ -73,6 +78,7 @@ public class PropertyChangeManager {
         this.domibusConfigurationService = domibusConfigurationService;
         this.backupService = backupService;
         this.coreMapper = coreMapper;
+        this.regexUtil = regexUtil;
     }
 
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
@@ -285,7 +291,7 @@ public class PropertyChangeManager {
         String fullName = domibusConfigurationService.getConfigLocation() + File.separator + domibusPropertyFileName;
         return new File(fullName);
     }
-    
+
     protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue) {
         final List<String> lines = replaceOrAddProperty(configurationFile, propertyName, newPropertyValue);
 
@@ -307,10 +313,10 @@ public class PropertyChangeManager {
         try {
             List<String> lines = Files.readAllLines(configurationFile.toPath());
             // to make sure we do not replace a property that lists other props (like encryption.property)
-            String valueToSearch = propertyName + "=";
+            String valueToSearch = LINE_COMMENT_PREFIX + "?" + propertyName + "\\s*" + PROPERTY_VALUE_DELIMITER + ".*";
             // go backwards so that, in case there are more than one line with the same property, replace the last one because it has precedence
             for (int i = lines.size() - 1; i >= 0; i--) {
-                if (StringUtils.contains(StringUtils.trim(lines.get(i)), valueToSearch)) {
+                if (regexUtil.matches(valueToSearch, StringUtils.trim(lines.get(i)))) {
                     // found it, replace and exit
                     LOG.debug("Found property [{}] in file [{}]; replacing with value [{}].", propertyName, configurationFile.getName(), newPropertyValue);
                     lines.set(i, propertyNameValueLine);
