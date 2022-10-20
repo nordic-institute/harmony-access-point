@@ -177,7 +177,7 @@ public class WSPluginFaultOutInterceptorTest {
         new FullVerifications() {};
     }
 
-    @Test //(treat this in EDELIVERY-9783)
+    @Test
     public void handleRetrieveMessageUnexpectedRollbackException(@Injectable SoapMessage message,
                                                                  @Injectable Exception exception,
                                                                  @Injectable UnexpectedRollbackException cause) {
