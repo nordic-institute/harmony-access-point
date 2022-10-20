@@ -47,7 +47,7 @@
     <appender name="error_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${catalina.home}/logs/domibus-error.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
+            <level>WARN</level>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <!-- rollover daily -->
