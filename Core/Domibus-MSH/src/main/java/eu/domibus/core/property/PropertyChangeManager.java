@@ -217,9 +217,8 @@ public class PropertyChangeManager {
         }
         if (domain != null) {
             return getDomainDomibusPropertyFile(domain, propMeta);
-        } else {
-            return getGlobalOrSuperDomibusPropertyFileName(propMeta);
         }
+        return getGlobalOrSuperDomibusPropertyFileName(propMeta);
     }
 
     private String getGlobalOrSuperDomibusPropertyFileName(DomibusPropertyMetadata propMeta) {
@@ -227,13 +226,13 @@ public class PropertyChangeManager {
             String configurationFileNameForSuper = domibusConfigurationService.getConfigurationFileNameForSuper();
             LOG.debug("Properties file name in multi-tenancy mode for super property [{}] is [{}].", propMeta.getName(), configurationFileNameForSuper);
             return configurationFileNameForSuper;
-        } else if (propMeta.isGlobal()) {
+        }
+        if (propMeta.isGlobal()) {
             String configurationFileName = domibusConfigurationService.getConfigurationFileName();
             LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
             return configurationFileName;
-        } else {
-            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
         }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
     }
 
     private String getDomainDomibusPropertyFile(Domain domain, DomibusPropertyMetadata propMeta) {
@@ -241,9 +240,8 @@ public class PropertyChangeManager {
             String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
             LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
             return configurationFileName;
-        } else {
-            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
         }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
     }
 
     private File getExternalModulePropertyFile(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
@@ -259,9 +257,8 @@ public class PropertyChangeManager {
 
         if (domain != null) {
             return getDomainExternalModulePropertyFile(domain, manager, propMeta);
-        } else {
-            return getGlobalExternalModulePropertyFile(manager, propMeta);
         }
+        return getGlobalExternalModulePropertyFile(manager, propMeta);
     }
 
     private File getGlobalExternalModulePropertyFile(DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
@@ -274,9 +271,8 @@ public class PropertyChangeManager {
                         propMeta.getName(), configurationFileName));
             }
             return propertyFile;
-        } else {
-            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global usage so it cannot be set.", propMeta.getName()));
         }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global usage so it cannot be set.", propMeta.getName()));
     }
 
     private File getDomainExternalModulePropertyFile(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
@@ -298,9 +294,8 @@ public class PropertyChangeManager {
                 }
             }
             return propertyFile;
-        } else {
-            throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
         }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
     }
 
     private File getFile(String domibusPropertyFileName) {
