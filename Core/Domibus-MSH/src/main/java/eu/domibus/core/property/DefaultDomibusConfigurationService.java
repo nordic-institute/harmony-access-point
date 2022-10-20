@@ -2,10 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DataBaseEngine;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -108,8 +105,10 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Override
     public String getConfigurationFileName(Domain domain) {
         String propertyFileName;
-
-        if (isSingleTenantAware() || domain == null) {
+        if (domain == null) {
+            throw new DomibusPropertyException("Cannot call this method with null domain.");
+        }
+        if (isSingleTenantAware()) {
             propertyFileName = getConfigurationFileName();
         } else {
             propertyFileName = getDomainConfigurationFileName(domain);

@@ -63,7 +63,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         try {
             originalContent = Files.readAllLines(propertyFile.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            Assert.fail();
         }
     }
 
@@ -72,7 +72,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         try {
             Files.write(propertyFile.toPath(), originalContent);
         } catch (IOException e) {
-            e.printStackTrace();
+            Assert.fail();
         }
     }
 
