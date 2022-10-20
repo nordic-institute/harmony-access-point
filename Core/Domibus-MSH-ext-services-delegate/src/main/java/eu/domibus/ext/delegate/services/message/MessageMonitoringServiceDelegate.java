@@ -76,7 +76,7 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     @Override
     public void restoreFailedMessage(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
-        userMessageService.restoreFailedMessage(messageId);
+        restoreService.restoreFailedMessage(messageId);
     }
 
     @Override

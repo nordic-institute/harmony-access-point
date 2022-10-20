@@ -116,7 +116,7 @@ public class MessageMonitoringServiceDelegateTest {
 
         new Verifications() {{
             userMessageSecurityService.checkMessageAuthorization(messageId, MSHRole.SENDING);
-            userMessageService.restoreFailedMessage(messageId);
+            restoreService.restoreFailedMessage(messageId);
         }};
     }
 

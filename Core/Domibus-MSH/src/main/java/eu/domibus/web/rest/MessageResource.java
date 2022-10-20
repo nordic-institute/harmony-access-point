@@ -106,7 +106,7 @@ public class MessageResource {
 
 
         List<String> messageIds = result.getMessageLogEntries().stream()
-                .map(a -> a.getMessageId())
+                .map(messageLogRO -> messageLogRO.getMessageId())
                 .collect(Collectors.toList());
 
         return restoreService.restoreAllOrSelectedFailedMessages(messageIds, RESEND_All);

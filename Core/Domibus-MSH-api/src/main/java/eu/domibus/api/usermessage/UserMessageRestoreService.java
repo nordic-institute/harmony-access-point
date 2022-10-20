@@ -8,6 +8,8 @@ import java.util.List;
  */
 public interface UserMessageRestoreService {
 
+    void restoreFailedMessage(String messageId);
+
     /**
      * Resend a message in the status SEND_FAILURE or SEND_ENQUEUED
      *

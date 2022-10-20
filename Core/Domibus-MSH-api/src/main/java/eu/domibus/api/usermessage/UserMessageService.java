@@ -22,6 +22,7 @@ public interface UserMessageService {
     String COMMAND_SEND_SIGNAL_ERROR = "SendSignalError";
     String COMMAND_SPLIT_AND_JOIN_RECEIVE_FAILED = "SplitAndJoinReceiveFailed";
 
+
     String MSG_SOURCE_MESSAGE_FILE = "SourceMessageFile";
     String MSG_TYPE = "messageType";
     String MSG_GROUP_ID = "groupId";
@@ -68,8 +69,6 @@ public interface UserMessageService {
     void deleteMessageNotInFinalStatus(String messageId, MSHRole mshRole) throws MessageNotFoundException, MessagingException;
 
     List<String> deleteMessagesDuringPeriod(Long begin, Long end, String finalRecipient);
-
-    void restoreFailedMessage(String messageId);
 
     /**
      * Schedules the handling of the SplitAndJoin send failed event
