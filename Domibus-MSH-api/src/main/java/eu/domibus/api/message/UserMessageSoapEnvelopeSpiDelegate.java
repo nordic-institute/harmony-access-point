@@ -6,7 +6,7 @@ import javax.xml.soap.SOAPMessage;
  * @author Cosmin Baciu
  * @since 5.0.2
  */
-public interface SendingSoapEnvelopeSpiDelegate {
+public interface UserMessageSoapEnvelopeSpiDelegate {
 
     /**
      * Hook point that can be used to validate or modify the SoapEnvelope before it is being sent to C3
@@ -14,5 +14,5 @@ public interface SendingSoapEnvelopeSpiDelegate {
      * @param soapMessage that will be sent to C3 before signing/encryption
      * @return The modified SoapEnvelope or the same SoapEnvelope in case it has not been modified
      */
-    SOAPMessage beforeSending(SOAPMessage soapMessage);
+    SOAPMessage beforeSigningAndEncryption(SOAPMessage soapMessage);
 }

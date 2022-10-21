@@ -1,6 +1,6 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.api.message.SendingSoapEnvelopeSpiDelegate;
+import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
@@ -97,7 +97,7 @@ public class MessageFragmentSenderTest {
     MessageGroupEntity groupEntity;
 
     @Injectable
-    protected SendingSoapEnvelopeSpiDelegate sendingSoapEnvelopeSpiDelegate;
+    protected UserMessageSoapEnvelopeSpiDelegate userMessageSoapEnvelopeSpiDelegate;
 
 
     @Injectable
