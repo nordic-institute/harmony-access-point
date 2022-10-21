@@ -27,8 +27,8 @@
         <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
         <cxf.version>3.4.5</cxf.version>
         <wss4j.ws.security.version>2.3.3</wss4j.ws.security.version>
-        <spring.version>5.3.18</spring.version>
-        <spring.security.version>5.6.1</spring.security.version>
+        <spring.version>5.3.20</spring.version>
+        <spring.security.version>5.6.5</spring.security.version>
         <hibernate.version>5.4.25.Final</hibernate.version>
         <hibernate.validator.version>6.1.5.Final</hibernate.validator.version>
         <activemq.version>5.15.14</activemq.version>
@@ -113,7 +113,7 @@
         <joda.version>2.4</joda.version>
         <findbugs.version>3.0.2</findbugs.version>
         <opencsv.version>5.0</opencsv.version>
-        <gson.version>2.8.6</gson.version>
+        <gson.version>2.8.9</gson.version>
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.12</junit.version>
         <jmockit.version>1.22</jmockit.version>
