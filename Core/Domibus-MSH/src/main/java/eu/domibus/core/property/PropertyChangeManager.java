@@ -354,12 +354,17 @@ public class PropertyChangeManager {
 
     private void manageBackups(File configurationFile, Domain domain) {
         Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN);
-        Integer maxFiles = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX);
-
         try {
-            backupService.backupFileIfOlderThan(configurationFile, 10, 5);
+            backupService.backupFileIfOlderThan(configurationFile, period);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
+        }
+
+        Integer maxFiles = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX);
+        try {
+            backupService.deleteBackupsIfMoreThan(configurationFile, maxFiles);
+        } catch (IOException e) {
+            LOG.info("Could not delete back up history for [{}] due to [{}]", configurationFile, e);
         }
     }
 

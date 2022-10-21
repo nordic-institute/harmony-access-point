@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -53,35 +50,53 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public void backupFileIfOlderThan(File originalFile, Integer period, Integer maxFilesToKeep) throws IOException {
-        List<File> backups = Arrays.stream(originalFile.getParentFile().listFiles())
-                .filter(file -> file.getName().startsWith(originalFile.getName() + BACKUP_EXT))
-                .sorted(Comparator.comparing(File::lastModified).reversed())
-                .collect(Collectors.toList());
+    public void backupFileIfOlderThan(File originalFile, Integer period) throws IOException {
+        List<File> backups = getBackupFilesOf(originalFile);
 
         if (CollectionUtils.isEmpty(backups)) {
+            LOG.debug("No backups found so backing up file [{}]", originalFile.getName());
             backupFile(originalFile);
             return;
         }
 
         long elapsed = new Date().toInstant().toEpochMilli() - backups.get(0).lastModified();
         if (elapsed < period * 60 * 60 * 1000) {
+            LOG.debug("No minimum period of time elapsed since the last backup so NO backing up file [{}]", originalFile.getName());
             return;
         }
 
         backupFile(originalFile);
-        if (backups.size() < maxFilesToKeep) {
+    }
+
+    @Override
+    public void deleteBackupsIfMoreThan(File originalFile, Integer maxFilesToKeep) throws IOException {
+        List<File> backups = getBackupFilesOf(originalFile);
+
+        if (backups.size() <= maxFilesToKeep) {
+            LOG.debug("No maximum number of allowed backups reached for file [{}], so exiting.", originalFile.getName());
             return;
         }
 
-        backups.subList(maxFilesToKeep - 1, backups.size())
+        List<String> exceptions = new ArrayList<>();
+        backups.subList(maxFilesToKeep, backups.size())
                 .forEach(file -> {
                     try {
+                        LOG.debug("Deleting backup file [{}].", originalFile.getName());
                         FileUtils.delete(file);
                     } catch (IOException e) {
-                        LOG.info("Could not delete backup file [{}].", file, e);
+                        exceptions.add(String.format("Could not delete backup file [%s] due to [%s].", file.getName(), e.getMessage()));
                     }
                 });
+        if (!CollectionUtils.isEmpty(exceptions)) {
+            throw new IOException(String.join("\n", exceptions));
+        }
+    }
+
+    private List<File> getBackupFilesOf(File originalFile) {
+        return Arrays.stream(originalFile.getParentFile().listFiles())
+                .filter(file -> file.getName().startsWith(originalFile.getName() + BACKUP_EXT))
+                .sorted(Comparator.comparing(File::lastModified).reversed())
+                .collect(Collectors.toList());
     }
 
     protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {
