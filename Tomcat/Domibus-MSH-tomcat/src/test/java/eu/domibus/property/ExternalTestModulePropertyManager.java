@@ -75,7 +75,7 @@ public class ExternalTestModulePropertyManager extends DomibusPropertyExtService
 
     @Override
     public String getConfigurationFileName() {
-        return null;
+        return "external-module.properties";
     }
 
     @Override

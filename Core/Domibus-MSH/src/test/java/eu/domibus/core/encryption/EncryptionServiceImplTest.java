@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  * @author Cosmin Baciu
  * @since 4.1.3
  */
-public class EncryptionEbms3ServiceImplTest {
+public class EncryptionServiceImplTest {
 
     @Injectable
     protected PayloadEncryptionService payloadEncryptionService;

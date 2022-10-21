@@ -1,16 +1,31 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.util.RegexUtil;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.util.backup.BackupService;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+
+import static eu.domibus.api.property.Module.MSH;
+import static eu.domibus.api.property.Module.UNKNOWN;
 
 /**
  * Responsible for changing the values of domibus properties
@@ -20,6 +35,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class PropertyChangeManager {
+
+    public static final String LINE_COMMENT_PREFIX = "#";
+    public static final String PROPERTY_VALUE_DELIMITER = "=";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyChangeManager.class);
 
@@ -35,19 +53,32 @@ public class PropertyChangeManager {
 
     private final DomibusCacheService domibusCacheService;
 
+    private final DomibusConfigurationService domibusConfigurationService;
+
+    private final BackupService backupService;
+
+    private final DomibusCoreMapper coreMapper;
+
+    private final RegexUtil regexUtil;
+
     public PropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
                                  PropertyRetrieveManager propertyRetrieveManager,
                                  PropertyProviderHelper propertyProviderHelper,
                                  ConfigurableEnvironment environment,
                                  // needs to be lazy because we do have a conceptual cyclic dependency:
                                  // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
-                                 @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier, DomibusCacheService domibusCacheService) {
+                                 @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier, DomibusCacheService domibusCacheService,
+                                 DomibusConfigurationService domibusConfigurationService, BackupService backupService, DomibusCoreMapper coreMapper, RegexUtil regexUtil) {
         this.propertyRetrieveManager = propertyRetrieveManager;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyProviderHelper = propertyProviderHelper;
         this.environment = environment;
         this.propertyChangeNotifier = propertyChangeNotifier;
         this.domibusCacheService = domibusCacheService;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.backupService = backupService;
+        this.coreMapper = coreMapper;
+        this.regexUtil = regexUtil;
     }
 
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
@@ -83,9 +114,12 @@ public class PropertyChangeManager {
 
         //set the value
         setValueInDomibusPropertySource(propertyKey, propertyValue);
+
+        saveInFile(domain, propertyName, propertyValue, propertyKey);
     }
 
-    protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
+    protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue,
+                                              boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
         String domainCode = domain != null ? domain.getCode() : null;
         boolean shouldBroadcast = broadcast && propMeta.isClusterAware();
         LOG.debug("Property [{}] changed its value on domain [{}], broadcasting is [{}]", propMeta, domainCode, shouldBroadcast);
@@ -126,7 +160,7 @@ public class PropertyChangeManager {
             propertyKey = propertyProviderHelper.getPropertyKeyForSuper(propertyName);
         } else {
             if (!prop.isGlobal()) {
-                String error = String.format("Property %s is not applicable for global usage so it cannot be set.", propertyName);
+                String error = String.format("Property [%s] is not applicable for global usage so it cannot be set.", propertyName);
                 throw new DomibusPropertyException(error);
             }
         }
@@ -138,7 +172,7 @@ public class PropertyChangeManager {
         if (prop.isDomain()) {
             propertyKey = propertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
         } else {
-            String error = String.format("Property %s is not applicable for a specific domain so it cannot be set.", propertyName);
+            String error = String.format("Property [%s] is not applicable for a specific domain so it cannot be set.", propertyName);
             throw new DomibusPropertyException(error);
         }
         return propertyKey;
@@ -152,4 +186,172 @@ public class PropertyChangeManager {
         DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
         updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
+
+    protected void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
+        File propertyFile = getConfigurationFile(domain, propertyName);
+        replacePropertyInFile(propertyFile, propertyKey, propertyValue);
+    }
+
+    private File getConfigurationFile(Domain domain, String propertyName) {
+        DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (StringUtils.equalsAny(propMeta.getModule(), MSH, UNKNOWN)) {
+            LOG.debug("Getting property file for MSH property [{}] on domain [{}].", propertyName, domain);
+            String domibusPropertyFileName = getDomibusPropertyFileName(domain, propMeta);
+            File propertyFile = getFile(domibusPropertyFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                throw new DomibusPropertyException(String.format("MSH property file for domain [%s] could not be found at the location [%s]", domain, domibusPropertyFileName));
+            }
+            return propertyFile;
+        } else {
+            DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+            LOG.debug("Getting property file of external module [{}] property [{}] on domain [{}].", manager.getClass(), propertyName, domain);
+            return getExternalModulePropertyFile(domain, manager, propMeta);
+        }
+    }
+
+    private String getDomibusPropertyFileName(Domain domain, DomibusPropertyMetadata propMeta) {
+        if (!propertyProviderHelper.isMultiTenantAware()) {
+            String configurationFileName = domibusConfigurationService.getConfigurationFileName();
+            LOG.debug("Properties file name in single-tenancy mode for property [{}] is [{}].", propMeta.getName(), configurationFileName);
+            return configurationFileName;
+        }
+        if (domain != null) {
+            return getDomainDomibusPropertyFile(domain, propMeta);
+        }
+        return getGlobalOrSuperDomibusPropertyFileName(propMeta);
+    }
+
+    private String getGlobalOrSuperDomibusPropertyFileName(DomibusPropertyMetadata propMeta) {
+        if (propMeta.isSuper()) {
+            String configurationFileNameForSuper = domibusConfigurationService.getSuperConfigurationFileName();
+            LOG.debug("Properties file name in multi-tenancy mode for super property [{}] is [{}].", propMeta.getName(), configurationFileNameForSuper);
+            return configurationFileNameForSuper;
+        }
+        if (propMeta.isGlobal()) {
+            String configurationFileName = domibusConfigurationService.getConfigurationFileName();
+            LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
+            return configurationFileName;
+        }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global or super usage so it cannot be set.", propMeta.getName()));
+    }
+
+    private String getDomainDomibusPropertyFile(Domain domain, DomibusPropertyMetadata propMeta) {
+        if (propMeta.isDomain()) {
+            String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
+            LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
+            return configurationFileName;
+        }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
+    }
+
+    private File getExternalModulePropertyFile(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
+        if (!propertyProviderHelper.isMultiTenantAware()) {
+            String configurationFileName = manager.getConfigurationFileName();
+            LOG.debug("Properties file name in single-tenancy mode for property [{}] is [{}].", propMeta.getName(), configurationFileName);
+            File propertyFile = getFile(configurationFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                throw new DomibusPropertyException(String.format("Properties file for module [%s] could not be found at the location [%s]", propMeta.getName(), configurationFileName));
+            }
+            return propertyFile;
+        }
+
+        if (domain != null) {
+            return getDomainExternalModulePropertyFile(domain, manager, propMeta);
+        }
+        return getGlobalExternalModulePropertyFile(manager, propMeta);
+    }
+
+    private File getGlobalExternalModulePropertyFile(DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
+        if (propMeta.isGlobal()) {
+            String configurationFileName = manager.getConfigurationFileName();
+            LOG.debug("Properties file name in multi-tenancy mode for global property [{}] is [{}].", propMeta.getName(), configurationFileName);
+            File propertyFile = getFile(configurationFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                throw new DomibusPropertyException(String.format("Global properties file for module [%s] could not be found at the location [%s]",
+                        propMeta.getName(), configurationFileName));
+            }
+            return propertyFile;
+        }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for global usage so it cannot be set.", propMeta.getName()));
+    }
+
+    private File getDomainExternalModulePropertyFile(Domain domain, DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
+        if (propMeta.isDomain()) {
+            DomainDTO extDomain = coreMapper.domainToDomainDTO(domain);
+            String configurationFileName = manager.getConfigurationFileName(extDomain)
+                    .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].",
+                            manager.getClass(), domain)));
+            LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
+            File propertyFile = getFile(configurationFileName);
+            if (!Files.exists(propertyFile.toPath())) {
+                LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.",
+                        propMeta.getName(), domain, configurationFileName);
+                try {
+                    propertyFile = Files.createFile(propertyFile.toPath()).toFile();
+                } catch (IOException e) {
+                    throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",
+                            propMeta.getName(), domain, configurationFileName));
+                }
+            }
+            return propertyFile;
+        }
+        throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
+    }
+
+    private File getFile(String domibusPropertyFileName) {
+        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + domibusPropertyFileName;
+        return new File(fullName);
+    }
+
+    protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue) {
+        final List<String> lines = replaceOrAddProperty(configurationFile, propertyName, newPropertyValue);
+
+        try {
+            backupService.backupFile(configurationFile);
+        } catch (IOException e) {
+            throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
+        }
+
+        try {
+            Files.write(configurationFile.toPath(), lines);
+        } catch (IOException e) {
+            throw new DomibusPropertyException(String.format("Could not write property [%s] to file [%s] ", propertyName, configurationFile), e);
+        }
+    }
+
+    protected List<String> replaceOrAddProperty(File configurationFile, String propertyName, String newPropertyValue) {
+        String propertyNameValueLine = propertyName + PROPERTY_VALUE_DELIMITER + newPropertyValue;
+        try {
+            List<String> lines = Files.readAllLines(configurationFile.toPath());
+            // to make sure we do not replace a property that lists other props (like encryption.property)
+            int i = findLineWithProperty(propertyName, lines);
+            if (i >= 0) {
+                LOG.debug("Replacing property [{}] in file [{}] with value [{}].", propertyName, configurationFile.getName(), newPropertyValue);
+                lines.set(i, propertyNameValueLine);
+            } else {
+                // could not find, so just add at the end
+                LOG.debug("Could not find property [{}] in file [{}] (probably it had a fall-back value set in the global file); adding value [{}] at the end of the file.",
+                        propertyName, configurationFile.getName(), newPropertyValue);
+                lines.add(propertyNameValueLine);
+            }
+            return lines;
+        } catch (IOException e) {
+            throw new DomibusPropertyException(String.format("Could not replace properties: could not read configuration file [%s]", configurationFile), e);
+        }
+    }
+
+    public int findLineWithProperty(String propertyName, List<String> lines) {
+        String valueToSearch = LINE_COMMENT_PREFIX + "?" + propertyName + "\\s*" + PROPERTY_VALUE_DELIMITER + ".*";
+        // go backwards so that, in case there are more than one line with the same property, replace the last one because it has precedence
+        for (int i = lines.size() - 1; i >= 0; i--) {
+            String line = lines.get(i);
+            if (regexUtil.matches(valueToSearch, StringUtils.trim(line))) {
+                // found it, exit
+                LOG.debug("Found property [{}] in file.", propertyName);
+                return i;
+            }
+        }
+        return -1;
+    }
+
 }
