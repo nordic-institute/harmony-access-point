@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 /**
  * @author idragusa
  * @since 5/22/18.
@@ -61,9 +62,11 @@ public class DomibusApacheFetcher extends AbstractFetcher {
 
     @Override
     public FetcherResponse fetch(List<URI> uris) throws LookupException, FileNotFoundException {
-        LOG.debug("Fetch response from URI [{}]", uris.get(0));
+        URI uri = isNotEmpty(uris) ? uris.get(0) : URI.create("");
+        LOG.debug("Fetch response from URI [{}]", uri);
         try (CloseableHttpClient httpClient = createClient()) {
-            HttpGet httpGet = new HttpGet(uris.get(0));
+
+            HttpGet httpGet = new HttpGet(uri);
 
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
                 switch (response.getStatusLine().getStatusCode()) {
@@ -75,14 +78,14 @@ public class DomibusApacheFetcher extends AbstractFetcher {
                                         response.getFirstHeader("X-SMP-Namespace").getValue() : null
                         );
                     case 404:
-                        throw new FileNotFoundException(uris.get(0).toString());
+                        throw new FileNotFoundException(uri.toString());
                     default:
                         throw new LookupException(String.format(
-                                "Received code %s for lookup. URI: %s", response.getStatusLine().getStatusCode(), uris.get(0)));
+                                "Received code %s for lookup. URI: %s", response.getStatusLine().getStatusCode(), uri));
                 }
             }
         } catch (SocketTimeoutException | SocketException | UnknownHostException e) {
-            throw new LookupException(String.format("Unable to fetch '%s'", uris.get(0)), e);
+            throw new LookupException(String.format("Unable to fetch '%s'", uri), e);
         } catch (LookupException | FileNotFoundException e) {
             throw e;
         } catch (Exception e) {
