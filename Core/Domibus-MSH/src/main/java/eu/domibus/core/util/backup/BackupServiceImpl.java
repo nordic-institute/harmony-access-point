@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -51,8 +50,13 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public void backupFileIfOlderThan(File originalFile, Integer period) throws IOException {
-        List<File> backups = getBackupFilesOf(originalFile);
+        if (period == 0) {
+            LOG.debug("Min backup period is 0 so backing up file [{}]", originalFile.getName());
+            backupFile(originalFile);
+            return;
+        }
 
+        List<File> backups = getBackupFilesOf(originalFile);
         if (CollectionUtils.isEmpty(backups)) {
             LOG.debug("No backups found so backing up file [{}]", originalFile.getName());
             backupFile(originalFile);
@@ -70,10 +74,14 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public void deleteBackupsIfMoreThan(File originalFile, Integer maxFilesToKeep) throws IOException {
-        List<File> backups = getBackupFilesOf(originalFile);
+        if (maxFilesToKeep == 0) {
+            LOG.debug("Maximum backup history is 0 so exiting");
+            return;
+        }
 
+        List<File> backups = getBackupFilesOf(originalFile);
         if (backups.size() <= maxFilesToKeep) {
-            LOG.debug("No maximum number of allowed backups reached for file [{}], so exiting.", originalFile.getName());
+            LOG.debug("Maximum number of allowed backups [{}] has not been reached for file [{}], so exiting.", maxFilesToKeep, originalFile.getName());
             return;
         }
 

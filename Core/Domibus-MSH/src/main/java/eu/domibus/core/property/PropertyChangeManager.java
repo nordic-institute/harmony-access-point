@@ -353,14 +353,14 @@ public class PropertyChangeManager {
     }
 
     private void manageBackups(File configurationFile, Domain domain) {
-        Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN);
+        Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, 24);
         try {
             backupService.backupFileIfOlderThan(configurationFile, period);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
         }
 
-        Integer maxFiles = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX);
+        Integer maxFiles = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX, 10);
         try {
             backupService.deleteBackupsIfMoreThan(configurationFile, maxFiles);
         } catch (IOException e) {
@@ -368,15 +368,15 @@ public class PropertyChangeManager {
         }
     }
 
-    private Integer getPropertyValueAsInteger(Domain domain, String propertyName) {
+    private Integer getPropertyValueAsInteger(Domain domain, String propertyName, int defaultValue) {
         Integer timeout;
         String propVal = null;
         try {
             propVal = getInternalPropertyValue(domain, propertyName);
             timeout = Integer.valueOf(propVal);
         } catch (final NumberFormatException e) {
-            LOG.warn("Could not parse the property [" + propertyName + "] value [" + propVal + "] to an integer value; returning 24.", e);
-            timeout = 24;
+            LOG.warn("Could not parse the property [{}] value [{}] to an integer; returning [{}].", propertyName, propVal, defaultValue, e);
+            timeout = defaultValue;
         }
         return timeout;
     }
