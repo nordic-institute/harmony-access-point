@@ -119,7 +119,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     @Override
-    public String getConfigurationFileNameForSuper() {
+    public String getSuperConfigurationFileName() {
         return DomainService.DOMAINS_HOME + File.separator + "super-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
     }
 

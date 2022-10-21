@@ -223,7 +223,7 @@ public class PropertyChangeManager {
 
     private String getGlobalOrSuperDomibusPropertyFileName(DomibusPropertyMetadata propMeta) {
         if (propMeta.isSuper()) {
-            String configurationFileNameForSuper = domibusConfigurationService.getConfigurationFileNameForSuper();
+            String configurationFileNameForSuper = domibusConfigurationService.getSuperConfigurationFileName();
             LOG.debug("Properties file name in multi-tenancy mode for super property [{}] is [{}].", propMeta.getName(), configurationFileNameForSuper);
             return configurationFileNameForSuper;
         }
