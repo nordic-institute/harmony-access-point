@@ -21,7 +21,9 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.List;
 
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 /**
  * @author idragusa
  * @since 5/22/18.
@@ -59,9 +61,11 @@ public class DomibusApacheFetcher extends AbstractFetcher {
     }
 
     @Override
-    public FetcherResponse fetch(URI uri) throws LookupException, FileNotFoundException {
+    public FetcherResponse fetch(List<URI> uris) throws LookupException, FileNotFoundException {
+        URI uri = isNotEmpty(uris) ? uris.get(0) : URI.create("");
         LOG.debug("Fetch response from URI [{}]", uri);
         try (CloseableHttpClient httpClient = createClient()) {
+
             HttpGet httpGet = new HttpGet(uri);
 
             try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
@@ -99,4 +103,5 @@ public class DomibusApacheFetcher extends AbstractFetcher {
 
         return builder.build();
     }
+
 }
