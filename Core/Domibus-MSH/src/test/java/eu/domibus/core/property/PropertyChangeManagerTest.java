@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.util.RegexUtil;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
@@ -36,12 +37,16 @@ public class PropertyChangeManagerTest {
 
     @Injectable
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
+
     @Injectable
     PropertyRetrieveManager propertyRetrieveManager;
+
     @Injectable
     PropertyProviderHelper propertyProviderHelper;
+
     @Injectable
     ConfigurableEnvironment environment;
+
     @Injectable
     DomibusPropertyChangeNotifier propertyChangeNotifier;
 
@@ -60,6 +65,9 @@ public class PropertyChangeManagerTest {
 
     @Injectable
     DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    RegexUtil regexUtil;
 
     Map<String, DomibusPropertyMetadata> props;
     String domainCode = "domain1";
