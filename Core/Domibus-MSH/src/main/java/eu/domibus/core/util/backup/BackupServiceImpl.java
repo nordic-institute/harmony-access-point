@@ -45,6 +45,12 @@ public class BackupServiceImpl implements BackupService {
         final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
         copyBackUpFile(originalFile, backupFile);
     }
+
+    @Override
+    public void backupFileIfOlderThan(File configurationFile, Integer timeout, Integer maxFilesToKeep) throws IOException {
+
+    }
+
     protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {
         LOG.debug("Backing up file [{}] to file [{}]", originalFile, backupFile);
         try {

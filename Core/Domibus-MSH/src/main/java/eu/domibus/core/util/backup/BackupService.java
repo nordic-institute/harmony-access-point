@@ -28,4 +28,5 @@ public interface BackupService {
      */
     void backupFileInLocation(File originalFile, String trustStoreBackupLocation) throws IOException;
 
+    void backupFileIfOlderThan(File configurationFile, Integer timeout, Integer maxFilesToKeep) throws IOException;
 }

@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN;
 import static eu.domibus.api.property.Module.MSH;
 import static eu.domibus.api.property.Module.UNKNOWN;
 
@@ -189,7 +191,7 @@ public class PropertyChangeManager {
 
     protected void saveInFile(Domain domain, String propertyName, String propertyValue, String propertyKey) {
         File propertyFile = getConfigurationFile(domain, propertyName);
-        replacePropertyInFile(propertyFile, propertyKey, propertyValue);
+        replacePropertyInFile(propertyFile, propertyKey, propertyValue, domain);
     }
 
     private File getConfigurationFile(Domain domain, String propertyName) {
@@ -290,7 +292,7 @@ public class PropertyChangeManager {
                     propertyFile = Files.createFile(propertyFile.toPath()).toFile();
                 } catch (IOException e) {
                     throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",
-                            propMeta.getName(), domain, configurationFileName));
+                            propMeta.getName(), domain, configurationFileName), e);
                 }
             }
             return propertyFile;
@@ -303,14 +305,10 @@ public class PropertyChangeManager {
         return new File(fullName);
     }
 
-    protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue) {
+    protected void replacePropertyInFile(File configurationFile, String propertyName, String newPropertyValue, Domain domain) {
         final List<String> lines = replaceOrAddProperty(configurationFile, propertyName, newPropertyValue);
 
-        try {
-            backupService.backupFile(configurationFile);
-        } catch (IOException e) {
-            throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
-        }
+        manageBackups(configurationFile, domain);
 
         try {
             Files.write(configurationFile.toPath(), lines);
@@ -352,6 +350,30 @@ public class PropertyChangeManager {
             }
         }
         return -1;
+    }
+
+    private void manageBackups(File configurationFile, Domain domain) {
+        Integer timeout = getTimeout(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN);
+        Integer maxFiles = getTimeout(domain, DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX);
+
+        try {
+            backupService.backupFileIfOlderThan(configurationFile, timeout, maxFiles);
+        } catch (IOException e) {
+            throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
+        }
+    }
+
+    private Integer getTimeout(Domain domain, String propertyName) {
+        Integer timeout;
+        String propVal = null;
+        try {
+            propVal = getInternalPropertyValue(domain, propertyName);
+            timeout = Integer.valueOf(propVal);
+        } catch (final NumberFormatException e) {
+            LOG.warn("Could not parse the property [" + propertyName + "] value [" + propVal + "] to an integer value; returning 24.", e);
+            timeout = 24;
+        }
+        return timeout;
     }
 
 }
