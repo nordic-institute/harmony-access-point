@@ -177,9 +177,9 @@
 
     <root level="WARN">
         <appender-ref ref="file"/>
-        <appender-ref ref="error_file"/>
         <!--        REPLACE appender-ref "file" with "DEFAULT-ASYNC-FILE" for async logging-->
         <!--        <appender-ref ref="DEFAULT-ASYNC-FILE" />-->
+        <appender-ref ref="error_file"/>
         <appender-ref ref="stdout"/>
     </root>
 </configuration>
