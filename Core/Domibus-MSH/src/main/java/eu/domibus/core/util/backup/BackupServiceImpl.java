@@ -6,12 +6,18 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -47,8 +53,35 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public void backupFileIfOlderThan(File configurationFile, Integer timeout, Integer maxFilesToKeep) throws IOException {
+    public void backupFileIfOlderThan(File originalFile, Integer period, Integer maxFilesToKeep) throws IOException {
+        List<File> backups = Arrays.stream(originalFile.getParentFile().listFiles())
+                .filter(file -> file.getName().startsWith(originalFile.getName() + BACKUP_EXT))
+                .sorted(Comparator.comparing(File::lastModified).reversed())
+                .collect(Collectors.toList());
 
+        if (CollectionUtils.isEmpty(backups)) {
+            backupFile(originalFile);
+            return;
+        }
+
+        long elapsed = new Date().toInstant().toEpochMilli() - backups.get(0).lastModified();
+        if (elapsed < period * 60 * 60 * 1000) {
+            return;
+        }
+
+        backupFile(originalFile);
+        if (backups.size() < maxFilesToKeep) {
+            return;
+        }
+
+        backups.subList(maxFilesToKeep - 1, backups.size())
+                .forEach(file -> {
+                    try {
+                        FileUtils.delete(file);
+                    } catch (IOException e) {
+                        LOG.info("Could not delete backup file [{}].", file, e);
+                    }
+                });
     }
 
     protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {

@@ -353,17 +353,17 @@ public class PropertyChangeManager {
     }
 
     private void manageBackups(File configurationFile, Domain domain) {
-        Integer timeout = getTimeout(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN);
-        Integer maxFiles = getTimeout(domain, DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX);
+        Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN);
+        Integer maxFiles = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX);
 
         try {
-            backupService.backupFileIfOlderThan(configurationFile, timeout, maxFiles);
+            backupService.backupFileIfOlderThan(configurationFile, 10, 5);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
         }
     }
 
-    private Integer getTimeout(Domain domain, String propertyName) {
+    private Integer getPropertyValueAsInteger(Domain domain, String propertyName) {
         Integer timeout;
         String propVal = null;
         try {
