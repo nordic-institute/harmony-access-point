@@ -6,13 +6,16 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Ion Perpegel
@@ -45,6 +48,66 @@ public class BackupServiceImpl implements BackupService {
         final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
         copyBackUpFile(originalFile, backupFile);
     }
+
+    @Override
+    public void backupFileIfOlderThan(File originalFile, Integer periodInHours) throws IOException {
+        if (periodInHours == 0) {
+            LOG.debug("Min backup period is 0 so backing up file [{}]", originalFile.getName());
+            backupFile(originalFile);
+            return;
+        }
+
+        List<File> backups = getBackupFilesOf(originalFile);
+        if (CollectionUtils.isEmpty(backups)) {
+            LOG.debug("No backups found so backing up file [{}]", originalFile.getName());
+            backupFile(originalFile);
+            return;
+        }
+
+        long elapsed = new Date().toInstant().toEpochMilli() - backups.get(0).lastModified();
+        if (elapsed < Duration.ofHours(periodInHours).toMillis()) {
+            LOG.debug("No minimum period of time elapsed since the last backup so NO backing up file [{}]", originalFile.getName());
+            return;
+        }
+
+        backupFile(originalFile);
+    }
+
+    @Override
+    public void deleteBackupsIfMoreThan(File originalFile, Integer maxFilesToKeep) throws IOException {
+        if (maxFilesToKeep == 0) {
+            LOG.debug("Maximum backup history is 0 so exiting");
+            return;
+        }
+
+        List<File> backups = getBackupFilesOf(originalFile);
+        if (backups.size() <= maxFilesToKeep) {
+            LOG.debug("Maximum number of allowed backups [{}] has not been reached for file [{}], so exiting.", maxFilesToKeep, originalFile.getName());
+            return;
+        }
+
+        List<String> exceptions = new ArrayList<>();
+        backups.subList(maxFilesToKeep, backups.size())
+                .forEach(file -> {
+                    try {
+                        LOG.debug("Deleting backup file [{}].", originalFile.getName());
+                        FileUtils.delete(file);
+                    } catch (IOException e) {
+                        exceptions.add(String.format("Could not delete backup file [%s] due to [%s].", file.getName(), e.getMessage()));
+                    }
+                });
+        if (!CollectionUtils.isEmpty(exceptions)) {
+            throw new IOException(String.join("\n", exceptions));
+        }
+    }
+
+    private List<File> getBackupFilesOf(File originalFile) {
+        return Arrays.stream(originalFile.getParentFile().listFiles())
+                .filter(file -> file.getName().startsWith(originalFile.getName() + BACKUP_EXT))
+                .sorted(Comparator.comparing(File::lastModified).reversed())
+                .collect(Collectors.toList());
+    }
+
     protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {
         LOG.debug("Backing up file [{}] to file [{}]", originalFile, backupFile);
         try {
