@@ -143,7 +143,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void deliverMessage(DeliverMessageEvent event) {
         String fsPluginDomain = fsDomainService.getFSPluginDomain();
-        if (!fsPluginProperties.getDomainEnabled(fsPluginDomain)) {
+        if (!isEnabled(fsPluginDomain)) {
             LOG.error("Domain [{}] is disabled for FSPlugin", fsPluginDomain);
             return;
         }
@@ -357,7 +357,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void handleSendFailedMessage(String domain, String messageId) {
-        if (!fsPluginProperties.getDomainEnabled(domain)) {
+        if (!isEnabled(domain)) {
             LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
@@ -399,7 +399,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void handleSentMessage(String domain, String messageId) {
-        if (!fsPluginProperties.getDomainEnabled(domain)) {
+        if (!isEnabled(domain)) {
             LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
@@ -486,7 +486,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void renameMessageFile(String domain, String messageId, MessageStatus status) {
-        if (!fsPluginProperties.getDomainEnabled(domain)) {
+        if (!isEnabled(domain)) {
             LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
             return;
         }
