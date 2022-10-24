@@ -26,12 +26,6 @@ public class JMSPluginReceivingListener {
     protected JMSPluginImpl backendJMS;
 
     @Autowired
-    protected DomibusPropertyExtService domibusPropertyExtService;
-
-    @Autowired
-    protected DomainContextExtService domainContextExtService;
-
-    @Autowired
     protected AuthenticationExtService authenticationExtService;
 
 

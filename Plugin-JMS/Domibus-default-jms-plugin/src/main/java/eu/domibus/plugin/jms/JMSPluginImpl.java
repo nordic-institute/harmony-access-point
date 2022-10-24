@@ -235,7 +235,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public boolean isEnabled(final String domainCode) {
-        return jmsPluginPropertyManager.getDomainEnabled(domainCode);
+        return jmsPluginPropertyManager.isDomainEnabled(domainCode);
     }
 
     private class DownloadMessageCreator implements MessageCreator {

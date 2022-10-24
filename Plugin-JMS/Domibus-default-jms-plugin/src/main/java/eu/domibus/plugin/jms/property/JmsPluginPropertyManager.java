@@ -92,7 +92,7 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
         return "jms-plugin.properties";
     }
 
-    public boolean getDomainEnabled(String domain) {
+    public boolean isDomainEnabled(String domain) {
         String value = getKnownPropertyValue(domain, JMSPLUGIN_DOMAIN_ENABLED);
         return BooleanUtils.toBoolean(value);
     }
