@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
@@ -39,12 +40,15 @@ public class MSHWebServiceTest {
     IncomingMessageHandlerFactory incomingMessageHandlerFactory;
 
     @Injectable
+    SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
+
+    @Injectable
     DomainContextProvider domainContextProvider;
 
     @Test
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,
                                     @Injectable Ebms3Messaging messaging,
-                                    @Injectable IncomingMessageHandler messageHandler,
+                                    @Injectable IncomingMessageHandler messageHandler,4
                                     @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
         new Expectations() {{
             PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);

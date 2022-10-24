@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.message.SendingSoapEnvelopeSpiDelegate;
+import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
@@ -50,7 +50,7 @@ public class AbstractEbms3UserMessageSenderTest {
     AbstractUserMessageSender abstractUserMessageSender;
 
     @Injectable
-    protected SendingSoapEnvelopeSpiDelegate sendingSoapEnvelopeSpiDelegate;
+    protected UserMessageSoapEnvelopeSpiDelegate userMessageSoapEnvelopeSpiDelegate;
 
     @Injectable
     protected PModeProvider pModeProvider;
@@ -168,7 +168,7 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            sendingSoapEnvelopeSpiDelegate.beforeSending(soapMessage);
+            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
             result = soapMessage;
 
             userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -369,7 +369,7 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            sendingSoapEnvelopeSpiDelegate.beforeSending(soapMessage);
+            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
             result = soapMessage;
 
             userMessageServiceHelper.getFinalRecipient(userMessage);
@@ -485,7 +485,7 @@ public class AbstractEbms3UserMessageSenderTest {
             abstractUserMessageSender.createSOAPMessage(userMessage, legConfiguration);
             result = soapMessage;
 
-            sendingSoapEnvelopeSpiDelegate.beforeSending(soapMessage);
+            userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(soapMessage);
             result = soapMessage;
 
             userMessageServiceHelper.getFinalRecipient(userMessage);
