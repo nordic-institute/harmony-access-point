@@ -50,7 +50,7 @@ public class WebServiceConfiguration {
                                              WSPluginBackendService wsPluginBackendService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService);
+        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService, wsPluginPropertyManager);
         jmsPlugin.setRequiredNotifications(messageNotifications);
         return jmsPlugin;
     }

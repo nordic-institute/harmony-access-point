@@ -58,7 +58,7 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
 
 
     private final List<DomibusPropertyMetadataDTO> writableProperties = Arrays.asList(
-            new DomibusPropertyMetadataDTO(JMSPLUGIN_DOMAIN_ENABLED, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMSPLUGIN_DOMAIN_ENABLED, Type.BOOLEAN, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_ID, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_TYPE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
             new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_ROLE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),

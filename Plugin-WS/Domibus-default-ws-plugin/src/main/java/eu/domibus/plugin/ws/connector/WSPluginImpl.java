@@ -19,10 +19,10 @@ import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.eb
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
 import org.apache.commons.lang3.BooleanUtils;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,21 +43,22 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     public static final String PLUGIN_NAME = "backendWSPlugin";
 
-    public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
-
     private final StubDtoTransformer defaultTransformer;
 
     protected WSMessageLogService wsMessageLogService;
 
     private final WSPluginBackendService wsPluginBackendService;
 
+    private final WSPluginPropertyManager wsPluginPropertyManager;
+
     public WSPluginImpl(StubDtoTransformer defaultTransformer,
                         WSMessageLogService wsMessageLogService,
-                        WSPluginBackendService wsPluginBackendService) {
+                        WSPluginBackendService wsPluginBackendService, WSPluginPropertyManager wsPluginPropertyManager) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.wsMessageLogService = wsMessageLogService;
         this.wsPluginBackendService = wsPluginBackendService;
+        this.wsPluginPropertyManager = wsPluginPropertyManager;
     }
 
     @Override
@@ -164,5 +165,10 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         return Stream.of(SEND_RETRY_JOB_NAME)
                 .map(CronJobInfoDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isEnabled(final String domainCode) {
+        return wsPluginPropertyManager.isDomainEnabled(domainCode);
     }
 }

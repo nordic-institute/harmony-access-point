@@ -6,6 +6,7 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -49,11 +50,14 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String DISPATCHER_PUSH_AUTH_PASSWORD = "wsplugin.push.auth.password";
 
     public static final String PUSH_MARK_AS_DOWNLOADED = "wsplugin.push.markAsDownloaded";
+    private static final String DOMAIN_ENABLED = "wsplugin.domain.enabled";
 
     private final Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
     public WSPluginPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
+                new DomibusPropertyMetadataDTO(DOMAIN_ENABLED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.DOMAIN, true),
+
                 new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
@@ -89,5 +93,10 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     @Override
     protected String getPropertiesFileName() {
         return "ws-plugin.properties";
+    }
+
+    public boolean isDomainEnabled(String domain) {
+        String value = getKnownPropertyValue(domain, DOMAIN_ENABLED);
+        return BooleanUtils.toBoolean(value);
     }
 }
