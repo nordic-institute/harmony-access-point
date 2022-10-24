@@ -45,8 +45,8 @@ public class JMSPluginReceivingListener {
     }
 
     protected void authenticate(final MapMessage map) {
-        String username = null;
-        String password = null;
+        String username;
+        String password;
         try {
             username = map.getStringProperty(JMSMessageConstants.USERNAME);
             password = map.getStringProperty(JMSMessageConstants.PASSWORD);

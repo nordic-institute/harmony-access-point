@@ -9,6 +9,7 @@ import eu.domibus.ext.services.*;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -84,6 +85,9 @@ public class JMSPluginImplTest {
 
     @Injectable
     String name = "myjmsplugin";
+
+    @Injectable
+    JmsPluginPropertyManager jmsPluginPropertyManager;
 
     @Tested
     JMSPluginImpl backendJMS;

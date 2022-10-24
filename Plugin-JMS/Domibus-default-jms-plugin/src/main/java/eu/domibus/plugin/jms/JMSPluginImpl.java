@@ -89,6 +89,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
         try {
+            if (!canProcess()) {
+                return;
+            }
+
             String messageID = map.getStringProperty(MESSAGE_ID);
             if (StringUtils.isNotBlank(messageID)) {
                 //trim the empty space
@@ -144,6 +148,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Timer(clazz = JMSPluginImpl.class, value = "deliverMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "deliverMessage")
     public void deliverMessage(final DeliverMessageEvent event) {
+        if (!canProcess()) {
+            return;
+        }
+
         String messageId = event.getMessageId();
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
@@ -155,6 +163,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
+        if (!canProcess()) {
+            return;
+        }
+
         LOG.debug("Handling messageReceiveFailed");
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(messageReceiveFailureEvent.getErrorResult(),
                 messageReceiveFailureEvent.getEndpoint(),
@@ -166,6 +178,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
+        if (!canProcess()) {
+            return;
+        }
+
         final ErrorResult errorResult = getErrorResult(event.getMessageId(), MSHRole.SENDING);
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errorResult, null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
 
@@ -194,6 +210,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Counter(clazz = JMSPluginImpl.class, value = "messageSendSuccess")
     @Override
     public void messageSendSuccess(MessageSendSuccessEvent event) {
+        if (!canProcess()) {
+            return;
+        }
+
         LOG.debug("Handling messageSendSuccess");
         final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageEntityId(), event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
 
@@ -220,6 +240,10 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public MapMessage downloadMessage(final Long messageEntityId, MapMessage target) throws MessageNotFoundException {
+        if (!canProcess()) {
+            throw new DefaultJmsPluginException("JMSPlugin is disabled");
+        }
+
         LOG.debug("Downloading message with entity id [{}]", messageEntityId);
         try {
             Submission submission = messageRetriever.downloadMessage(messageEntityId);
@@ -272,5 +296,14 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
             return mapMessage;
         }
+    }
+
+    private boolean canProcess() {
+        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+        if (!isEnabled(currentDomain.getCode())) {
+            LOG.info("JMSPlugin is disabled for domain [{}]; exiting.", currentDomain);
+            return false;
+        }
+        return true;
     }
 }
