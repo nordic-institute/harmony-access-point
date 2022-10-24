@@ -306,4 +306,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         }
         return true;
     }
+
+    protected String getDomainEnabledPropertyName() {
+        return JMSPLUGIN_DOMAIN_ENABLED;
+    }
 }

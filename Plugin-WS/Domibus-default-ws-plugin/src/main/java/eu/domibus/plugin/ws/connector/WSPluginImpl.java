@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DOMAIN_ENABLED;
 import static eu.domibus.plugin.ws.property.listeners.WSPluginDispatcherCronExpressionChangeListener.SEND_RETRY_JOB_NAME;
 
 /**
@@ -170,5 +171,9 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     @Override
     public boolean isEnabled(final String domainCode) {
         return wsPluginPropertyManager.isDomainEnabled(domainCode);
+    }
+
+    protected String getDomainEnabledPropertyName() {
+        return DOMAIN_ENABLED;
     }
 }

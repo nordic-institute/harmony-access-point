@@ -2,10 +2,9 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
-import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.ext.services.MessagePullerExtService;
-import eu.domibus.ext.services.MessageRetrieverExtService;
-import eu.domibus.ext.services.MessageSubmitterExtService;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
+import eu.domibus.ext.exceptions.DomibusServiceExtException;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -14,13 +13,13 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,6 +45,12 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Autowired
     protected MessageExtService messageExtService;
+
+    @Autowired
+    protected BackendConnectorProviderExtService backendConnectorProviderExtService;
+
+    @Autowired
+    DomibusPropertyManagerExt domibusPropertyManagerExt;
 
     public AbstractBackendConnector(final String name) {
         this.name = name;
@@ -284,6 +289,28 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public void setEnabled(final String domainCode, final boolean enabled) {
+        String pluginName = getName();
+        if (isEnabled(domainCode) == enabled) {
+            LOG.debug("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
+            return;
+        }
+
+        if (!enabled && !backendConnectorProviderExtService.canDisableBackendConnector(pluginName, domainCode)) {
+            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001,
+                    String.format("Cannot disable the plugin [%s] on domain [%s] because there would be no enabled plugin on that domain.", pluginName, domainCode));
+        }
+
+        LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
+        domibusPropertyManagerExt.setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
+        if (enabled) {
+            backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
+        } else {
+            backendConnectorProviderExtService.backendConnectorDisabled(pluginName, domainCode);
+        }
+    }
+
+    protected String getDomainEnabledPropertyName() {
+        return getName() + "." + "domain.enabled";
     }
 
     @Override

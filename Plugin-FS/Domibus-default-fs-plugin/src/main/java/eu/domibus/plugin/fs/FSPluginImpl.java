@@ -538,30 +538,13 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
-    public void setEnabled(final String domainCode, final boolean enabled) {
-        if (isEnabled(domainCode) == enabled) {
-            LOG.debug("Trying to set enabled as [{}] for domain [{}] but it is already so exiting;", enabled, domainCode);
-            return;
-        }
-
-        if (!enabled && !backendConnectorProviderExtService.canDisableBackendConnector(PLUGIN_NAME, domainCode)) {
-            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001,
-                    String.format("Cannot disable the fs-plugin on domain [%s] because there would be no enabled plugin on that domain.", domainCode));
-        }
-
-        LOG.info("Setting fs-plugin to [{}] for domain [{}].", enabled ? "enabled" : "disabled", domainCode);
-        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, BooleanUtils.toStringTrueFalse(enabled));
-        if (enabled) {
-            backendConnectorProviderExtService.backendConnectorEnabled(PLUGIN_NAME, domainCode);
-        } else {
-            backendConnectorProviderExtService.backendConnectorDisabled(PLUGIN_NAME, domainCode);
-        }
-    }
-
-    @Override
     public List<CronJobInfoDTO> getJobsInfo() {
         return Arrays.stream(FSPLUGIN_JOB_NAMES)
                 .map(CronJobInfoDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    protected String getDomainEnabledPropertyName() {
+        return DOMAIN_ENABLED;
     }
 }

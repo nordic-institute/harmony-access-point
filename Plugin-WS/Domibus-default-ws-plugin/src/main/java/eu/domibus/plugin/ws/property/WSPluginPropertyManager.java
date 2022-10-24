@@ -50,7 +50,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String DISPATCHER_PUSH_AUTH_PASSWORD = "wsplugin.push.auth.password";
 
     public static final String PUSH_MARK_AS_DOWNLOADED = "wsplugin.push.markAsDownloaded";
-    private static final String DOMAIN_ENABLED = "wsplugin.domain.enabled";
+    public static final String DOMAIN_ENABLED = "wsplugin.domain.enabled";
 
     private final Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
