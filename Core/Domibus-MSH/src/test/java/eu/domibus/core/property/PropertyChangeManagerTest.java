@@ -1,10 +1,14 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.util.RegexUtil;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.util.backup.BackupService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -33,12 +37,16 @@ public class PropertyChangeManagerTest {
 
     @Injectable
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
+
     @Injectable
     PropertyRetrieveManager propertyRetrieveManager;
+
     @Injectable
     PropertyProviderHelper propertyProviderHelper;
+
     @Injectable
     ConfigurableEnvironment environment;
+
     @Injectable
     DomibusPropertyChangeNotifier propertyChangeNotifier;
 
@@ -48,6 +56,18 @@ public class PropertyChangeManagerTest {
 
     @Injectable
     DomibusCacheService domibusCacheService;
+
+    @Injectable
+    DomibusCoreMapper coreMapper;
+
+    @Injectable
+    BackupService backupService;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    RegexUtil regexUtil;
 
     Map<String, DomibusPropertyMetadata> props;
     String domainCode = "domain1";
@@ -80,6 +100,7 @@ public class PropertyChangeManagerTest {
             propertyRetrieveManager.getInternalProperty(domain, propertyName);
             result = oldValue;
             propertyChangeManager.setValueInDomibusPropertySource(anyString, propValue);
+            propertyChangeManager.saveInFile(null, anyString, anyString, anyString);
         }};
 
         propertyChangeManager.setPropertyValue(domain, propertyName, propValue, true);
@@ -103,6 +124,7 @@ public class PropertyChangeManagerTest {
             propertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
             this.result = propKey;
             propertyChangeManager.setValueInDomibusPropertySource(propKey, propertyValue);
+            propertyChangeManager.saveInFile(domain, propertyName, propertyValue, anyString);
         }};
 
         propertyChangeManager.doSetPropertyValue(domain, propertyName, propertyValue);
@@ -144,6 +166,7 @@ public class PropertyChangeManagerTest {
             propertyProviderHelper.getPropertyKeyForSuper(propertyName);
             this.result = propKey;
             propertyChangeManager.setValueInDomibusPropertySource("super." + propertyName, propertyValue);
+            propertyChangeManager.saveInFile(null, anyString, anyString, anyString);
         }};
 
         propertyChangeManager.doSetPropertyValue(null, propertyName, propertyValue);
@@ -164,6 +187,7 @@ public class PropertyChangeManagerTest {
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = prop;
             propertyChangeManager.setValueInDomibusPropertySource(propertyName, propertyValue);
+            propertyChangeManager.saveInFile(null, anyString, anyString, anyString);
         }};
 
         propertyChangeManager.doSetPropertyValue(null, propertyName, propertyValue);
@@ -199,6 +223,7 @@ public class PropertyChangeManagerTest {
             propertyProviderHelper.isMultiTenantAware();
             result = false;
             propertyChangeManager.setValueInDomibusPropertySource(propertyName, propertyValue);
+            propertyChangeManager.saveInFile(domain, propertyName, propertyValue, anyString);
         }};
 
         propertyChangeManager.doSetPropertyValue(domain, propertyName, propertyValue);
