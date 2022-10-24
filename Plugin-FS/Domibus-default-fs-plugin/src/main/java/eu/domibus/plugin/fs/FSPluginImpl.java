@@ -533,11 +533,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
-    public boolean isEnabled(final String domainCode) {
-        return fsPluginProperties.getDomainEnabled(domainCode);
-    }
-
-    @Override
     public List<CronJobInfoDTO> getJobsInfo() {
         return Arrays.stream(FSPLUGIN_JOB_NAMES)
                 .map(CronJobInfoDTO::new)

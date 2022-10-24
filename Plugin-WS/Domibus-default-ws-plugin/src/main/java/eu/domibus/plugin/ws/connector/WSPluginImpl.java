@@ -168,11 +168,6 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public boolean isEnabled(final String domainCode) {
-        return wsPluginPropertyManager.isDomainEnabled(domainCode);
-    }
-
     protected String getDomainEnabledPropertyName() {
         return DOMAIN_ENABLED;
     }

@@ -284,7 +284,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public boolean isEnabled(final String domainCode) {
-        return true;
+        String value = domibusPropertyManagerExt.getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
+        return BooleanUtils.toBoolean(value);
     }
 
     @Override
