@@ -7,6 +7,7 @@ import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -107,9 +108,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     @Autowired
     protected FSFileNameHelper fsFileNameHelper;
-
-    @Autowired
-    protected BackendConnectorProviderExtService backendConnectorProviderExtService;
 
     public FSPluginImpl() {
         super(PLUGIN_NAME);
@@ -539,7 +537,12 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                 .collect(Collectors.toList());
     }
 
+    protected DomibusPropertyManagerExt getPropertyManager() {
+        return fsPluginProperties;
+    }
+
     protected String getDomainEnabledPropertyName() {
         return DOMAIN_ENABLED;
     }
+
 }

@@ -123,6 +123,9 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         }
         if (propMeta.isStoredGlobally()) {
             final DomainDTO domain = domainExtService.getDomain(domainCode);
+            if (domain == null) {
+                throw new DomibusPropertyExtException("Could not find domain with code " + domainCode);
+            }
             return domibusPropertyExtService.getProperty(domain, propertyName);
         }
 

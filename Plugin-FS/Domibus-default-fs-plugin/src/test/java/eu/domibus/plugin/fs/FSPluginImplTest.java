@@ -101,6 +101,9 @@ public class FSPluginImplTest {
     @Injectable
     BackendConnectorProviderExtService backendConnectorProviderExtService;
 
+    @Injectable
+    DomibusPropertyManagerExt domibusPropertyManagerExt;
+
     @Tested
     FSPluginImpl backendFS;
 

@@ -16,6 +16,7 @@ import eu.domibus.plugin.exception.TransformationException;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,10 +48,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected MessageExtService messageExtService;
 
     @Autowired
+    @Lazy
     protected BackendConnectorProviderExtService backendConnectorProviderExtService;
-
-    @Autowired
-    DomibusPropertyManagerExt domibusPropertyManagerExt;
 
     public AbstractBackendConnector(final String name) {
         this.name = name;
@@ -284,7 +283,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public boolean isEnabled(final String domainCode) {
-        String value = domibusPropertyManagerExt.getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
+        String value = getPropertyManager().getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
         return BooleanUtils.toBoolean(value);
     }
 
@@ -302,12 +301,16 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         }
 
         LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
-        domibusPropertyManagerExt.setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
+        getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
         if (enabled) {
             backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
         } else {
             backendConnectorProviderExtService.backendConnectorDisabled(pluginName, domainCode);
         }
+    }
+
+    protected DomibusPropertyManagerExt getPropertyManager() {
+        return null;
     }
 
     protected String getDomainEnabledPropertyName() {
@@ -318,4 +321,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public List<CronJobInfoDTO> getJobsInfo() {
         return new ArrayList<>();
     }
+
+
 }

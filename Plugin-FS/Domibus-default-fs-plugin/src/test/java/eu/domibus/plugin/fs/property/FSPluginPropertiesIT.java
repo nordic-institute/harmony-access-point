@@ -1,5 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
+import eu.domibus.api.property.DomibusPropertyException;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.test.AbstractIT;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,9 +39,9 @@ public class FSPluginPropertiesIT extends AbstractIT {
         Assert.assertEquals(DEFAULT_LOCATION, fsPluginProperties.getLocation(DEFAULT_DOMAIN));
     }
 
-    @Test
+    @Test(expected = DomibusPropertyExtException.class)
     public void testGetLocation_NonExistentDomain() {
-        Assert.assertEquals(DEFAULT_LOCATION, fsPluginProperties.getLocation(NONEXISTENT_DOMAIN));
+        fsPluginProperties.getLocation(NONEXISTENT_DOMAIN);
     }
 
     @Test
@@ -77,9 +79,9 @@ public class FSPluginPropertiesIT extends AbstractIT {
         Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getReceivedPurgeExpired(DEFAULT_DOMAIN));
     }
 
-    @Test
+    @Test(expected = DomibusPropertyException.class)
     public void testGetPayloadId_NullDomain() {
-        Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(null));
+        fsPluginProperties.getPayloadId(null);
     }
 
     @Test

@@ -7,6 +7,7 @@ import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -304,5 +305,9 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     protected String getDomainEnabledPropertyName() {
         return JMSPLUGIN_DOMAIN_ENABLED;
+    }
+
+    protected DomibusPropertyManagerExt getPropertyManager() {
+        return jmsPluginPropertyManager;
     }
 }
