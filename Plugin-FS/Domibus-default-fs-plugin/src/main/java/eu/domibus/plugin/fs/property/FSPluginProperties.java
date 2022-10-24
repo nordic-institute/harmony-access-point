@@ -279,15 +279,17 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return
      */
     public String getDomainProperty(String domain, String propertyName) {
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            DomainDTO domainDTO = domainExtService.getDomain(domain);
-            if (domainDTO == null) {
-                LOG.warn("Domain [{}] not found when trying to access domain property [{}]", domain, propertyName);
-            }
-            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
-        }
-        //ST
-        return super.getKnownPropertyValue(propertyName);
+        return getKnownPropertyValue(domain, propertyName);
+
+//        if (domibusConfigurationExtService.isMultiTenantAware()) {
+//            DomainDTO domainDTO = domainExtService.getDomain(domain);
+//            if (domainDTO == null) {
+//                LOG.warn("Domain [{}] not found when trying to access domain property [{}]", domain, propertyName);
+//            }
+//            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
+//        }
+//        //ST
+//        return super.getKnownPropertyValue(propertyName);
     }
 
     protected Integer getDomainIntegerProperty(String domain, String propertyName) {
