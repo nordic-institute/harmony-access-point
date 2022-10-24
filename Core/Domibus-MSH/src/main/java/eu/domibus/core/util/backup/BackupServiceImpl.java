@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,8 +50,8 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public void backupFileIfOlderThan(File originalFile, Integer period) throws IOException {
-        if (period == 0) {
+    public void backupFileIfOlderThan(File originalFile, Integer periodInHours) throws IOException {
+        if (periodInHours == 0) {
             LOG.debug("Min backup period is 0 so backing up file [{}]", originalFile.getName());
             backupFile(originalFile);
             return;
@@ -64,7 +65,7 @@ public class BackupServiceImpl implements BackupService {
         }
 
         long elapsed = new Date().toInstant().toEpochMilli() - backups.get(0).lastModified();
-        if (elapsed < period * 60 * 60 * 1000) {
+        if (elapsed < Duration.ofHours(periodInHours).toMillis()) {
             LOG.debug("No minimum period of time elapsed since the last backup so NO backing up file [{}]", originalFile.getName());
             return;
         }
