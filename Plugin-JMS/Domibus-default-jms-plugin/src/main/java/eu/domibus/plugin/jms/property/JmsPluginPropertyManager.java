@@ -8,6 +8,7 @@ import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.jms.JMSMessageConstants;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,7 +27,6 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
  */
 @Service
 public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsPluginPropertyManager.class);
 
     private final List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
             new DomibusPropertyMetadataDTO(CONNECTION_FACTORY, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
@@ -90,5 +90,10 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
     @Override
     protected String getPropertiesFileName() {
         return "jms-plugin.properties";
+    }
+
+    public boolean getDomainEnabled(String domain) {
+        String value = getKnownPropertyValue(domain, JMSPLUGIN_DOMAIN_ENABLED);
+        return BooleanUtils.toBoolean(value);
     }
 }

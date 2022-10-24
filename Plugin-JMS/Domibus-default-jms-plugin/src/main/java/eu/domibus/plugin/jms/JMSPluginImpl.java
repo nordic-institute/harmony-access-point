@@ -17,6 +17,7 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,20 +35,21 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
-*/
+ */
 public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginImpl.class);
 
     public static final String PLUGIN_NAME = "Jms";
 
-    protected JMSExtService jmsExtService;
-    protected DomainContextExtService domainContextExtService;
-    protected JMSPluginQueueService jmsPluginQueueService;
-    protected JmsOperations mshToBackendTemplate;
-    protected JMSMessageTransformer jmsMessageTransformer;
-    protected MetricRegistry metricRegistry;
-    protected JndiDestinationResolver jndiDestinationResolver;
+    protected final JMSExtService jmsExtService;
+    protected final DomainContextExtService domainContextExtService;
+    protected final JMSPluginQueueService jmsPluginQueueService;
+    protected final JmsOperations mshToBackendTemplate;
+    protected final JMSMessageTransformer jmsMessageTransformer;
+    protected final MetricRegistry metricRegistry;
+    protected final JndiDestinationResolver jndiDestinationResolver;
+    protected final JmsPluginPropertyManager jmsPluginPropertyManager;
 
     public JMSPluginImpl(MetricRegistry metricRegistry,
                          JMSExtService jmsExtService,
@@ -55,7 +57,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                          JMSPluginQueueService jmsPluginQueueService,
                          JmsOperations mshToBackendTemplate,
                          JMSMessageTransformer jmsMessageTransformer,
-                         JndiDestinationResolver jndiDestinationResolver) {
+                         JndiDestinationResolver jndiDestinationResolver, JmsPluginPropertyManager jmsPluginPropertyManager) {
         super(PLUGIN_NAME);
         this.jmsExtService = jmsExtService;
         this.domainContextExtService = domainContextExtService;
@@ -64,6 +66,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         this.jmsMessageTransformer = jmsMessageTransformer;
         this.metricRegistry = metricRegistry;
         this.jndiDestinationResolver = jndiDestinationResolver;
+        this.jmsPluginPropertyManager = jmsPluginPropertyManager;
     }
 
     @Override
@@ -172,7 +175,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     protected ErrorResult getErrorResult(String messageId, MSHRole mshRole) {
         List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
-        if(CollectionUtils.isEmpty(errors)) {
+        if (CollectionUtils.isEmpty(errors)) {
             return null;
         }
 
@@ -228,6 +231,11 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
             LOG.businessError(DomibusMessageCode.BUS_MESSAGE_RETRIEVE_FAILED, ex);
             throw ex;
         }
+    }
+
+    @Override
+    public boolean isEnabled(final String domainCode) {
+        return jmsPluginPropertyManager.getDomainEnabled(domainCode);
     }
 
     private class DownloadMessageCreator implements MessageCreator {
