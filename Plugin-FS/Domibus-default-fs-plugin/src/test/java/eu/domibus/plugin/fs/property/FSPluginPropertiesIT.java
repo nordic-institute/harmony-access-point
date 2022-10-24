@@ -79,7 +79,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
         Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getReceivedPurgeExpired(DEFAULT_DOMAIN));
     }
 
-    @Test(expected = DomibusPropertyException.class)
+    @Test(expected = DomibusPropertyExtException.class)
     public void testGetPayloadId_NullDomain() {
         fsPluginProperties.getPayloadId(null);
     }
