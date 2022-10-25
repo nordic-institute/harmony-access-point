@@ -522,6 +522,9 @@ public class FSPluginImplTest {
         properties.put("action", action);
 
         new Expectations(1, backendFS) {{
+            backendFS.isEnabled(anyString);
+            result = true;
+
             fsDomainService.getFSPluginDomain();
             result = domain;
 
@@ -712,7 +715,10 @@ public class FSPluginImplTest {
     @Test
     public void payloadProcessedEvent(@Injectable PayloadProcessedEvent event,
                                       @Injectable FileObject fileObject) throws FileSystemException {
-        new Expectations() {{
+        new Expectations(backendFS) {{
+            backendFS.isEnabled(anyString);
+            result = true;
+
             fsFilesManager.getEnsureRootLocation(event.getFileName());
             result = fileObject;
         }};

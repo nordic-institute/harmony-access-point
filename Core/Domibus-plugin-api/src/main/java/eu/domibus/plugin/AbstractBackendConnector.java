@@ -299,6 +299,11 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
     }
 
+    @Override
+    public List<CronJobInfoDTO> getJobsInfo() {
+        return new ArrayList<>();
+    }
+
     public void doSetEnabled(final String domainCode, final boolean enabled) {
         String pluginName = getName();
         if (!enabled && !backendConnectorProviderExtService.canDisableBackendConnector(pluginName, domainCode)) {
@@ -322,12 +327,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return getName() + "." + "domain.enabled";
     }
 
-    @Override
-    public List<CronJobInfoDTO> getJobsInfo() {
-        return new ArrayList<>();
-    }
-
-    protected void checkEnabled() {
+    public void checkEnabled() {
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
         if (!isEnabled(currentDomain.getCode())) {
             throw new DomibusServiceExtException(DomibusErrorCode.DOM_001, String.format("Plugin is disabled for domain [%s]", currentDomain));
