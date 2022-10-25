@@ -27,7 +27,7 @@ public interface EnableAware {
 
     /**
      * Telling the plugin to become enabled/disabled
-     * The plugin will do some internal stuff and then notify the domibus to crete/delete the resources managed by domibus
+     * The plugin will change his domain property and then notify the domibus to crete/delete the resources managed by domibus
      *
      * @param domainCode On which domain
      * @param enabled    the requested state

@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -170,5 +171,9 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     protected String getDomainEnabledPropertyName() {
         return DOMAIN_ENABLED;
+    }
+
+    protected DomibusPropertyManagerExt getPropertyManager() {
+        return wsPluginPropertyManager;
     }
 }
