@@ -1,6 +1,8 @@
 package eu.domibus.plugin.fs.property;
 
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
@@ -105,6 +107,14 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
         Mockito.verify(messageListenerContainer, Mockito.times(1)).updateMessageListenerContainerConcurrency(aDefault, "1-2");
     }
 
+    @Test(expected = DomibusPropertyException.class)
+    public void testEnabledChangeListener1() {
+        boolean handlesProperty = enabledChangeListener.handlesProperty(DOMAIN_ENABLED);
+        Assert.assertTrue(handlesProperty);
+
+        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
+    }
+
     @Test
     public void testEnabledChangeListener() {
         String domainCode = "default";
@@ -114,11 +124,11 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
 
         if (!fsPluginProperties.getDomainEnabled(domainCode)) {
             Mockito.verify(backendConnectorProviderExtService, Mockito.times(1)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
+            fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "true");
+            Mockito.verify(backendConnectorProviderExtService, Mockito.times(0)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
+        } else {
+            fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "true");
+            Mockito.verify(backendConnectorProviderExtService, Mockito.times(0)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
         }
-        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
-        Mockito.verify(backendConnectorProviderExtService, Mockito.times(1)).backendConnectorDisabled(PLUGIN_NAME, domainCode);
-
-        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "true");
-        Mockito.verify(backendConnectorProviderExtService, Mockito.times(1)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
     }
 }
