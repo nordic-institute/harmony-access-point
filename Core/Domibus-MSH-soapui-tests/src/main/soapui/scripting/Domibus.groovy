@@ -833,6 +833,159 @@ class Domibus{
         debugLog("  ====  END \"waitForStatus\".", log)
     }
 //---------------------------------------------------------------------------------------------------------------------------------
+    // Get the path to the payload storage location
+    def static getPathToTmpPayLocation(log, testRunner,side) {
+        def tmpPath=null
+        switch (side.toLowerCase()) {			
+			case "c2default":
+			case "blue":
+            case "c2":
+                tmpPath = getProjectCustProp("tmpPayPathBlue",log,testRunner)
+                break
+			case "c3default":	
+			case "red":
+            case "c3":
+                tmpPath = getProjectCustProp("tmpPayPathRed",log,testRunner)
+                break
+            case "c3green":
+                tmpPath = getProjectCustProp("tmpPayPathGreen",log,testRunner)
+                break
+            default:
+                log.warn "Unknown side: assume it is C2 ..."
+                tmpPath = getProjectCustProp("tmpPayPathBlue",log,testRunner)
+                break
+        }
+        return tmpPath
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Check if the payload file exists or not
+    def static payloadFileExists(log,testRunner,side, filename) {
+		LogUtils.debugLog("  ====  Calling \"payloadFileExists\".", log)
+		
+		LogUtils.debugLog("  payloadFileExists  [][]  filename=$filename", log)
+		
+		if(filename.equals("") || filename.equals("0") || (filename==null)){
+			return false
+		}
+		
+		def builtPath=getPathToTmpPayLocation(log, testRunner,side)+"/"+filename
+		builtPath=formatPathSlashes(builtPath)
+		LogUtils.debugLog("  payloadFileExists  [][]  Checking if the following file exists $builtPath", log)
+		def testFile=new File(builtPath)
+		if(testFile.exists()){
+			LogUtils.debugLog("  payloadFileExists  [][]  payload's file $filename is present", log)
+			return true
+		}else{
+			LogUtils.debugLog("  payloadFileExists  [][]  payload's file $filename is not present or was deleted", log)
+			return false
+		}		
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method gets the list of payloads linked to a message
+     * @param side/targetSchema
+     * @param messageID
+     * @return list of payloads
+     */
+    def getListOfPayloadsLinkedToMessageId(String targetSchema = "BLUE", String messageID){
+        debugLog("  ====  Calling \"getListOfPayloadsLinkedToMessageId\".", log)
+        int retValue = 0
+		def listPay=[]
+		def lp=0
+        openAllDbConnections()
+
+        def sqlSender = retrieveSqlConnectionRefFromDomainId(targetSchema)
+		
+		// Get list of linked payloads
+        sqlSender.eachRow("select * from TB_USER_MESSAGE m right join TB_PART_INFO d on m.ID_PK = d.USER_MESSAGE_ID_FK where REPLACE(LOWER(m.MESSAGE_ID),' ','') = REPLACE(LOWER(${messageID}),' ','')") {
+            listPay[lp] = [it.BINARY_DATA?"1":"0",it.FILENAME?it.FILENAME:"0"]
+			lp=lp+1
+        }
+        closeAllDbConnections()
+		listPay.each{inputs->
+			LogUtils.debugLog("  getListOfPayloadsLinkedToMessageId  [][]  payload storage details: " + inputs[0] + " - " + inputs[1], log)
+		}
+		debugLog("  ====  END \"getListOfPayloadsLinkedToMessageId\".", log)
+		return listPay
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method checks the status of the payload linked to a messageID
+     * @param side/targetSchema
+     * @param messageID
+     * @return list of payloads
+     */
+    def checkPayloadsStatus(log,testRunner, String targetSchema = "BLUE", String messageID, String status="deleted"){
+        debugLog("  ====  Calling \"checkPayloadsStatus\".", log)
+		
+		def valid=true
+		def payloadsList=getListOfPayloadsLinkedToMessageId(targetSchema, messageID)
+		
+		switch(status.toLowerCase()){
+			case "deleted":
+				if(payloadsList.size()!=0){
+					payloadsList.each{ inputs ->
+						if(inputs[0].equals("1") || (payloadFileExists(log,testRunner,targetSchema, extractFileNameFromString(log,inputs[1]))==true)){
+							valid=false
+						}
+					}
+				}
+				break
+
+			case "present":
+				if(payloadsList.size()==0){
+					valid=false
+				}else{
+					payloadsList.each{ inputs ->
+						if(inputs[0].equals("0") && (payloadFileExists(log,testRunner,targetSchema,extractFileNameFromString(log,inputs[1]))==false)){
+							valid=false
+						}
+					}
+				}
+				break
+			default:
+                assert(false),"Error:checkPayloadsStatus: Unknown payload status: $status. Status must be either \"deleted\" or \"present\""	
+		}
+		assert(valid==true),"  checkPayloadsStatus  [][]  payload(s) not $status"
+		log.info "======================="
+		log.info "payload(s) are $status"
+		log.info "======================="
+		debugLog("  ====  END \"checkPayloadsStatus\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * This method checks the status of the metadata linked to a messageID
+     * @param side/targetSchema
+     * @param messageID
+     * @return list of payloads
+     */
+    def checkMetadataStatus(log,testRunner,String targetSchema = "BLUE", String messageID, String status="deleted"){
+        debugLog("  ====  Calling \"checkMetadataStatus\".", log)
+		
+		def valid=true
+		def payloadsList=getListOfPayloadsLinkedToMessageId(targetSchema, messageID)
+		
+		switch(status.toLowerCase()){
+			case "deleted":
+				if(payloadsList.size()!=0){
+					valid=false
+				}
+				break
+			case "present":
+				if(payloadsList.size()==0){
+					valid=false
+				}
+				break
+			default:
+                assert(false),"Error:checkMetadataStatus: Unknown metadata status: $status. Status must be either \"deleted\" or \"present\""	
+		}
+		assert(valid==true),"  checkMetadataStatus  [][]  Metadata not $status"
+		log.info "======================="
+		log.info "Metadata is $status"
+		log.info "======================="
+		debugLog("  ====  END \"checkMetadataStatus\".", log)
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
     // Check that an entry is created in the table TB_SEND_ATTEMPT
     def checkSendAttempt(String messageID, String targetSchema = "BLUE"){
         debugLog("  ====  Calling \"checkSendAttempt\".", log)
@@ -4114,7 +4267,58 @@ class Domibus{
         debugLog("  ====  Ending \"storeLatestMessagesId\".", log)
         return outputMessageId
     }
+	
+    /**
+     * Extract filename from string path
+     * @param duration. Can be an integer or a float min.sec 
+     * @param unit. Can be "min" or "sec"
+     * @param extra message to display
+     */
+	static def extractFileNameFromString(log,String fullPath){	
+		def index=null
+		def separator="/"
+	    if ( (fullPath != null) && (fullPath != "") ) {
+            if (System.properties['os.name'].toLowerCase().contains('windows')){
+                fullPath=fullPath.replaceAll("/", "\\\\")
+				separator="\\"
+            }
+			index=fullPath.lastIndexOf(separator);
+			return fullPath.substring(index + 1);			
+        }else{
+			return fullPath
+		}
+	}
+    /**
+     * Sleep for a specific ammount of time
+     * @param duration. Can be an integer or a float min.sec 
+     * @param unit. Can be "min" or "sec"
+     * @param extra message to display
+     */
+	static def waitFor(log,String duration="0", String unit="min", message=""){
+		def totalDur=0
+		def valueArr=[]
+		def slpMes="$duration $unit $message"
 
+		try{
+			valueArr=duration.split("\\.")
+			if(unit.toLowerCase().equals("sec")){
+				totalDur=(valueArr[0] as Integer)*1000
+			}else{
+				if(valueArr.size()==2){
+					totalDur=( ((valueArr[0] as Integer)*60)+(valueArr[1] as Integer) )*1000
+					slpMes=valueArr[0]+" min and "+valueArr[1]+" sec  $message"
+				}else{
+					totalDur=(duration as Integer)*60*1000
+				}
+			}
+		}catch(NumberFormatException ex){
+			log.error "Error occured. Please verify the duration format. Must be int (min or sec) or int.int (only min)"
+			assert 0,"Exception occurred: " + ex
+		}
+		log.info "------------ Sleeping for $slpMes ..."
+		sleep(totalDur)
+		log.info "------------ Sleeping for $slpMes DONE"	
+	}
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // Domibus text reporting
