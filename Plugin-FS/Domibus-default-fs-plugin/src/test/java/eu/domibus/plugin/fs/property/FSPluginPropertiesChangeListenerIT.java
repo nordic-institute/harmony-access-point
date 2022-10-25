@@ -4,7 +4,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
-import eu.domibus.plugin.fs.property.listeners.EnabledChangeListener;
+import eu.domibus.plugin.fs.property.listeners.FSPluginEnabledChangeListener;
 import eu.domibus.plugin.fs.property.listeners.OutQueueConcurrencyChangeListener;
 import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
@@ -40,7 +40,7 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
     private TriggerChangeListener triggerChangeListener;
 
     @Autowired
-    private EnabledChangeListener enabledChangeListener;
+    private FSPluginEnabledChangeListener enabledChangeListener;
 
     @Autowired
     private DomainExtService domainExtService;
