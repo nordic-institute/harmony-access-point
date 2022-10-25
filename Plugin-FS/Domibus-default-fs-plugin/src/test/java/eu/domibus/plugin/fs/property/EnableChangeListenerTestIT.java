@@ -2,7 +2,6 @@ package eu.domibus.plugin.fs.property;
 
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
@@ -27,7 +26,7 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
  * @author Catalin Enache
  * @since 4.2
  */
-public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
+public class EnableChangeListenerTestIT extends AbstractIT {
 
     @Autowired
     private DomibusSchedulerExtService domibusSchedulerExt;
@@ -74,45 +73,6 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
             return Mockito.mock(FSSendMessageListenerContainer.class);
         }
 
-    }
-
-    @Test
-    public void testTriggerChangeListener() {
-        boolean handlesWorkerInterval = triggerChangeListener.handlesProperty(SEND_WORKER_INTERVAL);
-        Assert.assertTrue(handlesWorkerInterval);
-
-        try {
-            triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "wrong-value");
-            Assert.fail("Expected exception not raised");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(e.getMessage().contains("Invalid"));
-        }
-
-        triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "3000");
-        triggerChangeListener.propertyValueChanged("default", SENT_PURGE_WORKER_CRONEXPRESSION, "0 0/15 * * * ?");
-
-        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginSendMessagesWorkerJob", 3000);
-        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginPurgeSentWorkerJob", "0 0/15 * * * ?");
-    }
-
-    @Test
-    public void testOutQueueConcurrencyChangeListener() {
-
-        boolean handlesProperty = outQueueConcurrencyChangeListener.handlesProperty(OUT_QUEUE_CONCURRENCY);
-        Assert.assertTrue(handlesProperty);
-
-        DomainDTO aDefault = domainExtService.getDomain("default");
-
-        outQueueConcurrencyChangeListener.propertyValueChanged("default", OUT_QUEUE_CONCURRENCY, "1-2");
-        Mockito.verify(messageListenerContainer, Mockito.times(1)).updateMessageListenerContainerConcurrency(aDefault, "1-2");
-    }
-
-    @Test(expected = DomibusPropertyException.class)
-    public void testEnabledChangeListener1() {
-        boolean handlesProperty = enabledChangeListener.handlesProperty(DOMAIN_ENABLED);
-        Assert.assertTrue(handlesProperty);
-
-        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
     }
 
     @Test

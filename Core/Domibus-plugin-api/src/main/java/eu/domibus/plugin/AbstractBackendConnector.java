@@ -306,11 +306,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     public void doSetEnabled(final String domainCode, final boolean enabled) {
         String pluginName = getName();
-//        if (!enabled && !backendConnectorProviderExtService.canDisableBackendConnector(pluginName, domainCode)) {
-//            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001,
-//                    String.format("Cannot disable the plugin [%s] on domain [%s] because there would be no enabled plugin on that domain.", pluginName, domainCode));
-//        }
-
         LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
         if (enabled) {
             backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
