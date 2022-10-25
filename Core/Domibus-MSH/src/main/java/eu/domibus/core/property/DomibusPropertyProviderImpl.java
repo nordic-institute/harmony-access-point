@@ -165,7 +165,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
-        if (StringUtils.equals(propertyValue, getProperty(null, propertyName))) {
+        if (StringUtils.equals(propertyValue, getProperty(propertyName))) {
             LOG.info("The property [{}] has already the value [{}] on domain [{}]; exiting.", propertyName, propertyValue, null);
             return;
         }

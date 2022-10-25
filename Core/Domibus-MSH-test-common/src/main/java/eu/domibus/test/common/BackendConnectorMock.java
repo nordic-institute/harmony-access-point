@@ -1,9 +1,12 @@
 package eu.domibus.test.common;
 
 import eu.domibus.common.*;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import mockit.Mocked;
+import org.apache.commons.lang3.BooleanUtils;
 
 /**
  * @author Ion perpegel
@@ -121,5 +124,18 @@ public class BackendConnectorMock extends AbstractBackendConnector {
 
     public MessageResponseSentEvent getMessageReceiveReplySentEvent() {
         return messageResponseSentEvent;
+    }
+
+    @Override
+    public boolean isEnabled(final String domainCode) {
+        return true;
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
+    }
+
+    @Override
+    public void doSetEnabled(final String domainCode, final boolean enabled) {
     }
 }
