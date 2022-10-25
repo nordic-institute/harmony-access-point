@@ -1,11 +1,15 @@
 package eu.domibus.plugin.fs.property;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
+import eu.domibus.api.scheduler.DomibusScheduler;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
+import eu.domibus.plugin.fs.FSPluginImpl;
 import eu.domibus.plugin.fs.property.listeners.FSPluginEnabledChangeListener;
 import eu.domibus.plugin.fs.property.listeners.OutQueueConcurrencyChangeListener;
 import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
@@ -53,6 +57,9 @@ public class ChangeListenersTestIT extends AbstractIT {
     @Autowired
     BackendConnectorProviderExtService backendConnectorProviderExtService;
 
+    @Autowired
+    DomibusScheduler domibusScheduler;
+
     @Configuration
     static class ContextConfiguration {
 
@@ -60,6 +67,12 @@ public class ChangeListenersTestIT extends AbstractIT {
         @Bean
         public DomibusSchedulerExtService domibusSchedulerExt() {
             return Mockito.mock(DomibusSchedulerExtService.class);
+        }
+
+        @Primary
+        @Bean
+        public DomibusScheduler domibusScheduler() {
+            return Mockito.mock(DomibusScheduler.class);
         }
 
         @Primary
@@ -102,7 +115,7 @@ public class ChangeListenersTestIT extends AbstractIT {
     }
 
     @Test(expected = DomibusPropertyException.class)
-    public void testEnabledChangeListener1() {
+    public void testEnabledChangeListenerException() {
         boolean handlesProperty = enabledChangeListener.handlesProperty(DOMAIN_ENABLED);
         Assert.assertTrue(handlesProperty);
 
@@ -112,17 +125,18 @@ public class ChangeListenersTestIT extends AbstractIT {
     @Test
     public void testEnabledChangeListener() {
         String domainCode = "default";
+        Domain domain = new Domain(domainCode, domainCode);
 
         boolean handlesProperty = enabledChangeListener.handlesProperty(DOMAIN_ENABLED);
         Assert.assertTrue(handlesProperty);
 
         if (!fsPluginProperties.getDomainEnabled(domainCode)) {
-            Mockito.verify(backendConnectorProviderExtService, Mockito.times(1)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
+            Mockito.verify(domibusScheduler, Mockito.times(1)).resumeJobs(domain, FSPluginImpl.FSPLUGIN_JOB_NAMES);
             fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "true");
-            Mockito.verify(backendConnectorProviderExtService, Mockito.times(0)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
+            Mockito.verify(domibusScheduler, Mockito.times(0)).resumeJobs(domain, FSPluginImpl.FSPLUGIN_JOB_NAMES);
         } else {
             fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "true");
-            Mockito.verify(backendConnectorProviderExtService, Mockito.times(0)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
+            Mockito.verify(domibusScheduler, Mockito.times(0)).resumeJobs(domain, FSPluginImpl.FSPLUGIN_JOB_NAMES);
         }
     }
 }
