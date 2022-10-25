@@ -138,12 +138,9 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Override
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void deliverMessage(DeliverMessageEvent event) {
-        String fsPluginDomain = fsDomainService.getFSPluginDomain();
-        if (!isEnabled(fsPluginDomain)) {
-            LOG.error("Domain [{}] is disabled for FSPlugin", fsPluginDomain);
-            return;
-        }
+        checkEnabled();
 
+        String fsPluginDomain = fsDomainService.getFSPluginDomain();
         LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
         String messageId = event.getMessageId();
         LOG.debug("Delivering File System Message [{}] to [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
@@ -324,6 +321,8 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     @Override
     public void payloadProcessedEvent(PayloadProcessedEvent event) {
+        checkEnabled();
+
         LOG.debug("Handling PayloadProcessedEvent [{}]", event);
         try {
             FileObject fileObject = fsFilesManager.getEnsureRootLocation(event.getFileName());
@@ -353,11 +352,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void handleSendFailedMessage(String domain, String messageId) {
-        if (!isEnabled(domain)) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-            return;
-        }
-
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
              FileObject targetFileMessage = findMessageFile(outgoingFolder, messageId)) {
@@ -382,7 +376,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         }
         return content;
     }
-
 
     protected StringBuilder getErrorFileContent(ErrorResult errorResult) {
 
@@ -453,8 +446,9 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     @Override
     public void messageStatusChanged(MessageStatusChangeEvent event) {
-        LOG.debug("Handling messageStatusChanged event");
+        checkEnabled();
 
+        LOG.debug("Handling messageStatusChanged event");
         String domain = fsDomainService.getFSPluginDomain();
 
         String messageId = event.getMessageId();
@@ -482,11 +476,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void renameMessageFile(String domain, String messageId, MessageStatus status) {
-        if (!isEnabled(domain)) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-            return;
-        }
-
         LOG.debug("Preparing to rename file using domain [{}], messageId [{}] and messageStatus [{}]", domain, messageId, status);
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);

@@ -2,6 +2,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.services.*;
@@ -48,6 +49,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Autowired
     protected BackendConnectorProviderExtService backendConnectorProviderExtService;
+
+    @Autowired
+    protected DomainContextExtService domainContextExtService;
 
     public AbstractBackendConnector(final String name) {
         this.name = name;
@@ -323,4 +327,10 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return new ArrayList<>();
     }
 
+    protected void checkEnabled() {
+        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+        if (!isEnabled(currentDomain.getCode())) {
+            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001, String.format("Plugin is disabled for domain [%s]", currentDomain));
+        }
+    }
 }
