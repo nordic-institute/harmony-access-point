@@ -16,7 +16,6 @@ import eu.domibus.plugin.exception.TransformationException;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +47,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected MessageExtService messageExtService;
 
     @Autowired
-    @Lazy
     protected BackendConnectorProviderExtService backendConnectorProviderExtService;
 
     public AbstractBackendConnector(final String name) {

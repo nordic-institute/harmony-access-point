@@ -19,7 +19,7 @@ public class BackendConnectorProviderExtServiceDelegate implements BackendConnec
 
     private final BackendConnectorStateService backendConnectorStateService;
 
-    public BackendConnectorProviderExtServiceDelegate(@Lazy BackendConnectorService backendConnectorService, BackendConnectorStateService backendConnectorStateService) {
+    public BackendConnectorProviderExtServiceDelegate(@Lazy BackendConnectorService backendConnectorService, @Lazy BackendConnectorStateService backendConnectorStateService) {
         this.backendConnectorService = backendConnectorService;
         this.backendConnectorStateService = backendConnectorStateService;
     }
