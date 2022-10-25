@@ -156,11 +156,19 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
+        if (StringUtils.equals(propertyValue, getProperty(domain, propertyName))) {
+            LOG.info("The property [{}] has already the value [{}] on domain [{}]; exiting.", propertyName, propertyValue, domain);
+            return;
+        }
         propertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
+        if (StringUtils.equals(propertyValue, getProperty(null, propertyName))) {
+            LOG.info("The property [{}] has already the value [{}] on domain [{}]; exiting.", propertyName, propertyValue, null);
+            return;
+        }
         propertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
     }
 

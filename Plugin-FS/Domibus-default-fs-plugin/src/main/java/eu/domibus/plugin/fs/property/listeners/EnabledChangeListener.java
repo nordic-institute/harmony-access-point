@@ -1,8 +1,6 @@
 package eu.domibus.plugin.fs.property.listeners;
 
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.ext.services.BackendConnectorProviderExtService;
-import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSPluginImpl;
@@ -11,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Component;
 
-import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
 
 /**
@@ -40,9 +37,9 @@ public class EnabledChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
+        LOG.debug("Executing enabled listener on domain [{}] for property [{}] with value [{}]", domainCode, propertyName, propertyValue);
         boolean enable = BooleanUtils.toBoolean(propertyValue);
-
-        backendFSPlugin.setEnabled(domainCode, enable);
+        backendFSPlugin.doSetEnabled(domainCode, enable);
     }
 
 }

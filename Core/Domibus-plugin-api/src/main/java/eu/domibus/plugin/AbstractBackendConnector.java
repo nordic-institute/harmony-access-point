@@ -294,14 +294,17 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             LOG.debug("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
             return;
         }
+        getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
+    }
 
+    public void doSetEnabled(final String domainCode, final boolean enabled) {
+        String pluginName = getName();
         if (!enabled && !backendConnectorProviderExtService.canDisableBackendConnector(pluginName, domainCode)) {
             throw new DomibusServiceExtException(DomibusErrorCode.DOM_001,
                     String.format("Cannot disable the plugin [%s] on domain [%s] because there would be no enabled plugin on that domain.", pluginName, domainCode));
         }
 
         LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
-        getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
         if (enabled) {
             backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
         } else {

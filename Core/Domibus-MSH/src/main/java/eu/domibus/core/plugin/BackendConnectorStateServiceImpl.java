@@ -48,12 +48,12 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         Domain domain = domainService.getDomain(domainCode);
         messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
 
-        String[] jobNamesToResume = getJobNames(backendName);
-        if (jobNamesToResume == null) {
+        String[] jobNames = getJobNames(backendName);
+        if (jobNames == null) {
             return;
         }
 
-        domibusScheduler.resumeJobs(domain, jobNamesToResume);
+        domibusScheduler.resumeJobs(domain, jobNames);
     }
 
     @Override
@@ -70,12 +70,12 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         Domain domain = domainService.getDomain(domainCode);
         messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
 
-        String[] jobNamesToResume = getJobNames(backendName);
-        if (jobNamesToResume == null) {
+        String[] jobNames = getJobNames(backendName);
+        if (jobNames == null) {
             LOG.info("Could not find any job names for the plugin called [{}]; exiting.", backendName);
             return;
         }
-        domibusScheduler.pauseJobs(domain, jobNamesToResume);
+        domibusScheduler.pauseJobs(domain, jobNames);
     }
 
     private EnableAware getEnableAware(String backendName) {

@@ -1,6 +1,7 @@
 package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusSchedulerExtService;
 import eu.domibus.plugin.fs.property.listeners.EnabledChangeListener;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 
 /**
@@ -46,8 +48,17 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
     @Autowired
     private FSPluginProperties fsPluginProperties;
 
+    @Autowired
+    BackendConnectorProviderExtService backendConnectorProviderExtService;
+
     @Configuration
     static class ContextConfiguration {
+
+        @Primary
+        @Bean
+        public BackendConnectorProviderExtService backendConnectorProviderExtService() {
+            return Mockito.mock(BackendConnectorProviderExtService.class);
+        }
 
         @Primary
         @Bean
@@ -62,7 +73,6 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
         }
 
     }
-
 
     @Test
     public void testTriggerChangeListener() {
@@ -97,13 +107,18 @@ public class FSPluginPropertiesChangeListenerIT extends AbstractIT {
 
     @Test
     public void testEnabledChangeListener() {
+        String domainCode = "default";
+
         boolean handlesProperty = enabledChangeListener.handlesProperty(DOMAIN_ENABLED);
         Assert.assertTrue(handlesProperty);
 
+        if (!fsPluginProperties.getDomainEnabled(domainCode)) {
+            Mockito.verify(backendConnectorProviderExtService, Mockito.times(1)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
+        }
         fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
-        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).pauseJobs("default", EnabledChangeListener.FSPLUGIN_JOB_NAMES);
+        Mockito.verify(backendConnectorProviderExtService, Mockito.times(1)).backendConnectorDisabled(PLUGIN_NAME, domainCode);
 
         fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "true");
-        Mockito.verify(domibusSchedulerExt, Mockito.times(1)).resumeJobs("default", EnabledChangeListener.FSPLUGIN_JOB_NAMES);
+        Mockito.verify(backendConnectorProviderExtService, Mockito.times(1)).backendConnectorEnabled(PLUGIN_NAME, domainCode);
     }
 }
