@@ -38,7 +38,7 @@ public class FSPluginConfiguration {
 
     protected List<NotificationType> defaultMessageNotifications = Arrays.asList(
                             NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_FAILURE, NotificationType.MESSAGE_RECEIVED_FAILURE,
-                            NotificationType.MESSAGE_SEND_SUCCESS, NotificationType.MESSAGE_STATUS_CHANGE);
+                            NotificationType.MESSAGE_SEND_SUCCESS, NotificationType.MESSAGE_STATUS_CHANGE, NotificationType.PAYLOAD_PROCESSED);
 
     @Bean("backendFSPlugin")
     public FSPluginImpl createFSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
