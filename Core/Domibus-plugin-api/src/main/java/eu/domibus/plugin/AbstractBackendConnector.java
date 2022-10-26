@@ -2,10 +2,10 @@ package eu.domibus.plugin;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
-import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.ext.services.MessagePullerExtService;
-import eu.domibus.ext.services.MessageRetrieverExtService;
-import eu.domibus.ext.services.MessageSubmitterExtService;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
+import eu.domibus.ext.exceptions.DomibusServiceExtException;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -14,13 +14,13 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,6 +46,9 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Autowired
     protected MessageExtService messageExtService;
+
+    @Autowired
+    protected DomainContextExtService domainContextExtService;
 
     public AbstractBackendConnector(final String name) {
         this.name = name;
@@ -279,15 +282,40 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public boolean isEnabled(final String domainCode) {
-        return true;
+        String value = getPropertyManager().getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
+        return BooleanUtils.toBoolean(value);
     }
 
     @Override
     public void setEnabled(final String domainCode, final boolean enabled) {
+        String pluginName = getName();
+        if (isEnabled(domainCode) == enabled) {
+            LOG.debug("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
+            return;
+        }
+        // just set the enabled property and the change listener will call doSetEnabled method
+        getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
     }
 
     @Override
     public List<CronJobInfoDTO> getJobsInfo() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
+        return null;
+    }
+
+    @Override
+    public String getDomainEnabledPropertyName() {
+        return getName() + "." + "domain.enabled";
+    }
+
+    public void checkEnabled() {
+        final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
+        if (!isEnabled(currentDomain.getCode())) {
+            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001, String.format("Plugin is disabled for domain [%s]", currentDomain));
+        }
     }
 }

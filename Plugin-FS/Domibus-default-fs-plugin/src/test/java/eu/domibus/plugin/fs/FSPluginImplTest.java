@@ -101,6 +101,9 @@ public class FSPluginImplTest {
     @Injectable
     BackendConnectorProviderExtService backendConnectorProviderExtService;
 
+    @Injectable
+    DomibusPropertyManagerExt domibusPropertyManagerExt;
+
     @Tested
     FSPluginImpl backendFS;
 
@@ -237,7 +240,7 @@ public class FSPluginImplTest {
             backendFS.getFileNameExtension(TEXT_XML);
             result = ".xml";
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
         }};
     }
@@ -357,7 +360,7 @@ public class FSPluginImplTest {
             backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new MessageNotFoundException("message not found");
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
         }};
 
@@ -381,7 +384,7 @@ public class FSPluginImplTest {
             fsDomainService.getFSPluginDomain();
             result = FSSendMessagesService.DEFAULT_DOMAIN;
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
 
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
@@ -414,7 +417,7 @@ public class FSPluginImplTest {
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
             result = incomingFolder;
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
         }};
 
@@ -459,7 +462,7 @@ public class FSPluginImplTest {
             fsFileNameHelper.deriveFileName(file, MessageStatus.SEND_ENQUEUED);
             result = "content_" + messageId + ".xml.SEND_ENQUEUED";
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
         }};
 
@@ -496,7 +499,7 @@ public class FSPluginImplTest {
             fsPluginProperties.isSentActionDelete(null);
             result = true;
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
         }};
 
@@ -519,6 +522,9 @@ public class FSPluginImplTest {
         properties.put("action", action);
 
         new Expectations(1, backendFS) {{
+            backendFS.isEnabled(anyString);
+            result = true;
+
             fsDomainService.getFSPluginDomain();
             result = domain;
 
@@ -584,8 +590,6 @@ public class FSPluginImplTest {
             sentDirectory.resolveFile(file);
             result = archivedFile;
 
-            fsPluginProperties.getDomainEnabled(anyString);
-            result = true;
         }};
 
         backendFS.handleSentMessage(null, messageId);
@@ -616,7 +620,7 @@ public class FSPluginImplTest {
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
 
         }};
@@ -650,7 +654,7 @@ public class FSPluginImplTest {
             fsFilesManager.findAllDescendantFiles(outgoingFolder);
             result = new FileObject[]{contentFile};
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
 
         }};
@@ -692,7 +696,7 @@ public class FSPluginImplTest {
             backendFS.getErrorsForMessage(messageId, MSHRole.SENDING);
             result = errorList;
 
-            fsPluginProperties.getDomainEnabled(anyString);
+            backendFS.isEnabled(anyString);
             result = true;
         }};
 
@@ -709,7 +713,10 @@ public class FSPluginImplTest {
     @Test
     public void payloadProcessedEvent(@Injectable PayloadProcessedEvent event,
                                       @Injectable FileObject fileObject) throws FileSystemException {
-        new Expectations() {{
+        new Expectations(backendFS) {{
+            backendFS.isEnabled(anyString);
+            result = true;
+
             fsFilesManager.getEnsureRootLocation(event.getFileName());
             result = fileObject;
         }};

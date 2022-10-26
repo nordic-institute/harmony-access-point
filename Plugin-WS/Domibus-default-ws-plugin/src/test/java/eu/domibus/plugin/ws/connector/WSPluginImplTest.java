@@ -1,16 +1,14 @@
 package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
-import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.ext.services.MessagePullerExtService;
-import eu.domibus.ext.services.MessageRetrieverExtService;
-import eu.domibus.ext.services.MessageSubmitterExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -69,10 +67,21 @@ public class WSPluginImplTest {
     @Injectable
     MessagePullerExtService messagePullerExtService;
 
+    @Injectable
+    WSPluginPropertyManager wsPluginPropertyManager;
+
+    @Injectable
+    BackendConnectorProviderExtService backendConnectorProviderExtService;
+
+    @Injectable
+    DomainContextExtService domainContextExtService;
+
     @Test
     public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,
                                @Injectable WSMessageLogEntity wsMessageLogEntity) {
-        new Expectations() {{
+        new Expectations(wsPlugin) {{
+            wsPlugin.checkEnabled();
+
             deliverMessageEvent.getMessageId();
             result = MESSAGE_ID;
         }};
@@ -90,7 +99,9 @@ public class WSPluginImplTest {
 
     @Test
     public void sendSuccess(@Injectable MessageSendSuccessEvent event) {
-        new Expectations() {{
+        new Expectations(wsPlugin) {{
+            wsPlugin.checkEnabled();
+
             event.getMessageId();
             result = MESSAGE_ID;
         }};
@@ -104,6 +115,9 @@ public class WSPluginImplTest {
 
     @Test
     public void messageReceiveFailed(@Injectable MessageReceiveFailureEvent event) {
+        new Expectations(wsPlugin) {{
+            wsPlugin.checkEnabled();
+        }};
 
         wsPlugin.messageReceiveFailed(event);
 
@@ -115,6 +129,9 @@ public class WSPluginImplTest {
 
     @Test
     public void messageSendFailed(@Injectable MessageSendFailedEvent event) {
+        new Expectations(wsPlugin) {{
+            wsPlugin.checkEnabled();
+        }};
 
         wsPlugin.messageSendFailed(event);
 
@@ -126,6 +143,9 @@ public class WSPluginImplTest {
 
     @Test
     public void messageStatusChanged(@Injectable MessageStatusChangeEvent event) {
+        new Expectations(wsPlugin) {{
+            wsPlugin.checkEnabled();
+        }};
 
         wsPlugin.messageStatusChanged(event);
 
@@ -138,6 +158,10 @@ public class WSPluginImplTest {
     @Test
     public void messageDeletedBatchEvent(@Injectable MessageDeletedBatchEvent event) {
         List<String> messageIds = new ArrayList<>();
+
+        new Expectations(wsPlugin) {{
+            wsPlugin.checkEnabled();
+        }};
 
         wsPlugin.messageDeletedBatchEvent(event);
 
@@ -152,7 +176,9 @@ public class WSPluginImplTest {
 
     @Test
     public void messageDeletedEvent(@Injectable MessageDeletedEvent event) {
-        new Expectations() {{
+        new Expectations(wsPlugin) {{
+            wsPlugin.checkEnabled();
+
             event.getMessageId();
             result = MESSAGE_ID;
         }};

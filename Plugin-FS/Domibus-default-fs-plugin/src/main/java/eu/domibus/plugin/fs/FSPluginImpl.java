@@ -3,10 +3,8 @@ package eu.domibus.plugin.fs;
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
-import eu.domibus.ext.exceptions.DomibusServiceExtException;
-import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -18,13 +16,13 @@ import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
+import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
@@ -46,7 +44,6 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.common.MessageStatus.*;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
-import static eu.domibus.plugin.fs.property.listeners.EnabledChangeListener.FSPLUGIN_JOB_NAMES;
 
 /**
  * File system backend integration plugin.
@@ -56,6 +53,8 @@ import static eu.domibus.plugin.fs.property.listeners.EnabledChangeListener.FSPL
 public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginImpl.class);
+
+    public static final String[] FSPLUGIN_JOB_NAMES = TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.values().toArray(new String[]{}); //NOSONAR
 
     public static final String PLUGIN_NAME = "backendFSPlugin";
 
@@ -108,9 +107,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Autowired
     protected FSFileNameHelper fsFileNameHelper;
 
-    @Autowired
-    protected BackendConnectorProviderExtService backendConnectorProviderExtService;
-
     public FSPluginImpl() {
         super(PLUGIN_NAME);
     }
@@ -142,12 +138,9 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     @Override
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID})
     public void deliverMessage(DeliverMessageEvent event) {
-        String fsPluginDomain = fsDomainService.getFSPluginDomain();
-        if (!fsPluginProperties.getDomainEnabled(fsPluginDomain)) {
-            LOG.error("Domain [{}] is disabled for FSPlugin", fsPluginDomain);
-            return;
-        }
+        checkEnabled();
 
+        String fsPluginDomain = fsDomainService.getFSPluginDomain();
         LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
         String messageId = event.getMessageId();
         LOG.debug("Delivering File System Message [{}] to [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
@@ -328,6 +321,8 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     @Override
     public void payloadProcessedEvent(PayloadProcessedEvent event) {
+        checkEnabled();
+
         LOG.debug("Handling PayloadProcessedEvent [{}]", event);
         try {
             FileObject fileObject = fsFilesManager.getEnsureRootLocation(event.getFileName());
@@ -357,11 +352,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void handleSendFailedMessage(String domain, String messageId) {
-        if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-            return;
-        }
-
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
              FileObject targetFileMessage = findMessageFile(outgoingFolder, messageId)) {
@@ -387,7 +377,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         return content;
     }
 
-
     protected StringBuilder getErrorFileContent(ErrorResult errorResult) {
 
         return fsSendMessagesService.buildErrorMessage(errorResult.getErrorCode() == null ? null : errorResult.getErrorCode().getErrorCodeName(),
@@ -399,10 +388,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void handleSentMessage(String domain, String messageId) {
-        if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-            return;
-        }
         LOG.debug("Preparing to handle sent message using domain [{}] and messageId [{}]", domain, messageId);
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
@@ -457,8 +442,9 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     @Override
     public void messageStatusChanged(MessageStatusChangeEvent event) {
-        LOG.debug("Handling messageStatusChanged event");
+        checkEnabled();
 
+        LOG.debug("Handling messageStatusChanged event");
         String domain = fsDomainService.getFSPluginDomain();
 
         String messageId = event.getMessageId();
@@ -486,11 +472,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void renameMessageFile(String domain, String messageId, MessageStatus status) {
-        if (!fsPluginProperties.getDomainEnabled(domain)) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-            return;
-        }
-
         LOG.debug("Preparing to rename file using domain [{}], messageId [{}] and messageStatus [{}]", domain, messageId, status);
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
@@ -533,35 +514,20 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     @Override
-    public boolean isEnabled(final String domainCode) {
-        return fsPluginProperties.getDomainEnabled(domainCode);
-    }
-
-    @Override
-    public void setEnabled(final String domainCode, final boolean enabled) {
-        if (isEnabled(domainCode) == enabled) {
-            LOG.debug("Trying to set enabled as [{}] for domain [{}] but it is already so exiting;", enabled, domainCode);
-            return;
-        }
-
-        if (!enabled && !backendConnectorProviderExtService.canDisableBackendConnector(PLUGIN_NAME, domainCode)) {
-            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001,
-                    String.format("Cannot disable the fs-plugin on domain [%s] because there would be no enabled plugin on that domain.", domainCode));
-        }
-
-        LOG.info("Setting fs-plugin to [{}] for domain [{}].", enabled ? "enabled" : "disabled", domainCode);
-        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, BooleanUtils.toStringTrueFalse(enabled));
-        if (enabled) {
-            backendConnectorProviderExtService.backendConnectorEnabled(PLUGIN_NAME, domainCode);
-        } else {
-            backendConnectorProviderExtService.backendConnectorDisabled(PLUGIN_NAME, domainCode);
-        }
-    }
-
-    @Override
     public List<CronJobInfoDTO> getJobsInfo() {
         return Arrays.stream(FSPLUGIN_JOB_NAMES)
                 .map(CronJobInfoDTO::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
+        return fsPluginProperties;
+    }
+
+    @Override
+    public String getDomainEnabledPropertyName() {
+        return DOMAIN_ENABLED;
+    }
+
 }

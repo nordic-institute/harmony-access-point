@@ -93,4 +93,5 @@ public final class JMSMessageConstants {
     public static final String MESSAGE_NOTIFICATIONS = JMS_PLUGIN_PROPERTY_PREFIX + "." + "messages.notifications";
     public static final String PROCESSING_TYPE = "processingType";
 
+    public static final String JMSPLUGIN_DOMAIN_ENABLED = "jmsplugin.domain.enabled";
 }

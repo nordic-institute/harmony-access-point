@@ -7,6 +7,7 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.property.PropertyProviderHelper;
 import eu.domibus.core.property.PropertyRetrieveManager;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.test.AbstractIT;
 import org.junit.Assert;
@@ -90,6 +91,7 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetUser_NotSecured() {
         Assert.assertEquals("", fsPluginProperties.getUser(DOMAIN2));
     }
@@ -101,12 +103,14 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetPayloadId_DomainMissing() {
         Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(DOMAIN2));
     }
 
 
     @Test
+    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetPassword_NotSecured() {
         Assert.assertEquals("", fsPluginProperties.getPassword(DOMAIN2));
     }
