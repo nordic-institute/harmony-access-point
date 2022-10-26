@@ -39,7 +39,7 @@ public abstract class DefaultEnabledChangeListener implements PluginPropertyChan
         doSetEnabled(domainCode, enable);
     }
 
-    public void doSetEnabled(final String domainCode, final boolean enabled) {
+    protected void doSetEnabled(final String domainCode, final boolean enabled) {
         String pluginName = getName();
         LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
         if (enabled) {

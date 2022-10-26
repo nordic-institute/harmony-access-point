@@ -302,16 +302,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return new ArrayList<>();
     }
 
-//    public void doSetEnabled(final String domainCode, final boolean enabled) {
-//        String pluginName = getName();
-//        LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
-//        if (enabled) {
-//            backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
-//        } else {
-//            backendConnectorProviderExtService.backendConnectorDisabled(pluginName, domainCode);
-//        }
-//    }
-
     protected DomibusPropertyManagerExt getPropertyManager() {
         return null;
     }

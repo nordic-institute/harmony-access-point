@@ -590,8 +590,6 @@ public class FSPluginImplTest {
             sentDirectory.resolveFile(file);
             result = archivedFile;
 
-            backendFS.isEnabled(anyString);
-            result = true;
         }};
 
         backendFS.handleSentMessage(null, messageId);
