@@ -196,7 +196,9 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
         if (!domainDao.findAll().stream().anyMatch(el -> StringUtils.equals(el.getCode(), domainCode))) {
             throw new DomibusDomainException(String.format("Cannot add domain [%s] since there is no corresponding folder or the folder is invalid.", domainCode));
         }
+    }
 
+    protected void validateDomainSchema(String domainCode) {
         Domain domain = new Domain(domainCode, domainCode);
         if (!dbSchemaUtil.isDatabaseSchemaForDomainValid(domain)) {
             throw new DomibusDomainException(String.format("Cannot add domain [%s] because it does not have a valid database schema.", domainCode));
@@ -205,6 +207,8 @@ public class DynamicDomainManagementServiceImpl implements DynamicDomainManageme
 
     protected void internalAddDomain(Domain domain) {
         domibusPropertyProvider.loadProperties(domain);
+
+        validateDomainSchema(domain.getCode());
 
         domainService.addDomain(domain);
 
