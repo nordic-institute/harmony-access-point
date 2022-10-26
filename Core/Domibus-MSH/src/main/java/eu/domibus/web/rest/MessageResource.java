@@ -17,6 +17,7 @@ import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.commons.lang3.ArrayUtils;
+import org.quartz.SchedulerException;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -81,18 +82,18 @@ public class MessageResource {
     }
 
     @PutMapping("/failed/restore/selected")
-    public List<String> restoreSelectedFailedMessages(@RequestBody List<MessageLogRO> messageLogEntries) {
+    public void restoreSelectedFailedMessages(@RequestBody List<MessageLogRO> messageLogEntries) throws SchedulerException {
         LOG.info("Restoring Selected Failed Messages...");
         List<String> messageIds = messageLogEntries.stream()
                 .map(a -> a.getMessageId())
                 .collect(Collectors.toList());
 
-        return restoreService.restoreAllOrSelectedFailedMessages(messageIds, RESEND_SELECTED);
+        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
     }
 
 
     @PutMapping(value = "/failed/restore/all")
-    public List<String> restoreAllFailedMessages(@RequestBody MessageLogFilterRequestRO request) {
+    public void restoreAllFailedMessages(@RequestBody MessageLogFilterRequestRO request) throws SchedulerException {
         LOG.debug("Getting all messages to restore");
 
         //creating the filters
@@ -109,7 +110,7 @@ public class MessageResource {
                 .map(messageLogRO -> messageLogRO.getMessageId())
                 .collect(Collectors.toList());
 
-        return restoreService.restoreAllOrSelectedFailedMessages(messageIds, RESEND_All);
+        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
     }
 
     @RequestMapping(value = "/download")

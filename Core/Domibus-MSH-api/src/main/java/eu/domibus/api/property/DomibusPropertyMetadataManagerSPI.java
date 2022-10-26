@@ -416,5 +416,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_MAIL_SUBJECT = DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_PREFIX + ".mail.subject";
     String DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED = "domibus.earchive.notification.details.enabled";
     String DOMIBUS_QUARTZ_TRIGGER_BLOCKED_DURATION = "domibus.quartz.trigger.blocked.duration";
+    String DOMIBUS_MESSAGE_RESEND_CRON = "domibus.message.resend.cron";
 
 }

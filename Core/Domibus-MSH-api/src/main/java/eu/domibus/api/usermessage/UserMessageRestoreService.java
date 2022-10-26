@@ -1,5 +1,7 @@
 package eu.domibus.api.usermessage;
 
+import org.quartz.SchedulerException;
+
 import java.util.List;
 
 /**
@@ -28,10 +30,17 @@ public interface UserMessageRestoreService {
     List<String> restoreFailedMessagesDuringPeriod(Long failedStartDate, Long failedEndDate, String finalRecipient, String originalUser);
 
     /**
-     * @param messageIds          list of message Ids to restore
-     * @param resendAllOrSelected resend all Or selected messages
-     * @return the failed messages with the given ids that were successfully restored
+     * Restore all failed messages with the given ids
+     * @param messageIds list of message Ids to restore
      */
-    List<String> restoreAllOrSelectedFailedMessages(List<String> messageIds, String resendAllOrSelected);
+   void restoreAllOrSelectedFailedMessages(List<String> messageIds) throws SchedulerException;
+
+
+    /**
+     * @return the list of messages to restore from the database
+     */
+    List<String> findAllMessagesToRestore();
+
+   // String  findByMessageIdToRestore(final String messageId);
 
 }

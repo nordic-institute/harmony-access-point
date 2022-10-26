@@ -13,11 +13,14 @@ import eu.domibus.api.usermessage.UserMessageRestoreService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.resend.MessageResendEntity;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +28,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT;
 
 /**
@@ -42,8 +43,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultRestoreService.class);
 
-    private static final int MAX_RESEND_MESSAGE_COUNT = 100;
-    private static final String RESEND_SELECTED = "selected";
+    protected static int MAX_RESEND_MESSAGE_COUNT = 10;
 
     private MessageExchangeService messageExchangeService;
 
@@ -67,12 +67,17 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private DomibusPropertyProvider domibusPropertyProvider;
 
+    private UserMessageRestoreDao userMessageRestoreDao;
+
+    private DomibusQuartzStarter domibusQuartzStarter;
+
 
     public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService,
                                             UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService,
                                             PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService,
-                                            UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider
-                                           ) {
+                                            UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider,
+                                            UserMessageRestoreDao userMessageRestoreDao, DomibusQuartzStarter domibusQuartzStarter
+    ) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
@@ -83,6 +88,9 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         this.userMessageService = userMessageService;
         this.userMessageDao = userMessageDao;
         this.auditService = auditService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.userMessageRestoreDao = userMessageRestoreDao;
+        this.domibusQuartzStarter = domibusQuartzStarter;
     }
 
 
@@ -186,31 +194,29 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     @Transactional
     @Override
-    public List<String> restoreAllOrSelectedFailedMessages(final List<String> messageIds, String resendAllOrSelected) {
+    public void restoreAllOrSelectedFailedMessages(final List<String> messageIds) throws SchedulerException {
         if (CollectionUtils.isEmpty(messageIds)) {
-            return null;
+            return;
         }
-        final List<String> restoredMessages = new ArrayList<>();
-
-        if (resendAllOrSelected.equals(RESEND_SELECTED)) {
-            validationForRestoreSelected(messageIds);
+        if (messageIds.size() < MAX_RESEND_MESSAGE_COUNT) {
+            List<String> restoredMessages = new ArrayList<>();
             restoreBatchMessages(restoredMessages, messageIds);
         } else {
-            validationForRestoreAll(messageIds);
-
-            final List<String> totalMessageIds = new ArrayList<>();
-            totalMessageIds.addAll(messageIds);
-            int resendBatchLimit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
-
-            for (int i = 0; i < messageIds.size(); i += resendBatchLimit) {
-                List<String> batchMessageIds = totalMessageIds.stream().limit(resendBatchLimit).collect(Collectors.toList());
-                restoreBatchMessages(restoredMessages, batchMessageIds);
-                totalMessageIds.removeAll(batchMessageIds);
+            for (String messageId : messageIds) {
+                MessageResendEntity messageResendEntity = new MessageResendEntity();
+                messageResendEntity.setMessageId(messageId);
+                userMessageRestoreDao.create(messageResendEntity);
             }
-        }
-        LOG.debug("Restored messages [{}] and final recipient [{}]", restoredMessages);
 
-        return restoredMessages;
+            domibusQuartzStarter.triggerMessageResendJob();
+            LOG.debug("Restored all failed messages");
+        }
+
+    }
+
+    @Override
+    public List<String> findAllMessagesToRestore() {
+        return userMessageRestoreDao.findAllMessagesToRestore();
     }
 
     protected void validationForRestoreSelected(List<String> messageIds) {
@@ -225,7 +231,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         for (String messageId : batchMessageIds) {
             LOG.debug("Message Id's selected to resend as batch [{}]", messageId);
             try {
-                 restoreFailedMessage(messageId);
+                restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
                 LOG.error("Failed to restore message [" + messageId + "]", e);
