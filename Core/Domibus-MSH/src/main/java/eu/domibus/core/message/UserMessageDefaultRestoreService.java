@@ -198,7 +198,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         }
         if (messageIds.size() < MAX_RESEND_MESSAGE_COUNT) {
             List<String> restoredMessages = new ArrayList<>();
-            restoreBatchMessages(restoredMessages, messageIds);
+            restoreMessages(restoredMessages, messageIds);
         } else {
             for (String messageId : messageIds) {
                 MessageResendEntity messageResendEntity = new MessageResendEntity();
@@ -218,9 +218,9 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     }
 
     @Transactional
-    public void restoreBatchMessages(List<String> restoredMessages, List<String> batchMessageIds) {
+    public void restoreMessages(List<String> restoredMessages, List<String> batchMessageIds) {
         for (String messageId : batchMessageIds) {
-            LOG.debug("Message Id's selected to resend as batch [{}]", messageId);
+            LOG.debug("Message Id's selected to restore [{}]", messageId);
             try {
                 restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);

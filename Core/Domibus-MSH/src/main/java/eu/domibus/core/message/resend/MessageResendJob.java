@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Job used to restore all failed messages
  * @author Soumya Chandran
  * @since 5.1
  */

@@ -299,7 +299,7 @@ public class UserMessageDefaultRestoreServiceTest {
         restoreService.restoreAllOrSelectedFailedMessages(messageIds);
 
         new FullVerifications() {{
-            restoreService.restoreBatchMessages((List<String>) any, messageIds);
+            restoreService.restoreMessages((List<String>) any, messageIds);
         }};
     }
 
