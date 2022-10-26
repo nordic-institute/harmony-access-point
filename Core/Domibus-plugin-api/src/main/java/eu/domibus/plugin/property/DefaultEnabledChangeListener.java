@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.1
  * <p>
- * Handles enabling/disabling of fs-plugin for the current domain.
+ * Base class for enabling/disabling property change listener
  */
 @Component
 public abstract class DefaultEnabledChangeListener implements PluginPropertyChangeListener {

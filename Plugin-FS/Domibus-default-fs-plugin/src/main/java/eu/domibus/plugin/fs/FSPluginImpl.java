@@ -388,10 +388,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected void handleSentMessage(String domain, String messageId) {
-        if (!isEnabled(domain)) {
-            LOG.debug("Domain [{}] is disabled for FSPlugin", domain);
-            return;
-        }
         LOG.debug("Preparing to handle sent message using domain [{}] and messageId [{}]", domain, messageId);
 
         try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain);
