@@ -21,12 +21,6 @@ public class UserMessageRestoreDao extends BasicDao<MessageResendEntity> {
         return em.createNamedQuery("MessageResendEntity.findAllMessageIds", String.class).getResultList();
     }
 
-  /*  public String  findByMessageIdToRestore(final String messageId){
-        Query query = em.createNamedQuery("MessageResendEntity.findByMessageId");
-        query.setParameter(MESSAGE_ID, messageId);
-        return (String) query.getSingleResult();
-    }*/
-
     @Transactional
     public void delete(final String messageId) {
         Query query = em.createNamedQuery("MessageResendEntity.delete");

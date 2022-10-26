@@ -9,13 +9,16 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.resend.MessageResendEntity;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.quartz.SchedulerException;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -23,8 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -69,6 +70,13 @@ public class UserMessageDefaultRestoreServiceTest {
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    private UserMessageRestoreDao userMessageRestoreDao;
+
+    @Injectable
+    private DomibusQuartzStarter domibusQuartzStarter;
+
 
     @Test
     public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
@@ -279,44 +287,39 @@ public class UserMessageDefaultRestoreServiceTest {
     }
 
     @Test
-    public void restoreSelectedFailedMessages() {
+    public void restoreSelectedFailedMessages(@Injectable UserMessageLog userMessageLog, @Injectable UserMessage userMessage) throws SchedulerException {
         final String messageId = UUID.randomUUID().toString();
         final List<String> messageIds = new ArrayList<>();
         messageIds.add(messageId);
-        final List<String> restoredMessages = new ArrayList<>();
-        List<String> result;
-        new Expectations() {{
-            restoreService.restoreBatchMessages(restoredMessages, messageIds);
+        new Expectations(restoreService) {{
+            restoreService.MAX_RESEND_MESSAGE_COUNT = 5;
+            restoreService.restoreFailedMessage(messageId);
         }};
 
-        result = restoreService.restoreAllOrSelectedFailedMessages(messageIds, "selected");
+        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
 
-        new FullVerifications(restoreService) {{
-            restoreService.validationForRestoreSelected(messageIds);
-            //domainTaskExecutor.submit((Runnable) any);
-            Assert.assertEquals(messageIds.size(), result.size());
+        new FullVerifications() {{
+            restoreService.restoreBatchMessages((List<String>) any, messageIds);
         }};
     }
 
     @Test
-    public void restoreAllFailedMessages(@Injectable Runnable task) {
+    public void restoreAllFailedMessages() throws SchedulerException {
         final String messageId = UUID.randomUUID().toString();
+        final String messageId1 = UUID.randomUUID().toString();
         final List<String> messageIds = new ArrayList<>();
         messageIds.add(messageId);
-        List<String> result;
+        messageIds.add(messageId1);
+
         new Expectations(restoreService) {{
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
-            result = 10;
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_BATCH_COUNT_LIMIT);
-            result = 5;
+            restoreService.MAX_RESEND_MESSAGE_COUNT = 1;
         }};
 
-        result = restoreService.restoreAllOrSelectedFailedMessages(messageIds, "all");
+        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
 
-        new FullVerifications(restoreService) {{
-            restoreService.validationForRestoreAll((messageIds));
-           // domainTaskExecutor.submit((Runnable) any);
-            Assert.assertEquals(result.size(), messageIds.size());
+        new FullVerifications() {{
+            userMessageRestoreDao.create((MessageResendEntity) any);
+            domibusQuartzStarter.triggerMessageResendJob();
         }};
     }
 

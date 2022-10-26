@@ -29,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT;
-
 /**
  * This service class is responsible for the restore of failed messages.
  *
@@ -219,13 +217,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         return userMessageRestoreDao.findAllMessagesToRestore();
     }
 
-    protected void validationForRestoreSelected(List<String> messageIds) {
-        if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
-            LOG.warn("Couldn't resend the selected messages. The selected message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT);
-            throw new MessagingException("The resend message counts exceeds maximum number of messages to resend at once: " + MAX_RESEND_MESSAGE_COUNT, null);
-        }
-    }
-
     @Transactional
     public void restoreBatchMessages(List<String> restoredMessages, List<String> batchMessageIds) {
         for (String messageId : batchMessageIds) {
@@ -239,13 +230,4 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             }
         }
     }
-
-    protected void validationForRestoreAll(List<String> messageIds) {
-        int maxResendCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_RESEND_ALL_MAX_COUNT);
-
-        if (maxResendCount < messageIds.size()) {
-            LOG.warn("Couldn't resend the messages. The resend message counts exceeds maximum resend count limit: " + maxResendCount);
-            throw new MessagingException("The resend message counts exceeds maximum resend count limit: " + maxResendCount, null);
-        }
-    }
-}
+  }

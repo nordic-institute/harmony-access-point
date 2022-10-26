@@ -41,6 +41,5 @@ public interface UserMessageRestoreService {
      */
     List<String> findAllMessagesToRestore();
 
-   // String  findByMessageIdToRestore(final String messageId);
 
 }

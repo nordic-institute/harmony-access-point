@@ -171,4 +171,25 @@
             <column name="PROFILE" type="VARCHAR(255)"/>
         </addColumn>
     </changeSet>
+
+    <changeSet author="Soumya Chandran " id="EDELIVERY-10091">
+        <createTable tableName="TB_MESSAGES_TO_RESEND">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGES_TO_RESEND"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_MESSAGE_ID" tableName="TB_MESSAGES_TO_RESEND"/>
+    </changeSet>
+
 </databaseChangeLog>
