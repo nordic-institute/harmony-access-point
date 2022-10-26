@@ -183,11 +183,13 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
                 .collect(Collectors.toList());
     }
 
-    protected String getDomainEnabledPropertyName() {
+    @Override
+    public String getDomainEnabledPropertyName() {
         return DOMAIN_ENABLED;
     }
 
-    protected DomibusPropertyManagerExt getPropertyManager() {
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
         return wsPluginPropertyManager;
     }
 

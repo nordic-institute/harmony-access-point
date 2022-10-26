@@ -1,6 +1,7 @@
 package eu.domibus.plugin;
 
 import eu.domibus.ext.domain.CronJobInfoDTO;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,5 +42,13 @@ public interface EnableAware {
      */
     default List<CronJobInfoDTO> getJobsInfo() {
         return new ArrayList<>();
+    }
+
+    default String getDomainEnabledPropertyName() {
+        return getName() + "." + "domain.enabled";
+    }
+
+    default DomibusPropertyManagerExt getPropertyManager() {
+        return null;
     }
 }

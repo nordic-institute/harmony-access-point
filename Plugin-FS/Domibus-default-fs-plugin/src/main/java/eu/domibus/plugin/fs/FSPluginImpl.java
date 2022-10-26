@@ -520,11 +520,13 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                 .collect(Collectors.toList());
     }
 
-    protected DomibusPropertyManagerExt getPropertyManager() {
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
         return fsPluginProperties;
     }
 
-    protected String getDomainEnabledPropertyName() {
+    @Override
+    public String getDomainEnabledPropertyName() {
         return DOMAIN_ENABLED;
     }
 

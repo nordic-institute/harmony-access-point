@@ -302,11 +302,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return new ArrayList<>();
     }
 
-    protected DomibusPropertyManagerExt getPropertyManager() {
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
         return null;
     }
 
-    protected String getDomainEnabledPropertyName() {
+    @Override
+    public String getDomainEnabledPropertyName() {
         return getName() + "." + "domain.enabled";
     }
 

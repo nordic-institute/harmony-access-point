@@ -282,11 +282,13 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         }
     }
 
-    protected String getDomainEnabledPropertyName() {
+    @Override
+    public String getDomainEnabledPropertyName() {
         return JMSPLUGIN_DOMAIN_ENABLED;
     }
 
-    protected DomibusPropertyManagerExt getPropertyManager() {
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
         return jmsPluginPropertyManager;
     }
 }
