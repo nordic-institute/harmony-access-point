@@ -1,9 +1,10 @@
 package eu.domibus.plugin.fs.property.listeners;
 
-import eu.domibus.plugin.fs.FSPluginImpl;
+import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.plugin.property.DefaultEnabledChangeListener;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
 
 /**
@@ -15,13 +16,18 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
 @Component
 public class FSPluginEnabledChangeListener extends DefaultEnabledChangeListener {
 
-    public FSPluginEnabledChangeListener(FSPluginImpl plugin) {
-        super(plugin);
+    public FSPluginEnabledChangeListener(BackendConnectorProviderExtService backendConnectorProviderExtService) {
+        super(backendConnectorProviderExtService);
     }
 
     @Override
     protected CharSequence getEnabledPropertyName() {
         return DOMAIN_ENABLED;
+    }
+
+    @Override
+    protected String getName() {
+        return PLUGIN_NAME;
     }
 
 }

@@ -135,7 +135,4 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     public void setEnabled(final String domainCode, final boolean enabled) {
     }
 
-    @Override
-    public void doSetEnabled(final String domainCode, final boolean enabled) {
-    }
 }

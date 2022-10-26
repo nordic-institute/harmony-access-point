@@ -1,9 +1,10 @@
 package eu.domibus.plugin.ws.property.listeners;
 
+import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.plugin.property.DefaultEnabledChangeListener;
-import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.plugin.ws.connector.WSPluginImpl.PLUGIN_NAME;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DOMAIN_ENABLED;
 
 /**
@@ -15,8 +16,8 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DOMAIN_ENABL
 @Component
 public class WSPluginEnabledChangeListener extends DefaultEnabledChangeListener {
 
-    public WSPluginEnabledChangeListener(WSPluginImpl plugin) {
-        super(plugin);
+    public WSPluginEnabledChangeListener(BackendConnectorProviderExtService backendConnectorProviderExtService) {
+        super(backendConnectorProviderExtService);
     }
 
     @Override
@@ -24,4 +25,8 @@ public class WSPluginEnabledChangeListener extends DefaultEnabledChangeListener 
         return DOMAIN_ENABLED;
     }
 
+    @Override
+    protected String getName() {
+        return PLUGIN_NAME;
+    }
 }

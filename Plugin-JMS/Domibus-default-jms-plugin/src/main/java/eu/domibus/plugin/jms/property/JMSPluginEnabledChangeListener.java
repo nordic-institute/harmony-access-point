@@ -1,10 +1,11 @@
 package eu.domibus.plugin.jms.property;
 
-import eu.domibus.plugin.jms.JMSPluginImpl;
+import eu.domibus.ext.services.BackendConnectorProviderExtService;
 import eu.domibus.plugin.property.DefaultEnabledChangeListener;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_DOMAIN_ENABLED;
+import static eu.domibus.plugin.jms.JMSPluginImpl.PLUGIN_NAME;
 
 /**
  * @author Ion Perpegel
@@ -15,8 +16,8 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_DOMAIN_ENABLED
 @Component
 public class JMSPluginEnabledChangeListener extends DefaultEnabledChangeListener {
 
-    public JMSPluginEnabledChangeListener(JMSPluginImpl plugin) {
-        super(plugin);
+    public JMSPluginEnabledChangeListener(BackendConnectorProviderExtService backendConnectorProviderExtService) {
+        super(backendConnectorProviderExtService);
     }
 
     @Override
@@ -24,4 +25,8 @@ public class JMSPluginEnabledChangeListener extends DefaultEnabledChangeListener
         return JMSPLUGIN_DOMAIN_ENABLED;
     }
 
+    @Override
+    protected String getName() {
+        return PLUGIN_NAME;
+    }
 }

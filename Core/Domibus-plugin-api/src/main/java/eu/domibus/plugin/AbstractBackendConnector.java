@@ -48,9 +48,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected MessageExtService messageExtService;
 
     @Autowired
-    protected BackendConnectorProviderExtService backendConnectorProviderExtService;
-
-    @Autowired
     protected DomainContextExtService domainContextExtService;
 
     public AbstractBackendConnector(final String name) {
@@ -296,6 +293,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             LOG.debug("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
             return;
         }
+        // just set the enabled property and the change listener will call doSetEnabled method
         getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
     }
 
@@ -304,15 +302,15 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         return new ArrayList<>();
     }
 
-    public void doSetEnabled(final String domainCode, final boolean enabled) {
-        String pluginName = getName();
-        LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
-        if (enabled) {
-            backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
-        } else {
-            backendConnectorProviderExtService.backendConnectorDisabled(pluginName, domainCode);
-        }
-    }
+//    public void doSetEnabled(final String domainCode, final boolean enabled) {
+//        String pluginName = getName();
+//        LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
+//        if (enabled) {
+//            backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
+//        } else {
+//            backendConnectorProviderExtService.backendConnectorDisabled(pluginName, domainCode);
+//        }
+//    }
 
     protected DomibusPropertyManagerExt getPropertyManager() {
         return null;
