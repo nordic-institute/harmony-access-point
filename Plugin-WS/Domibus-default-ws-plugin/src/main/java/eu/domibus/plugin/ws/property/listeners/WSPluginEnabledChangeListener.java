@@ -21,7 +21,7 @@ public class WSPluginEnabledChangeListener extends DefaultEnabledChangeListener 
     }
 
     @Override
-    protected CharSequence getEnabledPropertyName() {
+    protected String getEnabledPropertyName() {
         return DOMAIN_ENABLED;
     }
 

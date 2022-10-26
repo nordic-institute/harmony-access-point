@@ -21,7 +21,7 @@ public class JMSPluginEnabledChangeListener extends DefaultEnabledChangeListener
     }
 
     @Override
-    protected CharSequence getEnabledPropertyName() {
+    protected String getEnabledPropertyName() {
         return JMSPLUGIN_DOMAIN_ENABLED;
     }
 

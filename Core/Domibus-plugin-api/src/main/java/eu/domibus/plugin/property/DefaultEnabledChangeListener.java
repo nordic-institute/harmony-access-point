@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
  * <p>
  * Base class for enabling/disabling property change listener
  */
-@Component
 public abstract class DefaultEnabledChangeListener implements PluginPropertyChangeListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultEnabledChangeListener.class);
@@ -30,18 +29,18 @@ public abstract class DefaultEnabledChangeListener implements PluginPropertyChan
         return StringUtils.equals(getEnabledPropertyName(), propertyName);
     }
 
-    protected abstract CharSequence getEnabledPropertyName();
+    protected abstract String getEnabledPropertyName();
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        LOG.debug("Executing enabled listener on domain [{}] for property [{}] with value [{}]", domainCode, propertyName, propertyValue);
+        LOG.debug("Executing enabled listener of plugin [{}] on domain [{}] for property [{}] with value [{}]",getName(), domainCode, propertyName, propertyValue);
         boolean enable = BooleanUtils.toBoolean(propertyValue);
         doSetEnabled(domainCode, enable);
     }
 
     protected void doSetEnabled(final String domainCode, final boolean enabled) {
         String pluginName = getName();
-        LOG.info("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
+        LOG.debug("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
         if (enabled) {
             backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
         } else {

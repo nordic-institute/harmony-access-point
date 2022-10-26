@@ -36,7 +36,6 @@ public interface EnableAware {
 
     /**
      * The names of the cron jobs that the plugin uses so that domibus can pause/resume then on a plugin bases;
-     * Not very beautiful; a better solution is searched
      *
      * @return
      */
