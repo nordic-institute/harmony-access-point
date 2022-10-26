@@ -45,8 +45,7 @@ public class MessageResendJob extends DomibusQuartzJobBean {
                 userMessageRestoreDao.delete(messageId);
             } catch (Exception e) {
                 userMessageRestoreDao.delete(messageId);
-                LOG.error("Failed to restore message [" + messageId + "]", e);
-                throw new MessagingException("Failed to restore message: " + messageId, null);
+                throw new MessagingException("Failed to restore message: " + messageId, e);
             }
         }
         LOG.debug("Restoring process of failed messages completed successfully.");

@@ -218,15 +218,14 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     }
 
     @Transactional
-    public void restoreMessages(List<String> restoredMessages, List<String> batchMessageIds) {
-        for (String messageId : batchMessageIds) {
+    public void restoreMessages(List<String> restoredMessages, List<String> messageIds) {
+        for (String messageId : messageIds) {
             LOG.debug("Message Id's selected to restore [{}]", messageId);
             try {
                 restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
-                LOG.error("Failed to restore message [" + messageId + "]", e);
-                throw new MessagingException("Failed to restore message: " + messageId, null);
+                throw new MessagingException("Failed to restore message: " + messageId, e);
             }
         }
     }
