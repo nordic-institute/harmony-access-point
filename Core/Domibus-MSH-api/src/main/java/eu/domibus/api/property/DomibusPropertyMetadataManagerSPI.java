@@ -173,6 +173,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_USER_INPUT_WHITE_LIST = "domibus.userInput.whiteList";
     String DOMIBUS_PROPERTY_LENGTH_MAX = "domibus.property.length.max";
     String DOMIBUS_PROPERTY_VALIDATION_ENABLED = "domibus.property.validation.enabled";
+    String DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN = "domibus.property.backup.period.min";
+    String DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX = "domibus.property.backup.history.max";
     String DOMIBUS_ACCOUNT_UNLOCK_CRON = "domibus.account.unlock.cron";
     String DOMIBUS_CERTIFICATE_CHECK_CRON = "domibus.certificate.check.cron";
     String DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON = "domibus.plugin.account.unlock.cron";

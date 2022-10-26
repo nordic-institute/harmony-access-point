@@ -742,7 +742,14 @@ public class DomainSchedulerFactoryConfiguration {
      * @return General schema prefix
      */
     protected String getGeneralSchemaPrefix() {
-        return getSchemaPrefix(domainService.getGeneralSchema());
+        if(domibusConfigurationService.isSingleTenantAware()) {
+            throw new UnsupportedOperationException("There is no scheduling tables prefix for a general schema in single tenancy");
+        }
+        final String generalSchema = domainService.getGeneralSchema();
+        if (StringUtils.isEmpty(generalSchema)) {
+            throw new IllegalArgumentException("Could not get the general database schema");
+        }
+        return getSchemaPrefix(generalSchema);
     }
 
     /**
@@ -752,8 +759,12 @@ public class DomainSchedulerFactoryConfiguration {
      * @return Domain' schema prefix
      */
     protected String getTablePrefix(Domain domain) {
+        if(domibusConfigurationService.isSingleTenantAware()) {
+            LOG.debug("There is no scheduling tables prefix for a domain schema in single tenancy");
+            return null;
+        }
         final String databaseSchema = domainService.getDatabaseSchema(domain);
-        if (domibusConfigurationService.isMultiTenantAware() && StringUtils.isEmpty(databaseSchema)) {
+        if (StringUtils.isEmpty(databaseSchema)) {
             throw new IllegalArgumentException("Could not get the database schema for domain [" + domain + "]");
         }
         return getSchemaPrefix(databaseSchema);
@@ -767,9 +778,8 @@ public class DomainSchedulerFactoryConfiguration {
      */
     private String getSchemaPrefix(String schema) {
         if (StringUtils.isEmpty(schema)) {
-            return null;
+            throw new IllegalArgumentException("Could not get the scheduling tables prefix because the schema name is empty");
         }
-
         return schema + ".QRTZ_";
     }
 }
