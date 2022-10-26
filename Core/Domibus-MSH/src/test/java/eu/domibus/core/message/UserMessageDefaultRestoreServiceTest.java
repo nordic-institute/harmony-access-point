@@ -287,10 +287,11 @@ public class UserMessageDefaultRestoreServiceTest {
     }
 
     @Test
-    public void restoreSelectedFailedMessages(@Injectable UserMessageLog userMessageLog, @Injectable UserMessage userMessage) throws SchedulerException {
+    public void restoreSelectedFailedMessages() throws SchedulerException {
         final String messageId = UUID.randomUUID().toString();
         final List<String> messageIds = new ArrayList<>();
         messageIds.add(messageId);
+
         new Expectations(restoreService) {{
             restoreService.MAX_RESEND_MESSAGE_COUNT = 5;
             restoreService.restoreFailedMessage(messageId);
