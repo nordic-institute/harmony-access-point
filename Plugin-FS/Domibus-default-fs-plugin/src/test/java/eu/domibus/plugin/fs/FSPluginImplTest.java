@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -103,6 +104,10 @@ public class FSPluginImplTest {
 
     @Injectable
     DomibusPropertyManagerExt domibusPropertyManagerExt;
+
+    @Injectable
+    protected DomibusPropertyExtService domibusPropertyExtService;
+
 
     @Tested
     FSPluginImpl backendFS;
