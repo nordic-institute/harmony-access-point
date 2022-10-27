@@ -297,21 +297,6 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
         getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
     }
 
-    @Override
-    public List<CronJobInfoDTO> getJobsInfo() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public DomibusPropertyManagerExt getPropertyManager() {
-        return null;
-    }
-
-    @Override
-    public String getDomainEnabledPropertyName() {
-        return getName() + "." + "domain.enabled";
-    }
-
     public void checkEnabled() {
         final DomainDTO currentDomain = domainContextExtService.getCurrentDomain();
         if (!isEnabled(currentDomain.getCode())) {

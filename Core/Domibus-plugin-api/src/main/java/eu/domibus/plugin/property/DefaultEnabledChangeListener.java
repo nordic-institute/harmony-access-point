@@ -6,13 +6,12 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Ion Perpegel
  * @since 5.1
  * <p>
- * Base class for enabling/disabling property change listener
+ * Base property change listener class for enabling/disabling a plugin on a domain
  */
 public abstract class DefaultEnabledChangeListener implements PluginPropertyChangeListener {
 
@@ -29,17 +28,15 @@ public abstract class DefaultEnabledChangeListener implements PluginPropertyChan
         return StringUtils.equals(getEnabledPropertyName(), propertyName);
     }
 
-    protected abstract String getEnabledPropertyName();
-
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        LOG.debug("Executing enabled listener of plugin [{}] on domain [{}] for property [{}] with value [{}]",getName(), domainCode, propertyName, propertyValue);
+        LOG.debug("Executing enabled listener of plugin [{}] on domain [{}] for property [{}] with value [{}]", getPluginName(), domainCode, propertyName, propertyValue);
         boolean enable = BooleanUtils.toBoolean(propertyValue);
         doSetEnabled(domainCode, enable);
     }
 
     protected void doSetEnabled(final String domainCode, final boolean enabled) {
-        String pluginName = getName();
+        String pluginName = getPluginName();
         LOG.debug("Setting plugin [{}] to [{}] for domain [{}].", pluginName, enabled ? "enabled" : "disabled", domainCode);
         if (enabled) {
             backendConnectorProviderExtService.backendConnectorEnabled(pluginName, domainCode);
@@ -48,5 +45,7 @@ public abstract class DefaultEnabledChangeListener implements PluginPropertyChan
         }
     }
 
-    protected abstract String getName();
+    protected abstract String getEnabledPropertyName();
+
+    protected abstract String getPluginName();
 }
