@@ -292,6 +292,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             String value = propertyManager.getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
             return BooleanUtils.toBoolean(value);
         }
+        // fallback to the domibus property provider delegate
         DomainDTO domain = domainExtService.getDomain(domainCode);
         String value = domibusPropertyExtService.getProperty(domain, getDomainEnabledPropertyName());
         return BooleanUtils.toBoolean(value);
@@ -310,6 +311,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             propertyManager.setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
             return;
         }
+        // fallback to the domibus property provider delegate
         DomainDTO domain = domainExtService.getDomain(domainCode);
         domibusPropertyExtService.setProperty(domain, getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled), true);
     }

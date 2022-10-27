@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Service responsible with creating or destroying expensive plugin resources managed by Domibus( message listener container and cron jobs)
+ *
  * @author Ion Perpegel
  * @since 5.1
  */
