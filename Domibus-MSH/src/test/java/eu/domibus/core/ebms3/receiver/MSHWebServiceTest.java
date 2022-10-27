@@ -48,7 +48,7 @@ public class MSHWebServiceTest {
     @Test
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,
                                     @Injectable Ebms3Messaging messaging,
-                                    @Injectable IncomingMessageHandler messageHandler,4
+                                    @Injectable IncomingMessageHandler messageHandler,
                                     @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
         new Expectations() {{
             PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
