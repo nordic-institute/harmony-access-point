@@ -1,7 +1,6 @@
 package eu.domibus.plugin;
 
 import eu.domibus.common.*;
-import eu.domibus.ext.domain.CronJobInfoDTO;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
@@ -49,6 +48,12 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Autowired
     protected DomainContextExtService domainContextExtService;
+
+    @Autowired
+    protected DomibusPropertyExtService domibusPropertyExtService;
+
+    @Autowired
+    DomainExtService domainExtService;
 
     public AbstractBackendConnector(final String name) {
         this.name = name;
@@ -282,7 +287,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public boolean isEnabled(final String domainCode) {
-        String value = getPropertyManager().getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
+        DomibusPropertyManagerExt propertyManager = getPropertyManager();
+        if (propertyManager != null) {
+            String value = propertyManager.getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
+            return BooleanUtils.toBoolean(value);
+        }
+        DomainDTO domain = domainExtService.getDomain(domainCode);
+        String value = domibusPropertyExtService.getProperty(domain, getDomainEnabledPropertyName());
         return BooleanUtils.toBoolean(value);
     }
 
@@ -293,8 +304,14 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
             LOG.debug("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
             return;
         }
-        // just set the enabled property and the change listener will call doSetEnabled method
-        getPropertyManager().setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
+        // just set the enabled property and the change listener will call domibus relevant methods
+        DomibusPropertyManagerExt propertyManager = getPropertyManager();
+        if (propertyManager != null) {
+            propertyManager.setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
+            return;
+        }
+        DomainDTO domain = domainExtService.getDomain(domainCode);
+        domibusPropertyExtService.setProperty(domain, getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled), true);
     }
 
     public void checkEnabled() {

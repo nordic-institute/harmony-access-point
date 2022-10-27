@@ -45,7 +45,15 @@ public abstract class DefaultEnabledChangeListener implements PluginPropertyChan
         }
     }
 
+    /**
+     * The name of the property used for enabling and disabling a plugin on a domain
+     * @return
+     */
     protected abstract String getEnabledPropertyName();
 
+    /**
+     * The name of the plugin
+     * @return
+     */
     protected abstract String getPluginName();
 }
