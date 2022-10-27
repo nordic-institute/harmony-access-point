@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Service responsible with creating or destroying expensive plugin resources managed by Domibus( message listener container and cron jobs)
+ *
  * @author Ion Perpegel
  * @since 5.1
  */
@@ -62,7 +64,8 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
 
         List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
         if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
-            throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
+            throw new ConfigurationException(String.format("Cannot disable the plugin [%s] on domain {%s] because there won't remain any enabled plugin."
+                    , backendName, domainCode));
         }
 
         LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);

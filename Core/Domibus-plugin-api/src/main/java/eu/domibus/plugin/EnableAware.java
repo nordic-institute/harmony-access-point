@@ -44,10 +44,18 @@ public interface EnableAware {
         return new ArrayList<>();
     }
 
+    /**
+     * The property name which specifies if the plugin is enabled or disabled for a domain
+     * @return the name of the property
+     */
     default String getDomainEnabledPropertyName() {
-        return getName() + "." + "domain.enabled";
+        return getName() + ".domain.enabled";
     }
 
+    /**
+     * The property manager of the plugin
+     * @return defaults to null
+     */
     default DomibusPropertyManagerExt getPropertyManager() {
         return null;
     }

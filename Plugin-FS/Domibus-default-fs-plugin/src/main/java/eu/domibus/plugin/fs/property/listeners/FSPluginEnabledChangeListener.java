@@ -26,7 +26,7 @@ public class FSPluginEnabledChangeListener extends DefaultEnabledChangeListener 
     }
 
     @Override
-    protected String getName() {
+    protected String getPluginName() {
         return PLUGIN_NAME;
     }
 
