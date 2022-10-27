@@ -4270,9 +4270,9 @@ class Domibus{
 	
     /**
      * Extract filename from string path
-     * @param duration. Can be an integer or a float min.sec 
+     * @param file path 
      * @param unit. Can be "min" or "sec"
-     * @param extra message to display
+     * @return the extracted file name or (null or empty)
      */
 	static def extractFileNameFromString(log,String fullPath){	
 		def index=null
@@ -4289,7 +4289,7 @@ class Domibus{
 		}
 	}
     /**
-     * Sleep for a specific ammount of time
+     * Sleep for a specific amount of time
      * @param duration. Can be an integer or a float min.sec 
      * @param unit. Can be "min" or "sec"
      * @param extra message to display
