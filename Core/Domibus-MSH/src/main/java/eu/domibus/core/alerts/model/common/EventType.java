@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.model.common;
 import eu.domibus.logging.DomibusMessageCode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -12,7 +13,8 @@ import java.util.List;
  */
 public enum EventType {
 
-    MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED, QuerySelectors.MESSAGE, MessageEvent.class),
+    MSG_STATUS_CHANGED(AlertType.MSG_STATUS_CHANGED, QuerySelectors.MESSAGE,
+            Arrays.asList("MESSAGE_ID", "OLD_STATUS", "NEW_STATUS", "FROM_PARTY", "TO_PARTY", "ROLE", "DESCRIPTION")),
 
     CONNECTION_MONITORING_FAILED(AlertType.CONNECTION_MONITORING_FAILED, QuerySelectors.CONNECTION_MONITORING_FAILURE, ConnectionMonitoringFailedEventProperties.class),
 
@@ -37,8 +39,8 @@ public enum EventType {
     PLUGIN(AlertType.PLUGIN, QuerySelectors.PLUGIN_EVENT, null, DomibusMessageCode.PLUGIN_DEFAULT),
     ARCHIVING_NOTIFICATION_FAILED(AlertType.ARCHIVING_NOTIFICATION_FAILED, QuerySelectors.ARCHIVING_NOTIFICATION_FAILED, ArchivingEventProperties.class),
     ARCHIVING_MESSAGES_NON_FINAL(AlertType.ARCHIVING_MESSAGES_NON_FINAL, QuerySelectors.ARCHIVING_MESSAGES_NON_FINAL, MessageEvent.class),
-    ARCHIVING_START_DATE_STOPPED(AlertType.ARCHIVING_START_DATE_STOPPED, QuerySelectors.ARCHIVING_START_DATE_STOPPED, null),
-    PARTITION_CHECK(AlertType.PARTITION_CHECK, QuerySelectors.PARTITION_CHECK,  PartitionCheckEvent.class);
+    ARCHIVING_START_DATE_STOPPED(AlertType.ARCHIVING_START_DATE_STOPPED, QuerySelectors.ARCHIVING_START_DATE_STOPPED, (List<String>) null),
+    PARTITION_CHECK(AlertType.PARTITION_CHECK, QuerySelectors.PARTITION_CHECK, PartitionCheckEvent.class);
 
 
     private AlertType defaultAlertType;
@@ -70,12 +72,21 @@ public enum EventType {
         this(defaultAlertType, queueSelector, propertiesEnumClass, false, null);
     }
 
+    List<String> properties;
+
+    EventType(AlertType defaultAlertType, String queueSelector, List<String> properties) {
+        this(defaultAlertType, queueSelector, null, false, null);
+        this.properties = properties;
+    }
 
     public AlertType geDefaultAlertType() {
         return this.defaultAlertType;
     }
 
     public List<String> getProperties() {
+        if (properties != null) {
+            return properties;
+        }
         ArrayList<String> list = new ArrayList<>();
         if (this.propertiesEnumClass != null) {
             EnumSet.allOf(this.propertiesEnumClass).forEach(x -> list.add(((Enum) x).name()));

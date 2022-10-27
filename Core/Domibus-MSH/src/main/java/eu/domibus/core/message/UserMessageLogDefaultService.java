@@ -4,6 +4,8 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
 import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringConfigurationManager;
 import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -104,8 +106,10 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
             String fromParty = userMessage.getPartyInfo().getFromParty();
             String toParty = userMessage.getPartyInfo().getToParty();
             if (connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
-                eventService.enqueueConnectionMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(),
-                        messageLog.getMessageStatus(), fromParty, toParty, connMonitorConfig.getFrequency());
+                eventService.enqueueEvent(EventType.CONNECTION_MONITORING_FAILED, toParty, connMonitorConfig.getFrequency(),
+                        new EventProperties(userMessage.getMessageId(), messageLog.getMshRole().getRole().name(), messageLog.getMessageStatus().name(), fromParty, toParty));
+//                eventService.enqueueConnectionMonitoringEvent(userMessage.getMessageId(), messageLog.getMshRole().getRole(),
+//                        messageLog.getMessageStatus(), fromParty, toParty, connMonitorConfig.getFrequency());
             }
         }
         userMessageLogDao.setMessageStatus(messageLog, newStatus);

@@ -4,17 +4,22 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.user.UserEntityBase;
-import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.alerts.model.service.EventProperties;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
 public interface EventService {
+
+    void enqueueEvent(EventType eventType, EventProperties eventProperties);
+
+    void enqueueEvent(EventType eventType, String identifier, int frequency, EventProperties eventProperties);
 
     /**
      * Will create a message status change event with the given parameter and enqueue it to the alert/event monitoring queue.
@@ -24,19 +29,19 @@ public interface EventService {
      * @param newStatus the new status of the message.
      * @param role      the role of the access point.
      */
-    void enqueueMessageEvent(String messageId, MessageStatus oldStatus, MessageStatus newStatus, MSHRole role);
+//    void enqueueMessageEvent(String messageId, MessageStatus oldStatus, MessageStatus newStatus, MSHRole role);
 
     /**
      * Will create a connection monitoring failed event with the given parameters and enqueue it to the alert/event monitoring queue.
      *
      * @param messageId the id of the monitored message.
      * @param role      the role of the message
-     * @param status the new status of the message.
+     * @param status    the new status of the message.
      * @param fromParty the sender party of the message
-     * @param toParty the destination party of the message
+     * @param toParty   the destination party of the message
      * @param frequency how often to raise an alert if events are repeating
      */
-    void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency);
+//    void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency);
 
     /**
      * Will create login failure event and enqueue it to the alert/event monitoring queue.
@@ -50,7 +55,7 @@ public interface EventService {
     /**
      * Will create partition expiration event and enqueue it to the alert/event monitoring queue.
      *
-     * @param partitionName   the partition name that could not be deleted
+     * @param partitionName the partition name that could not be deleted
      */
     void enqueuePartitionCheckEvent(String partitionName);
 
@@ -65,8 +70,8 @@ public interface EventService {
     /**
      * Will create a account enabled event and enqueue it to the alert/event monitoring queue.
      *
-     * @param userName            the user name enabled
-     * @param accountEnabledTime  the account enabled time.
+     * @param userName           the user name enabled
+     * @param accountEnabledTime the account enabled time.
      */
     void enqueueAccountEnabledEvent(UserEntityBase.Type type, String userName, Date accountEnabledTime);
 
@@ -91,8 +96,8 @@ public interface EventService {
     /**
      * Will create an earchiving notification failed event and enqueue it to the alert/event monitoring queue.
      *
-     * @param batchId       the id of the batch that could not be notified to the e-archiving client
-     * @param batchStatus   the status of the batch that could not be notified to the e-archiving client
+     * @param batchId     the id of the batch that could not be notified to the e-archiving client
+     * @param batchStatus the status of the batch that could not be notified to the e-archiving client
      */
     void enqueueEArchivingEvent(String batchId, EArchiveBatchStatus batchStatus);
 
@@ -116,15 +121,15 @@ public interface EventService {
      * @param eventType            the specific type of expiration event: expired and imminent expiration for console or plugin users
      * @param user                 the user for which the event is triggered
      * @param maxPasswordAgeInDays the number of days the password is not expired
-     * @param frequency the period in days to send another alert
-     * */
+     * @param frequency            the period in days to send another alert
+     */
     void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, int frequency);
 
 
     /**
      * Verifies if an alert should be created based on the last alert and frequency
      *
-     * @param event the event for which the alert should be or not created
+     * @param event     the event for which the alert should be or not created
      * @param frequency the period in days to send another alert
      * @return true if the previous alert is older than the specified frequency
      */
@@ -133,8 +138,8 @@ public interface EventService {
     /**
      * Will create an earchiving messages non-final event and enqueue it to the alert/event monitoring queue.
      *
-     * @param messageId     the messageId of the message with a status not final
-     * @param status        the status of the message that is not final
+     * @param messageId the messageId of the message with a status not final
+     * @param status    the status of the message that is not final
      */
     void enqueueEArchivingMessageNonFinalEvent(String messageId, MessageStatus status);
 

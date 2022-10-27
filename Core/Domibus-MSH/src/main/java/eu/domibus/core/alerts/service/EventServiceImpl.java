@@ -7,11 +7,11 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
@@ -76,31 +76,17 @@ public class EventServiceImpl implements EventService {
     @Autowired
     protected MpcService mpcService;
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void enqueueMessageEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
-        Event event = new Event(EventType.MSG_STATUS_CHANGED);
-        event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
-        event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
-        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
-        event.addStringKeyValue(ROLE.name(), role.name());
-
+    public void enqueueEvent(EventType eventType, EventProperties eventProperties) {
+        Event event = createEvent(eventType, eventProperties);
         enqueueEvent(event);
     }
 
     @Override
-    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency) {
-        Event event = new Event(EventType.CONNECTION_MONITORING_FAILED);
+    public void enqueueEvent(EventType eventType, String identifier, int frequency, EventProperties eventProperties) {
+        Event event = createEvent(eventType, eventProperties);
         event.setReportingTime(new Date());
-        event.addStringKeyValue(EVENT_IDENTIFIER, toParty);
-
-        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.MESSAGE_ID.name(), messageId);
-        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.ROLE.name(), role.name());
-        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.FROM_PARTY.name(), fromParty);
-        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.TO_PARTY.name(), toParty);
-        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.STATUS.name(), status.name());
+        event.addStringKeyValue(EVENT_IDENTIFIER, identifier);
 
         eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
         if (!shouldCreateAlert(entity, frequency)) {
@@ -112,6 +98,60 @@ public class EventServiceImpl implements EventService {
 
         enqueueEvent(event);
     }
+
+    private Event createEvent(EventType eventType, EventProperties eventProperties) {
+        Event event = new Event(eventType);
+
+        if (eventType.getProperties().size() != eventProperties.getProperties().length) {
+            LOG.warn("");
+        }
+        for (int i = 0; i < eventType.getProperties().size(); i++) {
+            String prop = eventType.getProperties().get(i);
+            Object propValue = eventProperties.getProperties()[i];
+            if (propValue instanceof String) {
+                event.addStringKeyValue(prop, (String) propValue);
+            } else if (propValue instanceof Date) {
+                event.addDateKeyValue(prop, (Date) propValue);
+            } //.....
+        }
+        return event;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+//    @Override
+//    public void enqueueMessageEvent(final String messageId, final MessageStatus oldStatus, final MessageStatus newStatus, final MSHRole role) {
+//        Event event = new Event(EventType.MSG_STATUS_CHANGED);
+//        event.addStringKeyValue(OLD_STATUS.name(), oldStatus.name());
+//        event.addStringKeyValue(NEW_STATUS.name(), newStatus.name());
+//        event.addStringKeyValue(MESSAGE_ID.name(), messageId);
+//        event.addStringKeyValue(ROLE.name(), role.name());
+//
+//        enqueueEvent(event);
+//    }
+//    @Override
+//    public void enqueueConnectionMonitoringEvent(String messageId, MSHRole role, MessageStatus status, String fromParty, String toParty, int frequency) {
+//        Event event = new Event(EventType.CONNECTION_MONITORING_FAILED);
+//        event.setReportingTime(new Date());
+//        event.addStringKeyValue(EVENT_IDENTIFIER, toParty);
+//
+//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.MESSAGE_ID.name(), messageId);
+//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.ROLE.name(), role.name());
+//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.FROM_PARTY.name(), fromParty);
+//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.TO_PARTY.name(), toParty);
+//        event.addStringKeyValue(ConnectionMonitoringFailedEventProperties.STATUS.name(), status.name());
+//
+//        eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
+//        if (!shouldCreateAlert(entity, frequency)) {
+//            return;
+//        }
+//
+//        entity.setLastAlertDate(LocalDate.now());
+//        eventDao.update(entity);
+//
+//        enqueueEvent(event);
+//    }
 
     /**
      * {@inheritDoc}

@@ -11,6 +11,8 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -347,7 +349,9 @@ public class BackendNotificationService {
 
         final MessagingModuleConfiguration messagingConfiguration = messagingConfigurationManager.getConfiguration();
         if (messagingConfiguration.shouldMonitorMessageStatus(newStatus)) {
-            eventService.enqueueMessageEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
+            eventService.enqueueEvent(EventType.MSG_STATUS_CHANGED,
+                    new EventProperties(userMessage.getMessageId(), messageLog.getMessageStatus().name(), newStatus.name(), userMessage.getMshRole().getRole().name()));
+//            eventService.enqueueMessageEvent(userMessage.getMessageId(), messageLog.getMessageStatus(), newStatus, userMessage.getMshRole().getRole());
         }
 
         handleMDC(userMessage);
