@@ -70,15 +70,6 @@ public class MetricsConfigurationTest {
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_JMX_REPORTER_ENABLE);
             result = true;
 
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES);
-            result = true;
-
-            domibusPropertyProvider.getProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD);
-            result = 10;
-
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY);
-            result = false;
-
         }};
 
         //tested method
@@ -94,11 +85,6 @@ public class MetricsConfigurationTest {
 
             metricRegistry.register(name = withCapture(), withAny(new CachedThreadStatesGaugeSet(10, TimeUnit.SECONDS)));
             Assert.assertEquals("threads", name);
-
-            metricRegistry.register(name = withCapture(), withAny(new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
-                    10L, false)));
-            Assert.assertEquals(MetricsConfiguration.JMS_QUEUES, name);
-
         }};
     }
 }
