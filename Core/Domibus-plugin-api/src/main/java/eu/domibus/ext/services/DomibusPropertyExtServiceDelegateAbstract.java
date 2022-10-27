@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -123,6 +124,9 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         }
         if (propMeta.isStoredGlobally()) {
             final DomainDTO domain = domainExtService.getDomain(domainCode);
+            if (domain == null) {
+                throw new DomibusPropertyExtException("Could not find domain with code " + domainCode);
+            }
             return domibusPropertyExtService.getProperty(domain, propertyName);
         }
 
@@ -144,6 +148,10 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
+        if (StringUtils.equals(propertyValue, getKnownPropertyValue(domainCode, propertyName))) {
+            LOG.info("The property [{}] has already the value [{}] on domain [{}]; exiting.", propertyName, propertyValue, domainCode);
+            return;
+        }
         DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
         if (propMeta.isStoredGlobally()) {
             final DomainDTO domain = domainExtService.getDomain(domainCode);
@@ -167,6 +175,10 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public void setKnownPropertyValue(String propertyName, String propertyValue) {
+        if (StringUtils.equals(propertyValue, getKnownPropertyValue(propertyName))) {
+            LOG.info("The property [{}] has already the value [{}]; exiting.", propertyName, propertyValue);
+            return;
+        }
         DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
         if (propMeta.isStoredGlobally()) {
             domibusPropertyExtService.setProperty(propertyName, propertyValue);

@@ -38,5 +38,5 @@ class PushUtils {
 			log.info "---- Message status inside the notification: $messageStatus"
 		}
 		LogUtils.debugLog("  ====  End \"checkPushPluginNotification\".", log)
-    }
+    }	
 }

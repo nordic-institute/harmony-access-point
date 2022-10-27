@@ -7,6 +7,7 @@ import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -17,6 +18,7 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,20 +36,21 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 /**
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
-*/
+ */
 public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginImpl.class);
 
     public static final String PLUGIN_NAME = "Jms";
 
-    protected JMSExtService jmsExtService;
-    protected DomainContextExtService domainContextExtService;
-    protected JMSPluginQueueService jmsPluginQueueService;
-    protected JmsOperations mshToBackendTemplate;
-    protected JMSMessageTransformer jmsMessageTransformer;
-    protected MetricRegistry metricRegistry;
-    protected JndiDestinationResolver jndiDestinationResolver;
+    protected final JMSExtService jmsExtService;
+    protected final DomainContextExtService domainContextExtService;
+    protected final JMSPluginQueueService jmsPluginQueueService;
+    protected final JmsOperations mshToBackendTemplate;
+    protected final JMSMessageTransformer jmsMessageTransformer;
+    protected final MetricRegistry metricRegistry;
+    protected final JndiDestinationResolver jndiDestinationResolver;
+    protected final JmsPluginPropertyManager jmsPluginPropertyManager;
 
     public JMSPluginImpl(MetricRegistry metricRegistry,
                          JMSExtService jmsExtService,
@@ -55,7 +58,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                          JMSPluginQueueService jmsPluginQueueService,
                          JmsOperations mshToBackendTemplate,
                          JMSMessageTransformer jmsMessageTransformer,
-                         JndiDestinationResolver jndiDestinationResolver) {
+                         JndiDestinationResolver jndiDestinationResolver, JmsPluginPropertyManager jmsPluginPropertyManager) {
         super(PLUGIN_NAME);
         this.jmsExtService = jmsExtService;
         this.domainContextExtService = domainContextExtService;
@@ -64,6 +67,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         this.jmsMessageTransformer = jmsMessageTransformer;
         this.metricRegistry = metricRegistry;
         this.jndiDestinationResolver = jndiDestinationResolver;
+        this.jmsPluginPropertyManager = jmsPluginPropertyManager;
     }
 
     @Override
@@ -86,6 +90,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Counter(clazz = JMSPluginImpl.class, value = "receiveMessage")
     public void receiveMessage(final MapMessage map) {
         try {
+            checkEnabled();
+
             String messageID = map.getStringProperty(MESSAGE_ID);
             if (StringUtils.isNotBlank(messageID)) {
                 //trim the empty space
@@ -141,6 +147,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Timer(clazz = JMSPluginImpl.class, value = "deliverMessage")
     @Counter(clazz = JMSPluginImpl.class, value = "deliverMessage")
     public void deliverMessage(final DeliverMessageEvent event) {
+        checkEnabled();
+
         String messageId = event.getMessageId();
         LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
 
@@ -152,6 +160,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public void messageReceiveFailed(MessageReceiveFailureEvent messageReceiveFailureEvent) {
+        checkEnabled();
+
         LOG.debug("Handling messageReceiveFailed");
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(messageReceiveFailureEvent.getErrorResult(),
                 messageReceiveFailureEvent.getEndpoint(),
@@ -163,6 +173,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
+        checkEnabled();
+
         final ErrorResult errorResult = getErrorResult(event.getMessageId(), MSHRole.SENDING);
         final JmsMessageDTO jmsMessageDTO = new ErrorMessageCreator(errorResult, null, NotificationType.MESSAGE_SEND_FAILURE).createMessage();
 
@@ -172,7 +184,7 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     protected ErrorResult getErrorResult(String messageId, MSHRole mshRole) {
         List<ErrorResult> errors = super.getErrorsForMessage(messageId, mshRole);
-        if(CollectionUtils.isEmpty(errors)) {
+        if (CollectionUtils.isEmpty(errors)) {
             return null;
         }
 
@@ -191,6 +203,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
     @Counter(clazz = JMSPluginImpl.class, value = "messageSendSuccess")
     @Override
     public void messageSendSuccess(MessageSendSuccessEvent event) {
+        checkEnabled();
+
         LOG.debug("Handling messageSendSuccess");
         final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageEntityId(), event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
 
@@ -217,6 +231,8 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
     @Override
     public MapMessage downloadMessage(final Long messageEntityId, MapMessage target) throws MessageNotFoundException {
+        checkEnabled();
+
         LOG.debug("Downloading message with entity id [{}]", messageEntityId);
         try {
             Submission submission = messageRetriever.downloadMessage(messageEntityId);
@@ -264,5 +280,15 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
             return mapMessage;
         }
+    }
+
+    @Override
+    public String getDomainEnabledPropertyName() {
+        return JMSPLUGIN_DOMAIN_ENABLED;
+    }
+
+    @Override
+    public DomibusPropertyManagerExt getPropertyManager() {
+        return jmsPluginPropertyManager;
     }
 }

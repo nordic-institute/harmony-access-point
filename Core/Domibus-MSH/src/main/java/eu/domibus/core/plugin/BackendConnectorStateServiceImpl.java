@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Service responsible with creating or destroying expensive plugin resources managed by Domibus( message listener container and cron jobs)
+ *
  * @author Ion Perpegel
  * @since 5.1
  */
@@ -48,12 +50,12 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         Domain domain = domainService.getDomain(domainCode);
         messageListenerContainerInitializer.createMessageListenersForPlugin(backendName, domain);
 
-        String[] jobNamesToResume = getJobNames(backendName);
-        if (jobNamesToResume == null) {
+        String[] jobNames = getJobNames(backendName);
+        if (jobNames == null) {
             return;
         }
 
-        domibusScheduler.resumeJobs(domain, jobNamesToResume);
+        domibusScheduler.resumeJobs(domain, jobNames);
     }
 
     @Override
@@ -62,7 +64,8 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
 
         List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
         if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
-            throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
+            throw new ConfigurationException(String.format("Cannot disable the plugin [%s] on domain {%s] because there won't remain any enabled plugin."
+                    , backendName, domainCode));
         }
 
         LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);
@@ -70,12 +73,12 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
         Domain domain = domainService.getDomain(domainCode);
         messageListenerContainerInitializer.destroyMessageListenersForPlugin(backendName, domain);
 
-        String[] jobNamesToResume = getJobNames(backendName);
-        if (jobNamesToResume == null) {
+        String[] jobNames = getJobNames(backendName);
+        if (jobNames == null) {
             LOG.info("Could not find any job names for the plugin called [{}]; exiting.", backendName);
             return;
         }
-        domibusScheduler.pauseJobs(domain, jobNamesToResume);
+        domibusScheduler.pauseJobs(domain, jobNames);
     }
 
     private EnableAware getEnableAware(String backendName) {
