@@ -297,10 +297,10 @@ public class UserMessageDefaultRestoreServiceTest {
             restoreService.restoreFailedMessage(messageId);
         }};
 
-        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
+        restoreService.restoreFailedMessages(messageIds);
 
         new FullVerifications() {{
-            restoreService.restoreMessages((List<String>) any, messageIds);
+            restoreService.restoreMessages(messageIds);
         }};
     }
 
@@ -316,7 +316,7 @@ public class UserMessageDefaultRestoreServiceTest {
             restoreService.MAX_RESEND_MESSAGE_COUNT = 1;
         }};
 
-        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
+        restoreService.restoreFailedMessages(messageIds);
 
         new FullVerifications() {{
             userMessageRestoreDao.create((MessageResendEntity) any);

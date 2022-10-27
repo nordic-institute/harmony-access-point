@@ -88,12 +88,12 @@ public class MessageResource {
                 .map(a -> a.getMessageId())
                 .collect(Collectors.toList());
 
-        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
+        restoreService.restoreFailedMessages(messageIds);
     }
 
 
-    @PutMapping(value = "/failed/restore/all")
-    public void restoreAllFailedMessages(@RequestBody MessageLogFilterRequestRO request) throws SchedulerException {
+    @PutMapping(value = "/failed/restore/filtered")
+    public void restoreFilteredFailedMessages(@RequestBody MessageLogFilterRequestRO request) throws SchedulerException {
         LOG.debug("Getting all messages to restore");
 
         //creating the filters
@@ -110,7 +110,7 @@ public class MessageResource {
                 .map(messageLogRO -> messageLogRO.getMessageId())
                 .collect(Collectors.toList());
 
-        restoreService.restoreAllOrSelectedFailedMessages(messageIds);
+        restoreService.restoreFailedMessages(messageIds);
     }
 
     @RequestMapping(value = "/download")

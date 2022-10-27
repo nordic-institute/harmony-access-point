@@ -33,8 +33,9 @@ public interface UserMessageRestoreService {
      * Restore all failed messages with the given ids
      * @param messageIds list of message Ids to restore
      */
-   void restoreAllOrSelectedFailedMessages(List<String> messageIds) throws SchedulerException;
+   void restoreFailedMessages(List<String> messageIds) throws SchedulerException;
 
+    void findAndRestoreFailedMessages();
 
     /**
      * @return the list of messages to restore from the database

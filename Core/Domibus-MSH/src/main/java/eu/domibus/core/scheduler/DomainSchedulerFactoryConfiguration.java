@@ -86,7 +86,7 @@ public class DomainSchedulerFactoryConfiguration {
     public static final String EARCHIVE_SANITIZER_JOB="eArchiveSanitizerJob";
     public static final String QUARTZ_JDBCJOBSTORE_STD_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
     public static final String QUARTZ_JDBCJOBSTORE_WEBLOGIC_ORACLE_JDBCDELEGATE = "org.quartz.impl.jdbcjobstore.oracle.weblogic.WebLogicOracleDelegate";
-
+    public static final String MESSAGE_RESEND_JOB="messageResendJob";
 
     @Autowired
     Environment environment;

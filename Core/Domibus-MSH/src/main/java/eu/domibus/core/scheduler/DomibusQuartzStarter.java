@@ -286,10 +286,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
 
     @Override
     public void triggerMessageResendJob() throws SchedulerException {
-        String jobName = "messageResendJob";
         Domain domain = domainContextProvider.getCurrentDomainSafely();
         Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
-        JobKey jobKey = findJob(scheduler, jobName);
+        JobKey jobKey = findJob(scheduler, MESSAGE_RESEND_JOB);
 
         LOG.debug("Triggering the jpb with jobKey [{}] ..", jobKey);
         scheduler.triggerJob(jobKey);

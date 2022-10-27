@@ -3,7 +3,6 @@ package eu.domibus.core.message;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -41,7 +40,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultRestoreService.class);
 
-    protected static int MAX_RESEND_MESSAGE_COUNT = 10;
+    protected static int MAX_RESEND_MESSAGE_COUNT = 1;
 
     private MessageExchangeService messageExchangeService;
 
@@ -192,24 +191,26 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     @Transactional
     @Override
-    public void restoreAllOrSelectedFailedMessages(final List<String> messageIds) throws SchedulerException {
+    public void restoreFailedMessages(final List<String> messageIds) throws SchedulerException {
         if (CollectionUtils.isEmpty(messageIds)) {
             return;
         }
-        if (messageIds.size() < MAX_RESEND_MESSAGE_COUNT) {
-            List<String> restoredMessages = new ArrayList<>();
-            restoreMessages(restoredMessages, messageIds);
-        } else {
-            for (String messageId : messageIds) {
-                MessageResendEntity messageResendEntity = new MessageResendEntity();
-                messageResendEntity.setMessageId(messageId);
-                userMessageRestoreDao.create(messageResendEntity);
-            }
+        if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
+            triggerMessageResendJob(messageIds);
+            return;
+        }
+        restoreMessages(messageIds);
+    }
 
-            domibusQuartzStarter.triggerMessageResendJob();
-            LOG.debug("Restored all failed messages");
+    protected void triggerMessageResendJob(List<String> messageIds) throws SchedulerException {
+        for (String messageId : messageIds) {
+            MessageResendEntity messageResendEntity = new MessageResendEntity();
+            messageResendEntity.setMessageId(messageId);
+            userMessageRestoreDao.create(messageResendEntity);
         }
 
+        domibusQuartzStarter.triggerMessageResendJob();
+        LOG.debug("Restored all failed messages");
     }
 
     @Override
@@ -218,15 +219,34 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
     }
 
     @Transactional
-    public void restoreMessages(List<String> restoredMessages, List<String> messageIds) {
+    public void restoreMessages(List<String> messageIds) {
+        List<String> restoredMessages = new ArrayList<>();
         for (String messageId : messageIds) {
             LOG.debug("Message Id's selected to restore [{}]", messageId);
             try {
                 restoreFailedMessage(messageId);
                 restoredMessages.add(messageId);
             } catch (Exception e) {
-                throw new MessagingException("Failed to restore message: " + messageId, e);
+                LOG.error("Failed to restore message [" + messageId + "]", e);
             }
         }
+    }
+
+    @Transactional
+    @Override
+    public void findAndRestoreFailedMessages() {
+        final List<String> restoredMessages = new ArrayList<>();
+        List<String> messageIds = findAllMessagesToRestore();
+        for (String messageId : messageIds) {
+            LOG.debug("Found message to restore. Starting the restoring process of message with messageId [{}]", messageId);
+            try {
+                restoreFailedMessage(messageId);
+                restoredMessages.add(messageId);
+                userMessageRestoreDao.delete(messageId);
+            } catch (Exception e) {
+                LOG.error("Failed to restore message [" + messageId + "]", e);
+            }
+        }
+        LOG.debug("Restoring process of failed messages completed successfully.");
     }
   }
