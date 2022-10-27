@@ -62,7 +62,8 @@ public class BackendConnectorStateServiceImpl implements BackendConnectorStateSe
 
         List<EnableAware> plugins = backendConnectorProvider.getEnableAwares();
         if (plugins.stream().noneMatch(plugin -> plugin.isEnabled(domainCode))) {
-            throw new ConfigurationException(String.format("No plugin is enabled on domain {[}]", domainCode));
+            throw new ConfigurationException(String.format("Cannot disable the plugin [%s] on domain {%s] because there won't remain any enabled plugin."
+                    , backendName, domainCode));
         }
 
         LOG.debug("Disabling plugin [{}] on domain [{}]; destroying resources for it.", backendName, domainCode);
