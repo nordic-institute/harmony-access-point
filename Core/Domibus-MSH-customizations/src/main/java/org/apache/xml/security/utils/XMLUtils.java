@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sun.xml.messaging.saaj.soap.ver1_2.HeaderElement1_2Impl;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -894,7 +895,6 @@ public final class XMLUtils {
     public static boolean protectAgainstWrappingAttack(
         Node startNode, Element knownElement, String value
     ) {
-/* Domibus customization: prevent a false wrapping attack exception on Java 11 (EDELIVERY-10137)
         String id = value.trim();
         if (!id.isEmpty() && id.charAt(0) == '#') {
             id = id.substring(1);
@@ -916,8 +916,10 @@ public final class XMLUtils {
                     for (int i = 0; i < length; i++) {
                         Attr attr = (Attr)attributes.item(i);
                         if (attr.isId() && id.equals(attr.getValue()) && se != knownElement) {
-                            LOG.debug("Multiple elements with the same 'Id' attribute value!");
-                            return false;
+                            if(!(knownElement instanceof HeaderElement1_2Impl) || ((HeaderElement1_2Impl) knownElement).getDomElement() != se) { // Domibus customization: prevent a false wrapping attack exception on Java 11 (EDELIVERY-10137)
+                                LOG.debug("Multiple elements with the same 'Id' attribute value!");
+                                return false;
+                            }
                         }
                     }
                 }
@@ -943,7 +945,6 @@ public final class XMLUtils {
                 startNode = processedNode.getNextSibling();
             }
         }
- */
         return true;
 
     }
