@@ -21,9 +21,9 @@ public interface UserMessageRestoreService {
 
     /**
      * @param failedStartDate date and time (in ID PK format) from which to restore failed messages
-     * @param failedEndDate date and time (in ID PK format) until which to restore failed messages
-     * @param finalRecipient final recipient of failed message
-     * @param originalUser original user of failed message
+     * @param failedEndDate   date and time (in ID PK format) until which to restore failed messages
+     * @param finalRecipient  final recipient of failed message
+     * @param originalUser    original user of failed message
      * @return the failed messages in the given period and with the given final recipient and original user
      * that were successfully restored
      */
@@ -31,10 +31,14 @@ public interface UserMessageRestoreService {
 
     /**
      * Restore all failed messages with the given ids
+     *
      * @param messageIds list of message Ids to restore
      */
-   void restoreFailedMessages(List<String> messageIds) throws SchedulerException;
+    void restoreFailedMessages(List<String> messageIds) throws SchedulerException;
 
+    /**
+     * Find all failed messages and do the restore operation
+     */
     void findAndRestoreFailedMessages();
 
     /**

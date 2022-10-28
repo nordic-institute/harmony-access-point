@@ -40,7 +40,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultRestoreService.class);
 
-    protected static int MAX_RESEND_MESSAGE_COUNT = 1;
+    protected static int MAX_RESEND_MESSAGE_COUNT = 10;
 
     private MessageExchangeService messageExchangeService;
 
@@ -189,7 +189,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         return restoredMessages;
     }
 
-    @Transactional
     @Override
     public void restoreFailedMessages(final List<String> messageIds) throws SchedulerException {
         if (CollectionUtils.isEmpty(messageIds)) {
@@ -208,7 +207,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             messageResendEntity.setMessageId(messageId);
             userMessageRestoreDao.create(messageResendEntity);
         }
-
         domibusQuartzStarter.triggerMessageResendJob();
         LOG.debug("Restored all failed messages");
     }
@@ -218,7 +216,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         return userMessageRestoreDao.findAllMessagesToRestore();
     }
 
-    @Transactional
+
     public void restoreMessages(List<String> messageIds) {
         List<String> restoredMessages = new ArrayList<>();
         for (String messageId : messageIds) {
@@ -232,7 +230,6 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         }
     }
 
-    @Transactional
     @Override
     public void findAndRestoreFailedMessages() {
         final List<String> restoredMessages = new ArrayList<>();

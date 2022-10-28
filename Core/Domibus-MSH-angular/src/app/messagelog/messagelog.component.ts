@@ -43,7 +43,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly RESEND_SELECTED_URL: string = 'rest/message/failed/restore/selected';
-  static readonly RESEND_ALL_URL: string = 'rest/message/failed/restore/all';
+  static readonly RESEND_ALL_URL: string = 'rest/message/failed/restore/filtered';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}&mshRole=${mshRole}';
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}&mshRole=${mshRole}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
@@ -410,7 +410,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     const filters = this.getFiltersAsObject();
     let url = MessageLogComponent.RESEND_ALL_URL;
     this.http.put(url,  filters).subscribe(res => {
-      this.alertService.success('The operation resend message completed successfully');
+      this.alertService.success('The operation resend messages scheduled successfully. Please refresh the page after sometime.');
       setTimeout(() => {
         this.messageResent.emit();
       }, 500);
@@ -440,20 +440,21 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return this.isRowResendButtonEnabled(row);
   }
 
-  isResendAllButtonEnabled() {
-    return this.rows.length > 0;
-  }
-
-  isResendSelectedButtonEnabled() {
-    return this.isMoreRowSelected() && !this.selected[0].deleted
-      && this.isRowResendButtonEnabled(this.selected[0]);
-  }
-
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
       && (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
       && !this.isSplitAndJoinMessage(row);
   }
+
+  isResendAllButtonEnabled() {
+    return this.rows.length > 1 && this.isMoreRowsWithSendFailure()
+      && this.rows.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+  }
+
+  isResendSelectedButtonEnabled() {
+    return this.isMoreRowsSelectedWithSendFailure() && this.selected.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+  }
+
 
   private isResendButtonEnabledForSendEnqueued(row): boolean {
     let receivedDateDelta = moment(row.received).add(this.resendReceivedMinutes, 'minutes');
@@ -478,8 +479,17 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return this.selected && this.selected.length == 1;
   }
 
-  private isMoreRowSelected() {
-    return this.selected && this.selected.length > 1;
+  private isMoreRowsSelectedWithSendFailure() {
+    return this.selected && this.selected.length > 1
+      && this.isMoreSelectedWithSendFailure();
+  }
+
+  private isMoreSelectedWithSendFailure() {
+      return this.selected.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
+  }
+
+  private isMoreRowsWithSendFailure() {
+    return this.rows.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
   }
 
   private async downloadMessage(row) {

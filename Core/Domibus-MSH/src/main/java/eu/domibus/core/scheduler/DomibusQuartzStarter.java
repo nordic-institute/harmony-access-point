@@ -290,7 +290,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
         JobKey jobKey = findJob(scheduler, MESSAGE_RESEND_JOB);
 
-        LOG.debug("Triggering the jpb with jobKey [{}] ..", jobKey);
+        LOG.debug("Triggering the job with jobKey [{}] ..", jobKey);
         scheduler.triggerJob(jobKey);
     }
 
