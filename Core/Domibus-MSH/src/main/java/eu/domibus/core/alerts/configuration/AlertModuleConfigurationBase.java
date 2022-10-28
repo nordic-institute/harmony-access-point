@@ -40,6 +40,11 @@ public class AlertModuleConfigurationBase implements AlertModuleConfiguration {
     }
 
     @Override
+    public AlertType getAlertType() {
+        return alertType;
+    }
+
+    @Override
     public String getMailSubject() {
         return mailSubject;
     }

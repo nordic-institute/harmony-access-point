@@ -83,10 +83,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void enqueueEvent(EventType eventType, String identifier, int frequency, EventProperties eventProperties) {
+    public void enqueueEvent(EventType eventType, String eventIdentifier, int frequency, EventProperties eventProperties) {
         Event event = createEvent(eventType, eventProperties);
         event.setReportingTime(new Date());
-        event.addStringKeyValue(EVENT_IDENTIFIER, identifier);
+        event.addStringKeyValue(EVENT_IDENTIFIER, eventIdentifier);
 
         eu.domibus.core.alerts.model.persist.Event entity = getPersistedEvent(event, EVENT_IDENTIFIER);
         if (!shouldCreateAlert(entity, frequency)) {

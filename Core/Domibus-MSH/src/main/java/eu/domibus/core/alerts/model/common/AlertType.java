@@ -1,5 +1,9 @@
 package eu.domibus.core.alerts.model.common;
 
+import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,28 +29,31 @@ public enum AlertType {
     PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Plugin password imminent expiration"),
     PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired"),
     PLUGIN("plugin.ftl", null, "Plugin Alert"),
-    ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl"),
+    ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl", DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX),
     ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl"),
     ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl"),
     PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification."),
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", "Connection monitoring failed");
 
-    private final String template;
-    private final String configurationProperty;
-    private final String title;
+    private String template;
+    private String configurationProperty;
+    private String title;
+    private AlertConfigurationManager configurationManager;
 
     AlertType(String template, String configurationProperty, String title) {
-        this.template = template;
-        this.configurationProperty = configurationProperty;
-        this.title = title;
+        setParams(template, configurationProperty, null, title);
     }
 
     AlertType(String template) {
         this(template, null, null);
     }
 
-    AlertType(String template, String title) {
-        this(template, null, title);
+    AlertType(String template, String configurationProperty) {
+        setParams(template, configurationProperty, null, this.name());
+    }
+
+    AlertType(String template, AlertConfigurationManager configurationManager) {
+        setParams(template, null, configurationManager, this.name());
     }
 
     //in the future an alert will not have one to one mapping.
@@ -68,5 +75,20 @@ public enum AlertType {
 
     public String getTitle() {
         return title;
+    }
+
+    public AlertConfigurationManager getConfigurationManager() {
+        return configurationManager;
+    }
+
+    private void setParams(String template, String configurationProperty, AlertConfigurationManager alertConfigurationManager, String title) {
+        this.template = template;
+        this.configurationProperty = configurationProperty;
+        this.configurationManager = alertConfigurationManager;
+        this.title = title;
+
+        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
+            this.configurationManager = new DefaultConfigurationManager(this, configurationProperty);
+        }
     }
 }
