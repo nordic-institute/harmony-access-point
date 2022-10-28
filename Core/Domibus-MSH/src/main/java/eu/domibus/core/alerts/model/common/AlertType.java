@@ -32,7 +32,7 @@ public enum AlertType {
     PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired"),
     PLUGIN("plugin.ftl", null, "Plugin Alert"),
     ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl", DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX),
-    ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl"),
+    ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl", DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX),
     ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl"),
     PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification."),
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", "Connection monitoring failed");
