@@ -2,8 +2,6 @@ package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedConfigurationManager;
-import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
@@ -44,8 +42,8 @@ public class EArchiveNotificationDlqListenerTest {
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
 
-    @Injectable
-    private ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager;
+//    @Injectable
+//    private ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager;
 
     @Injectable
     private EventService eventService;
@@ -56,8 +54,9 @@ public class EArchiveNotificationDlqListenerTest {
 
     @Test
     public void onMessageExported_ok(final @Mocked Message message,
-                                     @Injectable EArchiveBatchEntity eArchiveBatch,
-                                     @Injectable ArchivingNotificationFailedModuleConfiguration alertConfiguration) {
+                                     @Injectable EArchiveBatchEntity eArchiveBatch
+//                                     @Injectable ArchivingNotificationFailedModuleConfiguration alertConfiguration
+    ) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
@@ -77,11 +76,11 @@ public class EArchiveNotificationDlqListenerTest {
             eArchivingDefaultService.getEArchiveBatch(entityId, false);
             result = eArchiveBatch;
 
-            archivingNotificationFailedConfigurationManager.getConfiguration();
-            result = alertConfiguration;
+//            archivingNotificationFailedConfigurationManager.getConfiguration();
+//            result = alertConfiguration;
 
-            alertConfiguration.isActive();
-            result = true;
+//            alertConfiguration.isActive();
+//            result = true;
         }};
 
         eArchiveNotificationDlqListener.onMessage(message);
@@ -89,8 +88,9 @@ public class EArchiveNotificationDlqListenerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void onMessageExported_NotificationTypeUnknown(final @Mocked Message message,
-                                                          @Injectable EArchiveBatchEntity eArchiveBatch,
-                                                          @Injectable ArchivingNotificationFailedModuleConfiguration alertConfiguration) {
+                                                          @Injectable EArchiveBatchEntity eArchiveBatch
+//                                                          @Injectable ArchivingNotificationFailedModuleConfiguration alertConfiguration
+    ) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
@@ -107,11 +107,11 @@ public class EArchiveNotificationDlqListenerTest {
             jmsUtil.getStringPropertySafely(message, MessageConstants.NOTIFICATION_TYPE);
             result = "UNKNOWN";
 
-            archivingNotificationFailedConfigurationManager.getConfiguration();
-            result = alertConfiguration;
+//            archivingNotificationFailedConfigurationManager.getConfiguration();
+//            result = alertConfiguration;
 
-            alertConfiguration.isActive();
-            result = true;
+//            alertConfiguration.isActive();
+//            result = true;
 
         }};
 

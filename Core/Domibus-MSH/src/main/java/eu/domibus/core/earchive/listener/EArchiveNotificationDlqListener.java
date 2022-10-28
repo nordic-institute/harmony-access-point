@@ -2,11 +2,11 @@ package eu.domibus.core.earchive.listener;
 
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedConfigurationManager;
-import eu.domibus.core.earchive.alerts.ArchivingNotificationFailedModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchivingDefaultService;
+import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,18 +32,20 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
     private final JmsUtil jmsUtil;
 
-    private final ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager;
+//    private final ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager;
 
     private final EventService eventService;
 
     public EArchiveNotificationDlqListener(
             DatabaseUtil databaseUtil,
             EArchivingDefaultService eArchiveService,
-            JmsUtil jmsUtil, ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager, EventService eventService) {
+            JmsUtil jmsUtil,
+//            ArchivingNotificationFailedConfigurationManager archivingNotificationFailedConfigurationManager,
+            EventService eventService) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
-        this.archivingNotificationFailedConfigurationManager = archivingNotificationFailedConfigurationManager;
+//        this.archivingNotificationFailedConfigurationManager = archivingNotificationFailedConfigurationManager;
         this.eventService = eventService;
     }
 
@@ -62,7 +64,8 @@ public class EArchiveNotificationDlqListener implements MessageListener {
 
         LOG.info("Notification failed for batchId [{}] and entityId [{}]", batchId, entityId);
 
-        ArchivingNotificationFailedModuleConfiguration alertConfiguration = archivingNotificationFailedConfigurationManager.getConfiguration();
+//        ArchivingNotificationFailedModuleConfiguration alertConfiguration = archivingNotificationFailedConfigurationManager.getConfiguration();
+        DefaultAlertConfiguration alertConfiguration = AlertType.ARCHIVING_NOTIFICATION_FAILED.getConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving notification failed alerts module is not enabled, no alert will be created");
             return;

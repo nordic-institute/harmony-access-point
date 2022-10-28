@@ -9,6 +9,7 @@ import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
+import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
@@ -16,6 +17,7 @@ import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -90,6 +92,9 @@ public class DomibusContextRefreshedListener {
         this.backendConnectorService = backendConnectorService;
     }
 
+    //    @Autowired
+//    ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -104,27 +109,14 @@ public class DomibusContextRefreshedListener {
         doInitialize();
 
         AlertType.applicationContext = applicationContext;
+//        AlertType.defaultConfigurationManagerObjectProvider = defaultConfigurationManagerObjectProvider;
 
         LOG.info("Finished processing ContextRefreshedEvent");
     }
 
-//    @Autowired
-//    ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
-
-    @Autowired
-    protected ApplicationContext applicationContext;
-
     public void doInitialize() {
         executeWithLockIfNeeded(this::executeSynchronized);
         executeNonSynchronized();
-
-//        DefaultConfigurationManager bean = (DefaultConfigurationManager) applicationContext.getBean("defaultConfigurationManager",
-//                archivingNotificationFailed, archivingNotificationFailed.getConfigurationProperty());
-
-//        AlertType.defaultConfigurationManagerObjectProvider = defaultConfigurationManagerObjectProvider;
-//        archivingNotificationFailed.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, archivingNotificationFailed.getConfigurationProperty());
-//        AlertConfigurationManager manager = archivingNotificationFailed.getConfigurationManager();
-
     }
 
     /**
