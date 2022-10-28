@@ -12,9 +12,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 
 /**
  * Default alert config manager generated automatically for an alert type ( if not overridden)
@@ -22,7 +24,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author Ion Perpegel
  * @since 5.1
  */
-@Service
+@Component
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DefaultConfigurationManager
         extends ReaderMethodAlertConfigurationManager<DefaultAlertConfiguration>
         implements AlertConfigurationManager {
@@ -38,7 +41,7 @@ public class DefaultConfigurationManager
     AlertType alertType;
     String domibusPropertiesPrefix;
 
-    public DefaultConfigurationManager(AlertType alertType, String domibusPropertiesPrefix) {
+    public DefaultConfigurationManager( AlertType alertType, String domibusPropertiesPrefix) {
         this.alertType = alertType;
         this.domibusPropertiesPrefix = domibusPropertiesPrefix;
     }

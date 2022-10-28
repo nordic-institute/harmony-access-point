@@ -2,15 +2,21 @@ package eu.domibus.core.alerts.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import freemarker.cache.ClassTemplateLoader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
@@ -93,5 +99,10 @@ public class AlertContextConfiguration {
         return result;
     }
 
-
+    @Bean(name = "defaultConfigurationManager")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultConfigurationManager defaultConfigurationManager(AlertType alertType, String domibusPropertiesPrefix)
+    {
+        return new DefaultConfigurationManager(alertType, domibusPropertiesPrefix);
+    }
 }

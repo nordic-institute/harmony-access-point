@@ -7,6 +7,7 @@ import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -32,8 +33,8 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     protected final CommonConfigurationManager commonConfigurationManager;
 
     public AlertConfigurationServiceImpl(DomibusPropertyProvider domibusPropertyProvider,
-                                         List<AlertConfigurationManager> alertConfigurationManagers,
-                                         CommonConfigurationManager commonConfigurationManager) {
+                                         @Lazy List<AlertConfigurationManager> alertConfigurationManagers,
+                                         @Lazy CommonConfigurationManager commonConfigurationManager) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.alertConfigurationManagers = alertConfigurationManagers;
         this.commonConfigurationManager = commonConfigurationManager;

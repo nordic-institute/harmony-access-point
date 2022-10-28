@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.model.common;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,10 +36,12 @@ public enum AlertType {
     PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification."),
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", "Connection monitoring failed");
 
+//    public static ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
+
     private String template;
     private String configurationProperty;
     private String title;
-    private AlertConfigurationManager configurationManager;
+    public AlertConfigurationManager configurationManager;
 
     AlertType(String template, String configurationProperty, String title) {
         setParams(template, configurationProperty, null, title);
@@ -78,6 +81,9 @@ public enum AlertType {
     }
 
     public AlertConfigurationManager getConfigurationManager() {
+//        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
+//            this.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, configurationProperty);
+//        }
         return configurationManager;
     }
 
@@ -86,9 +92,5 @@ public enum AlertType {
         this.configurationProperty = configurationProperty;
         this.configurationManager = alertConfigurationManager;
         this.title = title;
-
-        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
-            this.configurationManager = new DefaultConfigurationManager(this, configurationProperty);
-        }
     }
 }
