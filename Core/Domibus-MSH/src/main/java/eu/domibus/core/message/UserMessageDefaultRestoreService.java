@@ -21,7 +21,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -68,12 +72,14 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
 
     private DomibusQuartzStarter domibusQuartzStarter;
 
+    private PlatformTransactionManager transactionManager;
+
 
     public UserMessageDefaultRestoreService(MessageExchangeService messageExchangeService, BackendNotificationService backendNotificationService,
                                             UserMessageLogDao userMessageLogDao, PModeProvider pModeProvider, PullMessageService pullMessageService,
                                             PModeService pModeService, PModeServiceHelper pModeServiceHelper, UserMessageDefaultService userMessageService,
                                             UserMessageDao userMessageDao, AuditService auditService, DomibusPropertyProvider domibusPropertyProvider,
-                                            UserMessageRestoreDao userMessageRestoreDao, DomibusQuartzStarter domibusQuartzStarter
+                                            UserMessageRestoreDao userMessageRestoreDao, DomibusQuartzStarter domibusQuartzStarter, PlatformTransactionManager transactionManager
     ) {
         this.messageExchangeService = messageExchangeService;
         this.backendNotificationService = backendNotificationService;
@@ -88,6 +94,7 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.userMessageRestoreDao = userMessageRestoreDao;
         this.domibusQuartzStarter = domibusQuartzStarter;
+        this.transactionManager = transactionManager;
     }
 
 
@@ -195,9 +202,11 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
             return;
         }
         if (messageIds.size() > MAX_RESEND_MESSAGE_COUNT) {
+            LOG.debug("Triggering the messageResendJob to restore all failed messages");
             triggerMessageResendJob(messageIds);
             return;
         }
+        LOG.debug("Restoring the failed messages without messageResendJob.");
         restoreMessages(messageIds);
     }
 
@@ -221,12 +230,16 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         List<String> restoredMessages = new ArrayList<>();
         for (String messageId : messageIds) {
             LOG.debug("Message Id's selected to restore [{}]", messageId);
-            try {
-                restoreFailedMessage(messageId);
-                restoredMessages.add(messageId);
-            } catch (Exception e) {
-                LOG.error("Failed to restore message [" + messageId + "]", e);
-            }
+            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        restoreFailedMessage(messageId);
+                        restoredMessages.add(messageId);
+                    } catch (Exception e) {
+                        LOG.error("Failed to restore message [" + messageId + "]", e);
+                    }
+                }
+            });
         }
     }
 
@@ -236,14 +249,18 @@ public class UserMessageDefaultRestoreService implements UserMessageRestoreServi
         List<String> messageIds = findAllMessagesToRestore();
         for (String messageId : messageIds) {
             LOG.debug("Found message to restore. Starting the restoring process of message with messageId [{}]", messageId);
-            try {
-                restoreFailedMessage(messageId);
-                restoredMessages.add(messageId);
-                userMessageRestoreDao.delete(messageId);
-            } catch (Exception e) {
-                LOG.error("Failed to restore message [" + messageId + "]", e);
-            }
+            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        restoreFailedMessage(messageId);
+                        restoredMessages.add(messageId);
+                        userMessageRestoreDao.delete(messageId);
+                    } catch (Exception e) {
+                        LOG.error("Failed to restore message [" + messageId + "]", e);
+                    }
+                }
+            });
+            LOG.debug("Restoring process of failed messages completed successfully.");
         }
-        LOG.debug("Restoring process of failed messages completed successfully.");
     }
-  }
+}
