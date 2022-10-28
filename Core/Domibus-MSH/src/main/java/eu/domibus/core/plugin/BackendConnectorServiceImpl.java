@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Service responsible with checking if a plugin is enabled and ensuring at least one plugin is enabled on a domain
+ *
  * @author Ion Perpegel
  * @since 5.0
  */
