@@ -93,6 +93,9 @@ public class JMSPluginImplTest {
     @Injectable
     BackendConnectorProviderExtService backendConnectorProviderExtService;
 
+    @Injectable
+    DomainExtService domainExtService;
+
     @Tested
     JMSPluginImpl backendJMS;
 
