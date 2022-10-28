@@ -916,10 +916,12 @@ public final class XMLUtils {
                     for (int i = 0; i < length; i++) {
                         Attr attr = (Attr)attributes.item(i);
                         if (attr.isId() && id.equals(attr.getValue()) && se != knownElement) {
-                            if(!(knownElement instanceof HeaderElement1_2Impl) || ((HeaderElement1_2Impl) knownElement).getDomElement() != se) { // Domibus customization: prevent a false wrapping attack exception on Java 11 (EDELIVERY-10137)
+//begin Domibus customization
+                            if (!isTheSameElement(knownElement, se)) {          //prevent a false wrapping attack exception on Java 11 (EDELIVERY-10137)
                                 LOG.debug("Multiple elements with the same 'Id' attribute value!");
                                 return false;
                             }
+//end Domibus customization
                         }
                     }
                 }
@@ -948,6 +950,12 @@ public final class XMLUtils {
         return true;
 
     }
+
+//begin Domibus customization
+    private static boolean isTheSameElement(Element knownElement, Element se) {
+        return knownElement instanceof HeaderElement1_2Impl && ((HeaderElement1_2Impl) knownElement).getDomElement() == se;
+    }
+//end Domibus customization
 
     public static Document read(InputStream inputStream, boolean disallowDocTypeDeclarations) throws XMLParserException {
         // Delegate to XMLParser implementation
