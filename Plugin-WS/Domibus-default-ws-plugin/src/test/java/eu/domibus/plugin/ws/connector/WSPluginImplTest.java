@@ -74,7 +74,13 @@ public class WSPluginImplTest {
     BackendConnectorProviderExtService backendConnectorProviderExtService;
 
     @Injectable
+    DomibusPropertyExtService domibusPropertyExtService;
+
+    @Injectable
     DomainContextExtService domainContextExtService;
+
+    @Injectable
+    DomainExtService domainExtService;
 
     @Test
     public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,
