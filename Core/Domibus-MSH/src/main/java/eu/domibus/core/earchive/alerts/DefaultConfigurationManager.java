@@ -52,11 +52,11 @@ public class DefaultConfigurationManager
     }
 
     @Override
-    protected ConfigurationReader<DefaultAlertConfiguration> getReaderMethod() {
+    public ConfigurationReader<DefaultAlertConfiguration> getReaderMethod() {
         return this::readConfiguration;
     }
 
-    protected DefaultAlertConfiguration readConfiguration() {
+    public DefaultAlertConfiguration readConfiguration() {
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
             final Boolean alertsModuleActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);

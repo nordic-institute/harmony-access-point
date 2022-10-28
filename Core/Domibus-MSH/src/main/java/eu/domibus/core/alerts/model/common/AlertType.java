@@ -1,9 +1,10 @@
 package eu.domibus.core.alerts.model.common;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,12 +37,13 @@ public enum AlertType {
     PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification."),
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", "Connection monitoring failed");
 
-//    public static ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
+    //    public static ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
+    public static ApplicationContext applicationContext;
 
     private String template;
     private String configurationProperty;
     private String title;
-    public AlertConfigurationManager configurationManager;
+    public DefaultConfigurationManager configurationManager;
 
     AlertType(String template, String configurationProperty, String title) {
         setParams(template, configurationProperty, null, title);
@@ -55,7 +57,7 @@ public enum AlertType {
         setParams(template, configurationProperty, null, this.name());
     }
 
-    AlertType(String template, AlertConfigurationManager configurationManager) {
+    AlertType(String template, DefaultConfigurationManager configurationManager) {
         setParams(template, null, configurationManager, this.name());
     }
 
@@ -80,14 +82,23 @@ public enum AlertType {
         return title;
     }
 
-    public AlertConfigurationManager getConfigurationManager() {
+    public DefaultConfigurationManager getConfigurationManager() {
+        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
+            configurationManager = (DefaultConfigurationManager) applicationContext.getBean("defaultConfigurationManager", this, configurationProperty);
+        }
+
 //        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
 //            this.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, configurationProperty);
 //        }
         return configurationManager;
     }
 
-    private void setParams(String template, String configurationProperty, AlertConfigurationManager alertConfigurationManager, String title) {
+    public DefaultAlertConfiguration getConfiguration() {
+        DefaultConfigurationManager confMan = getConfigurationManager();
+        return confMan.readConfiguration();
+    }
+
+    private void setParams(String template, String configurationProperty, DefaultConfigurationManager alertConfigurationManager, String title) {
         this.template = template;
         this.configurationProperty = configurationProperty;
         this.configurationManager = alertConfigurationManager;
