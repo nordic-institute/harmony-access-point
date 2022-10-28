@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
+import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -22,19 +23,22 @@ import org.junit.runner.RunWith;
 public class PasswordEncryptionContextDomainTest {
 
     @Injectable
-    Domain domain;
+    private Domain domain;
 
     @Injectable
-    protected PasswordEncryptionService passwordEncryptionService;
+    private PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
-    protected DomibusRawPropertyProvider domibusPropertyProvider;
+    private DomibusRawPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    protected DomibusConfigurationService domibusConfigurationService;
+    private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Tested
-    PasswordEncryptionContextDomain passwordEncryptionContextDomain;
+    private PasswordEncryptionContextDomain passwordEncryptionContextDomain;
 
     @Test
     public void isPasswordEncryptionActive() {

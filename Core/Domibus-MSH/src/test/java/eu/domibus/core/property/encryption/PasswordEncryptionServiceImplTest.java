@@ -80,12 +80,15 @@ public class PasswordEncryptionServiceImplTest {
     PasswordEncryptionServiceImpl passwordEncryptionService;
 
     @Test
-    public void encryptPasswordsNonMultitenancy() {
+    public void encryptPasswordsNonMultitenancy(@Injectable PasswordEncryptionContext passwordEncryptionContext) {
         new Expectations(passwordEncryptionService) {{
+            passwordEncryptionContextFactory.getPasswordEncryptionContext(null);
+            result = passwordEncryptionContext;
+
             domibusConfigurationService.isMultiTenantAware();
             result = false;
 
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContextDefault) any);
+            passwordEncryptionService.encryptPasswords(passwordEncryptionContext);
         }};
 
         passwordEncryptionService.encryptPasswords();
@@ -100,7 +103,8 @@ public class PasswordEncryptionServiceImplTest {
 
     @Test
     public void encryptPasswordsMultitenancy(@Injectable Domain domain1,
-                                             @Injectable Domain domain2) {
+                                             @Injectable Domain domain2,
+                                             @Injectable PasswordEncryptionContext passwordEncryptionContext) {
         List<Domain> domains = new ArrayList<>();
         domains.add(domain1);
         domains.add(domain2);
@@ -112,7 +116,10 @@ public class PasswordEncryptionServiceImplTest {
             domainService.getDomains();
             result = domains;
 
-            passwordEncryptionService.encryptPasswords((PasswordEncryptionContext) any);
+            passwordEncryptionContextFactory.getPasswordEncryptionContext((Domain) any);
+            result = passwordEncryptionContext;
+
+            passwordEncryptionService.encryptPasswords(passwordEncryptionContext);
             times = 3;
         }};
 
@@ -678,23 +685,27 @@ public class PasswordEncryptionServiceImplTest {
     @Test
     public void encryptProperty_ok(@Injectable PasswordEncryptionSecret passwordEncryptionSecret,
                                    @Injectable SecretKey secretKey,
-                                   @Injectable GCMParameterSpec secretKeySpec) {
+                                   @Injectable GCMParameterSpec secretKeySpec,
+                                   @Injectable PasswordEncryptionContext passwordEncryptionContext) {
         PasswordEncryptionResult expected = new PasswordEncryptionResult();
         Domain domain = DomainService.DEFAULT_DOMAIN;
         byte[] secret = "secret".getBytes();
         byte[] vector = "vector".getBytes();
         String propertyName = "propertyName";
         String propertyValue = "propertyValue";
+        File encryptedKeyFile = new File(this.getClass().getResource("/encrypt").getPath());
         new Expectations(passwordEncryptionService) {{
+            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            result = passwordEncryptionContext;
 
-            domibusConfigurationService.isPasswordEncryptionActive(domain);
+            passwordEncryptionContext.isPasswordEncryptionActive();
             times = 1;
             result = true;
 
-            domibusRawPropertyProvider.getRawPropertyValue(domain, DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
-            result = this.getClass().getResource("/encrypt").getPath();
+            passwordEncryptionContext.getEncryptedKeyFile();
+            result = encryptedKeyFile;
 
-            passwordEncryptionDao.getSecret((File) any);
+            passwordEncryptionDao.getSecret(encryptedKeyFile);
             result = passwordEncryptionSecret;
             times = 1;
 
@@ -727,17 +738,21 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
-    public void encryptProperty_noKeyFile() {
+    public void encryptProperty_noKeyFile(@Injectable PasswordEncryptionContext passwordEncryptionContext, @Injectable File encryptedKeyFile) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         new Expectations(passwordEncryptionService) {{
+            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            result = passwordEncryptionContext;
 
-            domibusConfigurationService.isPasswordEncryptionActive(domain);
+            passwordEncryptionContext.isPasswordEncryptionActive();
             times = 1;
             result = true;
 
-            domibusRawPropertyProvider.getRawPropertyValue(domain, DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
-            result = null;
+            passwordEncryptionContext.getEncryptedKeyFile();
+            result = encryptedKeyFile;
 
+            encryptedKeyFile.exists();
+            result = false;
         }};
 
         try {
@@ -752,10 +767,13 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
-    public void encryptProperty_notActive() {
+    public void encryptProperty_notActive(@Injectable PasswordEncryptionContext passwordEncryptionContext) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         new Expectations() {{
-            domibusConfigurationService.isPasswordEncryptionActive(domain);
+            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+            result = passwordEncryptionContext;
+
+            passwordEncryptionContext.isPasswordEncryptionActive();
             times = 1;
             result = false;
         }};
