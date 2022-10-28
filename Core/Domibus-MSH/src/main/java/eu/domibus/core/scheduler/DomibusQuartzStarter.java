@@ -284,6 +284,16 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         jobsToPause.add(new DomibusDomainQuartzJob(domain, jobName));
     }
 
+    @Override
+    public void triggerMessageResendJob() throws SchedulerException {
+        Domain domain = domainContextProvider.getCurrentDomainSafely();
+        Scheduler scheduler = domain != null ? schedulers.get(domain) : generalSchedulers.get(0);
+        JobKey jobKey = findJob(scheduler, MESSAGE_RESEND_JOB);
+
+        LOG.debug("Triggering the job with jobKey [{}] ..", jobKey);
+        scheduler.triggerJob(jobKey);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -590,7 +600,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         });
     }
 
-    protected JobKey findJob(Scheduler scheduler, String jobNameToFind) throws SchedulerException {
+    public JobKey findJob(Scheduler scheduler, String jobNameToFind) throws SchedulerException {
         for (String groupName : scheduler.getJobGroupNames()) {
             for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
                 final String jobName = jobKey.getName();
