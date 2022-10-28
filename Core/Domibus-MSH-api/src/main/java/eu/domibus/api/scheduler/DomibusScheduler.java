@@ -3,6 +3,7 @@ package eu.domibus.api.scheduler;
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainsAware;
+import org.quartz.SchedulerException;
 
 /**
  * @author Ion Perpegel , soumya chandran
@@ -77,4 +78,6 @@ public interface DomibusScheduler extends DomainsAware {
      * @param jobName the name of the job to be paused
      */
     void markJobForPausingByDomain(Domain domain, String jobName);
+
+    void triggerMessageResendJob() throws SchedulerException;
 }

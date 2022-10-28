@@ -34,7 +34,6 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
-import eu.domibus.web.rest.ro.MessageLogRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;

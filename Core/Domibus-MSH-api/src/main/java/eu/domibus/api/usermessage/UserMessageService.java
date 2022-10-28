@@ -7,7 +7,6 @@ import eu.domibus.api.usermessage.domain.UserMessage;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Cosmin Baciu

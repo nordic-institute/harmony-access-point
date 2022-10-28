@@ -128,7 +128,7 @@
   <grid-header [parent]="this"></grid-header>
 
   <div class="domibus-grid-container">
-    <page-grid [parent]="this" [selectionType]="'single'" [totalMessage]="totalRowsMessage"
+    <page-grid [parent]="this" [selectionType]="'multi'" [totalMessage]="totalRowsMessage"
                [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
   </div>
 
@@ -176,6 +176,18 @@
             id="resendbutton_id" button-click-behaviour>
       <mat-icon>send</mat-icon>
       <span>Resend</span>
+    </button>
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendAllButtonEnabled()"
+            (click)="resendAllDialog()"
+            id="resendallbutton_id" button-click-behaviour>
+      <mat-icon>send</mat-icon>
+      <span>Resend All</span>
+    </button>
+    <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendSelectedButtonEnabled()"
+            (click)="resendSelectedDialog()"
+            id="resendSelectedButton_id" button-click-behaviour>
+      <mat-icon>send</mat-icon>
+      <span>Resend Selected</span>
     </button>
   </div>
 

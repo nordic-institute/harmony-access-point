@@ -42,6 +42,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
+  static readonly RESEND_SELECTED_URL: string = 'rest/message/failed/restore/selected';
+  static readonly RESEND_ALL_URL: string = 'rest/message/failed/restore/filtered';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}&mshRole=${mshRole}';
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}&mshRole=${mshRole}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
@@ -365,6 +367,30 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
+  async resendAllDialog() {
+    const resend = await this.dialogsService.openResendAllDialog();
+    if (!resend) {
+      return;
+    }
+    this.resendAll();
+    super.selected = [];
+    this.messageResent.subscribe(() => {
+      this.page();
+    });
+  }
+
+  async resendSelectedDialog() {
+    const resendSelected = await this.dialogsService.openResendSelectedDialog();
+    if (!resendSelected) {
+      return;
+    }
+    this.resendSelected(this.selected);
+    super.selected = [];
+    this.messageResent.subscribe(() => {
+      this.page();
+    });
+  }
+
   resend(messageId: string) {
     console.log('Resending message with id ', messageId);
 
@@ -380,8 +406,29 @@ export class MessageLogComponent extends mix(BaseListComponent)
     });
   }
 
-  isResendButtonEnabledAction(row): boolean {
-    return this.isRowResendButtonEnabled(row);
+  resendAll() {
+    const filters = this.getFiltersAsObject();
+    let url = MessageLogComponent.RESEND_ALL_URL;
+    this.http.put(url,  filters).subscribe(res => {
+      this.alertService.success('The operation resend messages scheduled successfully. Please refresh the page after sometime.');
+      setTimeout(() => {
+        this.messageResent.emit();
+      }, 500);
+    }, err => {
+      this.alertService.exception('The messages could not be resent.', err);
+    });
+  }
+
+  resendSelected(messageLogEntries: MessageLogEntry[]) {
+    let url = MessageLogComponent.RESEND_SELECTED_URL;
+    this.http.put(url, messageLogEntries).subscribe(res => {
+      this.alertService.success('The operation resend messages completed successfully');
+      setTimeout(() => {
+        this.messageResent.emit();
+      }, 500);
+    }, err => {
+      this.alertService.exception('The messages could not be resent.', err);
+    });
   }
 
   isResendButtonEnabled() {
@@ -389,11 +436,25 @@ export class MessageLogComponent extends mix(BaseListComponent)
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
+  isResendButtonEnabledAction(row): boolean {
+    return this.isRowResendButtonEnabled(row);
+  }
+
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
       && (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
       && !this.isSplitAndJoinMessage(row);
   }
+
+  isResendAllButtonEnabled() {
+    return this.rows.length > 1 && this.isMoreRowsWithSendFailure()
+      && this.rows.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+  }
+
+  isResendSelectedButtonEnabled() {
+    return this.isMoreRowsSelectedWithSendFailure() && this.selected.filter(row=> this.isRowResendButtonEnabled(row)).length>1;
+  }
+
 
   private isResendButtonEnabledForSendEnqueued(row): boolean {
     let receivedDateDelta = moment(row.received).add(this.resendReceivedMinutes, 'minutes');
@@ -416,6 +477,19 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isOneRowSelected() {
     return this.selected && this.selected.length == 1;
+  }
+
+  private isMoreRowsSelectedWithSendFailure() {
+    return this.selected && this.selected.length > 1
+      && this.isMoreSelectedWithSendFailure();
+  }
+
+  private isMoreSelectedWithSendFailure() {
+      return this.selected.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
+  }
+
+  private isMoreRowsWithSendFailure() {
+    return this.rows.filter(row=> row.messageStatus === 'SEND_FAILURE').length >1;
   }
 
   private async downloadMessage(row) {
