@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.SchedulerException;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -76,6 +77,9 @@ public class UserMessageDefaultRestoreServiceTest {
 
     @Injectable
     private DomibusQuartzStarter domibusQuartzStarter;
+
+    @Injectable
+    private PlatformTransactionManager transactionManager;
 
 
     @Test
@@ -299,7 +303,7 @@ public class UserMessageDefaultRestoreServiceTest {
 
         restoreService.restoreFailedMessages(messageIds);
 
-        new FullVerifications() {{
+        new FullVerifications(restoreService) {{
             restoreService.restoreMessages(messageIds);
         }};
     }
