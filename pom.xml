@@ -11,12 +11,18 @@
     <name>Domibus MSH</name>
     <modules>
         <module>Core</module>
+        <module>Core/Domibus-MSH-customizations</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--!!Important!! Please update also the WSS4J version in case you update the CXF version -->
+        <!--!!Important!! Please update also the WSS4J, XmlSec and Saaj version in case you update the CXF version -->
         <cxf.version>3.5.3</cxf.version>
-        <wss4j-ws-security.version>2.3.3</wss4j-ws-security.version>
+        <wss4j-ws-security.version>2.4.1</wss4j-ws-security.version>
+        <!--!!Important!! When upgrading the version of xmlsec make sure the class org.apache.xml.security.utils.XMLUtils from Domibus-MSH-customizations
+        gets any change added to org.apache.xml.security.utils.XMLUtils in xmlsec.jar (https://santuario.apache.org/java-source-repository.html)
+        and keeps the customizations needed by Domibus -->
+        <xmlsec.version>2.3.0</xmlsec.version>
+        <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <spring.version>5.3.23</spring.version>
         <spring.security.version>5.7.4</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
@@ -121,14 +127,12 @@
         <awaitility.version>4.2.0</awaitility.version>
         <jmockit.version>1.22</jmockit.version>
         <org.reflections.version>0.10.2</org.reflections.version>
-        <messaging.saaj.version>1.5.3</messaging.saaj.version>
         <jaxws-api.version>2.3.1</jaxws-api.version>
         <javax.annotation.version>1.3.2</javax.annotation.version>
 
         <javax.jms-api.version>2.0.1</javax.jms-api.version>
         <activation.version>1.1.1</activation.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
-        <xmlsec.version>2.2.4</xmlsec.version>
         <httpcore.version>4.4.15</httpcore.version>
         <ehcache.version>3.10.2</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
