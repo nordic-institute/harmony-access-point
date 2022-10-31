@@ -67,7 +67,8 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
                 return createAlertConfiguration(alertType);
             }
 
-            AC config =  createAlertConfiguration(alertType);
+            AC config = createAlertConfiguration(alertType);
+            config.setActive(true);
 
             final AlertLevel alertLevel = AlertLevel.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".level"));
             config.setAlertLevel(alertLevel);

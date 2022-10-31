@@ -31,7 +31,7 @@ public class EArchivingEventService {
 
     public void sendEventMessageNotFinal(String messageId, MessageStatus messageStatus) {
 //        ArchivingMessagesNonFinalModuleConfiguration alertConfiguration = archivingMessagesNonFinalStatusConfigurationManager.getConfiguration();
-        DefaultAlertConfiguration alertConfiguration = AlertType.ARCHIVING_MESSAGES_NON_FINAL.getConfiguration();
+        DefaultAlertConfiguration alertConfiguration = (DefaultAlertConfiguration)AlertType.ARCHIVING_MESSAGES_NON_FINAL.getConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
             return;

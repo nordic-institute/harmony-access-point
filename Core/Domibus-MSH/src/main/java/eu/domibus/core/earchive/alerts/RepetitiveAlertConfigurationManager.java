@@ -35,8 +35,10 @@ public class RepetitiveAlertConfigurationManager
         try {
             final Integer delay = Integer.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".delay_days"));
             config.setEventDelay(delay);
+
             final Integer frequency = Integer.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".frequency_days"));
             config.setEventFrequency(frequency);
+
             return config;
         } catch (Exception ex) {
             LOG.warn("Error while configuring alerts of type [{}] notifications for domain:[{}].",

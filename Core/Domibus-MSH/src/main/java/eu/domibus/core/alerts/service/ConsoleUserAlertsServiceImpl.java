@@ -7,11 +7,12 @@ import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAcco
 import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
-import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
+//import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+//import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
+//import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.ui.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +43,11 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Autowired
     ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
-    @Autowired
-    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
-
-    @Autowired
-    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
+//    @Autowired
+//    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
+//
+//    @Autowired
+//    private ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
 
     @Override
     protected String getMaximumDefaultPasswordAgeProperty() {
@@ -104,13 +105,15 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration() {
-        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
+    protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
+        return (RepetitiveAlertConfiguration)AlertType.PASSWORD_EXPIRED.getConfiguration();
+//        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
     @Override
-    protected PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration() {
-        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
+    protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
+        return (RepetitiveAlertConfiguration)AlertType.PASSWORD_IMMINENT_EXPIRATION.getConfiguration();
+//        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 
 }

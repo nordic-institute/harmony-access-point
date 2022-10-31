@@ -65,7 +65,7 @@ public class EArchiveNotificationDlqListener implements MessageListener {
         LOG.info("Notification failed for batchId [{}] and entityId [{}]", batchId, entityId);
 
 //        ArchivingNotificationFailedModuleConfiguration alertConfiguration = archivingNotificationFailedConfigurationManager.getConfiguration();
-        DefaultAlertConfiguration alertConfiguration = AlertType.ARCHIVING_NOTIFICATION_FAILED.getConfiguration();
+        DefaultAlertConfiguration alertConfiguration = (DefaultAlertConfiguration)AlertType.ARCHIVING_NOTIFICATION_FAILED.getConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving notification failed alerts module is not enabled, no alert will be created");
             return;

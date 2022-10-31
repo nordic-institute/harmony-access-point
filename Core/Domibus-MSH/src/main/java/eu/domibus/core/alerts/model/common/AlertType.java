@@ -2,8 +2,9 @@ package eu.domibus.core.alerts.model.common;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
+import eu.domibus.core.earchive.alerts.ConsoleUserPasswordExpirationAlertConfigurationManager;
 import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
+import eu.domibus.core.earchive.alerts.RepetitiveAlertConfigurationManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 
@@ -15,10 +16,11 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 public enum AlertType {
-    MSG_STATUS_CHANGED("message.ftl", "Message status changed"),
+    MSG_STATUS_CHANGED("message.ftl"),
     CERT_IMMINENT_EXPIRATION("cert_imminent_expiration.ftl"),
     CERT_EXPIRED("cert_expired.ftl"),
     USER_LOGIN_FAILURE("login_failure.ftl"),
@@ -27,11 +29,11 @@ public enum AlertType {
     PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl"),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl"),
     PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl"),
-    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX),
-    PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX),
-    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX),
-    PLUGIN("plugin.ftl", null),
+    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX, true, ConsoleUserPasswordExpirationAlertConfigurationManager.class),
+    PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, true, ConsoleUserPasswordExpirationAlertConfigurationManager.class),
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, true),
+    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, true),
+    PLUGIN("plugin.ftl"),
     ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl", DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX),
     ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl", DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX),
     ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl"),
@@ -43,20 +45,27 @@ public enum AlertType {
 
     private String template;
     private String configurationProperty;
-    private String title;
-    public AlertConfigurationManager configurationManager;
+    private boolean repetitive;
+    private Class configurationManagerClass;
+
+    private AlertConfigurationManager configurationManager;
 
     AlertType(String template) {
-        this(template, null);
+        setParams(template, null, false);
     }
 
     AlertType(String template, String configurationProperty) {
-        setParams(template, configurationProperty);
+        setParams(template, configurationProperty, false);
     }
 
-//    AlertType(String template, DefaultConfigurationManager configurationManager) {
-//        setParams(template, null, configurationManager);
-//    }
+    AlertType(String template, String configurationProperty, boolean repetitive) {
+        setParams(template, configurationProperty, repetitive);
+    }
+
+    AlertType(String template, String configurationProperty, boolean repetitive, Class configurationManagerClass) {
+        setParams(template, configurationProperty, repetitive);
+        this.configurationManagerClass = configurationManagerClass;
+    }
 
     //in the future an alert will not have one to one mapping.
     public static AlertType getByEventType(EventType eventType) {
@@ -76,17 +85,7 @@ public enum AlertType {
     }
 
     public String getTitle() {
-        return title;
-    }
-
-    public AlertConfigurationManager getConfigurationManager() {
-        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
-            configurationManager = (AlertConfigurationManager) applicationContext.getBean("defaultConfigurationManager", this, configurationProperty);
-        }
-//        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
-//            this.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, configurationProperty);
-//        }
-        return configurationManager;
+        return this.name();
     }
 
     public AlertModuleConfiguration getConfiguration() {
@@ -94,10 +93,36 @@ public enum AlertType {
         return confMan.getConfiguration();
     }
 
-    private void setParams(String template, String configurationProperty) {
+    private void setParams(String template, String configurationProperty, boolean repetitive) {
         this.template = template;
         this.configurationProperty = configurationProperty;
-        this.configurationManager = null;
-        this.title = this.name();
+        this.repetitive = repetitive;
+//        this.configurationManager = null;
     }
+
+    public AlertConfigurationManager getConfigurationManager() {
+        if (configurationManager != null) {
+            return configurationManager;
+        }
+
+        if (configurationManagerClass != null) {
+            configurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, this, configurationProperty);
+            return configurationManager;
+        }
+
+        if (StringUtils.isNotBlank(configurationProperty)) {
+            if (!repetitive) {
+                configurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
+            } else {
+                configurationManager = applicationContext.getBean(RepetitiveAlertConfigurationManager.class, this, configurationProperty);
+            }
+            return configurationManager;
+        }
+
+        return null;
+    }
+//        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
+//            this.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, configurationProperty);
+//        }
+
 }

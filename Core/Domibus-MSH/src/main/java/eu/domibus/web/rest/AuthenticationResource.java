@@ -116,11 +116,10 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-//        AlertType archivingNotificationFailed = AlertType.ARCHIVING_NOTIFICATION_FAILED;
-//        AlertConfigurationManager confMan = archivingNotificationFailed.getConfigurationManager();
-//        AlertModuleConfiguration conf = archivingNotificationFailed.getConfiguration();
-//
-//        int i =1;
+        AlertType archivingNotificationFailed = AlertType.PASSWORD_EXPIRED;
+        AlertModuleConfiguration conf = archivingNotificationFailed.getConfiguration();
+
+        int i =1;
 
         return createUserRO(principal, loginRO.getUsername());
     }

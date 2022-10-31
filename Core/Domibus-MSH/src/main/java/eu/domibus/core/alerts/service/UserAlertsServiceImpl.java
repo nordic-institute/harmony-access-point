@@ -6,9 +6,10 @@ import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+//import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.logging.DomibusLogger;
@@ -62,9 +63,9 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
 
-    protected abstract PasswordExpirationAlertModuleConfiguration getExpiredAlertConfiguration();
+    protected abstract RepetitiveAlertConfiguration getExpiredAlertConfiguration();
 
-    protected abstract PasswordExpirationAlertModuleConfiguration getImminentExpirationAlertConfiguration();
+    protected abstract RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration();
 
     @Override
     public void triggerLoginEvents(String userName, UserLoginErrorReason userLoginErrorReason) {
@@ -136,7 +137,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
     }
 
     private void triggerExpirationEvents(boolean usersWithDefaultPassword, boolean imminent, EventType eventType) {
-        PasswordExpirationAlertModuleConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
+        RepetitiveAlertConfiguration alertConfiguration = imminent ? getImminentExpirationAlertConfiguration()
                 : getExpiredAlertConfiguration();
         if (!alertConfiguration.isActive()) {
             return;

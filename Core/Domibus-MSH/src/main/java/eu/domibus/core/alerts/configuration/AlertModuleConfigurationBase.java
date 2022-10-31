@@ -67,6 +67,10 @@ public class AlertModuleConfigurationBase implements AlertModuleConfiguration {
         return alertLevel;
     }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public void setAlertLevel(AlertLevel alertLevel) {
         this.alertLevel = alertLevel;
     }
