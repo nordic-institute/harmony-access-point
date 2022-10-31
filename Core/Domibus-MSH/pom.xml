@@ -307,12 +307,17 @@
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <!--<exclusions>
+            <exclusions>
                 <exclusion>
                     <groupId>com.zaxxer</groupId>
                     <artifactId>HikariCP-java7</artifactId>
                 </exclusion>
-            </exclusions>-->
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikaricp.version}</version>
         </dependency>
 
         <!-- Difi libraries -->
