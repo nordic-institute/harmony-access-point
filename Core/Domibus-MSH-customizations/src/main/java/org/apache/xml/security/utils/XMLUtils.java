@@ -1,3 +1,10 @@
+/*
+* This class is copy-pasted from xmlsec sources (https://github.com/apache/santuario-xml-security-java/tree/2.3.x-fixes)
+* and the only modifications are surrounded by comments '//begin Domibus customization' and '//end Domibus customization'
+* When we update xmlsec we can compare the latest source code with our customization and bring any new changes while keeping the code we added.
+* It's a (temporary) work around for EDELIVERY-10137.
+* */
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
