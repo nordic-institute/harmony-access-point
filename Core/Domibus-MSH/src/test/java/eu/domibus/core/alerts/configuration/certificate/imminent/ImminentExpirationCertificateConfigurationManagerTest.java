@@ -105,8 +105,8 @@ public class ImminentExpirationCertificateConfigurationManagerTest {
         final ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration = configurationManager.readConfiguration();
         assertTrue(imminentExpirationCertificateConfiguration.isActive());
         assertEquals(mailSubject, imminentExpirationCertificateConfiguration.getMailSubject());
-        assertEquals(60, imminentExpirationCertificateConfiguration.getImminentExpirationDelay(), 0);
-        assertEquals(10, imminentExpirationCertificateConfiguration.getImminentExpirationFrequency(), 0);
+        assertEquals(60, imminentExpirationCertificateConfiguration.getEventDelay(), 0);
+        assertEquals(10, imminentExpirationCertificateConfiguration.getEventFrequency(), 0);
         Event event = new Event(EventType.CERT_IMMINENT_EXPIRATION);
         assertEquals(AlertLevel.MEDIUM, imminentExpirationCertificateConfiguration.getAlertLevel(event));
     }

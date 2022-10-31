@@ -15,8 +15,11 @@ public class AlertModuleConfigurationBase implements AlertModuleConfiguration {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertModuleConfigurationBase.class);
 
     AlertType alertType;
+
     private boolean active;
+
     private AlertLevel alertLevel;
+
     private String mailSubject;
 
     private AlertModuleConfigurationBase(AlertType alertType, boolean isActive) {
@@ -64,4 +67,11 @@ public class AlertModuleConfigurationBase implements AlertModuleConfiguration {
         return alertLevel;
     }
 
+    public void setAlertLevel(AlertLevel alertLevel) {
+        this.alertLevel = alertLevel;
+    }
+
+    public void setMailSubject(String mailSubject) {
+        this.mailSubject = mailSubject;
+    }
 }

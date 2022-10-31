@@ -82,8 +82,8 @@ public class ExpiredCertificateConfigurationManagerTest {
         final ExpiredCertificateModuleConfiguration expiredCertificateConfiguration = configurationManager.readConfiguration();
 
         assertTrue(expiredCertificateConfiguration.isActive());
-        assertEquals(20, expiredCertificateConfiguration.getExpiredFrequency(), 0);
-        assertEquals(10, expiredCertificateConfiguration.getExpiredDuration(), 0);
+        assertEquals(20, expiredCertificateConfiguration.getEventFrequency(), 0);
+        assertEquals(10, expiredCertificateConfiguration.getEventDuration(), 0);
         Event event = new Event(EventType.CERT_EXPIRED);
         assertEquals(AlertLevel.LOW, expiredCertificateConfiguration.getAlertLevel(event));
         assertEquals(mailSubject, expiredCertificateConfiguration.getMailSubject());

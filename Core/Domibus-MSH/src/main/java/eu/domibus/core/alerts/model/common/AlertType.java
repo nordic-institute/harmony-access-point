@@ -1,9 +1,10 @@
 package eu.domibus.core.alerts.model.common;
 
+import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Arrays;
@@ -26,40 +27,36 @@ public enum AlertType {
     PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl"),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl"),
     PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl"),
-    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Password imminent expiration"),
-    PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, "Password expired"),
-    PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Plugin password imminent expiration"),
-    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired"),
-    PLUGIN("plugin.ftl", null, "Plugin Alert"),
+    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX),
+    PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX),
+    PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX),
+    PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX),
+    PLUGIN("plugin.ftl", null),
     ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl", DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX),
     ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl", DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX),
     ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl"),
-    PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX, "Partition needs verification."),
-    CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl", "Connection monitoring failed");
+    PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX),
+    CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl");
 
-//    public static ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
+    //    public static ObjectProvider<DefaultConfigurationManager> defaultConfigurationManagerObjectProvider;
     public static ApplicationContext applicationContext;
 
     private String template;
     private String configurationProperty;
     private String title;
-    public DefaultConfigurationManager configurationManager;
-
-    AlertType(String template, String configurationProperty, String title) {
-        setParams(template, configurationProperty, null, title);
-    }
+    public AlertConfigurationManager configurationManager;
 
     AlertType(String template) {
-        this(template, null, null);
+        this(template, null);
     }
 
     AlertType(String template, String configurationProperty) {
-        setParams(template, configurationProperty, null, this.name());
+        setParams(template, configurationProperty);
     }
 
-    AlertType(String template, DefaultConfigurationManager configurationManager) {
-        setParams(template, null, configurationManager, this.name());
-    }
+//    AlertType(String template, DefaultConfigurationManager configurationManager) {
+//        setParams(template, null, configurationManager);
+//    }
 
     //in the future an alert will not have one to one mapping.
     public static AlertType getByEventType(EventType eventType) {
@@ -82,9 +79,9 @@ public enum AlertType {
         return title;
     }
 
-    public DefaultConfigurationManager getConfigurationManager() {
+    public AlertConfigurationManager getConfigurationManager() {
         if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
-            configurationManager = (DefaultConfigurationManager) applicationContext.getBean("defaultConfigurationManager", this, configurationProperty);
+            configurationManager = (AlertConfigurationManager) applicationContext.getBean("defaultConfigurationManager", this, configurationProperty);
         }
 //        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
 //            this.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, configurationProperty);
@@ -92,15 +89,15 @@ public enum AlertType {
         return configurationManager;
     }
 
-    public DefaultAlertConfiguration getConfiguration() {
-        DefaultConfigurationManager confMan = getConfigurationManager();
-        return confMan.readConfiguration();
+    public AlertModuleConfiguration getConfiguration() {
+        AlertConfigurationManager confMan = getConfigurationManager();
+        return confMan.getConfiguration();
     }
 
-    private void setParams(String template, String configurationProperty, DefaultConfigurationManager alertConfigurationManager, String title) {
+    private void setParams(String template, String configurationProperty) {
         this.template = template;
         this.configurationProperty = configurationProperty;
-        this.configurationManager = alertConfigurationManager;
-        this.title = title;
+        this.configurationManager = null;
+        this.title = this.name();
     }
 }

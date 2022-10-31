@@ -10,31 +10,31 @@ import eu.domibus.core.alerts.model.common.AlertType;
  */
 public class ImminentExpirationCertificateModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private Integer imminentExpirationDelay;
-    private Integer imminentExpirationFrequency;
+    private Integer eventDelay;
+    private Integer eventFrequency;
 
     public ImminentExpirationCertificateModuleConfiguration() {
         super(AlertType.CERT_IMMINENT_EXPIRATION);
     }
 
     public ImminentExpirationCertificateModuleConfiguration(
-            Integer imminentExpirationDelay,
-            Integer imminentExpirationFrequency,
+            Integer eventDelay,
+            Integer eventFrequency,
             AlertLevel imminentExpirationAlertLevel,
             String imminentExpirationMailSubject) {
 
         super(AlertType.CERT_IMMINENT_EXPIRATION, imminentExpirationAlertLevel, imminentExpirationMailSubject);
 
-        this.imminentExpirationDelay = imminentExpirationDelay;
-        this.imminentExpirationFrequency = imminentExpirationFrequency;
+        this.eventDelay = eventDelay;
+        this.eventFrequency = eventFrequency;
     }
 
-    public Integer getImminentExpirationDelay() {
-        return imminentExpirationDelay;
+    public Integer getEventDelay() {
+        return eventDelay;
     }
 
-    public Integer getImminentExpirationFrequency() {
-        return imminentExpirationFrequency;
+    public Integer getEventFrequency() {
+        return eventFrequency;
     }
 
 }

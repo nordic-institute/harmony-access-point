@@ -10,26 +10,26 @@ import eu.domibus.core.alerts.model.common.AlertType;
  */
 public class ExpiredCertificateModuleConfiguration extends AlertModuleConfigurationBase {
 
-    private Integer expiredFrequency;
-    private Integer expiredDuration;
+    private Integer eventFrequency;
+    private Integer eventDuration;
 
     public ExpiredCertificateModuleConfiguration() {
         super(AlertType.CERT_EXPIRED);
     }
 
-    public ExpiredCertificateModuleConfiguration(Integer expiredFrequency, Integer expiredDuration, AlertLevel expiredLevel, String expiredMailSubject) {
+    public ExpiredCertificateModuleConfiguration(Integer eventFrequency, Integer eventDuration, AlertLevel expiredLevel, String expiredMailSubject) {
         super(AlertType.CERT_EXPIRED, expiredLevel, expiredMailSubject);
 
-        this.expiredFrequency = expiredFrequency;
-        this.expiredDuration = expiredDuration;
+        this.eventFrequency = eventFrequency;
+        this.eventDuration = eventDuration;
     }
 
-    public Integer getExpiredFrequency() {
-        return expiredFrequency;
+    public Integer getEventFrequency() {
+        return eventFrequency;
     }
 
-    public Integer getExpiredDuration() {
-        return expiredDuration;
+    public Integer getEventDuration() {
+        return eventDuration;
     }
 
 }
