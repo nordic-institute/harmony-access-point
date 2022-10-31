@@ -237,11 +237,11 @@
             <artifactId>activemq-kahadb-store</artifactId>
         </dependency>
         <!-- End ActiveMQ -->
-<!--        <dependency>
+        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${hikaricp.version}</version>
-        </dependency>--> <!-- this will be brought anyway by domibus-msh-test-common -->
+        </dependency> <!-- this is brought anyway by domibus-msh-test-common -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-policy</artifactId>
