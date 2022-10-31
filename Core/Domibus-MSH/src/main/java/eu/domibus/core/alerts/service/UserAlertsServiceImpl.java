@@ -5,10 +5,9 @@ import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
-import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-//import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.UserLoginErrorReason;
@@ -61,7 +60,8 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract AlertModuleConfigurationBase getAccountEnabledConfiguration();
 
-    protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
+    //    protected abstract LoginFailureModuleConfiguration getLoginFailureConfiguration();
+    protected abstract DefaultAlertConfiguration getLoginFailureConfiguration();
 
     protected abstract RepetitiveAlertConfiguration getExpiredAlertConfiguration();
 
@@ -69,7 +69,8 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     @Override
     public void triggerLoginEvents(String userName, UserLoginErrorReason userLoginErrorReason) {
-        final LoginFailureModuleConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
+//        final LoginFailureModuleConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
+        DefaultAlertConfiguration loginFailureConfiguration = getLoginFailureConfiguration();
         LOG.debug("loginFailureConfiguration.isActive : [{}]", loginFailureConfiguration.isActive());
         switch (userLoginErrorReason) {
             case BAD_CREDENTIALS:

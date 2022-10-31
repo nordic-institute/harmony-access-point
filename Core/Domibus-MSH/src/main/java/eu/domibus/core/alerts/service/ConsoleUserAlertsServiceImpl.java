@@ -5,13 +5,9 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
-//import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
-//import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
-//import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.ui.UserDao;
@@ -34,8 +30,8 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Autowired
     protected UserDao userDao;
 
-    @Autowired
-    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
+//    @Autowired
+//    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
     @Autowired
     private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
@@ -100,19 +96,21 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return consoleLoginFailConfigurationManager.getConfiguration();
+//    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
+    protected DefaultAlertConfiguration getLoginFailureConfiguration() {
+        return (DefaultAlertConfiguration) AlertType.USER_LOGIN_FAILURE.getConfiguration();
+//        return consoleLoginFailConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
-        return (RepetitiveAlertConfiguration)AlertType.PASSWORD_EXPIRED.getConfiguration();
+        return (RepetitiveAlertConfiguration) AlertType.PASSWORD_EXPIRED.getConfiguration();
 //        return consolePasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
-        return (RepetitiveAlertConfiguration)AlertType.PASSWORD_IMMINENT_EXPIRATION.getConfiguration();
+        return (RepetitiveAlertConfiguration) AlertType.PASSWORD_IMMINENT_EXPIRATION.getConfiguration();
 //        return consolePasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 

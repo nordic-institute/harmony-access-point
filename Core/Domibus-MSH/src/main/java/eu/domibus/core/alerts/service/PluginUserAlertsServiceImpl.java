@@ -5,13 +5,10 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.enabled.plugin.PluginAccountEnabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
-//import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
-//import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationManager;
-//import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationManager;
+//import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
@@ -43,8 +40,8 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     @Autowired
     private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
 
-    @Autowired
-    private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
+//    @Autowired
+//    private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
 
 //    @Autowired
 //    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
@@ -100,19 +97,21 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
-    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
-        return pluginLoginFailConfigurationManager.getConfiguration();
+//    protected LoginFailureModuleConfiguration getLoginFailureConfiguration() {
+    protected DefaultAlertConfiguration getLoginFailureConfiguration() {
+        return (DefaultAlertConfiguration) AlertType.PLUGIN_USER_LOGIN_FAILURE.getConfiguration();
+//        return pluginLoginFailConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getExpiredAlertConfiguration() {
-        return (RepetitiveAlertConfiguration)AlertType.PLUGIN_PASSWORD_EXPIRED.getConfiguration();
+        return (RepetitiveAlertConfiguration) AlertType.PLUGIN_PASSWORD_EXPIRED.getConfiguration();
 //        return pluginPasswordExpiredAlertConfigurationManager.getConfiguration();
     }
 
     @Override
     protected RepetitiveAlertConfiguration getImminentExpirationAlertConfiguration() {
-        return (RepetitiveAlertConfiguration)AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION.getConfiguration();
+        return (RepetitiveAlertConfiguration) AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION.getConfiguration();
 //        return pluginPasswordImminentExpirationAlertConfigurationManager.getConfiguration();
     }
 

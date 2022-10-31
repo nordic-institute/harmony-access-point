@@ -2,10 +2,7 @@ package eu.domibus.core.alerts.model.common;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
-import eu.domibus.core.earchive.alerts.CertificateExpiredAlertConfigurationManager;
-import eu.domibus.core.earchive.alerts.ConsoleUserPasswordExpirationAlertConfigurationManager;
-import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
-import eu.domibus.core.earchive.alerts.RepetitiveAlertConfigurationManager;
+import eu.domibus.core.earchive.alerts.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 
@@ -24,10 +21,10 @@ public enum AlertType {
     MSG_STATUS_CHANGED("message.ftl"),
     CERT_IMMINENT_EXPIRATION("cert_imminent_expiration.ftl", DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX, true),
     CERT_EXPIRED("cert_expired.ftl", DOMIBUS_ALERT_CERT_EXPIRED_PREFIX, true, CertificateExpiredAlertConfigurationManager.class),
-    USER_LOGIN_FAILURE("login_failure.ftl"),
+    USER_LOGIN_FAILURE("login_failure.ftl", DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX, ConsoleUserLoginFailAlertConfigurationManager.class),
     USER_ACCOUNT_DISABLED("account_disabled.ftl"),
     USER_ACCOUNT_ENABLED("account_enabled.ftl"),
-    PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl"),
+    PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl", DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_PREFIX),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl"),
     PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl"),
     PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX,
@@ -63,6 +60,10 @@ public enum AlertType {
 
     AlertType(String template, String configurationProperty, boolean repetitive) {
         setParams(template, configurationProperty, repetitive, configurationManagerClass);
+    }
+
+    AlertType(String template, String configurationProperty, Class configurationManagerClass) {
+        setParams(template, configurationProperty, false, configurationManagerClass);
     }
 
     AlertType(String template, String configurationProperty, boolean repetitive, Class configurationManagerClass) {

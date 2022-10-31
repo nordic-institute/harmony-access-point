@@ -2,9 +2,8 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
+import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,8 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AlertConsoleLoginFailureConfigurationChangeListener implements DomibusPropertyChangeListener {
 
-    @Autowired
-    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
+//    @Autowired
+//    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -27,7 +26,8 @@ public class AlertConsoleLoginFailureConfigurationChangeListener implements Domi
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        consoleLoginFailConfigurationManager.reset();
+        AlertType.USER_LOGIN_FAILURE.getConfigurationManager().reset();
+//        consoleLoginFailConfigurationManager.reset();
     }
 
 }
