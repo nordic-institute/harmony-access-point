@@ -116,7 +116,7 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        AlertType archivingNotificationFailed = AlertType.PASSWORD_EXPIRED;
+        AlertType archivingNotificationFailed = AlertType.CERT_EXPIRED;
         AlertModuleConfiguration conf = archivingNotificationFailed.getConfiguration();
 
         int i =1;
