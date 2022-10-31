@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Default alert config manager generated automatically for an alert type ( if not overridden)
+ * Default alert config manager generated automatically for an alert type that has frequency and delay properties ( if not overridden)
  *
  * @author Ion Perpegel
  * @since 5.1
@@ -33,10 +33,10 @@ public class RepetitiveAlertConfigurationManager
         }
 
         try {
-            final Integer delay = Integer.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".delay_days"));
+            final Integer delay = domibusPropertyProvider.getIntegerProperty(getDelayPropertyName());
             config.setEventDelay(delay);
 
-            final Integer frequency = Integer.valueOf(domibusPropertyProvider.getProperty(domibusPropertiesPrefix + ".frequency_days"));
+            final Integer frequency = domibusPropertyProvider.getIntegerProperty(getFrequencyPropertyName());
             config.setEventFrequency(frequency);
 
             return config;
@@ -45,6 +45,14 @@ public class RepetitiveAlertConfigurationManager
                     alertType, domainContextProvider.getCurrentDomainSafely(), ex);
             return createAlertConfiguration(alertType);
         }
+    }
+
+    protected String getDelayPropertyName() {
+        return domibusPropertiesPrefix + ".delay_days";
+    }
+
+    protected String getFrequencyPropertyName() {
+        return domibusPropertiesPrefix + ".frequency_days";
     }
 
     @Override

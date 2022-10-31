@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * Default alert config manager generated automatically for an alert type ( if not overridden)
+ * Custom manager for console users because we need to check for external authentication
  *
  * @author Ion Perpegel
  * @since 5.1
@@ -30,6 +30,7 @@ public class ConsoleUserPasswordExpirationAlertConfigurationManager extends Repe
         super(alertType, domibusPropertiesPrefix);
     }
 
+    @Override
     public RepetitiveAlertConfiguration readConfiguration() {
         if (domibusConfigurationService.isExtAuthProviderEnabled()) {
             LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", getAlertType().getTitle());
@@ -39,8 +40,4 @@ public class ConsoleUserPasswordExpirationAlertConfigurationManager extends Repe
         return super.readConfiguration();
     }
 
-    @Override
-    protected RepetitiveAlertConfiguration createAlertConfiguration(AlertType alertType) {
-        return new RepetitiveAlertConfiguration(alertType);
-    }
 }

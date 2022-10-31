@@ -2,6 +2,7 @@ package eu.domibus.core.alerts.model.common;
 
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
+import eu.domibus.core.earchive.alerts.CertificateExpiredAlertConfigurationManager;
 import eu.domibus.core.earchive.alerts.ConsoleUserPasswordExpirationAlertConfigurationManager;
 import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import eu.domibus.core.earchive.alerts.RepetitiveAlertConfigurationManager;
@@ -21,16 +22,18 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 public enum AlertType {
     MSG_STATUS_CHANGED("message.ftl"),
-    CERT_IMMINENT_EXPIRATION("cert_imminent_expiration.ftl"),
-    CERT_EXPIRED("cert_expired.ftl"),
+    CERT_IMMINENT_EXPIRATION("cert_imminent_expiration.ftl", DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX, true),
+    CERT_EXPIRED("cert_expired.ftl", DOMIBUS_ALERT_CERT_EXPIRED_PREFIX, true, CertificateExpiredAlertConfigurationManager.class),
     USER_LOGIN_FAILURE("login_failure.ftl"),
     USER_ACCOUNT_DISABLED("account_disabled.ftl"),
     USER_ACCOUNT_ENABLED("account_enabled.ftl"),
     PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl"),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl"),
     PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl"),
-    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX, true, ConsoleUserPasswordExpirationAlertConfigurationManager.class),
-    PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, true, ConsoleUserPasswordExpirationAlertConfigurationManager.class),
+    PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX,
+            true, ConsoleUserPasswordExpirationAlertConfigurationManager.class),
+    PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, true,
+            ConsoleUserPasswordExpirationAlertConfigurationManager.class),
     PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, true),
     PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, true),
     PLUGIN("plugin.ftl"),
@@ -51,20 +54,19 @@ public enum AlertType {
     private AlertConfigurationManager configurationManager;
 
     AlertType(String template) {
-        setParams(template, null, false);
+        setParams(template, null, false, configurationManagerClass);
     }
 
     AlertType(String template, String configurationProperty) {
-        setParams(template, configurationProperty, false);
+        setParams(template, configurationProperty, false, configurationManagerClass);
     }
 
     AlertType(String template, String configurationProperty, boolean repetitive) {
-        setParams(template, configurationProperty, repetitive);
+        setParams(template, configurationProperty, repetitive, configurationManagerClass);
     }
 
     AlertType(String template, String configurationProperty, boolean repetitive, Class configurationManagerClass) {
-        setParams(template, configurationProperty, repetitive);
-        this.configurationManagerClass = configurationManagerClass;
+        setParams(template, configurationProperty, repetitive, configurationManagerClass);
     }
 
     //in the future an alert will not have one to one mapping.
@@ -93,11 +95,11 @@ public enum AlertType {
         return confMan.getConfiguration();
     }
 
-    private void setParams(String template, String configurationProperty, boolean repetitive) {
+    private void setParams(String template, String configurationProperty, boolean repetitive, Class configurationManagerClass) {
         this.template = template;
         this.configurationProperty = configurationProperty;
         this.repetitive = repetitive;
-//        this.configurationManager = null;
+        this.configurationManagerClass = configurationManagerClass;
     }
 
     public AlertConfigurationManager getConfigurationManager() {

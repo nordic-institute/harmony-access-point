@@ -2,9 +2,8 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
+import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,8 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AlertCertificateImminentExpirationConfigurationChangeListener implements DomibusPropertyChangeListener {
 
-    @Autowired
-    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
+//    @Autowired
+//    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -26,6 +25,7 @@ public class AlertCertificateImminentExpirationConfigurationChangeListener imple
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        imminentExpirationCertificateConfigurationManager.reset();
+        AlertType.CERT_IMMINENT_EXPIRATION.getConfigurationManager().reset();
+//        imminentExpirationCertificateConfigurationManager.reset();
     }
 }
