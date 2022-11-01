@@ -4,7 +4,6 @@ import eu.domibus.api.user.UserEntityBase;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
-import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
@@ -33,8 +32,8 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 //    @Autowired
 //    private ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
 
-    @Autowired
-    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
+//    @Autowired
+//    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
 
     @Autowired
     ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
@@ -91,8 +90,10 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
     }
 
     @Override
+//    protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
     protected AlertModuleConfigurationBase getAccountEnabledConfiguration() {
-        return consoleAccountEnabledConfigurationManager.getConfiguration();
+        return (AlertModuleConfigurationBase) AlertType.USER_ACCOUNT_ENABLED.getConfiguration();
+//        return consoleAccountEnabledConfigurationManager.getConfiguration();
     }
 
     @Override

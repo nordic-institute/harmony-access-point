@@ -2,7 +2,8 @@ package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
+//import eu.domibus.core.alerts.configuration.account.enabled.console.ConsoleAccountEnabledConfigurationManager;
+import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AlertConsoleAccountEnabledConfigurationChangeListener implements DomibusPropertyChangeListener {
 
-    @Autowired
-    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
+//    @Autowired
+//    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
@@ -27,6 +28,7 @@ public class AlertConsoleAccountEnabledConfigurationChangeListener implements Do
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        consoleAccountEnabledConfigurationManager.reset();
+        AlertType.USER_ACCOUNT_ENABLED.getConfigurationManager().reset();
+//        consoleAccountEnabledConfigurationManager.reset();
     }
 }

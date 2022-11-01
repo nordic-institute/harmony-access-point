@@ -17,15 +17,15 @@ public class EArchivingEventService {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(EArchivingEventService.class);
 
 //    private final ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager;
-    private final ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedModuleConfiguration;
+//    private final ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedModuleConfiguration;
     private final EventService eventService;
 
     public EArchivingEventService(
 //            ArchivingMessagesNonFinalStatusConfigurationManager archivingMessagesNonFinalStatusConfigurationManager,
-                                  ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedConfigurationManager,
+//                                  ArchivingStartDateStoppedConfigurationManager archivingStartDateStoppedConfigurationManager,
                                   EventService eventService) {
 //        this.archivingMessagesNonFinalStatusConfigurationManager = archivingMessagesNonFinalStatusConfigurationManager;
-        this.archivingStartDateStoppedModuleConfiguration = archivingStartDateStoppedConfigurationManager;
+//        this.archivingStartDateStoppedModuleConfiguration = archivingStartDateStoppedConfigurationManager;
         this.eventService = eventService;
     }
 
@@ -42,7 +42,8 @@ public class EArchivingEventService {
     }
 
     public void sendEventStartDateStopped() {
-        ArchivingStartDateStoppedModuleConfiguration alertConfiguration = archivingStartDateStoppedModuleConfiguration.getConfiguration();
+//        ArchivingStartDateStoppedModuleConfiguration alertConfiguration = archivingStartDateStoppedModuleConfiguration.getConfiguration();
+        DefaultAlertConfiguration alertConfiguration = (DefaultAlertConfiguration)AlertType.ARCHIVING_START_DATE_STOPPED.getConfiguration();
         if (!alertConfiguration.isActive()) {
             LOG.debug("E-Archiving messages not final alerts module is not enabled, no alert will be created");
             return;

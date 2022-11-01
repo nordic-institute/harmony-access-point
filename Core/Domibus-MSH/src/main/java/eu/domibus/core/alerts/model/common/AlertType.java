@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.model.common;
 
+import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.earchive.alerts.*;
@@ -23,10 +24,10 @@ public enum AlertType {
     CERT_EXPIRED("cert_expired.ftl", DOMIBUS_ALERT_CERT_EXPIRED_PREFIX, true, CertificateExpiredAlertConfigurationManager.class),
     USER_LOGIN_FAILURE("login_failure.ftl", DOMIBUS_ALERT_USER_LOGIN_FAILURE_PREFIX, ConsoleUserLoginFailAlertConfigurationManager.class),
     USER_ACCOUNT_DISABLED("account_disabled.ftl"),
-    USER_ACCOUNT_ENABLED("account_enabled.ftl"),
+    USER_ACCOUNT_ENABLED("account_enabled.ftl", DOMIBUS_ALERT_USER_ACCOUNT_ENABLED_PREFIX),
     PLUGIN_USER_LOGIN_FAILURE("login_failure.ftl", DOMIBUS_ALERT_PLUGIN_USER_LOGIN_FAILURE_PREFIX),
     PLUGIN_USER_ACCOUNT_DISABLED("account_disabled.ftl"),
-    PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl"),
+    PLUGIN_USER_ACCOUNT_ENABLED("account_enabled.ftl", DOMIBUS_ALERT_PLUGIN_USER_ACCOUNT_ENABLED_PREFIX),
     PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PASSWORD_IMMINENT_EXPIRATION_PREFIX,
             true, ConsoleUserPasswordExpirationAlertConfigurationManager.class),
     PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, true,
@@ -36,7 +37,7 @@ public enum AlertType {
     PLUGIN("plugin.ftl"),
     ARCHIVING_NOTIFICATION_FAILED("archiving_notification_failed.ftl", DOMIBUS_ALERT_EARCHIVING_NOTIFICATION_FAILED_PREFIX),
     ARCHIVING_MESSAGES_NON_FINAL("archiving_messages_non_final.ftl", DOMIBUS_ALERT_EARCHIVING_MSG_NON_FINAL_PREFIX),
-    ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl"),
+    ARCHIVING_START_DATE_STOPPED("archiving_start_date_stopped.ftl", DOMIBUS_ALERT_EARCHIVING_START_DATE_STOPPED_PREFIX),
     PARTITION_CHECK("partition_check.ftl", DOMIBUS_ALERT_PARTITION_CHECK_PREFIX),
     CONNECTION_MONITORING_FAILED("connection_monitoring_failed.ftl");
 
@@ -49,6 +50,7 @@ public enum AlertType {
     private Class configurationManagerClass;
 
     private AlertConfigurationManager configurationManager;
+    private DomibusPropertyChangeListener propertyChangeListener;
 
     AlertType(String template) {
         setParams(template, null, false, configurationManagerClass);
@@ -110,19 +112,18 @@ public enum AlertType {
 
         if (configurationManagerClass != null) {
             configurationManager = (AlertConfigurationManager) applicationContext.getBean(configurationManagerClass, this, configurationProperty);
-            return configurationManager;
-        }
-
-        if (StringUtils.isNotBlank(configurationProperty)) {
+        } else if (StringUtils.isNotBlank(configurationProperty)) {
             if (!repetitive) {
                 configurationManager = applicationContext.getBean(DefaultConfigurationManager.class, this, configurationProperty);
             } else {
                 configurationManager = applicationContext.getBean(RepetitiveAlertConfigurationManager.class, this, configurationProperty);
             }
-            return configurationManager;
         }
 
-        return null;
+        //where to create this??
+        propertyChangeListener = applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, this);
+
+        return configurationManager;
     }
 //        if (configurationManager == null && StringUtils.isNotBlank(configurationProperty)) {
 //            this.configurationManager = defaultConfigurationManagerObjectProvider.getObject(this, configurationProperty);
