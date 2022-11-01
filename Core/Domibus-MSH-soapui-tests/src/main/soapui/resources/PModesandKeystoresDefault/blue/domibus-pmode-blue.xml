@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_gw">
 	<mpcs>
-		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="600" retention_undownloaded="600"/>
-		<mpc name="mpcPushStandard" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="600"/>
+		<mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC" enabled="true" default="true" retention_downloaded="600" retention_undownloaded="600" retention_sent="14400" delete_message_metadata="false" max_batch_delete="1000" retention_metadata_offset="20"/>
+		<mpc name="mpcPushStandard" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushStandard" enabled="true" default="true" retention_downloaded="15" retention_undownloaded="700" retention_sent="14400" delete_message_metadata="false" max_batch_delete="1000" retention_metadata_offset="20"/>
 		<mpc name="mpcPushRetDownNull" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPCWS" enabled="true" default="true" retention_downloaded="0" retention_undownloaded="3600"/>
 		<mpc name="mpcPushShortRetention" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPushShortRetention" enabled="true" default="true" retention_downloaded="6" retention_undownloaded="10"/>
 		<mpc name="mpcPull" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/mpcPull" enabled="true" default="true" retention_downloaded="10" retention_undownloaded="600"/>
@@ -102,6 +102,8 @@
 			<security name="eDeliveryAS4Policy_IS" policy="eDeliveryAS4Policy_IS.xml" signatureMethod="RSA_SHA256"/>
 			<security name="eDeliveryAS4PolicyEncryptBody" policy="eDeliveryAS4PolicyEncryptBody.xml" signatureMethod="RSA_SHA256"/>
 			<security name="eDeliveryAS4PolicyNoBodyEncrypt" policy="eDeliveryAS4PolicyNoBodyEncrypt.xml" signatureMethod="RSA_SHA256"/>
+			<!--<security name="eDeliveryAS4PolicyRSA" policy="eDeliveryAS4Policy.xml" profile="RSA"/>-->
+			<!--<security name="eDeliveryAS4PolicyECC" policy="eDeliveryAS4Policy.xml" profile="ECC"/>-->
 		</securities>
 		<errorHandlings>
 			<errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false" businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
@@ -228,7 +230,6 @@
 			<legConfiguration name="pushTestcase35tc35Action" service="testServiceUntyped" action="tc33Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="twoCornersPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase36tc36Action" service="testService36" action="tc36Action" defaultMpc="mpcPushRetDownNull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase38tc38Action" service="testService38" action="tc38Action" defaultMpc="mpcPushRetDownNull" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionOnlyOneAttempt" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
-			<legConfiguration name="pullTestcase39tc39Action" service="testService39" action="tc39Action" defaultMpc="mpcPullForPush" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="secondErrorHandlingAllTrue" compressPayloads="true"/>
 		</legConfigurations>
 		<process name="tc1Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
@@ -422,31 +423,6 @@
 			</responderParties>
 			<legs>
 				<leg name="pullTestcase28tc28Action"/>
-			</legs>
-		</process>
-		<process name="tc36Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="red_gw"/>
-				<responderParty name="blue_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase36tc36Action"/>
-				<leg name="pushTestcase38tc38Action"/>
-			</legs>
-		</process>
-		<process name="tc39Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pullTestcase39tc39Action"/>
 			</legs>
 		</process>
 	</businessProcesses>
