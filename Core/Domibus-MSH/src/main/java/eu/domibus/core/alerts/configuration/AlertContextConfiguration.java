@@ -3,10 +3,12 @@ package eu.domibus.core.alerts.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.earchive.alerts.DefaultAlertConfigurationChangeListener;
 import eu.domibus.core.earchive.alerts.DefaultConfigurationManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -99,10 +101,16 @@ public class AlertContextConfiguration {
         return result;
     }
 
-    @Bean(name = "defaultConfigurationManager")
+    @Bean(name = "defaultConfigurationManager", autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultConfigurationManager defaultConfigurationManager(AlertType alertType, String domibusPropertiesPrefix)
     {
         return new DefaultConfigurationManager(alertType, domibusPropertiesPrefix);
+    }
+
+    @Bean(autowireCandidate = false)
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public DefaultAlertConfigurationChangeListener defaultAlertConfigurationChangeListener(AlertType alertType) {
+        return new DefaultAlertConfigurationChangeListener(alertType);
     }
 }

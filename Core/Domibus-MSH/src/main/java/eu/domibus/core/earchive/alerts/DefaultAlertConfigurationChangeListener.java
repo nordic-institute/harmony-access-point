@@ -3,6 +3,8 @@ package eu.domibus.core.earchive.alerts;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,7 +13,8 @@ import org.springframework.stereotype.Component;
  * <p>
  * General bean that handles the change of alert properties
  */
-@Component
+//@Component
+//@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DefaultAlertConfigurationChangeListener implements DomibusPropertyChangeListener {
     AlertType alertType;
 

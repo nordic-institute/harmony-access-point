@@ -62,7 +62,7 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         try {
             final Boolean alertsModuleActive = domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-            final Boolean thisAlertActive = domibusPropertyProvider.getBooleanProperty(domibusPropertiesPrefix + ".active");
+            final Boolean thisAlertActive = isAlertActive();
             if (BooleanUtils.isNotTrue(alertsModuleActive) || BooleanUtils.isNotTrue(thisAlertActive)) {
                 return createAlertConfiguration(alertType);
             }
@@ -81,6 +81,10 @@ public class BaseConfigurationManager<AC extends AlertModuleConfigurationBase>
             LOG.warn("Error while configuring alerts of type [{}] notifications for domain:[{}].", alertType, currentDomain, ex);
             return createAlertConfiguration(alertType);
         }
+    }
+
+    protected Boolean isAlertActive() {
+        return domibusPropertyProvider.getBooleanProperty(domibusPropertiesPrefix + ".active");
     }
 
     protected AC createAlertConfiguration(AlertType alertType) {

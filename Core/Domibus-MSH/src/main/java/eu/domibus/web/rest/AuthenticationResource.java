@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.WarningUtil;
@@ -116,8 +117,10 @@ public class AuthenticationResource {
 
         sas.onAuthentication(SecurityContextHolder.getContext().getAuthentication(), request, response);
 
-        AlertType archivingNotificationFailed = AlertType.CERT_EXPIRED;
-        AlertModuleConfiguration conf = archivingNotificationFailed.getConfiguration();
+//        AlertType archivingNotificationFailed = AlertType.CERT_EXPIRED;
+//        AlertModuleConfiguration conf = archivingNotificationFailed.getConfiguration();
+
+        ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration)AlertType.CONNECTION_MONITORING_FAILED.getConfiguration();
 
         int i =1;
 

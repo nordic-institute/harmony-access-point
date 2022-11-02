@@ -17,11 +17,11 @@ public class ConnectionMonitoringModuleConfiguration extends AlertModuleConfigur
 
     private List<String> enabledParties;
 
-    public ConnectionMonitoringModuleConfiguration(final int frequency, final AlertLevel alertLevel, final String mailSubject, final List<String> enabledParties) {
-        super(AlertType.CONNECTION_MONITORING_FAILED, alertLevel, mailSubject);
-        this.enabledParties = enabledParties;
-        this.frequency = frequency;
-    }
+//    public ConnectionMonitoringModuleConfiguration(final int frequency, final AlertLevel alertLevel, final String mailSubject, final List<String> enabledParties) {
+//        super(AlertType.CONNECTION_MONITORING_FAILED, alertLevel, mailSubject);
+//        this.enabledParties = enabledParties;
+//        this.frequency = frequency;
+//    }
 
     public ConnectionMonitoringModuleConfiguration() {
         super(AlertType.CONNECTION_MONITORING_FAILED);
@@ -35,6 +35,14 @@ public class ConnectionMonitoringModuleConfiguration extends AlertModuleConfigur
         return isActive()
                 && MessageStatus.getUnsuccessfulStates().contains(messageStatus)
                 && enabledParties.contains(toParty);
+    }
+
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
+    }
+
+    public void setEnabledParties(List<String> enabledParties) {
+        this.enabledParties = enabledParties;
     }
 
     @Override

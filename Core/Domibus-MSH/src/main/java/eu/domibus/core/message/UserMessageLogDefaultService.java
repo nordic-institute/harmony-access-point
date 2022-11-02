@@ -2,8 +2,8 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
-import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringConfigurationManager;
 import eu.domibus.core.alerts.configuration.connectionMonitpring.ConnectionMonitoringModuleConfiguration;
+import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.EventService;
@@ -52,8 +52,8 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     @Autowired
     protected NotificationStatusDao notificationStatusDao;
 
-    @Autowired
-    protected ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
+//    @Autowired
+//    protected ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
 
     @Autowired
     protected EventService eventService;
@@ -102,7 +102,8 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         if (!userMessage.isTestMessage()) {
             backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, newStatus, new Timestamp(System.currentTimeMillis()));
         } else {
-            final ConnectionMonitoringModuleConfiguration connMonitorConfig = connectionMonitoringConfigurationManager.getConfiguration();
+//            final ConnectionMonitoringModuleConfiguration connMonitorConfig = connectionMonitoringConfigurationManager.getConfiguration();
+            final ConnectionMonitoringModuleConfiguration connMonitorConfig = (ConnectionMonitoringModuleConfiguration) AlertType.CONNECTION_MONITORING_FAILED.getConfiguration();
             String fromParty = userMessage.getPartyInfo().getFromParty();
             String toParty = userMessage.getPartyInfo().getToParty();
             if (connMonitorConfig.shouldGenerateAlert(newStatus, toParty)) {
