@@ -19,5 +19,8 @@ public interface PasswordEncryptionService extends DomainsAware {
 
     PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue);
 
+    @Deprecated
     List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, String> getPropertyFn);
+
+    List<String> getPropertiesToEncrypt(String encryptedProperties, Function<String, Boolean> handlesPropertyFn, Function<String, String> getPropertyFn);
 }
