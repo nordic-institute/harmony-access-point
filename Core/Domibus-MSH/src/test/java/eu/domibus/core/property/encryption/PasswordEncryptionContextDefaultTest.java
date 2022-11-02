@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
+import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -30,19 +31,22 @@ import static org.junit.Assert.assertEquals;
 public class PasswordEncryptionContextDefaultTest {
 
     @Injectable
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    protected DomibusConfigurationService domibusConfigurationService;
+    private DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    protected PasswordEncryptionService passwordEncryptionService;
+    private PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
-    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
+    private DomibusRawPropertyProvider domibusRawPropertyProvider;
+
+    @Injectable
+    private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Tested
-    PasswordEncryptionContextDefault passwordEncryptionContextDefault;
+    private PasswordEncryptionContextDefault passwordEncryptionContextDefault;
 
     @Test
     public void isPasswordEncryptionActive() {
@@ -77,7 +81,7 @@ public class PasswordEncryptionContextDefaultTest {
     }
 
     @Test
-    public void getEncryptedKeyFile() throws IOException {
+    public void getEncryptedKeyFile() {
         String encryptionKeyLocation = "home" + File.separator + "location";
 
         new Expectations(passwordEncryptionContextDefault) {{

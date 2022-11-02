@@ -2,12 +2,11 @@ package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
+import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
@@ -23,13 +22,16 @@ import org.junit.runner.RunWith;
 public class PasswordEncryptionContextFactoryTest {
 
     @Injectable
-    protected DomibusConfigurationService domibusConfigurationService;
+    private DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    protected PasswordEncryptionService passwordEncryptionService;
+    private PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
-    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
+    private DomibusRawPropertyProvider domibusRawPropertyProvider;
+
+    @Injectable
+    private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Tested
     PasswordEncryptionContextFactory passwordEncryptionContextFactory;
@@ -40,7 +42,7 @@ public class PasswordEncryptionContextFactoryTest {
         Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDefault);
 
         new Verifications() {{
-            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService);
+            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
         }};
     }
 
@@ -50,7 +52,7 @@ public class PasswordEncryptionContextFactoryTest {
         Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDomain);
 
         new Verifications() {{
-            new PasswordEncryptionContextDomain(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, domain);
+            new PasswordEncryptionContextDomain(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager, domain);
         }};
     }
 }

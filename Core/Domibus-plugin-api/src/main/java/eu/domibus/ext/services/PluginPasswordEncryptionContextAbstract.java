@@ -37,6 +37,11 @@ public abstract class PluginPasswordEncryptionContextAbstract implements PluginP
     @Override
     public abstract DomainDTO getDomain();
 
+    public Boolean handlesProperty(String propertyName) {
+        LOG.debug("Encryption is supported by default for property [{}]", propertyName);
+        return Boolean.TRUE;
+    }
+
     @Override
     public String getProperty(String propertyName) {
         return propertyProvider.getKnownPropertyValue(propertyName);
@@ -55,7 +60,7 @@ public abstract class PluginPasswordEncryptionContextAbstract implements PluginP
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        return pluginPasswordEncryptionService.getPropertiesToEncrypt(getEncryptedPropertyNames(), this::getProperty);
+        return pluginPasswordEncryptionService.getPropertiesToEncrypt(getEncryptedPropertyNames(), this::handlesProperty, this::getProperty);
     }
 
 }
