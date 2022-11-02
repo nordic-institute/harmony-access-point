@@ -34,7 +34,7 @@ public class ConsoleAccountDisabledConfigurationManager
     }
 
     @Override
-    protected boolean isExtAuthProviderEnabled() {
+    protected boolean checkingAuthProviderEnabled() {
         return domibusConfigurationService.isExtAuthProviderEnabled();
     }
 }

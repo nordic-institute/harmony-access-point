@@ -35,8 +35,8 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 //    @Autowired
 //    private PluginAccountEnabledConfigurationManager pluginAccountEnabledConfigurationManager;
 
-    @Autowired
-    private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
+//    @Autowired
+//    private PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
 
 //    @Autowired
 //    private PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
@@ -86,7 +86,8 @@ public class PluginUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return pluginAccountDisabledConfigurationManager.getConfiguration();
+        return (AccountDisabledModuleConfiguration) AlertType.PLUGIN_USER_ACCOUNT_DISABLED.getConfiguration();
+//        return pluginAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override

@@ -27,7 +27,7 @@ public class PluginAccountDisabledConfigurationManager
     }
 
     @Override
-    protected boolean isExtAuthProviderEnabled() {
+    protected boolean checkingAuthProviderEnabled() {
         return false;
     }
 }

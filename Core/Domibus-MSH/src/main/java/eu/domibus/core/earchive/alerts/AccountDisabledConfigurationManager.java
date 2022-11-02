@@ -1,13 +1,11 @@
 package eu.domibus.core.earchive.alerts;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.AccountDisabledMoment;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -32,7 +30,7 @@ public abstract class AccountDisabledConfigurationManager
 
     @Override
     public AccountDisabledModuleConfiguration readConfiguration() {
-        if (isExtAuthProviderEnabled()) {
+        if (checkingAuthProviderEnabled()) {
             LOG.debug("[{}] module is inactive for the following reason: external authentication provider is enabled", alertType.getTitle());
             return createAlertConfiguration(alertType);
         }
@@ -45,7 +43,7 @@ public abstract class AccountDisabledConfigurationManager
         return conf;
     }
 
-    protected abstract boolean isExtAuthProviderEnabled();
+    protected abstract boolean checkingAuthProviderEnabled();
 
     @Override
     protected AccountDisabledModuleConfiguration createAlertConfiguration(AlertType alertType) {

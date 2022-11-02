@@ -5,7 +5,6 @@ import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.earchive.alerts.ConsoleAccountDisabledConfigurationManager;
 import eu.domibus.core.earchive.alerts.DefaultAlertConfiguration;
 import eu.domibus.core.earchive.alerts.RepetitiveAlertConfiguration;
 import eu.domibus.core.user.UserDaoBase;
@@ -35,8 +34,8 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 //    @Autowired
 //    private ConsoleAccountEnabledConfigurationManager consoleAccountEnabledConfigurationManager;
 
-    @Autowired
-    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
+//    @Autowired
+//    ConsoleAccountDisabledConfigurationManager consoleAccountDisabledConfigurationManager;
 
 //    @Autowired
 //    private ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
@@ -86,7 +85,8 @@ public class ConsoleUserAlertsServiceImpl extends UserAlertsServiceImpl {
 
     @Override
     protected AccountDisabledModuleConfiguration getAccountDisabledConfiguration() {
-        return consoleAccountDisabledConfigurationManager.getConfiguration();
+        return (AccountDisabledModuleConfiguration) AlertType.USER_ACCOUNT_DISABLED.getConfiguration();
+//        return consoleAccountDisabledConfigurationManager.getConfiguration();
     }
 
     @Override
