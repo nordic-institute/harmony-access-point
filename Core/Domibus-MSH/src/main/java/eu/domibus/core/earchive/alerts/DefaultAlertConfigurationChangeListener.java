@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author Ion Perpegel
  * @since 5.1
  * <p>
- * Handles the change of alert properties that are related to configuration of certificate expiration alerts
+ * General bean that handles the change of alert properties
  */
 @Component
 public class DefaultAlertConfigurationChangeListener implements DomibusPropertyChangeListener {
