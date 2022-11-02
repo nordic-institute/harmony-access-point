@@ -69,6 +69,11 @@ public class PropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier
         }
     }
 
+    @Override
+    public void addListener(DomibusPropertyChangeListener domibusPropertyChangeListener) {
+        allPropertyChangeListeners.add(domibusPropertyChangeListener);
+    }
+
     protected void notifyListener(DomibusPropertyChangeListener listener, String domainCode, String propertyName, String propertyValue) {
         try {
             listener.propertyValueChanged(domainCode, propertyName, propertyValue);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
+import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.DomibusJMSConstants;
@@ -108,9 +109,14 @@ public class AlertContextConfiguration {
         return new DefaultConfigurationManager(alertType, domibusPropertiesPrefix);
     }
 
+    @Autowired
+    DomibusPropertyChangeNotifier domibusPropertyChangeNotifier;
+
     @Bean(autowireCandidate = false)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DefaultAlertConfigurationChangeListener defaultAlertConfigurationChangeListener(AlertType alertType) {
-        return new DefaultAlertConfigurationChangeListener(alertType);
+        DefaultAlertConfigurationChangeListener res = new DefaultAlertConfigurationChangeListener(alertType);
+        domibusPropertyChangeNotifier.addListener(res);
+        return res;
     }
 }
